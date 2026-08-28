@@ -1,0 +1,15 @@
+# Godot 4 generated data
+.godot/
+
+# Stage test artifacts and logs
+.godot_user_stage0/
+.stage0*.log
+stage0*.log
+
+# OS / editor noise
+*.tmp
+Thumbs.db
+.DS_Store
+
+# Imported media settings are committed (*.import); only generated cache lives
+# inside .godot/ and must stay out of version control.

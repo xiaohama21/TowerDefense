@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/archer.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"huang_zhong"
+display_name = "黄忠"
+description = "百步穿杨，能够从远处稳定削弱敌军。"
+profession = ExtResource("2_profession")
+tags = [&"shu", &"archer"]
+build_cost = 65
+base_damage = 48
+base_range = 205.0
+attack_interval = 1.25
+projectile_speed = 520.0
+damage_growth_per_level = 4.5
+initial_skill_ids = [&"piercing_arrow"]
+promotion_ids = [&"huang_zhong_sharpshooter"]
+unlock_stage_id = &"ch01_s03"

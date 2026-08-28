@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"guan_yu"
+display_name = "关羽"
+description = "青龙偃月在手，擅长斩杀高价值目标。"
+profession = ExtResource("2_profession")
+tags = [&"shu", &"cavalry"]
+build_cost = 70
+base_damage = 64
+base_range = 130.0
+attack_interval = 1.15
+projectile_speed = 460.0
+damage_growth_per_level = 5.5
+initial_skill_ids = [&"green_dragon_slash"]
+promotion_ids = [&"guan_yu_charger"]
+unlock_stage_id = &"ch01_s01"

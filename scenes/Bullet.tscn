@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bx25eqqsfk0js"]
+
+[ext_resource type="Script" uid="uid://d3evwcokhgv1v" path="res://scripts/Bullet.gd" id="1_hf8mt"]
+
+[node name="Bullet" type="Node2D" unique_id=1409488884]
+script = ExtResource("1_hf8mt")
+
+[node name="Visual" type="ColorRect" parent="." unique_id=1327899833]
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+mouse_filter = 2
+color = Color(1, 1, 0.49411765, 1)

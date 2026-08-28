@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ProfessionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ProfessionData.gd" id="1_profession"]
+
+[resource]
+script = ExtResource("1_profession")
+profession_id = &"cavalry"
+display_name = "骑兵"
+description = "短射程、高单体伤害，适合在道路转角压制精英。"
+combat_role = 0
+attack_pattern = 0
+tags = [&"melee", &"burst"]
+damage_multiplier = 1.25
+range_multiplier = 0.85
+attack_interval_multiplier = 1.0
+behavior_id = &"single_target_burst"

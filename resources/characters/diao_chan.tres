@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/dancer.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"diao_chan"
+display_name = "貂蝉"
+description = "以倾城之姿鼓舞战阵，为邻近人物提供支援。"
+profession = ExtResource("2_profession")
+tags = [&"support", &"dancer"]
+build_cost = 60
+base_damage = 18
+base_range = 145.0
+attack_interval = 1.4
+projectile_speed = 380.0
+damage_growth_per_level = 2.0
+initial_skill_ids = [&"moonlit_dance"]
+promotion_ids = [&"diao_chan_inspirer"]
+unlock_stage_id = &"ch01_s04"

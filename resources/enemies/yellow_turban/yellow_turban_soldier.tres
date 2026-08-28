@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_soldier"
+display_name = "黄巾步卒"
+description = "黄巾军的基础步战单位。"
+tags = [&"yellow_turban", &"infantry"]
+max_hp = 100
+move_speed = 80.0
+damage_to_base = 1
+currency_reward = 10
+kill_xp = 8
+body_color = Color(0.85, 0.68, 0.2, 1)
+body_size = Vector2(34, 34)

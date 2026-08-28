@@ -1,0 +1,114 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
+[ext_resource type="Script" path="res://scripts/data/EnemySpawnData.gd" id="3_spawn"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_soldier"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="5_cavalry"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="6_sergeant"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="7_item_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_5"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 5
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_7"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 7
+spawn_interval = 0.7
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_9"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 9
+spawn_interval = 0.6
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_12"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 12
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="EnemySpawnData_sergeant_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("6_sergeant")
+count = 1
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_cavalry_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("5_cavalry")
+count = 2
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="WaveData_1"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s01_w01"
+wave_number = 1
+spawn_groups = [SubResource("EnemySpawnData_soldier_5")]
+preparation_time = 0.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_2"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s01_w02"
+wave_number = 2
+spawn_groups = [SubResource("EnemySpawnData_soldier_7")]
+preparation_time = 1.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_3"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s01_w03"
+wave_number = 3
+spawn_groups = [SubResource("EnemySpawnData_soldier_9"), SubResource("EnemySpawnData_cavalry_2")]
+preparation_time = 1.5
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_4"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s01_w04"
+wave_number = 4
+spawn_groups = [SubResource("EnemySpawnData_soldier_12"), SubResource("EnemySpawnData_cavalry_2")]
+preparation_time = 1.5
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_5"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s01_w05"
+wave_number = 5
+spawn_groups = [SubResource("EnemySpawnData_soldier_7"), SubResource("EnemySpawnData_sergeant_1")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = true
+
+[sub_resource type="Resource" id="ItemAmountData_cloth"]
+script = ExtResource("7_item_amount")
+item = ExtResource("8_cloth")
+amount = 2
+
+[resource]
+script = ExtResource("1_stage")
+stage_id = &"ch01_s01"
+chapter_id = &"chapter_01"
+stage_number = 1
+display_name = "桃园起兵·涿郡"
+description = "黄巾军逼近涿郡，完成第一次守城演练。"
+starting_lives = 20
+starting_currency = 100
+squad_size = 4
+build_slot_count = 10
+waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5")]
+prerequisite_stage_ids = []
+first_clear_unlock_character_ids = [&"guan_yu"]
+first_clear_rewards = [SubResource("ItemAmountData_cloth")]
+repeat_clear_rewards = []
+participant_xp = 50

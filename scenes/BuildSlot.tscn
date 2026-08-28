@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/BuildSlot.gd" id="1_build_slot"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_build_slot"]
+radius = 32.0
+
+[node name="BuildSlot" type="Area2D" groups=["build_slots"]]
+z_index = 4
+collision_layer = 4
+collision_mask = 0
+input_pickable = true
+script = ExtResource("1_build_slot")
+
+[node name="Fill" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(27, 0, 24.945, 10.332, 19.092, 19.092, 10.332, 24.945, 0, 27, -10.332, 24.945, -19.092, 19.092, -24.945, 10.332, -27, 0, -24.945, -10.332, -19.092, -19.092, -10.332, -24.945, 0, -27, 10.332, -24.945, 19.092, -19.092, 24.945, -10.332)
+color = Color(0.160784, 0.309804, 0.262745, 0.85098)
+
+[node name="OuterRing" type="Line2D" parent="."]
+points = PackedVector2Array(34, 0, 31.411, 13.011, 24.042, 24.042, 13.011, 31.411, 0, 34, -13.011, 31.411, -24.042, 24.042, -31.411, 13.011, -34, 0, -31.411, -13.011, -24.042, -24.042, -13.011, -31.411, 0, -34, 13.011, -31.411, 24.042, -24.042, 31.411, -13.011, 34, 0)
+width = 4.0
+default_color = Color(0.560784, 0.839216, 0.580392, 1)
+closed = true
+antialiased = true
+
+[node name="PlusHorizontal" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-12, -3, 12, -3, 12, 3, -12, 3)
+color = Color(0.560784, 0.839216, 0.580392, 1)
+
+[node name="PlusVertical" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-3, -12, 3, -12, 3, 12, -3, 12)
+color = Color(0.560784, 0.839216, 0.580392, 1)
+
+[node name="BuildPoint" type="Marker2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_build_slot")

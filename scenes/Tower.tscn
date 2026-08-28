@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://biukxvhgxh4y1"]
+
+[ext_resource type="Script" uid="uid://dc14iks0mccy5" path="res://scripts/Tower.gd" id="1_7itwv"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_selection"]
+radius = 32.0
+
+[node name="Tower" type="Node2D" unique_id=1356743967]
+script = ExtResource("1_7itwv")
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -56.0
+offset_right = 50.0
+offset_bottom = -36.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.93, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.06, 0.08, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "武将"
+horizontal_alignment = 1
+
+[node name="Muzzle" type="Marker2D" parent="."]
+position = Vector2(0, -30)
+
+[node name="RangeArea" type="Area2D" parent="." unique_id=987432037]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RangeArea" unique_id=1878671020]
+
+[node name="SelectionArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+monitorable = false
+input_pickable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SelectionArea"]
+shape = SubResource("CircleShape2D_selection")
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 0.8
+one_shot = true

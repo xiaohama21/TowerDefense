@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ProfessionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ProfessionData.gd" id="1_profession"]
+
+[resource]
+script = ExtResource("1_profession")
+profession_id = &"dancer"
+display_name = "舞娘"
+description = "通过鼓舞提升邻近人物的攻速，直接伤害较低。"
+combat_role = 2
+attack_pattern = 3
+tags = [&"support", &"aura"]
+damage_multiplier = 0.35
+range_multiplier = 0.95
+attack_interval_multiplier = 1.0
+behavior_id = &"attack_speed_aura"

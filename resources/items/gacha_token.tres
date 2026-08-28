@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"gacha_token"
+display_name = "求贤令"
+description = "用于求贤抽取的令牌，首章后期开启。"
+item_type = 1
+rarity = 1
+tags = [&"gacha", &"chapter_01"]
+max_stack = 999

@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://cdcohkrh3sdgt"]
+
+[ext_resource type="Script" uid="uid://eavvxmiwvgjp" path="res://scripts/Enemy.gd" id="1_3gvst"]
+
+[node name="Enemy" type="PathFollow2D" unique_id=1690994791]
+loop = false
+rotates = false
+script = ExtResource("1_3gvst")
+
+[node name="HpBar" type="ProgressBar" parent="." unique_id=300480587]
+offset_left = -20.0
+offset_top = -31.0
+offset_right = 20.0
+offset_bottom = -25.0
+mouse_filter = 2
+show_percentage = false
+
+[node name="Body" type="ColorRect" parent="." unique_id=1706985235]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+mouse_filter = 2
+color = Color(0.92182285, 0.95497817, 0.9227879, 1)
