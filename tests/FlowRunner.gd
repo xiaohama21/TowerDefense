@@ -207,11 +207,13 @@ func _test_battle_entry() -> void:
 	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer
 	_check(result_center != null and result_center.size == get_viewport().get_visible_rect().size,
 		"结算弹窗承载容器应铺满视口（保证居中）")
-	# 剧情对话（v0.12）：战斗开场播放；v0.12.1 交互——防抖内连点不跳行、
-	# 冷却后单击推进、跳过关闭。
+	# 剧情对话（v0.12）：战斗开场播放；v0.12.3 修复——对话层不拦截地图点击，
+	# 防抖内连点不跳行、冷却后单击推进、跳过关闭。
 	var dialogue_layer := main.get_node("UI/Root/DialogueLayer")
 	var dialogue_ui := main.get_node("UI")
 	_check(dialogue_layer != null and dialogue_layer.visible, "战斗开场应播放剧情对话层")
+	_check(dialogue_layer.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		"对话层不应拦截地图点击（v0.12.3）")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -225,6 +227,11 @@ func _test_battle_entry() -> void:
 	await get_tree().create_timer(0.25).timeout
 	dialogue_ui._on_dialogue_input(click)
 	_check(int(dialogue_ui.get("_dialogue_index")) == 2, "防抖窗口过后单击应继续推进")
+	# 剧情展示期间地图应保持可交互（建造待确认照常工作）
+	var build_manager_flow := main.get_node("BuildManager")
+	build_manager_flow._on_build_requested(main.get_node("BuildSlots").get_child(0))
+	_check(build_manager_flow.pending_slot != null, "剧情展示期间应能点选建造位")
+	build_manager_flow.cancel_pending()
 	dialogue_ui.skip_dialogue()
 	_check(not dialogue_layer.visible, "跳过后对话层应关闭")
 	var grid_bg := main.get_node("GridBackground") as GridBackground

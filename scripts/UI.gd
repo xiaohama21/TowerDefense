@@ -434,25 +434,25 @@ func _refresh_tower_panel() -> void:
 ## 开场剧情对话层（GDD modules/STAGES.md 5.1）：底部叙事面板，
 ## 点击任意处推进，"跳过"直接结束；展示期间为模态（阻挡地图点击）。
 func _create_dialogue_layer() -> void:
+	# v0.12.3 修复：整层不拦截鼠标（IGNORE），地图在剧情展示期间保持可交互；
+	# 只有底部对话面板（STOP）接收点击用于推进。
 	_dialogue_layer = Control.new()
 	_dialogue_layer.name = "DialogueLayer"
 	_dialogue_layer.visible = false
-	_dialogue_layer.mouse_filter = Control.MOUSE_FILTER_STOP
+	_dialogue_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Root.add_child(_dialogue_layer)
 	_dialogue_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_dialogue_layer.gui_input.connect(_on_dialogue_input)
 
 	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.0, 0.0, 0.4)
+	dim.color = Color(0.0, 0.0, 0.0, 0.25)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_layer.add_child(dim)
 
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(0, 190)
-	# 面板可穿透：点击台词区域同样推进（否则"点击任意处"在最自然的
-	# 位置失效）；下方的跳过按钮保持 STOP，点击不会误触推进。
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.gui_input.connect(_on_dialogue_input)
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
 	_dialogue_layer.add_child(panel)
 	panel.anchor_left = 0.0
@@ -492,7 +492,7 @@ func _create_dialogue_layer() -> void:
 	vbox.add_child(hint_row)
 
 	var hint := Label.new()
-	hint.text = "点击任意处继续 ▼"
+	hint.text = "点击对话框继续 ▼（地图可正常建造）"
 	hint.add_theme_font_size_override("font_size", 15)
 	hint.add_theme_color_override("font_color", Color(0.65, 0.84, 1.0))
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
