@@ -166,6 +166,7 @@ func _run() -> void:
 					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15)),
 					"枪兵近战直伤应含 15% 骑兵克制"
 				)
+				_check(spear_tower.is_swinging(), "近战攻击应触发挥击动作而非枪口闪光")
 				melee_target.die(false)
 
 			var invested := spear_tower.total_invested

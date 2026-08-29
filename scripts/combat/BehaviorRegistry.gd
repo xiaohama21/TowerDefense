@@ -49,6 +49,8 @@ static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 	var bullet := tower.instantiate_bullet(target)
 	if bullet != null:
 		bullet.damage = int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
+	# 弹道类攻击表现：枪口闪光（近战类由各自执行器触发挥击表现）。
+	tower.play_attack_flash()
 
 
 static func _attack_melee_thrust(tower: Tower, target: Enemy) -> void:

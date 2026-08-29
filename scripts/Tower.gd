@@ -9,6 +9,12 @@ const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
 const RANGE_BORDER_WIDTH := 3.5
 ## 局内升级每级伤害增幅（GDD 5.4：伤害 +25%/级，与 10.5 大招倍率同源）。
 const UPGRADE_DAMAGE_STEP := 0.25
+# 近战挥击表现（GDD modules/BEHAVIORS.md B.3.1）：武器从一侧扫到另一侧，
+# 并带一道渐隐斩击弧；表现由 melee_thrust 执行器经 play_melee_hit() 触发。
+const MELEE_SWING_DURATION := 0.22
+const MELEE_SWING_FROM := -1.35
+const MELEE_SWING_TO := 0.95
+const MELEE_SLASH_RADIUS := 38.0
 const PROFESSION_COLORS := {
 	&"cavalry": Color(0.76, 0.24, 0.2, 1.0),
 	&"pikeman": Color(0.3, 0.62, 0.45, 1.0),
@@ -44,6 +50,7 @@ var _base_damage: int = 40
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
 var _attack_flash: float = 0.0
+var _melee_swing: float = 0.0
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
@@ -121,9 +128,28 @@ func record_build_investment(cost: int) -> void:
 	total_invested = cost
 
 
-func play_melee_hit() -> void:
+func play_attack_flash() -> void:
+	## 弹道类攻击的枪口闪光，由弹道执行器触发。
 	_attack_flash = 0.18
 	queue_redraw()
+
+
+func play_melee_hit() -> void:
+	## 近战挥击，由近战执行器触发；不产生枪口闪光。
+	_melee_swing = MELEE_SWING_DURATION
+	queue_redraw()
+
+
+func is_swinging() -> bool:
+	return _melee_swing > 0.0
+
+
+func _swing_offset() -> float:
+	if _melee_swing <= 0.0:
+		return 0.0
+	var t := 1.0 - _melee_swing / MELEE_SWING_DURATION
+	var eased := 1.0 - (1.0 - t) * (1.0 - t)
+	return lerpf(MELEE_SWING_FROM, MELEE_SWING_TO, eased)
 
 
 func _rebuild_attack_timer() -> void:
@@ -158,6 +184,9 @@ func _process(_delta: float) -> void:
 	if _attack_flash > 0.0:
 		_attack_flash = maxf(_attack_flash - _delta, 0.0)
 		queue_redraw()
+	if _melee_swing > 0.0:
+		_melee_swing = maxf(_melee_swing - _delta, 0.0)
+		queue_redraw()
 
 
 func find_target() -> Enemy:
@@ -184,10 +213,8 @@ func attack() -> void:
 		return
 
 	# 攻击行为按职业 behavior_id 分发（GDD modules/BEHAVIORS.md），
-	# 塔脚本不硬编码任何职业的攻击逻辑。
+	# 塔脚本不硬编码任何职业的攻击逻辑与攻击表现。
 	BehaviorRegistry.execute_attack(_behavior_id, self, target)
-	_attack_flash = 0.18
-	queue_redraw()
 	attack_timer.start()
 
 
@@ -265,6 +292,8 @@ func _on_selection_area_input_event(
 func _draw() -> void:
 	_draw_base()
 	_draw_body()
+	if _melee_swing > 0.0:
+		_draw_slash_arc()
 	_draw_weapon()
 	if _attack_flash > 0.0:
 		_draw_attack_flash()
@@ -318,9 +347,21 @@ func _draw_body() -> void:
 			draw_circle(Vector2.ZERO, 12.0, _hero_color)
 
 
+func _draw_slash_arc() -> void:
+	# 挥击弧：从挥击起点画到当前位置，随挥动渐隐，跟随瞄准方向。
+	var t := 1.0 - _melee_swing / MELEE_SWING_DURATION
+	var eased := 1.0 - (1.0 - t) * (1.0 - t)
+	var current := _aim_angle + lerpf(MELEE_SWING_FROM, MELEE_SWING_TO, eased)
+	var start := _aim_angle + MELEE_SWING_FROM
+	var alpha := clampf(0.9 - t * 0.75, 0.12, 0.9)
+	draw_arc(Vector2.ZERO, MELEE_SLASH_RADIUS, start, current, 14,
+		Color(1.0, 0.97, 0.85, alpha), 4.0)
+
+
 func _draw_weapon() -> void:
-	# Weapons are authored pointing "up" and rotated towards the aim angle.
-	draw_set_transform(Vector2.ZERO, _aim_angle + PI / 2.0, Vector2.ONE)
+	# Weapons are authored pointing "up" and rotated towards the aim angle;
+	# 近战挥击期间武器沿扫击方向偏转。
+	draw_set_transform(Vector2.ZERO, _aim_angle + PI / 2.0 + _swing_offset(), Vector2.ONE)
 	match _profession_id:
 		&"cavalry":
 			draw_line(Vector2(0, 6), Vector2(0, -34), Color(0.78, 0.75, 0.66, 1.0), 3.0)
