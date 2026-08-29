@@ -18,4 +18,9 @@ projectile_speed = 520.0
 damage_growth_per_level = 4.5
 initial_skill_ids = [&"piercing_arrow"]
 promotion_ids = [&"huang_zhong_sharpshooter"]
+trait_id = &"trait_hundred_step"
+trait_params = {
+"step": 0.1,
+"max_stacks": 3.0
+}
 unlock_stage_id = &"ch01_s03"

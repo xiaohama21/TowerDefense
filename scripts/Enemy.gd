@@ -21,6 +21,9 @@ var last_damage_source_character_id: String = ""
 var damage_contributors: Dictionary = {}
 # 当前移动方向（抛射预判落点用）；初始朝右，随实际位移刷新。
 var velocity_dir: Vector2 = Vector2.RIGHT
+# 减速 debuff（术士大招/张飞咆哮/诸葛亮光环等）：取最强因子，倒计时归零解除。
+var slow_factor: float = 1.0
+var _slow_time_left: float = 0.0
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
@@ -44,8 +47,13 @@ func _process(delta: float) -> void:
 	if is_dead:
 		return
 
+	if _slow_time_left > 0.0:
+		_slow_time_left = maxf(_slow_time_left - delta, 0.0)
+		if _slow_time_left <= 0.0:
+			slow_factor = 1.0
+
 	var before := global_position
-	progress += speed * delta
+	progress += speed * slow_factor * delta
 	var delta_pos := global_position - before
 	if delta_pos.length_squared() > 0.01:
 		velocity_dir = delta_pos.normalized()
@@ -53,6 +61,12 @@ func _process(delta: float) -> void:
 	if progress_ratio >= 1.0 - 0.0001:
 		GameManager.enemy_reached_base(damage_to_base)
 		die(false)
+
+
+## 施加减速：多来源叠加时取最强因子（最小值），时长刷新。
+func apply_slow(factor: float, duration: float) -> void:
+	slow_factor = minf(slow_factor, clampf(factor, 0.05, 1.0))
+	_slow_time_left = maxf(_slow_time_left, duration)
 
 
 func take_damage(amount: int, source_character_id: String = "") -> void:

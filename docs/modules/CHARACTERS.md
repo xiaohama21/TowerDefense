@@ -72,7 +72,7 @@
 ## 4.6 怒气与大招（战斗机制）
 
 - **怒气获取**（v0.7：积怒模式由行为层属性决定，不与具体职业绑定）：
-  - `ProfessionData.rage_gain_mode`（阶段 3 实施时新增字段）决定积怒公式，取值 `hit+damage` / `support`；默认按 `combat_role` 推断（辅助类 → `support`，其余 → `hit+damage`），**可显式覆盖**——如刘备职业为剑客、定位却是辅助，则配置为 `support` 模式。
+  - 积怒模式取值 `hit+damage` / `support`：`ProfessionData.rage_gain_mode` 提供职业默认（空则按 `combat_role` 推断：辅助类 → `support`，其余 → `hit+damage`）；**角色级覆盖**经 `CharacterData.rage_gain_mode_override`（v0.11.2 勘误：覆盖不能放职业——刘备与张飞共享剑客职业，会互相污染），刘备配置为 `support`。
   - `hit+damage` 模式（骑兵、弓箭手、枪兵等输出职业）：攻击**命中**积累怒气（基础值 + 按伤害比例加成，初稿：每次命中 +4，另按每 10 点伤害 +1）。
   - `support` 模式（舞娘，及显式覆盖者如刘备）：**主要依靠提供增益获取怒气**——buff 持续期间每秒积怒 +2，每次触发增益效果 +6（治疗、减益同属辅助行为）。
   - 怒气上限 100；战斗中在武将塔头顶与建造栏实时显示怒气条。
@@ -103,6 +103,7 @@
 | 角色 | 特性 ID（示例） | 效果 |
 |---|---|---|
 | 关羽 | `trait_wusheng` | 对精英/Boss 伤害 +25% |
+| 皇甫嵩 | `trait_royal_fire` | 范围伤害 +15%（v0.11.1 新增，火攻名家） |
 | 张飞 | `trait_yanyan_roar` | 攻击命中概率使目标短暂减速 |
 | 黄忠 | `trait_hundred_step` | 连续攻击同一目标时伤害逐步提升（至多 +30%） |
 | 刘备 | `trait_benevolence` | 光环：场上所有友方塔伤害 +8%（不可叠加） |
@@ -114,7 +115,7 @@
 - 数值建议：特性数值放 `CharacterData.trait_params: Dictionary`（如 `{"elite_damage_bonus": 0.25}`），行为脚本按 ID 读取，避免为每个特性修改数据类。
 
 **数据层扩展汇总（阶段 3 实施）**：
-- `CharacterData` 新增：`trait_id: StringName`、`trait_params: Dictionary`、`ultimate_override_id: StringName`（预留）。
+- `CharacterData` 新增：`trait_id: StringName`、`trait_params: Dictionary`、`ultimate_override_id: StringName`（预留）、`rage_gain_mode_override: StringName`（v0.11.2 勘误：角色级积怒覆盖）。
 - `ProfessionData` 新增：`ultimate_id: StringName`、`rage_gain_mode: StringName`（`hit+damage` / `support`，默认按 `combat_role` 推断、可显式覆盖，见 4.6）、`ultimate_gain_per_hit: int`、`ultimate_gain_per_damage: float`、`support_ultimate_gain_per_tick: int`（辅助积怒）。
 - `PromotionData` 新增：`ultimate_multiplier: float = 1.0`。
 

@@ -14,3 +14,5 @@ damage_multiplier = 0.9
 range_multiplier = 1.1
 attack_interval_multiplier = 1.15
 behavior_id = &"area_spell"
+ultimate_id = &"ultimate_strategist_blaze"
+rage_gain_mode = &"hit+damage"

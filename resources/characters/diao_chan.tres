@@ -18,4 +18,9 @@ projectile_speed = 380.0
 damage_growth_per_level = 2.0
 initial_skill_ids = [&"moonlit_dance"]
 promotion_ids = [&"diao_chan_inspirer"]
+trait_id = &"trait_moon_veil"
+trait_params = {
+"self_rage_bonus": 0.2,
+"ally_rage_bonus": 0.1
+}
 unlock_stage_id = &"ch01_s04"

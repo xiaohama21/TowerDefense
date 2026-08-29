@@ -30,6 +30,8 @@ class_name CharacterData
 @export var trait_params: Dictionary = {}
 ## 角色专属大招覆盖（远期，预留；空则用职业默认大招）。
 @export var ultimate_override_id: StringName
+## 角色级积怒模式覆盖（v0.11.2 勘误：空则按职业默认/combat_role 推断；刘备=support）。
+@export var rage_gain_mode_override: StringName
 
 @export_category("Unlock")
 @export var unlock_stage_id: StringName

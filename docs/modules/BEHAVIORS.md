@@ -61,15 +61,16 @@
 | `suicide` | 到点自爆造成范围伤害 | 【远期】 | 未排期 |
 | `swarm` | 分裂/召唤小怪 | 【远期】 | 未排期 |
 
-### B.3.3 职业大招行为（`ultimate_id`，阶段 3）
+### B.3.3 职业大招行为（`ultimate_id`，v0.11.2 数值生效/表现占位）
 
-| ID | 职业 | 效果概要（完整规格见 CHARACTERS.md 4.6，数值见 NUMBERS.md 10.5） |
-|---|---|---|
-| `ultimate_cavalry_breaker` | 骑兵 | 高额单体伤害；击杀返还 50% 怒气 |
-| `ultimate_pikeman_sweep` | 枪兵 | 范围横扫伤害 + 击退 |
-| `ultimate_archer_volley` | 弓箭手 | 3~5 箭连射，优先低血量 |
-| `ultimate_strategist_blaze` | 术士 | 大范围伤害 + 减速 |
-| `ultimate_dancer_encourage` | 舞娘 | 范围内友方攻速/伤害提升窗口 |
+| ID | 职业 | 效果概要（完整规格见 CHARACTERS.md 4.6，数值见 NUMBERS.md 10.5） | 状态 |
+|---|---|---|---|
+| `ultimate_cavalry_breaker` | 骑兵 | 3×普攻单体伤害；击杀返还 50% 怒气（受 charge 技能强化） | ✅ |
+| `ultimate_pikeman_sweep` | 剑客 | 范围内敌人 1.5×普攻伤害 + 击退 40px | ✅ |
+| `ultimate_archer_volley` | 弓箭手 | 4 箭连射（0.8×普攻），优先低血量 | ✅ |
+| `ultimate_strategist_blaze` | 术士 | 目标区域 2×普攻范围伤害 + 减速 40%/2s | ✅ |
+| `ultimate_dancer_encourage` | 舞娘 | 全队攻速 +30%、伤害 +15%，持续 8s | ✅ |
+| `ultimate_catapult_barrage` | 投石车 | 3 连发快速抛射轰击目标区域（0.8×普攻/发） | ✅ v0.11.2 新增 |
 
 ### B.3.4 角色特性行为（`trait_id`，阶段 3）
 

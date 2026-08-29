@@ -5,6 +5,8 @@ signal lives_changed(new_amount: int)
 signal wave_changed(current: int, total: int)
 signal game_over
 signal victory
+## 击杀通知（v0.11.2）：龙魂叠层、技能返怒等按"最后一击武将"订阅。
+signal enemy_killed_by_character(character_id: String)
 
 var gold: int = 100:
 	set(value):
@@ -37,6 +39,8 @@ func enemy_died(
 	gold += reward
 	if kill_xp > 0:
 		_distribute_kill_xp(kill_xp, source_character_id, damage_contributors)
+	if not source_character_id.strip_edges().is_empty():
+		enemy_killed_by_character.emit(source_character_id.strip_edges())
 
 
 ## 击杀经验归属（GDD 4.4）：发出的经验总量守恒等于 kill_xp；最后一击得 50%
@@ -78,6 +82,13 @@ func _add_session_xp(character_id: String, amount: int) -> void:
 	var corrected := int(amount * _xp_correction_factor(character_id))
 	if corrected > 0:
 		active_battle_session.add_xp(character_id, corrected)
+
+
+## 辅助贡献事件经验（GDD 10.6，v0.11.2 粗化占位）：增益施加 +4、覆盖 +1/友/脉冲。
+func add_support_contribution(character_id: String, allies_buffed: int) -> void:
+	if allies_buffed <= 0:
+		return
+	_add_session_xp(character_id, 4 + allies_buffed)
 
 
 ## 落后补正（GDD 4.4/10.6，v0.11.1）：武将等级低于编队平均 1 级以上时，

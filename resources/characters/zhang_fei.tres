@@ -18,4 +18,10 @@ projectile_speed = 400.0
 damage_growth_per_level = 4.0
 initial_skill_ids = [&"serpent_spear"]
 promotion_ids = [&"zhang_fei_vanguard"]
+trait_id = &"trait_yanyan_roar"
+trait_params = {
+"chance": 0.3,
+"slow_factor": 0.4,
+"duration": 1.0
+}
 unlock_stage_id = &"ch01_s02"

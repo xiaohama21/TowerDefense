@@ -9,6 +9,8 @@ const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
 const RANGE_BORDER_WIDTH := 3.5
 ## 局内升级每级伤害增幅（GDD 5.4：伤害 +25%/级，与 10.5 大招倍率同源）。
 const UPGRADE_DAMAGE_STEP := 0.25
+## 怒气上限（GDD 4.6）：满 100 自动释放大招。
+const MAX_RAGE := 100.0
 # 近战挥击表现（GDD modules/BEHAVIORS.md B.3.1）：武器从一侧扫到另一侧，
 # 并带一道渐隐斩击弧；表现由 melee_thrust 执行器经 play_melee_hit() 触发。
 const MELEE_SWING_DURATION := 0.22
@@ -44,11 +46,31 @@ var total_invested: int = 0
 var build_cost: int = 0
 var assigned_slot: Node = null
 
+# 怒气（局内临时状态，GDD 4.6）：满 100 自动释放大招，不写存档。
+var rage: float = 0.0
+# 增益（舞娘光环/鼓舞）：攻速与伤害倍率，到期回落。
+var attack_speed_buff: float = 1.0
+var damage_buff: float = 1.0
+var _buff_time_left: float = 0.0
+# 龙魂击杀叠层（赵云特性）：击杀 +1 层攻速，目标丢失时清零。
+var kill_stacks := 0
+
 var _profession_id: StringName = StringName()
 var _profession_name: String = ""
 var _behavior_id: StringName = StringName()
 var _base_damage: int = 40
 var _min_range: float = 0.0
+var _trait_id: StringName = StringName()
+var _trait_params: Dictionary = {}
+var _rage_mode: StringName = &"hit+damage"
+var _gain_per_hit: int = 4
+var _gain_per_damage: float = 0.1
+var _support_gain_per_tick: int = 2
+var _ultimate_id: StringName = StringName()
+var _ultimate_multiplier: float = 1.0
+var _granted_skills: Array[StringName] = []
+var _consecutive_hits: int = 0
+var _last_attacked_target = null
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
 var _attack_flash: float = 0.0
@@ -68,6 +90,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	attack_timer.one_shot = true
 	_rebuild_attack_timer()
+	GameManager.enemy_killed_by_character.connect(_on_enemy_killed)
 	_rebuild_range_area()
 	if not display_name.is_empty():
 		name_label.text = display_name
@@ -95,6 +118,22 @@ func apply_character(character_data: CharacterData, level: int = 1, promotion: P
 	_behavior_id = character_data.profession.behavior_id if character_data.profession != null else StringName()
 	if _behavior_id.is_empty():
 		_behavior_id = &"single_target_burst"
+	_trait_id = character_data.trait_id
+	_trait_params = character_data.trait_params.duplicate(true)
+	_granted_skills.assign(promotion.granted_skill_ids.duplicate()) if promotion != null else _granted_skills.clear()
+	_ultimate_multiplier = promotion.ultimate_multiplier if promotion != null else 1.0
+	_ultimate_id = character_data.ultimate_override_id
+	if _ultimate_id.is_empty() and character_data.profession != null:
+		_ultimate_id = character_data.profession.ultimate_id
+	_rage_mode = character_data.rage_gain_mode_override
+	if _rage_mode.is_empty() and character_data.profession != null:
+		_rage_mode = character_data.profession.rage_gain_mode
+	if _rage_mode.is_empty() and character_data.profession != null:
+		_rage_mode = &"support" if character_data.profession.combat_role == ProfessionData.CombatRole.SUPPORT else &"hit+damage"
+	if character_data.profession != null:
+		_gain_per_hit = character_data.profession.ultimate_gain_per_hit
+		_gain_per_damage = character_data.profession.ultimate_gain_per_damage
+		_support_gain_per_tick = character_data.profession.support_ultimate_gain_per_tick
 	_hero_color = PROFESSION_COLORS.get(_profession_id, Color(0.45, 0.55, 0.65, 1.0))
 	name_label.text = display_name
 	name_label.add_theme_color_override("font_color", _hero_color.lightened(0.35))
@@ -158,7 +197,8 @@ func _swing_offset() -> float:
 
 
 func _rebuild_attack_timer() -> void:
-	attack_timer.wait_time = maxf(attack_cooldown, 0.01)
+	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks))
+	attack_timer.wait_time = maxf(effective, 0.05)
 
 
 func _rebuild_range_area() -> void:
@@ -178,12 +218,25 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
-	if not _is_target_in_range(target):
+	var passive := BehaviorRegistry.is_passive_behavior(_behavior_id)
+	if not passive and not _is_target_in_range(target):
 		target = find_target()
+
+	if _buff_time_left > 0.0:
+		_buff_time_left = maxf(_buff_time_left - _delta, 0.0)
+		if _buff_time_left <= 0.0:
+			attack_speed_buff = 1.0
+			damage_buff = 1.0
+			_rebuild_attack_timer()
+		queue_redraw()
 
 	if target:
 		_update_aim()
-	if target and attack_timer.is_stopped():
+
+	if rage >= MAX_RAGE and _try_cast_ultimate():
+		rage = 0.0
+
+	if attack_timer.is_stopped() and (passive or target != null):
 		attack()
 
 	if _attack_flash > 0.0:
@@ -192,6 +245,131 @@ func _process(_delta: float) -> void:
 	if _melee_swing > 0.0:
 		_melee_swing = maxf(_melee_swing - _delta, 0.0)
 		queue_redraw()
+
+
+## 攻击时积怒（hit+damage 模式）：命中 +N，另按伤害折算（GDD 4.6/10.6）。
+func gain_rage_for_attack(dealt: int) -> void:
+	if _rage_mode != &"hit+damage":
+		return
+	gain_rage(float(_gain_per_hit) + float(dealt) * _gain_per_damage)
+
+
+## 辅助脉冲积怒（support 模式）：触发增益 +N，每覆盖一名友方再 +N（10.6 粗化占位）。
+func gain_support_pulse(allies_buffed: int) -> void:
+	if _rage_mode != &"support" or allies_buffed <= 0:
+		return
+	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies_buffed)
+	GameManager.add_support_contribution(character_id, allies_buffed)
+
+
+func gain_rage(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	rage = minf(rage + amount * BehaviorRegistry.moon_veil_rage_multiplier(self), MAX_RAGE)
+	queue_redraw()
+
+
+## 怒气满自动释放（GDD 4.6）；执行器返回 false（如射程内无目标）时保留怒气待发。
+func _try_cast_ultimate() -> bool:
+	if _ultimate_id.is_empty():
+		return false
+	return BehaviorRegistry.execute_ultimate(_ultimate_id, self)
+
+
+## 大招强度（10.5）：×(1 + 0.25 × 局内等级) × 转职 ultimate_multiplier。
+func ultimate_power() -> float:
+	return (1.0 + UPGRADE_DAMAGE_STEP * battle_level) * _ultimate_multiplier
+
+
+## charge 技能（突击骑）：大招击杀返怒 50% × 档位系数（每 5 级 +10%）。
+func kill_rage_refund() -> float:
+	var multiplier := 1.0
+	if _granted_skills.has(&"charge"):
+		multiplier = 1.0 + 0.1 * mini(int(battle_level / 5.0), 4)
+	return 50.0 * multiplier
+
+
+func is_target_valid(candidate) -> bool:
+	return _is_target_in_range(candidate)
+
+
+func get_trait_id() -> StringName:
+	return _trait_id
+
+
+func get_trait_param(key: String, default: float) -> float:
+	return float(_trait_params.get(key, default))
+
+
+func get_behavior_id() -> StringName:
+	return _behavior_id
+
+
+func get_consecutive_hits() -> int:
+	return _consecutive_hits
+
+
+## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
+func finalize_damage(base: int, target: Enemy) -> int:
+	var value := float(base) * damage_buff
+	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
+	if BehaviorRegistry.has_benevolence_aura(self):
+		value *= BehaviorRegistry.benevolence_bonus(self)
+	value *= BehaviorRegistry.get_trait_damage_multiplier(self, target)
+	return int(round(value))
+
+
+func enemies_in_range() -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	var min_range_squared := _min_range * _min_range
+	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+		var enemy := node as Enemy
+		if enemy == null or enemy.is_dead:
+			continue
+		var distance_squared := global_position.distance_squared_to(enemy.global_position)
+		if distance_squared <= range_radius * range_radius and distance_squared >= min_range_squared:
+			result.append(enemy)
+	return result
+
+
+func allies_in_range() -> Array[Tower]:
+	var result: Array[Tower] = []
+	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
+		var other := node as Tower
+		if other == null or other == self or not is_instance_valid(other):
+			continue
+		if global_position.distance_to(other.global_position) <= range_radius:
+			result.append(other)
+	return result
+
+
+func lowest_hp_targets_in_range(count: int) -> Array[Enemy]:
+	var enemies := enemies_in_range()
+	enemies.sort_custom(func(a: Enemy, b: Enemy) -> bool: return a.current_hp < b.current_hp)
+	return enemies.slice(0, mini(count, enemies.size()))
+
+
+func apply_attack_speed_buff(multiplier: float, duration: float) -> void:
+	attack_speed_buff = maxf(attack_speed_buff, multiplier)
+	_buff_time_left = maxf(_buff_time_left, duration)
+	_rebuild_attack_timer()
+	queue_redraw()
+
+
+func apply_team_buff(speed_multiplier: float, damage_multiplier: float, duration: float) -> void:
+	attack_speed_buff = maxf(attack_speed_buff, speed_multiplier)
+	damage_buff = maxf(damage_buff, damage_multiplier)
+	_buff_time_left = maxf(_buff_time_left, duration)
+	_rebuild_attack_timer()
+	queue_redraw()
+
+
+func _on_enemy_killed(character_id: String) -> void:
+	# 赵云·龙魂：击杀叠攻速（可叠加；目标丢失时重置）
+	if character_id != self.character_id or _trait_id != &"trait_dragon_spirit":
+		return
+	kill_stacks = mini(kill_stacks + 1, 10)
+	_rebuild_attack_timer()
 
 
 func find_target() -> Enemy:
@@ -218,9 +396,17 @@ func find_target() -> Enemy:
 
 
 func attack() -> void:
-	if not _is_target_in_range(target):
-		target = null
-		return
+	var passive := BehaviorRegistry.is_passive_behavior(_behavior_id)
+	if not passive:
+		if not _is_target_in_range(target):
+			target = null
+			return
+		# 百步穿杨：连续攻击同一目标时伤害递增，换目标重置
+		if target == _last_attacked_target:
+			_consecutive_hits += 1
+		else:
+			_consecutive_hits = 1
+			_last_attacked_target = target
 
 	# 攻击行为按职业 behavior_id 分发（GDD modules/BEHAVIORS.md），
 	# 塔脚本不硬编码任何职业的攻击逻辑与攻击表现。
@@ -313,8 +499,19 @@ func _draw() -> void:
 	_draw_weapon()
 	if _attack_flash > 0.0:
 		_draw_attack_flash()
+	_draw_rage_bar()
 	if is_selected:
 		_draw_range()
+
+
+func _draw_rage_bar() -> void:
+	# 怒气条（占位表现，阶段 5 美化）：塔底下方，满槽高亮。
+	if rage <= 0.0:
+		return
+	draw_rect(Rect2(-16, 28, 32, 5), Color(0.0, 0.0, 0.0, 0.55))
+	var ratio := clampf(rage / MAX_RAGE, 0.0, 1.0)
+	var fill_color := Color(0.35, 0.85, 1.0, 1.0) if ratio >= 1.0 else Color(0.3, 0.6, 0.95, 0.9)
+	draw_rect(Rect2(-16, 28, 32.0 * ratio, 5), fill_color)
 
 
 func _draw_base() -> void:

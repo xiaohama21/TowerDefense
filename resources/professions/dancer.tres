@@ -14,3 +14,6 @@ damage_multiplier = 0.35
 range_multiplier = 0.95
 attack_interval_multiplier = 1.0
 behavior_id = &"attack_speed_aura"
+ultimate_gain_per_hit = 6
+ultimate_id = &"ultimate_dancer_encourage"
+rage_gain_mode = &"support"

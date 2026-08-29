@@ -14,19 +14,49 @@ const LOB_EXPLOSION_RADIUS: float = 90.0
 
 ## behavior_id -> 攻击执行器 Callable(tower: Tower, target: Enemy)
 static var _attack_executors: Dictionary = {}
+## ultimate_id -> 大招执行器 Callable(tower: Tower) -> bool（返回是否成功释放）
+static var _ultimate_executors: Dictionary = {}
+
+## 被动行为：无需敌方目标也持续触发（舞娘光环脉冲）。
+const PASSIVE_BEHAVIORS: Array[StringName] = [&"attack_speed_aura"]
 
 
 static func _ensure_registry() -> void:
 	if not _attack_executors.is_empty():
 		return
-	# 弹道类：弓箭手/术士/舞娘（单体结算，职业范围/光环结算随阶段 3 拆分）。
-	for behavior_id in [&"single_target_precision", &"area_spell", &"attack_speed_aura"]:
+	# 弹道类：弓箭手/术士（单体结算，职业范围结算随阶段 3 拆分）。
+	for behavior_id in [&"single_target_precision", &"area_spell"]:
 		_attack_executors[behavior_id] = _attack_single_target_bullet
 	# 近战类：直伤 + 武器挥击表现（无弹道）。骑兵与剑客同属贴路近战职业。
 	for behavior_id in [&"single_target_burst", &"melee_thrust"]:
 		_attack_executors[behavior_id] = _attack_melee_swing
 	# 抛射类：投石车，预判落点 + 范围伤害。
 	_attack_executors[&"lob_aoe"] = _attack_lob_aoe
+	# 被动光环类：舞娘，脉冲增益友方（无敌方目标也持续触发）。
+	_attack_executors[&"attack_speed_aura"] = _attack_aura_pulse
+	_ultimate_executors = {
+		&"ultimate_cavalry_breaker": _ult_cavalry_breaker,
+		&"ultimate_pikeman_sweep": _ult_pikeman_sweep,
+		&"ultimate_archer_volley": _ult_archer_volley,
+		&"ultimate_strategist_blaze": _ult_strategist_blaze,
+		&"ultimate_dancer_encourage": _ult_dancer_encourage,
+		&"ultimate_catapult_barrage": _ult_catapult_barrage,
+	}
+
+
+static func is_passive_behavior(behavior_id: StringName) -> bool:
+	return PASSIVE_BEHAVIORS.has(behavior_id)
+
+
+## 大招分发：按 ultimate_id 调用执行器；执行器返回 false（前置条件不满足，
+## 如射程内无目标）时调用方保留怒气待发。未注册 ID 记警告并返回 false。
+static func execute_ultimate(ultimate_id: StringName, tower: Tower) -> bool:
+	_ensure_registry()
+	var executor: Callable = _ultimate_executors.get(ultimate_id, Callable())
+	if not executor.is_valid():
+		push_warning("未注册的大招行为 ID：%s" % ultimate_id)
+		return false
+	return executor.call(tower)
 
 
 ## 执行一次职业攻击行为。返回 false 表示该 ID 未注册。
@@ -50,16 +80,29 @@ static func get_profession_counter(profession_id: StringName, enemy_tags: Array[
 static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 	var bullet := tower.instantiate_bullet(target)
 	if bullet != null:
-		bullet.damage = int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
+		bullet.damage = tower.finalize_damage(tower.damage, target)
+		tower.gain_rage_for_attack(bullet.damage)
 	# 弹道类攻击表现：枪口闪光（近战类由各自执行器触发挥击表现）。
 	tower.play_attack_flash()
 
 
 static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
-	## 近战直伤 + 武器挥击表现；伤害含职业克制（剑客对 cavalry 标签 +15%）。
-	var damage := int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
+	## 近战直伤 + 武器挥击表现；伤害走结算管线（克制/特性/增益）。
+	var damage := tower.finalize_damage(tower.damage, target)
 	target.take_damage(damage, tower.character_id)
+	tower.gain_rage_for_attack(damage)
+	_notify_damage_dealt(tower, target)
 	tower.play_melee_hit()
+
+
+## 命中后特性触发（v0.11.2）：张飞咆哮按概率减速目标。
+static func _notify_damage_dealt(tower: Tower, target: Enemy) -> void:
+	if tower.get_trait_id() == &"trait_yanyan_roar":
+		if randf() < tower.get_trait_param("chance", 0.3):
+			target.apply_slow(
+				tower.get_trait_param("slow_factor", 0.4),
+				tower.get_trait_param("duration", 1.0),
+			)
 
 
 static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
@@ -68,7 +111,154 @@ static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
 	var bullet := tower.instantiate_bullet(target)
 	if bullet == null:
 		return
-	bullet.damage = int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
+	bullet.damage = tower.finalize_damage(tower.damage, target)
+	tower.gain_rage_for_attack(bullet.damage)
 	var flight_time := tower.global_position.distance_to(target.global_position) / maxf(bullet.speed, 1.0)
 	var predicted := target.global_position + target.velocity_dir * target.speed * flight_time
 	bullet.launch_lob(predicted, LOB_EXPLOSION_RADIUS)
+
+
+## ============ 大招执行器（v0.11.2 数值生效，表现占位） ============
+## 伤害统一走 tower.finalize_damage 管线；强度按 tower.ultimate_power() 缩放
+## （10.5：×(1+0.25×局内等级)×转职倍率）。返回 false 时不清空怒气。
+
+static func _ult_cavalry_breaker(tower: Tower) -> bool:
+	# 突击斩杀：3×普攻单体；击杀返还 50% 怒气（受 charge 技能强化）。
+	var target: Enemy = tower.target
+	if target == null or not tower.is_target_valid(target):
+		return false
+	var hp_before := target.current_hp
+	target.take_damage(tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target), tower.character_id)
+	if hp_before > 0 and target.current_hp <= 0:
+		tower.gain_rage(tower.kill_rage_refund())
+	tower.play_attack_flash()
+	return true
+
+
+static func _ult_pikeman_sweep(tower: Tower) -> bool:
+	# 横扫：范围内敌人 1.5×普攻伤害并击退 40px。
+	var enemies := tower.enemies_in_range()
+	if enemies.is_empty():
+		return false
+	for enemy in enemies:
+		enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 1.5 * tower.ultimate_power())), enemy), tower.character_id)
+		enemy.progress = maxf(enemy.progress - 40.0, 0.0)
+	tower.play_melee_hit()
+	return true
+
+
+static func _ult_archer_volley(tower: Tower) -> bool:
+	# 连珠齐射：4 箭（0.8×普攻）优先低血量目标。
+	var targets := tower.lowest_hp_targets_in_range(4)
+	if targets.is_empty():
+		return false
+	for enemy in targets:
+		var bullet := tower.instantiate_bullet(enemy)
+		if bullet != null:
+			bullet.damage = tower.finalize_damage(int(round(tower.damage * 0.8 * tower.ultimate_power())), enemy)
+	tower.play_attack_flash()
+	return true
+
+
+static func _ult_strategist_blaze(tower: Tower) -> bool:
+	# 大范围法术：目标区域 2×普攻范围伤害 + 减速 40%/2s。
+	var center_target: Enemy = tower.target
+	var center := Vector2.ZERO
+	if center_target != null and tower.is_target_valid(center_target):
+		center = center_target.global_position
+	else:
+		var enemies := tower.enemies_in_range()
+		if enemies.is_empty():
+			return false
+		center = enemies[0].global_position
+	for enemy in tower.enemies_in_range():
+		if enemy.global_position.distance_to(center) <= LOB_EXPLOSION_RADIUS + 30.0:
+			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), tower.character_id)
+			enemy.apply_slow(0.6, 2.0)
+	tower.play_attack_flash()
+	return true
+
+
+static func _ult_dancer_encourage(tower: Tower) -> bool:
+	# 全队鼓舞：攻速 +30%、伤害 +15%，持续 8 秒。
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var ally := node as Tower
+		if ally != null and is_instance_valid(ally):
+			ally.apply_team_buff(1.3, 1.15, 8.0)
+	tower.play_attack_flash()
+	return true
+
+
+static func _ult_catapult_barrage(tower: Tower) -> bool:
+	# 投石齐射：3 连发快速抛射轰击目标区域（0.8×普攻/发）。
+	var target: Enemy = tower.target
+	if target == null or not tower.is_target_valid(target):
+		return false
+	for _i in range(3):
+		var bullet := tower.instantiate_bullet(target)
+		if bullet != null:
+			bullet.damage = tower.finalize_damage(int(round(tower.damage * 0.8 * tower.ultimate_power())), target)
+			var spread := Vector2(randf_range(-40.0, 40.0), randf_range(-40.0, 40.0))
+			bullet.launch_lob(target.global_position + spread, LOB_EXPLOSION_RADIUS)
+	tower.play_attack_flash()
+	return true
+
+
+## ============ 特性与光环（v0.11.2 数值生效） ============
+
+## 特性伤害倍率：武生（精英/Boss）、周仓（高血量）、百步穿杨（连续攻击）、火攻名家（范围）。
+static func get_trait_damage_multiplier(tower: Tower, target: Enemy) -> float:
+	match tower.get_trait_id():
+		&"trait_wusheng":
+			if target.tags.has(&"elite") or target.tags.has(&"boss"):
+				return 1.0 + tower.get_trait_param("elite_damage_bonus", 0.25)
+		&"trait_captain":
+			if target.max_hp > 0 and float(target.current_hp) / float(target.max_hp) > 0.7:
+				return 1.0 + tower.get_trait_param("high_hp_damage_bonus", 0.3)
+		&"trait_hundred_step":
+			var stacks := minf(float(tower.get_consecutive_hits()), tower.get_trait_param("max_stacks", 3.0))
+			return 1.0 + stacks * tower.get_trait_param("step", 0.1)
+		&"trait_royal_fire":
+			if tower.get_behavior_id() == &"lob_aoe":
+				return 1.0 + tower.get_trait_param("aoe_damage_bonus", 0.15)
+	return 1.0
+
+
+## 刘备仁德光环（不可叠加）：场上存在刘备塔时，其他塔伤害 +8%。
+static func has_benevolence_aura(tower: Tower) -> bool:
+	if tower.get_trait_id() == &"trait_benevolence":
+		return false
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var other := node as Tower
+		if other != null and other != tower and is_instance_valid(other) and other.get_trait_id() == &"trait_benevolence":
+			return true
+	return false
+
+
+static func benevolence_bonus(tower: Tower) -> float:
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var other := node as Tower
+		if other != null and other != tower and is_instance_valid(other) and other.get_trait_id() == &"trait_benevolence":
+			return 1.0 + other.get_trait_param("aura_damage_bonus", 0.08)
+	return 1.0
+
+
+## 貂蝉月幕：自身大招积怒 +20%，友方大招积怒 +10%（貂蝉在场时）。
+static func moon_veil_rage_multiplier(tower: Tower) -> float:
+	if tower.get_trait_id() == &"trait_moon_veil":
+		return 1.0 + tower.get_trait_param("self_rage_bonus", 0.2)
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var other := node as Tower
+		if other != null and other != tower and is_instance_valid(other) and other.get_trait_id() == &"trait_moon_veil":
+			return 1.0 + other.get_trait_param("ally_rage_bonus", 0.1)
+	return 1.0
+
+
+static func _attack_aura_pulse(tower: Tower, _target: Enemy) -> void:
+	## 舞娘光环脉冲：增益射程内友方攻速 +20%/3s（占位数值）；
+	## 辅助积怒与贡献经验经 gain_support_pulse 接入同一事件流。
+	var allies := tower.allies_in_range()
+	for ally in allies:
+		ally.apply_attack_speed_buff(1.2, 3.0)
+	tower.gain_support_pulse(allies.size())
+	tower.play_attack_flash()

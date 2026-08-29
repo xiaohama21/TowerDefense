@@ -169,9 +169,11 @@ func _run() -> void:
 				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
 				spear_tower.target = melee_target
 				spear_tower.attack()
+				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）
+				var benevolence := 1.08
 				_check(
-					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15)),
-					"剑客近战直伤应含 15% 骑兵克制"
+					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15 * benevolence)),
+					"剑客近战直伤应含 15% 骑兵克制与 8% 仁德光环"
 				)
 				_check(spear_tower.is_swinging(), "近战攻击应触发挥击动作而非枪口闪光")
 				melee_target.die(false)
@@ -282,6 +284,56 @@ func _run() -> void:
 		_check(int(rb_session.get_pending_xp_by_character().get("liu_bei", 0)) == 10,
 			"落后补正后 1 级武将两笔共得 10 点经验（名义 8 × 1.4，逐笔向下取整）")
 		rb_enemy.queue_free()
+
+	# 怒气系统（v0.11.2）：命中积怒（命中 4 + 伤害×0.1）→ 满 100 手动触发大招 → 清零。
+	var rage_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, 1, null)
+	_check(rage_tower != null, "应能建造怒气用例武将塔")
+	if rage_tower != null:
+		rage_tower.set_process(false)
+		# 移除刘备塔以隔离仁德光环对伤害断言的影响
+		for node in tower_manager.get_children():
+			var t := node as Tower
+			if t != null and t.character_id == "liu_bei":
+				t.queue_free()
+		await get_tree().process_frame
+		# 武生特性：精英标签目标伤害 +25%（64 × 1.25 = 80）
+		var rage_target := enemy_manager.spawn_enemy_from_data(load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData) as Enemy
+		rage_target.set_process(false)
+		rage_target.global_position = rage_tower.global_position + Vector2(120, 0)
+		rage_tower.target = rage_target
+		rage_tower.attack()
+		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 伤害×0.1（武生对精英 +25% → 80 伤）")
+		rage_tower.rage = 100.0
+		var ult_target := enemy_manager.spawn_enemy_from_data(load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData) as Enemy
+		ult_target.set_process(false)
+		ult_target.global_position = rage_tower.global_position + Vector2(120, 0)
+		rage_tower.target = ult_target
+		_check(rage_tower._try_cast_ultimate(), "满怒应能释放大招（突击斩杀）")
+		print("PROBE ult_hp=", ult_target.current_hp, " power=", rage_tower.ultimate_power(), " rage=", rage_tower.rage)
+		_check(ult_target.current_hp == 300 - 240, "斩杀应造成 3×普攻并含武生特性（240）")
+		rage_tower.queue_free()
+
+	# 舞娘光环（v0.11.2）：脉冲增益友方攻速、辅助积怒与贡献经验。
+	var diao_chan := load("res://resources/characters/diao_chan.tres") as CharacterData
+	_check(diao_chan != null, "貂蝉数据应可加载")
+	if diao_chan != null:
+		var support_session := BattleSession.new("smoke_support")
+		GameManager.set_battle_session(support_session)
+		var dancer_tower: Tower = tower_manager.build_tower(Vector2(60, 100), diao_chan, null, 1, null)
+		var ally_tower: Tower = tower_manager.build_tower(Vector2(140, 100), guan_yu, null, 1, null)
+		_check(dancer_tower != null and ally_tower != null, "应能建造舞娘与友方塔")
+		if dancer_tower != null and ally_tower != null:
+			dancer_tower.set_process(false)
+			dancer_tower.attack()
+			_check(is_equal_approx(ally_tower.attack_speed_buff, 1.2), "光环脉冲应使友方攻速 buff +20%")
+			# 射程内 2 名友方（出战塔 + 编队用例塔）：积怒 = (触发 6 + 覆盖 2×2) × 月幕自增 1.2 = 12
+			_check(is_equal_approx(dancer_tower.rage, 12.0), "辅助积怒应含触发/覆盖并受月幕 +20%")
+			var pending: Dictionary = support_session.get_pending_xp_by_character()
+			_check(int(pending.get("diao_chan", 0)) == 6, "辅助贡献经验应为 4 + 覆盖 2 = 6")
+		if dancer_tower:
+			dancer_tower.queue_free()
+		if ally_tower:
+			ally_tower.queue_free()
 
 	_finish()
 

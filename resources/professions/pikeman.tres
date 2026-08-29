@@ -14,3 +14,5 @@ damage_multiplier = 1.0
 range_multiplier = 1.0
 attack_interval_multiplier = 1.0
 behavior_id = &"melee_thrust"
+ultimate_id = &"ultimate_pikeman_sweep"
+rage_gain_mode = &"hit+damage"
