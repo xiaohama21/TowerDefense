@@ -72,8 +72,32 @@ func _distribute_kill_xp(kill_xp: int, last_hitter_id: String, contributors: Dic
 
 
 func _add_session_xp(character_id: String, amount: int) -> void:
-	if active_battle_session != null and amount > 0:
-		active_battle_session.add_xp(character_id, amount)
+	if active_battle_session == null or amount <= 0:
+		return
+	# 向下取整：逐事件修正不超出名义值（8×1.4 名义 11.2，分两笔各 5 → 合计 10）。
+	var corrected := int(amount * _xp_correction_factor(character_id))
+	if corrected > 0:
+		active_battle_session.add_xp(character_id, corrected)
+
+
+## 落后补正（GDD 4.4/10.6，v0.11.1）：武将等级低于编队平均 1 级以上时，
+## 经验获取 +20%/级差（上限 +60%）；高于平均不衰减。
+func _xp_correction_factor(character_id: String) -> float:
+	if active_battle_session == null:
+		return 1.0
+	var deployed := active_battle_session.get_deployed_character_ids()
+	if deployed.size() <= 1:
+		return 1.0
+	var profile := ProfileStore.get_profile()
+	var level_sum := 0
+	for deployed_id in deployed:
+		level_sum += GameFlow.get_character_level(profile, deployed_id)
+	var average := float(level_sum) / deployed.size()
+	var my_level := GameFlow.get_character_level(profile, character_id)
+	var behind := average - my_level
+	if behind < 1.0:
+		return 1.0
+	return minf(1.0 + 0.2 * behind, 1.6)
 
 
 func set_battle_session(session: BattleSession) -> void:

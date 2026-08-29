@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/catapult.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"huang_fu_song"
+display_name = "皇甫嵩"
+description = "汉室名将，长社火攻的执火者，巨石所落之处人海皆碎。"
+profession = ExtResource("2_profession")
+tags = [&"han", &"siege"]
+build_cost = 75
+base_damage = 136
+base_range = 360.0
+attack_interval = 2.4
+projectile_speed = 320.0
+damage_growth_per_level = 6.0
+initial_skill_ids = [&"fire_attack"]
+promotion_ids = [&"huang_fu_song_zhechong"]
+unlock_stage_id = &"ch01_s03"

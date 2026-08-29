@@ -19,6 +19,8 @@ var is_dead: bool = false
 var last_damage_source_character_id: String = ""
 # character_id -> 累计有效伤害，供击杀经验归属规则（GDD 4.4）分摊使用。
 var damage_contributors: Dictionary = {}
+# 当前移动方向（抛射预判落点用）；初始朝右，随实际位移刷新。
+var velocity_dir: Vector2 = Vector2.RIGHT
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
@@ -42,7 +44,11 @@ func _process(delta: float) -> void:
 	if is_dead:
 		return
 
+	var before := global_position
 	progress += speed * delta
+	var delta_pos := global_position - before
+	if delta_pos.length_squared() > 0.01:
+		velocity_dir = delta_pos.normalized()
 
 	if progress_ratio >= 1.0 - 0.0001:
 		GameManager.enemy_reached_base(damage_to_base)

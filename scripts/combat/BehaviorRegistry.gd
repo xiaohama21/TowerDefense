@@ -9,6 +9,8 @@ const CAVALRY_TAG: StringName = &"cavalry"
 ## 枪兵职业克制：对带 cavalry 标签的敌人伤害 +15%（GDD 4.2）。
 const PIKEMAN_COUNTER_ID: StringName = &"pikeman"
 const PIKEMAN_COUNTER_MULTIPLIER: float = 1.15
+## 投石车落点爆炸半径（GDD 4.2 抛射范围伤害，v0.11.1）。
+const LOB_EXPLOSION_RADIUS: float = 90.0
 
 ## behavior_id -> 攻击执行器 Callable(tower: Tower, target: Enemy)
 static var _attack_executors: Dictionary = {}
@@ -23,6 +25,8 @@ static func _ensure_registry() -> void:
 	# 近战类：直伤 + 武器挥击表现（无弹道）。骑兵与剑客同属贴路近战职业。
 	for behavior_id in [&"single_target_burst", &"melee_thrust"]:
 		_attack_executors[behavior_id] = _attack_melee_swing
+	# 抛射类：投石车，预判落点 + 范围伤害。
+	_attack_executors[&"lob_aoe"] = _attack_lob_aoe
 
 
 ## 执行一次职业攻击行为。返回 false 表示该 ID 未注册。
@@ -56,3 +60,15 @@ static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
 	var damage := int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
 	target.take_damage(damage, tower.character_id)
 	tower.play_melee_hit()
+
+
+static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
+	## 投石车抛射：预判落点（目标当前位置 + 移动方向 × 飞行时间位移），
+	## 弹体飞向落点后造成范围伤害（GDD modules/BEHAVIORS.md lob_aoe）。
+	var bullet := tower.instantiate_bullet(target)
+	if bullet == null:
+		return
+	bullet.damage = int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
+	var flight_time := tower.global_position.distance_to(target.global_position) / maxf(bullet.speed, 1.0)
+	var predicted := target.global_position + target.velocity_dir * target.speed * flight_time
+	bullet.launch_lob(predicted, LOB_EXPLOSION_RADIUS)

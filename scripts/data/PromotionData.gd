@@ -18,6 +18,8 @@ class_name PromotionData
 @export_range(0.0, 100.0, 0.01) var damage_multiplier: float = 1.0
 @export_range(0.0, 100.0, 0.01) var range_multiplier: float = 1.0
 @export_range(0.01, 100.0, 0.01) var attack_interval_multiplier: float = 1.0
+## 转职大招强化倍率（阶段 3 怒气系统使用，v0.11.1 先行铺设）。
+@export_range(0.0, 100.0, 0.01) var ultimate_multiplier: float = 1.0
 @export var granted_skill_ids: Array[StringName] = []
 @export var visual_variant_id: StringName
 

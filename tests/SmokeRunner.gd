@@ -208,6 +208,44 @@ func _run() -> void:
 	if fresh_tower:
 		fresh_tower.queue_free()
 
+	# 投石车（v0.11.1）：职业倍率、min_range 门控、抛射 AOE。
+	var huang_fu_song := load("res://resources/characters/huang_fu_song.tres") as CharacterData
+	_check(huang_fu_song != null, "皇甫嵩数据应可加载")
+	if huang_fu_song != null:
+		var catapult_tower: Tower = tower_manager.build_tower(Vector2(60, 100), huang_fu_song, null, 1, null)
+		_check(catapult_tower != null, "应能建造投石车")
+		if catapult_tower:
+			_check(catapult_tower.damage == 136 and catapult_tower.range_radius == 360.0
+				and is_equal_approx(catapult_tower.attack_cooldown, 2.4),
+				"投石车应按 .tres 绝对值配置（136 伤/360 程/2.4s 攻速）")
+			catapult_tower.set_process(false)
+			var close_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+			close_enemy.set_process(false)
+			close_enemy.global_position = catapult_tower.global_position + Vector2(100, 0)
+			_check(catapult_tower.find_target() == null, "投石车应无法选取最小射程内的目标")
+			var aoe_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+			aoe_target.set_process(false)
+			aoe_target.global_position = catapult_tower.global_position + Vector2(250, 0)
+			_check(catapult_tower.find_target() == aoe_target, "投石车应能选取射程内且不小于最小射程的目标")
+			# 抛射 AOE：预判落点附近的第二只敌人同时受创。
+			# 用 300HP 伍长做靶（投石车 136 伤会秒杀步卒，导致目标被释放）。
+			var sergeant_data := load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData
+			var splash_enemy := enemy_manager.spawn_enemy_from_data(sergeant_data) as Enemy
+			splash_enemy.set_process(false)
+			splash_enemy.global_position = aoe_target.global_position + Vector2(60, 0)
+			var aoe_bearer := enemy_manager.spawn_enemy_from_data(sergeant_data) as Enemy
+			aoe_bearer.set_process(false)
+			aoe_bearer.global_position = aoe_target.global_position
+			catapult_tower.target = aoe_bearer
+			catapult_tower.attack()
+			for _i in range(80):
+				await get_tree().physics_frame
+			_check(is_instance_valid(aoe_bearer) and aoe_bearer.current_hp < aoe_bearer.max_hp,
+				"抛射应命中预判落点附近的目标")
+			_check(is_instance_valid(splash_enemy) and splash_enemy.current_hp < splash_enemy.max_hp,
+				"落点范围伤害应波及邻近敌人")
+			catapult_tower.queue_free()
+
 	# 剑客职业克制（GDD 4.2，profession_id=pikeman）：对 cavalry 标签敌人伤害 +15%。
 	_check(is_equal_approx(
 		BehaviorRegistry.get_profession_counter(&"pikeman", [&"cavalry"] as Array[StringName]), 1.15
@@ -231,6 +269,19 @@ func _run() -> void:
 		var pending_xp: Dictionary = xp_session.get_pending_xp_by_character()
 		_check(int(pending_xp.get("guan_yu", 0)) == 6, "最后一击武将应获得 6 点经验（4 + 均分 2）")
 		_check(int(pending_xp.get("liu_bei", 0)) == 2, "参与伤害武将应获得均分 2 点经验")
+
+	# 落后补正（GDD 4.4/10.6）：编队平均 3 级（关羽 5 / 刘备 1）时，1 级武将经验 ×1.4。
+	var rb_profile := ProfileStore.get_profile()
+	rb_profile.add_character_exp("guan_yu", LevelCurve.exp_total_for_level(5))
+	var rb_session := BattleSession.new("smoke_rb_stage")
+	GameManager.set_battle_session(rb_session)
+	rb_session.deployed_character_ids.assign(["guan_yu", "liu_bei"])
+	var rb_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if rb_enemy:
+		rb_enemy.take_damage(9999, "liu_bei")
+		_check(int(rb_session.get_pending_xp_by_character().get("liu_bei", 0)) == 10,
+			"落后补正后 1 级武将两笔共得 10 点经验（名义 8 × 1.4，逐笔向下取整）")
+		rb_enemy.queue_free()
 
 	_finish()
 

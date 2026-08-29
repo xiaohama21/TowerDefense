@@ -23,6 +23,14 @@ class_name CharacterData
 @export var initial_skill_ids: Array[StringName] = []
 @export var promotion_ids: Array[StringName] = []
 
+@export_category("Trait & Ultimate (阶段 3 字段，v0.11.1 先行铺设)")
+## 常驻被动特性 ID（行为脚本按 ID 注册，见 CHARACTERS.md 4.7）。
+@export var trait_id: StringName
+## 特性数值参数，行为脚本按 ID 读取，避免为每个特性改数据类。
+@export var trait_params: Dictionary = {}
+## 角色专属大招覆盖（远期，预留；空则用职业默认大招）。
+@export var ultimate_override_id: StringName
+
 @export_category("Unlock")
 @export var unlock_stage_id: StringName
 
@@ -44,4 +52,5 @@ func compute_stats_at(level: int, promotion: PromotionData = null) -> Dictionary
 		"damage": int(round((base_damage + damage_growth_per_level * level_steps) * promo_damage)),
 		"range": (base_range + range_growth_per_level * level_steps) * promo_range,
 		"attack_interval": attack_interval * promo_interval,
+		"min_range": profession.min_range if profession != null else 0.0,
 	}

@@ -21,6 +21,7 @@ const PROFESSION_COLORS := {
 	&"archer": Color(0.85, 0.55, 0.22, 1.0),
 	&"strategist": Color(0.28, 0.5, 0.85, 1.0),
 	&"dancer": Color(0.85, 0.42, 0.66, 1.0),
+	&"catapult": Color(0.56, 0.51, 0.4, 1.0),
 }
 
 signal selection_changed(tower: Tower)
@@ -47,6 +48,7 @@ var _profession_id: StringName = StringName()
 var _profession_name: String = ""
 var _behavior_id: StringName = StringName()
 var _base_damage: int = 40
+var _min_range: float = 0.0
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
 var _attack_flash: float = 0.0
@@ -84,6 +86,7 @@ func apply_character(character_data: CharacterData, level: int = 1, promotion: P
 	_base_damage = damage
 	range_radius = stats.range
 	attack_cooldown = stats.attack_interval
+	_min_range = stats.min_range
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 
@@ -195,12 +198,17 @@ func find_target() -> Enemy:
 	var best_target: Enemy = null
 	var best_progress := -1.0
 	var range_squared := range_radius * range_radius
+	var min_range_squared := _min_range * _min_range
 
 	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
 		var enemy := node as Enemy
 		if enemy == null or enemy.is_dead:
 			continue
-		if global_position.distance_squared_to(enemy.global_position) > range_squared:
+		var distance_squared := global_position.distance_squared_to(enemy.global_position)
+		if distance_squared > range_squared:
+			continue
+		# 最小射程（投石车等）：目标过近时忽略，交由其他单位处理。
+		if distance_squared < min_range_squared:
 			continue
 		if enemy.progress_ratio > best_progress:
 			best_progress = enemy.progress_ratio
@@ -252,7 +260,13 @@ func _is_target_in_range(candidate) -> bool:
 	var enemy := candidate as Enemy
 	if enemy == null or enemy.is_dead or not enemy.is_inside_tree():
 		return false
-	return global_position.distance_squared_to(enemy.global_position) <= range_radius * range_radius
+	var distance_squared := global_position.distance_squared_to(enemy.global_position)
+	if distance_squared > range_radius * range_radius:
+		return false
+	# 最小射程：目标进入近距离后无法继续攻击（投石车弱点）。
+	if distance_squared < _min_range * _min_range:
+		return false
+	return true
 
 
 func _update_aim() -> void:
@@ -326,6 +340,12 @@ func _draw_body() -> void:
 				Vector2(9, 6), Vector2(13, -8), Vector2(10, -9), Vector2(7, 5),
 			])
 			draw_colored_polygon(blade, Color(0.88, 0.9, 0.93, 1.0))
+		&"catapult":
+			# 投石车：车架 + 双轮 + 配重
+			draw_rect(Rect2(-14, -2, 28, 10), _hero_color.darkened(0.2))
+			draw_circle(Vector2(-9, 10), 5.0, _hero_color.darkened(0.4))
+			draw_circle(Vector2(9, 10), 5.0, _hero_color.darkened(0.4))
+			draw_circle(Vector2(6, -6), 5.0, Color(0.35, 0.33, 0.3, 1.0))
 		&"archer":
 			draw_set_transform(Vector2(0, 3), 0.0, Vector2(1.0, 1.3))
 			draw_circle(Vector2.ZERO, 8.5, _hero_color.darkened(0.1))
@@ -377,6 +397,10 @@ func _draw_weapon() -> void:
 			draw_line(Vector2(0, 6), Vector2(0, -26), Color(0.88, 0.9, 0.93, 1.0), 3.0)
 			draw_line(Vector2(-6, -22), Vector2(6, -22), Color(0.5, 0.38, 0.2, 1.0), 3.0)
 			draw_line(Vector2(0, 6), Vector2(0, 11), Color(0.5, 0.38, 0.2, 1.0), 4.0)
+		&"catapult":
+			# 抛臂：长杆 + 末端勺兜
+			draw_line(Vector2(-4, 10), Vector2(0, -30), Color(0.45, 0.36, 0.24, 1.0), 3.5)
+			draw_arc(Vector2(0, -30), 5.0, 0.0, TAU, 10, Color(0.35, 0.33, 0.3, 1.0), 3.0, true)
 		&"archer":
 			draw_arc(Vector2(0, -6), 15.0, -PI * 0.55, PI * 0.55, 14,
 				Color(0.62, 0.45, 0.24, 1.0), 3.0)
