@@ -64,8 +64,6 @@ func _ready():
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
-	ui.build_confirm_pressed.connect(_on_build_confirm_pressed)
-	ui.build_cancel_pressed.connect(_on_build_cancel_pressed)
 	ui.exit_pressed.connect(_on_exit_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
 	tower_manager.tower_created.connect(_on_tower_created)
@@ -220,27 +218,6 @@ func _on_tower_selection_changed(tower: Tower) -> void:
 	elif _selected_tower == tower:
 		_selected_tower = null
 		ui.hide_tower_panel()
-
-
-func _on_build_preview(slot: Node, character: CharacterData) -> void:
-	# 待确认建造：取消已选塔的显示，展示底部确认面板
-	if _selected_tower != null and is_instance_valid(_selected_tower):
-		_selected_tower.set_selected(false)
-		_selected_tower = null
-	ui.show_build_confirm(slot, character)
-
-
-func _on_build_cancelled() -> void:
-	ui.hide_build_confirm()
-
-
-func _on_build_confirm_pressed() -> void:
-	if build_manager.confirm_pending_build():
-		ui.hide_build_confirm()
-
-
-func _on_build_cancel_pressed() -> void:
-	build_manager.cancel_pending()
 
 
 func _on_tower_upgrade_requested() -> void:

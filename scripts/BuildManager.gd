@@ -2,20 +2,15 @@ extends Node2D
 
 signal tower_built(slot: Node)
 signal build_failed(slot: Node, reason: String)
-signal build_preview_requested(slot: Node, character: CharacterData)
-signal build_cancelled
 
 @export var tower_manager_path: NodePath = NodePath("../TowerManager")
 @export var ui_path: NodePath = NodePath("../UI")
 
-## The character to place when a build slot is clicked. Set by the stage
-## controller (Main) when the player picks a hero from the build bar.
 var selected_character: CharacterData = null
 
-## 待确认建造位（v0.12.2 防误建）：首次点击进入待确认，底部面板确认后才
-## 真正建造；右键/取消按钮/切换武将/选中已建塔均可取消。
+## 待确认建造位（防误建）：首次点击高亮待确认，再次点击同一位置确认建造；
+## 右键/ESC/切换武将取消。
 var pending_slot: Node = null
-## 待确认建造的出场配置（等级/转职/星级/信物，v0.13）。
 var pending_loadout: Dictionary = {}
 
 @onready var tower_manager: Node = get_node(tower_manager_path)
@@ -23,7 +18,6 @@ var pending_loadout: Dictionary = {}
 
 
 func _ready() -> void:
-	# BuildSlot 在各自 _ready() 中加入分组，因此延后一帧统一接线。
 	call_deferred("_connect_build_slots")
 	get_tree().node_added.connect(_on_node_added)
 
@@ -51,14 +45,12 @@ func _connect_slot(slot: Node) -> void:
 		return
 	if not slot.has_signal("build_requested"):
 		return
-
 	var callback := Callable(self, "_on_build_requested")
 	if not slot.is_connected("build_requested", callback):
 		slot.connect("build_requested", callback)
 
 
 func _on_node_added(node: Node) -> void:
-	# 兼容运行时生成或切换关卡后出现的新建造位。
 	if node.has_signal("build_requested"):
 		call_deferred("_connect_slot", node)
 
@@ -79,40 +71,24 @@ func _on_build_requested(slot: Node) -> void:
 		_show_feedback("请先选择出战武将")
 		build_failed.emit(slot, "no_character")
 		return
+
+	# 两次点击确认：第一次高亮待确认，第二次同一位置确认建造。
 	if pending_slot == slot:
+		_confirm_build(slot)
 		return
 
 	var profile := ProfileStore.get_profile()
 	pending_loadout = GameFlow.get_battle_loadout(profile, str(selected_character.character_id))
-	_set_pending_slot(slot)
-
-
-## 进入待确认：建造位高亮 + 底部确认面板，等待玩家确认或取消。
-func _set_pending_slot(slot: Node) -> void:
 	_clear_pending_visual()
 	pending_slot = slot
 	if slot.has_method("set_pending"):
 		slot.set_pending(true)
-	build_preview_requested.emit(slot, selected_character)
+	_show_feedback("再次点击确认建造（右键取消）")
 
 
-func cancel_pending() -> void:
-	var had_pending := pending_slot != null
-	_clear_pending_visual()
-	pending_slot = null
-	if had_pending:
-		build_cancelled.emit()
-
-
-## 确认建造（底部面板触发）。返回是否成功；金币不足时保持待确认并给出反馈。
-func confirm_pending_build() -> bool:
-	var slot := pending_slot
-	if slot == null or not is_instance_valid(slot):
-		return false
-	var occupied_value = slot.get("occupied")
-	if occupied_value is bool and occupied_value:
-		cancel_pending()
-		return false
+func _confirm_build(slot: Node) -> void:
+	var profile := ProfileStore.get_profile()
+	pending_loadout = GameFlow.get_battle_loadout(profile, str(selected_character.character_id))
 	if tower_manager.build_tower(slot.global_position, selected_character, slot, pending_loadout):
 		if slot.has_method("mark_built"):
 			slot.mark_built()
@@ -120,10 +96,16 @@ func confirm_pending_build() -> bool:
 		pending_slot = null
 		tower_built.emit(slot)
 		_show_feedback("建造完成")
-		return true
-	build_failed.emit(slot, "not_enough_gold")
-	_show_feedback("金币不足")
-	return false
+	else:
+		_clear_pending_visual()
+		pending_slot = null
+		build_failed.emit(slot, "not_enough_gold")
+		_show_feedback("金币不足")
+
+
+func cancel_pending() -> void:
+	_clear_pending_visual()
+	pending_slot = null
 
 
 func _clear_pending_visual() -> void:

@@ -61,30 +61,27 @@ func _run() -> void:
 		build_manager.selected_character = guan_yu
 		GameManager.gold = guan_yu.build_cost
 		build_manager._on_build_requested(slots[0])
-		build_manager.confirm_pending_build()
+		build_manager._on_build_requested(slots[0])
 		await get_tree().process_frame
 		_check(GameManager.gold == 0, "建造关羽后金币应扣除其造价")
 		build_manager.selected_character = liu_bei
 		build_manager._on_build_requested(slots[1])
 		build_manager._on_build_requested(slots[2])
-		build_manager.confirm_pending_build()
+		build_manager._on_build_requested(slots[2])
 		await get_tree().process_frame
 		_check(tower_manager.get_child_count() == 1, "金币不足时不应生成第二座塔")
 		_check(slots[0].occupied and not slots[1].occupied and not slots[2].occupied, "建造位占用状态错误")
 		GameManager.gold = 9999
 		build_manager._on_build_requested(slots[1])
-		build_manager.confirm_pending_build()
+		build_manager._on_build_requested(slots[1])
 		await get_tree().process_frame
 		_check(tower_manager.get_child_count() == 2 and slots[1].occupied, "金币充足时应能建造第二座塔")
-		# 待确认建造（v0.12.2 防误建）：点选后需确认；取消则不建造。
+		# 两次点击确认（v0.12.3 简化）：第一次进入待确认，第二次确认建造。
 		build_manager._on_build_requested(slots[3])
 		_check(slots[3].get("pending") == true, "点选建造位后应进入待确认状态")
-		build_manager.cancel_pending()
-		_check(slots[3].get("pending") == false and not slots[3].occupied, "取消后建造位应恢复可用且不建塔")
 		build_manager._on_build_requested(slots[3])
-		build_manager.confirm_pending_build()
 		await get_tree().process_frame
-		_check(slots[3].occupied, "确认后应完成建造")
+		_check(slots[3].occupied, "再次点击同一建造位应确认建造")
 		var extra_tower := tower_manager.get_child(tower_manager.get_child_count() - 1) as Tower
 		if extra_tower:
 			extra_tower.queue_free()
@@ -163,7 +160,7 @@ func _run() -> void:
 		GameManager.reset(9999, 20, stage_data.waves.size())
 		build_manager.selected_character = zhang_fei
 		build_manager._on_build_requested(slots[2])
-		build_manager.confirm_pending_build()
+		build_manager._on_build_requested(slots[2])
 		await get_tree().process_frame
 		var spear_tower := tower_manager.get_child(tower_manager.get_child_count() - 1) as Tower
 		_check(spear_tower != null and slots[2].occupied, "张飞塔应建造成功")
