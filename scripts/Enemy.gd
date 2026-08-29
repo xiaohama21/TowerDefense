@@ -31,6 +31,7 @@ var _slow_time_left: float = 0.0
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
+var _hit_flash_left: float = 0.0
 
 func _enter_tree() -> void:
 	add_to_group(ENEMY_GROUP)
@@ -43,6 +44,8 @@ func _ready() -> void:
 	max_hp = maxi(max_hp, 1)
 	current_hp = max_hp
 	progress = 0
+	if hp_bar:
+		hp_bar.visible = false
 	update_hp_bar()
 	queue_redraw()
 
@@ -50,6 +53,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_dead:
 		return
+
+	if _hit_flash_left > 0.0:
+		_hit_flash_left = maxf(_hit_flash_left - delta, 0.0)
+		if _hit_flash_left <= 0.0 and body:
+			body.modulate = Color.WHITE
 
 	if _slow_time_left > 0.0:
 		_slow_time_left = maxf(_slow_time_left - delta, 0.0)
@@ -85,6 +93,9 @@ func take_damage(amount: int, source_character_id: String = "") -> void:
 	current_hp = maxi(current_hp - effective, 0)
 	if not source_id.is_empty():
 		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
+	_hit_flash_left = 0.12
+	if body:
+		body.modulate = Color(1.0, 0.45, 0.4)
 	update_hp_bar()
 
 	if current_hp <= 0:
@@ -112,6 +123,8 @@ func heal(amount: int) -> void:
 
 func update_hp_bar() -> void:
 	if hp_bar:
+		# 满血隐藏、受击后显示（v0.12.2 优化：减少画面杂乱）
+		hp_bar.visible = current_hp < max_hp
 		hp_bar.max_value = max_hp
 		hp_bar.value = current_hp
 
@@ -128,6 +141,11 @@ func set_body_size(body_size: Vector2) -> void:
 	if body:
 		body.size = body_size
 		body.position = -body_size * 0.5
+	# 血条宽度随体型、位置贴头顶（v0.12.2 优化）
+	var bar := get_node_or_null("HpBar") as ProgressBar
+	if bar:
+		bar.size = Vector2(maxf(body_size.x, 24.0), 6.0)
+		bar.position = Vector2(-bar.size.x / 2.0, -body_size.y * 0.5 - 12.0)
 	queue_redraw()
 
 

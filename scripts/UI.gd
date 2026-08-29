@@ -13,6 +13,8 @@ signal result_retry_pressed
 signal result_menu_pressed
 signal exit_pressed
 signal dialogue_finished
+signal build_confirm_pressed
+signal build_cancel_pressed
 
 const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
 const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
@@ -35,6 +37,7 @@ const DEBUG_PANEL_SCRIPT := preload("res://scripts/DebugPanel.gd")
 var _status_request_id: int = 0
 var _previous_paused_state: bool = false
 var _character_buttons: Dictionary = {}
+var _character_costs: Dictionary = {}
 
 # 武将属性面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
 var _panel_tower: Tower = null
@@ -44,6 +47,9 @@ var _tower_title_label: Label
 var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
+var _confirm_panel: PanelContainer
+var _confirm_title_label: Label
+var _confirm_character: CharacterData = null
 var _result_panel: PanelContainer
 var _result_center: CenterContainer
 var _result_title_label: Label
@@ -65,6 +71,7 @@ func _ready() -> void:
 	exit_button.pressed.connect(func() -> void: exit_pressed.emit())
 
 	_create_tower_panel()
+	_create_build_confirm_panel()
 	_create_result_panel()
 	_create_dialogue_layer()
 
@@ -100,15 +107,27 @@ func setup_character_bar(characters: Array) -> void:
 	for character_data in characters:
 		if character_data == null:
 			continue
+		var character_id := str(character_data.character_id)
+		var profession_tag: String = character_data.profession.display_name.left(1) if character_data.profession != null else "?"
+		var level := GameFlow.get_character_level(ProfileStore.get_profile(), character_id)
 		var button := Button.new()
-		button.text = "%s\n%d 金币" % [character_data.display_name, character_data.build_cost]
+		button.text = "%s【%s】\nLv.%d · %d 金币" % [character_data.display_name, profession_tag, level, character_data.build_cost]
 		button.custom_minimum_size = Vector2(120, 54)
 		button.toggle_mode = true
 		button.add_theme_font_size_override("font_size", 15)
-		var character_id := str(character_data.character_id)
 		button.pressed.connect(_on_character_button_pressed.bind(character_id))
 		character_bar.add_child(button)
 		_character_buttons[character_id] = button
+		_character_costs[character_id] = character_data.build_cost
+
+
+## 建造栏负担标识（v0.12.2）：金币不足的武将按钮置灰。
+func _refresh_character_bar_affordance() -> void:
+	for key in _character_buttons.keys():
+		var button := _character_buttons[key] as Button
+		if not is_instance_valid(button):
+			continue
+		button.disabled = GameManager.gold < int(_character_costs.get(key, 0))
 
 
 func set_selected_character(character_id: String) -> void:
@@ -139,6 +158,10 @@ func _process(_delta: float) -> void:
 func update_gold(new_amount: int) -> void:
 	gold_label.text = "金币：%d" % max(new_amount, 0)
 	_refresh_tower_panel()
+	_refresh_character_bar_affordance()
+	_refresh_build_confirm()
+	_refresh_character_bar_affordance()
+	_refresh_build_confirm()
 
 
 func update_lives(new_amount: int) -> void:
@@ -274,6 +297,95 @@ func _create_tower_panel() -> void:
 	_tower_sell_button.add_theme_font_size_override("font_size", 16)
 	_tower_sell_button.pressed.connect(func() -> void: tower_sell_requested.emit())
 	buttons.add_child(_tower_sell_button)
+
+
+## 建造确认面板（v0.12.2 防误建）：点选建造位后底部确认，防止单击误建。
+func _create_build_confirm_panel() -> void:
+	_confirm_panel = PanelContainer.new()
+	_confirm_panel.name = "BuildConfirmPanel"
+	_confirm_panel.visible = false
+	_confirm_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	$Root.add_child(_confirm_panel)
+	_confirm_panel.anchor_left = 0.5
+	_confirm_panel.anchor_right = 0.5
+	_confirm_panel.anchor_top = 1.0
+	_confirm_panel.anchor_bottom = 1.0
+	_confirm_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_confirm_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_confirm_panel.offset_left = -230.0
+	_confirm_panel.offset_right = 230.0
+	_confirm_panel.offset_top = -14.0
+	_confirm_panel.offset_bottom = -14.0
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	_confirm_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	margin.add_child(vbox)
+
+	_confirm_title_label = Label.new()
+	_confirm_title_label.add_theme_font_size_override("font_size", 18)
+	_confirm_title_label.add_theme_color_override("font_color", Color(0.95, 0.93, 0.8))
+	_confirm_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_confirm_title_label)
+
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 12)
+	vbox.add_child(buttons)
+
+	var confirm_button := Button.new()
+	confirm_button.text = "确认建造"
+	confirm_button.custom_minimum_size = Vector2(0, 40)
+	confirm_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	confirm_button.add_theme_font_size_override("font_size", 16)
+	confirm_button.pressed.connect(func() -> void: build_confirm_pressed.emit())
+	buttons.add_child(confirm_button)
+
+	var cancel_button := Button.new()
+	cancel_button.text = "取消"
+	cancel_button.custom_minimum_size = Vector2(0, 40)
+	cancel_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cancel_button.add_theme_font_size_override("font_size", 16)
+	cancel_button.pressed.connect(func() -> void: build_cancel_pressed.emit())
+	buttons.add_child(cancel_button)
+
+
+func show_build_confirm(slot: Node, character: CharacterData) -> void:
+	hide_tower_panel()
+	_confirm_character = character
+	var slot_id: Variant = slot.get("slot_id")
+	var slot_text := "%d 号位" % int(slot_id) if slot_id != null else "该建造位"
+	_confirm_title_label.text = "在 %s 建造：%s（%d 金币）" % [slot_text, character.display_name, character.build_cost]
+	_tower_panel.visible = false
+	_confirm_panel.visible = true
+	_refresh_build_confirm()
+
+
+func hide_build_confirm() -> void:
+	_confirm_character = null
+	_confirm_panel.visible = false
+
+
+func _refresh_build_confirm() -> void:
+	if _confirm_panel == null or not _confirm_panel.visible:
+		return
+	if _confirm_character == null:
+		hide_build_confirm()
+		return
+	var affordable := GameManager.gold >= _confirm_character.build_cost
+	for node in _confirm_panel.find_children("*", "Button", true, false):
+		var button := node as Button
+		if button == null:
+			continue
+		if button.text.begins_with("确认建造"):
+			button.disabled = not affordable
+			button.text = "确认建造（%d 金币）" % _confirm_character.build_cost
+			break
 
 
 func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
