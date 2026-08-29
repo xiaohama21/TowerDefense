@@ -176,7 +176,31 @@ func _run() -> void:
 			_check(GameManager.gold == gold_before_sell + refund, "回收后应返还金币")
 			_check(not slots[2].occupied, "回收后建造槽应可复用")
 
-	 # 剑客职业克制（GDD 4.2，profession_id=pikeman）：对 cavalry 标签敌人伤害 +15%。
+	# 等级曲线（GDD modules/NUMBERS.md 10.1）
+	_check(LevelCurve.exp_total_for_level(10) == 1440, "10 级累计经验应为 1440")
+	_check(LevelCurve.level_from_total_exp(0) == 1, "0 经验应为 1 级")
+	_check(LevelCurve.level_from_total_exp(1439) == 9 and LevelCurve.level_from_total_exp(1440) == 10,
+		"等级应按累计经验推导")
+	_check(LevelCurve.level_from_total_exp(999999) == LevelCurve.MAX_LEVEL, "等级不应超过上限")
+
+	# 等级与转职属性应用（GDD 4.4/4.5）：伤害 = (基础 + 成长×(级-1)) × 转职倍率
+	var charger := load("res://resources/promotions/guan_yu_charger.tres") as PromotionData
+	_check(charger != null and not charger.item_costs.is_empty(), "一转配置应含材料消耗")
+	GameManager.reset(9999, 20, stage_data.waves.size())
+	var leveled_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, 10, charger)
+	_check(leveled_tower != null, "应以等级/转职参数建造武将塔")
+	if leveled_tower:
+		var expected_damage := int(round((guan_yu.base_damage + guan_yu.damage_growth_per_level * 9) * charger.damage_multiplier))
+		_check(leveled_tower.damage == expected_damage, "10 级 + 突击骑伤害应为 %d" % expected_damage)
+		_check(is_equal_approx(leveled_tower.attack_cooldown, guan_yu.attack_interval * charger.attack_interval_multiplier),
+			"转职攻速倍率应生效")
+		leveled_tower.queue_free()
+	var fresh_tower: Tower = tower_manager.build_tower(Vector2(140, 640), guan_yu, null, 1, null)
+	_check(fresh_tower != null and fresh_tower.damage == guan_yu.base_damage, "1 级无转职应为基础伤害")
+	if fresh_tower:
+		fresh_tower.queue_free()
+
+	# 剑客职业克制（GDD 4.2，profession_id=pikeman）：对 cavalry 标签敌人伤害 +15%。
 	_check(is_equal_approx(
 		BehaviorRegistry.get_profession_counter(&"pikeman", [&"cavalry"] as Array[StringName]), 1.15
 	), "剑客对骑兵标签应有 1.15 克制倍率")

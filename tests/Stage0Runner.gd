@@ -191,6 +191,19 @@ func _test_player_profile() -> void:
 	profile.add_character_exp("guan_yu", 5)
 	_check(duplicate.get_character_exp("guan_yu") == 25, "duplicate_profile 应为深拷贝")
 
+	# 道具消耗与转职路径（GDD 阶段 2 转职流程）
+	_check(profile.add_item("yellow_turban_cloth", 10) == 10, "追加材料应累加")
+	_check(not profile.spend_item("yellow_turban_cloth", 99), "材料不足时消耗应失败且不改数量")
+	_check(profile.spend_item("yellow_turban_cloth", 10), "材料充足时应能消耗")
+	_check(int(profile.items.get("yellow_turban_cloth", 0)) == 0, "消耗后数量应正确")
+	_check(profile.set_promotion_path("guan_yu", ["guan_yu_charger"]), "转职路径应能写入")
+	var promotion_roundtrip = script.new()
+	promotion_roundtrip.load_dict(profile.to_dict())
+	_check(
+		promotion_roundtrip.get_character("guan_yu").get("promotion_path", []) == ["guan_yu_charger"],
+		"转职路径应随存档往返保留",
+	)
+
 
 func _test_battle_session_contract() -> void:
 	var script := _load_first_script(BATTLE_SESSION_PATHS)

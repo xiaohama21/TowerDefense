@@ -74,14 +74,16 @@ func _ready() -> void:
 
 
 ## Apply a CharacterData to this tower. Call after add_child() so all
-## onready nodes are available.
-func apply_character(character_data: CharacterData) -> void:
+## onready nodes are available. level/promotion 来自存档养成状态
+## （GDD modules/CHARACTERS.md 4.4/4.5），属性经 compute_stats_at 统一计算。
+func apply_character(character_data: CharacterData, level: int = 1, promotion: PromotionData = null) -> void:
 	character_id = character_data.character_id
 	display_name = character_data.display_name
-	damage = character_data.base_damage
+	var stats := character_data.compute_stats_at(level, promotion)
+	damage = stats.damage
 	_base_damage = damage
-	range_radius = character_data.base_range
-	attack_cooldown = character_data.attack_interval
+	range_radius = stats.range
+	attack_cooldown = stats.attack_interval
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 

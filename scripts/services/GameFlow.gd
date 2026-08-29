@@ -6,10 +6,12 @@ extends Node
 const MAIN_MENU_SCENE := "res://scenes/MainMenu.tscn"
 const STAGE_SELECT_SCENE := "res://scenes/StageSelect.tscn"
 const SQUAD_SELECT_SCENE := "res://scenes/SquadSelect.tscn"
+const CHARACTER_DEVELOP_SCENE := "res://scenes/CharacterDevelop.tscn"
 const BATTLE_SCENE := "res://scenes/Main.tscn"
 const CHAPTER_SCENE_DIR := "res://resources/chapters"
 const STAGE_RESOURCE_DIR := "res://resources/stages"
 const CHARACTER_RESOURCE_DIR := "res://resources/characters"
+const PROMOTION_RESOURCE_DIR := "res://resources/promotions"
 const ITEM_RESOURCE_DIR := "res://resources/items"
 
 ## 新档初始武将（GDD 阶段 0 交付：刘备、关羽）。
@@ -102,8 +104,28 @@ func load_stage_data(stage_id: StringName) -> StageData:
 
 
 func load_character_data(character_id: String) -> CharacterData:
-	var path := "%s/%s.tres" % [CHARACTER_RESOURCE_DIR, character_id]
+	var path: String = "%s/%s.tres" % [CHARACTER_RESOURCE_DIR, character_id]
 	return load(path) as CharacterData if ResourceLoader.exists(path) else null
+
+
+## 武将当前等级（由存档 total_exp 推导，GDD modules/NUMBERS.md 10.1）。
+func get_character_level(profile: PlayerProfile, character_id: String) -> int:
+	if profile == null:
+		return 1
+	return LevelCurve.level_from_total_exp(profile.get_character_exp(character_id))
+
+
+## 当前生效的转职（promotion_path 末位；未转职返回 null）。
+func get_active_promotion(profile: PlayerProfile, character_id: String) -> PromotionData:
+	if profile == null:
+		return null
+	var entry := profile.get_character(character_id)
+	var promotion_path: Array = entry.get("promotion_path", [])
+	if promotion_path.is_empty():
+		return null
+	var promotion_id := str(promotion_path[promotion_path.size() - 1])
+	var path: String = "%s/%s.tres" % [PROMOTION_RESOURCE_DIR, promotion_id]
+	return load(path) as PromotionData if ResourceLoader.exists(path) else null
 
 
 func get_item_display_name(item_id: String) -> String:
@@ -133,6 +155,10 @@ func goto_stage_select() -> void:
 
 func goto_squad_select() -> void:
 	_change_scene(SQUAD_SELECT_SCENE)
+
+
+func goto_character_develop() -> void:
+	_change_scene(CHARACTER_DEVELOP_SCENE)
 
 
 func goto_battle() -> void:

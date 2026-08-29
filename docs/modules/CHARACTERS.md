@@ -32,7 +32,8 @@
   - 通关参与经验：`StageData.participant_xp`（已有：ch01_s01 = 50），按出阵武将分配。
 - **击杀经验归属规则（v0.7 新增，已实现）**：一次击杀发出的经验总量守恒等于 `kill_xp`。分配规则：**最后一击者得 50%（向上取整）**；其余 50% 由**所有对该敌人造成过伤害的武将均分**（含最后一击者，除不尽的余数归最后一击者）。无任何伤害记录时（防御情形）经验归最后一击者。目的：辅助/低攻速职业也能积累经验，避免队伍养成分化；该规则同时影响 [NUMBERS.md](NUMBERS.md) 10.1 的节奏校准。
 - **结算规则（核心）**：经验进入会话暂存，**通关后才写入对应武将**；失败/放弃全部作废。已在 `BattleSession.add_xp()` / `PlayerProfile.add_character_exp()` 实现。
-- **等级**：由 `total_exp` 推导（存档不存等级，只存经验，防止等级与经验不一致）。
+- **等级**：由 `total_exp` 推导（存档不存等级，只存经验，防止等级与经验不一致）。曲线封装在 `LevelCurve`（`exp_total_for_level` / `level_from_total_exp`，等级上限第一章暂定 30）。
+- **数值成长应用（v0.10 落地）**：建造武将塔时按当前等级实时计算属性——伤害 = `(base_damage + damage_growth_per_level × (等级−1)) × 转职伤害倍率`，射程/攻速同理（公式在 `CharacterData.compute_stats_at()`，战斗与养成界面共用同一实现）；局内升级（5.4）在此之上再 +25%/级。
 - **数值成长**：每级按 `CharacterData.damage_growth_per_level` 等成长系数递增；具体公式与曲线见 [NUMBERS.md](NUMBERS.md) 10.1/10.2。
 - **等级上限【待定】**：第一章暂定 30 级（10 级开一转），后续章节逐步放开。
 
@@ -40,12 +41,23 @@
 
 ## 4.5 转职
 
-- **一转（当前范围）**：每个武将一条简单线性路线（如关羽 → 突击骑 `guan_yu_charger`）。条件：达到 `required_level`（暂定 10 级）+ 消耗材料（如黄巾布）。转职后按 `PromotionData` 的倍率改变数值、获得技能（`granted_skill_ids`）、切换外观（`visual_variant_id`），并**强化大招**（`ultimate_multiplier`，如关羽一转后大招伤害 ×1.2）。
+- **一转（v0.10 已实现）**：每个武将一条简单线性路线（如关羽 → 突击骑 `guan_yu_charger`）。条件：达到 `required_level`（暂定 10 级）+ 消耗材料（`PromotionData.item_costs`，初稿黄巾布×10）。转职后按 `PromotionData` 的倍率改变数值（经 `compute_stats_at()` 应用到建造的塔）、获得技能（`granted_skill_ids`，阶段 5）、切换外观（`visual_variant_id`，阶段 5），并**强化大招**（`ultimate_multiplier`，阶段 3）。
+- **转职流程（v0.10）**：养成界面（`CharacterDevelop`）展示转职目标与条件（等级达标状态 + 材料持有量），满足后确认转职（不可逆提示）→ 校验 → 扣除材料（`PlayerProfile.spend_item`）→ `promotion_path` 追加并写档；当前转职取 `promotion_path` 末位。
 - **多分支转职【远期】**：`PromotionData` 已有 `parent_id` + `next_promotion_ids` 图结构，远期可实现"一转二选一"。**现阶段只填一条路线，不建分支。**
 - **二次转职【远期】**：在 `next_promotion_ids` 上扩展第二层。设计示例（关羽）：
   - 关羽（骑兵）→ 突击骑（一转）→ 武圣（二转，强化单体斩杀）/ 青龙骑（二转，强化穿透）【远期示例，暂不实现】
 - **转职硬规则**：转职不可逆（存档 `promotion_path` 记录历史）；未满足条件时界面不可点；转职不改变角色身份与等级。
-- **资源现状（v0.7）**：`guan_yu_charger` 为正式数值；刘备/黄忠/貂蝉的一转资源（`liu_bei_commander` / `huang_zhong_sharpshooter` / `diao_chan_inspirer`）为**占位**（倍率 1.0、无授予技能），阶段 2 细化。
+- **资源现状（v0.10 细化数值）**：
+
+| 转职 | 角色 | 伤害 | 射程 | 攻速 | 消耗 |
+|---|---|---|---|---|---|
+| `guan_yu_charger` 突击骑 | 关羽 | ×1.2 | ×1.0 | ×0.9 | 黄巾布×10 |
+| `zhang_fei_vanguard` 蛇矛先锋 | 张飞 | ×1.25 | ×1.0 | ×0.95 | 黄巾布×10 |
+| `liu_bei_commander` 仁德统军 | 刘备 | ×1.15 | ×1.0 | ×0.9 | 黄巾布×10 |
+| `huang_zhong_sharpshooter` 神射手 | 黄忠 | ×1.2 | ×1.15 | ×1.0 | 黄巾布×10 |
+| `diao_chan_inspirer` 倾城鼓舞 | 貂蝉 | ×1.1 | ×1.0 | ×0.85 | 黄巾布×10 |
+
+> `liu_bei_commander.target_profession` 已随刘备转剑客修正为 `pikeman.tres`（v0.9.2 遗留修正，v0.10 落地）。
 
 ---
 

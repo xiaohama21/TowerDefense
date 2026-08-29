@@ -51,6 +51,11 @@ func _build_ui() -> void:
 	continue_button.pressed.connect(func() -> void: GameFlow.goto_stage_select())
 	center.add_child(continue_button)
 
+	var develop_button := _make_menu_button("武将养成")
+	develop_button.visible = has_save
+	develop_button.pressed.connect(func() -> void: GameFlow.goto_character_develop())
+	center.add_child(develop_button)
+
 	var new_game_button := _make_menu_button("新的征程" if has_save else "开始游戏")
 	new_game_button.pressed.connect(_on_new_game_pressed)
 	center.add_child(new_game_button)

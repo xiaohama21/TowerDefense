@@ -56,7 +56,11 @@ func _on_build_requested(slot: Node) -> void:
 		build_failed.emit(slot, "occupied")
 		return
 
-	var tower: Tower = tower_manager.build_tower(slot.global_position, selected_character, slot)
+	var character_id := str(selected_character.character_id)
+	var profile := ProfileStore.get_profile()
+	var level := GameFlow.get_character_level(profile, character_id)
+	var promotion := GameFlow.get_active_promotion(profile, character_id)
+	var tower: Tower = tower_manager.build_tower(slot.global_position, selected_character, slot, level, promotion)
 	if tower != null:
 		if slot.has_method("mark_built"):
 			slot.mark_built()

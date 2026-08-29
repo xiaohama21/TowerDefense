@@ -162,6 +162,18 @@ func add_item(item_id: String, amount: int) -> int:
 	return next_amount
 
 
+## 消耗道具（转职扣料等）。数量不足时返回 false 且不做任何修改。
+func spend_item(item_id: String, amount: int) -> bool:
+	var key := item_id.strip_edges()
+	if key.is_empty() or amount <= 0:
+		return false
+	var current := _coerce_non_negative_int(items.get(key, 0))
+	if current < amount:
+		return false
+	items[key] = current - amount
+	return true
+
+
 func mark_stage_completed(stage_id: String, result: Dictionary = {}) -> bool:
 	var key := stage_id.strip_edges()
 	if key.is_empty():

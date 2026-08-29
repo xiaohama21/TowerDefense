@@ -1,6 +1,6 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.9.5（2026-08-29）
+> 版本：v0.10.0（2026-08-29）
 > v0.2 变更：新增怒气/大招系统（4.6）、角色特性（4.7）与数据字段扩展；阶段 3 落地基础机制，阶段 5 完善演出。
 > v0.3 变更：新增近战基础职业"枪兵"（4.2/4.6/10.5），第一章角色职业重排（张飞、周仓、赵云为枪兵），阶段 1 新增枪兵职业开发。
 > v0.4 变更：阶段 0 完成"数据驱动可玩单关"（战斗内容接入 StageData/EnemyData/CharacterData；初始武将刘备/关羽；建造栏切换武将；塔显示武将名与职业配色；首通奖励结算）。
@@ -14,6 +14,7 @@
 > v0.9.3 变更：修复两处战斗界面问题——①顶栏新增"退出"按钮，未结算时弹确认框"退出将放弃本局收益"（落实核心规则"中途退出作废"，由 `_exit_tree` 的会话弃置兜底）；②结算面板改由全屏 `CenterContainer` 承载，保证严格居中并在展示期间充当模态（遮住后方顶栏与地图点击）。
 > v0.9.4 变更：动作模组表现层调整——近战 `melee_thrust` 由"枪口闪光"改为**武器挥动 + 渐隐斩击弧**（约 130° 扫击），消除"近战像发弹幕"的观感；架构上明确**攻击表现由行为执行器自行触发**（弹道类=枪口闪光，近战类=挥击弧），`Tower.attack()` 不再统一触发出击特效（见 modules/BEHAVIORS.md B.1/B.3.1）。
 > v0.9.5 变更：骑兵 `single_target_burst` 由"斩击刀光"弹道改为**近战挥击直伤**（与剑客同族表现：武器挥动 + 斩击弧，斩弧按职业配色着色）——骑兵与剑客同属贴路近战职业（5.6），不再有飞行弹道；弹道类仅剩弓箭手/术士/舞娘。`Bullet` 中不再被使用的骑兵弹道造型随之移除。
+> v0.10.0 变更：**阶段 2 完成**——武将养成（升级与一转）落地。等级曲线封装为 `LevelCurve`（上限 30 级，见 modules/NUMBERS.md 10.1）；建造武将塔按等级+转职实时计算属性（`CharacterData.compute_stats_at()`，战斗与养成界面共用，见 4.4/10.2）；养成界面 `CharacterDevelop`（等级/经验条/属性/一转流程，主菜单进入）与转职流程（等级+材料校验、不可逆确认、`PlayerProfile.spend_item` 扣料、`promotion_path` 写档）；五个一转配置细化数值并统一消耗黄巾布×10（4.5 表），`liu_bei_commander.target_profession` 修正为剑客；s01~s03 配置重复通关过渡奖励黄巾布×2/次（7.2），保障转职材料收入；修复 FlowRunner 未 await 各测试协程导致断言空跑的框架缺陷（顺带全程真实执行）。
 > 状态：设计基准与总索引。**任何功能改动必须先更新对应设计文档（总纲或模块文档），再进入开发**；模块细节以模块文档为权威，跨模块或影响总纲结论的变更须回写本文档并递增版本号。
 > 引擎：Godot 4.7（GL Compatibility，2D），分辨率 1280×720。
 > 项目根目录：`G:\godotProject\tower-defense`
@@ -135,14 +136,15 @@
 - **验收标准达成**：三关解锁推进链路由 FlowRunner 自动验证；存档写入/重启保留由 Stage0Runner 契约锁定；失败零成长由契约用例（失败战局不可提交）锁定；新档连打 3 关的推进时间待人工实测确认（预期 < 20 分钟）。
 - **不做**：抽奖、技能演出、转职界面、美术资源。
 
-### 阶段 2：角色养成（升级与一转）
+### 阶段 2：角色养成（升级与一转） —— ✅ 已完成（v0.10.0）
 
 - **目标**：武将可升级、可转职，养成结果持久且可感知。
 - **范围**：
   - 武将详情界面（等级、经验条、属性、转职按钮）。
   - 转职流程（等级+材料校验、消耗、`promotion_path` 写入、数值/外观应用）。
   - 补齐全部已有角色的一转配置（刘备/黄忠/貂蝉 + 新角色；v0.7 已建占位资源，本阶段细化数值）。
-- **验收标准**：角色升到 10 级可转职；转职后伤害/攻速变化可感知；重启游戏状态不变；材料不足时无法转职。
+- **交付摘要（v0.10.0）**：养成界面（列表 + 详情 + 经验条 + 转职流程）；`LevelCurve` 等级曲线（30 级封顶）；建造时按 `compute_stats_at()` 应用等级成长与转职倍率（与界面展示同源）；转职消耗黄巾布×10、重复通关过渡掉落黄巾布×2/次；`spend_item` 材料扣减入库存档契约测试。
+- **验收标准达成**：升级到 10 级可转职（曲线+校验自动化）；转职后伤害/攻速变化可感知（属性面板与界面同源数值，自动断言）；重启后状态保留（存档契约往返用例）；材料不足无法转职（`spend_item` 契约 + 界面按钮禁用用例）。数值倍率为初稿，待实测平衡。
 - **不做**：多分支、二转、升星。
 
 ### 阶段 3：第一章内容补全
@@ -236,10 +238,10 @@ scenes/
   MainMenu / StageSelect / SquadSelect  # 流程界面（阶段 1，UI 代码构建）
   Main / UI / Tower / Bullet / Enemy / BuildSlot  # 战斗场景
 scripts/
-  data/        # CharacterData / ProfessionData / PromotionData / EnemyData /
-               # StageData（含布局与局内经济字段）/ WaveData / EnemySpawnData /
-               # ChapterData / ItemData / ItemAmountData / PlayerProfile
-  services/    # SaveManager（存档事务）、BattleSession（会话结算）、GameFlow（流程导航）
+  data/        # CharacterData（含 compute_stats_at）/ ProfessionData / PromotionData /
+               # LevelCurve（等级曲线）/ EnemyData / StageData（含布局与局内经济字段）/
+               # WaveData / EnemySpawnData / ChapterData / ItemData / ItemAmountData / PlayerProfile
+  services/    # SaveManager（存档事务）、BattleSession（会话结算）、GameFlow（流程导航 + 养成查询）
   combat/      # BehaviorRegistry（最小行为注册表：behavior_id 分发 + 职业克制）
   ui_screens/  # MainMenu / StageSelect / SquadSelect
   *.gd         # GameManager / BuildManager / TowerManager / Main / Tower /

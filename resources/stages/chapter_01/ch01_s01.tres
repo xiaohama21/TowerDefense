@@ -116,5 +116,5 @@ decor_cells = [Vector2i(2, 1), Vector2i(5, 1), Vector2i(10, 1), Vector2i(14, 1),
 prerequisite_stage_ids = []
 first_clear_unlock_character_ids = [&"guan_yu"]
 first_clear_rewards = [SubResource("ItemAmountData_cloth")]
-repeat_clear_rewards = []
+repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 50

@@ -23,9 +23,11 @@ func _check(condition: bool, message: String) -> void:
 
 func _run() -> void:
 	var profile := _test_unlock_logic()
-	_test_stage_select_screen(profile)
-	_test_squad_select_screen()
-	_test_battle_entry()
+	# 各测试函数含 await，必须逐个等待，否则 _finish 会在断言执行前提前退出。
+	await _test_stage_select_screen(profile)
+	await _test_squad_select_screen()
+	await _test_character_develop_screen()
+	await _test_battle_entry()
 	_cleanup()
 	_finish()
 
@@ -134,6 +136,24 @@ func _test_squad_select_screen() -> void:
 	await get_tree().process_frame
 	_check(toggles.all(func(button: Button) -> bool: return not button.disabled),
 		"未达编队上限时所有武将可勾选")
+	scene.queue_free()
+	await get_tree().process_frame
+
+
+## 养成界面（GDD 阶段 2）：列出初始武将；等级/材料不足时转职按钮禁用。
+func _test_character_develop_screen() -> void:
+	var scene := (load("res://scenes/CharacterDevelop.tscn") as PackedScene).instantiate()
+	add_child(scene)
+	await get_tree().process_frame
+
+	var toggles := 0
+	for button in _collect_buttons(scene):
+		if button.toggle_mode:
+			toggles += 1
+	_check(toggles == 2, "养成界面应列出 2 名初始武将")
+	var promote_button = scene.get("_promotion_button")
+	_check(promote_button != null and promote_button.disabled,
+		"等级/材料不足时转职按钮应禁用")
 	scene.queue_free()
 	await get_tree().process_frame
 

@@ -1,7 +1,14 @@
-[gd_resource type="Resource" script_class="PromotionData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
 [ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
+
+[sub_resource type="Resource" id="ItemAmountData_cloth10"]
+script = ExtResource("3_amount")
+item = ExtResource("4_cloth")
+amount = 10
 
 [resource]
 script = ExtResource("1_promotion")
@@ -17,3 +24,4 @@ range_multiplier = 1.0
 attack_interval_multiplier = 0.9
 granted_skill_ids = [&"charge"]
 visual_variant_id = &"guan_yu_charger"
+item_costs = [SubResource("ItemAmountData_cloth10")]
