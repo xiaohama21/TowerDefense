@@ -348,14 +348,16 @@ func _draw_body() -> void:
 
 
 func _draw_slash_arc() -> void:
-	# 挥击弧：从挥击起点画到当前位置，随挥动渐隐，跟随瞄准方向。
+	# 挥击弧：从挥击起点画到当前位置，随挥动渐隐，跟随瞄准方向；
+	# 弧光按职业配色着色（骑兵偏红、剑客偏绿）。
 	var t := 1.0 - _melee_swing / MELEE_SWING_DURATION
 	var eased := 1.0 - (1.0 - t) * (1.0 - t)
 	var current := _aim_angle + lerpf(MELEE_SWING_FROM, MELEE_SWING_TO, eased)
 	var start := _aim_angle + MELEE_SWING_FROM
 	var alpha := clampf(0.9 - t * 0.75, 0.12, 0.9)
+	var tint := Color(1.0, 0.98, 0.9).lerp(_hero_color, 0.35)
 	draw_arc(Vector2.ZERO, MELEE_SLASH_RADIUS, start, current, 14,
-		Color(1.0, 0.97, 0.85, alpha), 4.0)
+		Color(tint.r, tint.g, tint.b, alpha), 4.0)
 
 
 func _draw_weapon() -> void:

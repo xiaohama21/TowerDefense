@@ -102,9 +102,8 @@ func _run() -> void:
 	_check(first_tower.find_target() == boss, "塔应锁定射程内 Boss")
 	first_tower.target = boss
 	first_tower.attack()
-	for _i in range(20):
-		await get_tree().physics_frame
-	_check(boss.current_hp < 800, "子弹应对 Boss 造成伤害")
+	_check(first_tower.is_swinging(), "骑兵攻击应触发挥击动作（无弹道）")
+	_check(boss.current_hp < 800, "骑兵近战攻击应对 Boss 造成伤害")
 	if is_instance_valid(boss):
 		boss.die(false)
 
@@ -152,7 +151,7 @@ func _run() -> void:
 			_check(spear_tower.battle_level == stage_data.max_inbattle_upgrade_level, "升级应止步于本关上限")
 			_check(not tower_manager.upgrade_tower(spear_tower, stage_data), "超过上限后升级应失败")
 
-			# 近战行为集成（GDD modules/BEHAVIORS.md melee_thrust）：
+			# 近战行为集成（剑客）（GDD modules/BEHAVIORS.md melee_thrust）：
 			# 直伤一次带骑兵标签的轻骑，验证 15% 克制与近战无弹道。
 			var cavalry_data := load("res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres") as EnemyData
 			var melee_target := enemy_manager.spawn_enemy_from_data(cavalry_data) as Enemy
@@ -164,7 +163,7 @@ func _run() -> void:
 				spear_tower.attack()
 				_check(
 					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15)),
-					"枪兵近战直伤应含 15% 骑兵克制"
+					"剑客近战直伤应含 15% 骑兵克制"
 				)
 				_check(spear_tower.is_swinging(), "近战攻击应触发挥击动作而非枪口闪光")
 				melee_target.die(false)
@@ -177,16 +176,16 @@ func _run() -> void:
 			_check(GameManager.gold == gold_before_sell + refund, "回收后应返还金币")
 			_check(not slots[2].occupied, "回收后建造槽应可复用")
 
-	# 枪兵职业克制（GDD 4.2）：对 cavalry 标签敌人伤害 +15%。
+	 # 剑客职业克制（GDD 4.2，profession_id=pikeman）：对 cavalry 标签敌人伤害 +15%。
 	_check(is_equal_approx(
 		BehaviorRegistry.get_profession_counter(&"pikeman", [&"cavalry"] as Array[StringName]), 1.15
-	), "枪兵对骑兵标签应有 1.15 克制倍率")
+	), "剑客对骑兵标签应有 1.15 克制倍率")
 	_check(is_equal_approx(
 		BehaviorRegistry.get_profession_counter(&"pikeman", [&"infantry"] as Array[StringName]), 1.0
-	), "枪兵对步兵标签应无克制")
+	), "剑客对步兵标签应无克制")
 	_check(is_equal_approx(
 		BehaviorRegistry.get_profession_counter(&"cavalry", [&"cavalry"] as Array[StringName]), 1.0
-	), "其他职业不应触发枪兵克制")
+	), "其他职业不应触发剑客克制")
 
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。

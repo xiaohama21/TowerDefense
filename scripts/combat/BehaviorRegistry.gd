@@ -17,14 +17,12 @@ static var _attack_executors: Dictionary = {}
 static func _ensure_registry() -> void:
 	if not _attack_executors.is_empty():
 		return
-	# 现有四个职业的弹道攻击共用单体执行器，差异由职业数值与弹道视觉承载；
-	# 范围/光环结算随阶段 3 拆分为独立执行器。
-	for behavior_id in [
-		&"single_target_burst", &"single_target_precision",
-		&"area_spell", &"attack_speed_aura",
-	]:
+	# 弹道类：弓箭手/术士/舞娘（单体结算，职业范围/光环结算随阶段 3 拆分）。
+	for behavior_id in [&"single_target_precision", &"area_spell", &"attack_speed_aura"]:
 		_attack_executors[behavior_id] = _attack_single_target_bullet
-	_attack_executors[&"melee_thrust"] = _attack_melee_thrust
+	# 近战类：直伤 + 武器挥击表现（无弹道）。骑兵与剑客同属贴路近战职业。
+	for behavior_id in [&"single_target_burst", &"melee_thrust"]:
+		_attack_executors[behavior_id] = _attack_melee_swing
 
 
 ## 执行一次职业攻击行为。返回 false 表示该 ID 未注册。
@@ -53,7 +51,8 @@ static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 	tower.play_attack_flash()
 
 
-static func _attack_melee_thrust(tower: Tower, target: Enemy) -> void:
+static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
+	## 近战直伤 + 武器挥击表现；伤害含职业克制（剑客对 cavalry 标签 +15%）。
 	var damage := int(round(tower.damage * get_profession_counter(tower.get_profession_id(), target.tags)))
 	target.take_damage(damage, tower.character_id)
 	tower.play_melee_hit()

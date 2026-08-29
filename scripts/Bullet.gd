@@ -48,12 +48,6 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	match kind:
-		&"cavalry":
-			# 斩击刀光：短粗刃 + 尾迹
-			draw_colored_polygon(PackedVector2Array([
-				Vector2(10, 0), Vector2(-4, -5), Vector2(-1, 0), Vector2(-4, 5),
-			]), color.lightened(0.25))
-			draw_line(Vector2(-10, 0), Vector2(-4, 0), Color(1.0, 1.0, 0.85, 0.7), 3.0)
 		&"archer":
 			# 箭矢：杆 + 箭头 + 尾羽
 			draw_line(Vector2(-12, 0), Vector2(8, 0), Color(0.72, 0.55, 0.3, 1.0), 2.5)
