@@ -31,7 +31,7 @@
 | `yellow_turban_soldier` | 黄巾步卒 | 炮灰 | 100HP / 80速 / 漏1血 | 已有 |
 | `yellow_turban_cavalry` | 黄巾轻骑 | 快速 | 110HP / 145速 / 漏2血 | 已有 |
 | `yellow_turban_sergeant` | 黄巾伍长 | 精英 | 300HP / 65速 / 漏2血 | 已有 |
-| `yellow_turban_archer` | 黄巾弓手 | 远程（慢速高漏伤） | 90HP / 60速 / 漏3血 | 新增（阶段 1） |
+| `yellow_turban_archer` | 黄巾弓手 | 远程（慢速高漏伤） | 90HP / 60速 / 漏3血 | 已有（v0.9） |
 | `yellow_turban_berserker` | 黄巾力士 | 高血坦克 | 450HP / 45速 / 漏2血 | 新增（阶段 3） |
 | `yellow_turban_sorcerer` | 黄巾祭酒 | 光环支援 | 200HP / 55速 / 治疗光环 | 新增（阶段 3） |
 | `yellow_turban_general` | 黄巾渠帅（张梁） | Boss | 高血 + 召唤护卫波 | 新增（阶段 3） |

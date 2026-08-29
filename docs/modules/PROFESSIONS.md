@@ -36,10 +36,10 @@
 | `archer.tres` | 弓箭手 | DAMAGE | SINGLE_TARGET | `single_target_precision` | 1.0 | 1.3 | 0.95 |
 | `strategist.tres` | 术士 | HYBRID | AREA | `area_spell` | 0.9 | 1.1 | 1.15 |
 | `dancer.tres` | 舞娘 | SUPPORT | AURA | `attack_speed_aura` | 0.35 | 0.95 | 1.0 |
-| `pikeman.tres`【阶段 1 待建】 | 枪兵 | DAMAGE | SINGLE_TARGET | 近战行为【待定 ID】 | 1.0 | 1.0 | ≤0.9（攻速偏快） |
+| `pikeman.tres`（v0.9） | 枪兵 | DAMAGE | SINGLE_TARGET | `melee_thrust` | 1.0 | 1.0 | 1.0（角色攻速偏快承载） |
 
 说明：
 - 职业乘数是相对"角色基础属性"的修正（角色 `.tres` 存绝对值，职业乘数在应用时相乘）；数值基调见 [NUMBERS.md](NUMBERS.md) 10.2/10.3。
-- 术士与舞娘的 `behavior_id`（`area_spell` / `attack_speed_aura`）当前**仅作数据声明**，实际结算仍是单体弹道；范围/光环结算随阶段 3 行为注册表落地（见 [BEHAVIORS.md](BEHAVIORS.md) B.2/B.3.1）。
-- 枪兵落地时（阶段 1）须同步：新建 `pikeman.tres`、注册其近战攻击行为、实现职业克制（对 `cavalry` 标签敌人 +15%）。
+- 术士与舞娘的 `behavior_id`（`area_spell` / `attack_speed_aura`）已随 v0.9 最小行为注册表迁入分发，**结算当前仍为单体弹道**；范围/光环结算随阶段 3 拆分（见 [BEHAVIORS.md](BEHAVIORS.md) B.2/B.3.1）。
+- 枪兵已落地（v0.9）：近战直伤行为 `melee_thrust`（无弹道），对 `cavalry` 标签敌人伤害 +15%（克制常量在 `BehaviorRegistry`）；攻速偏快由角色 `attack_interval` 承载（张飞 0.7s）。
 - 阶段 3 字段扩展（`ultimate_id`、`rage_gain_mode`、积怒参数）见 [CHARACTERS.md](CHARACTERS.md) 4.7 汇总。

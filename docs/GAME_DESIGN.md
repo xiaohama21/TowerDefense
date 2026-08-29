@@ -1,6 +1,6 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.8（2026-08-29）
+> 版本：v0.9（2026-08-29）
 > v0.2 变更：新增怒气/大招系统（4.6）、角色特性（4.7）与数据字段扩展；阶段 3 落地基础机制，阶段 5 完善演出。
 > v0.3 变更：新增近战基础职业"枪兵"（4.2/4.6/10.5），第一章角色职业重排（张飞、周仓、赵云为枪兵），阶段 1 新增枪兵职业开发。
 > v0.4 变更：阶段 0 完成"数据驱动可玩单关"（战斗内容接入 StageData/EnemyData/CharacterData；初始武将刘备/关羽；建造栏切换武将；塔显示武将名与职业配色；首通奖励结算）。
@@ -8,6 +8,7 @@
 > v0.6 变更：新增局内塔升级与回收机制（5.4，含 StageData 字段扩展，阶段 1 实施）；明确求贤卡池规则（7.3）；修正项目根目录路径。
 > v0.7 变更：拍板"允许同武将多塔"（4.1）；新增击杀经验归属规则并落地实现（4.4：最后一击 50% + 参与者均分 50%），同步校准 10.1 节奏口径；补 10.5 局内升级大招倍率表（修复 5.4 悬空引用）；统一单局时长口径（第 1 节）；积怒模式改为行为层属性 `rage_gain_mode`（4.6/4.7，解决刘备"术士职业·辅助定位"矛盾）；新增 5.6 关卡布局设计规范；明确 `preparation_time` 保留策略（5.1）与 `completion_currency` 默认关闭（5.3）；护甲减算公式落地（5.5）；赵云定位标注修正；补齐刘备/黄忠/貂蝉转职占位 `.tres`（倍率 1.0，阶段 2 细化）；冒烟测试新增资源完整性扫描。
 > v0.8 变更：**文档模块化拆分**——角色、职业、关卡、敌人、动作模组、数值、掉落与抽奖、存档、UI 九个模块拆分至 `docs/modules/`；本文档保留为总纲与索引（概述/核心循环/章节规划/阶段规划/铁律/风险/附录），原 11/12/13 与附录的章节编号保持不变，避免与模块编号（4.x / 5.x / 10.x）冲突。原全局章节编号（如 5.4、10.5）保留为**跨文档稳定引用 ID**，引用时写明所在模块文档。
+> v0.9 变更：**阶段 1 完成**——主菜单/选关/编队/结算全流程闭环（新增 `GameFlow` 流程控制器、三个界面场景、战斗结算面板）；局内升级/回收落地（5.4 字段 + 已建塔交互面板，费用/返还公式见 modules/STAGES.md 5.4）；最小行为注册表落地（modules/BEHAVIORS.md B.2：现有四职业弹道攻击迁入注册表，新增 `melee_thrust` 近战行为与枪兵对 `cavalry` 标签 +15% 克制）；战场布局数据驱动化（`StageData` 新增 `path_points` / `build_slot_positions` / `decor_cells`，`GridBackground` 改为注入式绘制，道路格子由路径逐格推导）；新增黄巾弓手敌人、张飞（枪兵）、`ch01_s02` / `ch01_s03` 两关（按 5.6 规范设计，各 6 波，首通奖励黄巾布×2）；新增 `tests/FlowRunner.tscn` 流程测试（解锁链路、布局规范抽查、编队上限、战斗入场参数）；新档初始武将发放统一至 `GameFlow.ensure_initial_characters()`。
 > 状态：设计基准与总索引。**任何功能改动必须先更新对应设计文档（总纲或模块文档），再进入开发**；模块细节以模块文档为权威，跨模块或影响总纲结论的变更须回写本文档并递增版本号。
 > 引擎：Godot 4.7（GL Compatibility，2D），分辨率 1280×720。
 > 项目根目录：`G:\godotProject\tower-defense`
@@ -109,7 +110,7 @@
 - **网格化地图与矢量美术（本次交付）**：地图为 16×9 的 80px 网格（`GridBackground.gd` 程序绘制棋盘格瓦片、瓦片道路、入口/基地与规整装饰）；敌人路径为直角折线（`Path2D`）；10 个建造位严格对齐网格并贴邻道路；塔按职业绘制武将造型（骑兵=骑马持枪、弓箭手=弓手、术士=袍杖、舞娘=裙带），攻击弹道按职业区分（斩击/箭矢/法球/音波），敌人带黄巾头带造型。素材均为程序化矢量，`assets/` 目录暂空，正式美术资源【远期】替换。
 - **遗留缺口**：主菜单/选关/编队界面未接全（当前启动即进入 `ch01_s01` 战斗，胜利后重开本关）；`Stage0Runner` 需在正常桌面环境运行（沙箱内 `user://` 不可写会导致 Godot 崩溃）。
 
-### 阶段 1：主界面与完整关卡流程闭环 —— 下一步
+### 阶段 1：主界面与完整关卡流程闭环 —— ✅ 已完成（v0.9）
 
 - **目标**：玩家能从主菜单完整地"选关 → 编队 → 战斗 → 结算 → 解锁下一关 → 存档"，连续打穿至少 3 个关卡。
 - **范围**：
@@ -121,7 +122,12 @@
   - 补建 `ch01_s02`、`ch01_s03` 两个关卡（波次配置 + 新敌人黄巾弓手；布局遵循 modules/STAGES.md 5.6）。
   - 新增职业：枪兵（`pikeman.tres` + 行为脚本 + 职业克制；**最小行为注册表随此落地**，见 modules/BEHAVIORS.md）。
   - 新增角色：张飞（枪兵）、黄忠（黄忠数据已有，接关卡解锁）、补齐 2~3 条一转配置。
-- **验收标准**：新档从零开始，可在 20 分钟内连续通关 3 关；等级、道具、关卡进度在重启游戏后正确保留；失败关卡不产生任何成长。
+- **交付摘要（v0.9）**：
+  - 流程：`GameFlow` 自动加载持有"选中关卡/出战编队"临时状态并负责场景导航；`MainMenu` / `StageSelect` / `SquadSelect` 三个界面（代码构建 UI）；主场景改为 `MainMenu.tscn`；战斗内新增结算面板（经验/掉落/新武将明细 + 下一关/重试/返回选关），失败面板明确"不产生任何成长"。
+  - 战斗：局内升级/回收面板（选中塔展示费用与返还）；`BehaviorRegistry` 按 `behavior_id` 分发攻击执行器，枪兵 `melee_thrust` 近战直伤 + 对 `cavalry` 标签 +15%；`Enemy` 传递 `tags`。
+  - 内容与布局：战场布局（路径拐点、建造位、装饰格）全部进入 `StageData`，`GridBackground` 注入式绘制、道路格由路径推导；`ch01_s02`（6 波人海，解锁张飞）、`ch01_s03`（6 波弓手，解锁黄忠），均按 5.6 配比设计并通过 FlowRunner 规范抽查。
+  - 测试：`FlowRunner`（解锁链路/布局规范/编队上限/战斗入场参数）+ `SmokeRunner` 新增升级回收数学、近战克制用例；`Stage0Runner` 存档契约不受影响。
+- **验收标准达成**：三关解锁推进链路由 FlowRunner 自动验证；存档写入/重启保留由 Stage0Runner 契约锁定；失败零成长由契约用例（失败战局不可提交）锁定；新档连打 3 关的推进时间待人工实测确认（预期 < 20 分钟）。
 - **不做**：抽奖、技能演出、转职界面、美术资源。
 
 ### 阶段 2：角色养成（升级与一转）
@@ -214,23 +220,28 @@
 
 ```
 resources/
-  chapters/chapter_01.tres          # 第一章（黄巾之乱）
-  characters/                       # 刘备、关羽、黄忠、貂蝉（CharacterData）
+  chapters/chapter_01.tres          # 第一章（黄巾之乱，s01~s03 已接入）
+  characters/                       # 刘备、关羽、黄忠、貂蝉、张飞（CharacterData）
   professions/                      # cavalry / pikeman / archer / strategist / dancer
-  promotions/                       # 关羽一转（正式数值）+ 刘备/黄忠/貂蝉一转（v0.7 占位，倍率 1.0）
-  enemies/yellow_turban/            # 步卒 / 轻骑 / 伍长
+  promotions/                       # 关羽一转（正式数值）+ 刘备/黄忠/貂蝉/张飞一转（占位，倍率 1.0）
+  enemies/yellow_turban/            # 步卒 / 轻骑 / 伍长 / 弓手
   items/                            # 求贤令（gacha_token）、黄巾布
-  stages/chapter_01/ch01_s01.tres   # 首关（5 波，教学）
+  stages/chapter_01/                # ch01_s01（5 波教学）/ ch01_s02、ch01_s03（各 6 波，含布局数据）
+scenes/
+  MainMenu / StageSelect / SquadSelect  # 流程界面（阶段 1，UI 代码构建）
+  Main / UI / Tower / Bullet / Enemy / BuildSlot  # 战斗场景
 scripts/
   data/        # CharacterData / ProfessionData / PromotionData / EnemyData /
-               # StageData / WaveData / EnemySpawnData / ChapterData / ItemData /
-               # ItemAmountData / PlayerProfile
-  services/    # SaveManager（存档事务）、BattleSession（会话结算）
+               # StageData（含布局与局内经济字段）/ WaveData / EnemySpawnData /
+               # ChapterData / ItemData / ItemAmountData / PlayerProfile
+  services/    # SaveManager（存档事务）、BattleSession（会话结算）、GameFlow（流程导航）
+  combat/      # BehaviorRegistry（最小行为注册表：behavior_id 分发 + 职业克制）
+  ui_screens/  # MainMenu / StageSelect / SquadSelect
   *.gd         # GameManager / BuildManager / TowerManager / Main / Tower /
                # Enemy / Bullet / UI / BuildSlot / GridBackground / WaveManager / EnemyManager
-tests/         # SmokeRunner / Stage0Runner / VisualPreviewRunner（含资源完整性扫描）
+tests/         # SmokeRunner / FlowRunner / Stage0Runner / VisualPreviewRunner
 ```
 
-行为 ID 注册表：`behavior_id`（职业攻击）、`special_behavior_id`（敌人特殊行为）、`ultimate_id`（职业大招）、`trait_id`（角色特性）统一由行为注册表（脚本按 ID 分发）驱动，禁止在战斗脚本中硬编码。**架构、规格清单与新增流程见 [modules/BEHAVIORS.md](modules/BEHAVIORS.md)**。
+行为 ID 注册表：`behavior_id`（职业攻击）、`special_behavior_id`（敌人特殊行为）、`ultimate_id`（职业大招）、`trait_id`（角色特性）统一由行为注册表（脚本按 ID 分发）驱动，禁止在战斗脚本中硬编码。**架构、规格清单与新增流程见 [modules/BEHAVIORS.md](modules/BEHAVIORS.md)**（阶段 1 已落地最小注册表：职业攻击行为分发 + 枪兵克制）。
 
 > 维护约定：本文档更新时同步递增版本号并记录变更；模块文档各自维护细节内容，跨模块/结构性变更须回写本文档。资源 ID 命名遵循现有 `snake_case` 风格（如 `ch01_s02`、`yellow_turban_archer`）。
