@@ -54,6 +54,7 @@ var _dialogue_speaker_label: Label
 var _dialogue_text_label: Label
 var _dialogue_lines: Array = []
 var _dialogue_index: int = 0
+var _dialogue_advance_after_msec: int = 0
 
 
 func _ready() -> void:
@@ -337,6 +338,9 @@ func _create_dialogue_layer() -> void:
 
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(0, 190)
+	# 面板可穿透：点击台词区域同样推进（否则"点击任意处"在最自然的
+	# 位置失效）；下方的跳过按钮保持 STOP，点击不会误触推进。
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
 	_dialogue_layer.add_child(panel)
 	panel.anchor_left = 0.0
@@ -394,6 +398,8 @@ func show_dialogue(lines: Array) -> void:
 	_dialogue_lines = lines
 	_dialogue_index = 0
 	_dialogue_layer.visible = true
+	# 打开瞬间与每次推进后的短防抖：快速连点不会一次跳过多行。
+	_dialogue_advance_after_msec = Time.get_ticks_msec() + 200
 	_show_current_line()
 
 
@@ -407,8 +413,16 @@ func _show_current_line() -> void:
 
 
 func _on_dialogue_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
-		_advance_dialogue()
+	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed 			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		_try_advance_dialogue()
+
+
+func _try_advance_dialogue() -> void:
+	var now := Time.get_ticks_msec()
+	if now < _dialogue_advance_after_msec:
+		return
+	_dialogue_advance_after_msec = now + 180
+	_advance_dialogue()
 
 
 func _advance_dialogue() -> void:

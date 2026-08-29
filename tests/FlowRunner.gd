@@ -207,10 +207,25 @@ func _test_battle_entry() -> void:
 	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer
 	_check(result_center != null and result_center.size == get_viewport().get_visible_rect().size,
 		"结算弹窗承载容器应铺满视口（保证居中）")
-	# 剧情对话（v0.12）：战斗开场播放，跳过后关闭；主题层随关卡生效。
+	# 剧情对话（v0.12）：战斗开场播放；v0.12.1 交互——防抖内连点不跳行、
+	# 冷却后单击推进、跳过关闭。
 	var dialogue_layer := main.get_node("UI/Root/DialogueLayer")
+	var dialogue_ui := main.get_node("UI")
 	_check(dialogue_layer != null and dialogue_layer.visible, "战斗开场应播放剧情对话层")
-	main.get_node("UI").skip_dialogue()
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	dialogue_ui._on_dialogue_input(click)
+	_check(int(dialogue_ui.get("_dialogue_index")) == 0, "防抖窗口内连点不应跳行")
+	await get_tree().create_timer(0.25).timeout
+	dialogue_ui._on_dialogue_input(click)
+	_check(int(dialogue_ui.get("_dialogue_index")) == 1, "防抖后单击应推进一行")
+	dialogue_ui._on_dialogue_input(click)
+	_check(int(dialogue_ui.get("_dialogue_index")) == 1, "180ms 防抖内的紧连点击应被拦截")
+	await get_tree().create_timer(0.25).timeout
+	dialogue_ui._on_dialogue_input(click)
+	_check(int(dialogue_ui.get("_dialogue_index")) == 2, "防抖窗口过后单击应继续推进")
+	dialogue_ui.skip_dialogue()
 	_check(not dialogue_layer.visible, "跳过后对话层应关闭")
 	var grid_bg := main.get_node("GridBackground") as GridBackground
 	_check(grid_bg.theme_name == &"fire", "s02 应应用火攻主题")
