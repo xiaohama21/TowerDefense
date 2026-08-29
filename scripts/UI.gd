@@ -331,7 +331,7 @@ func _create_result_panel() -> void:
 	_result_center.name = "ResultCenter"
 	_result_center.visible = false
 	$Root.add_child(_result_center)
-	_result_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_result_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	_result_panel = PanelContainer.new()
 	_result_panel.name = "ResultPanel"

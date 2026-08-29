@@ -4,8 +4,16 @@ var failures: Array[String] = []
 var warnings: Array[String] = []
 
 
+var _profile_file := ""
+
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# 隔离存档槽：测试直开 Main.tscn 会触发初始武将写档与等级查询，
+	# 不得读写玩家真实存档（模式同 FlowRunner/Stage0Runner）。
+	var nonce := "%s_%s" % [str(Time.get_unix_time_from_system()), str(Time.get_ticks_usec())]
+	_profile_file = "user://.smoke_runner_%s.json" % nonce
+	ProfileStore.configure_paths(_profile_file)
 	call_deferred("_run")
 
 
@@ -229,6 +237,10 @@ func _run() -> void:
 
 func _finish() -> void:
 	get_tree().paused = false
+	for suffix in ["", ".bak", ".tmp"]:
+		var path: String = _profile_file + suffix
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	for warning in warnings:
 		print("SMOKE_TEST_WARN: %s" % warning)
 	if failures.is_empty():

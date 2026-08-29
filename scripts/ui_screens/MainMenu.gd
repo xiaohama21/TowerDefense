@@ -16,11 +16,11 @@ func _ready() -> void:
 func _build_ui() -> void:
 	var background := ColorRect.new()
 	background.color = BG_COLOR
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
 	var center := VBoxContainer.new()
-	center.set_anchors_preset(Control.PRESET_CENTER)
+	center.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	center.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	center.grow_vertical = Control.GROW_DIRECTION_BOTH
 	center.alignment = BoxContainer.ALIGNMENT_CENTER

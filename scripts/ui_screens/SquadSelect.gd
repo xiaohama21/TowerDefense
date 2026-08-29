@@ -44,11 +44,11 @@ func _load_owned_characters() -> void:
 func _build_ui() -> void:
 	var background := ColorRect.new()
 	background.color = BG_COLOR
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
 	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 100)
 	margin.add_theme_constant_override("margin_right", 100)
 	margin.add_theme_constant_override("margin_top", 48)

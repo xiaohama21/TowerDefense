@@ -26,12 +26,12 @@ func _ready() -> void:
 func _build_ui() -> void:
 	var background := ColorRect.new()
 	background.color = BG_COLOR
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
 	var columns := HBoxContainer.new()
 	columns.name = "Columns"
-	columns.set_anchors_preset(Control.PRESET_FULL_RECT)
+	columns.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	columns.add_theme_constant_override("separation", 0)
 	add_child(columns)
 

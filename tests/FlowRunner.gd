@@ -118,6 +118,9 @@ func _test_hub(profile: PlayerProfile) -> void:
 	var settings_panel := hub.get_node("Columns/Content/SettingsPanel")
 	_check(map_panel.visible and not develop_panel.visible and not settings_panel.visible,
 		"大厅默认应显示地图选择面板")
+	# 布局回归（v0.10.2）：set_anchors_preset 曾导致容器 0×0 钉在原点。
+	var viewport_size := get_viewport().get_visible_rect().size
+	_check(hub.get_node("Columns").size == viewport_size, "大厅布局应铺满视口")
 
 	var map_buttons := _collect_buttons(map_panel)
 	var disabled_count := 0
@@ -165,6 +168,7 @@ func _test_squad_select_screen() -> void:
 		if button.toggle_mode:
 			toggles.append(button)
 	_check(toggles.size() == 2, "新档编队界面应展示 2 名初始武将")
+	_check((scene.get_child(0) as Control).size == get_viewport().get_visible_rect().size, "编队界面背景应铺满视口")
 	for toggle in toggles:
 		toggle.set_pressed(true)
 	await get_tree().process_frame
@@ -188,6 +192,10 @@ func _test_battle_entry() -> void:
 		"战斗顶栏应有退出按钮")
 	var character_bar := main.get_node("UI/Root/CharacterBar") as HBoxContainer
 	_check(character_bar.get_child_count() == 1, "编队过滤后建造栏应只含出战武将")
+	# 布局回归（v0.10.2）：结算弹窗承载容器必须铺满屏幕，居中才成立。
+	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer
+	_check(result_center != null and result_center.size == get_viewport().get_visible_rect().size,
+		"结算弹窗承载容器应铺满视口（保证居中）")
 	_check(get_tree().get_nodes_in_group("build_slots").size() == 10, "s02 应由布局数据生成 10 个建造位")
 	_check(GameManager.total_waves == 6, "s02 应有 6 波敌人")
 
