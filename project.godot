@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="TowerDefense"
-run/main_scene="res://scenes/Main.tscn"
+run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameManager="*uid://daq8cx3vw63ba"
 ProfileStore="*res://scripts/services/SaveManager.gd"
+GameFlow="*res://scripts/services/GameFlow.gd"
 
 [display]
 

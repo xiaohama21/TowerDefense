@@ -1,0 +1,148 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
+[ext_resource type="Script" path="res://scripts/data/EnemySpawnData.gd" id="3_spawn"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_soldier"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="5_cavalry"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="6_sergeant"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_archer.tres" id="7_archer"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="8_item_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="9_cloth"]
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_6"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 6
+spawn_interval = 0.7
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_8"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 8
+spawn_interval = 0.6
+
+[sub_resource type="Resource" id="EnemySpawnData_archer_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("7_archer")
+count = 2
+spawn_interval = 1.0
+
+[sub_resource type="Resource" id="EnemySpawnData_soldier_10"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 10
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="EnemySpawnData_archer_3"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("7_archer")
+count = 3
+spawn_interval = 0.9
+
+[sub_resource type="Resource" id="EnemySpawnData_cavalry_4"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("5_cavalry")
+count = 4
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="EnemySpawnData_archer_5"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("7_archer")
+count = 5
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="EnemySpawnData_sergeant_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("6_sergeant")
+count = 1
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_archer_4"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("7_archer")
+count = 4
+spawn_interval = 0.9
+
+[sub_resource type="Resource" id="WaveData_1"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s03_w01"
+wave_number = 1
+spawn_groups = [SubResource("EnemySpawnData_soldier_6")]
+preparation_time = 0.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_2"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s03_w02"
+wave_number = 2
+spawn_groups = [SubResource("EnemySpawnData_soldier_8"), SubResource("EnemySpawnData_archer_2")]
+preparation_time = 1.5
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_3"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s03_w03"
+wave_number = 3
+spawn_groups = [SubResource("EnemySpawnData_soldier_10"), SubResource("EnemySpawnData_archer_3")]
+preparation_time = 1.5
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_4"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s03_w04"
+wave_number = 4
+spawn_groups = [SubResource("EnemySpawnData_cavalry_4"), SubResource("EnemySpawnData_soldier_8")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_5"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s03_w05"
+wave_number = 5
+spawn_groups = [SubResource("EnemySpawnData_archer_5"), SubResource("EnemySpawnData_soldier_10")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="WaveData_6"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s03_w06"
+wave_number = 6
+spawn_groups = [SubResource("EnemySpawnData_sergeant_1"), SubResource("EnemySpawnData_archer_4"), SubResource("EnemySpawnData_soldier_8")]
+preparation_time = 2.5
+completion_currency = 0
+is_boss_wave = true
+
+[sub_resource type="Resource" id="ItemAmountData_cloth"]
+script = ExtResource("8_item_amount")
+item = ExtResource("9_cloth")
+amount = 2
+
+[resource]
+script = ExtResource("1_stage")
+stage_id = &"ch01_s03"
+chapter_id = &"chapter_01"
+stage_number = 3
+display_name = "颖川之战"
+description = "黄巾弓手登场，远程压制考验防线纵深。"
+starting_lives = 20
+starting_currency = 100
+squad_size = 4
+build_slot_count = 10
+max_inbattle_upgrade_level = 2
+upgrade_cost_factor = 0.8
+sell_refund_ratio = 0.6
+waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6")]
+path_points = [Vector2(-40, 680), Vector2(40, 680), Vector2(1080, 680), Vector2(1080, 280), Vector2(1240, 280), Vector2(1240, 40)]
+build_slot_positions = [Vector2(1000, 600), Vector2(1160, 600), Vector2(1000, 200), Vector2(1160, 360), Vector2(1160, 200), Vector2(1080, 120), Vector2(200, 600), Vector2(520, 600), Vector2(760, 520), Vector2(840, 440)]
+decor_cells = [Vector2i(2, 0), Vector2i(6, 0), Vector2i(10, 0), Vector2i(0, 5), Vector2i(3, 4), Vector2i(6, 2), Vector2i(1, 2), Vector2i(12, 6)]
+prerequisite_stage_ids = [&"ch01_s02"]
+first_clear_unlock_character_ids = [&"huang_zhong"]
+first_clear_rewards = [SubResource("ItemAmountData_cloth")]
+repeat_clear_rewards = []
+participant_xp = 50

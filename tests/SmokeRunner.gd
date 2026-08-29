@@ -124,6 +124,63 @@ func _run() -> void:
 		await get_tree().process_frame
 	_check(GameManager.current_wave == 1 and not GameManager.is_wave_active, "击杀最后一只敌人后应完成波次")
 
+	# 局内升级/回收（GDD 5.4）：费用 = 造价×0.8×次数，返还 = 总投入×0.6（向上取整）。
+	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
+	var stage_data := load("res://resources/stages/chapter_01/ch01_s01.tres") as StageData
+	_check(zhang_fei != null and stage_data != null, "张飞与关卡数据应可加载")
+	if zhang_fei != null and stage_data != null and slots.size() >= 3:
+		# 波次测试把 GameManager 推到了终局状态，先复位再验证局内建造/升级。
+		GameManager.reset(9999, 20, stage_data.waves.size())
+		build_manager.selected_character = zhang_fei
+		build_manager._on_build_requested(slots[2])
+		await get_tree().process_frame
+		var spear_tower := tower_manager.get_child(tower_manager.get_child_count() - 1) as Tower
+		_check(spear_tower != null and slots[2].occupied, "张飞塔应建造成功")
+		if spear_tower != null:
+			var upgrade_cost_1 := spear_tower.get_upgrade_cost(stage_data.upgrade_cost_factor)
+			_check(upgrade_cost_1 == ceili(zhang_fei.build_cost * 0.8), "第一次升级费用应为造价×0.8")
+			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "金币充足时应能升级")
+			_check(spear_tower.battle_level == 1, "升级后局内等级应为 1")
+			_check(spear_tower.damage == int(round(zhang_fei.base_damage * 1.25)), "升级后伤害应为 +25%")
+			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "第二次升级应成功")
+			_check(spear_tower.battle_level == stage_data.max_inbattle_upgrade_level, "升级应止步于本关上限")
+			_check(not tower_manager.upgrade_tower(spear_tower, stage_data), "超过上限后升级应失败")
+
+			# 近战行为集成（GDD modules/BEHAVIORS.md melee_thrust）：
+			# 直伤一次带骑兵标签的轻骑，验证 15% 克制与近战无弹道。
+			var cavalry_data := load("res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres") as EnemyData
+			var melee_target := enemy_manager.spawn_enemy_from_data(cavalry_data) as Enemy
+			_check(melee_target != null, "近战用例应能生成轻骑")
+			if melee_target != null:
+				melee_target.set_process(false)
+				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
+				spear_tower.target = melee_target
+				spear_tower.attack()
+				_check(
+					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15)),
+					"枪兵近战直伤应含 15% 骑兵克制"
+				)
+				melee_target.die(false)
+
+			var invested := spear_tower.total_invested
+			var refund := spear_tower.get_sell_refund(stage_data.sell_refund_ratio)
+			_check(refund == ceili(invested * 0.6), "回收返还应为总投入×0.6（向上取整）")
+			var gold_before_sell := GameManager.gold
+			_check(tower_manager.sell_tower(spear_tower, stage_data), "回收应成功")
+			_check(GameManager.gold == gold_before_sell + refund, "回收后应返还金币")
+			_check(not slots[2].occupied, "回收后建造槽应可复用")
+
+	# 枪兵职业克制（GDD 4.2）：对 cavalry 标签敌人伤害 +15%。
+	_check(is_equal_approx(
+		BehaviorRegistry.get_profession_counter(&"pikeman", [&"cavalry"] as Array[StringName]), 1.15
+	), "枪兵对骑兵标签应有 1.15 克制倍率")
+	_check(is_equal_approx(
+		BehaviorRegistry.get_profession_counter(&"pikeman", [&"infantry"] as Array[StringName]), 1.0
+	), "枪兵对步兵标签应无克制")
+	_check(is_equal_approx(
+		BehaviorRegistry.get_profession_counter(&"cavalry", [&"cavalry"] as Array[StringName]), 1.0
+	), "其他职业不应触发枪兵克制")
+
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。
 	var xp_session := BattleSession.new("smoke_xp_stage")

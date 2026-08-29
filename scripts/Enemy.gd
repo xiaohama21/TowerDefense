@@ -11,6 +11,8 @@ const ENEMY_GROUP: StringName = &"enemies"
 @export var kill_xp: int = 0
 @export var damage_to_base: int = 1
 @export var enemy_id: StringName = &""
+# 兵种/阵营标签（GDD 5.5），职业克制与掉落倾向按标签查询。
+var tags: Array[StringName] = []
 
 var current_hp: int = 0
 var is_dead: bool = false

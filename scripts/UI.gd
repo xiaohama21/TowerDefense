@@ -6,6 +6,14 @@ signal restart_pressed
 signal character_selected(character_id: String)
 signal debug_wave_jump_requested(wave_index: int)
 signal debug_clear_enemies_requested
+signal tower_upgrade_requested
+signal tower_sell_requested
+signal result_next_pressed
+signal result_retry_pressed
+signal result_menu_pressed
+
+const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
+const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
 
 @onready var gold_label: Label = $Root/TopBar/Margin/Content/GoldLabel
 @onready var lives_label: Label = $Root/TopBar/Margin/Content/LivesLabel
@@ -25,12 +33,27 @@ var _status_request_id: int = 0
 var _previous_paused_state: bool = false
 var _character_buttons: Dictionary = {}
 
+# 武将交互面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
+var _panel_tower: Tower = null
+var _panel_stage_data: StageData = null
+var _tower_panel: PanelContainer
+var _tower_title_label: Label
+var _tower_upgrade_button: Button
+var _tower_sell_button: Button
+var _result_panel: PanelContainer
+var _result_title_label: Label
+var _result_lines_label: Label
+var _result_next_button: Button
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	next_wave_button.pressed.connect(_on_next_wave_button_pressed)
 	pause_button.pressed.connect(_on_pause_button_pressed)
 	restart_button.pressed.connect(_on_restart_button_pressed)
+
+	_create_tower_panel()
+	_create_result_panel()
 
 	if OS.is_debug_build():
 		_create_debug_panel()
@@ -102,6 +125,7 @@ func _process(_delta: float) -> void:
 
 func update_gold(new_amount: int) -> void:
 	gold_label.text = "金币：%d" % max(new_amount, 0)
+	_refresh_tower_panel()
 
 
 func update_lives(new_amount: int) -> void:
@@ -176,3 +200,199 @@ func _on_pause_button_pressed() -> void:
 
 func _on_restart_button_pressed() -> void:
 	restart_pressed.emit()
+
+
+## 已建塔交互面板（GDD 5.4）：选中塔时展示局内升级与回收入口。
+func _create_tower_panel() -> void:
+	_tower_panel = PanelContainer.new()
+	_tower_panel.name = "TowerPanel"
+	_tower_panel.visible = false
+	_tower_panel.custom_minimum_size = Vector2(240, 0)
+	_tower_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	$Root.add_child(_tower_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	_tower_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	margin.add_child(vbox)
+
+	var title_label := Label.new()
+	title_label.name = "TowerTitle"
+	title_label.add_theme_font_size_override("font_size", 19)
+	title_label.add_theme_color_override("font_color", Color(0.95, 0.93, 0.8))
+	vbox.add_child(title_label)
+	_tower_title_label = title_label
+
+	_tower_upgrade_button = Button.new()
+	_tower_upgrade_button.add_theme_font_size_override("font_size", 17)
+	_tower_upgrade_button.pressed.connect(func() -> void: tower_upgrade_requested.emit())
+	vbox.add_child(_tower_upgrade_button)
+
+	_tower_sell_button = Button.new()
+	_tower_sell_button.add_theme_font_size_override("font_size", 17)
+	_tower_sell_button.pressed.connect(func() -> void: tower_sell_requested.emit())
+	vbox.add_child(_tower_sell_button)
+
+	_tower_panel.position = Vector2(1030, 170)
+
+
+func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
+	_panel_tower = tower
+	_panel_stage_data = stage_data
+	_tower_panel.visible = true
+	_refresh_tower_panel()
+
+
+func hide_tower_panel() -> void:
+	_panel_tower = null
+	_panel_stage_data = null
+	_tower_panel.visible = false
+
+
+func _refresh_tower_panel() -> void:
+	if _tower_panel == null or not _tower_panel.visible:
+		return
+	var tower := _panel_tower as Tower
+	if tower == null or not is_instance_valid(tower):
+		hide_tower_panel()
+		return
+
+	var max_level: int = _panel_stage_data.max_inbattle_upgrade_level if _panel_stage_data != null else 0
+	_tower_title_label.text = "%s · 局内等级 %d/%d（伤害 %d）" % [
+		tower.display_name, tower.battle_level, max_level, tower.damage
+	]
+
+	if _panel_stage_data != null and tower.battle_level < max_level:
+		var cost := tower.get_upgrade_cost(_panel_stage_data.upgrade_cost_factor)
+		_tower_upgrade_button.text = "升级（%d 金币）" % cost
+		_tower_upgrade_button.disabled = GameManager.gold < cost
+	else:
+		_tower_upgrade_button.text = "已满级"
+		_tower_upgrade_button.disabled = true
+
+	var refund := tower.get_sell_refund(_panel_stage_data.sell_refund_ratio if _panel_stage_data != null else 0.6)
+	_tower_sell_button.text = "回收（返还 %d）" % refund
+	_tower_sell_button.disabled = false
+
+
+func _make_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = PANEL_STYLE_BG
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = PANEL_STYLE_BORDER
+	style.set_corner_radius_all(10)
+	return style
+
+
+## 结算面板（GDD 阶段 1）：胜利/失败、经验明细、掉落与新武将。
+func _create_result_panel() -> void:
+	_result_panel = PanelContainer.new()
+	_result_panel.name = "ResultPanel"
+	_result_panel.visible = false
+	_result_panel.custom_minimum_size = Vector2(460, 0)
+	_result_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	$Root.add_child(_result_panel)
+	_result_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_result_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_result_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_top", 22)
+	margin.add_theme_constant_override("margin_bottom", 22)
+	_result_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	margin.add_child(vbox)
+
+	var title := Label.new()
+	title.name = "ResultTitle"
+	title.add_theme_font_size_override("font_size", 36)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	_result_title_label = title
+
+	var lines := Label.new()
+	lines.name = "ResultLines"
+	lines.add_theme_font_size_override("font_size", 19)
+	lines.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lines)
+	_result_lines_label = lines
+
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 14)
+	vbox.add_child(buttons)
+
+	_result_next_button = Button.new()
+	_result_next_button.custom_minimum_size = Vector2(170, 46)
+	_result_next_button.add_theme_font_size_override("font_size", 18)
+	_result_next_button.pressed.connect(func() -> void: result_next_pressed.emit())
+	buttons.add_child(_result_next_button)
+
+	var retry_button := Button.new()
+	retry_button.custom_minimum_size = Vector2(150, 46)
+	retry_button.add_theme_font_size_override("font_size", 18)
+	retry_button.text = "重试本关"
+	retry_button.pressed.connect(func() -> void: result_retry_pressed.emit())
+	buttons.add_child(retry_button)
+
+	var menu_button := Button.new()
+	menu_button.custom_minimum_size = Vector2(150, 46)
+	menu_button.add_theme_font_size_override("font_size", 18)
+	menu_button.text = "返回选关"
+	menu_button.pressed.connect(func() -> void: result_menu_pressed.emit())
+	buttons.add_child(menu_button)
+
+
+func show_result(data: Dictionary) -> void:
+	var victory: bool = data.get("victory", false)
+	var title := _result_title_label
+	var lines := _result_lines_label
+	title.text = "胜 利" if victory else "战 败"
+	title.add_theme_color_override("font_color",
+		Color(1.0, 0.85, 0.4) if victory else Color(0.9, 0.4, 0.35))
+
+	var line_parts: Array[String] = []
+	if victory:
+		var xp_by_character: Dictionary = data.get("xp_by_character", {})
+		for character_id in xp_by_character.keys():
+			line_parts.append("%s +%d 经验" % [
+				GameFlow.load_character_data(str(character_id)).display_name
+					if GameFlow.load_character_data(str(character_id)) != null else str(character_id),
+				int(xp_by_character[character_id]),
+			])
+		var loot: Dictionary = data.get("loot", {})
+		for item_id in loot.keys():
+			line_parts.append("%s ×%d" % [GameFlow.get_item_display_name(str(item_id)), int(loot[item_id])])
+		for unlock_name in data.get("unlock_names", []):
+			line_parts.append("新武将加入：%s" % unlock_name)
+		if line_parts.is_empty():
+			line_parts.append("守住了全部波次")
+		if not data.get("saved", false):
+			line_parts.append("警告：存档写入失败，本次收益未保存")
+	else:
+		line_parts.append("基地陷落，本局收益未保存（失败不产生任何成长）")
+	lines.text = "\n".join(line_parts)
+
+	var next_stage_name := str(data.get("next_stage_name", ""))
+	_result_next_button.visible = victory and not next_stage_name.is_empty()
+	_result_next_button.text = "下一关：%s" % next_stage_name
+
+	_tower_panel.visible = false
+	_result_panel.visible = true
+
+
+func hide_result() -> void:
+	_result_panel.visible = false

@@ -7,6 +7,8 @@ const TOWER_GROUP: StringName = &"towers"
 const RANGE_FILL_COLOR := Color(0.22, 0.76, 0.88, 0.13)
 const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
 const RANGE_BORDER_WIDTH := 3.5
+## 局内升级每级伤害增幅（GDD 5.4：伤害 +25%/级，与 10.5 大招倍率同源）。
+const UPGRADE_DAMAGE_STEP := 0.25
 const PROFESSION_COLORS := {
 	&"cavalry": Color(0.76, 0.24, 0.2, 1.0),
 	&"pikeman": Color(0.3, 0.62, 0.45, 1.0),
@@ -14,6 +16,8 @@ const PROFESSION_COLORS := {
 	&"strategist": Color(0.28, 0.5, 0.85, 1.0),
 	&"dancer": Color(0.85, 0.42, 0.66, 1.0),
 }
+
+signal selection_changed(tower: Tower)
 
 @export var range_radius: float = 150.0
 @export var damage: int = 40
@@ -27,7 +31,15 @@ const PROFESSION_COLORS := {
 var target = null
 var is_selected: bool = false
 
+# 局内临时状态（GDD 5.4）：升级等级与总投入只存在于本局，不写入存档。
+var battle_level: int = 0
+var total_invested: int = 0
+var build_cost: int = 0
+var assigned_slot: Node = null
+
 var _profession_id: StringName = StringName()
+var _behavior_id: StringName = StringName()
+var _base_damage: int = 40
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
 var _attack_flash: float = 0.0
@@ -59,16 +71,52 @@ func apply_character(character_data: CharacterData) -> void:
 	character_id = character_data.character_id
 	display_name = character_data.display_name
 	damage = character_data.base_damage
+	_base_damage = damage
 	range_radius = character_data.base_range
 	attack_cooldown = character_data.attack_interval
 	bullet_speed = character_data.projectile_speed
+	build_cost = character_data.build_cost
 
 	_profession_id = character_data.profession.profession_id if character_data.profession != null else StringName()
+	_behavior_id = character_data.profession.behavior_id if character_data.profession != null else StringName()
+	if _behavior_id.is_empty():
+		_behavior_id = &"single_target_burst"
 	_hero_color = PROFESSION_COLORS.get(_profession_id, Color(0.45, 0.55, 0.65, 1.0))
 	name_label.text = display_name
 	name_label.add_theme_color_override("font_color", _hero_color.lightened(0.35))
 	_rebuild_attack_timer()
 	_rebuild_range_area()
+	queue_redraw()
+
+
+func get_profession_id() -> StringName:
+	return _profession_id
+
+
+func get_upgrade_cost(upgrade_cost_factor: float) -> int:
+	## 第 n 次升级费用 = build_cost × factor × n（n 从 1 起，向上取整）。
+	return ceili(build_cost * upgrade_cost_factor * (battle_level + 1))
+
+
+func get_sell_refund(sell_refund_ratio: float) -> int:
+	## 回收返还 = 总投入 × 比例，向上取整（GDD 5.4）。
+	return ceili(total_invested * sell_refund_ratio)
+
+
+func apply_upgrade(spent_cost: int) -> void:
+	battle_level += 1
+	total_invested += spent_cost
+	damage = int(round(_base_damage * (1.0 + UPGRADE_DAMAGE_STEP * battle_level)))
+	queue_redraw()
+
+
+func record_build_investment(cost: int) -> void:
+	build_cost = cost if cost > 0 else build_cost
+	total_invested = cost
+
+
+func play_melee_hit() -> void:
+	_attack_flash = 0.18
 	queue_redraw()
 
 
@@ -129,12 +177,23 @@ func attack() -> void:
 		target = null
 		return
 
+	# 攻击行为按职业 behavior_id 分发（GDD modules/BEHAVIORS.md），
+	# 塔脚本不硬编码任何职业的攻击逻辑。
+	BehaviorRegistry.execute_attack(_behavior_id, self, target)
+	_attack_flash = 0.18
+	queue_redraw()
+	attack_timer.start()
+
+
+## 供弹道类行为执行器调用：生成并挂载一枚按职业着色的子弹。
+## 伤害与职业克制由执行器负责写入。
+func instantiate_bullet(target_enemy: Enemy) -> Bullet:
 	var bullet := BULLET_SCENE.instantiate() as Bullet
 	if bullet == null:
 		push_error("无法实例化子弹场景")
-		return
+		return null
 
-	bullet.target = target
+	bullet.target = target_enemy
 	bullet.damage = damage
 	bullet.speed = bullet_speed
 	bullet.source_character_id = character_id
@@ -144,12 +203,10 @@ func attack() -> void:
 	var projectile_parent := get_tree().current_scene
 	if projectile_parent == null:
 		bullet.free()
-		return
+		return null
 	projectile_parent.add_child(bullet)
 	bullet.global_position = muzzle.global_position
-	_attack_flash = 0.18
-	queue_redraw()
-	attack_timer.start()
+	return bullet
 
 
 func _is_target_in_range(candidate) -> bool:
@@ -175,6 +232,7 @@ func set_selected(selected: bool) -> void:
 		return
 	is_selected = selected
 	queue_redraw()
+	selection_changed.emit(self)
 
 
 func _on_selection_area_input_event(

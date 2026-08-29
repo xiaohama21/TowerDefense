@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/pikeman.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"zhang_fei"
+display_name = "张飞"
+description = "燕人张飞，长矛连刺稳定输出，专克轻骑。"
+profession = ExtResource("2_profession")
+tags = [&"shu", &"pikeman"]
+build_cost = 60
+base_damage = 52
+base_range = 120.0
+attack_interval = 0.7
+projectile_speed = 400.0
+damage_growth_per_level = 4.0
+initial_skill_ids = [&"serpent_spear"]
+promotion_ids = [&"zhang_fei_vanguard"]
+unlock_stage_id = &"ch01_s02"

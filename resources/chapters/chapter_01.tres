@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="ChapterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ChapterData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/ChapterData.gd" id="1_chapter"]
-[ext_resource type="Resource" path="res://resources/stages/chapter_01/ch01_s01.tres" id="2_stage"]
+[ext_resource type="Resource" path="res://resources/stages/chapter_01/ch01_s01.tres" id="2_stage1"]
+[ext_resource type="Resource" path="res://resources/stages/chapter_01/ch01_s02.tres" id="3_stage2"]
+[ext_resource type="Resource" path="res://resources/stages/chapter_01/ch01_s03.tres" id="4_stage3"]
 
 [resource]
 script = ExtResource("1_chapter")
@@ -9,6 +11,6 @@ chapter_id = &"chapter_01"
 chapter_number = 1
 display_name = "黄巾之乱"
 description = "从涿郡起兵开始，逐步平定黄巾军势力。"
-stages = [ExtResource("2_stage")]
+stages = [ExtResource("2_stage1"), ExtResource("3_stage2"), ExtResource("4_stage3")]
 prerequisite_chapter_ids = []
 is_currently_available = true

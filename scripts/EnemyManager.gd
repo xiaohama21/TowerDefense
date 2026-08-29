@@ -17,6 +17,7 @@ func spawn_enemy_from_data(enemy_data: EnemyData) -> Enemy:
 	enemy.speed = enemy_data.move_speed
 	enemy.max_hp = enemy_data.max_hp
 	enemy.armor = enemy_data.armor
+	enemy.tags = (enemy_data.tags as Array[StringName]).duplicate()
 	enemy.reward = enemy_data.currency_reward
 	enemy.kill_xp = enemy_data.kill_xp
 	enemy.damage_to_base = enemy_data.damage_to_base

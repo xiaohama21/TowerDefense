@@ -56,7 +56,8 @@ func _on_build_requested(slot: Node) -> void:
 		build_failed.emit(slot, "occupied")
 		return
 
-	if tower_manager.build_tower(slot.global_position, selected_character):
+	var tower: Tower = tower_manager.build_tower(slot.global_position, selected_character, slot)
+	if tower != null:
 		if slot.has_method("mark_built"):
 			slot.mark_built()
 		tower_built.emit(slot)

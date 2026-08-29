@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/EnemyManager.gd" id="2_enemy_manager"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://scripts/WaveManager.gd" id="4_wave_manager"]
 [ext_resource type="Script" path="res://scripts/BuildManager.gd" id="5_build_manager"]
 [ext_resource type="PackedScene" path="res://scenes/UI.tscn" id="6_ui"]
-[ext_resource type="PackedScene" path="res://scenes/BuildSlot.tscn" id="7_build_slot"]
 [ext_resource type="Script" path="res://scripts/GridBackground.gd" id="8_grid"]
 
 [sub_resource type="Curve2D" id="Curve2D_enemy_path"]
@@ -49,36 +48,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_map_frame")
 [node name="GridBackground" type="Node2D" parent="."]
 script = ExtResource("8_grid")
 
-[node name="RoadOutline" type="Line2D" parent="."]
-z_index = -10
-points = PackedVector2Array(-40, 280, 40, 280, 680, 280, 680, 520, 1040, 520, 1040, 360, 1240, 360, 1340, 360)
-width = 92.0
-default_color = Color(0.164706, 0.129412, 0.105882, 1)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-antialiased = true
-
-[node name="Road" type="Line2D" parent="."]
-z_index = -9
-points = PackedVector2Array(-40, 280, 40, 280, 680, 280, 680, 520, 1040, 520, 1040, 360, 1240, 360, 1340, 360)
-width = 72.0
-default_color = Color(0.466667, 0.337255, 0.235294, 1)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-antialiased = true
-
-[node name="RoadHighlight" type="Line2D" parent="."]
-z_index = -8
-points = PackedVector2Array(-40, 274, 44, 274, 676, 274, 676, 514, 1044, 514, 1044, 366, 1236, 366, 1340, 366)
-width = 5.0
-default_color = Color(0.690196, 0.533333, 0.352941, 0.7)
-joint_mode = 2
-begin_cap_mode = 2
-end_cap_mode = 2
-antialiased = true
-
 [node name="SpawnMarker" type="Node2D" parent="."]
 position = Vector2(40, 280)
 z_index = 1
@@ -119,46 +88,6 @@ color = Color(0.145098, 0.203922, 0.180392, 1)
 curve = SubResource("Curve2D_enemy_path")
 
 [node name="BuildSlots" type="Node2D" parent="."]
-
-[node name="BuildSlot01" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(120, 200)
-slot_id = 1
-
-[node name="BuildSlot02" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(280, 200)
-slot_id = 2
-
-[node name="BuildSlot03" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(440, 200)
-slot_id = 3
-
-[node name="BuildSlot04" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(600, 200)
-slot_id = 4
-
-[node name="BuildSlot05" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(120, 360)
-slot_id = 5
-
-[node name="BuildSlot06" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(280, 360)
-slot_id = 6
-
-[node name="BuildSlot07" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(440, 360)
-slot_id = 7
-
-[node name="BuildSlot08" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(760, 360)
-slot_id = 8
-
-[node name="BuildSlot09" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(840, 360)
-slot_id = 9
-
-[node name="BuildSlot10" parent="BuildSlots" instance=ExtResource("7_build_slot")]
-position = Vector2(760, 600)
-slot_id = 10
 
 [node name="EnemyManager" type="Node2D" parent="."]
 script = ExtResource("2_enemy_manager")

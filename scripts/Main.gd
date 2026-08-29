@@ -1,27 +1,34 @@
 extends Node2D
 
-const STAGE_RESOURCE_PATH: String = "res://resources/stages/chapter_01/ch01_s01.tres"
-const CHARACTER_RESOURCE_DIR: String = "res://resources/characters"
-const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei", "guan_yu"]
+const BUILD_SLOT_SCENE: PackedScene = preload("res://scenes/BuildSlot.tscn")
+const DEFAULT_STAGE_ID: StringName = &"ch01_s01"
 
 @onready var enemy_manager = $EnemyManager
 @onready var tower_manager = $TowerManager
 @onready var wave_manager = $WaveManager
 @onready var build_manager = $BuildManager
 @onready var ui = $UI
+@onready var grid_background: GridBackground = $GridBackground
+@onready var path_2d: Path2D = $Path2D
+@onready var spawn_marker: Node2D = $SpawnMarker
+@onready var base_marker: Node2D = $BaseMarker
+@onready var build_slots_container: Node2D = $BuildSlots
 
 var battle_session: BattleSession
 var stage_data: StageData
 var _available_characters: Array[CharacterData] = []
 var _selected_character: CharacterData = null
+var _selected_tower: Tower = null
 
 func _ready():
 	get_tree().paused = false
-	stage_data = load(STAGE_RESOURCE_PATH) as StageData
+	ui.hide_result()
+	stage_data = _resolve_stage_data()
 	if stage_data == null:
-		push_error("关卡数据加载失败: %s" % STAGE_RESOURCE_PATH)
+		push_error("关卡数据加载失败")
 		return
 
+	_apply_stage_layout()
 	_ensure_initial_profile()
 	_available_characters = _load_available_characters(ProfileStore.get_profile())
 	if _available_characters.is_empty():
@@ -52,7 +59,13 @@ func _ready():
 	ui.character_selected.connect(_on_character_selected)
 	ui.debug_wave_jump_requested.connect(_on_debug_wave_jump)
 	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
+	ui.tower_upgrade_requested.connect(_on_tower_upgrade_requested)
+	ui.tower_sell_requested.connect(_on_tower_sell_requested)
+	ui.result_next_pressed.connect(_on_result_next_pressed)
+	ui.result_retry_pressed.connect(_on_result_retry_pressed)
+	ui.result_menu_pressed.connect(_on_result_menu_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
+	tower_manager.tower_created.connect(_on_tower_created)
 
 	ui.set_stage_name(stage_data.display_name)
 	ui.setup_character_bar(_available_characters)
@@ -64,27 +77,90 @@ func _ready():
 	ui.show_status("选择武将后点击绿色 + 建造，再开始第 1 波", 3.0)
 
 
+## Battle scene entry: GameFlow carries the selected stage; direct scene runs
+## (tests) fall back to the default teaching stage.
+func _resolve_stage_data() -> StageData:
+	var stage_id := GameFlow.selected_stage_id
+	if stage_id.is_empty():
+		stage_id = DEFAULT_STAGE_ID
+	var data := GameFlow.load_stage_data(stage_id)
+	if data == null and stage_id != DEFAULT_STAGE_ID:
+		data = GameFlow.load_stage_data(DEFAULT_STAGE_ID)
+	return data
+
+
+## 战场布局由 StageData 驱动（GDD 5.6）：路径、道路瓦片、出入口地标与建造位。
+func _apply_stage_layout() -> void:
+	if stage_data.path_points.is_empty():
+		push_warning("关卡 %s 未配置布局数据，沿用场景默认" % stage_data.stage_id)
+		return
+
+	var curve := Curve2D.new()
+	for point in stage_data.path_points:
+		curve.add_point(point)
+	path_2d.curve = curve
+
+	var road_cells := GridBackground.derive_road_cells(stage_data.path_points)
+	var entry_cell := _first_in_map_road_cell(road_cells, true)
+	var base_cell := _first_in_map_road_cell(road_cells, false)
+	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell)
+
+	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
+	base_marker.position = _first_in_map_point(stage_data.path_points, false)
+
+	for existing_slot in build_slots_container.get_children():
+		existing_slot.queue_free()
+	for index in range(stage_data.build_slot_positions.size()):
+		var slot := BUILD_SLOT_SCENE.instantiate() as BuildSlot
+		slot.slot_id = index + 1
+		build_slots_container.add_child(slot)
+		slot.position = stage_data.build_slot_positions[index]
+
+
+func _first_in_map_road_cell(cells: Array[Vector2i], from_start: bool) -> Vector2i:
+	var indices := range(cells.size())
+	if not from_start:
+		indices.reverse()
+	for index in indices:
+		if cells[index].x >= 0 and cells[index].x < GridBackground.COLS \
+				and cells[index].y >= 0 and cells[index].y < GridBackground.ROWS:
+			return cells[index]
+	return Vector2i(-1, -1)
+
+
+func _first_in_map_point(points: Array[Vector2], from_start: bool) -> Vector2:
+	var indices := range(points.size())
+	if not from_start:
+		indices.reverse()
+	for index in indices:
+		var point := points[index]
+		if point.x >= 0 and point.x <= 1280 and point.y >= 0 and point.y <= 720:
+			return point
+	return points[0] if not points.is_empty() else Vector2.ZERO
+
+
 ## New profiles start with the initial squad; later stages gate additional
 ## characters through first-clear unlocks.
 func _ensure_initial_profile() -> void:
-	var profile := ProfileStore.get_profile()
-	var changed := false
-	for character_id in INITIAL_CHARACTER_IDS:
-		if not profile.has_character(character_id):
-			profile.ensure_character(character_id)
-			changed = true
-	if changed:
-		ProfileStore.save_profile(profile)
+	GameFlow.ensure_initial_characters(ProfileStore.get_profile())
 
 
+## 出战编队过滤（GDD 阶段 1 编队界面）：GameFlow.squad 为空时（如测试直开）
+## 回退为全部已拥有武将。
 func _load_available_characters(profile: PlayerProfile) -> Array[CharacterData]:
 	var result: Array[CharacterData] = []
+	var squad := GameFlow.squad_character_ids
 	for character_id in profile.get_owned_character_ids():
-		var character_data := load(
-			"%s/%s.tres" % [CHARACTER_RESOURCE_DIR, character_id]
-		) as CharacterData
+		if not squad.is_empty() and not squad.has(character_id):
+			continue
+		var character_data := GameFlow.load_character_data(character_id)
 		if character_data != null:
 			result.append(character_data)
+	if result.is_empty() and not squad.is_empty():
+		for character_id in profile.get_owned_character_ids():
+			var character_data := GameFlow.load_character_data(character_id)
+			if character_data != null:
+				result.append(character_data)
 	return result
 
 
@@ -107,6 +183,44 @@ func _on_tower_built(_slot: Node) -> void:
 	var character_id := str(_selected_character.character_id)
 	if not battle_session.deployed_character_ids.has(character_id):
 		battle_session.deployed_character_ids.append(character_id)
+
+
+func _on_tower_created(tower: Tower) -> void:
+	tower.selection_changed.connect(_on_tower_selection_changed)
+
+
+func _on_tower_selection_changed(tower: Tower) -> void:
+	if tower.is_selected:
+		if _selected_tower != null and is_instance_valid(_selected_tower) and _selected_tower != tower:
+			_selected_tower.set_selected(false)
+		_selected_tower = tower
+		ui.show_tower_panel(tower, stage_data)
+	elif _selected_tower == tower:
+		_selected_tower = null
+		ui.hide_tower_panel()
+
+
+func _on_tower_upgrade_requested() -> void:
+	if _selected_tower == null or not is_instance_valid(_selected_tower):
+		return
+	if tower_manager.upgrade_tower(_selected_tower, stage_data):
+		ui.show_status("升级完成，伤害提升 25%")
+		ui.show_tower_panel(_selected_tower, stage_data)
+	elif _selected_tower.battle_level >= stage_data.max_inbattle_upgrade_level:
+		ui.show_status("已达到本关升级上限")
+	else:
+		ui.show_status("金币不足")
+
+
+func _on_tower_sell_requested() -> void:
+	if _selected_tower == null or not is_instance_valid(_selected_tower):
+		return
+	var refund := _selected_tower.get_sell_refund(stage_data.sell_refund_ratio)
+	if tower_manager.sell_tower(_selected_tower, stage_data):
+		ui.show_status("已回收，返还 %d 金币" % refund)
+		_selected_tower = null
+		ui.hide_tower_panel()
+
 
 func _disconnect_game_signals() -> void:
 	var callbacks := [
@@ -159,11 +273,14 @@ func _on_game_over():
 			"remaining_lives": GameManager.lives,
 			"completed_waves": GameManager.current_wave,
 		})
-	ui.show_message("游戏结束！\n本局临时收益未保存")
+	ui.show_result({"victory": false})
 	get_tree().paused = true
 
 func _on_victory():
 	var saved := false
+	var xp_by_character: Dictionary = {}
+	var loot: Dictionary = {}
+	var unlock_names: Array[String] = []
 	if battle_session != null and battle_session.mark_victory({
 		"remaining_lives": GameManager.lives,
 		"completed_waves": GameManager.current_wave,
@@ -174,8 +291,51 @@ func _on_victory():
 			stage_data.participant_xp
 		)
 		saved = ProfileStore.commit_victory(battle_session)
-	ui.show_message("胜利！\n关卡进度已保存" if saved else "胜利！\n存档写入失败")
+		xp_by_character = battle_session.get_pending_xp_by_character()
+		loot = battle_session.get_pending_loot()
+		unlock_names = _resolve_character_names(battle_session.get_pending_unlocks())
+	ui.show_result({
+		"victory": true,
+		"xp_by_character": xp_by_character,
+		"loot": loot,
+		"unlock_names": unlock_names,
+		"saved": saved,
+		"next_stage_name": _next_stage_display_name(),
+	})
 	get_tree().paused = true
+
+
+func _resolve_character_names(character_ids: Array[String]) -> Array[String]:
+	var names: Array[String] = []
+	for character_id in character_ids:
+		var character_data := GameFlow.load_character_data(character_id)
+		names.append(character_data.display_name if character_data != null else character_id)
+	return names
+
+
+func _next_stage_display_name() -> String:
+	var next_stage_id := GameFlow.get_next_stage_id(stage_data.stage_id)
+	if next_stage_id.is_empty():
+		return ""
+	var next_stage := GameFlow.load_stage_data(next_stage_id)
+	return next_stage.display_name if next_stage != null else str(next_stage_id)
+
+
+func _on_result_next_pressed() -> void:
+	var next_stage_id := GameFlow.get_next_stage_id(stage_data.stage_id)
+	if next_stage_id.is_empty():
+		return
+	GameFlow.select_stage(next_stage_id)
+	GameFlow.goto_battle()
+
+
+func _on_result_retry_pressed() -> void:
+	GameFlow.select_stage(stage_data.stage_id)
+	GameFlow.goto_battle()
+
+
+func _on_result_menu_pressed() -> void:
+	GameFlow.goto_stage_select()
 
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the

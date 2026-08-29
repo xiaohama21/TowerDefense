@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ProfessionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ProfessionData.gd" id="1_profession"]
+
+[resource]
+script = ExtResource("1_profession")
+profession_id = &"pikeman"
+display_name = "枪兵"
+description = "便宜、稳定、手长的近战基础职业，对骑兵有克制。"
+combat_role = 0
+attack_pattern = 0
+tags = [&"melee"]
+damage_multiplier = 1.0
+range_multiplier = 1.0
+attack_interval_multiplier = 1.0
+behavior_id = &"melee_thrust"
