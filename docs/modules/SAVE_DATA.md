@@ -13,9 +13,11 @@
 | 字段 | 内容 |
 |---|---|
 | `schema_version` | 存档版本，迁移用 |
-| `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`promotion_path`（转职历史）、`shards`（碎片） |
-| `stage_progress` | 关卡完成记录（首通/重复、成绩） |
+| `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`promotion_path`（转职历史）、`shards`（碎片）、`stars`（星级【阶段4】） |
+| `stage_progress` | 关卡完成记录（首通/重复、成绩；【阶段4】起按难度分键） |
 | `items` | 道具数量字典 |
+| `relics` | 已获信物列表【阶段4】 |
+| `tech_points` / `tech_unlocks` | 科技点余额与已解锁科技【阶段4】 |
 | `gacha_state` | 抽奖状态【阶段4 启用】 |
 | `last_committed_run_id` | 防重复提交（一场战斗只结算一次） |
 
