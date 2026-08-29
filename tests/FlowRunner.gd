@@ -148,6 +148,8 @@ func _test_battle_entry() -> void:
 
 	var stage_label := main.get_node("UI/Root/TopBar/Margin/Content/StageLabel") as Label
 	_check(stage_label.text == "长社火攻", "战斗界面应展示 GameFlow 选中的关卡")
+	_check(main.get_node_or_null("UI/Root/TopBar/Margin/Content/ExitButton") != null,
+		"战斗顶栏应有退出按钮")
 	var character_bar := main.get_node("UI/Root/CharacterBar") as HBoxContainer
 	_check(character_bar.get_child_count() == 1, "编队过滤后建造栏应只含出战武将")
 	_check(get_tree().get_nodes_in_group("build_slots").size() == 10, "s02 应由布局数据生成 10 个建造位")

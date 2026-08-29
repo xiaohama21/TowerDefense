@@ -11,6 +11,7 @@ signal tower_sell_requested
 signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
+signal exit_pressed
 
 const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
 const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
@@ -22,6 +23,7 @@ const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
 @onready var next_wave_button: Button = $Root/TopBar/Margin/Content/NextWaveButton
 @onready var pause_button: Button = $Root/TopBar/Margin/Content/PauseButton
 @onready var restart_button: Button = $Root/TopBar/Margin/Content/RestartButton
+@onready var exit_button: Button = $Root/TopBar/Margin/Content/ExitButton
 @onready var message_panel: PanelContainer = $Root/MessagePanel
 @onready var message_label: Label = $Root/MessagePanel/Margin/MessageLabel
 @onready var status_label: Label = $Root/StatusLabel
@@ -42,6 +44,7 @@ var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
 var _result_panel: PanelContainer
+var _result_center: CenterContainer
 var _result_title_label: Label
 var _result_lines_label: Label
 var _result_next_button: Button
@@ -52,6 +55,7 @@ func _ready() -> void:
 	next_wave_button.pressed.connect(_on_next_wave_button_pressed)
 	pause_button.pressed.connect(_on_pause_button_pressed)
 	restart_button.pressed.connect(_on_restart_button_pressed)
+	exit_button.pressed.connect(func() -> void: exit_pressed.emit())
 
 	_create_tower_panel()
 	_create_result_panel()
@@ -320,16 +324,20 @@ func _make_panel_style() -> StyleBoxFlat:
 
 
 ## 结算面板（GDD 阶段 1）：胜利/失败、经验明细、掉落与新武将。
+## 由全屏 CenterContainer 承载以保证严格居中；展示期间整体可见，
+## 并以其默认 STOP 鼠标过滤充当模态（遮住后方顶栏与地图点击）。
 func _create_result_panel() -> void:
+	_result_center = CenterContainer.new()
+	_result_center.name = "ResultCenter"
+	_result_center.visible = false
+	$Root.add_child(_result_center)
+	_result_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+
 	_result_panel = PanelContainer.new()
 	_result_panel.name = "ResultPanel"
-	_result_panel.visible = false
 	_result_panel.custom_minimum_size = Vector2(460, 0)
 	_result_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	$Root.add_child(_result_panel)
-	_result_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_result_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_result_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_result_center.add_child(_result_panel)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 28)
@@ -417,8 +425,10 @@ func show_result(data: Dictionary) -> void:
 	_result_next_button.text = "下一关：%s" % next_stage_name
 
 	_tower_panel.visible = false
+	_result_center.visible = true
 	_result_panel.visible = true
 
 
 func hide_result() -> void:
+	_result_center.visible = false
 	_result_panel.visible = false

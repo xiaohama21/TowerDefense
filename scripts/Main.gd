@@ -64,6 +64,7 @@ func _ready():
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
+	ui.exit_pressed.connect(_on_exit_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
 	tower_manager.tower_created.connect(_on_tower_created)
 
@@ -336,6 +337,29 @@ func _on_result_retry_pressed() -> void:
 
 func _on_result_menu_pressed() -> void:
 	GameFlow.goto_stage_select()
+
+
+## 顶栏退出（GDD v0.9.3）：本局尚未出结果时弹确认——中途退出收益作废
+## （核心规则），会话由 _exit_tree 的弃置逻辑兜底清理。
+func _on_exit_pressed() -> void:
+	if battle_session != null and battle_session.is_in_progress():
+		var dialog := ConfirmationDialog.new()
+		dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+		dialog.dialog_text = "退出将放弃本局未结算的收益，确定退出？"
+		dialog.ok_button_text = "放弃并退出"
+		dialog.cancel_button_text = "继续战斗"
+		dialog.confirmed.connect(_on_exit_confirmed.bind(dialog))
+		dialog.cancelled.connect(dialog.queue_free)
+		dialog.close_requested.connect(dialog.queue_free)
+		get_tree().root.add_child(dialog)
+		dialog.popup_centered()
+	else:
+		GameFlow.goto_stage_select()
+
+
+func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
+	GameFlow.goto_stage_select()
+	dialog.queue_free()
 
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the

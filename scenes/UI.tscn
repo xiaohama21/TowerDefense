@@ -117,6 +117,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "重开"
 
+[node name="ExitButton" type="Button" parent="Root/TopBar/Margin/Content"]
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "退出"
+
 [node name="CharacterBar" type="HBoxContainer" parent="Root"]
 layout_mode = 1
 anchors_preset = 10
