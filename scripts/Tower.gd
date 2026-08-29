@@ -38,6 +38,7 @@ var build_cost: int = 0
 var assigned_slot: Node = null
 
 var _profession_id: StringName = StringName()
+var _profession_name: String = ""
 var _behavior_id: StringName = StringName()
 var _base_damage: int = 40
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
@@ -78,6 +79,7 @@ func apply_character(character_data: CharacterData) -> void:
 	build_cost = character_data.build_cost
 
 	_profession_id = character_data.profession.profession_id if character_data.profession != null else StringName()
+	_profession_name = character_data.profession.display_name if character_data.profession != null else ""
 	_behavior_id = character_data.profession.behavior_id if character_data.profession != null else StringName()
 	if _behavior_id.is_empty():
 		_behavior_id = &"single_target_burst"
@@ -91,6 +93,10 @@ func apply_character(character_data: CharacterData) -> void:
 
 func get_profession_id() -> StringName:
 	return _profession_id
+
+
+func get_profession_name() -> String:
+	return _profession_name
 
 
 func get_upgrade_cost(upgrade_cost_factor: float) -> int:
@@ -279,6 +285,16 @@ func _draw_body() -> void:
 			draw_circle(Vector2.ZERO, 9.0, _hero_color.darkened(0.15))
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			draw_circle(Vector2(0, -6), 6.5, _hero_color)
+		&"pikeman":
+			# 剑客：挺拔身形 + 肩上剑刃
+			draw_set_transform(Vector2(0, 3), 0.0, Vector2(1.0, 1.25))
+			draw_circle(Vector2.ZERO, 8.0, _hero_color.darkened(0.1))
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+			draw_circle(Vector2(0, -4), 6.0, _hero_color)
+			var blade := PackedVector2Array([
+				Vector2(9, 6), Vector2(13, -8), Vector2(10, -9), Vector2(7, 5),
+			])
+			draw_colored_polygon(blade, Color(0.88, 0.9, 0.93, 1.0))
 		&"archer":
 			draw_set_transform(Vector2(0, 3), 0.0, Vector2(1.0, 1.3))
 			draw_circle(Vector2.ZERO, 8.5, _hero_color.darkened(0.1))
@@ -311,6 +327,11 @@ func _draw_weapon() -> void:
 			draw_colored_polygon(PackedVector2Array([
 				Vector2(-3, -34), Vector2(3, -34), Vector2(0, -43),
 			]), Color(0.92, 0.93, 0.95, 1.0))
+		&"pikeman":
+			# 剑：指向瞄准方向的长刃 + 护手
+			draw_line(Vector2(0, 6), Vector2(0, -26), Color(0.88, 0.9, 0.93, 1.0), 3.0)
+			draw_line(Vector2(-6, -22), Vector2(6, -22), Color(0.5, 0.38, 0.2, 1.0), 3.0)
+			draw_line(Vector2(0, 6), Vector2(0, 11), Color(0.5, 0.38, 0.2, 1.0), 4.0)
 		&"archer":
 			draw_arc(Vector2(0, -6), 15.0, -PI * 0.55, PI * 0.55, 14,
 				Color(0.62, 0.45, 0.24, 1.0), 3.0)

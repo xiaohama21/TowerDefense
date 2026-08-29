@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_profession")
 profession_id = &"pikeman"
-display_name = "枪兵"
+display_name = "剑客"
 description = "便宜、稳定、手长的近战基础职业，对骑兵有克制。"
 combat_role = 0
 attack_pattern = 0

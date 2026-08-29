@@ -33,11 +33,12 @@ var _status_request_id: int = 0
 var _previous_paused_state: bool = false
 var _character_buttons: Dictionary = {}
 
-# 武将交互面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
+# 武将属性面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
 var _panel_tower: Tower = null
 var _panel_stage_data: StageData = null
 var _tower_panel: PanelContainer
 var _tower_title_label: Label
+var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
 var _result_panel: PanelContainer
@@ -202,44 +203,65 @@ func _on_restart_button_pressed() -> void:
 	restart_pressed.emit()
 
 
-## 已建塔交互面板（GDD 5.4）：选中塔时展示局内升级与回收入口。
+## 武将属性面板（GDD v0.9.2）：点击已建塔，在地图正下方展示职业、局内
+## 等级与伤害/攻速/射程；升级与回收入口并入面板。
 func _create_tower_panel() -> void:
 	_tower_panel = PanelContainer.new()
 	_tower_panel.name = "TowerPanel"
 	_tower_panel.visible = false
-	_tower_panel.custom_minimum_size = Vector2(240, 0)
 	_tower_panel.add_theme_stylebox_override("panel", _make_panel_style())
 	$Root.add_child(_tower_panel)
+	_tower_panel.anchor_left = 0.5
+	_tower_panel.anchor_right = 0.5
+	_tower_panel.anchor_top = 1.0
+	_tower_panel.anchor_bottom = 1.0
+	_tower_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_tower_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_tower_panel.offset_left = -230.0
+	_tower_panel.offset_right = 230.0
+	_tower_panel.offset_top = -14.0
+	_tower_panel.offset_bottom = -14.0
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
 	margin.add_theme_constant_override("margin_top", 10)
 	margin.add_theme_constant_override("margin_bottom", 12)
 	_tower_panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", 6)
 	margin.add_child(vbox)
 
-	var title_label := Label.new()
-	title_label.name = "TowerTitle"
-	title_label.add_theme_font_size_override("font_size", 19)
-	title_label.add_theme_color_override("font_color", Color(0.95, 0.93, 0.8))
-	vbox.add_child(title_label)
-	_tower_title_label = title_label
+	_tower_title_label = Label.new()
+	_tower_title_label.add_theme_font_size_override("font_size", 18)
+	_tower_title_label.add_theme_color_override("font_color", Color(0.95, 0.93, 0.8))
+	_tower_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_tower_title_label)
+
+	_tower_attr_label = Label.new()
+	_tower_attr_label.add_theme_font_size_override("font_size", 15)
+	_tower_attr_label.add_theme_color_override("font_color", Color(0.65, 0.84, 1.0))
+	_tower_attr_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_tower_attr_label)
+
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 12)
+	vbox.add_child(buttons)
 
 	_tower_upgrade_button = Button.new()
-	_tower_upgrade_button.add_theme_font_size_override("font_size", 17)
+	_tower_upgrade_button.custom_minimum_size = Vector2(0, 40)
+	_tower_upgrade_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tower_upgrade_button.add_theme_font_size_override("font_size", 16)
 	_tower_upgrade_button.pressed.connect(func() -> void: tower_upgrade_requested.emit())
-	vbox.add_child(_tower_upgrade_button)
+	buttons.add_child(_tower_upgrade_button)
 
 	_tower_sell_button = Button.new()
-	_tower_sell_button.add_theme_font_size_override("font_size", 17)
+	_tower_sell_button.custom_minimum_size = Vector2(0, 40)
+	_tower_sell_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tower_sell_button.add_theme_font_size_override("font_size", 16)
 	_tower_sell_button.pressed.connect(func() -> void: tower_sell_requested.emit())
-	vbox.add_child(_tower_sell_button)
-
-	_tower_panel.position = Vector2(1030, 170)
+	buttons.add_child(_tower_sell_button)
 
 
 func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
@@ -264,8 +286,12 @@ func _refresh_tower_panel() -> void:
 		return
 
 	var max_level: int = _panel_stage_data.max_inbattle_upgrade_level if _panel_stage_data != null else 0
-	_tower_title_label.text = "%s · 局内等级 %d/%d（伤害 %d）" % [
-		tower.display_name, tower.battle_level, max_level, tower.damage
+	_tower_title_label.text = "%s · %s · 局内等级 %d/%d" % [
+		tower.display_name, tower.get_profession_name(), tower.battle_level, max_level
+	]
+	var attacks_per_second := 1.0 / maxf(tower.attack_cooldown, 0.01)
+	_tower_attr_label.text = "伤害 %d　　攻速 %.2f 次/秒　　射程 %d" % [
+		tower.damage, attacks_per_second, int(tower.range_radius)
 	]
 
 	if _panel_stage_data != null and tower.battle_level < max_level:
