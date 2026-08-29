@@ -13,3 +13,5 @@ Thumbs.db
 
 # Imported media settings are committed (*.import); only generated cache lives
 # inside .godot/ and must stay out of version control.
+# Release build artifacts
+build/

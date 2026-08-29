@@ -35,7 +35,8 @@ func _build_ui() -> void:
 	center.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = SUBTITLE_TEXT
+	var version: String = ProjectSettings.get_setting("application/config/version", "")
+	subtitle.text = SUBTITLE_TEXT if version.is_empty() else "%s  ·  v%s" % [SUBTITLE_TEXT, version]
 	subtitle.add_theme_font_size_override("font_size", 20)
 	subtitle.add_theme_color_override("font_color", ACCENT_COLOR)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
