@@ -95,9 +95,9 @@ func _build_ui() -> void:
 	root.add_child(actions)
 
 	var back_button := Button.new()
-	back_button.text = "返回选关"
+	back_button.text = "返回大厅"
 	back_button.custom_minimum_size = Vector2(160, 48)
-	back_button.pressed.connect(func() -> void: GameFlow.goto_stage_select())
+	back_button.pressed.connect(func() -> void: GameFlow.goto_hub())
 	actions.add_child(back_button)
 
 	_start_button = Button.new()

@@ -4,9 +4,8 @@ extends Node
 ## 持有"本次选择的关卡与出战编队"这类跨场景临时状态；持久化仍只走 ProfileStore。
 
 const MAIN_MENU_SCENE := "res://scenes/MainMenu.tscn"
-const STAGE_SELECT_SCENE := "res://scenes/StageSelect.tscn"
+const GAME_HUB_SCENE := "res://scenes/GameHub.tscn"
 const SQUAD_SELECT_SCENE := "res://scenes/SquadSelect.tscn"
-const CHARACTER_DEVELOP_SCENE := "res://scenes/CharacterDevelop.tscn"
 const BATTLE_SCENE := "res://scenes/Main.tscn"
 const CHAPTER_SCENE_DIR := "res://resources/chapters"
 const STAGE_RESOURCE_DIR := "res://resources/stages"
@@ -19,6 +18,8 @@ const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei", "guan_yu"]
 
 var selected_stage_id: StringName = &""
 var squad_character_ids: Array[String] = []
+## 游戏大厅当前页签（map/develop/settings），战斗结算"返回大厅"时恢复。
+var hub_active_panel: StringName = &"map"
 
 
 ## 新的征程：清空现有档案并发放初始武将。
@@ -149,16 +150,12 @@ func goto_menu() -> void:
 	_change_scene(MAIN_MENU_SCENE)
 
 
-func goto_stage_select() -> void:
-	_change_scene(STAGE_SELECT_SCENE)
+func goto_hub() -> void:
+	_change_scene(GAME_HUB_SCENE)
 
 
 func goto_squad_select() -> void:
 	_change_scene(SQUAD_SELECT_SCENE)
-
-
-func goto_character_develop() -> void:
-	_change_scene(CHARACTER_DEVELOP_SCENE)
 
 
 func goto_battle() -> void:

@@ -1,9 +1,10 @@
-extends Control
+extends VBoxContainer
 
-## 武将养成界面（GDD 阶段 2）：等级/经验、属性（等级+转职实时计算）、
-## 一转流程（等级+材料校验、不可逆确认、扣料写档）。
+## 武将养成面板（GDD 阶段 2，v0.10.1 移入游戏大厅）：等级/经验、属性
+## （等级+转职实时计算）、一转流程（等级+材料校验、不可逆确认、扣料写档）。
 
-const BG_COLOR := Color(0.06, 0.09, 0.08)
+signal back_requested
+
 const TITLE_COLOR := Color(0.92, 0.78, 0.42)
 const TEXT_COLOR := Color(0.88, 0.9, 0.84)
 const OK_COLOR := Color(0.55, 0.9, 0.6)
@@ -27,9 +28,15 @@ var _promotion: PromotionData = null
 func _ready() -> void:
 	_profile = ProfileStore.get_profile()
 	_load_owned_characters()
+	add_theme_constant_override("separation", 12)
 	_build_ui()
 	if not _owned.is_empty() and _selected_id.is_empty():
 		_select_character(str(_owned[0].character_id))
+	_refresh()
+
+
+func _on_shown() -> void:
+	# 每次切回面板时刷新（战斗结算后等级/材料可能已变化）。
 	_refresh()
 
 
@@ -41,51 +48,35 @@ func _load_owned_characters() -> void:
 
 
 func _build_ui() -> void:
-	var background := ColorRect.new()
-	background.color = BG_COLOR
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 80)
-	margin.add_theme_constant_override("margin_right", 80)
-	margin.add_theme_constant_override("margin_top", 36)
-	margin.add_theme_constant_override("margin_bottom", 36)
-	add_child(margin)
-
-	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 14)
-	margin.add_child(root)
-
 	var title := Label.new()
 	title.text = "武将养成"
-	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", TITLE_COLOR)
-	root.add_child(title)
+	add_child(title)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 24)
-	root.add_child(columns)
+	add_child(columns)
 
 	var list_box := VBoxContainer.new()
-	list_box.custom_minimum_size = Vector2(240, 0)
+	list_box.custom_minimum_size = Vector2(220, 0)
 	list_box.add_theme_constant_override("separation", 8)
 	columns.add_child(list_box)
 
 	if _owned.is_empty():
 		var empty := Label.new()
 		empty.text = "暂无武将，请先开始游戏"
-		empty.add_theme_font_size_override("font_size", 18)
+		empty.add_theme_font_size_override("font_size", 17)
 		list_box.add_child(empty)
 
 	for character_data in _owned:
 		var character_id := str(character_data.character_id)
+		var level := GameFlow.get_character_level(_profile, character_id)
 		var button := Button.new()
-		button.text = character_data.display_name
-		button.custom_minimum_size = Vector2(0, 46)
-		button.add_theme_font_size_override("font_size", 18)
+		button.text = "%s · Lv.%d" % [character_data.display_name, level]
+		button.custom_minimum_size = Vector2(0, 44)
+		button.add_theme_font_size_override("font_size", 17)
 		button.toggle_mode = true
 		button.pressed.connect(_on_character_pressed.bind(character_id))
 		list_box.add_child(button)
@@ -128,12 +119,6 @@ func _build_ui() -> void:
 	_promotion_button.add_theme_font_size_override("font_size", 20)
 	_promotion_button.pressed.connect(_on_promote_pressed)
 	detail_box.add_child(_promotion_button)
-
-	var back_button := Button.new()
-	back_button.text = "返回主菜单"
-	back_button.custom_minimum_size = Vector2(180, 44)
-	back_button.pressed.connect(func() -> void: GameFlow.goto_menu())
-	root.add_child(back_button)
 
 
 func _on_character_pressed(character_id: String) -> void:
@@ -215,14 +200,14 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 		if cost == null or cost.item == null:
 			continue
 		var owned: int = int(_profile.items.get(str(cost.item.item_id), 0))
-		var enough: bool = int(owned) >= cost.amount
+		var enough: bool = owned >= cost.amount
 		materials_ok = materials_ok and enough
 		lines.append("%s：%d/%d %s" % [
-			cost.item.display_name, int(owned), cost.amount, "已备齐" if enough else "不足",
+			cost.item.display_name, owned, cost.amount, "已备齐" if enough else "不足",
 		])
 	_promotion_label.text = "\n".join(lines)
 	_promotion_label.add_theme_color_override("font_color",
-		TEXT_COLOR if (level_ok and materials_ok) else BAD_COLOR)
+		OK_COLOR if (level_ok and materials_ok) else BAD_COLOR)
 	_promotion_button.visible = true
 	_promotion_button.disabled = not (level_ok and materials_ok)
 

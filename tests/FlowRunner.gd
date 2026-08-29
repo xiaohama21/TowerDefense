@@ -24,9 +24,8 @@ func _check(condition: bool, message: String) -> void:
 func _run() -> void:
 	var profile := _test_unlock_logic()
 	# 各测试函数含 await，必须逐个等待，否则 _finish 会在断言执行前提前退出。
-	await _test_stage_select_screen(profile)
+	await _test_hub(profile)
 	await _test_squad_select_screen()
-	await _test_character_develop_screen()
 	await _test_battle_entry()
 	_cleanup()
 	_finish()
@@ -104,19 +103,54 @@ func _collect_buttons(root: Node) -> Array[Button]:
 	return buttons
 
 
-func _test_stage_select_screen(profile: PlayerProfile) -> void:
-	var scene := (load("res://scenes/StageSelect.tscn") as PackedScene).instantiate()
-	add_child(scene)
+## 游戏大厅（GDD v0.10.1）：左侧功能面板 + 内容区页签切换；
+## 地图面板含章节预留占位与关卡解锁；养成面板等级/材料不足时转职禁用。
+func _test_hub(profile: PlayerProfile) -> void:
+	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
+	add_child(hub)
 	await get_tree().process_frame
 
-	var buttons := _collect_buttons(scene)
-	_check(buttons.size() == 4, "选关界面应有 3 个关卡行 + 1 个返回按钮")
-	if buttons.size() == 4:
-		_check(not buttons[0].disabled, "第一关应可点击")
-		_check(not buttons[1].disabled, "通关首关后第二关应可点击")
-		_check(buttons[2].disabled, "第三关应保持锁定")
-	_check(scene.get_child_count() > 0, "选关界面应完成构建")
-	scene.queue_free()
+	var sidebar_buttons := _collect_buttons(hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox"))
+	_check(sidebar_buttons.size() == 4, "大厅侧栏应有 3 个功能入口 + 返回主菜单")
+
+	var map_panel := hub.get_node("Columns/Content/MapPanel")
+	var develop_panel := hub.get_node("Columns/Content/DevelopPanel")
+	var settings_panel := hub.get_node("Columns/Content/SettingsPanel")
+	_check(map_panel.visible and not develop_panel.visible and not settings_panel.visible,
+		"大厅默认应显示地图选择面板")
+
+	var map_buttons := _collect_buttons(map_panel)
+	var disabled_count := 0
+	for button in map_buttons:
+		if button.disabled:
+			disabled_count += 1
+	# 3 个关卡行（解锁用例已标记首关通关，故第二关解锁、第三关锁定）
+	# + 6 个预留章节占位 + 1 个当前章节展示钮 → 禁用数 = 8
+	_check(map_buttons.size() == 10, "地图面板应有 1 个章节 + 6 个预留章节 + 3 个关卡行")
+	_check(disabled_count == 8, "预留章节、章节展示钮与未解锁的第三关应禁用，其余可点")
+
+	# 切换到武将养成面板
+	_show_hub_panel(hub, &"develop")
+	_check(develop_panel.visible and not map_panel.visible, "点击武将养成应切换内容区")
+	var toggles := 0
+	for button in _collect_buttons(develop_panel):
+		if button.toggle_mode:
+			toggles += 1
+	_check(toggles == 2, "养成面板应列出 2 名初始武将")
+	var promote_button = develop_panel.get("_promotion_button")
+	_check(promote_button != null and promote_button.disabled,
+		"等级/材料不足时转职按钮应禁用")
+
+	# 切换到设置面板
+	_show_hub_panel(hub, &"settings")
+	_check(settings_panel.visible and not develop_panel.visible, "点击设置应切换内容区")
+
+	hub.queue_free()
+	await get_tree().process_frame
+
+
+func _show_hub_panel(hub: Node, panel_id: StringName) -> void:
+	hub._show_panel(panel_id)
 
 
 func _test_squad_select_screen() -> void:
@@ -136,24 +170,6 @@ func _test_squad_select_screen() -> void:
 	await get_tree().process_frame
 	_check(toggles.all(func(button: Button) -> bool: return not button.disabled),
 		"未达编队上限时所有武将可勾选")
-	scene.queue_free()
-	await get_tree().process_frame
-
-
-## 养成界面（GDD 阶段 2）：列出初始武将；等级/材料不足时转职按钮禁用。
-func _test_character_develop_screen() -> void:
-	var scene := (load("res://scenes/CharacterDevelop.tscn") as PackedScene).instantiate()
-	add_child(scene)
-	await get_tree().process_frame
-
-	var toggles := 0
-	for button in _collect_buttons(scene):
-		if button.toggle_mode:
-			toggles += 1
-	_check(toggles == 2, "养成界面应列出 2 名初始武将")
-	var promote_button = scene.get("_promotion_button")
-	_check(promote_button != null and promote_button.disabled,
-		"等级/材料不足时转职按钮应禁用")
 	scene.queue_free()
 	await get_tree().process_frame
 

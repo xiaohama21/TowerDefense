@@ -336,7 +336,7 @@ func _on_result_retry_pressed() -> void:
 
 
 func _on_result_menu_pressed() -> void:
-	GameFlow.goto_stage_select()
+	GameFlow.goto_hub()
 
 
 ## 顶栏退出（GDD v0.9.3）：本局尚未出结果时弹确认——中途退出收益作废
@@ -354,11 +354,11 @@ func _on_exit_pressed() -> void:
 		get_tree().root.add_child(dialog)
 		dialog.popup_centered()
 	else:
-		GameFlow.goto_stage_select()
+		GameFlow.goto_hub()
 
 
 func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
-	GameFlow.goto_stage_select()
+	GameFlow.goto_hub()
 	dialog.queue_free()
 
 

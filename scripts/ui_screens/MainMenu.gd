@@ -46,17 +46,12 @@ func _build_ui() -> void:
 
 	var has_save := GameFlow.has_existing_save()
 
-	var continue_button := _make_menu_button("继续出征")
-	continue_button.visible = has_save
-	continue_button.pressed.connect(func() -> void: GameFlow.goto_stage_select())
+	var continue_button := _make_menu_button("继续出征" if has_save else "开始游戏")
+	continue_button.pressed.connect(func() -> void: GameFlow.goto_hub())
 	center.add_child(continue_button)
 
-	var develop_button := _make_menu_button("武将养成")
-	develop_button.visible = has_save
-	develop_button.pressed.connect(func() -> void: GameFlow.goto_character_develop())
-	center.add_child(develop_button)
-
-	var new_game_button := _make_menu_button("新的征程" if has_save else "开始游戏")
+	var new_game_button := _make_menu_button("新的征程")
+	new_game_button.visible = has_save
 	new_game_button.pressed.connect(_on_new_game_pressed)
 	center.add_child(new_game_button)
 
@@ -84,7 +79,7 @@ func _start_new_game() -> void:
 	if not GameFlow.start_new_game():
 		push_error("新档创建失败")
 		return
-	GameFlow.goto_stage_select()
+	GameFlow.goto_hub()
 
 
 func _make_menu_button(text: String) -> Button:
