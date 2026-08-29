@@ -11,6 +11,9 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="4_e3"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_berserker.tres" id="4_e4"]
 
+[ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
+[ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
+
 [sub_resource type="Resource" id="EnemySpawnData_w1_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
@@ -175,6 +178,26 @@ script = ExtResource("7_amount")
 item = ExtResource("8_cloth")
 amount = 2
 
+[sub_resource type="Resource" id="DialogueLine_1"]
+script = ExtResource("9_dline")
+speaker = "赵云"
+text = "贼军混编而来，骑步相杂，阵脚却乱。"
+
+[sub_resource type="Resource" id="DialogueLine_2"]
+script = ExtResource("9_dline")
+speaker = "刘备"
+text = "子龙有何高见？"
+
+[sub_resource type="Resource" id="DialogueLine_3"]
+script = ExtResource("9_dline")
+speaker = "赵云"
+text = "分而击之。云愿为先锋，直取其阵眼。"
+
+[sub_resource type="Resource" id="DialogueData_1"]
+script = ExtResource("10_ddata")
+dialogue_id = &"ch01_s06_intro"
+lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3")]
+
 [resource]
 script = ExtResource("1_stage")
 stage_id = &"ch01_s06"
@@ -190,6 +213,8 @@ max_inbattle_upgrade_level = 2
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
 waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_7")]
+dialogue = SubResource("DialogueData_1")
+theme = &"grass"
 path_points = [Vector2(-40, 600), Vector2(40, 600), Vector2(600, 600), Vector2(600, 200), Vector2(1000, 200), Vector2(1000, 600), Vector2(1240, 600), Vector2(1320, 600)]
 build_slot_positions = [Vector2(520, 520), Vector2(760, 440), Vector2(520, 280), Vector2(840, 120), Vector2(1080, 280), Vector2(1120, 520), Vector2(240, 520), Vector2(440, 440), Vector2(840, 440), Vector2(920, 120)]
 decor_cells = [Vector2i(2, 4), Vector2i(5, 2), Vector2i(9, 0), Vector2i(14, 0), Vector2i(0, 4), Vector2i(3, 3), Vector2i(13, 7), Vector2i(15, 4)]

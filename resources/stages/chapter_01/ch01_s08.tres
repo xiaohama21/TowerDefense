@@ -13,6 +13,9 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sorcerer.tres" id="4_e5"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_general.tres" id="4_e6"]
 
+[ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
+[ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
+
 [sub_resource type="Resource" id="EnemySpawnData_w1_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
@@ -177,6 +180,31 @@ script = ExtResource("7_amount")
 item = ExtResource("8_cloth")
 amount = 2
 
+[sub_resource type="Resource" id="DialogueLine_1"]
+script = ExtResource("9_dline")
+speaker = "张梁"
+text = "苍天已死，黄天当立！尔等汉家走狗，安敢犯我天兵！"
+
+[sub_resource type="Resource" id="DialogueLine_2"]
+script = ExtResource("9_dline")
+speaker = "关羽"
+text = "口出狂言。今日便教你知道，谁才是天数。"
+
+[sub_resource type="Resource" id="DialogueLine_3"]
+script = ExtResource("9_dline")
+speaker = "刘备"
+text = "众将听令——破广宗，平黄巾，在此一举！"
+
+[sub_resource type="Resource" id="DialogueLine_4"]
+script = ExtResource("9_dline")
+speaker = "诸葛亮"
+text = "贼将张梁擅召援兵，岔路来敌，不可不防。"
+
+[sub_resource type="Resource" id="DialogueData_1"]
+script = ExtResource("10_ddata")
+dialogue_id = &"ch01_s08_intro"
+lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3"), SubResource("DialogueLine_4")]
+
 [resource]
 script = ExtResource("1_stage")
 stage_id = &"ch01_s08"
@@ -192,6 +220,8 @@ max_inbattle_upgrade_level = 2
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
 waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_7")]
+dialogue = SubResource("DialogueData_1")
+theme = &"night"
 path_points = [Vector2(-40, 280), Vector2(40, 280), Vector2(840, 280), Vector2(840, 520), Vector2(1080, 520), Vector2(1080, 120), Vector2(1240, 120), Vector2(1320, 120)]
 fork_path_points = [Vector2(-40, 680), Vector2(40, 680), Vector2(40, 40), Vector2(1240, 40), Vector2(1320, 40)]
 build_slot_positions = [Vector2(760, 200), Vector2(920, 360), Vector2(1000, 440), Vector2(1160, 280), Vector2(760, 440), Vector2(200, 440), Vector2(480, 440), Vector2(680, 680), Vector2(200, 120), Vector2(600, 120)]

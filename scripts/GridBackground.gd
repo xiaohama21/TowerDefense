@@ -25,7 +25,37 @@ var road_cells: Array[Vector2i] = []
 var decor_cells: Array[Vector2i] = []
 var entry_cell := Vector2i(-1, -1)
 var base_cell := Vector2i(-1, -1)
+var theme_name: StringName = &"grass"
 
+## 地图主题调色板（GDD modules/STAGES.md 5.7）：调色板 + 氛围 + 光源。
+## 纯程序化，视觉常量随主题扩充（水战/雪地等留待后续章节）。
+const THEMES := {
+	&"grass": {
+		"tile_a": Color(0.13, 0.26, 0.19), "tile_b": Color(0.11, 0.22, 0.16),
+		"road": Color(0.47, 0.34, 0.24), "road_edge": Color(0.15, 0.12, 0.1),
+		"road_highlight": Color(0.66, 0.51, 0.34, 0.5),
+		"trunk": Color(0.3, 0.22, 0.14), "leaf": Color(0.2, 0.42, 0.28),
+		"ambient": Color(0, 0, 0, 0), "glow": false, "glow_color": Color(1, 1, 1, 0),
+	},
+	&"fire": {
+		"tile_a": Color(0.28, 0.19, 0.13), "tile_b": Color(0.24, 0.16, 0.11),
+		"road": Color(0.5, 0.33, 0.2), "road_edge": Color(0.2, 0.11, 0.07),
+		"road_highlight": Color(0.95, 0.6, 0.3, 0.55),
+		"trunk": Color(0.34, 0.2, 0.1), "leaf": Color(0.45, 0.28, 0.12),
+		"ambient": Color(1.0, 0.45, 0.15, 0.1), "glow": true,
+		"glow_color": Color(1.0, 0.55, 0.2, 0.18), "glow_step": 2, "glow_radius": 26.0,
+	},
+	&"night": {
+		"tile_a": Color(0.06, 0.09, 0.13), "tile_b": Color(0.05, 0.07, 0.11),
+		"road": Color(0.3, 0.28, 0.32), "road_edge": Color(0.12, 0.12, 0.15),
+		"road_highlight": Color(0.5, 0.5, 0.6, 0.4),
+		"trunk": Color(0.15, 0.14, 0.2), "leaf": Color(0.12, 0.16, 0.22),
+		"ambient": Color(0.02, 0.04, 0.1, 0.45), "glow": true,
+		"glow_color": Color(1.0, 0.75, 0.35, 0.22), "glow_step": 3, "glow_radius": 32.0,
+	},
+}
+
+var _palette: Dictionary = {}
 var _road_set: Dictionary = {}
 
 
@@ -39,12 +69,15 @@ func configure(
 	stage_road_cells: Array[Vector2i],
 	stage_decor_cells: Array[Vector2i],
 	stage_entry_cell: Vector2i,
-	stage_base_cell: Vector2i
+	stage_base_cell: Vector2i,
+	stage_theme: StringName = &"grass"
 ) -> void:
 	road_cells = stage_road_cells
 	decor_cells = stage_decor_cells
 	entry_cell = stage_entry_cell
 	base_cell = stage_base_cell
+	theme_name = stage_theme
+	_palette = THEMES.get(stage_theme, THEMES[&"grass"])
 	_road_set.clear()
 	for cell in road_cells:
 		_road_set[cell] = true
@@ -57,6 +90,7 @@ func _draw() -> void:
 	_draw_road()
 	_draw_landmarks()
 	_draw_decorations()
+	_draw_ambient()
 
 
 func _draw_tiles() -> void:
@@ -65,7 +99,7 @@ func _draw_tiles() -> void:
 			var cell := Vector2i(col, row)
 			if _road_set.has(cell):
 				continue
-			var color := TILE_A_COLOR if (col + row) % 2 == 0 else TILE_B_COLOR
+			var color: Color = _palette.tile_a if (col + row) % 2 == 0 else _palette.tile_b
 			draw_rect(Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE)), color)
 
 
@@ -82,14 +116,14 @@ func _draw_road() -> void:
 	for index in range(road_cells.size()):
 		var cell := road_cells[index]
 		var rect := Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE))
-		draw_rect(rect, ROAD_COLOR)
-		draw_rect(rect, ROAD_EDGE_COLOR, false, 2.0)
+		draw_rect(rect, _palette.road)
+		draw_rect(rect, _palette.road_edge, false, 2.0)
 		# Centre line dashes help show the lane direction.
 		if index + 1 < road_cells.size() and _are_adjacent(cell, road_cells[index + 1]):
 			draw_line(
 				cell_center(cell),
 				cell_center(road_cells[index + 1]),
-				ROAD_HIGHLIGHT_COLOR,
+				_palette.road_highlight,
 				3.0
 			)
 
@@ -114,8 +148,21 @@ func _draw_landmarks() -> void:
 func _draw_decorations() -> void:
 	for cell in decor_cells:
 		var center := cell_center(cell)
-		draw_circle(center + Vector2(0, 16), 8.0, DECOR_TRUNK_COLOR)
-		draw_circle(center + Vector2(0, 2), 14.0, DECOR_LEAF_COLOR)
+		draw_circle(center + Vector2(0, 16), 8.0, _palette.trunk)
+		draw_circle(center + Vector2(0, 2), 14.0, _palette.leaf)
+
+
+func _draw_ambient() -> void:
+	# 氛围层（夜战调暗/火攻暖色）先于光源绘制，火把/火光在其上"点亮"。
+	var ambient: Color = _palette.ambient
+	if ambient.a > 0.0:
+		draw_rect(Rect2(0, 0, COLS * GRID_SIZE, ROWS * GRID_SIZE), ambient)
+	if _palette.glow:
+		var step: int = _palette.glow_step
+		var radius: float = _palette.glow_radius
+		var glow: Color = _palette.glow_color
+		for index in range(0, road_cells.size(), step):
+			draw_circle(cell_center(road_cells[index]), radius, glow)
 
 
 func cell_origin(cell: Vector2i) -> Vector2:

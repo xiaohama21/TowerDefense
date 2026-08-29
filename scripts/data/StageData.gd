@@ -27,6 +27,10 @@ class_name StageData
 @export_category("Layout")
 ## 战场布局（v0.9 数据驱动化）。path_points 为直角折线拐点（含图外出入口延长段），
 ## 建造位与装饰格子由关卡数据而非场景硬编码提供；道路格子由 path_points 逐格推导。
+## 开场剧情（v0.12）：战斗开始前播放；空则无对话。
+@export var dialogue: DialogueData
+## 地图主题（v0.12，见 GridBackground 调色板）：grass / fire / night ...
+@export var theme: StringName = &"grass"
 @export var path_points: Array[Vector2] = []
 ## 分叉路径（v0.11.3 s08 试点）：召唤护卫自此路径进场；空则无双路。
 @export var fork_path_points: Array[Vector2] = []

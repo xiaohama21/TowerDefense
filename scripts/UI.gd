@@ -12,6 +12,7 @@ signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
 signal exit_pressed
+signal dialogue_finished
 
 const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
 const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
@@ -48,6 +49,11 @@ var _result_center: CenterContainer
 var _result_title_label: Label
 var _result_lines_label: Label
 var _result_next_button: Button
+var _dialogue_layer: Control
+var _dialogue_speaker_label: Label
+var _dialogue_text_label: Label
+var _dialogue_lines: Array = []
+var _dialogue_index: int = 0
 
 
 func _ready() -> void:
@@ -59,6 +65,7 @@ func _ready() -> void:
 
 	_create_tower_panel()
 	_create_result_panel()
+	_create_dialogue_layer()
 
 	if OS.is_debug_build():
 		_create_debug_panel()
@@ -309,6 +316,120 @@ func _refresh_tower_panel() -> void:
 	var refund := tower.get_sell_refund(_panel_stage_data.sell_refund_ratio if _panel_stage_data != null else 0.6)
 	_tower_sell_button.text = "回收（返还 %d）" % refund
 	_tower_sell_button.disabled = false
+
+
+## 开场剧情对话层（GDD modules/STAGES.md 5.1）：底部叙事面板，
+## 点击任意处推进，"跳过"直接结束；展示期间为模态（阻挡地图点击）。
+func _create_dialogue_layer() -> void:
+	_dialogue_layer = Control.new()
+	_dialogue_layer.name = "DialogueLayer"
+	_dialogue_layer.visible = false
+	_dialogue_layer.mouse_filter = Control.MOUSE_FILTER_STOP
+	$Root.add_child(_dialogue_layer)
+	_dialogue_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_dialogue_layer.gui_input.connect(_on_dialogue_input)
+
+	var dim := ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.4)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_layer.add_child(dim)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(0, 190)
+	panel.add_theme_stylebox_override("panel", _make_panel_style())
+	_dialogue_layer.add_child(panel)
+	panel.anchor_left = 0.0
+	panel.anchor_right = 1.0
+	panel.anchor_top = 1.0
+	panel.anchor_bottom = 1.0
+	panel.offset_left = 120.0
+	panel.offset_right = -120.0
+	panel.offset_top = -230.0
+	panel.offset_bottom = -24.0
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+
+	_dialogue_speaker_label = Label.new()
+	_dialogue_speaker_label.add_theme_font_size_override("font_size", 21)
+	_dialogue_speaker_label.add_theme_color_override("font_color", Color(1.0, 0.82, 0.3))
+	vbox.add_child(_dialogue_speaker_label)
+
+	_dialogue_text_label = Label.new()
+	_dialogue_text_label.add_theme_font_size_override("font_size", 19)
+	_dialogue_text_label.add_theme_color_override("font_color", Color(0.92, 0.93, 0.9))
+	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_dialogue_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_dialogue_text_label)
+
+	var hint_row := HBoxContainer.new()
+	hint_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(hint_row)
+
+	var hint := Label.new()
+	hint.text = "点击任意处继续 ▼"
+	hint.add_theme_font_size_override("font_size", 15)
+	hint.add_theme_color_override("font_color", Color(0.65, 0.84, 1.0))
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hint_row.add_child(hint)
+
+	var skip_button := Button.new()
+	skip_button.text = "跳过对话"
+	skip_button.custom_minimum_size = Vector2(120, 34)
+	skip_button.add_theme_font_size_override("font_size", 15)
+	skip_button.pressed.connect(_finish_dialogue)
+	hint_row.add_child(skip_button)
+
+
+func show_dialogue(lines: Array) -> void:
+	_dialogue_lines = lines
+	_dialogue_index = 0
+	_dialogue_layer.visible = true
+	_show_current_line()
+
+
+func _show_current_line() -> void:
+	if _dialogue_index >= _dialogue_lines.size():
+		_finish_dialogue()
+		return
+	var line: DialogueLineData = _dialogue_lines[_dialogue_index]
+	_dialogue_speaker_label.text = line.speaker
+	_dialogue_text_label.text = line.text
+
+
+func _on_dialogue_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+		_advance_dialogue()
+
+
+func _advance_dialogue() -> void:
+	_dialogue_index += 1
+	if _dialogue_index >= _dialogue_lines.size():
+		_finish_dialogue()
+	else:
+		_show_current_line()
+
+
+func _finish_dialogue() -> void:
+	_dialogue_layer.visible = false
+	dialogue_finished.emit()
+
+
+func skip_dialogue() -> void:
+	_finish_dialogue()
+
+
+func is_dialogue_active() -> bool:
+	return _dialogue_layer != null and _dialogue_layer.visible
 
 
 func _make_panel_style() -> StyleBoxFlat:

@@ -1,6 +1,6 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.11.3（2026-08-29）
+> 版本：v0.12.0（2026-08-29）
 > v0.2 变更：新增怒气/大招系统（4.6）、角色特性（4.7）与数据字段扩展；阶段 3 落地基础机制，阶段 5 完善演出。
 > v0.3 变更：新增近战基础职业"枪兵"（4.2/4.6/10.5），第一章角色职业重排（张飞、周仓、赵云为枪兵），阶段 1 新增枪兵职业开发。
 > v0.4 变更：阶段 0 完成"数据驱动可玩单关"（战斗内容接入 StageData/EnemyData/CharacterData；初始武将刘备/关羽；建造栏切换武将；塔显示武将名与职业配色；首通奖励结算）。
@@ -17,6 +17,7 @@
 > v0.10.0 变更：**阶段 2 完成**——武将养成（升级与一转）落地。等级曲线封装为 `LevelCurve`（上限 30 级，见 modules/NUMBERS.md 10.1）；建造武将塔按等级+转职实时计算属性（`CharacterData.compute_stats_at()`，战斗与养成界面共用，见 4.4/10.2）；养成界面 `CharacterDevelop`（等级/经验条/属性/一转流程，主菜单进入）与转职流程（等级+材料校验、不可逆确认、`PlayerProfile.spend_item` 扣料、`promotion_path` 写档）；五个一转配置细化数值并统一消耗黄巾布×10（4.5 表），`liu_bei_commander.target_profession` 修正为剑客；s01~s03 配置重复通关过渡奖励黄巾布×2/次（7.2），保障转职材料收入；修复 FlowRunner 未 await 各测试协程导致断言空跑的框架缺陷（顺带全程真实执行）。
 > v0.10.1 变更：**导航重构（应用户反馈）**——"武将养成"从主菜单移入游戏流程：新增**游戏大厅 `GameHub`**（左侧功能面板：地图选择 / 武将养成 / 设置 + 返回主菜单；右侧内容区按页签切换）。地图选择改为**章节→关卡两级**（第一章可用，第二~七章锁定占位，为后续章节预留位置）；设置面板（全屏/主音量，持久化至 `user://settings.cfg`）；原 `StageSelect` / `CharacterDevelop` 独立场景由大厅面板取代（modules/UI.md 9）。
 > v0.10.2 变更：修复**结算弹窗不居中（左上角）**——根因是代码构建 UI 统一使用了 `set_anchors_preset`（只改锚点、按"保持当前矩形"反推偏移，0×0 容器仍钉在原点），改为 `set_anchors_and_offsets_preset` 并修正全部代码构建界面（主菜单/大厅/编队背景同患此病，一并修复）；FlowRunner 新增布局回归断言（关键容器铺满视口，按视口实际尺寸校验）；SmokeRunner 改用隔离存档槽，不再读写玩家真实存档（等级成长引入后，真实存档会让战斗属性断言不确定）。
+> v0.12.0 变更：**阶段 3 完成**——剧情对话系统落地（`DialogueData`/`DialogueLineData` 资源 + 战斗开场覆盖层，8 关文案全配，点击推进/跳过，设置"剧情速进"持久化）；地图主题层落地（`StageData.theme`，grass/fire/night 调色板 + 火光/火把氛围，s02 火攻、s08 夜战）；章节全量配置收尾。至此第一章 8 关、9 名武将、7 种敌人、六大招、八特性、剧情与图鉴全部就位，阶段验收待实测。
 > v0.11.3 变更：**阶段 3 · 提交 3 落地（内容层）**——赵云职业由剑客调整为骑兵（应用户定稿）；新增周仓（剑客·captain 特性）/赵云（骑兵·龙魂）/诸葛亮（术士·star_gazer 射程+光环减速）三名角色与一转；新增黄巾力士、黄巾祭酒（healer_aura 治疗光环）、黄巾渠帅张梁（summon_guard 召唤护卫，Boss）三个敌人——敌人特殊行为机制落地（`EnemyData.special_behavior_id` → EnemyManager 执行）；s04~s08 五关全建（布局按 5.6 含黄金位，s08 配置 `fork_path_points` 分叉试点：召唤护卫自岔路进场）；武将图鉴上线（养成面板全角色 + 未解锁获取方式）；首通解锁全量配置。
 > v0.11.2 变更：**阶段 3 · 提交 2 落地（机制层）**——怒气系统（输出按命中+伤害积怒、辅助按增益事件积怒、满 100 自动释放、塔顶怒气条占位）；六大招行为数值生效（斩杀/横扫击退/齐射/轰击减速/全队鼓舞/投石齐射，含 10.5 缩放：×(1+0.25×局内等级)×转职倍率）；特性八条数值生效（4.7，含皇甫嵩 `trait_royal_fire`）；舞娘 `attack_speed_aura` 光环化（脉冲增益友方，贡献事件接经验）；减速 debuff 通用化（`Enemy.apply_slow` 取最强因子）；技能 `charge`（击杀返怒 50%×档位系数）；勘误：`rage_gain_mode` 角色级覆盖移至 `CharacterData`（刘备与张飞共享职业，职业级覆盖会互相污染）。
 > v0.11.1 变更：**阶段 3 · 提交 1 落地**——①两项定稿：武将池开放阵营（不限蜀汉，群雄/汉室可入池），投石车首名武将定为**皇甫嵩**（长社火攻史实主角，s03 首通解锁，与黄忠同关）；科技树难度联动按 v0.11 推荐方案定稿（困难奖励 ×2 对冲）。②投石车职业完整落地：`catapult.tres` + `lob_aoe` 抛射范围行为（预判落点抛物线弹体 + 落点范围伤害，首例范围结算）+ `ProfessionData.min_range` 最近射程机制（目标过近无法攻击，`find_target` 同步过滤）+ 皇甫嵩与一转"折冲将军"；③**落后补正**上线：经验获取按编队平均等级修正（+20%/级差，上限 +60%，4.4/10.6）；④机制数据地基：`ProfessionData`（ultimate/rage 字段组）、`CharacterData`（trait/ultimate_override）、`PromotionData`（ultimate_multiplier）先行铺设，供提交 2（怒气/特性/技能）使用。
@@ -153,7 +154,7 @@
 - **验收标准达成**：升级到 10 级可转职（曲线+校验自动化）；转职后伤害/攻速变化可感知（属性面板与界面同源数值，自动断言）；重启后状态保留（存档契约往返用例）；材料不足无法转职（`spend_item` 契约 + 界面按钮禁用用例）。数值倍率为初稿，待实测平衡。
 - **不做**：多分支、二转、升星。
 
-### 阶段 3：第一章内容补全
+### 阶段 3：第一章内容补全 —— ✅ 已完成（v0.12.0，分三次提交）
 
 - **目标**：第一章 8 关全部可玩，7~9 名角色全部可收集，敌人体系完整，**怒气/大招/特性/技能机制可用**，剧情与图鉴补全叙事与收集指引。
 - **范围**：
@@ -244,19 +245,21 @@
 ```
 resources/
   chapters/chapter_01.tres          # 第一章（黄巾之乱，s01~s03 已接入）
-  characters/                       # 刘备、关羽、黄忠、貂蝉、张飞（CharacterData）
-  professions/                      # cavalry / pikeman / archer / strategist / dancer
-  promotions/                       # 关羽一转（正式数值）+ 刘备/黄忠/貂蝉/张飞一转（占位，倍率 1.0）
-  enemies/yellow_turban/            # 步卒 / 轻骑 / 伍长 / 弓手
+  characters/                       # 刘备/关羽/张飞/周仓/赵云（剑客骑兵系）、黄忠（弓手）、
+                                    # 皇甫嵩（投石车）、貂蝉（舞娘）、诸葛亮（术士）——共 9 名
+  professions/                      # cavalry / pikeman(剑客) / archer / strategist / dancer / catapult
+  promotions/                       # 九名角色各一条一转（关羽正式数值，其余初稿数值）
+  enemies/yellow_turban/            # 步卒 / 轻骑 / 伍长 / 弓手 / 力士 / 祭酒(healer_aura) / 渠帅(summon_guard)
   items/                            # 求贤令（gacha_token）、黄巾布
-  stages/chapter_01/                # ch01_s01（5 波教学）/ ch01_s02、ch01_s03（各 6 波，含布局数据）
+  stages/chapter_01/                # ch01_s01~s08 全八关（布局 + 波次 + 开场剧情；s08 含分叉路径）
 scenes/
   MainMenu / StageSelect / SquadSelect  # 流程界面（阶段 1，UI 代码构建）
   Main / UI / Tower / Bullet / Enemy / BuildSlot  # 战斗场景
 scripts/
   data/        # CharacterData（含 compute_stats_at）/ ProfessionData / PromotionData /
-               # LevelCurve（等级曲线）/ EnemyData / StageData（含布局与局内经济字段）/
-               # WaveData / EnemySpawnData / ChapterData / ItemData / ItemAmountData / PlayerProfile
+               # LevelCurve（等级曲线）/ DialogueData / DialogueLineData / EnemyData /
+               # StageData（布局/局内经济/剧情/主题/分叉）/ WaveData / EnemySpawnData /
+               # ChapterData / ItemData / ItemAmountData / PlayerProfile
   services/    # SaveManager（存档事务）、BattleSession（会话结算）、GameFlow（流程导航 + 养成查询）
   combat/      # BehaviorRegistry（最小行为注册表：behavior_id 分发 + 职业克制）
   ui_screens/  # MainMenu / StageSelect / SquadSelect

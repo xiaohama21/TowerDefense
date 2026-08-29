@@ -207,6 +207,13 @@ func _test_battle_entry() -> void:
 	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer
 	_check(result_center != null and result_center.size == get_viewport().get_visible_rect().size,
 		"结算弹窗承载容器应铺满视口（保证居中）")
+	# 剧情对话（v0.12）：战斗开场播放，跳过后关闭；主题层随关卡生效。
+	var dialogue_layer := main.get_node("UI/Root/DialogueLayer")
+	_check(dialogue_layer != null and dialogue_layer.visible, "战斗开场应播放剧情对话层")
+	main.get_node("UI").skip_dialogue()
+	_check(not dialogue_layer.visible, "跳过后对话层应关闭")
+	var grid_bg := main.get_node("GridBackground") as GridBackground
+	_check(grid_bg.theme_name == &"fire", "s02 应应用火攻主题")
 	_check(get_tree().get_nodes_in_group("build_slots").size() == 10, "s02 应由布局数据生成 10 个建造位")
 	_check(GameManager.total_waves == 6, "s02 应有 6 波敌人")
 

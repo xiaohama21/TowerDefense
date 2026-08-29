@@ -2,12 +2,12 @@ extends VBoxContainer
 
 ## 设置面板（GDD v0.10.1）：全屏切换、主音量；持久化至 user://settings.cfg。
 
-const SETTINGS_PATH := "user://settings.cfg"
 const TITLE_COLOR := Color(0.92, 0.78, 0.42)
 const TEXT_COLOR := Color(0.88, 0.9, 0.84)
 const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 
 var _fullscreen_button: Button
+var _skip_dialogue_check: CheckButton
 var _volume_slider: HSlider
 var _volume_value_label: Label
 
@@ -30,6 +30,12 @@ func _build_ui() -> void:
 	_fullscreen_button.add_theme_font_size_override("font_size", 18)
 	_fullscreen_button.pressed.connect(_on_fullscreen_pressed)
 	add_child(_fullscreen_button)
+
+	_skip_dialogue_check = CheckButton.new()
+	_skip_dialogue_check.text = "剧情速进（跳过开场对话）"
+	_skip_dialogue_check.add_theme_font_size_override("font_size", 17)
+	_skip_dialogue_check.toggled.connect(_on_skip_dialogue_toggled)
+	add_child(_skip_dialogue_check)
 
 	var volume_label := Label.new()
 	volume_label.text = "主音量"
@@ -59,12 +65,14 @@ func _build_ui() -> void:
 
 func _load_settings() -> void:
 	var config := ConfigFile.new()
-	config.load(SETTINGS_PATH)
+	config.load(GameFlow.SETTINGS_PATH)
 	var fullscreen: bool = config.get_value("display", "fullscreen", false)
 	var volume: float = config.get_value("audio", "master_volume", 100.0)
+	var skip_dialogue: bool = config.get_value("gameplay", "skip_dialogue", false)
 	_apply_fullscreen(fullscreen)
 	_volume_slider.set_value_no_signal(volume)
 	_apply_volume(volume)
+	_skip_dialogue_check.set_pressed_no_signal(skip_dialogue)
 	_refresh_fullscreen_text()
 
 
@@ -103,4 +111,9 @@ func _save_settings() -> void:
 	config.set_value("display", "fullscreen",
 		DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN)
 	config.set_value("audio", "master_volume", _volume_slider.value)
-	config.save(SETTINGS_PATH)
+	config.set_value("gameplay", "skip_dialogue", _skip_dialogue_check.button_pressed)
+	config.save(GameFlow.SETTINGS_PATH)
+
+
+func _on_skip_dialogue_toggled(pressed: bool) -> void:
+	GameFlow.set_gameplay_flag("skip_dialogue", pressed)

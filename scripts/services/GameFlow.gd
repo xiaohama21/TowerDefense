@@ -7,6 +7,7 @@ const MAIN_MENU_SCENE := "res://scenes/MainMenu.tscn"
 const GAME_HUB_SCENE := "res://scenes/GameHub.tscn"
 const SQUAD_SELECT_SCENE := "res://scenes/SquadSelect.tscn"
 const BATTLE_SCENE := "res://scenes/Main.tscn"
+const SETTINGS_PATH := "user://settings.cfg"
 const CHAPTER_SCENE_DIR := "res://resources/chapters"
 const STAGE_RESOURCE_DIR := "res://resources/stages"
 const CHARACTER_RESOURCE_DIR := "res://resources/characters"
@@ -178,6 +179,20 @@ func set_squad(character_ids: Array[String]) -> void:
 
 func goto_menu() -> void:
 	_change_scene(MAIN_MENU_SCENE)
+
+
+## 读取设置面板持久化的游戏性开关（如剧情速进）。
+func is_gameplay_flag_enabled(flag: String) -> bool:
+	var config := ConfigFile.new()
+	config.load(SETTINGS_PATH)
+	return bool(config.get_value("gameplay", flag, false))
+
+
+func set_gameplay_flag(flag: String, value: bool) -> void:
+	var config := ConfigFile.new()
+	config.load(SETTINGS_PATH)
+	config.set_value("gameplay", flag, value)
+	config.save(SETTINGS_PATH)
 
 
 func goto_hub() -> void:

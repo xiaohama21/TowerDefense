@@ -77,6 +77,10 @@ func _ready():
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
 	ui.show_status("选择武将后点击绿色 + 建造，再开始第 1 波", 3.0)
 
+	# 开场剧情（GDD modules/STAGES.md 5.1）：设置开启"剧情速进"时自动跳过。
+	if stage_data.dialogue != null and not stage_data.dialogue.lines.is_empty() 			and not GameFlow.is_gameplay_flag_enabled("skip_dialogue"):
+		ui.show_dialogue(stage_data.dialogue.lines)
+
 
 ## Battle scene entry: GameFlow carries the selected stage; direct scene runs
 ## (tests) fall back to the default teaching stage.
@@ -115,7 +119,7 @@ func _apply_stage_layout() -> void:
 		road_cells.append_array(GridBackground.derive_road_cells(stage_data.fork_path_points))
 	var entry_cell := _first_in_map_road_cell(road_cells, true)
 	var base_cell := _first_in_map_road_cell(road_cells, false)
-	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell)
+	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme)
 
 	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
 	base_marker.position = _first_in_map_point(stage_data.path_points, false)

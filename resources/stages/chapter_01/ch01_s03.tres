@@ -10,6 +10,9 @@
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="8_item_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="9_cloth"]
 
+[ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
+[ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
+
 [sub_resource type="Resource" id="EnemySpawnData_soldier_6"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_soldier")
@@ -123,6 +126,26 @@ script = ExtResource("8_item_amount")
 item = ExtResource("9_cloth")
 amount = 2
 
+[sub_resource type="Resource" id="DialogueLine_1"]
+script = ExtResource("9_dline")
+speaker = "黄忠"
+text = "颖川贼兵中多有弓手，诸位切莫立在平地。"
+
+[sub_resource type="Resource" id="DialogueLine_2"]
+script = ExtResource("9_dline")
+speaker = "刘备"
+text = "黄老将军破敌之策，备受教了。"
+
+[sub_resource type="Resource" id="DialogueLine_3"]
+script = ExtResource("9_dline")
+speaker = "黄忠"
+text = "老夫的箭，可比他们的快三分。"
+
+[sub_resource type="Resource" id="DialogueData_1"]
+script = ExtResource("10_ddata")
+dialogue_id = &"ch01_s03_intro"
+lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3")]
+
 [resource]
 script = ExtResource("1_stage")
 stage_id = &"ch01_s03"
@@ -138,6 +161,8 @@ max_inbattle_upgrade_level = 2
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
 waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6")]
+dialogue = SubResource("DialogueData_1")
+theme = &"grass"
 path_points = [Vector2(-40, 680), Vector2(40, 680), Vector2(1080, 680), Vector2(1080, 280), Vector2(1240, 280), Vector2(1240, 40)]
 build_slot_positions = [Vector2(1000, 600), Vector2(1160, 600), Vector2(1000, 200), Vector2(1160, 360), Vector2(1160, 200), Vector2(1080, 120), Vector2(200, 600), Vector2(520, 600), Vector2(760, 520), Vector2(840, 440)]
 decor_cells = [Vector2i(2, 0), Vector2i(6, 0), Vector2i(10, 0), Vector2i(0, 5), Vector2i(3, 4), Vector2i(6, 2), Vector2i(1, 2), Vector2i(12, 6)]
