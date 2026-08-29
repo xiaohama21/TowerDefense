@@ -24,14 +24,18 @@ func _run() -> void:
 		_finish()
 		return
 
+	# 测试直开战斗场景时 GameFlow 未选关，Main 回退到默认教学关。
+	var stage_data := load("res://resources/stages/chapter_01/ch01_s01.tres") as StageData
+	_check(stage_data != null, "默认关卡数据应可加载")
+
 	var main := packed.instantiate()
 	add_child(main)
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	_check(GameManager.gold == 100, "初始金币应为 100")
-	_check(GameManager.lives == 20, "初始生命应为 20")
-	_check(get_tree().get_nodes_in_group("build_slots").size() == 10, "应有 10 个建造位")
+	_check(GameManager.gold == stage_data.starting_currency, "初始金币应来自关卡配置（starting_currency）")
+	_check(GameManager.lives == stage_data.starting_lives, "初始生命应来自关卡配置（starting_lives）")
+	_check(get_tree().get_nodes_in_group("build_slots").size() == stage_data.build_slot_count, "建造位数量应与关卡配置一致")
 
 	var slots := get_tree().get_nodes_in_group("build_slots")
 	var build_manager := main.get_node("BuildManager")
@@ -45,9 +49,12 @@ func _run() -> void:
 		var distance_to_path: float = slot.global_position.distance_to(enemy_path.to_global(closest_local))
 		_check(distance_to_path >= 70.0 and distance_to_path <= 170.0, "建造位应贴着网格道路（80/160 像素）")
 	if slots.size() >= 3:
+		# 显式控制金币，用例不依赖关卡初始金币的具体数值。
+		build_manager.selected_character = guan_yu
+		GameManager.gold = guan_yu.build_cost
 		build_manager._on_build_requested(slots[0])
 		await get_tree().process_frame
-		_check(GameManager.gold == 100 - guan_yu.build_cost, "建造关羽后金币应扣除其造价")
+		_check(GameManager.gold == 0, "建造关羽后金币应扣除其造价")
 		build_manager.selected_character = liu_bei
 		build_manager._on_build_requested(slots[1])
 		build_manager._on_build_requested(slots[2])
@@ -126,7 +133,6 @@ func _run() -> void:
 
 	# 局内升级/回收（GDD 5.4）：费用 = 造价×0.8×次数，返还 = 总投入×0.6（向上取整）。
 	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
-	var stage_data := load("res://resources/stages/chapter_01/ch01_s01.tres") as StageData
 	_check(zhang_fei != null and stage_data != null, "张飞与关卡数据应可加载")
 	if zhang_fei != null and stage_data != null and slots.size() >= 3:
 		# 波次测试把 GameManager 推到了终局状态，先复位再验证局内建造/升级。
