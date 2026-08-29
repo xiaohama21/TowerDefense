@@ -21,6 +21,10 @@ var last_damage_source_character_id: String = ""
 var damage_contributors: Dictionary = {}
 # 当前移动方向（抛射预判落点用）；初始朝右，随实际位移刷新。
 var velocity_dir: Vector2 = Vector2.RIGHT
+# 特殊行为（GDD modules/BEHAVIORS.md B.3.2）：healer_aura / summon_guard 等，
+# 由 EnemyManager 按 ID 执行；cooldown 为行为计时器。
+var special_behavior_id: StringName = &""
+var special_cooldown: float = 0.0
 # 减速 debuff（术士大招/张飞咆哮/诸葛亮光环等）：取最强因子，倒计时归零解除。
 var slow_factor: float = 1.0
 var _slow_time_left: float = 0.0
@@ -96,6 +100,14 @@ func die(give_reward: bool) -> void:
 		GameManager.enemy_died(reward, kill_xp, last_damage_source_character_id, damage_contributors)
 
 	queue_free()
+
+
+## 治疗光环目标（healer_aura）：不超过最大生命。
+func heal(amount: int) -> void:
+	if is_dead:
+		return
+	current_hp = mini(current_hp + amount, max_hp)
+	update_hp_bar()
 
 
 func update_hp_bar() -> void:

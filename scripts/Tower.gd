@@ -71,6 +71,7 @@ var _ultimate_multiplier: float = 1.0
 var _granted_skills: Array[StringName] = []
 var _consecutive_hits: int = 0
 var _last_attacked_target = null
+var _aura_tick: float = 0.0
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
 var _attack_flash: float = 0.0
@@ -108,6 +109,9 @@ func apply_character(character_data: CharacterData, level: int = 1, promotion: P
 	damage = stats.damage
 	_base_damage = damage
 	range_radius = stats.range
+	# 诸葛亮·观星：射程 +12%（特性静态加成）
+	if _trait_id == &"trait_star_gazer":
+		range_radius *= 1.0 + get_trait_param("range_bonus", 0.12)
 	attack_cooldown = stats.attack_interval
 	_min_range = stats.min_range
 	bullet_speed = character_data.projectile_speed
@@ -235,6 +239,13 @@ func _process(_delta: float) -> void:
 
 	if rage >= MAX_RAGE and _try_cast_ultimate():
 		rage = 0.0
+
+	# 诸葛亮·观星：范围内敌人持续减速 8%（周期施加，取最强因子）
+	_aura_tick = maxf(_aura_tick - _delta, 0.0)
+	if _trait_id == &"trait_star_gazer" and _aura_tick <= 0.0:
+		_aura_tick = 0.5
+		for enemy in enemies_in_range():
+			enemy.apply_slow(get_trait_param("aura_slow", 0.92), 0.6)
 
 	if attack_timer.is_stopped() and (passive or target != null):
 		attack()

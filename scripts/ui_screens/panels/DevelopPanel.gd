@@ -13,6 +13,7 @@ const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 
 var _profile: PlayerProfile
 var _owned: Array[CharacterData] = []
+var _locked_ids: Array[String] = []
 var _selected_id: String = ""
 
 var _character_buttons: Dictionary = {}
@@ -45,6 +46,13 @@ func _load_owned_characters() -> void:
 		var character_data := GameFlow.load_character_data(character_id)
 		if character_data != null:
 			_owned.append(character_data)
+	# 武将图鉴（v0.11.3）：全角色目录 - 已拥有 = 未解锁
+	var owned_set := {}
+	for character_data in _owned:
+		owned_set[str(character_data.character_id)] = true
+	for character_id in GameFlow.get_all_character_ids():
+		if not owned_set.has(character_id):
+			_locked_ids.append(character_id)
 
 
 func _build_ui() -> void:
@@ -81,6 +89,24 @@ func _build_ui() -> void:
 		button.pressed.connect(_on_character_pressed.bind(character_id))
 		list_box.add_child(button)
 		_character_buttons[character_id] = button
+
+	if not _locked_ids.is_empty():
+		var hint := Label.new()
+		hint.text = "未解锁武将"
+		hint.add_theme_font_size_override("font_size", 15)
+		hint.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
+		list_box.add_child(hint)
+	for character_id in _locked_ids:
+		var character_data := GameFlow.load_character_data(character_id)
+		if character_data == null:
+			continue
+		var locked_button := Button.new()
+		locked_button.text = "%s · %s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
+		locked_button.custom_minimum_size = Vector2(0, 40)
+		locked_button.add_theme_font_size_override("font_size", 13)
+		locked_button.add_theme_color_override("font_color", Color(0.55, 0.57, 0.53))
+		locked_button.disabled = true
+		list_box.add_child(locked_button)
 
 	var detail_box := VBoxContainer.new()
 	detail_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL

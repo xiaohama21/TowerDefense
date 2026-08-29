@@ -32,8 +32,8 @@
 | `yellow_turban_cavalry` | 黄巾轻骑 | 快速 | 110HP / 145速 / 漏2血 | 已有 |
 | `yellow_turban_sergeant` | 黄巾伍长 | 精英 | 300HP / 65速 / 漏2血 | 已有 |
 | `yellow_turban_archer` | 黄巾弓手 | 远程（慢速高漏伤） | 90HP / 60速 / 漏3血 | 已有（v0.9） |
-| `yellow_turban_berserker` | 黄巾力士 | 高血坦克 | 450HP / 45速 / 漏2血 | 新增（阶段 3） |
-| `yellow_turban_sorcerer` | 黄巾祭酒 | 光环支援 | 200HP / 55速 / 治疗光环 | 新增（阶段 3） |
-| `yellow_turban_general` | 黄巾渠帅（张梁） | Boss | 高血 + 召唤护卫波 | 新增（阶段 3） |
+| `yellow_turban_berserker` | 黄巾力士 | 高血坦克 | 450HP / 45速 / 漏2血 | 已有（v0.11.3） |
+| `yellow_turban_sorcerer` | 黄巾祭酒 | 光环支援 | 200HP / 55速 / 治疗光环（healer_aura：每 2s 治疗周围 120px 友军 15 点） | 已有（v0.11.3） |
+| `yellow_turban_general` | 黄巾渠帅（张梁） | Boss | 3000HP / 30速 / 漏10血 | 已有（v0.11.3，summon_guard：每 8s 自岔路召唤 2 名步卒——s08 分叉试点） |
 
 **敌人规则**：每章敌人必须与章节主题一致（第一章=黄巾军）；新增敌人 = 先建 `EnemyData` 再按需实现 `special_behavior_id`；禁止脱离配置凭空造怪。

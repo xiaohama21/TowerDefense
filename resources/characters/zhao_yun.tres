@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"zhao_yun"
+display_name = "赵云"
+description = "浑身是胆，越战越勇的常山骑兵。"
+profession = ExtResource("2_profession")
+tags = [&"shu", &"cavalry"]
+build_cost = 70
+base_damage = 58
+base_range = 120.0
+attack_interval = 0.75
+projectile_speed = 460.0
+damage_growth_per_level = 5.0
+initial_skill_ids = [&"dragon_charge"]
+promotion_ids = [&"zhao_yun_dragon_guard"]
+unlock_stage_id = &"ch01_s06"

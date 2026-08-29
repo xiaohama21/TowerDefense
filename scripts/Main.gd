@@ -102,6 +102,17 @@ func _apply_stage_layout() -> void:
 	path_2d.curve = curve
 
 	var road_cells := GridBackground.derive_road_cells(stage_data.path_points)
+	# 分叉路径（s08 试点）：召唤护卫自岔路进场；岔路道路格并入背景绘制。
+	if not stage_data.fork_path_points.is_empty():
+		var fork_curve := Curve2D.new()
+		for point in stage_data.fork_path_points:
+			fork_curve.add_point(point)
+		var fork_path := Path2D.new()
+		fork_path.name = "ForkPath2D"
+		fork_path.curve = fork_curve
+		add_child(fork_path)
+		enemy_manager.fork_path = fork_path
+		road_cells.append_array(GridBackground.derive_road_cells(stage_data.fork_path_points))
 	var entry_cell := _first_in_map_road_cell(road_cells, true)
 	var base_cell := _first_in_map_road_cell(road_cells, false)
 	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell)

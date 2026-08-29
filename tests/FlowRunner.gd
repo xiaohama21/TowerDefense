@@ -39,12 +39,16 @@ func _test_unlock_logic() -> PlayerProfile:
 	GameFlow.ensure_initial_characters(profile)
 	_check(profile.has_character("liu_bei") and profile.has_character("guan_yu"), "新档应获得初始武将")
 
-	var s01 := GameFlow.load_stage_data(&"ch01_s01")
-	var s02 := GameFlow.load_stage_data(&"ch01_s02")
-	var s03 := GameFlow.load_stage_data(&"ch01_s03")
-	_check(s01 != null and s02 != null and s03 != null, "第一章前三关数据应可加载")
-	if s01 == null or s02 == null or s03 == null:
+	var stage_ids := [&"ch01_s01", &"ch01_s02", &"ch01_s03", &"ch01_s04", &"ch01_s05", &"ch01_s06", &"ch01_s07", &"ch01_s08"]
+	var stages: Array[StageData] = []
+	for stage_id in stage_ids:
+		stages.append(GameFlow.load_stage_data(stage_id))
+	_check(stages.all(func(stage: StageData) -> bool: return stage != null), "第一章八关数据应可加载")
+	if stages.any(func(stage: StageData) -> bool: return stage == null):
 		return profile
+	var s01 := stages[0]
+	var s02 := stages[1]
+	var s03 := stages[2]
 
 	_check(GameFlow.is_stage_unlocked(profile, s01), "首关应默认解锁")
 	_check(not GameFlow.is_stage_unlocked(profile, s02), "未通关首关时第二关应锁定")
@@ -53,11 +57,11 @@ func _test_unlock_logic() -> PlayerProfile:
 	_check(not GameFlow.is_stage_unlocked(profile, s03), "第二关未通关时第三关应锁定")
 
 	_check(GameFlow.get_next_stage_id(&"ch01_s01") == StringName("ch01_s02"), "首关的下一关应为第二关")
-	_check(GameFlow.get_next_stage_id(&"ch01_s03") == StringName(&""), "末关应无下一关")
+	_check(GameFlow.get_next_stage_id(&"ch01_s08") == StringName(&""), "末关（s08）应无下一关")
 
-	_check_layout(s01, false)
-	_check_layout(s02, true)
-	_check_layout(s03, true)
+	_check_layout(stages[0], false)
+	for index in range(1, stages.size()):
+		_check_layout(stages[index], true)
 	return profile
 
 
@@ -127,10 +131,10 @@ func _test_hub(profile: PlayerProfile) -> void:
 	for button in map_buttons:
 		if button.disabled:
 			disabled_count += 1
-	# 3 个关卡行（解锁用例已标记首关通关，故第二关解锁、第三关锁定）
-	# + 6 个预留章节占位 + 1 个当前章节展示钮 → 禁用数 = 8
-	_check(map_buttons.size() == 10, "地图面板应有 1 个章节 + 6 个预留章节 + 3 个关卡行")
-	_check(disabled_count == 8, "预留章节、章节展示钮与未解锁的第三关应禁用，其余可点")
+	# 8 个关卡行（解锁用例已标记首关通关，故第二关解锁，第三~八关锁定）
+	# + 6 个预留章节占位（第二~七章）+ 1 个当前章节展示钮 → 禁用数 = 13
+	_check(map_buttons.size() == 15, "地图面板应有 7 个章节行（1 可用 + 6 预留）+ 8 个关卡行")
+	_check(disabled_count == 13, "预留章节、章节展示钮与未解锁关卡应禁用，其余可点")
 
 	# 切换到武将养成面板
 	_show_hub_panel(hub, &"develop")
@@ -140,6 +144,13 @@ func _test_hub(profile: PlayerProfile) -> void:
 		if button.toggle_mode:
 			toggles += 1
 	_check(toggles == 2, "养成面板应列出 2 名初始武将")
+	# 武将图鉴（v0.11.3）：9 名角色全部可见，未解锁 7 名置灰标注获取方式
+	var develop_buttons := _collect_buttons(develop_panel)
+	var locked_count := 0
+	for button in develop_buttons:
+		if button.disabled and not button.toggle_mode:
+			locked_count += 1
+	_check(locked_count == 8, "图鉴应显示 7 名未解锁武将（+ 未达条件的转职按钮）")
 	var promote_button = develop_panel.get("_promotion_button")
 	_check(promote_button != null and promote_button.disabled,
 		"等级/材料不足时转职按钮应禁用")

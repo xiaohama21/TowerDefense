@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_sorcerer"
+display_name = "黄巾祭酒"
+description = "妖道祭酒，符水治疗周围的黄巾军。"
+tags = [&"yellow_turban", &"caster"]
+max_hp = 200
+move_speed = 55.0
+armor = 0
+damage_to_base = 2
+currency_reward = 18
+kill_xp = 15
+special_behavior_id = &"healer_aura"
+body_color = Color(0.5, 0.72, 0.45, 1)
+body_size = Vector2(32, 34)

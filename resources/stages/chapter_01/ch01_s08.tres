@@ -1,0 +1,203 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
+[ext_resource type="Script" path="res://scripts/data/EnemySpawnData.gd" id="3_spawn"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="7_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_e0"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="4_e1"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="4_e2"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_archer.tres" id="4_e3"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_berserker.tres" id="4_e4"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sorcerer.tres" id="4_e5"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_general.tres" id="4_e6"]
+
+[sub_resource type="Resource" id="EnemySpawnData_w1_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 8
+spawn_interval = 0.65
+
+[sub_resource type="Resource" id="WaveData_1"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w01"
+wave_number = 1
+spawn_groups = [SubResource("EnemySpawnData_w1_0")]
+preparation_time = 0.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w2_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 10
+spawn_interval = 0.55
+
+[sub_resource type="Resource" id="EnemySpawnData_w2_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e1")
+count = 4
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="WaveData_2"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w02"
+wave_number = 2
+spawn_groups = [SubResource("EnemySpawnData_w2_0"), SubResource("EnemySpawnData_w2_1")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w3_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e2")
+count = 2
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w3_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 10
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="WaveData_3"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w03"
+wave_number = 3
+spawn_groups = [SubResource("EnemySpawnData_w3_0"), SubResource("EnemySpawnData_w3_1")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w4_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e3")
+count = 5
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="EnemySpawnData_w4_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e4")
+count = 2
+spawn_interval = 1.2
+
+[sub_resource type="Resource" id="WaveData_4"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w04"
+wave_number = 4
+spawn_groups = [SubResource("EnemySpawnData_w4_0"), SubResource("EnemySpawnData_w4_1")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w5_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e5")
+count = 2
+spawn_interval = 1.4
+
+[sub_resource type="Resource" id="EnemySpawnData_w5_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e2")
+count = 2
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w5_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 10
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="WaveData_5"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w05"
+wave_number = 5
+spawn_groups = [SubResource("EnemySpawnData_w5_0"), SubResource("EnemySpawnData_w5_1"), SubResource("EnemySpawnData_w5_2")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w6_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e4")
+count = 3
+spawn_interval = 1.1
+
+[sub_resource type="Resource" id="EnemySpawnData_w6_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e1")
+count = 4
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="EnemySpawnData_w6_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e3")
+count = 4
+spawn_interval = 0.9
+
+[sub_resource type="Resource" id="WaveData_6"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w06"
+wave_number = 6
+spawn_groups = [SubResource("EnemySpawnData_w6_0"), SubResource("EnemySpawnData_w6_1"), SubResource("EnemySpawnData_w6_2")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w7_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e6")
+count = 1
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w7_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e3")
+count = 4
+spawn_interval = 0.9
+
+[sub_resource type="Resource" id="EnemySpawnData_w7_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 10
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="WaveData_7"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w07"
+wave_number = 7
+spawn_groups = [SubResource("EnemySpawnData_w7_0"), SubResource("EnemySpawnData_w7_1"), SubResource("EnemySpawnData_w7_2")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = true
+
+[sub_resource type="Resource" id="ItemAmountData_cloth"]
+script = ExtResource("7_amount")
+item = ExtResource("8_cloth")
+amount = 2
+
+[resource]
+script = ExtResource("1_stage")
+stage_id = &"ch01_s08"
+chapter_id = &"chapter_01"
+stage_number = 8
+display_name = "广宗决战"
+description = "人公将军张梁亲镇广宗，召唤护卫负隅顽抗。"
+starting_lives = 20
+starting_currency = 180
+squad_size = 4
+build_slot_count = 10
+max_inbattle_upgrade_level = 2
+upgrade_cost_factor = 0.8
+sell_refund_ratio = 0.6
+waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_7")]
+path_points = [Vector2(-40, 280), Vector2(40, 280), Vector2(840, 280), Vector2(840, 520), Vector2(1080, 520), Vector2(1080, 120), Vector2(1240, 120), Vector2(1320, 120)]
+fork_path_points = [Vector2(-40, 680), Vector2(40, 680), Vector2(40, 40), Vector2(1240, 40), Vector2(1320, 40)]
+build_slot_positions = [Vector2(760, 200), Vector2(920, 360), Vector2(1000, 440), Vector2(1160, 280), Vector2(760, 440), Vector2(200, 440), Vector2(480, 440), Vector2(680, 680), Vector2(200, 120), Vector2(600, 120)]
+decor_cells = [Vector2i(1, 4), Vector2i(5, 6), Vector2i(9, 8), Vector2i(14, 7), Vector2i(0, 5), Vector2i(3, 1), Vector2i(12, 3), Vector2i(15, 6)]
+prerequisite_stage_ids = [&"ch01_s07"]
+first_clear_unlock_character_ids = []
+first_clear_rewards = [SubResource("ItemAmountData_cloth")]
+repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
+participant_xp = 60

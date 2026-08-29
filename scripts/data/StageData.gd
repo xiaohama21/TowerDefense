@@ -28,6 +28,8 @@ class_name StageData
 ## 战场布局（v0.9 数据驱动化）。path_points 为直角折线拐点（含图外出入口延长段），
 ## 建造位与装饰格子由关卡数据而非场景硬编码提供；道路格子由 path_points 逐格推导。
 @export var path_points: Array[Vector2] = []
+## 分叉路径（v0.11.3 s08 试点）：召唤护卫自此路径进场；空则无双路。
+@export var fork_path_points: Array[Vector2] = []
 @export var build_slot_positions: Array[Vector2] = []
 @export var decor_cells: Array[Vector2i] = []
 

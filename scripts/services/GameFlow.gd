@@ -104,6 +104,36 @@ func load_stage_data(stage_id: StringName) -> StageData:
 	return null
 
 
+## 武将图鉴（v0.11.3）：扫描角色目录返回全部角色 ID（含未拥有）。
+func get_all_character_ids() -> Array[String]:
+	var result: Array[String] = []
+	var dir := DirAccess.open(CHARACTER_RESOURCE_DIR)
+	if dir == null:
+		return result
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if not dir.current_is_dir() and entry.ends_with(".tres"):
+			result.append(entry.trim_suffix(".tres"))
+		entry = dir.get_next()
+	dir.list_dir_end()
+	result.sort()
+	return result
+
+
+## 图鉴获取方式文案：unlock_stage_id → 关卡名；空 → 初始武将。
+func get_acquisition_text(character_id: String) -> String:
+	var character_data := load_character_data(character_id)
+	if character_data == null:
+		return "配置缺失"
+	if character_data.unlock_stage_id.is_empty():
+		return "初始解锁"
+	var stage := load_stage_data(character_data.unlock_stage_id)
+	if stage != null:
+		return "通关「%s」首通解锁" % stage.display_name
+	return "随章节更新解锁"
+
+
 func load_character_data(character_id: String) -> CharacterData:
 	var path: String = "%s/%s.tres" % [CHARACTER_RESOURCE_DIR, character_id]
 	return load(path) as CharacterData if ResourceLoader.exists(path) else null

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_general"
+display_name = "黄巾渠帅·张梁"
+description = "人公将军张梁，广宗决战的黄巾主帅。"
+tags = [&"yellow_turban", &"boss"]
+max_hp = 3000
+move_speed = 30.0
+armor = 5
+damage_to_base = 10
+currency_reward = 100
+kill_xp = 150
+special_behavior_id = &"summon_guard"
+body_color = Color(0.25, 0.2, 0.35, 1)
+body_size = Vector2(56, 56)
