@@ -50,6 +50,8 @@ func _ready():
 	ui.pause_pressed.connect(_on_pause_pressed)
 	ui.restart_pressed.connect(_on_restart_pressed)
 	ui.character_selected.connect(_on_character_selected)
+	ui.debug_wave_jump_requested.connect(_on_debug_wave_jump)
+	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
 	build_manager.tower_built.connect(_on_tower_built)
 
 	ui.set_stage_name(stage_data.display_name)
@@ -128,6 +130,28 @@ func _on_next_wave_pressed():
 
 func _on_wave_completed():
 	GameManager.wave_completed()
+
+
+## 调试：从任意波次直接开打（仅调试构建的测试面板会触发）。
+func _on_debug_wave_jump(wave_index: int) -> void:
+	if (
+		GameManager.is_wave_active
+		or GameManager.lives <= 0
+		or wave_index < 0
+		or wave_index >= GameManager.total_waves
+	):
+		ui.show_status("调试：当前无法跳转波次")
+		return
+	GameManager.current_wave = wave_index
+	ui.hide_message()
+	wave_manager.start_wave(wave_index)
+	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
+	ui.show_status("调试：已开始第 %d 波" % (wave_index + 1))
+
+
+func _on_debug_clear_enemies() -> void:
+	wave_manager.debug_clear_enemies()
+	ui.show_status("调试：已清空场上敌人", 1.5)
 
 func _on_game_over():
 	if battle_session != null:

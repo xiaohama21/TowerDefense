@@ -1,0 +1,99 @@
+# 角色系统（CHARACTERS）
+
+> 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
+> 承载总纲原章节：4.1、4.3~4.7。章节编号沿用全局稳定 ID。
+> 怒气/大招/特性的**行为实现侧**（注册表、规格状态）见 [BEHAVIORS.md](BEHAVIORS.md)；数值基调见 [NUMBERS.md](NUMBERS.md)。
+
+---
+
+## 4.1 基本概念
+
+- **角色 = 塔**。每个角色是一个可养成单位，拥有：身份（`CharacterData`）、职业（`ProfessionData`）、技能（`initial_skill_ids`）、**特性**（`trait_id`，常驻被动）、**大招**（按职业划分，怒气驱动）、转职路线（`promotion_ids`）、解锁条件（`unlock_stage_id`）。
+- 战斗中每个角色通过 `build_cost` 金币放置到 `build_slot_count` 个建造槽之一；**同一关卡可放置同一角色的多个塔（v0.7 拍板，正式规则）**。当前经济与关卡设计（初始 2 武将 + 10 建造槽 + 单关 6~9 座塔的收入规模）即按多塔规则平衡；"每武将同时限 1 座"转为【远期】高难关/挑战模式规则，不再是待定项。
+
+---
+
+## 4.3 角色获取
+
+角色获取分两种途径，**先主线后抽奖**：
+
+1. **通关解锁（主线，当前阶段唯一来源）**：每关首通解锁指定武将（`first_clear_unlock_character_ids`）。第一章规划见 [STAGES.md](STAGES.md) 第 6 节。
+2. **抽奖获取【阶段4】**：消耗"求贤令"（`gacha_token`，已有道具资源）抽取。抽奖池只包含**主线已解锁章节**的角色，且**不包含当前章节流程必需的角色**，保证抽奖只加速、不卡主线。规则详见 [DROPS_GACHA.md](DROPS_GACHA.md) 7.3。
+3. 重复抽到已拥有角色 → 转化为**碎片**（`PlayerProfile` 已有 `shards` 字段）；碎片用途：短期用于转职材料抵扣，【远期】做升星系统【待定】。
+
+**解锁硬规则**：`unlock_stage_id` 未达成的角色不可在编队界面出现；首通解锁不可回退。
+
+---
+
+## 4.4 经验与升级
+
+- **经验来源**：
+  - 击杀经验：`EnemyData.kill_xp`（已有：黄巾步卒 8、轻骑 10、伍长 25）。
+  - 通关参与经验：`StageData.participant_xp`（已有：ch01_s01 = 50），按出阵武将分配。
+- **击杀经验归属规则（v0.7 新增，已实现）**：一次击杀发出的经验总量守恒等于 `kill_xp`。分配规则：**最后一击者得 50%（向上取整）**；其余 50% 由**所有对该敌人造成过伤害的武将均分**（含最后一击者，除不尽的余数归最后一击者）。无任何伤害记录时（防御情形）经验归最后一击者。目的：辅助/低攻速职业也能积累经验，避免队伍养成分化；该规则同时影响 [NUMBERS.md](NUMBERS.md) 10.1 的节奏校准。
+- **结算规则（核心）**：经验进入会话暂存，**通关后才写入对应武将**；失败/放弃全部作废。已在 `BattleSession.add_xp()` / `PlayerProfile.add_character_exp()` 实现。
+- **等级**：由 `total_exp` 推导（存档不存等级，只存经验，防止等级与经验不一致）。
+- **数值成长**：每级按 `CharacterData.damage_growth_per_level` 等成长系数递增；具体公式与曲线见 [NUMBERS.md](NUMBERS.md) 10.1/10.2。
+- **等级上限【待定】**：第一章暂定 30 级（10 级开一转），后续章节逐步放开。
+
+---
+
+## 4.5 转职
+
+- **一转（当前范围）**：每个武将一条简单线性路线（如关羽 → 突击骑 `guan_yu_charger`）。条件：达到 `required_level`（暂定 10 级）+ 消耗材料（如黄巾布）。转职后按 `PromotionData` 的倍率改变数值、获得技能（`granted_skill_ids`）、切换外观（`visual_variant_id`），并**强化大招**（`ultimate_multiplier`，如关羽一转后大招伤害 ×1.2）。
+- **多分支转职【远期】**：`PromotionData` 已有 `parent_id` + `next_promotion_ids` 图结构，远期可实现"一转二选一"。**现阶段只填一条路线，不建分支。**
+- **二次转职【远期】**：在 `next_promotion_ids` 上扩展第二层。设计示例（关羽）：
+  - 关羽（骑兵）→ 突击骑（一转）→ 武圣（二转，强化单体斩杀）/ 青龙骑（二转，强化穿透）【远期示例，暂不实现】
+- **转职硬规则**：转职不可逆（存档 `promotion_path` 记录历史）；未满足条件时界面不可点；转职不改变角色身份与等级。
+- **资源现状（v0.7）**：`guan_yu_charger` 为正式数值；刘备/黄忠/貂蝉的一转资源（`liu_bei_commander` / `huang_zhong_sharpshooter` / `diao_chan_inspirer`）为**占位**（倍率 1.0、无授予技能），阶段 2 细化。
+
+---
+
+## 4.6 怒气与大招（战斗机制）
+
+- **怒气获取**（v0.7：积怒模式由行为层属性决定，不与具体职业绑定）：
+  - `ProfessionData.rage_gain_mode`（阶段 3 实施时新增字段）决定积怒公式，取值 `hit+damage` / `support`；默认按 `combat_role` 推断（辅助类 → `support`，其余 → `hit+damage`），**可显式覆盖**——如刘备职业为术士、定位却是辅助，则配置为 `support` 模式。
+  - `hit+damage` 模式（骑兵、弓箭手、枪兵等输出职业）：攻击**命中**积累怒气（基础值 + 按伤害比例加成，初稿：每次命中 +4，另按每 10 点伤害 +1）。
+  - `support` 模式（舞娘，及显式覆盖者如刘备）：**主要依靠提供增益获取怒气**——buff 持续期间每秒积怒 +2，每次触发增益效果 +6（治疗、减益同属辅助行为）。
+  - 怒气上限 100；战斗中在武将塔头顶与建造栏实时显示怒气条。
+- **释放规则**：怒气满 100 **自动释放**【待定：阶段 5 评估是否增加手动释放开关】；释放后怒气清零；释放不消耗金币、无冷却，靠积怒速度控制频率。
+- **大招按职业划分**（`ProfessionData.ultimate_id`，行为脚本注册，与 `behavior_id` 同模式；实现状态见 [BEHAVIORS.md](BEHAVIORS.md) B.3.3）：
+
+| 职业 | 大招 ID（示例） | 效果 | 定位 |
+|---|---|---|---|
+| 骑兵 | `ultimate_cavalry_breaker` | 对当前目标造成高额单体伤害；若击杀则返还 50% 怒气 | 精英/Boss 斩杀 |
+| 枪兵 | `ultimate_pikeman_sweep` | 横扫：对攻击范围内敌人造成范围伤害并击退 | 近战清群 |
+| 弓箭手 | `ultimate_archer_volley` | 快速连射 3~5 箭，优先锁定低血量敌人 | 收割漏怪 |
+| 术士 | `ultimate_strategist_blaze` | 大范围法术伤害并施加减速 | 清场/控场 |
+| 舞娘 | `ultimate_dancer_encourage` | 范围内友方攻速+伤害提升，持续数秒 | 全队爆发窗口 |
+
+- **角色大招变体【远期，只预留字段】**：`CharacterData.ultimate_override_id` 可覆盖职业默认大招（如诸葛亮"八阵图"、关羽"青龙偃月"），初期统一用职业大招。
+- **转职强化大招**：`PromotionData` 增加 `ultimate_multiplier`（默认 1.0），转职后大招伤害/效果按倍率提升。
+- **强度数值**：大招强度基调与局内升级倍率见 [NUMBERS.md](NUMBERS.md) 10.5。
+- **怒气是局内临时状态**：不写入存档，每局重置，与持久成长（等级/转职/碎片）严格分离。
+
+---
+
+## 4.7 角色特性（被动）
+
+- 每个角色拥有**一个**常驻特性（`CharacterData.trait_id`，行为脚本注册；实现状态见 [BEHAVIORS.md](BEHAVIORS.md) B.3.4），用于角色差异化。
+- 设计原则：一句话可描述、与职业互补、克制某类敌人或强化某类玩法；**禁止特性做成第二个大招**（大招是主动爆发，特性是被动常态）。
+- 第一章角色特性表：
+
+| 角色 | 特性 ID（示例） | 效果 |
+|---|---|---|
+| 关羽 | `trait_wusheng` | 对精英/Boss 伤害 +25% |
+| 张飞 | `trait_yanyan_roar` | 攻击命中概率使目标短暂减速 |
+| 黄忠 | `trait_hundred_step` | 连续攻击同一目标时伤害逐步提升（至多 +30%） |
+| 刘备 | `trait_benevolence` | 光环：场上所有友方塔伤害 +8%（不可叠加） |
+| 貂蝉 | `trait_moon_veil` | 自身大招怒气获取 +20%，友方大招怒气获取 +10% |
+| 周仓 | `trait_captain` | 对高血量敌人（当前生命 >70%）伤害 +30% |
+| 赵云 | `trait_dragon_spirit` | 每击杀一名敌人攻速 +4%（可叠加，脱战重置） |
+| 诸葛亮 | `trait_star_gazer` | 射程 +12%，范围内敌人减速 8% |
+
+- 数值建议：特性数值放 `CharacterData.trait_params: Dictionary`（如 `{"elite_damage_bonus": 0.25}`），行为脚本按 ID 读取，避免为每个特性修改数据类。
+
+**数据层扩展汇总（阶段 3 实施）**：
+- `CharacterData` 新增：`trait_id: StringName`、`trait_params: Dictionary`、`ultimate_override_id: StringName`（预留）。
+- `ProfessionData` 新增：`ultimate_id: StringName`、`rage_gain_mode: StringName`（`hit+damage` / `support`，默认按 `combat_role` 推断、可显式覆盖，见 4.6）、`ultimate_gain_per_hit: int`、`ultimate_gain_per_damage: float`、`support_ultimate_gain_per_tick: int`（辅助积怒）。
+- `PromotionData` 新增：`ultimate_multiplier: float = 1.0`。

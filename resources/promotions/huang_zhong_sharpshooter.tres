@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PromotionData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
+[ext_resource type="Resource" path="res://resources/professions/archer.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_promotion")
+promotion_id = &"huang_zhong_sharpshooter"
+display_name = "神射手"
+description = "黄忠的一转路线。占位配置：倍率 1.0，阶段 2 细化数值与技能。"
+parent_id = &""
+next_promotion_ids = []
+target_profession = ExtResource("2_profession")
+required_level = 10
+damage_multiplier = 1.0
+range_multiplier = 1.0
+attack_interval_multiplier = 1.0
+granted_skill_ids = []
+visual_variant_id = &"huang_zhong_sharpshooter"

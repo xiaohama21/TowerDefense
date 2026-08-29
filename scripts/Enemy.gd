@@ -6,6 +6,7 @@ const ENEMY_GROUP: StringName = &"enemies"
 
 @export var speed: float = 100.0
 @export var max_hp: int = 100
+@export var armor: int = 0
 @export var reward: int = 10
 @export var kill_xp: int = 0
 @export var damage_to_base: int = 1
@@ -14,6 +15,8 @@ const ENEMY_GROUP: StringName = &"enemies"
 var current_hp: int = 0
 var is_dead: bool = false
 var last_damage_source_character_id: String = ""
+# character_id -> 累计有效伤害，供击杀经验归属规则（GDD 4.4）分摊使用。
+var damage_contributors: Dictionary = {}
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
@@ -47,10 +50,15 @@ func _process(delta: float) -> void:
 func take_damage(amount: int, source_character_id: String = "") -> void:
 	if is_dead or amount <= 0:
 		return
-	if not source_character_id.strip_edges().is_empty():
-		last_damage_source_character_id = source_character_id.strip_edges()
+	var source_id := source_character_id.strip_edges()
+	if not source_id.is_empty():
+		last_damage_source_character_id = source_id
 
-	current_hp = maxi(current_hp - amount, 0)
+	# 护甲减算保留 10% 伤害下限，高护甲也不完全免伤（GDD 5.5）。
+	var effective := maxi(amount - armor, ceili(amount * 0.1))
+	current_hp = maxi(current_hp - effective, 0)
+	if not source_id.is_empty():
+		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
 	update_hp_bar()
 
 	if current_hp <= 0:
@@ -63,7 +71,7 @@ func die(give_reward: bool) -> void:
 	is_dead = true
 
 	if give_reward:
-		GameManager.enemy_died(reward, kill_xp, last_damage_source_character_id)
+		GameManager.enemy_died(reward, kill_xp, last_damage_source_character_id, damage_contributors)
 
 	queue_free()
 

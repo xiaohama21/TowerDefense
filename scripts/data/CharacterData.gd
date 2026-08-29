@@ -11,7 +11,6 @@ class_name CharacterData
 @export var tags: Array[StringName] = []
 
 @export_category("Deployment")
-@export var tower_scene: PackedScene
 @export_range(0, 9999, 1) var build_cost: int = 50
 @export_range(0, 99999, 1) var base_damage: int = 40
 @export_range(0.0, 2000.0, 1.0) var base_range: float = 150.0

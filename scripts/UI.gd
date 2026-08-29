@@ -4,6 +4,8 @@ signal next_wave_pressed
 signal pause_pressed
 signal restart_pressed
 signal character_selected(character_id: String)
+signal debug_wave_jump_requested(wave_index: int)
+signal debug_clear_enemies_requested
 
 @onready var gold_label: Label = $Root/TopBar/Margin/Content/GoldLabel
 @onready var lives_label: Label = $Root/TopBar/Margin/Content/LivesLabel
@@ -17,6 +19,8 @@ signal character_selected(character_id: String)
 @onready var status_label: Label = $Root/StatusLabel
 @onready var character_bar: HBoxContainer = $Root/CharacterBar
 
+const DEBUG_PANEL_SCRIPT := preload("res://scripts/DebugPanel.gd")
+
 var _status_request_id: int = 0
 var _previous_paused_state: bool = false
 var _character_buttons: Dictionary = {}
@@ -28,6 +32,9 @@ func _ready() -> void:
 	pause_button.pressed.connect(_on_pause_button_pressed)
 	restart_button.pressed.connect(_on_restart_button_pressed)
 
+	if OS.is_debug_build():
+		_create_debug_panel()
+
 	update_gold(GameManager.gold)
 	update_lives(GameManager.lives)
 	update_wave(GameManager.current_wave, GameManager.total_waves)
@@ -37,6 +44,15 @@ func _ready() -> void:
 
 func set_stage_name(stage_name: String) -> void:
 	stage_label.text = stage_name
+
+
+## 调试辅助面板（仅调试构建创建）：加金币、跳波次、清场，方便测试。
+func _create_debug_panel() -> void:
+	var panel := DEBUG_PANEL_SCRIPT.new()
+	panel.position = Vector2(16, 164)
+	panel.wave_jump_requested.connect(debug_wave_jump_requested.emit)
+	panel.clear_enemies_requested.connect(debug_clear_enemies_requested.emit)
+	$Root.add_child(panel)
 
 
 func setup_character_bar(characters: Array) -> void:

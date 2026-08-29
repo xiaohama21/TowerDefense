@@ -35,7 +35,7 @@ scripts/      战斗逻辑与数据类（data / services）
 scenes/       主场景、塔、敌人、子弹、建造位、UI
 resources/    数据资源（章节 / 关卡 / 角色 / 职业 / 敌人 / 道具 / 转职）
 tests/        自动化测试与预览场景
-docs/         设计文档与截图
+docs/         设计文档（总纲 + modules/ 模块文档）与截图
 assets/       正式美术资源（暂空，当前为程序化矢量占位）
 ```
 
@@ -51,4 +51,4 @@ assets/       正式美术资源（暂空，当前为程序化矢量占位）
 | 5 | 技能、怒气大招与演出差异化 | 待开发 |
 | 6 | 多分支转职、二次转职与扩展地基 | 远期 |
 
-完整设计基准见 [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md)。
+完整设计基准见 [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md)（总纲与索引）；各功能模块的详细设计位于 `docs/modules/`：角色（CHARACTERS）、职业（PROFESSIONS）、关卡（STAGES）、敌人（ENEMIES）、动作模组（BEHAVIORS）、数值（NUMBERS）、掉落与抽奖（DROPS_GACHA）、存档（SAVE_DATA）、UI。
