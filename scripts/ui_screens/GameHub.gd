@@ -12,6 +12,7 @@ const ACTIVE_COLOR := Color(1.0, 0.82, 0.3)
 const MapPanelScript := preload("res://scripts/ui_screens/panels/MapPanel.gd")
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
 const SettingsPanelScript := preload("res://scripts/ui_screens/panels/SettingsPanel.gd")
+const TechPanelScript := preload("res://scripts/ui_screens/panels/TechPanel.gd")
 
 var _buttons: Dictionary = {}
 var _panels: Dictionary = {}
@@ -75,6 +76,7 @@ func _build_ui() -> void:
 
 	_add_function_button(sidebar_box, &"map", "地图选择")
 	_add_function_button(sidebar_box, &"develop", "武将养成")
+	_add_function_button(sidebar_box, &"tech", "科技树")
 	_add_function_button(sidebar_box, &"settings", "设置")
 
 	var spacer := Control.new()
@@ -109,6 +111,7 @@ func _build_ui() -> void:
 
 	_panels[&"map"] = _make_panel("MapPanel", MapPanelScript)
 	_panels[&"develop"] = _make_panel("DevelopPanel", DevelopPanelScript)
+	_panels[&"tech"] = _make_panel("TechPanel", TechPanelScript)
 	_panels[&"settings"] = _make_panel("SettingsPanel", SettingsPanelScript)
 
 

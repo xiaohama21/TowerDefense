@@ -18,6 +18,7 @@ const RESERVED_CHAPTERS := [
 var _selected_chapter: ChapterData = null
 var _chapter_buttons: Array[Button] = []
 var _stage_box: VBoxContainer
+var _selected_difficulty: int = 1
 
 
 func _ready() -> void:
@@ -94,7 +95,7 @@ func _refresh_stages() -> void:
 		_stage_box.add_child(_make_stage_row(profile, stage))
 
 
-func _make_stage_row(profile: PlayerProfile, stage: StageData) -> Button:
+func _make_stage_row(profile: PlayerProfile, stage: StageData) -> HBoxContainer:
 	var unlocked := GameFlow.is_stage_unlocked(profile, stage)
 	var completed := false
 	var entry = profile.stage_progress.get(str(stage.stage_id), {})
@@ -110,14 +111,34 @@ func _make_stage_row(profile: PlayerProfile, stage: StageData) -> Button:
 		state_text = "可出战"
 		state_color = UNLOCKED_COLOR
 
-	var row := Button.new()
-	row.text = "第 %d 关 · %s　　%s　敌波 %d" % [
-		stage.stage_number, stage.display_name, state_text, stage.waves.size()
-	]
-	row.custom_minimum_size = Vector2(0, 52)
-	row.add_theme_font_size_override("font_size", 19)
-	row.add_theme_color_override("font_color", state_color)
-	row.disabled = not unlocked
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var stage_button := Button.new()
+	stage_button.text = "第 %d 关 · %s　%s" % [stage.stage_number, stage.display_name, state_text]
+	stage_button.custom_minimum_size = Vector2(280, 44)
+	stage_button.add_theme_font_size_override("font_size", 18)
+	stage_button.add_theme_color_override("font_color", state_color)
+	stage_button.disabled = not unlocked
+	row.add_child(stage_button)
 	if unlocked:
-		row.pressed.connect(func() -> void: stage_selected.emit(stage.stage_id))
+		stage_button.pressed.connect(func() -> void: stage_selected.emit(stage.stage_id))
+	# 难度选择（轻松/标准/困难；困难需标准通关）
+	for diff in [0, 1, 2]:
+		var diff_name: String = Difficulty.NAMES[diff]
+		var diff_unlocked: bool = GameFlow.is_difficulty_unlocked(profile, stage.stage_id, diff)
+		var diff_button := Button.new()
+		diff_button.text = diff_name
+		diff_button.toggle_mode = true
+		diff_button.custom_minimum_size = Vector2(52, 30)
+		diff_button.add_theme_font_size_override("font_size", 13)
+		diff_button.disabled = not diff_unlocked or not unlocked
+		if diff == 1:
+			diff_button.set_pressed_no_signal(true)
+		diff_button.toggled.connect(_on_difficulty_changed.bind(diff, stage.stage_id))
+		row.add_child(diff_button)
 	return row
+
+
+func _on_difficulty_changed(pressed: bool, difficulty: int, _stage_id: StringName) -> void:
+	if pressed:
+		_selected_difficulty = difficulty

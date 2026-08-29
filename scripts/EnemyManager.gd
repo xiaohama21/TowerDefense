@@ -31,7 +31,7 @@ func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
 	enemy.special_behavior_id = enemy_data.special_behavior_id
 	enemy.special_cooldown = 1.5 if not enemy_data.special_behavior_id.is_empty() else 0.0
 	enemy.speed = enemy_data.move_speed
-	enemy.max_hp = enemy_data.max_hp
+	enemy.max_hp = int(round(enemy_data.max_hp * Difficulty.enemy_hp_mult(GameFlow.selected_difficulty)))
 	enemy.armor = enemy_data.armor
 	enemy.tags = (enemy_data.tags as Array[StringName]).duplicate()
 	enemy.reward = enemy_data.currency_reward

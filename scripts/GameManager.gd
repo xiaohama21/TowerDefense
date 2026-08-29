@@ -36,8 +36,9 @@ func enemy_died(
 	source_character_id: String = "",
 	damage_contributors: Dictionary = {}
 ):
-	gold += reward
+	gold += int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 	if kill_xp > 0:
+		kill_xp = int(round(kill_xp * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 		_distribute_kill_xp(kill_xp, source_character_id, damage_contributors)
 	if not source_character_id.strip_edges().is_empty():
 		enemy_killed_by_character.emit(source_character_id.strip_edges())

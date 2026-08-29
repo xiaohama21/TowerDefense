@@ -12,6 +12,8 @@ var stage_progress: Dictionary = {}
 var items: Dictionary = {}
 var relics: Array[String] = []
 var gacha_state: Dictionary = {}
+var tech_points: int = 0
+var tech_unlocks: Array[String] = []
 var last_committed_run_id: String = ""
 
 
@@ -38,6 +40,8 @@ func load_dict(data: Dictionary) -> void:
 	stage_progress = _normalize_dictionary(source.get("stage_progress", {}))
 	items = _normalize_dictionary(source.get("items", {}))
 	relics = _normalize_string_array(source.get("relics", []))
+	tech_points = _coerce_non_negative_int(source.get("tech_points", 0))
+	tech_unlocks = _normalize_string_array(source.get("tech_unlocks", []))
 	gacha_state = _normalize_dictionary(source.get("gacha_state", {}))
 	last_committed_run_id = str(source.get("last_committed_run_id", ""))
 
@@ -49,6 +53,8 @@ func to_dict() -> Dictionary:
 		"stage_progress": stage_progress.duplicate(true),
 		"items": items.duplicate(true),
 		"relics": relics.duplicate(),
+		"tech_points": tech_points,
+		"tech_unlocks": tech_unlocks.duplicate(),
 		"gacha_state": gacha_state.duplicate(true),
 		"last_committed_run_id": last_committed_run_id,
 	}
@@ -66,6 +72,8 @@ func copy_from(other: PlayerProfile) -> void:
 	stage_progress = other.stage_progress.duplicate(true)
 	items = other.items.duplicate(true)
 	relics = other.relics.duplicate()
+	tech_points = other.tech_points
+	tech_unlocks = other.tech_unlocks.duplicate()
 	gacha_state = other.gacha_state.duplicate(true)
 	last_committed_run_id = other.last_committed_run_id
 
@@ -230,6 +238,41 @@ func promote_character_star(character_id: String) -> bool:
 	entry["relic"] = str(entry.get("relic", ""))
 	characters[key] = entry
 	return true
+
+
+## 科技点（阶段 4）：通关获取，科技树消费。
+func add_tech_points(amount: int) -> void:
+	tech_points += maxi(amount, 0)
+
+
+func has_tech(tech_id: String) -> bool:
+	return tech_unlocks.has(tech_id.strip_edges())
+
+
+func unlock_tech(tech_id: String, cost: int) -> bool:
+	var key := tech_id.strip_edges()
+	if key.is_empty() or has_tech(key) or tech_points < cost:
+		return false
+	tech_points -= cost
+	tech_unlocks.append(key)
+	return true
+
+
+## 求贤计数器（gacha_state 持久化）。
+func get_gacha_pity() -> int:
+	return _coerce_non_negative_int(gacha_state.get("pity_counter", 0))
+
+
+func set_gacha_pity(value: int) -> void:
+	gacha_state["pity_counter"] = maxi(value, 0)
+
+
+func get_gacha_total() -> int:
+	return _coerce_non_negative_int(gacha_state.get("total_pulls", 0))
+
+
+func set_gacha_total(value: int) -> void:
+	gacha_state["total_pulls"] = maxi(value, 0)
 
 
 func set_promotion_path(character_id: String, promotion_path: Array) -> bool:

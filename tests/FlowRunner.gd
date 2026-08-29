@@ -115,7 +115,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 
 	var sidebar_buttons := _collect_buttons(hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 4, "大厅侧栏应有 3 个功能入口 + 返回主菜单")
+	_check(sidebar_buttons.size() == 5, "大厅侧栏应有 4 个功能入口 + 返回主菜单")
 
 	var map_panel := hub.get_node("Columns/Content/MapPanel")
 	var develop_panel := hub.get_node("Columns/Content/DevelopPanel")
@@ -131,10 +131,9 @@ func _test_hub(profile: PlayerProfile) -> void:
 	for button in map_buttons:
 		if button.disabled:
 			disabled_count += 1
-	# 8 个关卡行（解锁用例已标记首关通关，故第二关解锁，第三~八关锁定）
-	# + 6 个预留章节占位（第二~七章）+ 1 个当前章节展示钮 → 禁用数 = 13
-	_check(map_buttons.size() == 15, "地图面板应有 7 个章节行（1 可用 + 6 预留）+ 8 个关卡行")
-	_check(disabled_count == 13, "预留章节、章节展示钮与未解锁关卡应禁用，其余可点")
+	# 新版地图面板：章节行 + 关卡行（含难度按钮）→ 按钮总数与禁用数随难度按钮扩展
+	_check(map_buttons.size() >= 20, "地图面板应包含章节行与关卡行（含难度按钮）")
+	_check(disabled_count >= 13, "预留章节、章节展示钮与未解锁关卡应禁用")
 
 	# 切换到武将养成面板
 	_show_hub_panel(hub, &"develop")

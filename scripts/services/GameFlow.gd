@@ -22,6 +22,8 @@ var selected_stage_id: StringName = &""
 var squad_character_ids: Array[String] = []
 ## 游戏大厅当前页签（map/develop/settings），战斗结算"返回大厅"时恢复。
 var hub_active_panel: StringName = &"map"
+## 当前难度（0=轻松 1=标准 2=困难），默认标准。
+var selected_difficulty: int = 1
 
 
 ## 新的征程：清空现有档案并发放初始武将。
@@ -121,6 +123,51 @@ func get_all_character_ids() -> Array[String]:
 	dir.list_dir_end()
 	result.sort()
 	return result
+
+
+## 难度解锁：困难需该关标准难度通关。
+func is_difficulty_unlocked(profile: PlayerProfile, stage_id: StringName, difficulty: int) -> bool:
+	if difficulty <= 1:
+		return true
+	var entry = profile.stage_progress.get(str(stage_id), {})
+	if entry is Dictionary:
+		var diffs: Dictionary = entry.get("difficulties", {})
+		return diffs.has("normal")
+	return false
+
+
+## 求贤单抽：扣求贤令 → GachaService → 写回存档。返回结果字典或空（令不足）。
+func pull_gacha(profile: PlayerProfile) -> Dictionary:
+	if profile == null:
+		return {}
+	var token_count := _coerce_int(profile.items.get("gacha_token", 0))
+	if token_count < 1:
+		return {}
+	profile.spend_item("gacha_token", 1)
+	var result := GachaService.pull(profile, get_chapter())
+	save_profile_quiet()
+	return result
+
+
+func _coerce_int(value) -> int:
+	return int(value) if value != null else 0
+
+
+func save_profile_quiet() -> void:
+	if profile_storage_has_profile():
+		save_profile(get_profile())
+
+
+func profile_storage_has_profile() -> bool:
+	return true
+
+
+func save_profile(profile: PlayerProfile) -> bool:
+	return ProfileStore.save_profile(profile)
+
+
+func get_profile() -> PlayerProfile:
+	return ProfileStore.get_profile()
 
 
 ## 图鉴获取方式文案：unlock_stage_id → 关卡名；空 → 初始武将。
@@ -242,7 +289,8 @@ func goto_hub() -> void:
 	_change_scene(GAME_HUB_SCENE)
 
 
-func goto_squad_select() -> void:
+func goto_squad_select(difficulty: int = 1) -> void:
+	selected_difficulty = difficulty
 	_change_scene(SQUAD_SELECT_SCENE)
 
 
