@@ -24,6 +24,10 @@ var _stats_label: Label
 var _promotion_label: Label
 var _promotion_button: Button
 var _promotion: PromotionData = null
+var _stars_label: Label
+var _promote_star_button: Button
+var _relic_label: Label
+var _relic_button: Button
 
 
 func _ready() -> void:
@@ -146,6 +150,30 @@ func _build_ui() -> void:
 	_promotion_button.pressed.connect(_on_promote_pressed)
 	detail_box.add_child(_promotion_button)
 
+	_stars_label = Label.new()
+	_stars_label.add_theme_font_size_override("font_size", 17)
+	_stars_label.add_theme_color_override("font_color", ACCENT_COLOR)
+	detail_box.add_child(_stars_label)
+
+	_promote_star_button = Button.new()
+	_promote_star_button.text = "升 星"
+	_promote_star_button.custom_minimum_size = Vector2(220, 44)
+	_promote_star_button.add_theme_font_size_override("font_size", 17)
+	_promote_star_button.pressed.connect(_on_promote_star_pressed)
+	detail_box.add_child(_promote_star_button)
+
+	_relic_label = Label.new()
+	_relic_label.add_theme_font_size_override("font_size", 17)
+	_relic_label.add_theme_color_override("font_color", TEXT_COLOR)
+	_relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail_box.add_child(_relic_label)
+
+	_relic_button = Button.new()
+	_relic_button.custom_minimum_size = Vector2(220, 44)
+	_relic_button.add_theme_font_size_override("font_size", 17)
+	_relic_button.pressed.connect(_on_relic_pressed)
+	detail_box.add_child(_relic_button)
+
 
 func _on_character_pressed(character_id: String) -> void:
 	_select_character(character_id)
@@ -194,6 +222,8 @@ func _refresh() -> void:
 		stats.damage, 1.0 / maxf(stats.attack_interval, 0.01), int(stats.range),
 	]
 	_refresh_promotion(character, level)
+	_refresh_stars(level)
+	_refresh_relic(character)
 
 
 func _refresh_promotion(character: CharacterData, level: int) -> void:
@@ -269,4 +299,70 @@ func _apply_promotion(character: CharacterData, promotion: PromotionData, dialog
 	_profile.set_promotion_path(_selected_id, new_path)
 	ProfileStore.save_profile(_profile)
 	dialog.queue_free()
+	_refresh()
+
+
+## 星级（GDD 4.8 升星）：碎片逐星 20/40/80/160，成长系数 +5%/星。
+func _refresh_stars(_level: int) -> void:
+	var stars := _profile.get_character_stars(_selected_id)
+	var shards: int = int(_profile.get_character(_selected_id).get("shards", 0))
+	var stars_text := ""
+	for _i in range(stars):
+		stars_text += "★"
+	if stars >= 5:
+		_stars_label.text = "星级：%s（已满星）" % stars_text
+		_promote_star_button.visible = false
+		return
+	_stars_label.text = "星级：%s" % (stars_text if stars_text != "" else "☆")
+	var cost: int = [20, 40, 80, 160][stars]
+	_promote_star_button.visible = true
+	_promote_star_button.text = "升星（碎片 %d/%d）" % [int(shards), cost]
+	_promote_star_button.disabled = int(shards) < cost
+
+
+func _on_promote_star_pressed() -> void:
+	if _profile.promote_character_star(_selected_id):
+		ProfileStore.save_profile(_profile)
+	_refresh()
+
+
+## 信物（GDD 4.8）：碎片兑换 + 装备/卸下；建造时经 loadout 生效。
+func _refresh_relic(character: CharacterData) -> void:
+	var relic := GameFlow.get_relic_for_character(_selected_id)
+	if relic == null:
+		_relic_label.text = "信物：暂未开放"
+		_relic_button.visible = false
+		return
+	var owned := _profile.has_relic(str(relic.relic_id))
+	var equipped: String = str(_profile.get_character(_selected_id).get("relic", ""))
+	if owned:
+		var is_equipped := equipped == str(relic.relic_id)
+		_relic_label.text = "信物：%s —— %s%s" % [
+			relic.display_name, relic.description, "（已装备）" if is_equipped else "（未装备）",
+		]
+		_relic_button.text = "卸下信物" if is_equipped else "装备信物"
+		_relic_button.visible = true
+		_relic_button.disabled = false
+	else:
+		var shards: int = int(_profile.get_character(_selected_id).get("shards", 0))
+		_relic_label.text = "信物：%s（%s）· 碎片 %d 兑换" % [relic.display_name, relic.description, relic.shard_cost]
+		_relic_button.text = "碎片兑换"
+		_relic_button.visible = true
+		_relic_button.disabled = shards < relic.shard_cost
+
+
+func _on_relic_pressed() -> void:
+	var relic := GameFlow.get_relic_for_character(_selected_id)
+	if relic == null:
+		return
+	if _profile.has_relic(str(relic.relic_id)):
+		var equipped: String = str(_profile.get_character(_selected_id).get("relic", ""))
+		var next_relic := "" if equipped == str(relic.relic_id) else str(relic.relic_id)
+		_profile.set_character_relic(_selected_id, next_relic)
+	else:
+		if not _profile.spend_shards(_selected_id, relic.shard_cost):
+			return
+		_profile.add_relic(str(relic.relic_id))
+		_profile.set_character_relic(_selected_id, str(relic.relic_id))
+	ProfileStore.save_profile(_profile)
 	_refresh()

@@ -62,6 +62,7 @@ var _base_damage: int = 40
 var _min_range: float = 0.0
 var _trait_id: StringName = StringName()
 var _trait_params: Dictionary = {}
+var _relic_damage_bonus: float = 0.0
 var _rage_mode: StringName = &"hit+damage"
 var _gain_per_hit: int = 4
 var _gain_per_damage: float = 0.1
@@ -102,10 +103,14 @@ func _ready() -> void:
 ## Apply a CharacterData to this tower. Call after add_child() so all
 ## onready nodes are available. level/promotion 来自存档养成状态
 ## （GDD modules/CHARACTERS.md 4.4/4.5），属性经 compute_stats_at 统一计算。
-func apply_character(character_data: CharacterData, level: int = 1, promotion: PromotionData = null) -> void:
+func apply_character(character_data: CharacterData, loadout: Dictionary = {}) -> void:
+	var level: int = int(loadout.get("level", 1))
+	var promotion: PromotionData = loadout.get("promotion", null)
+	var stars: int = int(loadout.get("stars", 0))
+	var relic: RelicData = loadout.get("relic", null)
 	character_id = character_data.character_id
 	display_name = character_data.display_name
-	var stats := character_data.compute_stats_at(level, promotion)
+	var stats := character_data.compute_stats_at(level, promotion, stars, relic)
 	damage = stats.damage
 	_base_damage = damage
 	range_radius = stats.range
@@ -114,6 +119,8 @@ func apply_character(character_data: CharacterData, level: int = 1, promotion: P
 		range_radius *= 1.0 + get_trait_param("range_bonus", 0.12)
 	attack_cooldown = stats.attack_interval
 	_min_range = stats.min_range
+	# 信物全伤害加成（finalize_damage 管线使用，v0.13）
+	_relic_damage_bonus = relic.damage_bonus if relic != null else 0.0
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 
@@ -322,7 +329,7 @@ func get_consecutive_hits() -> int:
 
 ## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
 func finalize_damage(base: int, target: Enemy) -> int:
-	var value := float(base) * damage_buff
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus)
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	if BehaviorRegistry.has_benevolence_aura(self):
 		value *= BehaviorRegistry.benevolence_bonus(self)

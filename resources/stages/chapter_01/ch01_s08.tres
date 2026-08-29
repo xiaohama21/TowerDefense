@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
 [ext_resource type="Script" path="res://scripts/data/EnemySpawnData.gd" id="3_spawn"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="7_amount"]
+[ext_resource type="Resource" path="res://resources/relics/relic_guanyu_blade.tres" id="21_relic"]
+[ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="20_drop"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_e0"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="4_e1"]
@@ -205,6 +207,12 @@ script = ExtResource("10_ddata")
 dialogue_id = &"ch01_s08_intro"
 lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3"), SubResource("DialogueLine_4")]
 
+[sub_resource type="Resource" id="DropEntry_cloth3"]
+script = ExtResource("20_drop")
+item = ExtResource("8_cloth")
+amount = 3
+chance = 0.5
+
 [resource]
 script = ExtResource("1_stage")
 stage_id = &"ch01_s08"
@@ -228,6 +236,8 @@ build_slot_positions = [Vector2(760, 200), Vector2(920, 360), Vector2(1000, 440)
 decor_cells = [Vector2i(1, 4), Vector2i(5, 6), Vector2i(9, 8), Vector2i(14, 7), Vector2i(0, 5), Vector2i(3, 1), Vector2i(12, 3), Vector2i(15, 6)]
 prerequisite_stage_ids = [&"ch01_s07"]
 first_clear_unlock_character_ids = []
+first_clear_relic = ExtResource("21_relic")
 first_clear_rewards = [SubResource("ItemAmountData_cloth")]
+probability_drops = [SubResource("DropEntry_cloth3")]
 repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 60

@@ -12,6 +12,7 @@ const CHAPTER_SCENE_DIR := "res://resources/chapters"
 const STAGE_RESOURCE_DIR := "res://resources/stages"
 const CHARACTER_RESOURCE_DIR := "res://resources/characters"
 const PROMOTION_RESOURCE_DIR := "res://resources/promotions"
+const RELIC_RESOURCE_DIR := "res://resources/relics"
 const ITEM_RESOURCE_DIR := "res://resources/items"
 
 ## 新档初始武将（GDD 阶段 0 交付：刘备、关羽）。
@@ -123,6 +124,48 @@ func get_all_character_ids() -> Array[String]:
 
 
 ## 图鉴获取方式文案：unlock_stage_id → 关卡名；空 → 初始武将。
+## 战斗出场配置（v0.13）：等级/转职/星级/信物一次取齐，供建造管线使用。
+func get_battle_loadout(profile: PlayerProfile, character_id: String) -> Dictionary:
+	return {
+		"level": get_character_level(profile, character_id),
+		"promotion": get_active_promotion(profile, character_id),
+		"stars": profile.get_character_stars(character_id) if profile != null else 0,
+		"relic": get_equipped_relic(profile, character_id),
+	}
+
+
+## 该武将当前装备的信物（characters[id].relic 指向 RelicData 资源）。
+func get_equipped_relic(profile: PlayerProfile, character_id: String) -> RelicData:
+	if profile == null:
+		return null
+	var equipped: String = str(profile.get_character(character_id).get("relic", ""))
+	if equipped.is_empty():
+		return null
+	var path: String = RELIC_RESOURCE_DIR + "/" + equipped + ".tres"
+	if ResourceLoader.exists(path):
+		return load(path) as RelicData
+	return null
+
+
+## 该武将对应的信物定义（未拥有也可查询，用于图鉴与兑换）。
+func get_relic_for_character(character_id: String) -> RelicData:
+	var dir := DirAccess.open(RELIC_RESOURCE_DIR)
+	if dir == null:
+		return null
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if not dir.current_is_dir() and entry.ends_with(".tres"):
+			var rpath: String = RELIC_RESOURCE_DIR + "/" + entry
+			var relic := load(rpath) as RelicData
+			if relic != null and relic.character_id == StringName(character_id):
+				dir.list_dir_end()
+				return relic
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return null
+
+
 func get_acquisition_text(character_id: String) -> String:
 	var character_data := load_character_data(character_id)
 	if character_data == null:

@@ -15,6 +15,8 @@ var selected_character: CharacterData = null
 ## 待确认建造位（v0.12.2 防误建）：首次点击进入待确认，底部面板确认后才
 ## 真正建造；右键/取消按钮/切换武将/选中已建塔均可取消。
 var pending_slot: Node = null
+## 待确认建造的出场配置（等级/转职/星级/信物，v0.13）。
+var pending_loadout: Dictionary = {}
 
 @onready var tower_manager: Node = get_node(tower_manager_path)
 @onready var ui: Node = get_node_or_null(ui_path)
@@ -80,6 +82,8 @@ func _on_build_requested(slot: Node) -> void:
 	if pending_slot == slot:
 		return
 
+	var profile := ProfileStore.get_profile()
+	pending_loadout = GameFlow.get_battle_loadout(profile, str(selected_character.character_id))
 	_set_pending_slot(slot)
 
 
@@ -109,7 +113,7 @@ func confirm_pending_build() -> bool:
 	if occupied_value is bool and occupied_value:
 		cancel_pending()
 		return false
-	if tower_manager.build_tower(slot.global_position, selected_character, slot):
+	if tower_manager.build_tower(slot.global_position, selected_character, slot, pending_loadout):
 		if slot.has_method("mark_built"):
 			slot.mark_built()
 		_clear_pending_visual()

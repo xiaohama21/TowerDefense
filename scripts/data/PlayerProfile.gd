@@ -10,6 +10,7 @@ var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}
 var stage_progress: Dictionary = {}
 var items: Dictionary = {}
+var relics: Array[String] = []
 var gacha_state: Dictionary = {}
 var last_committed_run_id: String = ""
 
@@ -36,6 +37,7 @@ func load_dict(data: Dictionary) -> void:
 	characters = _normalize_characters(source.get("characters", {}))
 	stage_progress = _normalize_dictionary(source.get("stage_progress", {}))
 	items = _normalize_dictionary(source.get("items", {}))
+	relics = _normalize_string_array(source.get("relics", []))
 	gacha_state = _normalize_dictionary(source.get("gacha_state", {}))
 	last_committed_run_id = str(source.get("last_committed_run_id", ""))
 
@@ -46,6 +48,7 @@ func to_dict() -> Dictionary:
 		"characters": characters.duplicate(true),
 		"stage_progress": stage_progress.duplicate(true),
 		"items": items.duplicate(true),
+		"relics": relics.duplicate(),
 		"gacha_state": gacha_state.duplicate(true),
 		"last_committed_run_id": last_committed_run_id,
 	}
@@ -62,6 +65,7 @@ func copy_from(other: PlayerProfile) -> void:
 	characters = other.characters.duplicate(true)
 	stage_progress = other.stage_progress.duplicate(true)
 	items = other.items.duplicate(true)
+	relics = other.relics.duplicate()
 	gacha_state = other.gacha_state.duplicate(true)
 	last_committed_run_id = other.last_committed_run_id
 
@@ -101,6 +105,8 @@ func unlock_character(character_id: String, initial_data: Dictionary = {}) -> bo
 	entry["total_exp"] = _coerce_non_negative_int(entry.get("total_exp", 0))
 	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
 	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0))
+	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
+	entry["relic"] = str(entry.get("relic", ""))
 	characters[key] = entry
 	return true
 
@@ -127,6 +133,8 @@ func add_character_exp(character_id: String, amount: int) -> int:
 	entry["total_exp"] = new_exp
 	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
 	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0))
+	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
+	entry["relic"] = str(entry.get("relic", ""))
 	characters[key] = entry
 	return new_exp
 
@@ -138,8 +146,90 @@ func add_character_shards(character_id: String, amount: int) -> int:
 	ensure_character(key)
 	var entry = characters.get(key, {}).duplicate(true)
 	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0)) + amount
+	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
+	entry["relic"] = str(entry.get("relic", ""))
 	characters[key] = entry
 	return entry["shards"]
+
+
+## 武将当前星级（升星系统，GDD 4.8）。
+func get_character_stars(character_id: String) -> int:
+	return _coerce_non_negative_int(get_character(character_id).get("stars", 0))
+
+
+## 信物持有/装备（GDD 4.8）。
+func add_relic(relic_id: String) -> bool:
+	var key := relic_id.strip_edges()
+	if key.is_empty() or relics.has(key):
+		return false
+	relics.append(key)
+	return true
+
+
+func has_relic(relic_id: String) -> bool:
+	return relics.has(relic_id.strip_edges())
+
+
+## 装备信物（仅限已持有的信物；空串为卸下）。
+func set_character_relic(character_id: String, relic_id: String) -> bool:
+	var key := character_id.strip_edges()
+	if key.is_empty():
+		return false
+	if not relic_id.strip_edges().is_empty() and not has_relic(relic_id):
+		return false
+	ensure_character(key)
+	var entry = characters.get(key, {})
+	if not entry is Dictionary:
+		return false
+	entry = entry.duplicate(true)
+	entry["relic"] = relic_id.strip_edges()
+	characters[key] = entry
+	return true
+
+
+## 消耗指定武将的碎片（信物兑换等）。不足时返回 false。
+func spend_shards(character_id: String, amount: int) -> bool:
+	var key := character_id.strip_edges()
+	if key.is_empty() or amount <= 0 or not has_character(key):
+		return false
+	var entry = characters.get(key, {})
+	if not entry is Dictionary:
+		return false
+	var shards := _coerce_non_negative_int(entry.get("shards", 0))
+	if shards < amount:
+		return false
+	entry = entry.duplicate(true)
+	entry["shards"] = shards - amount
+	entry["total_exp"] = _coerce_non_negative_int(entry.get("total_exp", 0))
+	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
+	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
+	entry["relic"] = str(entry.get("relic", ""))
+	characters[key] = entry
+	return true
+
+
+## 升星（碎片逐星消耗 20/40/80/160）。返回是否成功。
+func promote_character_star(character_id: String) -> bool:
+	var key := character_id.strip_edges()
+	if key.is_empty() or not has_character(key):
+		return false
+	var stars := get_character_stars(key)
+	if stars >= 5:
+		return false
+	var cost: int = [20, 40, 80, 160][stars]
+	if _coerce_non_negative_int(get_character(key).get("shards", 0)) < cost:
+		return false
+	ensure_character(key)
+	var entry = characters.get(key, {})
+	if not entry is Dictionary:
+		return false
+	entry = entry.duplicate(true)
+	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0)) - cost
+	entry["stars"] = stars + 1
+	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
+	entry["relic"] = str(entry.get("relic", ""))
+	characters[key] = entry
+	return true
 
 
 func set_promotion_path(character_id: String, promotion_path: Array) -> bool:
@@ -235,6 +325,12 @@ func apply_battle_session(session: Object) -> bool:
 				if not character_id.is_empty():
 					ensure_character(character_id)
 
+	if session.has_method("get_pending_relics"):
+		var pending_relics = session.get_pending_relics()
+		if pending_relics is Array:
+			for relic_id in pending_relics:
+				add_relic(str(relic_id))
+
 	if session.has_method("get_stage_id"):
 		var stage_id := str(session.get_stage_id()).strip_edges()
 		if not stage_id.is_empty():
@@ -267,6 +363,8 @@ func _normalize_characters(value) -> Dictionary:
 		normalized["total_exp"] = _coerce_non_negative_int(normalized.get("total_exp", 0))
 		normalized["promotion_path"] = _normalize_string_array(normalized.get("promotion_path", []))
 		normalized["shards"] = _coerce_non_negative_int(normalized.get("shards", 0))
+		normalized["stars"] = _coerce_non_negative_int(normalized.get("stars", 0))
+		normalized["relic"] = str(normalized.get("relic", ""))
 		output[character_id] = normalized
 	return output
 

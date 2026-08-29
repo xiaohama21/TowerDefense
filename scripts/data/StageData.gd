@@ -41,7 +41,11 @@ class_name StageData
 @export var prerequisite_stage_ids: Array[StringName] = []
 @export var first_clear_unlock_character_ids: Array[StringName] = []
 @export var first_clear_rewards: Array[ItemAmountData] = []
+## Boss 首掉信物（v0.13）：首次通关直接授予（如章节 Boss → 专属信物）。
+@export var first_clear_relic: RelicData
 @export var repeat_clear_rewards: Array[ItemAmountData] = []
+## 概率掉落（v0.13）：重复通关时逐条掷点，命中计入战局掉落。
+@export var probability_drops: Array[DropEntryData] = []
 @export_range(0, 999999, 1) var participant_xp: int = 0
 
 

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/RelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"relic_guanyu_blade"
+display_name = "青龙偃月断刃"
+description = "广宗决战缴获的断刃，刀锋犹带龙吟。"
+character_id = &"guan_yu"
+damage_bonus = 0.12
+range_bonus = 0.0
+attack_interval_factor = 1.0
+shard_cost = 60

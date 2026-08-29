@@ -14,8 +14,7 @@ func build_tower(
 	pos: Vector2,
 	character_data: CharacterData = null,
 	slot: Node = null,
-	level: int = 1,
-	promotion: PromotionData = null
+	loadout: Dictionary = {}
 ) -> Tower:
 	var cost := character_data.build_cost if character_data != null else tower_cost
 	if GameManager.gold < cost:
@@ -26,7 +25,7 @@ func build_tower(
 	add_child(tower)
 	tower.global_position = pos
 	if character_data != null:
-		tower.apply_character(character_data, level, promotion)
+		tower.apply_character(character_data, loadout)
 	tower.record_build_investment(cost)
 	tower.assigned_slot = slot
 	tower_created.emit(tower)

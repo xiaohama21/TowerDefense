@@ -416,8 +416,17 @@ func _collect_stage_rewards() -> void:
 		for character_id in stage_data.first_clear_unlock_character_ids:
 			battle_session.add_unlock(str(character_id))
 		rewards = stage_data.first_clear_rewards
+		# Boss 首掉信物（GDD 4.8）
+		if stage_data.first_clear_relic != null:
+			battle_session.add_relic(str(stage_data.first_clear_relic.relic_id))
 	else:
 		rewards = stage_data.repeat_clear_rewards
+		# 概率掉落（v0.13）：逐条掷点
+		for drop in stage_data.probability_drops:
+			if drop == null or drop.item == null or drop.amount <= 0:
+				continue
+			if randf() <= drop.chance:
+				battle_session.add_loot(str(drop.item.item_id), drop.amount)
 	for reward in rewards:
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue

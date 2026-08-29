@@ -44,15 +44,19 @@ func is_valid() -> bool:
 ## 按等级与转职计算实战属性（GDD modules/NUMBERS.md 10.2）：
 ## 伤害/射程为加法成长后乘转职倍率，攻速为 interval 直接乘转职倍率（越小越快）。
 ## 战斗建造与养成界面共用此实现，保证两处所见一致。
-func compute_stats_at(level: int, promotion: PromotionData = null) -> Dictionary:
+func compute_stats_at(level: int, promotion: PromotionData = null, stars: int = 0, relic: RelicData = null) -> Dictionary:
 	var effective_level := maxi(level, 1)
 	var promo_damage := promotion.damage_multiplier if promotion != null else 1.0
 	var promo_range := promotion.range_multiplier if promotion != null else 1.0
 	var promo_interval := promotion.attack_interval_multiplier if promotion != null else 1.0
 	var level_steps := effective_level - 1
+	# 升星（GDD 4.8）：成长系数 +5%/星（不加直接数值）。
+	var star_growth := damage_growth_per_level * (1.0 + 0.05 * clampi(stars, 0, 5))
+	var relic_range := relic.range_bonus if relic != null else 0.0
+	var relic_interval := relic.attack_interval_factor if relic != null else 1.0
 	return {
-		"damage": int(round((base_damage + damage_growth_per_level * level_steps) * promo_damage)),
-		"range": (base_range + range_growth_per_level * level_steps) * promo_range,
-		"attack_interval": attack_interval * promo_interval,
+		"damage": int(round((base_damage + star_growth * level_steps) * promo_damage)),
+		"range": (base_range + range_growth_per_level * level_steps) * promo_range + relic_range,
+		"attack_interval": attack_interval * promo_interval * relic_interval,
 		"min_range": profession.min_range if profession != null else 0.0,
 	}

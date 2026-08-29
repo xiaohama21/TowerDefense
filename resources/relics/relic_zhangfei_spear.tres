@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/RelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"relic_zhangfei_spear"
+display_name = "蛇矛精锻"
+description = "重铸的蛇矛矛头，出刺更快。"
+character_id = &"zhang_fei"
+damage_bonus = 0.0
+range_bonus = 0.0
+attack_interval_factor = 0.92
+shard_cost = 60

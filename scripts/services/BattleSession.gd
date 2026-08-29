@@ -20,6 +20,8 @@ var deployed_character_ids: Array[String] = []
 var pending_xp_by_character: Dictionary = {}
 var pending_loot: Dictionary = {}
 var pending_unlocks: Array[String] = []
+## 首通信物（v0.13）：通关后写入存档 relics。
+var pending_relics: Array[String] = []
 var result: Dictionary = {}
 var status: String = STATUS_IN_PROGRESS
 var started_at_unix: int = 0
@@ -66,6 +68,7 @@ func load_dict(data: Dictionary) -> void:
 	pending_xp_by_character = _normalize_amount_dictionary(data.get("pending_xp_by_character", {}))
 	pending_loot = _normalize_amount_dictionary(data.get("pending_loot", {}))
 	pending_unlocks = _normalize_string_array(data.get("pending_unlocks", []))
+	pending_relics = _normalize_string_array(data.get("pending_relics", []))
 	result = data.get("result", {}).duplicate(true) if data.get("result", {}) is Dictionary else {}
 	status = _normalize_status(str(data.get("status", STATUS_IN_PROGRESS)))
 	started_at_unix = _coerce_non_negative_int(data.get("started_at_unix", 0))
@@ -81,6 +84,7 @@ func to_dict() -> Dictionary:
 		"pending_xp_by_character": pending_xp_by_character.duplicate(true),
 		"pending_loot": pending_loot.duplicate(true),
 		"pending_unlocks": pending_unlocks.duplicate(),
+		"pending_relics": pending_relics.duplicate(),
 		"result": result.duplicate(true),
 		"status": status,
 		"started_at_unix": started_at_unix,
@@ -177,6 +181,21 @@ func add_drop(item_id: String, amount: int) -> int:
 	return add_loot(item_id, amount)
 
 
+## 首通信物授予（去重）。
+func add_relic(relic_id: String) -> bool:
+	if not is_in_progress():
+		return false
+	var key := relic_id.strip_edges()
+	if key.is_empty() or pending_relics.has(key):
+		return false
+	pending_relics.append(key)
+	return true
+
+
+func get_pending_relics() -> Array[String]:
+	return pending_relics.duplicate()
+
+
 func add_unlock(character_id: String) -> bool:
 	if not is_in_progress():
 		return false
@@ -237,6 +256,7 @@ func mark_discarded() -> bool:
 	pending_xp_by_character.clear()
 	pending_loot.clear()
 	pending_unlocks.clear()
+	pending_relics.clear()
 	return true
 
 
@@ -244,6 +264,7 @@ func clear_pending_rewards() -> void:
 	pending_xp_by_character.clear()
 	pending_loot.clear()
 	pending_unlocks.clear()
+	pending_relics.clear()
 
 
 static func _generate_run_id() -> String:

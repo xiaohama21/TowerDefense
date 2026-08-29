@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/RelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"relic_huangfusong_torch"
+display_name = "火攻图卷"
+description = "皇甫嵩亲批的火攻方略，调度更从容。"
+character_id = &"huang_fu_song"
+damage_bonus = 0.0
+range_bonus = 0.15
+attack_interval_factor = 1.0
+shard_cost = 60

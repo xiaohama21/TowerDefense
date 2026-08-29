@@ -215,7 +215,7 @@ func _run() -> void:
 	var charger := load("res://resources/promotions/guan_yu_charger.tres") as PromotionData
 	_check(charger != null and not charger.item_costs.is_empty(), "一转配置应含材料消耗")
 	GameManager.reset(9999, 20, stage_data.waves.size())
-	var leveled_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, 10, charger)
+	var leveled_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, {"level": 10, "promotion": charger})
 	_check(leveled_tower != null, "应以等级/转职参数建造武将塔")
 	if leveled_tower:
 		var expected_damage := int(round((guan_yu.base_damage + guan_yu.damage_growth_per_level * 9) * charger.damage_multiplier))
@@ -223,7 +223,7 @@ func _run() -> void:
 		_check(is_equal_approx(leveled_tower.attack_cooldown, guan_yu.attack_interval * charger.attack_interval_multiplier),
 			"转职攻速倍率应生效")
 		leveled_tower.queue_free()
-	var fresh_tower: Tower = tower_manager.build_tower(Vector2(140, 640), guan_yu, null, 1, null)
+	var fresh_tower: Tower = tower_manager.build_tower(Vector2(140, 640), guan_yu, null, {"level": 1})
 	_check(fresh_tower != null and fresh_tower.damage == guan_yu.base_damage, "1 级无转职应为基础伤害")
 	if fresh_tower:
 		fresh_tower.queue_free()
@@ -232,7 +232,7 @@ func _run() -> void:
 	var huang_fu_song := load("res://resources/characters/huang_fu_song.tres") as CharacterData
 	_check(huang_fu_song != null, "皇甫嵩数据应可加载")
 	if huang_fu_song != null:
-		var catapult_tower: Tower = tower_manager.build_tower(Vector2(60, 100), huang_fu_song, null, 1, null)
+		var catapult_tower: Tower = tower_manager.build_tower(Vector2(60, 100), huang_fu_song, null, {"level": 1})
 		_check(catapult_tower != null, "应能建造投石车")
 		if catapult_tower:
 			_check(catapult_tower.damage == 136 and catapult_tower.range_radius == 360.0
@@ -304,7 +304,7 @@ func _run() -> void:
 		rb_enemy.queue_free()
 
 	# 怒气系统（v0.11.2）：命中积怒（命中 4 + 伤害×0.1）→ 满 100 手动触发大招 → 清零。
-	var rage_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, 1, null)
+	var rage_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, {"level": 1})
 	_check(rage_tower != null, "应能建造怒气用例武将塔")
 	if rage_tower != null:
 		rage_tower.set_process(false)
@@ -337,8 +337,8 @@ func _run() -> void:
 	if diao_chan != null:
 		var support_session := BattleSession.new("smoke_support")
 		GameManager.set_battle_session(support_session)
-		var dancer_tower: Tower = tower_manager.build_tower(Vector2(60, 100), diao_chan, null, 1, null)
-		var ally_tower: Tower = tower_manager.build_tower(Vector2(140, 100), guan_yu, null, 1, null)
+		var dancer_tower: Tower = tower_manager.build_tower(Vector2(60, 100), diao_chan, null, {"level": 1})
+		var ally_tower: Tower = tower_manager.build_tower(Vector2(140, 100), guan_yu, null, {"level": 1})
 		_check(dancer_tower != null and ally_tower != null, "应能建造舞娘与友方塔")
 		if dancer_tower != null and ally_tower != null:
 			dancer_tower.set_process(false)

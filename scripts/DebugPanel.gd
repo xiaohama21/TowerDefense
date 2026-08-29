@@ -31,6 +31,7 @@ func _ready() -> void:
 	row.add_child(_make_button("波", _on_jump_pressed))
 
 	row.add_child(_make_button("清空敌人", _on_clear_pressed))
+	row.add_child(_make_button("碎片+20", _on_shards_pressed))
 
 
 func _make_style() -> StyleBoxFlat:
@@ -65,6 +66,14 @@ func _on_gold_pressed() -> void:
 
 func _on_jump_pressed() -> void:
 	wave_jump_requested.emit(int(_wave_spin_box.value) - 1)
+
+
+func _on_shards_pressed() -> void:
+	# 调试：为所有已拥有武将补充碎片（用于验证升星/信物兑换）
+	var profile := ProfileStore.get_profile()
+	for character_id in profile.get_owned_character_ids():
+		profile.add_character_shards(character_id, 20)
+	ProfileStore.save_profile(profile)
 
 
 func _on_clear_pressed() -> void:
