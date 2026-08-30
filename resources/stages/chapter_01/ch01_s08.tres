@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=60 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=62 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="20_drop"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
 [ext_resource type="Resource" path="res://resources/items/gacha_token.tres" id="22_token"]
+[ext_resource type="Resource" path="res://resources/items/wolf_tooth.tres" id="24_wolf"]
 [ext_resource type="Script" path="res://scripts/data/BuildSlotData.gd" id="23_bslot"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_e0"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="4_e1"]
@@ -189,6 +190,11 @@ script = ExtResource("7_amount")
 item = ExtResource("22_token")
 amount = 3
 
+[sub_resource type="Resource" id="ItemAmountData_wolf"]
+script = ExtResource("7_amount")
+item = ExtResource("24_wolf")
+amount = 1
+
 [sub_resource type="Resource" id="DialogueLine_1"]
 script = ExtResource("9_dline")
 speaker = "张梁"
@@ -314,7 +320,7 @@ decor_cells = [Vector2i(1, 4), Vector2i(5, 6), Vector2i(9, 8), Vector2i(14, 7), 
 prerequisite_stage_ids = [&"ch01_s07"]
 first_clear_unlock_character_ids = []
 first_clear_relic = ExtResource("21_relic")
-first_clear_rewards = [SubResource("ItemAmountData_cloth"), SubResource("ItemAmountData_token")]
+first_clear_rewards = [SubResource("ItemAmountData_cloth"), SubResource("ItemAmountData_token"), SubResource("ItemAmountData_wolf")]
 probability_drops = [SubResource("DropEntry_cloth3")]
 repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 60

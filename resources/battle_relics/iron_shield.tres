@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BattleRelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleRelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"iron_shield"
+display_name = "铁盾徽记"
+description = "边军制式铁盾的徽章，守御加固。基地生命 +10。"
+base_hp_bonus = 10

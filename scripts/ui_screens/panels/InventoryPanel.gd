@@ -10,6 +10,8 @@ const TEXT_COLOR := Color(0.88, 0.9, 0.84)
 const DIM_COLOR := Color(0.6, 0.62, 0.58)
 const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 const EXP_SCROLL_ID := "exp_scroll"
+## 测试发放的局内遗物（v0.19.0，CHARACTERS.md 4.8）：全部 5 件各 1。
+const TEST_RELIC_IDS: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 
 const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品"]
 
@@ -48,6 +50,12 @@ func _build_ui() -> void:
 	grant_button.add_theme_font_size_override("font_size", 16)
 	grant_button.pressed.connect(_on_grant_exp_scroll)
 	grant_row.add_child(grant_button)
+	var relic_grant_button := Button.new()
+	relic_grant_button.text = "获得测试遗物 ×1（各）"
+	relic_grant_button.custom_minimum_size = Vector2(220, 40)
+	relic_grant_button.add_theme_font_size_override("font_size", 16)
+	relic_grant_button.pressed.connect(_on_grant_test_relics)
+	grant_row.add_child(relic_grant_button)
 	var grant_note := Label.new()
 	grant_note.text = "（仅测试发放，不进掉落表）"
 	grant_note.add_theme_font_size_override("font_size", 15)
@@ -69,6 +77,14 @@ func _build_ui() -> void:
 func _on_grant_exp_scroll() -> void:
 	var profile := ProfileStore.get_profile()
 	profile.add_item(EXP_SCROLL_ID, 10)
+	ProfileStore.save_profile()
+	_refresh()
+
+
+func _on_grant_test_relics() -> void:
+	var profile := ProfileStore.get_profile()
+	for relic_id in TEST_RELIC_IDS:
+		profile.add_item(relic_id, 1)
 	ProfileStore.save_profile()
 	_refresh()
 

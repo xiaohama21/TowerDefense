@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"iron_shield"
+display_name = "铁盾徽记"
+description = "边军制式铁盾的徽章，守御加固。基地生命 +10。"
+item_type = 4
+rarity = 1
+tags = [&"relic", &"consumable"]
+max_stack = 99

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BattleRelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleRelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"scout_eye"
+display_name = "鹰眼符"
+description = "斥候鹰羽所制的护符，目力过人。射程 +10%。"
+range_bonus_pct = 10

@@ -15,12 +15,17 @@ const PROMOTION_RESOURCE_DIR := "res://resources/promotions"
 const RELIC_RESOURCE_DIR := "res://resources/relics"
 const ITEM_RESOURCE_DIR := "res://resources/items"
 const BOND_RESOURCE_DIR := "res://resources/bonds"
+const BATTLE_RELIC_RESOURCE_DIR := "res://resources/battle_relics"
 
 ## 新档初始武将（GDD 阶段 0 交付：刘备、关羽）。
 const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei", "guan_yu"]
 
 var selected_stage_id: StringName = &""
 var squad_character_ids: Array[String] = []
+
+## 本次出征选带的局内遗物（v0.19.0，CHARACTERS.md 4.8）：出征即消耗库存各 1 件，
+## 仅本局生效；重试保留，离场/进入下一关时清空（GameFlow.clear_squad_relics）。
+var squad_relic_ids: Array[String] = []
 ## 游戏大厅当前页签（map/develop/settings），战斗结算"返回大厅"时恢复。
 var hub_active_panel: StringName = &"map"
 ## 当前难度（0=轻松 1=标准 2=困难），默认标准。
@@ -388,6 +393,67 @@ func select_stage(stage_id: StringName) -> void:
 
 func set_squad(character_ids: Array[String]) -> void:
 	squad_character_ids = character_ids.duplicate()
+
+
+func set_squad_relics(relic_ids: Array[String]) -> void:
+	squad_relic_ids.clear()
+	for relic_id in relic_ids:
+		var key := str(relic_id).strip_edges()
+		if not key.is_empty() and not squad_relic_ids.has(key):
+			squad_relic_ids.append(key)
+
+
+func clear_squad_relics() -> void:
+	squad_relic_ids.clear()
+
+
+## 局内遗物数据加载（v0.19.0）：relic_id 即 items 的 item_id；失败返回 null。
+func load_battle_relic_data(relic_id: String) -> BattleRelicData:
+	var key := str(relic_id).strip_edges()
+	if key.is_empty():
+		return null
+	return load("%s/%s.tres" % [BATTLE_RELIC_RESOURCE_DIR, key]) as BattleRelicData
+
+
+## 背包中拥有的遗物 ID 列表（items 库存 × 对应 BattleRelicData 存在）。
+func get_owned_relic_ids(profile: PlayerProfile) -> Array[String]:
+	var result: Array[String] = []
+	for key in profile.items.keys():
+		var item_id := str(key)
+		if int(profile.items.get(key, 0)) <= 0:
+			continue
+		var relic := load_battle_relic_data(item_id)
+		if relic != null and relic.is_valid():
+			result.append(item_id)
+	result.sort()
+	return result
+
+
+## 已选遗物加成汇总（v0.19.0）：伤害/射程百分比加算、攻速连乘、金币/生命加算。
+func get_battle_relic_bonuses() -> Dictionary:
+	var result := {
+		"damage_bonus_pct": 0,
+		"attack_interval_factor": 1.0,
+		"range_bonus_pct": 0,
+		"start_gold": 0,
+		"base_hp_bonus": 0,
+	}
+	for relic_id in squad_relic_ids:
+		var relic := load_battle_relic_data(relic_id)
+		if relic == null or not relic.is_valid():
+			continue
+		result["damage_bonus_pct"] = int(result["damage_bonus_pct"]) + relic.damage_bonus_pct
+		result["attack_interval_factor"] = float(result["attack_interval_factor"]) * relic.attack_interval_factor
+		result["range_bonus_pct"] = int(result["range_bonus_pct"]) + relic.range_bonus_pct
+		result["start_gold"] = int(result["start_gold"]) + relic.start_gold
+		result["base_hp_bonus"] = int(result["base_hp_bonus"]) + relic.base_hp_bonus
+	return result
+
+
+## 出征消耗：扣除已选遗物库存各 1 件（胜/负均消耗；写档由调用方负责）。
+func consume_squad_relics(profile: PlayerProfile) -> void:
+	for relic_id in squad_relic_ids:
+		profile.spend_item(relic_id, 1)
 
 
 func goto_menu() -> void:

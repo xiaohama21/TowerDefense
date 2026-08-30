@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BattleRelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleRelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"war_drums"
+display_name = "战鼓"
+description = "擂动进军的牛皮战鼓，士气高昂。攻速 ×0.95。"
+attack_interval_factor = 0.95

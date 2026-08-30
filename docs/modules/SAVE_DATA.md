@@ -15,7 +15,7 @@
 | `schema_version` | 存档版本，迁移用 |
 | `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`promotion_path`（转职历史）、`shards`（碎片）、`stars`（星级，✅ v0.13）、`relic`（装备信物，✅ v0.13） |
 | `stage_progress` | 关卡完成记录（首通/重复、成绩；v0.14.1 起按难度分键 `difficulties`：easy/normal/hard，困难解锁读取标准通关记录） |
-| `items` | 道具数量字典（✅ v0.15.1 新增测试道具 `exp_scroll` 练兵令，经背包发放，不进掉落表） |
+| `items` | 道具数量字典（✅ v0.15.1 新增测试道具 `exp_scroll` 练兵令，经背包发放，不进掉落表；✅ v0.19.0 局内遗物库存复用本字典，`relic_id` 即 item_id，出战消耗各 1 件） |
 | `relics` | 已获信物列表（✅ v0.13） |
 | `tech_points` / `tech_unlocks` | 科技点余额与已解锁科技（✅ v0.14/v0.14.1；发放=首通+2/重复+1 × 难度材料倍率，胜利提交时经 `BattleSession.pending_tech_points` 写入） |
 | `gacha_state` | 抽奖状态（✅ v0.14.1 启用：保底计数/总抽数；求贤令数量存 `items.gacha_token`） |

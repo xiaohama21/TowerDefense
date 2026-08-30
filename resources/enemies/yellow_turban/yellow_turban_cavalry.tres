@@ -10,6 +10,7 @@ description = "快速突防的轻骑兵，漏怪时会造成更高基地伤害�
 tags = [&"yellow_turban", &"cavalry"]
 max_hp = 110
 move_speed = 145.0
+special_behavior_id = &"fast_charger"
 damage_to_base = 2
 currency_reward = 12
 kill_xp = 10

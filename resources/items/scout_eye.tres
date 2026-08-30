@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"scout_eye"
+display_name = "鹰眼符"
+description = "斥候鹰羽所制的护符，目力过人。射程 +10%。"
+item_type = 4
+rarity = 1
+tags = [&"relic", &"consumable"]
+max_stack = 99

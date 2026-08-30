@@ -55,7 +55,7 @@
 | ID | 效果概要 | 规划敌人 | 状态 |
 |---|---|---|---|
 | `none` | 默认沿路径推进 | 全部现有敌人 | 已实现（默认行为） |
-| `fast_charger` | 高速推进、漏怪伤害更高 | 黄巾轻骑 | 数值已体现（145 速 / 漏 2 血），`special_behavior_id` 尚未在 `.tres` 配置 |
+| `fast_charger` | 高速推进、漏怪伤害更高 | 黄巾轻骑 | ✅ 已配置（v0.19.0：`yellow_turban_cavalry.tres` 补 `special_behavior_id`；数值已体现：145 速 / 漏 2 血） |
 | `healer_aura` | 每 2s 治疗周围 120px 友军 15 点 | 黄巾祭酒 | ✅ 已建（v0.11.3，EnemyManager 执行） |
 | `summon_guard` | 每 8s 自岔路召唤 2 名步卒（分叉试点） | 黄巾渠帅张梁 | ✅ 已建（v0.11.3，需 StageData.fork_path_points） |
 | `armor_aura` | 为周围敌人加护甲 | 黄巾祭酒变体 | 阶段 4+ |

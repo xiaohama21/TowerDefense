@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"wolf_tooth"
+display_name = "狼牙符"
+description = "猎杀猛兽磨制的狼牙，佩戴者出手更狠。全伤害 +5%。"
+item_type = 4
+rarity = 1
+tags = [&"relic", &"consumable"]
+max_stack = 99

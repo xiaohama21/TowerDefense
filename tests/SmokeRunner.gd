@@ -131,6 +131,46 @@ func _run() -> void:
 	_check(TechTree.get_tech_bonuses(tech_profile).get("damage_pct", 0) == 6,
 			"军事分支加成应来自配置（精兵 2% + 老兵 4%）")
 
+	# 阶段 7（v0.19.0）：局内遗物——5 件可加载、汇总叠加、出征消耗、s08 掉落、fast_charger 配置。
+	var battle_relic_ids: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
+	var loaded_relics := 0
+	for relic_id in battle_relic_ids:
+		var relic := GameFlow.load_battle_relic_data(relic_id)
+		if relic != null and relic.is_valid():
+			loaded_relics += 1
+	_check(loaded_relics == 5, "局内遗物 5 件应全部可加载")
+	var stage7_profile := ProfileStore.get_profile()
+	if stage7_profile != null:
+		for relic_id in battle_relic_ids:
+			stage7_profile.add_item(relic_id, 1)
+		_check(GameFlow.get_owned_relic_ids(stage7_profile).size() == 5, "背包应可枚举全部 5 件遗物")
+		GameFlow.set_squad_relics(["wolf_tooth", "war_drums", "scout_eye", "provision_bag", "wolf_tooth"])
+		var relic_bonuses := GameFlow.get_battle_relic_bonuses()
+		_check(GameFlow.squad_relic_ids.size() == 4, "同 ID 遗物不应重复选带")
+		_check(int(relic_bonuses["damage_bonus_pct"]) == 5 and int(relic_bonuses["start_gold"]) == 50,
+			"遗物汇总应叠加伤害/初始金币")
+		GameFlow.set_squad_relics(["iron_shield", "wolf_tooth"])
+		var relic_bonuses_2 := GameFlow.get_battle_relic_bonuses()
+		_check(int(relic_bonuses_2["base_hp_bonus"]) == 10 and int(relic_bonuses_2["damage_bonus_pct"]) == 5,
+			"遗物汇总应叠加基地生命")
+		_check(is_equal_approx(float(relic_bonuses["attack_interval_factor"]), 0.95)
+			and int(relic_bonuses["range_bonus_pct"]) == 10, "遗物汇总应叠加攻速/射程")
+		GameFlow.consume_squad_relics(stage7_profile)
+		_check(int(stage7_profile.items.get("wolf_tooth", 0)) == 0
+			and int(stage7_profile.items.get("iron_shield", 0)) == 0, "出征应消耗已选遗物库存各 1 件")
+		_check(int(stage7_profile.items.get("provision_bag", 0)) == 1, "未选带遗物不应被消耗")
+		GameFlow.clear_squad_relics()
+	var stage7_cavalry := load("res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres") as EnemyData
+	_check(stage7_cavalry != null and stage7_cavalry.special_behavior_id == &"fast_charger",
+		"黄巾轻骑应配置 fast_charger 行为")
+	var s08_stage := load("res://resources/stages/chapter_01/ch01_s08.tres") as StageData
+	var s08_has_wolf := false
+	if s08_stage != null:
+		for reward in s08_stage.first_clear_rewards:
+			if reward != null and reward.item != null and str(reward.item.item_id) == "wolf_tooth":
+				s08_has_wolf = true
+	_check(s08_stage != null and s08_has_wolf, "s08 首通掉落应含狼牙符")
+
 	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor 纹理应齐全。
 	for decor_name in ["tree", "rock", "banner", "torch"]:
 		_check(ResourceLoader.exists("res://assets/decor/%s.png" % decor_name),
@@ -482,6 +522,20 @@ func _run() -> void:
 		tier_tower.battle_level = 20
 		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.4), "20 级档位系数应封顶 1.4")
 		tier_tower.queue_free()
+	# 阶段 7（v0.19.0）：局内遗物伤害加成应进 finalize_damage 乘法区（狼牙符 +5%）。
+	GameFlow.set_squad_relics(["wolf_tooth"])
+	var relic_probe_tower: Tower = tower_manager.build_tower(Vector2(240, 640), guan_yu, null, {"level": 1})
+	_check(relic_probe_tower != null, "应能建造遗物伤害探针塔")
+	if relic_probe_tower != null:
+		relic_probe_tower.set_process(false)
+		var relic_probe_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		relic_probe_enemy.set_process(false)
+		var expected_relic_damage := int(round(relic_probe_tower.damage * 1.05))
+		_check(relic_probe_tower.finalize_damage(relic_probe_tower.damage, relic_probe_enemy) == expected_relic_damage,
+			"狼牙符应使伤害 +5%")
+		relic_probe_enemy.queue_free()
+		relic_probe_tower.queue_free()
+	GameFlow.clear_squad_relics()
 	# charge（关羽·突击骑）：大招击杀返怒 50% × s。
 	var charge_tower: Tower = tower_manager.build_tower(Vector2(240, 640), guan_yu, null, {"level": 10, "promotion": charger})
 	_check(charge_tower != null and charge_tower.has_skill(&"charge"), "突击骑应持有 charge 技能")

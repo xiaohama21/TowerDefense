@@ -38,9 +38,11 @@ func _ready():
 		return
 
 	var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+	# 局内遗物开局加成（v0.19.0，CHARACTERS.md 4.8）：初始金币/基地生命加算。
+	var relic_bonuses := GameFlow.get_battle_relic_bonuses()
 	GameManager.reset(
-		stage_data.starting_currency + int(tech_bonuses.get("start_gold", 0)),
-		stage_data.starting_lives + int(tech_bonuses.get("base_hp", 0)),
+		stage_data.starting_currency + int(tech_bonuses.get("start_gold", 0)) + int(relic_bonuses.get("start_gold", 0)),
+		stage_data.starting_lives + int(tech_bonuses.get("base_hp", 0)) + int(relic_bonuses.get("base_hp_bonus", 0)),
 		stage_data.waves.size()
 	)
 	battle_session = BattleSession.new(stage_data.stage_id)
@@ -422,6 +424,7 @@ func _on_result_next_pressed() -> void:
 	if next_stage_id.is_empty():
 		return
 	GameFlow.select_stage(next_stage_id)
+	GameFlow.clear_squad_relics()
 	GameFlow.goto_battle()
 
 
@@ -431,6 +434,7 @@ func _on_result_retry_pressed() -> void:
 
 
 func _on_result_menu_pressed() -> void:
+	GameFlow.clear_squad_relics()
 	GameFlow.goto_hub()
 
 
@@ -453,6 +457,7 @@ func _on_exit_pressed() -> void:
 
 
 func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
+	GameFlow.clear_squad_relics()
 	GameFlow.goto_hub()
 	dialog.queue_free()
 

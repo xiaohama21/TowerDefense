@@ -72,6 +72,8 @@ var _relic_damage_bonus: float = 0.0
 var _tech_damage_bonus: float = 0.0
 ## 编队羁绊同队攻击加成（GDD modules/CHARACTERS.md 4.8，v0.17.0）：finalize_damage 乘法区。
 var _bond_damage_bonus: float = 0.0
+## 局内遗物伤害加成（CHARACTERS.md 4.8，v0.19.0）：finalize_damage 乘法区。
+var _battle_relic_damage_bonus: float = 0.0
 var _rage_mode: StringName = &"hit+damage"
 var _gain_per_hit: int = 4
 var _gain_per_damage: float = 0.1
@@ -141,13 +143,18 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	# 诸葛亮·观星：射程 +12%（特性静态加成）
 	if _trait_id == &"trait_star_gazer":
 		range_radius *= 1.0 + get_trait_param("range_bonus", 0.12)
-	attack_cooldown = stats.attack_interval
+	var relic_bonuses := GameFlow.get_battle_relic_bonuses()
+	# 局内遗物射程加成（v0.19.0，与特性乘算）
+	range_radius *= 1.0 + float(relic_bonuses.get("range_bonus_pct", 0)) / 100.0
+	attack_cooldown = stats.attack_interval * float(relic_bonuses.get("attack_interval_factor", 1.0))
 	_min_range = stats.min_range
 	# 信物全伤害加成（finalize_damage 管线使用，v0.13）
 	_relic_damage_bonus = relic.damage_bonus if relic != null else 0.0
 	# 科技树军事分支（finalize_damage 管线使用，v0.14.1）
 	_tech_damage_bonus = float(TechTree.get_tech_bonuses(ProfileStore.get_profile()).get("damage_pct", 0)) / 100.0
 	_bond_damage_bonus = GameFlow.get_squad_bond_damage_bonus(GameFlow.squad_character_ids)
+	# 局内遗物伤害加成（v0.19.0，与科技/信物/羁绊同区叠加）
+	_battle_relic_damage_bonus = float(relic_bonuses.get("damage_bonus_pct", 0)) / 100.0
 	var balance := GameBalance.get_balance()
 	_upgrade_damage_step = balance.upgrade_damage_step
 	_ultimate_battle_step = balance.ultimate_battle_step
@@ -452,7 +459,7 @@ func get_consecutive_hits() -> int:
 
 ## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
 func finalize_damage(base: int, target: Enemy) -> int:
-	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _bond_damage_bonus)
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _bond_damage_bonus) * (1.0 + _battle_relic_damage_bonus)
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	if BehaviorRegistry.has_benevolence_aura(self):
 		value *= BehaviorRegistry.benevolence_bonus(self)
