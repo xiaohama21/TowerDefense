@@ -79,6 +79,58 @@ func _run() -> void:
 		# 还原共享存档状态，避免污染后续建塔用例（塔伤害断言基于未转职）。
 		stage6_profile.set_promotion_path("guan_yu", [])
 
+	# 阶段 6 提交 2（v0.18.0）：数值配置中心化——game_balance 可加载且 LevelCurve/Difficulty 生效。
+	var balance := GameBalance.get_balance()
+	_check(balance != null and balance.is_valid(), "game_balance 中心配置应有效")
+	_check(LevelCurve.max_level() == 30 and LevelCurve.exp_total_for_level(10) == 1440,
+		"等级曲线应读中心配置（30 级封顶、10 级 1440 经验）")
+	_check(is_equal_approx(Difficulty.enemy_hp_mult(Difficulty.HARD), 1.4)
+		and is_equal_approx(Difficulty.reward_mult(Difficulty.HARD), 1.6)
+		and is_equal_approx(Difficulty.material_mult(Difficulty.HARD), 2.0),
+		"难度倍率应读中心配置（困难 1.4/1.6/2.0）")
+
+	# 阶段 6 提交 2（v0.18.0）：敌人模板——模板可加载、哨兵字段继承、显式字段覆盖。
+	var heavy_cavalry := load("res://resources/enemy_templates/heavy_cavalry.tres") as EnemyTemplateData
+	_check(heavy_cavalry != null and heavy_cavalry.is_valid(), "高护甲骑兵模板应可加载")
+	if heavy_cavalry != null:
+		var derived := EnemyData.new()
+		derived.enemy_id = &"smoke_derived"
+		derived.display_name = "模板派生测试敌"
+		derived.template = heavy_cavalry
+		# 哨兵约定（ENEMIES.md）：0/空字段继承模板值。
+		derived.max_hp = 0
+		derived.move_speed = 0.0
+		derived.armor = -1
+		derived.damage_to_base = 0
+		derived.currency_reward = 0
+		derived.kill_xp = 0
+		derived.body_color = Color(0, 0, 0, 0)
+		derived.body_size = Vector2.ZERO
+		var merged := derived.resolved()
+		_check(merged != derived and merged.max_hp == 180 and merged.move_speed == 145.0 and merged.armor == 20,
+			"模板派生应继承血量/速度/护甲")
+		_check(merged.currency_reward == 14 and merged.kill_xp == 12 and merged.damage_to_base == 2,
+			"模板派生应继承奖励与漏怪伤害")
+		var overridden := EnemyData.new()
+		overridden.enemy_id = &"smoke_overridden"
+		overridden.display_name = "模板覆盖测试敌"
+		overridden.template = heavy_cavalry
+		overridden.max_hp = 300
+		overridden.armor = 0
+		var merged2 := overridden.resolved()
+		_check(merged2.max_hp == 300 and merged2.armor == 0, "显式字段应覆盖模板值")
+
+	# 阶段 6 提交 2（v0.18.0）：科技树配置化——9 项可加载、加成汇总来自配置。
+	var tech_items := TechTree.get_items()
+	_check(tech_items.size() == 9, "科技树配置应含 9 项（三分支）")
+	# 独立临时档案验证加成，避免解锁污染共享存档（后续伤害断言不受 +6% 影响）。
+	var tech_profile := PlayerProfile.new()
+	tech_profile.add_tech_points(10)
+	tech_profile.unlock_tech("mil_dmg_1", 1)
+	tech_profile.unlock_tech("mil_dmg_2", 2)
+	_check(TechTree.get_tech_bonuses(tech_profile).get("damage_pct", 0) == 6,
+			"军事分支加成应来自配置（精兵 2% + 老兵 4%）")
+
 	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor 纹理应齐全。
 	for decor_name in ["tree", "rock", "banner", "torch"]:
 		_check(ResourceLoader.exists("res://assets/decor/%s.png" % decor_name),
@@ -292,7 +344,7 @@ func _run() -> void:
 	_check(LevelCurve.level_from_total_exp(0) == 1, "0 经验应为 1 级")
 	_check(LevelCurve.level_from_total_exp(1439) == 9 and LevelCurve.level_from_total_exp(1440) == 10,
 		"等级应按累计经验推导")
-	_check(LevelCurve.level_from_total_exp(999999) == LevelCurve.MAX_LEVEL, "等级不应超过上限")
+	_check(LevelCurve.level_from_total_exp(999999) == LevelCurve.max_level(), "等级不应超过上限")
 
 	# 等级与转职属性应用（GDD 4.4/4.5）：伤害 = (基础 + 成长×(级-1)) × 转职倍率
 	var charger := load("res://resources/promotions/guan_yu_charger.tres") as PromotionData

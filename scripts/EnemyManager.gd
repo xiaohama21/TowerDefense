@@ -2,12 +2,7 @@ extends Node2D
 
 const ENEMY_SCENE: PackedScene = preload("res://scenes/Enemy.tscn")
 
-## 特殊行为参数（GDD modules/BEHAVIORS.md B.3.2，v0.11.3）。
-const HEALER_INTERVAL := 2.0
-const HEALER_AMOUNT := 15
-const HEALER_RADIUS := 120.0
-const SUMMON_INTERVAL := 8.0
-const SUMMON_COUNT := 2
+## 特殊行为参数（GDD modules/BEHAVIORS.md B.3.2，v0.11.3；数值 v0.18.0 起读 GameBalance 中心配置）。
 
 @onready var path: Path2D = $"../Path2D"
 
@@ -22,6 +17,8 @@ func spawn_enemy_from_data(enemy_data: EnemyData) -> Enemy:
 
 
 func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
+	# 模板合并（v0.18.0）：引用模板的敌人先解析出完整字段再生成。
+	enemy_data = enemy_data.resolved()
 	var enemy := ENEMY_SCENE.instantiate() as Enemy
 	if enemy == null:
 		push_error("无法实例化敌人场景")
@@ -58,12 +55,13 @@ func _process_special_behaviors(delta: float) -> void:
 		enemy.special_cooldown = maxf(enemy.special_cooldown - delta, 0.0)
 		if enemy.special_cooldown > 0.0:
 			continue
+		var balance := GameBalance.get_balance()
 		match enemy.special_behavior_id:
 			&"healer_aura":
-				enemy.special_cooldown = HEALER_INTERVAL
+				enemy.special_cooldown = balance.healer_interval
 				_heal_nearby(enemy)
 			&"summon_guard":
-				enemy.special_cooldown = SUMMON_INTERVAL
+				enemy.special_cooldown = balance.summon_interval
 				_summon_guards(enemy)
 
 
@@ -72,15 +70,16 @@ func _heal_nearby(source: Enemy) -> void:
 		var enemy := node as Enemy
 		if enemy == null or enemy.is_dead or enemy == source:
 			continue
-		if enemy.current_hp < enemy.max_hp and enemy.global_position.distance_to(source.global_position) <= HEALER_RADIUS:
-			enemy.heal(HEALER_AMOUNT)
+		var balance := GameBalance.get_balance()
+		if enemy.current_hp < enemy.max_hp and enemy.global_position.distance_to(source.global_position) <= balance.healer_radius:
+			enemy.heal(balance.healer_amount)
 
 
 func _summon_guards(boss: Enemy) -> void:
 	var soldier := load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres") as EnemyData
 	if soldier == null:
 		return
-	for _i in range(SUMMON_COUNT):
+	for _i in range(GameBalance.get_balance().summon_count):
 		var guard := _spawn_on(fork_path if fork_path != null else path, soldier)
 		if guard == null:
 			continue

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="BalanceData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BalanceData.gd" id="1_balance"]
+
+[resource]
+script = ExtResource("1_balance")
+exp_base_per_level = 40
+exp_growth_per_level = 15
+max_level = 30
+enemy_hp_mult = Array[float]([0.8, 1.0, 1.4])
+reward_mult = Array[float]([0.8, 1.0, 1.6])
+material_mult = Array[float]([0.8, 1.0, 2.0])
+upgrade_damage_step = 0.25
+ultimate_battle_step = 0.25
+max_rage = 100.0
+rage_gain_per_hit = 4
+rage_gain_per_damage = 0.1
+healer_interval = 2.0
+healer_amount = 15
+healer_radius = 120.0
+summon_interval = 8.0
+summon_count = 2

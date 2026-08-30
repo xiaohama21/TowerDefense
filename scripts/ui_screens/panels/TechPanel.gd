@@ -38,13 +38,13 @@ func _build_ui() -> void:
 		branch_label.add_theme_font_size_override("font_size", 16)
 		branch_label.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
 		add_child(branch_label)
-		for item in TechTree.ITEMS:
+		for item in TechTree.get_items():
 			if item.branch != branch[0]:
 				continue
 			add_child(_make_tech_row(item))
 
 
-func _make_tech_row(item: Dictionary) -> HBoxContainer:
+func _make_tech_row(item: TechItemData) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	var name_label := Label.new()
@@ -68,7 +68,7 @@ func _make_tech_row(item: Dictionary) -> HBoxContainer:
 func _refresh() -> void:
 	var profile := ProfileStore.get_profile()
 	_points_label.text = "科技点：%d" % profile.tech_points
-	for item in TechTree.ITEMS:
+	for item in TechTree.get_items():
 		var row: HBoxContainer = get_meta("tech_row_" + item.id, null)
 		if row == null:
 			continue

@@ -251,7 +251,7 @@ func _refresh() -> void:
 	_exp_bar.max_value = maxi(int(progress.exp_for_next), 1)
 	_exp_bar.value = int(progress.exp_into_level)
 	if progress.is_max_level:
-		_exp_label.text = "经验 %d（已达第一章等级上限 %d）" % [_profile.get_character_exp(_selected_id), LevelCurve.MAX_LEVEL]
+		_exp_label.text = "经验 %d（已达第一章等级上限 %d）" % [_profile.get_character_exp(_selected_id), LevelCurve.max_level()]
 	else:
 		_exp_label.text = "经验 %d · 距下一级还需 %d" % [
 			int(progress.exp_into_level), int(progress.exp_for_next) - int(progress.exp_into_level),
@@ -324,7 +324,7 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 func _refresh_exp_scroll(level: int) -> void:
 	var count: int = int(_profile.items.get(EXP_SCROLL_ID, 0))
 	_exp_scroll_label.text = "练兵令 ×%d" % count
-	_exp_scroll_button.disabled = _selected_id.is_empty() or count <= 0 or level >= LevelCurve.MAX_LEVEL
+	_exp_scroll_button.disabled = _selected_id.is_empty() or count <= 0 or level >= LevelCurve.max_level()
 	_exp_scroll_hint.text = "（仅测试发放，使用后直接升 1 级）"
 
 
@@ -332,7 +332,7 @@ func _on_exp_scroll_pressed() -> void:
 	if _selected_id.is_empty():
 		return
 	var level := GameFlow.get_character_level(_profile, _selected_id)
-	if level >= LevelCurve.MAX_LEVEL:
+	if level >= LevelCurve.max_level():
 		_exp_scroll_hint.text = "已达等级上限，无法使用"
 		return
 	if not _profile.spend_item(EXP_SCROLL_ID, 1):

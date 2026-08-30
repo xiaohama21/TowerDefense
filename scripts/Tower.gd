@@ -8,9 +8,12 @@ const RANGE_FILL_COLOR := Color(0.22, 0.76, 0.88, 0.13)
 const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
 const RANGE_BORDER_WIDTH := 3.5
 ## 局内升级每级伤害增幅（GDD 5.4：伤害 +25%/级，与 10.5 大招倍率同源）。
-const UPGRADE_DAMAGE_STEP := 0.25
+## 局内升级伤害步进与大招步进（v0.18.0 起读 GameBalance 中心配置，默认与 .tres 一致）。
+var _upgrade_damage_step: float = 0.25
+var _ultimate_battle_step: float = 0.25
 ## 怒气上限（GDD 4.6）：满 100 自动释放大招。
-const MAX_RAGE := 100.0
+## 怒气上限（CHARACTERS.md 4.6；v0.18.0 起读 GameBalance）。
+var _max_rage: float = 100.0
 # 近战挥击表现（GDD modules/BEHAVIORS.md B.3.1）：武器从一侧扫到另一侧，
 # 并带一道渐隐斩击弧；表现由 melee_thrust 执行器经 play_melee_hit() 触发。
 const MELEE_SWING_DURATION := 0.22
@@ -145,6 +148,10 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	# 科技树军事分支（finalize_damage 管线使用，v0.14.1）
 	_tech_damage_bonus = float(TechTree.get_tech_bonuses(ProfileStore.get_profile()).get("damage_pct", 0)) / 100.0
 	_bond_damage_bonus = GameFlow.get_squad_bond_damage_bonus(GameFlow.squad_character_ids)
+	var balance := GameBalance.get_balance()
+	_upgrade_damage_step = balance.upgrade_damage_step
+	_ultimate_battle_step = balance.ultimate_battle_step
+	_max_rage = balance.max_rage
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 
@@ -200,7 +207,7 @@ func get_sell_refund(sell_refund_ratio: float) -> int:
 func apply_upgrade(spent_cost: int) -> void:
 	battle_level += 1
 	total_invested += spent_cost
-	damage = int(round(_base_damage * (1.0 + UPGRADE_DAMAGE_STEP * battle_level)))
+	damage = int(round(_base_damage * (1.0 + _upgrade_damage_step * battle_level)))
 	queue_redraw()
 
 
@@ -280,7 +287,7 @@ func _process(_delta: float) -> void:
 		_update_aim()
 
 	# 大招释放（v0.15.0）：手动模式满怒待发，自动模式满怒即放。
-	if rage >= MAX_RAGE:
+	if rage >= _max_rage:
 		if _manual_ultimate_mode:
 			_ultimate_ready = true
 			if not _rage_ready_notified:
@@ -336,7 +343,7 @@ func gain_support_pulse(allies_buffed: int) -> void:
 func gain_rage(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	rage = minf(rage + amount * BehaviorRegistry.moon_veil_rage_multiplier(self), MAX_RAGE)
+	rage = minf(rage + amount * BehaviorRegistry.moon_veil_rage_multiplier(self), _max_rage)
 	queue_redraw()
 
 
@@ -360,7 +367,7 @@ func _try_cast_ultimate() -> bool:
 
 ## 大招强度（10.5）：×(1 + 0.25 × 局内等级) × 转职 ultimate_multiplier。
 func ultimate_power() -> float:
-	return (1.0 + UPGRADE_DAMAGE_STEP * battle_level) * _ultimate_multiplier
+	return (1.0 + _ultimate_battle_step * battle_level) * _ultimate_multiplier
 
 
 ## charge 技能（突击骑）：大招击杀返怒 50% × 档位系数（每 5 级 +10%）。
@@ -388,7 +395,7 @@ func ultimate_aoe_radius(base_radius: float) -> float:
 
 ## 手动大招（GDD 10.5，v0.15.0）：满怒且射程内有目标时释放，成功清空怒气。
 func cast_ultimate_manual() -> bool:
-	if not _manual_ultimate_mode or rage < MAX_RAGE:
+	if not _manual_ultimate_mode or rage < _max_rage:
 		return false
 	if _try_cast_ultimate():
 		_ultimate_ready = false
@@ -400,7 +407,7 @@ func cast_ultimate_manual() -> bool:
 
 ## 手动模式下大招是否就绪（供属性面板按钮/提示使用）。
 func is_ultimate_ready() -> bool:
-	return _manual_ultimate_mode and _ultimate_ready and rage >= MAX_RAGE
+	return _manual_ultimate_mode and _ultimate_ready and rage >= _max_rage
 
 
 func set_float_text_layer(layer: Node) -> void:
@@ -664,7 +671,7 @@ func _draw_rage_bar() -> void:
 	# 怒气条（v0.15.0 美化）：分段槽 + 边框；满怒金色脉动（手动模式提示）。
 	if rage <= 0.0:
 		return
-	var ratio := clampf(rage / MAX_RAGE, 0.0, 1.0)
+	var ratio := clampf(rage / _max_rage, 0.0, 1.0)
 	var full := ratio >= 1.0
 	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
 	var width := 34.0 * pulse

@@ -3,6 +3,7 @@
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
 > 承载总纲原章节：5.3（经济规则）与 10（数值基调）。章节编号沿用全局稳定 ID。
 > 所有数值以 `.tres` 配置为准，本文仅作制作参考，允许在平衡调整中修改，但修改必须同步更新本文档。
+> **数值配置中心化（✅ v0.18.0）**：全局平衡数值统一在 `resources/balance/game_balance.tres`（`BalanceData`：经验曲线、等级上限、难度倍率、局内升级步进、怒气上限、敌人特殊行为参数），代码经 `GameBalance` 只读引用，不再硬编码；科技树条目在 `resources/tech/tech_tree.tres`（`TechItemData`）。关卡/角色/敌人自身数值仍走各自 `.tres`。
 
 ---
 

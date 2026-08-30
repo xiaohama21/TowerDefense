@@ -12,6 +12,8 @@
 
 **护甲减算公式（v0.7 落地实现）**：实际伤害 = `max(伤害 − 护甲, 向上取整(伤害 × 10%))`，即护甲无论如何不会完全免伤。第一章敌人护甲均为 0，第二章"高护甲骑兵"起生效；护甲作用于所有伤害来源（普攻、大招、范围伤害均在 `take_damage` 内统一结算）。
 
+**敌人模板机制（✅ v0.18.0 阶段 6 试点，第二章派生基准）**：`EnemyData` 可引用 `template: EnemyTemplateData`（`resources/enemy_templates/`）批量派生——自身字段为 0/空哨兵时继承模板值（`resolved()` 返回合并副本，`EnemyManager` 生成时自动应用）。哨兵约定：`max_hp / move_speed / damage_to_base / currency_reward / kill_xp` 为 0、`armor` 为 -1、`special_behavior_id / tags` 为空、`body_color` 为全透明、`body_size` 为零向量 = 继承模板；引用模板的敌人无需逐字段复制，第二章内容直接堆 `.tres`。试点模板：`heavy_cavalry`（高护甲骑兵：180HP / 145 速 / 护甲 20，配套护甲减算公式已就绪）。
+
 ### 5.5.1 敌人维度
 
 - 兵种：步卒 / 轻骑 / 弓手 / 力士 / 妖道（祭酒）。
