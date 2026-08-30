@@ -6,6 +6,8 @@ const BULLET_SCENE: PackedScene = preload("res://scenes/Bullet.tscn")
 const TOWER_GROUP: StringName = &"towers"
 const RANGE_FILL_COLOR := Color(0.22, 0.76, 0.88, 0.13)
 const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
+## 选中环（v0.19.2）：金色光圈，选中塔明显可辨。
+const SELECT_RING_COLOR := Color(1.0, 0.82, 0.3)
 const RANGE_BORDER_WIDTH := 3.5
 ## 局内升级每级伤害增幅（GDD 5.4：伤害 +25%/级，与 10.5 大招倍率同源）。
 ## 局内升级伤害步进与大招步进（v0.18.0 起读 GameBalance 中心配置，默认与 .tres 一致）。
@@ -662,6 +664,8 @@ func _draw() -> void:
 		_draw_ultimate_visual()
 	if is_selected:
 		_draw_range()
+		# 选中环（v0.19.2）：塔身外金色光圈，强化选中反馈。
+		draw_arc(Vector2.ZERO, 30.0, 0.0, TAU, 32, SELECT_RING_COLOR, 3.0, true)
 
 
 ## 技能扩散环（v0.16.0）：半径随进度放大、颜色淡出。

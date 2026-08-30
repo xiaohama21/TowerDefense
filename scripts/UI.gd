@@ -2,6 +2,8 @@ extends CanvasLayer
 
 signal next_wave_pressed
 signal pause_pressed
+## 战斗内设置（v0.19.2）：暂停并打开设置弹窗。
+signal settings_pressed
 signal restart_pressed
 signal character_selected(character_id: String)
 signal debug_wave_jump_requested(wave_index: int)
@@ -25,6 +27,7 @@ const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
 @onready var stage_label: Label = $Root/TopBar/Margin/Content/StageLabel
 @onready var next_wave_button: Button = $Root/TopBar/Margin/Content/NextWaveButton
 @onready var pause_button: Button = $Root/TopBar/Margin/Content/PauseButton
+@onready var settings_button: Button = $Root/TopBar/Margin/Content/SettingsButton
 @onready var restart_button: Button = $Root/TopBar/Margin/Content/RestartButton
 @onready var exit_button: Button = $Root/TopBar/Margin/Content/ExitButton
 @onready var message_panel: PanelContainer = $Root/MessagePanel
@@ -67,6 +70,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	next_wave_button.pressed.connect(_on_next_wave_button_pressed)
 	pause_button.pressed.connect(_on_pause_button_pressed)
+	settings_button.pressed.connect(func() -> void: settings_pressed.emit())
 	restart_button.pressed.connect(_on_restart_button_pressed)
 	exit_button.pressed.connect(func() -> void: exit_pressed.emit())
 
@@ -190,6 +194,11 @@ func hide_message() -> void:
 	message_panel.visible = false
 
 
+func hide_status() -> void:
+	_status_request_id += 1
+	status_label.visible = false
+
+
 func show_status(message: String, duration: float = 1.5) -> void:
 	_status_request_id += 1
 	var request_id := _status_request_id
@@ -212,6 +221,7 @@ func _refresh_action_buttons() -> void:
 		or game_finished
 	)
 	pause_button.disabled = game_finished
+	settings_button.disabled = game_finished
 
 	if all_waves_completed:
 		next_wave_button.text = "全部波次完成"

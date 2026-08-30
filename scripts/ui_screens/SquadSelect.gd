@@ -100,6 +100,7 @@ func _build_ui() -> void:
 			("\n" + bond_tags) if bond_tags != "" else "",
 		]
 		button.toggled.connect(_on_character_toggled.bind(character_id))
+		_apply_selected_style(button)
 		grid.add_child(button)
 		_buttons[character_id] = button
 
@@ -137,6 +138,7 @@ func _build_ui() -> void:
 		var relic_amount := int(profile.items.get(relic_id, 0))
 		relic_button.text = "%s ×%d\n%s" % [relic.display_name, relic_amount, relic.description]
 		relic_button.toggled.connect(_on_relic_toggled.bind(relic_id))
+		_apply_selected_style(relic_button)
 		relic_box.add_child(relic_button)
 		_relic_buttons[relic_id] = relic_button
 
@@ -192,6 +194,23 @@ func _bond_summary_text() -> String:
 
 func _profession_name(character_data: CharacterData) -> String:
 	return character_data.profession.display_name if character_data.profession != null else "未知职业"
+
+
+## 选中态高亮（v0.19.2）：金色底 + 深色文字，避免默认主题按压态不明显。
+func _apply_selected_style(button: Button) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = SELECTED_COLOR
+	style.border_color = Color(1.0, 0.92, 0.62)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_stylebox_override("hover_pressed", style)
+	button.add_theme_color_override("font_pressed_color", Color(0.12, 0.09, 0.02))
+	button.add_theme_color_override("font_hover_pressed_color", Color(0.12, 0.09, 0.02))
 
 
 func _on_character_toggled(pressed: bool, character_id: String) -> void:

@@ -19,6 +19,9 @@ var stage_data: StageData
 var _available_characters: Array[CharacterData] = []
 var _selected_character: CharacterData = null
 var _selected_tower: Tower = null
+## 战斗内设置弹窗（v0.19.2）：打开时暂停，关闭后恢复。
+var _settings_popup: CanvasLayer = null
+var _was_paused_before_settings: bool = false
 ## Boss 横幅去抖（v0.15.0）：同名 Boss 短时间只播一次。
 var _last_boss_banner_msec: int = 0
 
@@ -61,6 +64,7 @@ func _ready():
 	wave_manager.wave_completed.connect(_on_wave_completed)
 	ui.next_wave_pressed.connect(_on_next_wave_pressed)
 	ui.pause_pressed.connect(_on_pause_pressed)
+	ui.settings_pressed.connect(_on_settings_pressed)
 	ui.restart_pressed.connect(_on_restart_pressed)
 	ui.character_selected.connect(_on_character_selected)
 	ui.debug_wave_jump_requested.connect(_on_debug_wave_jump)
@@ -464,6 +468,60 @@ func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the
 ## repeat rewards configured on the stage. 奖励数量按难度材料倍率缩放（GDD 10.7）。
+## 战斗内设置（v0.19.2）：暂停并弹出设置面板（复用 SettingsPanel，改动即时生效并持久化）。
+func _on_settings_pressed() -> void:
+	if _settings_popup != null and is_instance_valid(_settings_popup):
+		return
+	_was_paused_before_settings = get_tree().paused
+	get_tree().paused = true
+	ui.show_status("已打开设置")
+	_settings_popup = CanvasLayer.new()
+	_settings_popup.layer = 60
+	_settings_popup.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().root.add_child(_settings_popup)
+	var dim := ColorRect.new()
+	dim.color = Color(0.02, 0.04, 0.06, 0.5)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_settings_popup.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_settings_popup.add_child(center)
+	var panel := PanelContainer.new()
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.055, 0.075, 0.12, 0.97)
+	panel_style.border_color = Color(0.25, 0.43, 0.68, 0.9)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(10)
+	panel.add_theme_stylebox_override("panel", panel_style)
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 14)
+	margin.add_child(box)
+	var settings := preload("res://scripts/ui_screens/panels/SettingsPanel.gd").new()
+	box.add_child(settings)
+	var close_button := Button.new()
+	close_button.text = "关闭设置"
+	close_button.custom_minimum_size = Vector2(200, 46)
+	close_button.add_theme_font_size_override("font_size", 18)
+	close_button.pressed.connect(_on_settings_popup_closed)
+	box.add_child(close_button)
+
+
+func _on_settings_popup_closed() -> void:
+	if _settings_popup != null and is_instance_valid(_settings_popup):
+		_settings_popup.queue_free()
+	_settings_popup = null
+	if not _was_paused_before_settings:
+		get_tree().paused = false
+	ui.hide_status()
+
+
 func _on_pause_pressed():
 	if GameManager.lives <= 0 or GameManager.current_wave >= GameManager.total_waves:
 		return

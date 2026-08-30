@@ -112,6 +112,7 @@ func _build_ui() -> void:
 		button.add_theme_font_size_override("font_size", 17)
 		button.toggle_mode = true
 		button.pressed.connect(_on_character_pressed.bind(character_id))
+		_apply_selected_style(button)
 		list_box.add_child(button)
 		_character_buttons[character_id] = button
 
@@ -210,6 +211,23 @@ func _build_ui() -> void:
 	_exp_scroll_hint.add_theme_font_size_override("font_size", 14)
 	_exp_scroll_hint.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
 	exp_scroll_row.add_child(_exp_scroll_hint)
+
+
+## 选中态高亮（v0.19.2）：金色底 + 深色文字（与编队界面一致）。
+func _apply_selected_style(button: Button) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.82, 0.3)
+	style.border_color = Color(1.0, 0.92, 0.62)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_stylebox_override("hover_pressed", style)
+	button.add_theme_color_override("font_pressed_color", Color(0.12, 0.09, 0.02))
+	button.add_theme_color_override("font_hover_pressed_color", Color(0.12, 0.09, 0.02))
 
 
 func _on_character_pressed(character_id: String) -> void:

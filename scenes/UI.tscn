@@ -111,6 +111,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "暂停"
 
+[node name="SettingsButton" type="Button" parent="Root/TopBar/Margin/Content"]
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "设置"
+
 [node name="RestartButton" type="Button" parent="Root/TopBar/Margin/Content"]
 custom_minimum_size = Vector2(90, 44)
 layout_mode = 2
