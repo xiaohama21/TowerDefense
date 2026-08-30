@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = &"exp_scroll"
+display_name = "练兵令"
+description = "测试用消耗品：对选中武将使用后直接升 1 级（上限 30 级）。仅测试发放，不进掉落表。"
+item_type = 4
+rarity = 1
+tags = [&"test", &"consumable"]
+max_stack = 999

@@ -23,5 +23,6 @@ damage_multiplier = 1.2
 range_multiplier = 1.0
 attack_interval_multiplier = 0.9
 granted_skill_ids = [&"charge"]
+skill_params = {"base_refund": 50}
 visual_variant_id = &"guan_yu_charger"
 item_costs = [SubResource("ItemAmountData_cloth10")]

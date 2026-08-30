@@ -53,7 +53,9 @@ static func _get_pool(profile: PlayerProfile, chapter: ChapterData) -> Array[Str
 	return result
 
 
-## 章节内未拥有武将（保底目标）。
+## 章节内未拥有武将（保底目标，v0.14.1 修正）：
+## 主线首通角色在未通关其解锁关前不可被抽出（防抽奖绕过主线，GDD 7.3 铁律）；
+## 全被主线锁定或全员已拥有时保底折算碎片。
 static func _get_unowned_in_chapter(profile: PlayerProfile, chapter: ChapterData) -> Array[String]:
 	var result: Array[String] = []
 	if chapter == null:
@@ -63,6 +65,16 @@ static func _get_unowned_in_chapter(profile: PlayerProfile, chapter: ChapterData
 			continue
 		for cid in stage.first_clear_unlock_character_ids:
 			var cid_str := str(cid)
-			if not profile.has_character(cid_str) and not result.has(cid_str):
+			if profile.has_character(cid_str) or result.has(cid_str):
+				continue
+			var character_data := GameFlow.load_character_data(cid_str)
+			var unlock_stage := str(character_data.unlock_stage_id) if character_data != null else ""
+			if unlock_stage.is_empty() or _is_stage_completed(profile, unlock_stage):
 				result.append(cid_str)
 	return result
+
+
+static func _is_stage_completed(profile: PlayerProfile, stage_id: String) -> bool:
+	var entry = profile.stage_progress.get(stage_id, {})
+	return entry is Dictionary and entry.get("completed", false)
+

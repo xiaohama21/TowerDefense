@@ -321,6 +321,15 @@ func mark_stage_completed(stage_id: String, result: Dictionary = {}) -> bool:
 	entry["status"] = "completed"
 	if not result.is_empty():
 		entry["last_result"] = result.duplicate(true)
+	# 难度通关记录（GDD modules/NUMBERS.md 10.7，v0.14.1）：按难度分键，
+	# 困难需标准通关解锁（GameFlow.is_difficulty_unlocked 读取）。
+	if result.has("difficulty"):
+		var difficulty_key := str(result.get("difficulty", "")).strip_edges()
+		if not difficulty_key.is_empty():
+			var difficulties: Dictionary = entry.get("difficulties", {}) if entry.get("difficulties", {}) is Dictionary else {}
+			difficulties = difficulties.duplicate(true)
+			difficulties[difficulty_key] = true
+			entry["difficulties"] = difficulties
 	stage_progress[key] = entry
 	return true
 
@@ -359,6 +368,12 @@ func apply_battle_session(session: Object) -> bool:
 		var amount := _coerce_non_negative_int(pending_loot[item_key])
 		if not item_id.is_empty() and amount > 0:
 			add_item(item_id, amount)
+
+	# 科技点（GDD modules/NUMBERS.md 10.7，v0.14.1）：随战局提交写档。
+	if session.has_method("get_pending_tech_points"):
+		var pending_tech: int = _coerce_non_negative_int(session.get_pending_tech_points())
+		if pending_tech > 0:
+			tech_points += pending_tech
 
 	if session.has_method("get_pending_unlocks"):
 		var raw_unlocks = session.get_pending_unlocks()
@@ -440,3 +455,4 @@ func _coerce_non_negative_int(value) -> int:
 		_:
 			number = 0
 	return maxi(number, 0)
+

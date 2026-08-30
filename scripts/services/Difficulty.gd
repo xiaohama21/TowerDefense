@@ -22,3 +22,8 @@ static func reward_mult(difficulty: int) -> float:
 ## 材料/科技点倍率。
 static func material_mult(difficulty: int) -> float:
 	return [0.8, 1.0, 2.0][clampi(difficulty, 0, 2)]
+
+## 难度存档键（v0.14.1）：通关记录按难度分键写入 stage_progress.difficulties。
+static func key_name(difficulty: int) -> String:
+	return ["easy", "normal", "hard"][clampi(difficulty, 0, 2)]
+

@@ -8,6 +8,8 @@ const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 
 var _fullscreen_button: Button
 var _skip_dialogue_check: CheckButton
+var _manual_ultimate_check: CheckButton
+var _auto_next_wave_check: CheckButton
 var _volume_slider: HSlider
 var _volume_value_label: Label
 
@@ -36,6 +38,18 @@ func _build_ui() -> void:
 	_skip_dialogue_check.add_theme_font_size_override("font_size", 17)
 	_skip_dialogue_check.toggled.connect(_on_skip_dialogue_toggled)
 	add_child(_skip_dialogue_check)
+
+	_manual_ultimate_check = CheckButton.new()
+	_manual_ultimate_check.text = "大招手动释放（满怒后由你决定时机）"
+	_manual_ultimate_check.add_theme_font_size_override("font_size", 17)
+	_manual_ultimate_check.toggled.connect(_on_manual_ultimate_toggled)
+	add_child(_manual_ultimate_check)
+
+	_auto_next_wave_check = CheckButton.new()
+	_auto_next_wave_check.text = "自动开启下一波（波次结束后自动开始）"
+	_auto_next_wave_check.add_theme_font_size_override("font_size", 17)
+	_auto_next_wave_check.toggled.connect(_on_auto_next_wave_toggled)
+	add_child(_auto_next_wave_check)
 
 	var volume_label := Label.new()
 	volume_label.text = "主音量"
@@ -69,10 +83,14 @@ func _load_settings() -> void:
 	var fullscreen: bool = config.get_value("display", "fullscreen", false)
 	var volume: float = config.get_value("audio", "master_volume", 100.0)
 	var skip_dialogue: bool = config.get_value("gameplay", "skip_dialogue", false)
+	var manual_ultimate: bool = config.get_value("gameplay", "manual_ultimate", false)
+	var auto_next_wave: bool = config.get_value("gameplay", "auto_next_wave", false)
 	_apply_fullscreen(fullscreen)
 	_volume_slider.set_value_no_signal(volume)
 	_apply_volume(volume)
 	_skip_dialogue_check.set_pressed_no_signal(skip_dialogue)
+	_manual_ultimate_check.set_pressed_no_signal(manual_ultimate)
+	_auto_next_wave_check.set_pressed_no_signal(auto_next_wave)
 	_refresh_fullscreen_text()
 
 
@@ -112,8 +130,19 @@ func _save_settings() -> void:
 		DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN)
 	config.set_value("audio", "master_volume", _volume_slider.value)
 	config.set_value("gameplay", "skip_dialogue", _skip_dialogue_check.button_pressed)
+	config.set_value("gameplay", "manual_ultimate", _manual_ultimate_check.button_pressed)
+	config.set_value("gameplay", "auto_next_wave", _auto_next_wave_check.button_pressed)
 	config.save(GameFlow.SETTINGS_PATH)
 
 
 func _on_skip_dialogue_toggled(pressed: bool) -> void:
 	GameFlow.set_gameplay_flag("skip_dialogue", pressed)
+
+
+func _on_manual_ultimate_toggled(pressed: bool) -> void:
+	GameFlow.set_gameplay_flag("manual_ultimate", pressed)
+
+
+func _on_auto_next_wave_toggled(pressed: bool) -> void:
+	GameFlow.set_gameplay_flag("auto_next_wave", pressed)
+

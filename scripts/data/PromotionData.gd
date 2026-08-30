@@ -21,6 +21,9 @@ class_name PromotionData
 ## 转职大招强化倍率（阶段 3 怒气系统使用，v0.11.1 先行铺设）。
 @export_range(0.0, 100.0, 0.01) var ultimate_multiplier: float = 1.0
 @export var granted_skill_ids: Array[StringName] = []
+## 技能参数（v0.15.0，GDD modules/BEHAVIORS.md B.3.5）：skill_id -> 数值字典，
+## 档位系数由武将局内等级决定（每 5 级一档，见 CHARACTERS.md 4.5）。
+@export var skill_params: Dictionary = {}
 @export var visual_variant_id: StringName
 
 

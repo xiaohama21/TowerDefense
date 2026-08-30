@@ -7,6 +7,8 @@ signal game_over
 signal victory
 ## 击杀通知（v0.11.2）：龙魂叠层、技能返怒等按"最后一击武将"订阅。
 signal enemy_killed_by_character(character_id: String)
+## Boss 登场（v0.15.0 演出）：Boss 敌人出生时发出，供横幅/血条演出。
+signal boss_entered(display_name: String)
 
 var gold: int = 100:
 	set(value):

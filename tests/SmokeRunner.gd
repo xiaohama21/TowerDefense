@@ -25,6 +25,23 @@ func _check(condition: bool, message: String) -> void:
 
 func _run() -> void:
 	_check_resource_integrity()
+	# 测试消耗品（v0.15.1）：练兵令应为 CONSUMABLE 且可加载。
+	var exp_scroll := load("res://resources/items/exp_scroll.tres") as ItemData
+	_check(exp_scroll != null and exp_scroll.item_type == ItemData.ItemType.CONSUMABLE,
+		"练兵令应为可用的消耗品道具")
+
+	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor 纹理应齐全。
+	for decor_name in ["tree", "rock", "banner", "torch"]:
+		_check(ResourceLoader.exists("res://assets/decor/%s.png" % decor_name),
+			"装饰素材 %s.png 应存在" % decor_name)
+
+	# 音效库（v0.16.0）：全部音效已合成且播放不报错（headless 走哑音频）。
+	_check(SfxLibrary.get_synthesized_count() == SfxLibrary.SFX_IDS.size(),
+		"音效库应合成本阶段全部音效")
+	SfxLibrary.play(&"attack", -30.0)
+	SfxLibrary.play(&"skill", -30.0)
+	SfxLibrary.play(&"ultimate", -30.0)
+	SfxLibrary.play(&"victory", -30.0)
 
 	var packed := load("res://scenes/Main.tscn") as PackedScene
 	_check(packed != null, "Main.tscn 无法加载")
@@ -87,6 +104,20 @@ func _run() -> void:
 			extra_tower.queue_free()
 			slots[3].reset_slot()
 			await get_tree().process_frame
+		# 预锁位解锁（v0.14.1，GDD 5.1）：消耗金币解锁后即可正常建造，且不重复扣费。
+		var locked_slot := slots[4] as BuildSlot
+		locked_slot.locked = true
+		locked_slot.unlock_cost = 50
+		locked_slot._unlocked_in_battle = false
+		GameManager.gold = 50
+		build_manager._on_unlock_requested(locked_slot)
+		await get_tree().process_frame
+		_check(GameManager.gold == 0 and not locked_slot.is_locked(), "预锁位应消耗金币解锁")
+		build_manager._on_unlock_requested(locked_slot)
+		await get_tree().process_frame
+		_check(GameManager.gold == 0, "已解锁位不应重复扣费")
+		locked_slot.locked = false
+		locked_slot._unlocked_in_battle = false
 
 	var enemy_manager := main.get_node("EnemyManager")
 	# 程序化构造 EnemyData，替代旧的硬编码 spawn_enemy("boss")。
@@ -100,9 +131,15 @@ func _run() -> void:
 	boss_data.damage_to_base = 5
 	boss_data.body_color = Color.PURPLE
 	boss_data.body_size = Vector2(60, 60)
+	boss_data.tags = [&"boss"]
+	# Boss 演出（v0.15.0）：生成即发 boss_entered 信号（横幅/血条强化）。
+	var boss_entered_names: Array[String] = []
+	GameManager.boss_entered.connect(func(name: String) -> void: boss_entered_names.append(name))
 	var boss := enemy_manager.spawn_enemy_from_data(boss_data) as Enemy
 	await get_tree().process_frame
 	_check(boss != null and boss.current_hp == 800, "Boss 应以 800 HP 初始化")
+	_check(boss_entered_names.size() == 1 and boss_entered_names[0] == "冒烟测试 Boss",
+		"Boss 生成应触发 boss_entered 信号（横幅演出）")
 	if boss:
 		boss.set_process(false)
 		boss.global_position = tower_manager.get_child(0).global_position + Vector2(30, 0)
@@ -326,8 +363,203 @@ func _run() -> void:
 		_check(rage_tower._try_cast_ultimate(), "满怒应能释放大招（突击斩杀）")
 		print("PROBE ult_hp=", ult_target.current_hp, " power=", rage_tower.ultimate_power(), " rage=", rage_tower.rage)
 		_check(ult_target.current_hp == 300 - 240, "斩杀应造成 3×普攻并含武生特性（240）")
-		rage_tower.queue_free()
-
+	# ===== v0.15.0 技能注册表与演出测试（GDD modules/BEHAVIORS.md B.3.5） =====
+	# 注册表完整性：九名武将一转各配一个技能。
+	_check(SkillRegistry.SKILL_NAMES.size() == 9 and SkillRegistry.KNOWN_SKILLS.size() == 9,
+		"技能注册表应登记 9 个技能")
+	_check(SkillRegistry.get_skill_name(&"charge") == "蓄力" and SkillRegistry.get_skill_name(&"wisdom") == "奇谋",
+		"技能显示名应可查询")
+	# 档位系数：s = 1 + 0.1 × min(battle_level/5, 4)。
+	var tier_tower: Tower = tower_manager.build_tower(Vector2(240, 640), guan_yu, null, {"level": 1})
+	_check(tier_tower != null, "应能建造档位系数用例塔")
+	if tier_tower:
+		tier_tower.set_process(false)
+		tier_tower.battle_level = 4
+		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.0), "4 级档位系数应为 1.0")
+		tier_tower.battle_level = 5
+		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.1), "5 级档位系数应为 1.1")
+		tier_tower.battle_level = 20
+		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.4), "20 级档位系数应封顶 1.4")
+		tier_tower.queue_free()
+	# charge（关羽·突击骑）：大招击杀返怒 50% × s。
+	var charge_tower: Tower = tower_manager.build_tower(Vector2(240, 640), guan_yu, null, {"level": 10, "promotion": charger})
+	_check(charge_tower != null and charge_tower.has_skill(&"charge"), "突击骑应持有 charge 技能")
+	if charge_tower:
+		charge_tower.set_process(false)
+		_check(is_equal_approx(charge_tower.kill_rage_refund(), 50.0), "charge 基准返怒应为 50")
+		charge_tower.battle_level = 5
+		_check(is_equal_approx(charge_tower.kill_rage_refund(), 55.0), "charge 5 级返怒应为 55")
+		charge_tower.battle_level = 20
+		_check(is_equal_approx(charge_tower.kill_rage_refund(), 70.0), "charge 20 级返怒应封顶 70")
+		charge_tower.battle_level = 0
+		var charge_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		charge_target.set_process(false)
+		charge_target.global_position = charge_tower.global_position + Vector2(120, 0)
+		charge_tower.target = charge_target
+		charge_tower.rage = 100.0
+		_check(charge_tower._try_cast_ultimate(), "满怒大招应能释放")
+		_check(is_equal_approx(charge_tower.rage, 50.0), "大招击杀应返怒 50（先清怒再返还）")
+		charge_tower.battle_level = 5
+		charge_tower.rage = 100.0
+		var charge_target_2 := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		charge_target_2.set_process(false)
+		charge_target_2.global_position = charge_tower.global_position + Vector2(120, 0)
+		charge_tower.target = charge_target_2
+		_check(charge_tower._try_cast_ultimate(), "5 级满怒大招应能释放")
+		_check(is_equal_approx(charge_tower.rage, 55.0), "5 级 charge 击杀返怒应为 55")
+		charge_tower.queue_free()
+	# siege（皇甫嵩·折冲将军）：对精英/Boss 伤害 +10% × s。
+	var siege_promo := load("res://resources/promotions/huang_fu_song_zhechong.tres") as PromotionData
+	var siege_tower: Tower = tower_manager.build_tower(Vector2(340, 640), huang_fu_song, null, {"level": 10, "promotion": siege_promo})
+	var sergeant_data := load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData
+	_check(siege_tower != null and siege_tower.has_skill(&"siege"), "折冲将军应持有攻城锤技能")
+	if siege_tower:
+		siege_tower.set_process(false)
+		var siege_elite := enemy_manager.spawn_enemy_from_data(sergeant_data) as Enemy
+		var siege_soldier := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		siege_elite.set_process(false)
+		siege_soldier.set_process(false)
+		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(siege_tower, siege_elite), 1.1),
+			"攻城锤对精英应 ×1.1")
+		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(siege_tower, siege_soldier), 1.0),
+			"攻城锤对普通目标应无加成")
+		siege_tower.battle_level = 5
+		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(siege_tower, siege_elite), 1.11),
+			"攻城锤 5 级对精英应 ×1.11")
+		siege_elite.queue_free()
+		siege_soldier.queue_free()
+		siege_tower.queue_free()
+	# wisdom（诸葛亮·卧龙）：大招范围 +10% × s。
+	var zhuge_liang := load("res://resources/characters/zhuge_liang.tres") as CharacterData
+	var wisdom_promo := load("res://resources/promotions/zhuge_liang_wolong.tres") as PromotionData
+	var wisdom_tower: Tower = tower_manager.build_tower(Vector2(460, 640), zhuge_liang, null, {"level": 10, "promotion": wisdom_promo})
+	_check(wisdom_tower != null and wisdom_tower.has_skill(&"wisdom"), "卧龙应持有奇谋技能")
+	if wisdom_tower:
+		wisdom_tower.set_process(false)
+		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 110.0), "奇谋大招范围应 +10%")
+		wisdom_tower.battle_level = 5
+		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 111.0), "奇谋 5 级大招范围应 +11%")
+		wisdom_tower.battle_level = 20
+		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 114.0), "奇谋 20 级大招范围应封顶 +14%")
+		wisdom_tower.queue_free()
+	# dragon_rush（赵云·龙骧卫）：击杀蓄力，下一次伤害 +25% × s 一次性消耗。
+	var zhao_yun := load("res://resources/characters/zhao_yun.tres") as CharacterData
+	var dragon_promo := load("res://resources/promotions/zhao_yun_dragon_guard.tres") as PromotionData
+	var dragon_tower: Tower = tower_manager.build_tower(Vector2(560, 640), zhao_yun, null, {"level": 10, "promotion": dragon_promo})
+	_check(dragon_tower != null and dragon_tower.has_skill(&"dragon_rush"), "龙骧卫应持有龙突技能")
+	if dragon_tower:
+		dragon_tower.set_process(false)
+		var dragon_kill := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		dragon_kill.set_process(false)
+		dragon_kill.take_damage(9999, "zhao_yun")
+		await get_tree().process_frame
+		_check(is_equal_approx(dragon_tower.get("_next_attack_bonus"), 0.25), "龙突击杀后应蓄力 +25%")
+		var dragon_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		dragon_target.set_process(false)
+		_check(dragon_tower.finalize_damage(dragon_tower.damage, dragon_target) == int(round(dragon_tower.damage * 1.25)),
+			"龙突下一次伤害应 +25%")
+		_check(is_equal_approx(dragon_tower.get("_next_attack_bonus"), 0.0), "龙突应一次性消耗")
+		dragon_target.queue_free()
+		dragon_tower.queue_free()
+	# ferocity/steady（张飞/黄忠）：概率追加伤害，多次命中必触发且为整数倍。
+	var ferocity_promo := load("res://resources/promotions/zhang_fei_vanguard.tres") as PromotionData
+	var steady_promo := load("res://resources/promotions/huang_zhong_sharpshooter.tres") as PromotionData
+	var huang_zhong := load("res://resources/characters/huang_zhong.tres") as CharacterData
+	var skill_tank := EnemyData.new()
+	skill_tank.enemy_id = &"smoke_skill_tank"
+	skill_tank.display_name = "技能木桩"
+	skill_tank.max_hp = 10000
+	skill_tank.move_speed = 0.0
+	skill_tank.currency_reward = 0
+	skill_tank.kill_xp = 0
+	skill_tank.damage_to_base = 0
+	skill_tank.body_color = Color.GRAY
+	skill_tank.body_size = Vector2(40, 40)
+	var ferocity_tower: Tower = tower_manager.build_tower(Vector2(660, 640), zhang_fei, null, {"level": 10, "promotion": ferocity_promo})
+	_check(ferocity_tower != null and ferocity_tower.has_skill(&"ferocity"), "蛇矛先锋应持有凶威技能")
+	if ferocity_tower:
+		ferocity_tower.set_process(false)
+		var ferocity_target := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		ferocity_target.set_process(false)
+		var ferocity_before := ferocity_target.current_hp
+		for _i in range(300):
+			SkillRegistry.on_attack_hit(ferocity_tower, ferocity_target, ferocity_tower.damage)
+		var ferocity_loss := ferocity_before - ferocity_target.current_hp
+		_check(ferocity_loss > 0, "凶威应在多次命中中触发追加伤害")
+		_check(ferocity_loss % int(round(ferocity_tower.damage * 0.5)) == 0,
+			"凶威追加伤害应为 0.5× 普攻的整数倍")
+		ferocity_target.queue_free()
+		ferocity_tower.queue_free()
+	var steady_tower: Tower = tower_manager.build_tower(Vector2(660, 640), huang_zhong, null, {"level": 10, "promotion": steady_promo})
+	_check(steady_tower != null and steady_tower.has_skill(&"steady"), "神射手应持有稳射技能")
+	if steady_tower:
+		steady_tower.set_process(false)
+		var steady_target := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		steady_target.set_process(false)
+		var steady_before := steady_target.current_hp
+		for _i in range(300):
+			SkillRegistry.on_attack_hit(steady_tower, steady_target, steady_tower.damage)
+		var steady_loss := steady_before - steady_target.current_hp
+		_check(steady_loss > 0, "稳射应在多次命中中触发追加伤害")
+		_check(steady_loss % int(round(steady_tower.damage * 0.6)) == 0,
+			"稳射追加伤害应为 0.6× 普攻的整数倍")
+		steady_target.queue_free()
+		steady_tower.queue_free()
+	# 大招模式（v0.15.0）：手动满怒待发，自动满怒即放；均触发专属视觉。
+	var mode_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+	mode_tank.set_process(false)
+	mode_tank.global_position = Vector2(180, 640)
+	GameFlow.set_gameplay_flag("manual_ultimate", true)
+	var manual_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, {"level": 1})
+	_check(manual_tower != null and bool(manual_tower.get("_manual_ultimate_mode")), "手动开关应使新塔进入手动模式")
+	if manual_tower:
+		manual_tower.set_process(false)
+		manual_tower.target = mode_tank
+		manual_tower.rage = 100.0
+		manual_tower._process(0.016)
+		_check(manual_tower.is_ultimate_ready(), "手动模式满怒应待发")
+		_check(is_equal_approx(manual_tower.rage, 100.0), "手动模式满怒不应自动释放")
+		_check(manual_tower.cast_ultimate_manual(), "手动释放应成功")
+		_check(is_equal_approx(manual_tower.rage, 0.0), "手动释放后怒气应清零")
+		_check(float(manual_tower.get("_ult_visual_time")) > 0.0, "手动释放应触发大招视觉")
+		manual_tower.queue_free()
+	GameFlow.set_gameplay_flag("manual_ultimate", false)
+	var auto_tower: Tower = tower_manager.build_tower(Vector2(140, 640), guan_yu, null, {"level": 1})
+	_check(auto_tower != null and not bool(auto_tower.get("_manual_ultimate_mode")), "默认模式应满怒即放")
+	if auto_tower:
+		auto_tower.set_process(false)
+		auto_tower.target = mode_tank
+		auto_tower.rage = 100.0
+		# 攻击在冷却中：_process 不会同帧普攻，避免大招清怒后再积怒。
+		auto_tower.attack_timer.start(1.0)
+		auto_tower._process(0.016)
+		_check(is_equal_approx(auto_tower.rage, 0.0), "自动模式满怒应即放并清怒")
+		_check(float(auto_tower.get("_ult_visual_time")) > 0.0, "自动释放应触发大招视觉")
+		auto_tower.queue_free()
+	mode_tank.queue_free()
+	# command（刘备·仁德统军）：150px 内友方伤害 +4% × s。
+	var commander_promo := load("res://resources/promotions/liu_bei_commander.tres") as PromotionData
+	var commander_tower: Tower = tower_manager.build_tower(Vector2(760, 640), liu_bei, null, {"level": 10, "promotion": commander_promo})
+	var command_ally_in: Tower = tower_manager.build_tower(Vector2(820, 640), guan_yu, null, {"level": 1})
+	var command_ally_out: Tower = tower_manager.build_tower(Vector2(1040, 640), guan_yu, null, {"level": 1})
+	_check(commander_tower != null and commander_tower.has_skill(&"command"), "仁德统军应持有统军令技能")
+	if commander_tower and command_ally_in and command_ally_out:
+		commander_tower.set_process(false)
+		command_ally_in.set_process(false)
+		command_ally_out.set_process(false)
+		var command_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		command_target.set_process(false)
+		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_in, command_target), 1.04),
+			"统军令应使射程内友方伤害 +4%")
+		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_out, command_target), 1.0),
+			"统军令对射程外友方应无加成")
+		commander_tower.battle_level = 5
+		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_in, command_target), 1.044),
+			"统军令 5 级应 +4.4%")
+		command_target.queue_free()
+	commander_tower.queue_free()
+	command_ally_in.queue_free()
+	command_ally_out.queue_free()
 	# 舞娘光环（v0.11.2）：脉冲增益友方攻速、辅助积怒与贡献经验。
 	var diao_chan := load("res://resources/characters/diao_chan.tres") as CharacterData
 	_check(diao_chan != null, "貂蝉数据应可加载")
@@ -458,3 +690,4 @@ func _collect_resource_paths(dir_path: String) -> Array[String]:
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return result
+

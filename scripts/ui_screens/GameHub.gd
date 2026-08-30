@@ -13,6 +13,7 @@ const MapPanelScript := preload("res://scripts/ui_screens/panels/MapPanel.gd")
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
 const SettingsPanelScript := preload("res://scripts/ui_screens/panels/SettingsPanel.gd")
 const TechPanelScript := preload("res://scripts/ui_screens/panels/TechPanel.gd")
+const InventoryPanelScript := preload("res://scripts/ui_screens/panels/InventoryPanel.gd")
 
 var _buttons: Dictionary = {}
 var _panels: Dictionary = {}
@@ -77,6 +78,7 @@ func _build_ui() -> void:
 	_add_function_button(sidebar_box, &"map", "地图选择")
 	_add_function_button(sidebar_box, &"develop", "武将养成")
 	_add_function_button(sidebar_box, &"tech", "科技树")
+	_add_function_button(sidebar_box, &"inventory", "背包")
 	_add_function_button(sidebar_box, &"settings", "设置")
 
 	var spacer := Control.new()
@@ -112,6 +114,7 @@ func _build_ui() -> void:
 	_panels[&"map"] = _make_panel("MapPanel", MapPanelScript)
 	_panels[&"develop"] = _make_panel("DevelopPanel", DevelopPanelScript)
 	_panels[&"tech"] = _make_panel("TechPanel", TechPanelScript)
+	_panels[&"inventory"] = _make_panel("InventoryPanel", InventoryPanelScript)
 	_panels[&"settings"] = _make_panel("SettingsPanel", SettingsPanelScript)
 
 
@@ -140,9 +143,9 @@ func _on_function_pressed(panel_id: StringName) -> void:
 	_show_panel(panel_id)
 
 
-func _on_stage_selected(stage_id: StringName) -> void:
+func _on_stage_selected(stage_id: StringName, difficulty: int) -> void:
 	GameFlow.select_stage(stage_id)
-	GameFlow.goto_squad_select()
+	GameFlow.goto_squad_select(difficulty)
 
 
 func _show_panel(panel_id: StringName) -> void:

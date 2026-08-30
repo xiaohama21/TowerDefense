@@ -19,6 +19,8 @@ var stage_data: StageData
 var _available_characters: Array[CharacterData] = []
 var _selected_character: CharacterData = null
 var _selected_tower: Tower = null
+## Boss 横幅去抖（v0.15.0）：同名 Boss 短时间只播一次。
+var _last_boss_banner_msec: int = 0
 
 func _ready():
 	get_tree().paused = false
@@ -35,9 +37,10 @@ func _ready():
 		push_error("没有可出战的武将")
 		return
 
+	var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
 	GameManager.reset(
-		stage_data.starting_currency,
-		stage_data.starting_lives,
+		stage_data.starting_currency + int(tech_bonuses.get("start_gold", 0)),
+		stage_data.starting_lives + int(tech_bonuses.get("base_hp", 0)),
 		stage_data.waves.size()
 	)
 	battle_session = BattleSession.new(stage_data.stage_id)
@@ -51,6 +54,7 @@ func _ready():
 	GameManager.wave_changed.connect(ui.update_wave)
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.victory.connect(_on_victory)
+	GameManager.boss_entered.connect(_on_boss_entered)
 
 	wave_manager.wave_completed.connect(_on_wave_completed)
 	ui.next_wave_pressed.connect(_on_next_wave_pressed)
@@ -61,6 +65,7 @@ func _ready():
 	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
 	ui.tower_upgrade_requested.connect(_on_tower_upgrade_requested)
 	ui.tower_sell_requested.connect(_on_tower_sell_requested)
+	ui.ultimate_cast_requested.connect(_on_ultimate_cast_requested)
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
@@ -126,11 +131,13 @@ func _apply_stage_layout() -> void:
 
 	for existing_slot in build_slots_container.get_children():
 		existing_slot.queue_free()
-	for index in range(stage_data.build_slot_positions.size()):
+	var slot_data := stage_data.get_build_slot_data()
+	for index in range(slot_data.size()):
 		var slot := BUILD_SLOT_SCENE.instantiate() as BuildSlot
 		slot.slot_id = index + 1
+		slot.apply_slot_data(slot_data[index])
 		build_slots_container.add_child(slot)
-		slot.position = stage_data.build_slot_positions[index]
+		slot.position = slot_data[index].position
 
 
 func _first_in_map_road_cell(cells: Array[Vector2i], from_start: bool) -> Vector2i:
@@ -205,6 +212,8 @@ func _on_tower_built(_slot: Node) -> void:
 
 func _on_tower_created(tower: Tower) -> void:
 	tower.selection_changed.connect(_on_tower_selection_changed)
+	tower.set_float_text_layer(self)
+	SfxLibrary.play(&"build", -10.0)
 
 
 func _on_tower_selection_changed(tower: Tower) -> void:
@@ -226,6 +235,7 @@ func _on_tower_upgrade_requested() -> void:
 	if tower_manager.upgrade_tower(_selected_tower, stage_data):
 		ui.show_status("升级完成，伤害提升 25%")
 		ui.show_tower_panel(_selected_tower, stage_data)
+		SfxLibrary.play(&"build", -12.0)
 	elif _selected_tower.battle_level >= stage_data.max_inbattle_upgrade_level:
 		ui.show_status("已达到本关升级上限")
 	else:
@@ -242,6 +252,55 @@ func _on_tower_sell_requested() -> void:
 		ui.hide_tower_panel()
 
 
+## Boss 登场横幅（v0.15.0）：2.5 秒内只播一次。
+func _on_boss_entered(display_name: String) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_boss_banner_msec < 2500:
+		return
+	_last_boss_banner_msec = now
+	ui.show_boss_banner(display_name)
+
+
+## 手动大招（v0.15.0）：属性面板按钮触发。
+func _on_ultimate_cast_requested() -> void:
+	_try_cast_selected_ultimate()
+
+
+## R 键释放大招（v0.15.0，仅手动模式且选中塔）。
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
+		_try_cast_selected_ultimate()
+
+
+func _try_cast_selected_ultimate() -> void:
+	if _selected_tower == null or not is_instance_valid(_selected_tower):
+		return
+	if _selected_tower.cast_ultimate_manual():
+		ui.show_status("%s 释放大招！" % _selected_tower.display_name, 1.0)
+		ui.show_tower_panel(_selected_tower, stage_data)
+	else:
+		ui.show_status("怒气未满或范围内无目标")
+
+
+## 战斗浮字（v0.15.0）：技能/大招/特性反馈飘字（世界坐标）。
+func spawn_float_text_at(world_pos: Vector2, text: String, color: Color, size: int) -> void:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+	label.add_theme_constant_override("outline_size", 4)
+	label.z_index = 50
+	add_child(label)
+	label.global_position = world_pos + Vector2(-30, 0)
+	label.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(label, "position:y", label.position.y - 34.0, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(label, "modulate:a", 1.0, 0.12)
+	tween.parallel().tween_property(label, "modulate:a", 0.0, 0.5).set_delay(0.35)
+	tween.tween_callback(label.queue_free)
+
+
 func _disconnect_game_signals() -> void:
 	var callbacks := [
 		[GameManager.gold_changed, Callable(ui, "update_gold")],
@@ -249,6 +308,7 @@ func _disconnect_game_signals() -> void:
 		[GameManager.wave_changed, Callable(ui, "update_wave")],
 		[GameManager.game_over, Callable(self, "_on_game_over")],
 		[GameManager.victory, Callable(self, "_on_victory")],
+		[GameManager.boss_entered, Callable(self, "_on_boss_entered")],
 	]
 	for pair in callbacks:
 		var signal_ref: Signal = pair[0]
@@ -257,6 +317,12 @@ func _disconnect_game_signals() -> void:
 			signal_ref.disconnect(callback)
 
 func _on_next_wave_pressed():
+	_try_start_wave()
+
+
+## 波次开启（v0.15.3）：手动按钮与"自动开启下一波"共用；
+## 空闲且未到总波数时才会真正开波（自动模式在最后一波胜利后不会误开）。
+func _try_start_wave() -> void:
 	if not GameManager.is_wave_active and GameManager.current_wave < GameManager.total_waves:
 		ui.hide_message()
 		wave_manager.start_wave(GameManager.current_wave)
@@ -264,6 +330,8 @@ func _on_next_wave_pressed():
 
 func _on_wave_completed():
 	GameManager.wave_completed()
+	if GameFlow.is_gameplay_flag_enabled("auto_next_wave"):
+		_try_start_wave()
 
 
 ## 调试：从任意波次直接开打（仅调试构建的测试面板会触发）。
@@ -288,6 +356,7 @@ func _on_debug_clear_enemies() -> void:
 	ui.show_status("调试：已清空场上敌人", 1.5)
 
 func _on_game_over():
+	SfxLibrary.play(&"defeat", -8.0)
 	build_manager.cancel_pending()
 	if battle_session != null:
 		ProfileStore.finish_defeat(battle_session, {
@@ -298,6 +367,7 @@ func _on_game_over():
 	get_tree().paused = true
 
 func _on_victory():
+	SfxLibrary.play(&"victory", -8.0)
 	var saved := false
 	var xp_by_character: Dictionary = {}
 	var loot: Dictionary = {}
@@ -305,8 +375,12 @@ func _on_victory():
 	if battle_session != null and battle_session.mark_victory({
 		"remaining_lives": GameManager.lives,
 		"completed_waves": GameManager.current_wave,
+		"difficulty": Difficulty.key_name(GameFlow.selected_difficulty),
 	}):
-		_collect_stage_rewards()
+		var profile := ProfileStore.get_profile()
+		var first_clear := not profile.stage_progress.has(stage_data.stage_id)
+		GameFlow.collect_stage_rewards(battle_session, stage_data, first_clear)
+		GameFlow.award_tech_points(battle_session, first_clear)
 		battle_session.add_participation_xp(
 			battle_session.get_deployed_character_ids(),
 			stage_data.participant_xp
@@ -370,7 +444,7 @@ func _on_exit_pressed() -> void:
 		dialog.ok_button_text = "放弃并退出"
 		dialog.cancel_button_text = "继续战斗"
 		dialog.confirmed.connect(_on_exit_confirmed.bind(dialog))
-		dialog.cancelled.connect(dialog.queue_free)
+		dialog.canceled.connect(dialog.queue_free)
 		dialog.close_requested.connect(dialog.queue_free)
 		get_tree().root.add_child(dialog)
 		dialog.popup_centered()
@@ -384,31 +458,7 @@ func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
 
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the
-## repeat rewards configured on the stage.
-func _collect_stage_rewards() -> void:
-	var profile := ProfileStore.get_profile()
-	var first_clear := not profile.stage_progress.has(stage_data.stage_id)
-	var rewards: Array = []
-	if first_clear:
-		for character_id in stage_data.first_clear_unlock_character_ids:
-			battle_session.add_unlock(str(character_id))
-		rewards = stage_data.first_clear_rewards
-		# Boss 首掉信物（GDD 4.8）
-		if stage_data.first_clear_relic != null:
-			battle_session.add_relic(str(stage_data.first_clear_relic.relic_id))
-	else:
-		rewards = stage_data.repeat_clear_rewards
-		# 概率掉落（v0.13）：逐条掷点
-		for drop in stage_data.probability_drops:
-			if drop == null or drop.item == null or drop.amount <= 0:
-				continue
-			if randf() <= drop.chance:
-				battle_session.add_loot(str(drop.item.item_id), drop.amount)
-	for reward in rewards:
-		if reward == null or reward.item == null or reward.amount <= 0:
-			continue
-		battle_session.add_loot(str(reward.item.item_id), reward.amount)
-
+## repeat rewards configured on the stage. 奖励数量按难度材料倍率缩放（GDD 10.7）。
 func _on_pause_pressed():
 	if GameManager.lives <= 0 or GameManager.current_wave >= GameManager.total_waves:
 		return

@@ -125,14 +125,14 @@ func get_all_character_ids() -> Array[String]:
 	return result
 
 
-## 难度解锁：困难需该关标准难度通关。
+## 难度解锁：困难需该关标准难度通关（v0.14.1 接通写档：结算按难度记录）。
 func is_difficulty_unlocked(profile: PlayerProfile, stage_id: StringName, difficulty: int) -> bool:
-	if difficulty <= 1:
+	if difficulty <= Difficulty.NORMAL:
 		return true
 	var entry = profile.stage_progress.get(str(stage_id), {})
 	if entry is Dictionary:
 		var diffs: Dictionary = entry.get("difficulties", {})
-		return diffs.has("normal")
+		return diffs.has(Difficulty.key_name(Difficulty.NORMAL))
 	return false
 
 
@@ -251,12 +251,53 @@ func get_active_promotion(profile: PlayerProfile, character_id: String) -> Promo
 
 
 func get_item_display_name(item_id: String) -> String:
+	var item := load_item_data(item_id)
+	return item.display_name if item != null else str(item_id)
+
+
+## 按 id 加载道具资源（`res://resources/items/{id}.tres`）；不存在返回 null。
+func load_item_data(item_id: String) -> ItemData:
 	var path := "%s/%s.tres" % [ITEM_RESOURCE_DIR, item_id]
 	if ResourceLoader.exists(path):
-		var item := load(path) as ItemData
-		if item != null:
-			return item.display_name
-	return str(item_id)
+		return load(path) as ItemData
+	return null
+
+
+## 关卡结算固定奖励（v0.15.1 抽公共，正常胜利与"一键通关（测试）"共用同一条规则）：
+## 首通=解锁武将 + 首通奖励 + Boss 首通信物；重复=重复奖励 + 概率掉落掷点；
+## 数量按难度材料倍率缩放（Difficulty.material_mult，取整保底 ≥1）。
+func collect_stage_rewards(session: BattleSession, stage: StageData, first_clear: bool) -> void:
+	if session == null or stage == null:
+		return
+	var mult := Difficulty.material_mult(selected_difficulty)
+	var rewards: Array = []
+	if first_clear:
+		for character_id in stage.first_clear_unlock_character_ids:
+			session.add_unlock(str(character_id))
+		rewards = stage.first_clear_rewards
+		if stage.first_clear_relic != null:
+			session.add_relic(str(stage.first_clear_relic.relic_id))
+	else:
+		rewards = stage.repeat_clear_rewards
+		for drop in stage.probability_drops:
+			if drop == null or drop.item == null or drop.amount <= 0:
+				continue
+			if randf() <= drop.chance:
+				session.add_loot(str(drop.item.item_id), maxi(1, int(round(drop.amount * mult))))
+	for reward in rewards:
+		if reward == null or reward.item == null or reward.amount <= 0:
+			continue
+		session.add_loot(str(reward.item.item_id), maxi(1, int(round(reward.amount * mult))))
+
+
+## 科技点发放（v0.15.1 抽公共）：首通 +2 / 重复 +1 × 难度材料倍率。
+func award_tech_points(session: BattleSession, first_clear: bool) -> void:
+	if session == null:
+		return
+	var base := 2 if first_clear else 1
+	var amount := int(round(base * Difficulty.material_mult(selected_difficulty)))
+	if amount > 0:
+		session.add_tech_points(amount)
 
 
 func select_stage(stage_id: StringName) -> void:
@@ -301,3 +342,4 @@ func goto_battle() -> void:
 func _change_scene(scene_path: String) -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file(scene_path)
+

@@ -10,6 +10,7 @@ const TEXT_COLOR := Color(0.88, 0.9, 0.84)
 const OK_COLOR := Color(0.55, 0.9, 0.6)
 const BAD_COLOR := Color(0.9, 0.45, 0.4)
 const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
+const EXP_SCROLL_ID := "exp_scroll"
 
 var _profile: PlayerProfile
 var _owned: Array[CharacterData] = []
@@ -28,6 +29,11 @@ var _stars_label: Label
 var _promote_star_button: Button
 var _relic_label: Label
 var _relic_button: Button
+var _gacha_label: Label
+var _gacha_button: Button
+var _exp_scroll_label: Label
+var _exp_scroll_button: Button
+var _exp_scroll_hint: Label
 
 
 func _ready() -> void:
@@ -65,6 +71,21 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", TITLE_COLOR)
 	add_child(title)
+
+	var gacha_row := HBoxContainer.new()
+	gacha_row.add_theme_constant_override("separation", 16)
+	add_child(gacha_row)
+
+	_gacha_label = Label.new()
+	_gacha_label.add_theme_font_size_override("font_size", 17)
+	_gacha_label.add_theme_color_override("font_color", ACCENT_COLOR)
+	gacha_row.add_child(_gacha_label)
+
+	_gacha_button = Button.new()
+	_gacha_button.custom_minimum_size = Vector2(180, 40)
+	_gacha_button.add_theme_font_size_override("font_size", 16)
+	_gacha_button.pressed.connect(_on_gacha_pressed)
+	gacha_row.add_child(_gacha_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -174,6 +195,25 @@ func _build_ui() -> void:
 	_relic_button.pressed.connect(_on_relic_pressed)
 	detail_box.add_child(_relic_button)
 
+	# 练兵令（测试，v0.15.1）：消耗 1 枚使选中武将直接升 1 级（上限 30）。
+	var exp_scroll_row := HBoxContainer.new()
+	exp_scroll_row.add_theme_constant_override("separation", 12)
+	detail_box.add_child(exp_scroll_row)
+	_exp_scroll_label = Label.new()
+	_exp_scroll_label.add_theme_font_size_override("font_size", 17)
+	_exp_scroll_label.add_theme_color_override("font_color", ACCENT_COLOR)
+	exp_scroll_row.add_child(_exp_scroll_label)
+	_exp_scroll_button = Button.new()
+	_exp_scroll_button.text = "使用练兵令（测试：直接升 1 级）"
+	_exp_scroll_button.custom_minimum_size = Vector2(260, 40)
+	_exp_scroll_button.add_theme_font_size_override("font_size", 15)
+	_exp_scroll_button.pressed.connect(_on_exp_scroll_pressed)
+	exp_scroll_row.add_child(_exp_scroll_button)
+	_exp_scroll_hint = Label.new()
+	_exp_scroll_hint.add_theme_font_size_override("font_size", 14)
+	_exp_scroll_hint.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
+	exp_scroll_row.add_child(_exp_scroll_hint)
+
 
 func _on_character_pressed(character_id: String) -> void:
 	_select_character(character_id)
@@ -196,6 +236,7 @@ func _selected_character() -> CharacterData:
 
 
 func _refresh() -> void:
+	_refresh_gacha()
 	var character := _selected_character()
 	if character == null:
 		return
@@ -224,6 +265,7 @@ func _refresh() -> void:
 	_refresh_promotion(character, level)
 	_refresh_stars(level)
 	_refresh_relic(character)
+	_refresh_exp_scroll(level)
 
 
 func _refresh_promotion(character: CharacterData, level: int) -> void:
@@ -266,6 +308,32 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 		OK_COLOR if (level_ok and materials_ok) else BAD_COLOR)
 	_promotion_button.visible = true
 	_promotion_button.disabled = not (level_ok and materials_ok)
+
+
+## 练兵令（测试，v0.15.1）：数量展示、满级/不足禁用。
+func _refresh_exp_scroll(level: int) -> void:
+	var count: int = int(_profile.items.get(EXP_SCROLL_ID, 0))
+	_exp_scroll_label.text = "练兵令 ×%d" % count
+	_exp_scroll_button.disabled = _selected_id.is_empty() or count <= 0 or level >= LevelCurve.MAX_LEVEL
+	_exp_scroll_hint.text = "（仅测试发放，使用后直接升 1 级）"
+
+
+func _on_exp_scroll_pressed() -> void:
+	if _selected_id.is_empty():
+		return
+	var level := GameFlow.get_character_level(_profile, _selected_id)
+	if level >= LevelCurve.MAX_LEVEL:
+		_exp_scroll_hint.text = "已达等级上限，无法使用"
+		return
+	if not _profile.spend_item(EXP_SCROLL_ID, 1):
+		_exp_scroll_hint.text = "练兵令不足"
+		return
+	var current_total := _profile.get_character_exp(_selected_id)
+	var next_total := LevelCurve.exp_total_for_level(level + 1)
+	_profile.add_character_exp(_selected_id, next_total - current_total)
+	ProfileStore.save_profile(_profile)
+	_exp_scroll_hint.text = "已使用：等级提升至 %d" % (level + 1)
+	_refresh()
 
 
 func _on_promote_pressed() -> void:
@@ -366,3 +434,46 @@ func _on_relic_pressed() -> void:
 		_profile.set_character_relic(_selected_id, str(relic.relic_id))
 	ProfileStore.save_profile(_profile)
 	_refresh()
+
+
+## 求贤（GDD modules/DROPS_GACHA.md 7.3，v0.14.1 入口落地）：
+## 消耗求贤令×1 单抽；重复武将转碎片，每 10 抽保底未拥有角色（或碎片折算）。
+func _refresh_gacha() -> void:
+	var tokens: int = int(_profile.items.get("gacha_token", 0))
+	_gacha_label.text = "求贤令：%d" % tokens
+	_gacha_button.text = "求 贤（×1）"
+	_gacha_button.disabled = tokens < 1
+
+
+func _on_gacha_pressed() -> void:
+	var result := GameFlow.pull_gacha(_profile)
+	if result.is_empty():
+		_show_gacha_result("求贤令不足或卡池为空")
+		return
+	_show_gacha_result(_gacha_result_text(result))
+	_refresh()
+
+
+func _gacha_result_text(result: Dictionary) -> String:
+	var character_id := str(result.get("character_id", ""))
+	var character := GameFlow.load_character_data(character_id)
+	var name_text := character.display_name if character != null else character_id
+	match result.get("type", ""):
+		"pity_char":
+			return "保底：获得新武将「%s」！" % name_text
+		"pity_shards":
+			return "保底：%s 碎片 ×%d" % [name_text, int(result.get("shards", 0))]
+		"dup":
+			return "%s 碎片 ×%d（重复武将转化）" % [name_text, int(result.get("shards", 0))]
+		_:
+			return "求贤结果异常"
+
+
+func _show_gacha_result(message: String) -> void:
+	var dialog := AcceptDialog.new()
+	dialog.title = "求贤"
+	dialog.dialog_text = message
+	dialog.ok_button_text = "好"
+	dialog.popup_centered()
+	add_child(dialog)
+

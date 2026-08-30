@@ -35,6 +35,8 @@ class_name StageData
 ## 分叉路径（v0.11.3 s08 试点）：召唤护卫自此路径进场；空则无双路。
 @export var fork_path_points: Array[Vector2] = []
 @export var build_slot_positions: Array[Vector2] = []
+## 结构化建造位（v0.14.1，GDD 5.1）：位置/类型/预锁位；非空时优先于 build_slot_positions。
+@export var build_slots: Array[BuildSlotData] = []
 @export var decor_cells: Array[Vector2i] = []
 
 @export_category("Progression")
@@ -55,7 +57,23 @@ func is_valid() -> bool:
 	for wave in waves:
 		if wave == null or not wave.is_valid():
 			return false
+	for slot in build_slots:
+		if slot == null:
+			return false
 	return _are_rewards_valid(first_clear_rewards) and _are_rewards_valid(repeat_clear_rewards)
+
+
+## 生效建造位（v0.14.1）：build_slots 非空时用之；否则由 build_slot_positions 推导
+## （全部通用位、未锁定），保持旧关卡配置向后兼容。
+func get_build_slot_data() -> Array[BuildSlotData]:
+	if not build_slots.is_empty():
+		return build_slots
+	var result: Array[BuildSlotData] = []
+	for position in build_slot_positions:
+		var slot := BuildSlotData.new()
+		slot.position = position
+		result.append(slot)
+	return result
 
 
 func _are_rewards_valid(rewards: Array[ItemAmountData]) -> bool:
@@ -63,3 +81,4 @@ func _are_rewards_valid(rewards: Array[ItemAmountData]) -> bool:
 		if reward == null or not reward.is_valid():
 			return false
 	return true
+

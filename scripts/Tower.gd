@@ -14,6 +14,8 @@ const MAX_RAGE := 100.0
 # 近战挥击表现（GDD modules/BEHAVIORS.md B.3.1）：武器从一侧扫到另一侧，
 # 并带一道渐隐斩击弧；表现由 melee_thrust 执行器经 play_melee_hit() 触发。
 const MELEE_SWING_DURATION := 0.22
+## 大招演出时长（v0.15.0）。
+const ULT_VISUAL_DURATION := 0.55
 const MELEE_SWING_FROM := -1.35
 const MELEE_SWING_TO := 0.95
 const MELEE_SLASH_RADIUS := 38.0
@@ -63,6 +65,8 @@ var _min_range: float = 0.0
 var _trait_id: StringName = StringName()
 var _trait_params: Dictionary = {}
 var _relic_damage_bonus: float = 0.0
+## 科技树军事分支加成（GDD 10.7，v0.14.1）：全武将伤害 +%，经 finalize_damage 应用。
+var _tech_damage_bonus: float = 0.0
 var _rage_mode: StringName = &"hit+damage"
 var _gain_per_hit: int = 4
 var _gain_per_damage: float = 0.1
@@ -70,6 +74,19 @@ var _support_gain_per_tick: int = 2
 var _ultimate_id: StringName = StringName()
 var _ultimate_multiplier: float = 1.0
 var _granted_skills: Array[StringName] = []
+## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，来自 PromotionData。
+var _skill_params: Dictionary = {}
+## 龙突（赵云）：击杀后下一次伤害加成，finalize_damage 一次性消耗。
+var _next_attack_bonus: float = 0.0
+## 手动大招（v0.15.0）：满怒待发状态与提示去抖。
+var _ultimate_ready: bool = false
+var _rage_ready_notified: bool = false
+var _manual_ultimate_mode: bool = false
+## 大招演出（v0.15.0）：专属视觉 ID 与计时。
+var _ult_visual_id: StringName = StringName()
+var _ult_visual_time: float = 0.0
+## 浮字层（由 Main 注入；缺省回退到 current_scene 的 spawn_float_text_at）。
+var _float_text_layer: Node = null
 var _consecutive_hits: int = 0
 var _last_attacked_target = null
 var _aura_tick: float = 0.0
@@ -77,6 +94,8 @@ var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
 var _attack_flash: float = 0.0
 var _melee_swing: float = 0.0
+var _skill_flash: float = 0.0
+var _skill_flash_color: Color = Color(1.0, 0.85, 0.4)
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
@@ -121,6 +140,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_min_range = stats.min_range
 	# 信物全伤害加成（finalize_damage 管线使用，v0.13）
 	_relic_damage_bonus = relic.damage_bonus if relic != null else 0.0
+	# 科技树军事分支（finalize_damage 管线使用，v0.14.1）
+	_tech_damage_bonus = float(TechTree.get_tech_bonuses(ProfileStore.get_profile()).get("damage_pct", 0)) / 100.0
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 
@@ -132,6 +153,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_trait_id = character_data.trait_id
 	_trait_params = character_data.trait_params.duplicate(true)
 	_granted_skills.assign(promotion.granted_skill_ids.duplicate()) if promotion != null else _granted_skills.clear()
+	_skill_params = promotion.skill_params.duplicate(true) if promotion != null else {}
+	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
 	_ultimate_multiplier = promotion.ultimate_multiplier if promotion != null else 1.0
 	_ultimate_id = character_data.ultimate_override_id
 	if _ultimate_id.is_empty() and character_data.profession != null:
@@ -186,12 +209,21 @@ func record_build_investment(cost: int) -> void:
 func play_attack_flash() -> void:
 	## 弹道类攻击的枪口闪光，由弹道执行器触发。
 	_attack_flash = 0.18
+	SfxLibrary.play(&"attack", -16.0)
 	queue_redraw()
 
 
 func play_melee_hit() -> void:
 	## 近战挥击，由近战执行器触发；不产生枪口闪光。
 	_melee_swing = MELEE_SWING_DURATION
+	SfxLibrary.play(&"attack", -14.0)
+	queue_redraw()
+
+
+	## 技能触发特效（v0.16.0）：扩散环随时间放大并淡出，由 SkillRegistry 触发点调用。
+func play_skill_effect(color: Color = Color(1.0, 0.85, 0.4)) -> void:
+	_skill_flash = 0.4
+	_skill_flash_color = color
 	queue_redraw()
 
 
@@ -244,8 +276,23 @@ func _process(_delta: float) -> void:
 	if target:
 		_update_aim()
 
-	if rage >= MAX_RAGE and _try_cast_ultimate():
-		rage = 0.0
+	# 大招释放（v0.15.0）：手动模式满怒待发，自动模式满怒即放。
+	if rage >= MAX_RAGE:
+		if _manual_ultimate_mode:
+			_ultimate_ready = true
+			if not _rage_ready_notified:
+				_rage_ready_notified = true
+				spawn_float_text("大招就绪", Color(1.0, 0.85, 0.3), 16)
+		else:
+			_ultimate_ready = false
+			_try_cast_ultimate()
+	else:
+		_ultimate_ready = false
+		_rage_ready_notified = false
+
+	if _ult_visual_time > 0.0:
+		_ult_visual_time = maxf(_ult_visual_time - _delta, 0.0)
+		queue_redraw()
 
 	# 诸葛亮·观星：范围内敌人持续减速 8%（周期施加，取最强因子）
 	_aura_tick = maxf(_aura_tick - _delta, 0.0)
@@ -262,6 +309,9 @@ func _process(_delta: float) -> void:
 		queue_redraw()
 	if _melee_swing > 0.0:
 		_melee_swing = maxf(_melee_swing - _delta, 0.0)
+		queue_redraw()
+	if _skill_flash > 0.0:
+		_skill_flash = maxf(_skill_flash - _delta, 0.0)
 		queue_redraw()
 
 
@@ -291,7 +341,18 @@ func gain_rage(amount: float) -> void:
 func _try_cast_ultimate() -> bool:
 	if _ultimate_id.is_empty():
 		return false
-	return BehaviorRegistry.execute_ultimate(_ultimate_id, self)
+	# 先清怒再执行：大招击杀返怒（charge/职业基础 50%）在清零基础上叠加，
+	# 避免返怒被调用方随后清怒覆盖（v0.15.0 修正 v0.11.2 遗留时序缺陷）。
+	var spent := rage
+	rage = 0.0
+	if not BehaviorRegistry.execute_ultimate(_ultimate_id, self):
+		rage = spent
+		return false
+	# 大招演出（v0.15.0）：专属视觉 + 大招名飘字 + 技能钩子。
+	play_ultimate_visual(_ultimate_id)
+	spawn_float_text(BehaviorRegistry.ultimate_display_name(_ultimate_id), Color(1.0, 0.85, 0.3), 20)
+	SkillRegistry.on_ultimate_cast(self)
+	return true
 
 
 ## 大招强度（10.5）：×(1 + 0.25 × 局内等级) × 转职 ultimate_multiplier。
@@ -301,10 +362,62 @@ func ultimate_power() -> float:
 
 ## charge 技能（突击骑）：大招击杀返怒 50% × 档位系数（每 5 级 +10%）。
 func kill_rage_refund() -> float:
-	var multiplier := 1.0
-	if _granted_skills.has(&"charge"):
-		multiplier = 1.0 + 0.1 * mini(int(battle_level / 5.0), 4)
-	return 50.0 * multiplier
+	return SkillRegistry.kill_rage_refund(self)
+
+
+func has_skill(skill_id: StringName) -> bool:
+	return _granted_skills.has(skill_id)
+
+
+func get_skill_param(skill_id: StringName, key: String, default: float) -> float:
+	var params: Dictionary = _skill_params.get(skill_id, {})
+	return float(params.get(key, default))
+
+
+func set_next_attack_bonus(bonus: float) -> void:
+	_next_attack_bonus = maxf(bonus, 0.0)
+
+
+## 大招范围（v0.15.0）：诸葛亮·奇谋按档位放大爆炸半径。
+func ultimate_aoe_radius(base_radius: float) -> float:
+	return base_radius * SkillRegistry.ultimate_aoe_radius_multiplier(self)
+
+
+## 手动大招（GDD 10.5，v0.15.0）：满怒且射程内有目标时释放，成功清空怒气。
+func cast_ultimate_manual() -> bool:
+	if not _manual_ultimate_mode or rage < MAX_RAGE:
+		return false
+	if _try_cast_ultimate():
+		_ultimate_ready = false
+		_rage_ready_notified = false
+		queue_redraw()
+		return true
+	return false
+
+
+## 手动模式下大招是否就绪（供属性面板按钮/提示使用）。
+func is_ultimate_ready() -> bool:
+	return _manual_ultimate_mode and _ultimate_ready and rage >= MAX_RAGE
+
+
+func set_float_text_layer(layer: Node) -> void:
+	_float_text_layer = layer
+
+
+## 战斗浮字（v0.15.0）：技能/大招/特性反馈飘字，挂到当前场景的浮字层。
+func spawn_float_text(text: String, color: Color = Color.WHITE, size: int = 14) -> void:
+	var layer := _float_text_layer
+	if layer == null or not is_instance_valid(layer):
+		layer = get_tree().current_scene
+	if layer != null and layer.has_method("spawn_float_text_at"):
+		layer.spawn_float_text_at(global_position + Vector2(0, -36), text, color, size)
+
+
+## 大招专属视觉（v0.15.0）：执行器成功后由 _try_cast_ultimate 触发。
+func play_ultimate_visual(ultimate_id: StringName) -> void:
+	_ult_visual_id = ultimate_id
+	_ult_visual_time = ULT_VISUAL_DURATION
+	queue_redraw()
 
 
 func is_target_valid(candidate) -> bool:
@@ -329,11 +442,16 @@ func get_consecutive_hits() -> int:
 
 ## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
 func finalize_damage(base: int, target: Enemy) -> int:
-	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus)
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus)
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	if BehaviorRegistry.has_benevolence_aura(self):
 		value *= BehaviorRegistry.benevolence_bonus(self)
 	value *= BehaviorRegistry.get_trait_damage_multiplier(self, target)
+	value *= SkillRegistry.passive_damage_multiplier(self, target)
+	if _next_attack_bonus > 0.0:
+		value *= 1.0 + _next_attack_bonus
+		_next_attack_bonus = 0.0
+		spawn_float_text(SkillRegistry.get_skill_name(&"dragon_rush"), Color(0.6, 0.9, 1.0))
 	return int(round(value))
 
 
@@ -383,11 +501,14 @@ func apply_team_buff(speed_multiplier: float, damage_multiplier: float, duration
 
 
 func _on_enemy_killed(character_id: String) -> void:
-	# 赵云·龙魂：击杀叠攻速（可叠加；目标丢失时重置）
-	if character_id != self.character_id or _trait_id != &"trait_dragon_spirit":
+	if character_id != self.character_id:
 		return
-	kill_stacks = mini(kill_stacks + 1, 10)
-	_rebuild_attack_timer()
+	# 赵云·龙魂：击杀叠攻速（可叠加；目标丢失时重置）
+	if _trait_id == &"trait_dragon_spirit":
+		kill_stacks = mini(kill_stacks + 1, 10)
+		_rebuild_attack_timer()
+		spawn_float_text("龙魂 ×%d" % kill_stacks, Color(0.75, 0.9, 1.0))
+	SkillRegistry.on_kill(self, null)
 
 
 func find_target() -> Enemy:
@@ -517,19 +638,92 @@ func _draw() -> void:
 	_draw_weapon()
 	if _attack_flash > 0.0:
 		_draw_attack_flash()
+	if _skill_flash > 0.0:
+		_draw_skill_flash()
 	_draw_rage_bar()
+	if _ult_visual_time > 0.0:
+		_draw_ultimate_visual()
 	if is_selected:
 		_draw_range()
 
 
+## 技能扩散环（v0.16.0）：半径随进度放大、颜色淡出。
+func _draw_skill_flash() -> void:
+	var t := 1.0 - _skill_flash / 0.4
+	var radius := lerpf(10.0, 40.0, t)
+	var alpha := clampf(1.0 - t, 0.0, 1.0)
+	var color := Color(_skill_flash_color.r, _skill_flash_color.g, _skill_flash_color.b, alpha)
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 20, color, 3.0)
+	draw_circle(Vector2.ZERO, radius * 0.35, Color(color.r, color.g, color.b, alpha * 0.25))
+
+
 func _draw_rage_bar() -> void:
-	# 怒气条（占位表现，阶段 5 美化）：塔底下方，满槽高亮。
+	# 怒气条（v0.15.0 美化）：分段槽 + 边框；满怒金色脉动（手动模式提示）。
 	if rage <= 0.0:
 		return
-	draw_rect(Rect2(-16, 28, 32, 5), Color(0.0, 0.0, 0.0, 0.55))
 	var ratio := clampf(rage / MAX_RAGE, 0.0, 1.0)
-	var fill_color := Color(0.35, 0.85, 1.0, 1.0) if ratio >= 1.0 else Color(0.3, 0.6, 0.95, 0.9)
-	draw_rect(Rect2(-16, 28, 32.0 * ratio, 5), fill_color)
+	var full := ratio >= 1.0
+	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
+	var width := 34.0 * pulse
+	var height := 6.0
+	var origin := Vector2(-width / 2.0, 28)
+	draw_rect(Rect2(origin, Vector2(width, height)), Color(0.0, 0.0, 0.0, 0.6))
+	var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.3, 0.62, 0.95, 0.95)
+	draw_rect(Rect2(origin + Vector2(1, 1), Vector2((width - 2.0) * ratio, height - 2.0)), fill_color)
+	if full:
+		draw_rect(Rect2(origin, Vector2(width, height)), Color(1.0, 0.9, 0.5, 0.9), false, 1.0)
+	for i in range(1, 4):
+		var x := origin.x + width * i / 4.0
+		draw_line(Vector2(x, origin.y), Vector2(x, origin.y + height), Color(0.0, 0.0, 0.0, 0.35), 1.0)
+
+
+## 大招专属视觉（v0.15.0，GDD 阶段 5 提交 1）：按 ultimate_id 绘制差异化演出，
+## 由 _try_cast_ultimate 成功后触发，持续 ULT_VISUAL_DURATION。
+func _draw_ultimate_visual() -> void:
+	var t := 1.0 - _ult_visual_time / ULT_VISUAL_DURATION
+	var alpha := clampf(1.0 - t * 0.7, 0.1, 1.0)
+	var gold := Color(1.0, 0.85, 0.35, alpha)
+	match _ult_visual_id:
+		&"ultimate_cavalry_breaker":
+			# 突击斩杀：大斩弧沿瞄准方向横扫 + 刀光
+			var start := _aim_angle - 1.2
+			var sweep := lerpf(0.0, 2.4, t)
+			draw_arc(Vector2.ZERO, 52.0, start, start + sweep, 18, gold, 6.0)
+			draw_line(Vector2.ZERO, Vector2.from_angle(_aim_angle) * 62.0, Color(1.0, 0.95, 0.7, alpha * 0.9), 3.0)
+		&"ultimate_pikeman_sweep":
+			# 横扫千军：扩散圆环 + 六向震地线
+			draw_arc(Vector2.ZERO, 30.0 + 46.0 * t, 0.0, TAU, 28, Color(0.6, 1.0, 0.7, alpha), 5.0)
+			for i in range(6):
+				var ang := _aim_angle + TAU * i / 6.0
+				draw_line(Vector2.from_angle(ang) * 34.0, Vector2.from_angle(ang) * (34.0 + 26.0 * t), Color(0.7, 1.0, 0.8, alpha), 2.5)
+		&"ultimate_archer_volley":
+			# 连珠齐射：枪口连闪三点
+			for i in range(3):
+				var dir := Vector2.from_angle(_aim_angle + (i - 1) * 0.22)
+				draw_circle(dir * 30.0, maxf(2.0, 5.0 - i * 1.4), gold)
+		&"ultimate_strategist_blaze":
+			# 火烧连营：旋转法阵 + 扩散火环
+			var spin := t * TAU
+			draw_arc(Vector2.ZERO, 34.0, spin, spin + 4.6, 20, Color(1.0, 0.6, 0.3, alpha), 4.0)
+			draw_arc(Vector2.ZERO, 46.0, -spin, -spin + 4.6, 20, Color(1.0, 0.75, 0.4, alpha * 0.8), 3.0)
+			draw_arc(Vector2.ZERO, 20.0 + 30.0 * t, 0.0, TAU, 24, Color(1.0, 0.5, 0.25, alpha * 0.7), 3.0)
+		&"ultimate_dancer_encourage":
+			# 倾城鼓舞：双粉环扩散
+			draw_arc(Vector2.ZERO, 24.0 + 40.0 * t, 0.0, TAU, 26, Color(1.0, 0.65, 0.85, alpha), 4.0)
+			draw_arc(Vector2.ZERO, 34.0 + 40.0 * t, 0.0, TAU, 26, Color(1.0, 0.8, 0.9, alpha * 0.7), 2.5)
+		&"ultimate_catapult_barrage":
+			# 石破天惊：抛射弧线示意
+			var p0 := Vector2.ZERO
+			var p1 := Vector2.from_angle(_aim_angle) * 70.0
+			var mid := p0.lerp(p1, 0.5) + Vector2.UP * 46.0
+			var prev := p0
+			for i in range(8):
+				var tt := float(i) / 7.0
+				var point := p0.lerp(mid, tt).lerp(mid.lerp(p1, tt), tt)
+				draw_line(prev, point, gold, 3.0)
+				prev = point
+		_:
+			draw_arc(Vector2.ZERO, 20.0 + 40.0 * t, 0.0, TAU, 24, gold, 4.0)
 
 
 func _draw_base() -> void:

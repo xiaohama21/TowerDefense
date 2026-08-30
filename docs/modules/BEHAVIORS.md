@@ -30,8 +30,8 @@
 ## B.2 落地节奏
 
 - **阶段 1（v0.9 已落地）**：最小行为注册表 `scripts/combat/BehaviorRegistry.gd` 上线——`Tower.attack()` 按 `behavior_id` 分发执行器；现有四个职业的弹道攻击迁入注册表（共用单体执行器，视觉差异由弹道造型承载）；新增 `melee_thrust` 近战直伤行为（枪兵，无弹道）与职业克制查询（枪兵对 `cavalry` 标签 +15%，常量 `PIKEMAN_COUNTER_MULTIPLIER`）；`Enemy` 接收 `EnemyData.tags` 供克制查询。
-- **阶段 3**：注册表扩展至 `special_behavior_id` / `ultimate_id` / `trait_id`，数值生效（表现占位）。
-- **阶段 5**：演出差异化（特效/音效/飘字）挂在行为执行结果上，不改注册表结构。
+- **阶段 3（✅ v0.11.2/v0.11.3）**：注册表已扩展至 `special_behavior_id` / `ultimate_id` / `trait_id`，数值生效（演出于阶段 5 补全，见下）。
+- **阶段 5（✅ v0.15.0/v0.16.0）**：演出差异化（特效/音效/飘字）挂在行为执行结果上，不改注册表结构——大招职业专属视觉/飘字 v0.15.0，技能音效+扩散环 v0.16.0。
 
 ## B.3 行为规格清单
 
@@ -46,7 +46,7 @@
 | `single_target_burst` | 近战斩击：武器挥动 + 斩击弧表现，直伤（无弹道） | 骑兵 | ✅ v0.9 弹道 → v0.9.5 改近战挥击 |
 | `single_target_precision` | 长射程单体弹道（箭矢） | 弓箭手 | ✅ 注册表分发（v0.9），单体结算 |
 | `area_spell` | 范围法术（法球）；**当前按单体结算** | 术士 | ✅ 注册表分发（v0.9）；范围结算随阶段 3 |
-| `attack_speed_aura` | 攻速光环增益（音波环）；**当前按单体结算** | 舞娘 | ✅ 注册表分发（v0.9）；光环结算随阶段 3 |
+| `attack_speed_aura` | 攻速光环增益（音波环）；**已光环化（v0.11.2 脉冲增益）** | 舞娘 | ✅ 注册表分发（v0.9）+ 脉冲增益落地（v0.11.2） |
 | `melee_thrust` | 近战挥击：武器挥动 + 斩击弧表现，直伤（无弹道），对 `cavalry` 标签 +15% | 剑客 | ✅ 直伤 v0.9 / 挥击表现 v0.9.4 |
 | `lob_aoe` | 抛射 AOE：预判落点抛物线弹体，落点范围伤害（首例范围结算）；**受 `ProfessionData.min_range` 约束，目标过近无法攻击** | 投石车 | ✅ 已建（v0.11.1） |
 
@@ -62,7 +62,7 @@
 | `suicide` | 到点自爆造成范围伤害 | 【远期】 | 未排期 |
 | `swarm` | 分裂/召唤小怪 | 【远期】 | 未排期 |
 
-### B.3.3 职业大招行为（`ultimate_id`，v0.11.2 数值生效/表现占位）
+### B.3.3 职业大招行为（`ultimate_id`，v0.11.2 数值生效；演出 ✅ v0.15.0 职业专属视觉 / v0.16.0 音效）
 
 | ID | 职业 | 效果概要（完整规格见 CHARACTERS.md 4.6，数值见 NUMBERS.md 10.5） | 状态 |
 |---|---|---|---|
@@ -85,6 +85,24 @@
 | `trait_captain` | 周仓 | 对高血量敌人（>70% HP）伤害 +30% |
 | `trait_dragon_spirit` | 赵云 | 每击杀叠 4% 攻速（可叠加，脱战重置） |
 | `trait_star_gazer` | 诸葛亮 | 射程 +12%，范围内敌人减速 8% |
+
+### B.3.5 转职技能行为（`skill_id`，✅ v0.15.0 落地）
+
+技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_level/5, 4)`。完整规格见 CHARACTERS.md 4.5。
+
+| skill_id | 触发点 | 效果概要 | 演出 |
+|---|---|---|---|
+| `charge` | 大招击杀 | 返还怒气 50%×s | 大招名飘字 |
+| `ferocity` | 攻击命中 | 15% 概率追加 0.5×s 伤害 | "凶威"飘字 |
+| `command` | 常驻 | 周围 150px 友方伤害 +4%×s | —（光环） |
+| `steady` | 攻击命中 | 20% 概率追加 0.6×s 伤害 | "稳射"飘字 |
+| `inspire` | 大招释放 | 全队攻速 +6%×s 持续 8s | "鼓舞"飘字 |
+| `siege` | 常驻 | 对精英/Boss 伤害 +10%×s | — |
+| `bulwark` | 击杀 | 金币 +2×s | "斩获"飘字 |
+| `dragon_rush` | 击杀 | 下一次攻击伤害 +25%×s | "龙突"飘字 |
+| `wisdom` | 大招 | 大招范围 +10%×s | "奇谋"飘字 |
+
+---
 
 ## B.4 新增行为流程（v0.8 细化）
 

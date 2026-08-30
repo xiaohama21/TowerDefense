@@ -12,6 +12,19 @@ const PIKEMAN_COUNTER_MULTIPLIER: float = 1.15
 ## 投石车落点爆炸半径（GDD 4.2 抛射范围伤害，v0.11.1）。
 const LOB_EXPLOSION_RADIUS: float = 90.0
 
+## 大招显示名（v0.15.0 演出飘字）。
+const ULTIMATE_NAMES := {
+	&"ultimate_cavalry_breaker": "突击斩杀",
+	&"ultimate_pikeman_sweep": "横扫千军",
+	&"ultimate_archer_volley": "连珠齐射",
+	&"ultimate_strategist_blaze": "火烧连营",
+	&"ultimate_dancer_encourage": "倾城鼓舞",
+	&"ultimate_catapult_barrage": "石破天惊",
+}
+
+static func ultimate_display_name(ultimate_id: StringName) -> String:
+	return str(ULTIMATE_NAMES.get(ultimate_id, str(ultimate_id)))
+
 ## behavior_id -> 攻击执行器 Callable(tower: Tower, target: Enemy)
 static var _attack_executors: Dictionary = {}
 ## ultimate_id -> 大招执行器 Callable(tower: Tower) -> bool（返回是否成功释放）
@@ -82,6 +95,7 @@ static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 	if bullet != null:
 		bullet.damage = tower.finalize_damage(tower.damage, target)
 		tower.gain_rage_for_attack(bullet.damage)
+		SkillRegistry.on_attack_hit(tower, target, bullet.damage)
 	# 弹道类攻击表现：枪口闪光（近战类由各自执行器触发挥击表现）。
 	tower.play_attack_flash()
 
@@ -91,6 +105,7 @@ static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
 	var damage := tower.finalize_damage(tower.damage, target)
 	target.take_damage(damage, tower.character_id)
 	tower.gain_rage_for_attack(damage)
+	SkillRegistry.on_attack_hit(tower, target, damage)
 	_notify_damage_dealt(tower, target)
 	tower.play_melee_hit()
 
@@ -103,6 +118,7 @@ static func _notify_damage_dealt(tower: Tower, target: Enemy) -> void:
 				tower.get_trait_param("slow_factor", 0.4),
 				tower.get_trait_param("duration", 1.0),
 			)
+			tower.spawn_float_text("咆哮", Color(0.95, 0.6, 0.35))
 
 
 static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
@@ -172,7 +188,8 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 			return false
 		center = enemies[0].global_position
 	for enemy in tower.enemies_in_range():
-		if enemy.global_position.distance_to(center) <= LOB_EXPLOSION_RADIUS + 30.0:
+		var aoe_radius := tower.ultimate_aoe_radius(LOB_EXPLOSION_RADIUS + 30.0)
+		if enemy.global_position.distance_to(center) <= aoe_radius:
 			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), tower.character_id)
 			enemy.apply_slow(0.6, 2.0)
 	tower.play_attack_flash()

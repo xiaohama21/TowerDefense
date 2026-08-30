@@ -28,6 +28,7 @@ func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
 		return null
 
 	enemy.enemy_id = enemy_data.enemy_id
+	enemy.display_name = enemy_data.display_name
 	enemy.special_behavior_id = enemy_data.special_behavior_id
 	enemy.special_cooldown = 1.5 if not enemy_data.special_behavior_id.is_empty() else 0.0
 	enemy.speed = enemy_data.move_speed

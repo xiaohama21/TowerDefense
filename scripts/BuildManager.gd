@@ -48,6 +48,9 @@ func _connect_slot(slot: Node) -> void:
 	var callback := Callable(self, "_on_build_requested")
 	if not slot.is_connected("build_requested", callback):
 		slot.connect("build_requested", callback)
+	var unlock_callback := Callable(self, "_on_unlock_requested")
+	if slot.has_signal("unlock_requested") and not slot.is_connected("unlock_requested", unlock_callback):
+		slot.connect("unlock_requested", unlock_callback)
 
 
 func _on_node_added(node: Node) -> void:
@@ -103,6 +106,26 @@ func _confirm_build(slot: Node) -> void:
 		_show_feedback("金币不足")
 
 
+## 预锁位解锁（v0.14.1，GDD 5.1）：消耗金币解锁后即可正常建造；本局有效。
+func _on_unlock_requested(slot: Node) -> void:
+	if not is_instance_valid(slot):
+		return
+	if GameManager.lives <= 0 or GameManager.current_wave >= GameManager.total_waves:
+		_show_feedback("本局已经结束")
+		return
+	var raw_cost = slot.get("unlock_cost")
+	var cost := int(raw_cost) if raw_cost != null else 60
+	if GameManager.gold < cost:
+		_show_feedback("金币不足，无法解锁建造位（%d）" % cost)
+		build_failed.emit(slot, "unlock_not_enough_gold")
+		return
+	cancel_pending()
+	GameManager.gold -= cost
+	if slot.has_method("try_unlock"):
+		slot.try_unlock()
+	_show_feedback("建造位已解锁（- %d 金币）" % cost)
+
+
 func cancel_pending() -> void:
 	_clear_pending_visual()
 	pending_slot = null
@@ -116,3 +139,4 @@ func _clear_pending_visual() -> void:
 func _show_feedback(message: String) -> void:
 	if is_instance_valid(ui) and ui.has_method("show_status"):
 		ui.show_status(message)
+

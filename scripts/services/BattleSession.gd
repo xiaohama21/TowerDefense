@@ -22,6 +22,8 @@ var pending_loot: Dictionary = {}
 var pending_unlocks: Array[String] = []
 ## 首通信物（v0.13）：通关后写入存档 relics。
 var pending_relics: Array[String] = []
+## 科技点（v0.14.1）：通关后写入存档 tech_points（首通+2/重复+1，按难度材料倍率）。
+var pending_tech_points: int = 0
 var result: Dictionary = {}
 var status: String = STATUS_IN_PROGRESS
 var started_at_unix: int = 0
@@ -69,6 +71,7 @@ func load_dict(data: Dictionary) -> void:
 	pending_loot = _normalize_amount_dictionary(data.get("pending_loot", {}))
 	pending_unlocks = _normalize_string_array(data.get("pending_unlocks", []))
 	pending_relics = _normalize_string_array(data.get("pending_relics", []))
+	pending_tech_points = _coerce_non_negative_int(data.get("pending_tech_points", 0))
 	result = data.get("result", {}).duplicate(true) if data.get("result", {}) is Dictionary else {}
 	status = _normalize_status(str(data.get("status", STATUS_IN_PROGRESS)))
 	started_at_unix = _coerce_non_negative_int(data.get("started_at_unix", 0))
@@ -85,6 +88,7 @@ func to_dict() -> Dictionary:
 		"pending_loot": pending_loot.duplicate(true),
 		"pending_unlocks": pending_unlocks.duplicate(),
 		"pending_relics": pending_relics.duplicate(),
+		"pending_tech_points": pending_tech_points,
 		"result": result.duplicate(true),
 		"status": status,
 		"started_at_unix": started_at_unix,
@@ -196,6 +200,18 @@ func get_pending_relics() -> Array[String]:
 	return pending_relics.duplicate()
 
 
+## 科技点暂存（GDD modules/NUMBERS.md 10.7）：通关后随战局提交写档。
+func add_tech_points(amount: int) -> int:
+	if not is_in_progress() or amount <= 0:
+		return pending_tech_points
+	pending_tech_points += amount
+	return pending_tech_points
+
+
+func get_pending_tech_points() -> int:
+	return pending_tech_points
+
+
 func add_unlock(character_id: String) -> bool:
 	if not is_in_progress():
 		return false
@@ -257,6 +273,7 @@ func mark_discarded() -> bool:
 	pending_loot.clear()
 	pending_unlocks.clear()
 	pending_relics.clear()
+	pending_tech_points = 0
 	return true
 
 
@@ -265,6 +282,7 @@ func clear_pending_rewards() -> void:
 	pending_loot.clear()
 	pending_unlocks.clear()
 	pending_relics.clear()
+	pending_tech_points = 0
 
 
 static func _generate_run_id() -> String:
@@ -313,3 +331,4 @@ func _coerce_non_negative_int(value) -> int:
 		_:
 			number = 0
 	return maxi(number, 0)
+

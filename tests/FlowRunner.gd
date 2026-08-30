@@ -59,6 +59,11 @@ func _test_unlock_logic() -> PlayerProfile:
 	_check(GameFlow.get_next_stage_id(&"ch01_s01") == StringName("ch01_s02"), "首关的下一关应为第二关")
 	_check(GameFlow.get_next_stage_id(&"ch01_s08") == StringName(&""), "末关（s08）应无下一关")
 
+	# 难度写档（v0.14.1）：标准通关记录写入后困难难度解锁。
+	_check(not GameFlow.is_difficulty_unlocked(profile, &"ch01_s01", Difficulty.HARD), "未通关标准前困难应锁定")
+	profile.mark_stage_completed("ch01_s01", {"difficulty": "normal"})
+	_check(GameFlow.is_difficulty_unlocked(profile, &"ch01_s01", Difficulty.HARD), "标准通关后困难难度应解锁")
+
 	_check_layout(stages[0], false)
 	for index in range(1, stages.size()):
 		_check_layout(stages[index], true)
@@ -69,7 +74,9 @@ func _test_unlock_logic() -> PlayerProfile:
 func _check_layout(stage: StageData, enforce_spec: bool) -> void:
 	var stage_tag := str(stage.stage_id)
 	_check(stage.path_points.size() >= 2, "%s 应配置路径" % stage_tag)
-	_check(stage.build_slot_positions.size() == stage.build_slot_count,
+	# 结构化建造位（v0.14.1）：优先 build_slots，旧配置回退 build_slot_positions。
+	var slot_data := stage.get_build_slot_data()
+	_check(slot_data.size() == stage.build_slot_count,
 		"%s 建造位数量应与 build_slot_count 一致" % stage_tag)
 
 	var curve := Curve2D.new()
@@ -77,7 +84,8 @@ func _check_layout(stage: StageData, enforce_spec: bool) -> void:
 		curve.add_point(point)
 	var close_count := 0
 	var far_count := 0
-	for position in stage.build_slot_positions:
+	for slot_entry in slot_data:
+		var position := slot_entry.position
 		var distance: float = position.distance_to(curve.get_closest_point(position))
 		_check(distance >= 70.0 and distance <= 250.0, "%s 建造位应贴邻道路网格" % stage_tag)
 		if distance <= 90.0:
@@ -97,6 +105,18 @@ func _check_layout(stage: StageData, enforce_spec: bool) -> void:
 		_check(close_count >= 3, "%s 贴路位应 ≥ 3" % stage_tag)
 		_check(far_count >= 3, "%s 中远程位应 ≥ 3" % stage_tag)
 
+	# 建造位结构化试点（v0.14.1，GDD 5.1）：s08 配置预锁位 + 类型软引导。
+	if stage.stage_id == &"ch01_s08":
+		var locked_slot_count := 0
+		var typed_slot_count := 0
+		for slot_entry in slot_data:
+			if slot_entry.locked:
+				locked_slot_count += 1
+			if slot_entry.slot_type != BuildSlotData.SlotType.ANY:
+				typed_slot_count += 1
+		_check(locked_slot_count >= 1, "s08 应配置预锁位试点")
+		_check(typed_slot_count >= 3, "s08 应配置类型化建造位试点")
+
 
 func _collect_buttons(root: Node) -> Array[Button]:
 	var buttons: Array[Button] = []
@@ -115,7 +135,9 @@ func _test_hub(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 
 	var sidebar_buttons := _collect_buttons(hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 5, "大厅侧栏应有 4 个功能入口 + 返回主菜单")
+	_check(sidebar_buttons.size() == 6, "大厅侧栏应有 5 个功能入口 + 返回主菜单")
+	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
+	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 
 	var map_panel := hub.get_node("Columns/Content/MapPanel")
 	var develop_panel := hub.get_node("Columns/Content/DevelopPanel")
@@ -158,6 +180,69 @@ func _test_hub(profile: PlayerProfile) -> void:
 	# 切换到设置面板
 	_show_hub_panel(hub, &"settings")
 	_check(settings_panel.visible and not develop_panel.visible, "点击设置应切换内容区")
+	# 设置面板（v0.15.0）：大招手动释放开关存在且持久化。
+	var manual_ultimate_check = settings_panel.get("_manual_ultimate_check")
+	_check(manual_ultimate_check != null and manual_ultimate_check is CheckButton,
+		"设置面板应含大招手动释放开关")
+	if manual_ultimate_check is CheckButton:
+		manual_ultimate_check.set_pressed(true)
+		_check(GameFlow.is_gameplay_flag_enabled("manual_ultimate"),
+			"勾选大招手动应写入 gameplay.manual_ultimate")
+		manual_ultimate_check.set_pressed(false)
+		_check(not GameFlow.is_gameplay_flag_enabled("manual_ultimate"),
+			"取消勾选应清除手动大招标志")
+
+	# 设置面板（v0.15.3）：自动开启下一波开关存在且持久化。
+	var auto_next_wave_check = settings_panel.get("_auto_next_wave_check")
+	_check(auto_next_wave_check != null and auto_next_wave_check is CheckButton,
+		"设置面板应含自动开启下一波开关")
+	if auto_next_wave_check is CheckButton:
+		auto_next_wave_check.set_pressed(true)
+		_check(GameFlow.is_gameplay_flag_enabled("auto_next_wave"),
+			"勾选自动下一波应写入 gameplay.auto_next_wave")
+		auto_next_wave_check.set_pressed(false)
+		_check(not GameFlow.is_gameplay_flag_enabled("auto_next_wave"),
+			"取消勾选应清除自动下一波标志")
+	# 背包页签（v0.15.1）：查看道具 + 测试发放练兵令。
+	var inventory_panel := hub.get_node("Columns/Content/InventoryPanel")
+	_show_hub_panel(hub, &"inventory")
+	_check(inventory_panel.visible and not settings_panel.visible, "点击背包应切换内容区")
+	var grant_button: Button = null
+	for button in _collect_buttons(inventory_panel):
+		if button.text == "获得练兵令 ×10":
+			grant_button = button
+			break
+	_check(grant_button != null, "背包面板应含测试发放按钮")
+	if grant_button != null:
+		grant_button.pressed.emit()
+		await get_tree().process_frame
+		_check(int(profile.items.get("exp_scroll", 0)) == 10, "测试发放应写入 10 枚练兵令")
+
+	# 难度选择（v0.16.0 修复）：面板难度更新 _selected_difficulty，并随一键通关按所选难度写档。
+	_show_hub_panel(hub, &"map")
+	map_panel._on_difficulty_changed(true, Difficulty.HARD, &"ch01_s02")
+	_check(int(map_panel.get("_selected_difficulty")) == Difficulty.HARD,
+		"选择困难应更新地图面板所选难度")
+
+	# 一键通关（测试，v0.15.1）：按正常胜利结算写档并推进解锁链。
+	var clear_button_s02: Button = null
+	for button in _collect_buttons(map_panel):
+		if button.text == "一键通关" and str(button.get_meta("stage_id", "")) == "ch01_s02":
+			clear_button_s02 = button
+			break
+	_check(clear_button_s02 != null, "s02 关卡行应有一键通关按钮")
+	if clear_button_s02 != null:
+		clear_button_s02.pressed.emit()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var s02_entry = profile.stage_progress.get("ch01_s02", {})
+		_check(s02_entry is Dictionary and s02_entry.get("completed", false),
+			"一键通关应标记 s02 已通关并写档")
+		_check(GameFlow.is_stage_unlocked(profile, GameFlow.load_stage_data(&"ch01_s03")),
+			"一键通关 s02 后应解锁 s03")
+		var s02_diffs: Dictionary = s02_entry.get("difficulties", {})
+		_check(s02_diffs.has(Difficulty.key_name(Difficulty.HARD)),
+			"一键通关应按所选困难难度写档")
 
 	hub.queue_free()
 	await get_tree().process_frame
@@ -168,6 +253,10 @@ func _show_hub_panel(hub: Node, panel_id: StringName) -> void:
 
 
 func _test_squad_select_screen() -> void:
+	# 编队以"新档"为前置（v0.15.1：前置背包/一键通关测试会改动共享档，此处重建新档，
+	# 保证"2 名初始武将"断言不受污染）。
+	var fresh_profile := ProfileStore.create_new_profile(false)
+	GameFlow.ensure_initial_characters(fresh_profile)
 	GameFlow.select_stage(&"ch01_s01")
 	GameFlow.set_squad([] as Array[String])
 	var scene := (load("res://scenes/SquadSelect.tscn") as PackedScene).instantiate()
@@ -239,6 +328,32 @@ func _test_battle_entry() -> void:
 	_check(get_tree().get_nodes_in_group("build_slots").size() == 10, "s02 应由布局数据生成 10 个建造位")
 	_check(GameManager.total_waves == 6, "s02 应有 6 波敌人")
 
+	# 退出导航（v0.15.2）：顶栏退出弹确认框（确认后回游戏大厅，不直接退出）。
+	var exit_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/ExitButton") as Button
+	exit_button_flow.pressed.emit()
+	await get_tree().process_frame
+	var exit_dialog: ConfirmationDialog = null
+	for child in get_tree().root.get_children():
+		if child is ConfirmationDialog:
+			exit_dialog = child
+			break
+	_check(exit_dialog != null, "战斗退出应弹出确认对话框")
+	if exit_dialog != null:
+		_check(exit_dialog.ok_button_text == "放弃并退出", "退出确认框应提示放弃本局收益")
+		exit_dialog.queue_free()
+		await get_tree().process_frame
+
+	# 自动开启下一波（v0.15.3）：开启后波次结束自动开下一波，关闭时保持手动等待。
+	GameFlow.set_gameplay_flag("auto_next_wave", true)
+	GameManager.start_wave()
+	main._on_wave_completed()
+	_check(GameManager.is_wave_active and GameManager.current_wave == 1,
+		"开启自动下一波后，波次结束应立即开始下一波")
+	GameFlow.set_gameplay_flag("auto_next_wave", false)
+	main._on_wave_completed()
+	_check(not GameManager.is_wave_active and GameManager.current_wave == 2,
+		"关闭自动下一波后，波次结束应停在等待手动开启")
+
 	main.queue_free()
 	await get_tree().process_frame
 	GameFlow.select_stage(&"ch01_s01")
@@ -262,3 +377,5 @@ func _finish() -> void:
 		for failure in failures:
 			print(" - %s" % failure)
 		get_tree().quit(1)
+
+

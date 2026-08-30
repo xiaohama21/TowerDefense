@@ -3,12 +3,14 @@ extends VBoxContainer
 ## 地图选择面板（GDD v0.10.1）：章节 → 关卡两级。
 ## 第一章来自 ChapterData 资源；后续章节以锁定占位预留（纯展示，待 ChapterData）。
 
-signal stage_selected(stage_id: StringName)
+signal stage_selected(stage_id: StringName, difficulty: int)
 
 const TITLE_COLOR := Color(0.92, 0.78, 0.42)
 const UNLOCKED_COLOR := Color(0.78, 0.92, 0.8)
 const LOCKED_COLOR := Color(0.55, 0.55, 0.55)
 const DONE_COLOR := Color(1.0, 0.82, 0.3)
+const OK_COLOR := Color(0.55, 0.9, 0.6)
+const BAD_COLOR := Color(0.9, 0.45, 0.4)
 
 ## 预留章节（GDD 总纲第 3 节规划；纯 UI 占位，正式数据随新章节 ChapterData 落地）。
 const RESERVED_CHAPTERS := [
@@ -19,6 +21,7 @@ var _selected_chapter: ChapterData = null
 var _chapter_buttons: Array[Button] = []
 var _stage_box: VBoxContainer
 var _selected_difficulty: int = 1
+var _status_label: Label
 
 
 func _ready() -> void:
@@ -33,6 +36,11 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", TITLE_COLOR)
 	add_child(title)
+
+	_status_label = Label.new()
+	_status_label.add_theme_font_size_override("font_size", 16)
+	_status_label.visible = false
+	add_child(_status_label)
 
 	var chapter_hint := Label.new()
 	chapter_hint.text = "选择章节"
@@ -121,7 +129,7 @@ func _make_stage_row(profile: PlayerProfile, stage: StageData) -> HBoxContainer:
 	stage_button.disabled = not unlocked
 	row.add_child(stage_button)
 	if unlocked:
-		stage_button.pressed.connect(func() -> void: stage_selected.emit(stage.stage_id))
+		stage_button.pressed.connect(func() -> void: stage_selected.emit(stage.stage_id, _selected_difficulty))
 	# 难度选择（轻松/标准/困难；困难需标准通关）
 	for diff in [0, 1, 2]:
 		var diff_name: String = Difficulty.NAMES[diff]
@@ -136,9 +144,45 @@ func _make_stage_row(profile: PlayerProfile, stage: StageData) -> HBoxContainer:
 			diff_button.set_pressed_no_signal(true)
 		diff_button.toggled.connect(_on_difficulty_changed.bind(diff, stage.stage_id))
 		row.add_child(diff_button)
+	# 一键通关（测试，v0.15.1）：按正常胜利结算规则写档，可反复点击刷奖励。
+	var clear_button := Button.new()
+	clear_button.text = "一键通关"
+	clear_button.custom_minimum_size = Vector2(86, 30)
+	clear_button.add_theme_font_size_override("font_size", 13)
+	clear_button.disabled = not unlocked
+	clear_button.set_meta("stage_id", stage.stage_id)
+	if unlocked:
+		clear_button.pressed.connect(_on_instant_clear.bind(stage))
+	row.add_child(clear_button)
 	return row
 
 
 func _on_difficulty_changed(pressed: bool, difficulty: int, _stage_id: StringName) -> void:
 	if pressed:
 		_selected_difficulty = difficulty
+
+
+## 一键通关（测试，v0.15.1）：构造一场标准胜利战局并走正常结算写档
+## （参与经验 +100/已拥有武将、首通/重复掉落、解锁、首通信物、科技点）。
+func _on_instant_clear(stage: StageData) -> void:
+	var profile := ProfileStore.get_profile()
+	var first_clear := not profile.stage_progress.has(str(stage.stage_id))
+	var session := BattleSession.new(str(stage.stage_id))
+	for character_id in profile.get_owned_character_ids():
+		session.add_xp(character_id, 100)
+	GameFlow.collect_stage_rewards(session, stage, first_clear)
+	GameFlow.award_tech_points(session, first_clear)
+	session.mark_victory({
+		"remaining_lives": 20,
+		"completed_waves": stage.waves.size(),
+		"difficulty": Difficulty.key_name(_selected_difficulty),
+		"instant_clear": true,
+	})
+	_status_label.visible = true
+	if ProfileStore.commit_victory(session, profile):
+		_status_label.text = "测试通关：%s 已结算（首通=%s），奖励已写档。" % [stage.display_name, str(first_clear)]
+		_status_label.add_theme_color_override("font_color", OK_COLOR)
+	else:
+		_status_label.text = "一键通关失败：%s" % stage.display_name
+		_status_label.add_theme_color_override("font_color", BAD_COLOR)
+	_refresh_stages()

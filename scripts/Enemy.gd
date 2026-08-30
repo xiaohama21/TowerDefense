@@ -11,6 +11,8 @@ const ENEMY_GROUP: StringName = &"enemies"
 @export var kill_xp: int = 0
 @export var damage_to_base: int = 1
 @export var enemy_id: StringName = &""
+## 显示名（v0.15.0 Boss 演出横幅使用，由 EnemyManager 从 EnemyData 传入）。
+var display_name: String = ""
 # 兵种/阵营标签（GDD 5.5），职业克制与掉落倾向按标签查询。
 var tags: Array[StringName] = []
 
@@ -46,6 +48,13 @@ func _ready() -> void:
 	progress = 0
 	if hp_bar:
 		hp_bar.visible = false
+	# Boss 演出（v0.15.0）：登场信号 + 血条强化。
+	if tags.has(&"boss"):
+		GameManager.boss_entered.emit(str(display_name))
+		if hp_bar:
+			hp_bar.custom_minimum_size = Vector2(84, 12)
+			hp_bar.modulate = Color(1.0, 0.85, 0.4)
+			hp_bar.visible = true
 	update_hp_bar()
 	queue_redraw()
 

@@ -8,6 +8,8 @@ signal debug_wave_jump_requested(wave_index: int)
 signal debug_clear_enemies_requested
 signal tower_upgrade_requested
 signal tower_sell_requested
+## 手动大招（v0.15.0）：属性面板"释放大招"按钮。
+signal ultimate_cast_requested
 signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
@@ -45,9 +47,9 @@ var _tower_title_label: Label
 var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
-var _confirm_panel: PanelContainer
-var _confirm_title_label: Label
-var _confirm_character: CharacterData = null
+var _tower_ultimate_button: Button
+var _boss_banner: Label
+var _boss_banner_timer: SceneTreeTimer = null
 var _result_panel: PanelContainer
 var _result_center: CenterContainer
 var _result_title_label: Label
@@ -71,6 +73,7 @@ func _ready() -> void:
 	_create_tower_panel()
 	_create_result_panel()
 	_create_dialogue_layer()
+	_create_boss_banner()
 
 	if OS.is_debug_build():
 		_create_debug_panel()
@@ -293,6 +296,15 @@ func _create_tower_panel() -> void:
 	_tower_sell_button.pressed.connect(func() -> void: tower_sell_requested.emit())
 	buttons.add_child(_tower_sell_button)
 
+	# 手动大招（v0.15.0）：仅手动模式显示，满怒可点。
+	_tower_ultimate_button = Button.new()
+	_tower_ultimate_button.custom_minimum_size = Vector2(0, 40)
+	_tower_ultimate_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tower_ultimate_button.add_theme_font_size_override("font_size", 16)
+	_tower_ultimate_button.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
+	_tower_ultimate_button.pressed.connect(func() -> void: ultimate_cast_requested.emit())
+	buttons.add_child(_tower_ultimate_button)
+
 
 func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
 	_panel_tower = tower
@@ -335,6 +347,47 @@ func _refresh_tower_panel() -> void:
 	var refund := tower.get_sell_refund(_panel_stage_data.sell_refund_ratio if _panel_stage_data != null else 0.6)
 	_tower_sell_button.text = "回收（返还 %d）" % refund
 	_tower_sell_button.disabled = false
+
+	# 手动大招按钮（v0.15.0）
+	var manual_mode: bool = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
+	_tower_ultimate_button.visible = manual_mode
+	if manual_mode:
+		if tower.is_ultimate_ready():
+			_tower_ultimate_button.text = "释放大招！（R）"
+			_tower_ultimate_button.disabled = false
+		else:
+			_tower_ultimate_button.text = "怒气未满"
+			_tower_ultimate_button.disabled = true
+
+
+## Boss 登场横幅（v0.15.0）：顶部大字号金字，放大淡入 → 停留 → 淡出。
+func _create_boss_banner() -> void:
+	_boss_banner = Label.new()
+	_boss_banner.name = "BossBanner"
+	_boss_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_banner.add_theme_font_size_override("font_size", 44)
+	_boss_banner.add_theme_color_override("font_color", Color(1.0, 0.8, 0.3))
+	_boss_banner.add_theme_color_override("font_outline_color", Color(0.4, 0.1, 0.05))
+	_boss_banner.add_theme_constant_override("outline_size", 10)
+	_boss_banner.visible = false
+	_boss_banner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_boss_banner.offset_top = 90.0
+	add_child(_boss_banner)
+
+
+func show_boss_banner(display_name: String) -> void:
+	if _boss_banner == null:
+		return
+	_boss_banner.text = "⚠ %s 降临 ⚠" % display_name
+	_boss_banner.visible = true
+	_boss_banner.modulate.a = 0.0
+	_boss_banner.scale = Vector2(1.6, 1.6)
+	var tween := create_tween()
+	tween.tween_property(_boss_banner, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(_boss_banner, "modulate:a", 1.0, 0.25)
+	tween.tween_interval(1.1)
+	tween.tween_property(_boss_banner, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(func() -> void: _boss_banner.visible = false)
 
 
 ## 开场剧情对话层（GDD modules/STAGES.md 5.1）：底部叙事面板，
@@ -585,3 +638,4 @@ func show_result(data: Dictionary) -> void:
 func hide_result() -> void:
 	_result_center.visible = false
 	_result_panel.visible = false
+

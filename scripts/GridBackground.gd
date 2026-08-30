@@ -20,6 +20,10 @@ const ENTRANCE_COLOR := Color(0.78, 0.62, 0.36, 1.0)
 const BASE_COLOR := Color(0.68, 0.29, 0.24, 1.0)
 const DECOR_TRUNK_COLOR := Color(0.3, 0.22, 0.14, 1.0)
 const DECOR_LEAF_COLOR := Color(0.2, 0.42, 0.28, 1.0)
+## 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor/*.png，缺失时回退程序化绘制。
+const DECOR_TEXTURE_DIR := "res://assets/decor"
+const DECOR_TEXTURE_SIZE := 60.0
+const DECOR_TYPES: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
 
 var road_cells: Array[Vector2i] = []
 var decor_cells: Array[Vector2i] = []
@@ -57,10 +61,12 @@ const THEMES := {
 
 var _palette: Dictionary = {}
 var _road_set: Dictionary = {}
+var _decor_textures: Dictionary = {}
 
 
 func _ready() -> void:
 	z_index = -15
+	_load_decor_textures()
 	queue_redraw()
 
 
@@ -148,8 +154,41 @@ func _draw_landmarks() -> void:
 func _draw_decorations() -> void:
 	for cell in decor_cells:
 		var center := cell_center(cell)
+		var decor_type := _decor_type_for_cell(cell)
+		var texture: Texture2D = _decor_textures.get(decor_type)
+		if texture != null:
+			draw_texture_rect(texture, Rect2(center - Vector2(DECOR_TEXTURE_SIZE, DECOR_TEXTURE_SIZE) * 0.5, Vector2(DECOR_TEXTURE_SIZE, DECOR_TEXTURE_SIZE)), false)
+			continue
 		draw_circle(center + Vector2(0, 16), 8.0, _palette.trunk)
 		draw_circle(center + Vector2(0, 2), 14.0, _palette.leaf)
+
+
+## 装饰类型（确定性哈希，不依赖布局数据改动）：
+## 夜战主题火把比例更高（营造火光氛围），其余主题以树为主。
+func _decor_type_for_cell(cell: Vector2i) -> StringName:
+	var roll: int = abs(hash(cell)) % 100
+	if theme_name == &"night":
+		if roll < 40:
+			return &"tree"
+		if roll < 65:
+			return &"rock"
+		if roll < 75:
+			return &"banner"
+		return &"torch"
+	if roll < 55:
+		return &"tree"
+	if roll < 80:
+		return &"rock"
+	if roll < 90:
+		return &"banner"
+	return &"torch"
+
+
+func _load_decor_textures() -> void:
+	for decor_type in DECOR_TYPES:
+		var path := "%s/%s.png" % [DECOR_TEXTURE_DIR, decor_type]
+		if ResourceLoader.exists(path):
+			_decor_textures[decor_type] = load(path) as Texture2D
 
 
 func _draw_ambient() -> void:

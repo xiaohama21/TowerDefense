@@ -39,7 +39,7 @@ func _build_ui() -> void:
 		branch_label.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
 		add_child(branch_label)
 		for item in TechTree.ITEMS:
-			if item.branch != branch[1]:
+			if item.branch != branch[0]:
 				continue
 			add_child(_make_tech_row(item))
 

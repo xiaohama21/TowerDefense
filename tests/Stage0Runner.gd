@@ -246,6 +246,23 @@ func _test_battle_session_contract() -> void:
 			_check(profile.get_character_exp("guan_yu") == 30, "胜利提交后应获得暂存经验")
 			_check(not profile.apply_battle_session(session), "同一 run_id 不应重复提交经验")
 
+		# 科技点与难度写档（v0.14.1）：随胜利战局提交。
+		var tech_session = script.new()
+		if tech_session.get("stage_id") != null:
+			tech_session.stage_id = "ch01_s01"
+		if tech_session.get("run_id") != null:
+			tech_session.run_id = "stage0-tech-run"
+		if tech_session.has_method("add_tech_points"):
+			tech_session.add_tech_points(3)
+		if tech_session.has_method("mark_victory"):
+			tech_session.mark_victory({"difficulty": "normal"})
+		var tech_profile = profile_script.new()
+		_check(tech_profile.apply_battle_session(tech_session), "科技点战局应能提交")
+		_check(tech_profile.tech_points == 3, "胜利提交后应获得科技点")
+		var tech_progress: Dictionary = tech_profile.stage_progress.get("ch01_s01", {})
+		var tech_difficulties: Dictionary = tech_progress.get("difficulties", {})
+		_check(tech_difficulties.has("normal"), "胜利提交后应按难度记录通关")
+
 	# Defeat is a separate transaction and must never apply pending XP.
 	var defeat = script.new()
 	if defeat != null:
@@ -403,3 +420,4 @@ func _finish() -> void:
 		for failure in failures:
 			print(" - %s" % failure)
 		get_tree().quit(1)
+
