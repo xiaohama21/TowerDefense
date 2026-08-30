@@ -2,6 +2,7 @@ extends VBoxContainer
 
 ## 地图选择面板（GDD v0.10.1）：章节 → 关卡两级。
 ## 第一章来自 ChapterData 资源；后续章节以锁定占位预留（纯展示，待 ChapterData）。
+## v0.19.4：章节区/关卡区包 ScrollContainer——第一章 8 关全量展示，内容过长纵向滚动。
 
 signal stage_selected(stage_id: StringName, difficulty: int)
 
@@ -48,9 +49,18 @@ func _build_ui() -> void:
 	chapter_hint.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
 	add_child(chapter_hint)
 
+	# 章节区滚动（v0.19.4）：章节按钮多时纵向滚动；固定占用高度避免挤压关卡区。
+	var chapter_section := Control.new()
+	chapter_section.custom_minimum_size = Vector2(0, 190)
+	add_child(chapter_section)
+	var chapter_scroll := ScrollContainer.new()
+	chapter_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	chapter_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	chapter_section.add_child(chapter_scroll)
 	var chapter_box := VBoxContainer.new()
 	chapter_box.add_theme_constant_override("separation", 6)
-	add_child(chapter_box)
+	chapter_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chapter_scroll.add_child(chapter_box)
 
 	var chapter := GameFlow.get_chapter()
 	_selected_chapter = chapter
@@ -71,10 +81,16 @@ func _build_ui() -> void:
 	stage_hint.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
 	add_child(stage_hint)
 
+	# 关卡区滚动（v0.19.4）：第一章 8 关全量展示，超出窗口高度时纵向滚动。
+	var stage_scroll := ScrollContainer.new()
+	stage_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stage_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stage_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(stage_scroll)
 	_stage_box = VBoxContainer.new()
 	_stage_box.add_theme_constant_override("separation", 6)
-	_stage_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(_stage_box)
+	_stage_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stage_scroll.add_child(_stage_box)
 
 
 func _make_chapter_button(parent: Node, chapter: ChapterData, selected: bool) -> Button:
