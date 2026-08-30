@@ -14,6 +14,7 @@ const CHARACTER_RESOURCE_DIR := "res://resources/characters"
 const PROMOTION_RESOURCE_DIR := "res://resources/promotions"
 const RELIC_RESOURCE_DIR := "res://resources/relics"
 const ITEM_RESOURCE_DIR := "res://resources/items"
+const BOND_RESOURCE_DIR := "res://resources/bonds"
 
 ## 新档初始武将（GDD 阶段 0 交付：刘备、关羽）。
 const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei", "guan_yu"]
@@ -124,6 +125,52 @@ func get_all_character_ids() -> Array[String]:
 	result.sort()
 	return result
 
+
+## 全部羁绊配置（v0.17.0，GDD modules/CHARACTERS.md 4.8）：扫描 `resources/bonds/`。
+func get_all_bonds() -> Array[BondData]:
+	var result: Array[BondData] = []
+	var dir := DirAccess.open(BOND_RESOURCE_DIR)
+	if dir == null:
+		return result
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if not dir.current_is_dir() and entry.ends_with(".tres"):
+			var bond := load("%s/%s" % [BOND_RESOURCE_DIR, entry]) as BondData
+			if bond != null and bond.is_valid():
+				result.append(bond)
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return result
+
+
+## 羁绊进度（v0.17.0）：编队中各羁绊的上场数/满员数；active=全员上场（满员激活）。
+func get_bond_progress(squad_ids: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var squad := {}
+	for character_id in squad_ids:
+		squad[str(character_id)] = true
+	for bond in get_all_bonds():
+		var count := 0
+		for member_id in bond.member_ids:
+			if squad.has(str(member_id)):
+				count += 1
+		result.append({
+			"bond": bond,
+			"count": count,
+			"total": bond.member_ids.size(),
+			"active": count == bond.member_ids.size(),
+		})
+	return result
+
+
+## 编队同队攻击加成（v0.17.0）：全部激活羁绊 damage_bonus 之和（finalize_damage 乘法区）。
+func get_squad_bond_damage_bonus(squad_ids: Array) -> float:
+	var bonus := 0.0
+	for progress in get_bond_progress(squad_ids):
+		if progress.get("active", false):
+			bonus += (progress["bond"] as BondData).damage_bonus
+	return bonus
 
 ## 难度解锁：困难需该关标准难度通关（v0.14.1 接通写档：结算按难度记录）。
 func is_difficulty_unlocked(profile: PlayerProfile, stage_id: StringName, difficulty: int) -> bool:
@@ -245,9 +292,44 @@ func get_active_promotion(profile: PlayerProfile, character_id: String) -> Promo
 	var promotion_path: Array = entry.get("promotion_path", [])
 	if promotion_path.is_empty():
 		return null
-	var promotion_id := str(promotion_path[promotion_path.size() - 1])
+	return load_promotion_data(str(promotion_path[promotion_path.size() - 1]))
+
+
+## 按 id 加载转职资源（`res://resources/promotions/{id}.tres`）；不存在返回 null。
+func load_promotion_data(promotion_id: String) -> PromotionData:
+	if promotion_id.is_empty():
+		return null
 	var path: String = "%s/%s.tres" % [PROMOTION_RESOURCE_DIR, promotion_id]
 	return load(path) as PromotionData if ResourceLoader.exists(path) else null
+
+
+## 武将当前可选的转职候选（阶段 6 图结构，v0.17.0）：
+## 未转职返回 `character.promotion_ids` 首条一转路线；已转职返回当前转职的
+## `next_promotion_ids` 分支候选（校验 parent_id=当前生效转职，且路径未含该候选，
+## 防跳级/回退/重复转职）。
+func get_promotion_candidates(profile: PlayerProfile, character_id: String) -> Array[PromotionData]:
+	var candidates: Array[PromotionData] = []
+	if profile == null:
+		return candidates
+	var character := load_character_data(character_id)
+	if character == null:
+		return candidates
+	var active := get_active_promotion(profile, character_id)
+	if active == null:
+		if not character.promotion_ids.is_empty():
+			var first := load_promotion_data(str(character.promotion_ids[0]))
+			if first != null:
+				candidates.append(first)
+		return candidates
+	var path: Array = profile.get_character(character_id).get("promotion_path", [])
+	for next_id in active.next_promotion_ids:
+		var candidate := load_promotion_data(str(next_id))
+		if candidate == null or str(candidate.parent_id) != str(active.promotion_id):
+			continue
+		if path.has(str(candidate.promotion_id)):
+			continue
+		candidates.append(candidate)
+	return candidates
 
 
 func get_item_display_name(item_id: String) -> String:

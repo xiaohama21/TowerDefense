@@ -30,6 +30,55 @@ func _run() -> void:
 	_check(exp_scroll != null and exp_scroll.item_type == ItemData.ItemType.CONSUMABLE,
 		"练兵令应为可用的消耗品道具")
 
+	# 阶段 6（v0.17.0）：多分支转职图结构——关羽一转 → 武圣/青龙骑双分支。
+	var promo_charger := load("res://resources/promotions/guan_yu_charger.tres") as PromotionData
+	var promo_wusheng := load("res://resources/promotions/guan_yu_wusheng.tres") as PromotionData
+	var promo_qinglong := load("res://resources/promotions/guan_yu_qinglong.tres") as PromotionData
+	_check(promo_charger != null and promo_wusheng != null and promo_qinglong != null, "关羽二转分支资源应齐全")
+	if promo_charger and promo_wusheng and promo_qinglong:
+		_check(promo_charger.next_promotion_ids.size() == 2
+			and promo_charger.next_promotion_ids.has(&"guan_yu_wusheng")
+			and promo_charger.next_promotion_ids.has(&"guan_yu_qinglong"), "突击骑应配置武圣/青龙骑两个二转分支")
+		_check(str(promo_wusheng.parent_id) == "guan_yu_charger"
+			and str(promo_qinglong.parent_id) == "guan_yu_charger", "二转候选 parent 应指向突击骑")
+		_check(promo_wusheng.ultimate_multiplier > 1.0
+			and promo_qinglong.attack_interval_multiplier < 1.0, "武圣应强化大招、青龙骑应强化攻速")
+
+	# 阶段 6（v0.17.0）：羁绊试点——资源齐全、桃园满员激活 +5%、五虎将缺员预览不激活。
+	var taoyuan := load("res://resources/bonds/taoyuan_oath.tres") as BondData
+	var five_tigers := load("res://resources/bonds/five_tigers.tres") as BondData
+	_check(taoyuan != null and taoyuan.is_valid(), "桃园结义羁绊配置应有效")
+	_check(five_tigers != null and five_tigers.is_valid(), "五虎将羁绊配置应有效")
+	_check(GameFlow.get_squad_bond_damage_bonus([]) == 0.0, "空编队羁绊加成应为 0")
+	_check(is_equal_approx(GameFlow.get_squad_bond_damage_bonus(["liu_bei", "guan_yu", "zhang_fei"]), 0.05),
+		"桃园结义三人同队攻击应 +5%")
+	_check(GameFlow.get_squad_bond_damage_bonus(["guan_yu", "zhang_fei", "zhao_yun", "huang_zhong"]) == 0.0,
+		"五虎将缺马超（预览）不应激活加成")
+
+	# 阶段 6（v0.17.0）：转职候选图——未转职给一转，突击骑给两个二转分支。
+	var stage6_profile := ProfileStore.get_profile()
+	if stage6_profile != null:
+		stage6_profile.ensure_character("guan_yu")
+		stage6_profile.set_promotion_path("guan_yu", [])
+		var first_round := GameFlow.get_promotion_candidates(stage6_profile, "guan_yu")
+		_check(first_round.size() == 1 and str(first_round[0].promotion_id) == "guan_yu_charger",
+			"未转职关羽应只有一转候选")
+		stage6_profile.set_promotion_path("guan_yu", ["guan_yu_charger"])
+		var second_round := GameFlow.get_promotion_candidates(stage6_profile, "guan_yu")
+		_check(second_round.size() == 2, "突击骑应提供两个二转分支候选")
+		stage6_profile.set_promotion_path("guan_yu", ["guan_yu_charger", "guan_yu_wusheng"])
+		var second_active := GameFlow.get_active_promotion(stage6_profile, "guan_yu")
+		_check(second_active != null and str(second_active.promotion_id) == "guan_yu_wusheng",
+			"二转后生效转职应为路径末位（武圣）")
+		var stage6_guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
+		if stage6_guan_yu != null and second_active != null:
+			var wusheng_stats := stage6_guan_yu.compute_stats_at(20, second_active)
+			var wusheng_expected := int(round((stage6_guan_yu.base_damage + stage6_guan_yu.damage_growth_per_level * 19) * 1.35))
+			_check(int(wusheng_stats["damage"]) == wusheng_expected,
+				"二转武圣伤害倍率应生效（×1.35，含 20 级成长）")
+		# 还原共享存档状态，避免污染后续建塔用例（塔伤害断言基于未转职）。
+		stage6_profile.set_promotion_path("guan_yu", [])
+
 	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor 纹理应齐全。
 	for decor_name in ["tree", "rock", "banner", "torch"]:
 		_check(ResourceLoader.exists("res://assets/decor/%s.png" % decor_name),
@@ -646,6 +695,14 @@ func _check_resource_integrity() -> void:
 			_check((resource as WaveData).is_valid(), "WaveData 无效: %s" % path)
 		elif resource is ChapterData:
 			_check((resource as ChapterData).is_valid(), "ChapterData 无效: %s" % path)
+		elif resource is BondData:
+			_check((resource as BondData).is_valid(), "BondData 无效: %s" % path)
+
+	for promotion_id in promotions:
+		var promotion: PromotionData = promotions[promotion_id]
+		for next_id in promotion.next_promotion_ids:
+			_check(promotions.has(str(next_id)),
+				"转职 %s 引用了不存在的下一转职 %s" % [promotion_id, next_id])
 
 	for character_id in characters:
 		var character: CharacterData = characters[character_id]

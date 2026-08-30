@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BondData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BondData.gd" id="1_bond"]
+
+[resource]
+script = ExtResource("1_bond")
+bond_id = &"five_tigers"
+display_name = "五虎将"
+description = "关羽、张飞、赵云、黄忠、马超五虎聚首：同队攻击 +6%。（马超未登场，当前为预览）"
+member_ids = [&"guan_yu", &"zhang_fei", &"zhao_yun", &"huang_zhong", &"ma_chao"]
+damage_bonus = 0.06

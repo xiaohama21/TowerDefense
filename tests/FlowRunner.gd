@@ -173,8 +173,10 @@ func _test_hub(profile: PlayerProfile) -> void:
 			locked_count += 1
 	print("PROBE develop_buttons=", develop_buttons.size(), " locked_disabled=", locked_count)
 	_check(locked_count >= 7, "图鉴应显示 7 名未解锁武将（置灰）")
-	var promote_button = develop_panel.get("_promotion_button")
-	_check(promote_button != null and promote_button.disabled,
+	# 转职分支候选（v0.17.0）：未转职时展示一转候选按钮，等级/材料不足应禁用。
+	var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
+	var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
+	_check(promote_button != null and promote_button is Button and promote_button.disabled,
 		"等级/材料不足时转职按钮应禁用")
 
 	# 切换到设置面板

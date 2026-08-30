@@ -67,6 +67,8 @@ var _trait_params: Dictionary = {}
 var _relic_damage_bonus: float = 0.0
 ## 科技树军事分支加成（GDD 10.7，v0.14.1）：全武将伤害 +%，经 finalize_damage 应用。
 var _tech_damage_bonus: float = 0.0
+## 编队羁绊同队攻击加成（GDD modules/CHARACTERS.md 4.8，v0.17.0）：finalize_damage 乘法区。
+var _bond_damage_bonus: float = 0.0
 var _rage_mode: StringName = &"hit+damage"
 var _gain_per_hit: int = 4
 var _gain_per_damage: float = 0.1
@@ -142,6 +144,7 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_relic_damage_bonus = relic.damage_bonus if relic != null else 0.0
 	# 科技树军事分支（finalize_damage 管线使用，v0.14.1）
 	_tech_damage_bonus = float(TechTree.get_tech_bonuses(ProfileStore.get_profile()).get("damage_pct", 0)) / 100.0
+	_bond_damage_bonus = GameFlow.get_squad_bond_damage_bonus(GameFlow.squad_character_ids)
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 
@@ -442,7 +445,7 @@ func get_consecutive_hits() -> int:
 
 ## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
 func finalize_damage(base: int, target: Enemy) -> int:
-	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus)
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _bond_damage_bonus)
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	if BehaviorRegistry.has_benevolence_aura(self):
 		value *= BehaviorRegistry.benevolence_bonus(self)

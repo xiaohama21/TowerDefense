@@ -23,8 +23,8 @@ var _exp_bar: ProgressBar
 var _exp_label: Label
 var _stats_label: Label
 var _promotion_label: Label
-var _promotion_button: Button
-var _promotion: PromotionData = null
+var _promotion_buttons: Array[Button] = []
+var _promotion_buttons_box: VBoxContainer
 var _stars_label: Label
 var _promote_star_button: Button
 var _relic_label: Label
@@ -164,12 +164,9 @@ func _build_ui() -> void:
 	_promotion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_box.add_child(_promotion_label)
 
-	_promotion_button = Button.new()
-	_promotion_button.text = "转 职"
-	_promotion_button.custom_minimum_size = Vector2(220, 48)
-	_promotion_button.add_theme_font_size_override("font_size", 20)
-	_promotion_button.pressed.connect(_on_promote_pressed)
-	detail_box.add_child(_promotion_button)
+	_promotion_buttons_box = VBoxContainer.new()
+	_promotion_buttons_box.add_theme_constant_override("separation", 8)
+	detail_box.add_child(_promotion_buttons_box)
 
 	_stars_label = Label.new()
 	_stars_label.add_theme_font_size_override("font_size", 17)
@@ -268,46 +265,59 @@ func _refresh() -> void:
 	_refresh_exp_scroll(level)
 
 
+## 转职候选（阶段 6 图结构，v0.17.0）：未转职展示一转；已转职展示二转分支列表。
+## 条件（等级/材料）逐条展示，满足才可点击；候选由 GameFlow 图结构校验保证合法性。
 func _refresh_promotion(character: CharacterData, level: int) -> void:
-	_promotion = null
-	_promotion_button.visible = false
-	if character.promotion_ids.is_empty():
+	for button in _promotion_buttons:
+		if is_instance_valid(button):
+			button.queue_free()
+	_promotion_buttons.clear()
+	_promotion_label.visible = true
+
+	var active := GameFlow.get_active_promotion(_profile, _selected_id)
+	var candidates := GameFlow.get_promotion_candidates(_profile, _selected_id)
+	if active == null and character.promotion_ids.is_empty():
 		_promotion_label.text = "暂无转职路线"
 		return
-
-	var route_id := str(character.promotion_ids[0])
-	var route_path: String = "%s/%s.tres" % [GameFlow.PROMOTION_RESOURCE_DIR, route_id]
-	var route := load(route_path) as PromotionData if ResourceLoader.exists(route_path) else null
-	if route == null:
-		_promotion_label.text = "转职配置缺失：%s" % route_id
+	if candidates.is_empty():
+		if active != null:
+			_promotion_label.text = "已转职：%s（%s）——已至该路线终点" % [active.display_name, active.description]
+		else:
+			_promotion_label.text = "转职配置缺失：%s" % str(character.promotion_ids[0])
 		return
 
-	var promoted := GameFlow.get_active_promotion(_profile, _selected_id) != null
-	if promoted:
-		_promotion_label.text = "已转职：%s（%s）" % [route.display_name, route.description]
-		return
+	_promotion_label.text = "已转职：%s（%s）——选择二转路线：" % [active.display_name, active.description] if active != null else "一转路线："
+	for promotion in candidates:
+		var level_ok := level >= promotion.required_level
+		var lines: Array[String] = [
+			"%s：%s —— %s" % ["二转" if active != null else "一转", promotion.display_name, promotion.description],
+			"等级需求 %d：%s" % [promotion.required_level, "已达标" if level_ok else "当前 %d" % level],
+		]
+		var materials_ok := true
+		for cost in promotion.item_costs:
+			if cost == null or cost.item == null:
+				continue
+			var owned: int = int(_profile.items.get(str(cost.item.item_id), 0))
+			var enough: bool = owned >= cost.amount
+			materials_ok = materials_ok and enough
+			lines.append("%s：%d/%d %s" % [
+				cost.item.display_name, owned, cost.amount, "已备齐" if enough else "不足",
+			])
+		var label := Label.new()
+		label.text = "\n".join(lines)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 15)
+		label.add_theme_color_override("font_color", OK_COLOR if (level_ok and materials_ok) else BAD_COLOR)
+		_promotion_buttons_box.add_child(label)
 
-	_promotion = route
-	var level_ok := level >= route.required_level
-	var lines: Array[String] = [
-		"一转：%s —— %s" % [route.display_name, route.description],
-		"等级需求 %d：%s" % [route.required_level, "已达标" if level_ok else "当前 %d" % level],
-	]
-	var materials_ok := true
-	for cost in route.item_costs:
-		if cost == null or cost.item == null:
-			continue
-		var owned: int = int(_profile.items.get(str(cost.item.item_id), 0))
-		var enough: bool = owned >= cost.amount
-		materials_ok = materials_ok and enough
-		lines.append("%s：%d/%d %s" % [
-			cost.item.display_name, owned, cost.amount, "已备齐" if enough else "不足",
-		])
-	_promotion_label.text = "\n".join(lines)
-	_promotion_label.add_theme_color_override("font_color",
-		OK_COLOR if (level_ok and materials_ok) else BAD_COLOR)
-	_promotion_button.visible = true
-	_promotion_button.disabled = not (level_ok and materials_ok)
+		var button := Button.new()
+		button.text = "转职为「%s」" % promotion.display_name
+		button.custom_minimum_size = Vector2(240, 40)
+		button.add_theme_font_size_override("font_size", 16)
+		button.disabled = not (level_ok and materials_ok)
+		button.pressed.connect(_on_promote_pressed.bind(promotion))
+		_promotion_buttons_box.add_child(button)
+		_promotion_buttons.append(button)
 
 
 ## 练兵令（测试，v0.15.1）：数量展示、满级/不足禁用。
@@ -336,22 +346,33 @@ func _on_exp_scroll_pressed() -> void:
 	_refresh()
 
 
-func _on_promote_pressed() -> void:
-	var character := _selected_character()
-	if character == null or _promotion == null:
+func _on_promote_pressed(promotion: PromotionData) -> void:
+	if promotion == null:
 		return
-	var promotion := _promotion
 	var dialog := ConfirmationDialog.new()
 	dialog.dialog_text = "转职为「%s」？\n转职不可逆，将消耗转职材料。" % promotion.display_name
 	dialog.ok_button_text = "确认转职"
 	dialog.cancel_button_text = "取消"
-	dialog.confirmed.connect(_apply_promotion.bind(character, promotion, dialog))
+	dialog.confirmed.connect(_apply_promotion.bind(promotion, dialog))
 	dialog.cancelled.connect(dialog.queue_free)
 	add_child(dialog)
 	dialog.popup_centered()
 
 
-func _apply_promotion(character: CharacterData, promotion: PromotionData, dialog: ConfirmationDialog) -> void:
+func _apply_promotion(promotion: PromotionData, dialog: ConfirmationDialog) -> void:
+	var character := _selected_character()
+	if character == null or promotion == null:
+		dialog.queue_free()
+		return
+	# 防御：候选必须是当前图结构的合法下一步（防跳级/回退/重复转职）。
+	var valid := false
+	for candidate in GameFlow.get_promotion_candidates(_profile, _selected_id):
+		if str(candidate.promotion_id) == str(promotion.promotion_id):
+			valid = true
+			break
+	if not valid:
+		dialog.queue_free()
+		return
 	for cost in promotion.item_costs:
 		if cost == null or cost.item == null:
 			continue

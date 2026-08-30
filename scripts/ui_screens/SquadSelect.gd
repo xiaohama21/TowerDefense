@@ -13,6 +13,7 @@ var _selected_ids: Array[String] = []
 var _buttons: Dictionary = {}
 
 var _counter_label: Label
+var _bond_label: Label
 var _start_button: Button
 
 
@@ -80,8 +81,10 @@ func _build_ui() -> void:
 		button.toggle_mode = true
 		button.custom_minimum_size = Vector2(200, 84)
 		button.add_theme_font_size_override("font_size", 16)
-		button.text = "%s\n%s · %d 金币" % [
-			character_data.display_name, _profession_name(character_data), character_data.build_cost
+		var bond_tags := _bond_tag_text(character_id)
+		button.text = "%s\n%s · %d 金币%s" % [
+			character_data.display_name, _profession_name(character_data), character_data.build_cost,
+			("\n" + bond_tags) if bond_tags != "" else "",
 		]
 		button.toggled.connect(_on_character_toggled.bind(character_id))
 		grid.add_child(button)
@@ -90,6 +93,12 @@ func _build_ui() -> void:
 	_counter_label = Label.new()
 	_counter_label.add_theme_font_size_override("font_size", 22)
 	root.add_child(_counter_label)
+
+	_bond_label = Label.new()
+	_bond_label.add_theme_font_size_override("font_size", 15)
+	_bond_label.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
+	_bond_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(_bond_label)
 
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 16)
@@ -107,6 +116,33 @@ func _build_ui() -> void:
 	_start_button.add_theme_font_size_override("font_size", 22)
 	_start_button.pressed.connect(_on_start_pressed)
 	actions.add_child(_start_button)
+
+
+func _bond_tag_text(character_id: String) -> String:
+	var tags: Array[String] = []
+	var squad := _selected_ids.duplicate()
+	if not squad.has(character_id):
+		squad.append(character_id)
+	for progress in GameFlow.get_bond_progress(squad):
+		var bond := progress["bond"] as BondData
+		if bond == null or not bond.member_ids.has(StringName(character_id)):
+			continue
+		tags.append("%s %d/%d" % [bond.display_name, int(progress["count"]), int(progress["total"])])
+	return "　".join(tags)
+
+
+## 编队羁绊状态说明（v0.17.0，GDD modules/CHARACTERS.md 4.8）：激活/预览与效果描述。
+func _bond_summary_text() -> String:
+	var parts: Array[String] = []
+	for progress in GameFlow.get_bond_progress(_selected_ids):
+		var bond := progress["bond"] as BondData
+		if bond == null:
+			continue
+		var state := "✅ 已激活" if bool(progress["active"]) else "预览"
+		parts.append("%s %d/%d %s：%s" % [
+			bond.display_name, int(progress["count"]), int(progress["total"]), state, bond.description,
+		])
+	return "\n".join(parts)
 
 
 func _profession_name(character_data: CharacterData) -> String:
@@ -150,3 +186,6 @@ func _sync_button_states() -> void:
 func _refresh() -> void:
 	_counter_label.text = "已选 %d / %d 名武将" % [_selected_ids.size(), _squad_cap()]
 	_start_button.disabled = _selected_ids.is_empty()
+	var summary := _bond_summary_text()
+	_bond_label.text = summary
+	_bond_label.visible = not summary.is_empty()
