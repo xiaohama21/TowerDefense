@@ -115,12 +115,13 @@ func _build_ui() -> void:
 
 	# 遗物选带（v0.19.0，GDD modules/CHARACTERS.md 4.8）：出征即消耗、仅本局生效。
 	var relic_hint := Label.new()
-	relic_hint.text = "遗物选带（最多 %d 件，出征即消耗，仅本局生效）" % RELIC_CAP
+	relic_hint.text = "遗物选带（最多 %d 件，进入战斗即消耗，仅本局生效）" % RELIC_CAP
 	relic_hint.add_theme_font_size_override("font_size", 16)
 	relic_hint.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
 	root.add_child(relic_hint)
 
-	var relic_box := HBoxContainer.new()
+	# HFlowContainer 自动换行，避免遗物按钮过多时溢出屏幕（v0.19.1 修复）。 
+	var relic_box := HFlowContainer.new()
 	relic_box.add_theme_constant_override("separation", 10)
 	root.add_child(relic_box)
 
@@ -155,7 +156,7 @@ func _build_ui() -> void:
 	actions.add_child(back_button)
 
 	_start_button = Button.new()
-	_start_button.text = "出 征"
+	_start_button.text = "出征"
 	_start_button.custom_minimum_size = Vector2(220, 48)
 	_start_button.add_theme_font_size_override("font_size", 22)
 	_start_button.pressed.connect(_on_start_pressed)

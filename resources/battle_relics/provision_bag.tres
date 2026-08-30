@@ -6,5 +6,5 @@
 script = ExtResource("1_relic")
 relic_id = &"provision_bag"
 display_name = "军粮袋"
-description = "鼓鼓囊囊的出征军粮，辎重先行。初始金币 +50。"
+description = "装满出征口粮的军粮袋，辎重先行。初始金币 +50。"
 start_gold = 50
