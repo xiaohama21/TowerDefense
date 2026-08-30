@@ -68,10 +68,15 @@ func _build_ui() -> void:
 	hint.add_theme_color_override("font_color", DIM_COLOR)
 	add_child(hint)
 
+	# 背包列表滚动（v0.19.3）：道具多时纵向滚动，避免溢出。
+	var item_scroll := ScrollContainer.new()
+	item_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	item_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(item_scroll)
 	_item_box = VBoxContainer.new()
 	_item_box.add_theme_constant_override("separation", 6)
-	_item_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(_item_box)
+	_item_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_scroll.add_child(_item_box)
 
 
 func _on_grant_exp_scroll() -> void:

@@ -92,10 +92,16 @@ func _build_ui() -> void:
 	columns.add_theme_constant_override("separation", 24)
 	add_child(columns)
 
+	# 列表滚动（v0.19.3）：武将过多时纵向滚动，避免溢出。
+	var list_scroll := ScrollContainer.new()
+	list_scroll.custom_minimum_size = Vector2(220, 0)
+	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	columns.add_child(list_scroll)
 	var list_box := VBoxContainer.new()
-	list_box.custom_minimum_size = Vector2(220, 0)
+	list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list_box.add_theme_constant_override("separation", 8)
-	columns.add_child(list_box)
+	list_scroll.add_child(list_box)
 
 	if _owned.is_empty():
 		var empty := Label.new()
@@ -134,10 +140,17 @@ func _build_ui() -> void:
 		locked_button.disabled = true
 		list_box.add_child(locked_button)
 
+	# 详情滚动（v0.19.3）：转职/信物/练兵令等长内容可滚动，避免溢出窗口。
+	var detail_scroll := ScrollContainer.new()
+	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	columns.add_child(detail_scroll)
 	var detail_box := VBoxContainer.new()
 	detail_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	detail_box.add_theme_constant_override("separation", 10)
-	columns.add_child(detail_box)
+	detail_scroll.add_child(detail_box)
 
 	_detail_name_label = Label.new()
 	_detail_name_label.add_theme_font_size_override("font_size", 24)
@@ -286,9 +299,9 @@ func _refresh() -> void:
 ## 转职候选（阶段 6 图结构，v0.17.0）：未转职展示一转；已转职展示二转分支列表。
 ## 条件（等级/材料）逐条展示，满足才可点击；候选由 GameFlow 图结构校验保证合法性。
 func _refresh_promotion(character: CharacterData, level: int) -> void:
-	for button in _promotion_buttons:
-		if is_instance_valid(button):
-			button.queue_free()
+	# 清空候选区全部子节点（标签与按钮，v0.19.3 修复重复描述堆叠）。
+	for child in _promotion_buttons_box.get_children():
+		child.queue_free()
 	_promotion_buttons.clear()
 	_promotion_label.visible = true
 
