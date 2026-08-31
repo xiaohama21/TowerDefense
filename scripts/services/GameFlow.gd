@@ -98,35 +98,21 @@ func get_next_stage_id(current_stage_id: StringName) -> StringName:
 func load_stage_data(stage_id: StringName) -> StageData:
 	if stage_id.is_empty():
 		return null
-	var stages_dir := DirAccess.open(STAGE_RESOURCE_DIR)
-	if stages_dir == null:
-		return null
-	stages_dir.list_dir_begin()
-	var entry := stages_dir.get_next()
-	while not entry.is_empty():
-		if stages_dir.current_is_dir() and not entry.begins_with("."):
-			var path: String = "%s/%s/%s.tres" % [STAGE_RESOURCE_DIR, entry, stage_id]
-			if ResourceLoader.exists(path):
-				stages_dir.list_dir_end()
-				return load(path) as StageData
-		entry = stages_dir.get_next()
-	stages_dir.list_dir_end()
+	# PCK 导出包中 DirAccess.list_dir_begin/get_next 迭代不可用（Godot 已知限制），
+	# 统一改用 ResourceLoader.list_directory（文件系统与 PCK 均支持，v0.19.6 修复）。
+	for entry in ResourceLoader.list_directory(STAGE_RESOURCE_DIR):
+		var path: String = "%s/%s/%s.tres" % [STAGE_RESOURCE_DIR, entry, stage_id]
+		if ResourceLoader.exists(path):
+			return load(path) as StageData
 	return null
 
 
 ## 武将图鉴（v0.11.3）：扫描角色目录返回全部角色 ID（含未拥有）。
 func get_all_character_ids() -> Array[String]:
 	var result: Array[String] = []
-	var dir := DirAccess.open(CHARACTER_RESOURCE_DIR)
-	if dir == null:
-		return result
-	dir.list_dir_begin()
-	var entry := dir.get_next()
-	while not entry.is_empty():
-		if not dir.current_is_dir() and entry.ends_with(".tres"):
+	for entry in ResourceLoader.list_directory(CHARACTER_RESOURCE_DIR):
+		if entry.ends_with(".tres"):
 			result.append(entry.trim_suffix(".tres"))
-		entry = dir.get_next()
-	dir.list_dir_end()
 	result.sort()
 	return result
 
@@ -134,18 +120,11 @@ func get_all_character_ids() -> Array[String]:
 ## 全部羁绊配置（v0.17.0，GDD modules/CHARACTERS.md 4.8）：扫描 `resources/bonds/`。
 func get_all_bonds() -> Array[BondData]:
 	var result: Array[BondData] = []
-	var dir := DirAccess.open(BOND_RESOURCE_DIR)
-	if dir == null:
-		return result
-	dir.list_dir_begin()
-	var entry := dir.get_next()
-	while not entry.is_empty():
-		if not dir.current_is_dir() and entry.ends_with(".tres"):
+	for entry in ResourceLoader.list_directory(BOND_RESOURCE_DIR):
+		if entry.ends_with(".tres"):
 			var bond := load("%s/%s" % [BOND_RESOURCE_DIR, entry]) as BondData
 			if bond != null and bond.is_valid():
 				result.append(bond)
-		entry = dir.get_next()
-	dir.list_dir_end()
 	return result
 
 
@@ -248,20 +227,12 @@ func get_equipped_relic(profile: PlayerProfile, character_id: String) -> RelicDa
 
 ## 该武将对应的信物定义（未拥有也可查询，用于图鉴与兑换）。
 func get_relic_for_character(character_id: String) -> RelicData:
-	var dir := DirAccess.open(RELIC_RESOURCE_DIR)
-	if dir == null:
-		return null
-	dir.list_dir_begin()
-	var entry := dir.get_next()
-	while not entry.is_empty():
-		if not dir.current_is_dir() and entry.ends_with(".tres"):
+	for entry in ResourceLoader.list_directory(RELIC_RESOURCE_DIR):
+		if entry.ends_with(".tres"):
 			var rpath: String = RELIC_RESOURCE_DIR + "/" + entry
 			var relic := load(rpath) as RelicData
 			if relic != null and relic.character_id == StringName(character_id):
-				dir.list_dir_end()
 				return relic
-		entry = dir.get_next()
-	dir.list_dir_end()
 	return null
 
 
@@ -490,4 +461,3 @@ func goto_battle() -> void:
 func _change_scene(scene_path: String) -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file(scene_path)
-

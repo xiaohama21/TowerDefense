@@ -1,6 +1,7 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.19.5（2026-08-31）
+> 版本：v0.19.6（2026-08-31）
+> v0.19.6 变更（打包验证修复）：**导出包目录扫描失效修复**——打包验证场景（模拟全新机器首次运行）发现 Godot PCK 中 `DirAccess.list_dir_begin/get_next` 迭代返回空（`DirAccess.open` 正常、`ResourceLoader.list_directory` 正常），导致**打包版**武将图鉴、羁绊列表、信物查询、`load_stage_data` 选关加载全部为空；修复：`GameFlow.load_stage_data` / `get_all_character_ids` / `get_all_bonds` / `get_relic_for_character` 统一改用 `ResourceLoader.list_directory`（文件系统与 PCK 均支持）；新增打包验证场景 `tools/PackVerify`（新档发放/编队链路/全量资源完整性，验证后移入 tests/）。项目版本号保持 0.9.0-alpha。
 > v0.19.5 变更（应用户要求）：**文档勘误与仓库清理**——①项目根目录路径由 `G:\godotProject\tower-defense` 修正为 `F:\godotProject\TowerDefense`（旧路径为历史笔误）；②README 状态与开发路线表同步至 v0.19.4（补阶段 7 一行）；③移除测试工具残留 `tests/_patch_b.py` / `tests/_patch_f.py`（非项目内容）。项目版本号保持 0.9.0-alpha。
 > v0.19.4 变更（应用户反馈）：**地图选关列表滚动条**——第一章已开发 8 关（`ch01_s01`~`ch01_s08`，含 Boss 关"广宗决战"），选关列表此前无滚动条，超出窗口高度的关卡被推出屏幕不可见（表现为"只显示 5 关"）；现章节区（固定占用高度 190）与关卡区均包 `ScrollContainer` 纵向滚动，8 关全量展示、内容过长可滚动。项目版本号保持 0.9.0-alpha。
 > v0.19.3 变更（应用户反馈）：**养成面板红字重复描述修复 + 长内容滚动条**——①**修复重复描述**：养成面板转职候选区每次刷新只清理旧按钮、未清理旧标签，导致切换武将/切回页签时候选条件红字反复堆叠，改为每次刷新清空候选区全部子节点；②**滚动条**：养成面板武将列表与详情区（转职/信物/练兵令等长内容）包 `ScrollContainer` 纵向滚动，背包道具列表同步加滚动条——内容过长不再溢出窗口。项目版本号保持 0.9.0-alpha。
