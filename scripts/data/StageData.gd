@@ -20,7 +20,7 @@ class_name StageData
 @export_category("In-battle Economy")
 ## 局内升级/回收参数（GDD 5.4）。第 n 次升级费用 = build_cost × upgrade_cost_factor × n；
 ## 回收返还 = 总投入 × sell_refund_ratio（向上取整）。均为局内临时数值，不入存档。
-@export_range(0, 9, 1) var max_inbattle_upgrade_level: int = 2
+@export_range(0, 9, 1) var max_inbattle_upgrade_level: int = 3
 @export_range(0.0, 10.0, 0.05) var upgrade_cost_factor: float = 0.8
 @export_range(0.0, 1.0, 0.05) var sell_refund_ratio: float = 0.6
 
@@ -81,4 +81,3 @@ func _are_rewards_valid(rewards: Array[ItemAmountData]) -> bool:
 		if reward == null or not reward.is_valid():
 			return false
 	return true
-

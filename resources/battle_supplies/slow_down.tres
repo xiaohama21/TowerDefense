@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BattleSupplyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleSupplyData.gd" id="1_supply"]
+
+[resource]
+script = ExtResource("1_supply")
+supply_id = &"slow_down"
+display_name = "缓兵"
+description = "广布疑兵，全场敌军减速 40%，持续 5 秒。"
+cost = 40
+max_uses = 2
+slow_factor = 0.6
+effect_duration = 5.0

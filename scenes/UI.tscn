@@ -60,10 +60,10 @@ theme_override_constants/margin_bottom = 10
 
 [node name="Content" type="HBoxContainer" parent="Root/TopBar/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 12
 
 [node name="StageLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(170, 0)
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.92, 0.8, 1)
 theme_override_font_sizes/font_size = 20
@@ -71,7 +71,7 @@ text = "关卡"
 vertical_alignment = 1
 
 [node name="GoldLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
 theme_override_font_sizes/font_size = 22
@@ -79,7 +79,7 @@ text = "金币：100"
 vertical_alignment = 1
 
 [node name="LivesLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(135, 0)
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
 theme_override_font_sizes/font_size = 22
@@ -87,7 +87,7 @@ text = "生命：20"
 vertical_alignment = 1
 
 [node name="WaveLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.84, 1, 1)
 theme_override_font_sizes/font_size = 22
@@ -100,31 +100,37 @@ size_flags_horizontal = 3
 mouse_filter = 2
 
 [node name="NextWaveButton" type="Button" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(190, 44)
+custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "开始第 1 波"
 
+[node name="SupplyButton" type="Button" parent="Root/TopBar/Margin/Content"]
+custom_minimum_size = Vector2(84, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "军需"
+
 [node name="PauseButton" type="Button" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(90, 44)
+custom_minimum_size = Vector2(84, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "暂停"
 
 [node name="SettingsButton" type="Button" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(90, 44)
+custom_minimum_size = Vector2(84, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "设置"
 
 [node name="RestartButton" type="Button" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(90, 44)
+custom_minimum_size = Vector2(84, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "重开"
 
 [node name="ExitButton" type="Button" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(90, 44)
+custom_minimum_size = Vector2(84, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "退出"

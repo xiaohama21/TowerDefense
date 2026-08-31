@@ -17,3 +17,7 @@ behavior_id = &"attack_speed_aura"
 ultimate_gain_per_hit = 6
 ultimate_id = &"ultimate_dancer_encourage"
 rage_gain_mode = &"support"
+battle_rank_damage_step = 0.05
+battle_rank_attack_speed_step = 0.1
+battle_rank_buff_duration_step = 0.1
+battle_rank_buff_power_step = 0.05

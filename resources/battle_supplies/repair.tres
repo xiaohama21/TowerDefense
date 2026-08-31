@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BattleSupplyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleSupplyData.gd" id="1_supply"]
+
+[resource]
+script = ExtResource("1_supply")
+supply_id = &"repair"
+display_name = "修整"
+description = "紧急修整城防，基地生命 +10。"
+cost = 60
+max_uses = 1
+heal_amount = 10

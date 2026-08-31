@@ -344,13 +344,16 @@ func _run() -> void:
 		_check(spear_tower != null and slots[2].occupied, "张飞塔应建造成功")
 		if spear_tower != null:
 			var upgrade_cost_1 := spear_tower.get_upgrade_cost(stage_data.upgrade_cost_factor)
-			_check(upgrade_cost_1 == ceili(zhang_fei.build_cost * 0.8), "第一次升级费用应为造价×0.8")
-			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "金币充足时应能升级")
-			_check(spear_tower.battle_level == 1, "升级后局内等级应为 1")
-			_check(spear_tower.damage == int(round(zhang_fei.base_damage * 1.25)), "升级后伤害应为 +25%")
-			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "第二次升级应成功")
-			_check(spear_tower.battle_level == stage_data.max_inbattle_upgrade_level, "升级应止步于本关上限")
-			_check(not tower_manager.upgrade_tower(spear_tower, stage_data), "超过上限后升级应失败")
+			_check(upgrade_cost_1 == ceili(zhang_fei.build_cost * 0.8), "第一次升阶费用应为造价×0.8")
+			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "金币充足时应能升阶")
+			_check(spear_tower.battle_rank == 1, "升阶后局内阶数应为 1")
+			_check(spear_tower.damage == int(round(zhang_fei.base_damage * 1.3)), "剑客一阶伤害应为 +30%")
+			_check(is_equal_approx(spear_tower.attack_cooldown, zhang_fei.attack_interval / 1.08), "剑客一阶攻速应为 +8%")
+			_check(is_equal_approx(spear_tower.range_radius, zhang_fei.base_range * 1.03), "剑客一阶射程应为 +3%")
+			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "第二次升阶应成功")
+			_check(tower_manager.upgrade_tower(spear_tower, stage_data), "第三次升阶应成功")
+			_check(spear_tower.battle_rank == stage_data.max_inbattle_upgrade_level, "升阶应止步于本关上限")
+			_check(not tower_manager.upgrade_tower(spear_tower, stage_data), "超过上限后升阶应失败")
 
 			# 近战行为集成（剑客）（GDD modules/BEHAVIORS.md melee_thrust）：
 			# 直伤一次带骑兵标签的轻骑，验证 15% 克制与近战无弹道。
@@ -359,6 +362,10 @@ func _run() -> void:
 			_check(melee_target != null, "近战用例应能生成轻骑")
 			if melee_target != null:
 				melee_target.set_process(false)
+				# 升阶测试已把塔升到满阶（rank 3），提高测试敌人血量避免被秒杀，
+				# 保证克制/光环伤害断言可精确比较。
+				melee_target.max_hp = 999
+				melee_target.current_hp = 999
 				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
 				spear_tower.target = melee_target
 				spear_tower.attack()
@@ -378,6 +385,29 @@ func _run() -> void:
 			_check(tower_manager.sell_tower(spear_tower, stage_data), "回收应成功")
 			_check(GameManager.gold == gold_before_sell + refund, "回收后应返还金币")
 			_check(not slots[2].occupied, "回收后建造槽应可复用")
+
+	# 局内军需（阶段 8 提交 1，NUMBERS.md 10.9）：四件资源齐全、效果数值已配置。
+	var supply_repair := load("res://resources/battle_supplies/repair.tres") as BattleSupplyData
+	var supply_fire := load("res://resources/battle_supplies/fire_attack.tres") as BattleSupplyData
+	var supply_drum := load("res://resources/battle_supplies/war_drum.tres") as BattleSupplyData
+	var supply_slow := load("res://resources/battle_supplies/slow_down.tres") as BattleSupplyData
+	_check(supply_repair != null and supply_fire != null and supply_drum != null and supply_slow != null, "四件军需资源应可加载")
+	if supply_repair != null and supply_fire != null and supply_drum != null and supply_slow != null:
+		_check(supply_repair.is_valid() and supply_fire.is_valid() and supply_drum.is_valid() and supply_slow.is_valid(), "军需资源配置应有效")
+		_check(supply_repair.heal_amount == 10 and supply_fire.burn_dps > 0 and supply_drum.attack_speed_bonus > 0.0
+			and supply_slow.slow_factor < 1.0, "军需效果数值应已配置")
+	# 灼烧（火攻）：每秒 burn_dps 持续扣血，25/s × 3s = 75。
+	var burn_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	_check(burn_target != null, "灼烧用例应能生成敌人")
+	if burn_target != null:
+		burn_target.set_process(false)
+		burn_target.current_hp = burn_target.max_hp
+		burn_target.apply_burn(25, 3.0)
+		for _i in range(60):
+			burn_target._process(0.05)
+		var burn_dealt := burn_target.max_hp - burn_target.current_hp
+		_check(abs(burn_dealt - 75) <= 1, "灼烧 3 秒应造成约 75 点伤害（实际 %d）" % burn_dealt)
+		burn_target.die(false)
 
 	# 等级曲线（GDD modules/NUMBERS.md 10.1）
 	_check(LevelCurve.exp_total_for_level(10) == 1440, "10 级累计经验应为 1440")
@@ -510,16 +540,16 @@ func _run() -> void:
 		"技能注册表应登记 9 个技能")
 	_check(SkillRegistry.get_skill_name(&"charge") == "蓄力" and SkillRegistry.get_skill_name(&"wisdom") == "奇谋",
 		"技能显示名应可查询")
-	# 档位系数：s = 1 + 0.1 × min(battle_level/5, 4)。
+	# 档位系数：s = 1 + 0.1 × min(battle_rank/5, 4)。
 	var tier_tower: Tower = tower_manager.build_tower(Vector2(240, 640), guan_yu, null, {"level": 1})
 	_check(tier_tower != null, "应能建造档位系数用例塔")
 	if tier_tower:
 		tier_tower.set_process(false)
-		tier_tower.battle_level = 4
+		tier_tower.battle_rank = 4
 		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.0), "4 级档位系数应为 1.0")
-		tier_tower.battle_level = 5
+		tier_tower.battle_rank = 5
 		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.1), "5 级档位系数应为 1.1")
-		tier_tower.battle_level = 20
+		tier_tower.battle_rank = 20
 		_check(is_equal_approx(SkillRegistry.tier_multiplier(tier_tower), 1.4), "20 级档位系数应封顶 1.4")
 		tier_tower.queue_free()
 	# 阶段 7（v0.19.0）：局内遗物伤害加成应进 finalize_damage 乘法区（狼牙符 +5%）。
@@ -542,11 +572,11 @@ func _run() -> void:
 	if charge_tower:
 		charge_tower.set_process(false)
 		_check(is_equal_approx(charge_tower.kill_rage_refund(), 50.0), "charge 基准返怒应为 50")
-		charge_tower.battle_level = 5
+		charge_tower.battle_rank = 5
 		_check(is_equal_approx(charge_tower.kill_rage_refund(), 55.0), "charge 5 级返怒应为 55")
-		charge_tower.battle_level = 20
+		charge_tower.battle_rank = 20
 		_check(is_equal_approx(charge_tower.kill_rage_refund(), 70.0), "charge 20 级返怒应封顶 70")
-		charge_tower.battle_level = 0
+		charge_tower.battle_rank = 0
 		var charge_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
 		charge_target.set_process(false)
 		charge_target.global_position = charge_tower.global_position + Vector2(120, 0)
@@ -554,7 +584,7 @@ func _run() -> void:
 		charge_tower.rage = 100.0
 		_check(charge_tower._try_cast_ultimate(), "满怒大招应能释放")
 		_check(is_equal_approx(charge_tower.rage, 50.0), "大招击杀应返怒 50（先清怒再返还）")
-		charge_tower.battle_level = 5
+		charge_tower.battle_rank = 5
 		charge_tower.rage = 100.0
 		var charge_target_2 := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
 		charge_target_2.set_process(false)
@@ -578,7 +608,7 @@ func _run() -> void:
 			"攻城锤对精英应 ×1.1")
 		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(siege_tower, siege_soldier), 1.0),
 			"攻城锤对普通目标应无加成")
-		siege_tower.battle_level = 5
+		siege_tower.battle_rank = 5
 		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(siege_tower, siege_elite), 1.11),
 			"攻城锤 5 级对精英应 ×1.11")
 		siege_elite.queue_free()
@@ -592,9 +622,9 @@ func _run() -> void:
 	if wisdom_tower:
 		wisdom_tower.set_process(false)
 		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 110.0), "奇谋大招范围应 +10%")
-		wisdom_tower.battle_level = 5
+		wisdom_tower.battle_rank = 5
 		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 111.0), "奇谋 5 级大招范围应 +11%")
-		wisdom_tower.battle_level = 20
+		wisdom_tower.battle_rank = 20
 		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 114.0), "奇谋 20 级大招范围应封顶 +14%")
 		wisdom_tower.queue_free()
 	# dragon_rush（赵云·龙骧卫）：击杀蓄力，下一次伤害 +25% × s 一次性消耗。
@@ -708,7 +738,7 @@ func _run() -> void:
 			"统军令应使射程内友方伤害 +4%")
 		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_out, command_target), 1.0),
 			"统军令对射程外友方应无加成")
-		commander_tower.battle_level = 5
+		commander_tower.battle_rank = 5
 		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_in, command_target), 1.044),
 			"统军令 5 级应 +4.4%")
 		command_target.queue_free()
@@ -778,6 +808,8 @@ func _check_resource_integrity() -> void:
 			characters[str(character.character_id)] = character
 		elif resource is EnemyData:
 			_check((resource as EnemyData).is_valid(), "EnemyData 无效: %s" % path)
+		elif resource is BattleSupplyData:
+			_check((resource as BattleSupplyData).is_valid(), "BattleSupplyData 无效: %s" % path)
 		elif resource is StageData:
 			var stage := resource as StageData
 			_check(stage.is_valid(), "StageData 无效: %s" % path)
@@ -853,4 +885,3 @@ func _collect_resource_paths(dir_path: String) -> Array[String]:
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return result
-

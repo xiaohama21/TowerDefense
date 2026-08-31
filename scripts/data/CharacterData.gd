@@ -33,6 +33,15 @@ class_name CharacterData
 ## 角色级积怒模式覆盖（v0.11.2 勘误：空则按职业默认/combat_role 推断；刘备=support）。
 @export var rage_gain_mode_override: StringName
 
+@export_category("Battle Rank Override (阶段 8，NUMBERS.md 10.9)")
+## 角色级局内升阶步进覆盖（-1 = 继承职业配置；辅助定位角色如刘备在此配置辅助行数值）。
+@export_range(-1.0, 1.0, 0.01) var battle_rank_damage_step_override: float = -1.0
+@export_range(-1.0, 1.0, 0.01) var battle_rank_attack_speed_step_override: float = -1.0
+@export_range(-1.0, 1.0, 0.01) var battle_rank_range_step_override: float = -1.0
+@export_range(-1.0, 1.0, 0.01) var battle_rank_aoe_step_override: float = -1.0
+@export_range(-1.0, 1.0, 0.01) var battle_rank_buff_duration_step_override: float = -1.0
+@export_range(-1.0, 1.0, 0.01) var battle_rank_buff_power_step_override: float = -1.0
+
 @export_category("Unlock")
 @export var unlock_stage_id: StringName
 

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BattleSupplyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleSupplyData.gd" id="1_supply"]
+
+[resource]
+script = ExtResource("1_supply")
+supply_id = &"war_drum"
+display_name = "擂鼓"
+description = "擂响战鼓，全队攻速 +30%，持续 8 秒。"
+cost = 50
+max_uses = 2
+attack_speed_bonus = 0.3
+effect_duration = 8.0

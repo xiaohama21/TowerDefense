@@ -46,6 +46,16 @@ func _process(delta: float) -> void:
 	_process_special_behaviors(delta)
 
 
+## 当前存活敌人列表（阶段 8 军需：火攻/缓兵等全场效果使用）。
+func get_alive_enemies() -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+		var enemy := node as Enemy
+		if enemy != null and not enemy.is_dead:
+			result.append(enemy)
+	return result
+
+
 ## 敌人特殊行为执行（GDD B.3.2）：healer_aura 治疗光环、summon_guard 召唤护卫。
 func _process_special_behaviors(delta: float) -> void:
 	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):

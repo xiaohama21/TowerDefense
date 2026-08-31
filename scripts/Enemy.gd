@@ -30,6 +30,10 @@ var special_cooldown: float = 0.0
 # 减速 debuff（术士大招/张飞咆哮/诸葛亮光环等）：取最强因子，倒计时归零解除。
 var slow_factor: float = 1.0
 var _slow_time_left: float = 0.0
+## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
+var burn_dps: int = 0
+var _burn_time_left: float = 0.0
+var _burn_acc: float = 0.0
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
@@ -73,6 +77,14 @@ func _process(delta: float) -> void:
 		if _slow_time_left <= 0.0:
 			slow_factor = 1.0
 
+	if _burn_time_left > 0.0:
+		_burn_time_left = maxf(_burn_time_left - delta, 0.0)
+		_burn_acc += float(burn_dps) * delta
+		if _burn_acc >= 1.0:
+			var tick := int(_burn_acc)
+			_burn_acc -= tick
+			take_damage(tick)
+
 	var before := global_position
 	progress += speed * slow_factor * delta
 	var delta_pos := global_position - before
@@ -88,6 +100,14 @@ func _process(delta: float) -> void:
 func apply_slow(factor: float, duration: float) -> void:
 	slow_factor = minf(slow_factor, clampf(factor, 0.05, 1.0))
 	_slow_time_left = maxf(_slow_time_left, duration)
+
+
+## 施加灼烧：多来源叠加时取更大每秒伤害，时长刷新。
+func apply_burn(dps: int, duration: float) -> void:
+	if is_dead or dps <= 0 or duration <= 0.0:
+		return
+	burn_dps = maxi(burn_dps, dps)
+	_burn_time_left = maxf(_burn_time_left, duration)
 
 
 func take_damage(amount: int, source_character_id: String = "") -> void:

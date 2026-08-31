@@ -4,6 +4,8 @@ signal next_wave_pressed
 signal pause_pressed
 ## 战斗内设置（v0.19.2）：暂停并打开设置弹窗。
 signal settings_pressed
+## 局内军需（阶段 8 提交 1）：打开军需弹窗。
+signal battle_supply_pressed
 signal restart_pressed
 signal character_selected(character_id: String)
 signal debug_wave_jump_requested(wave_index: int)
@@ -26,6 +28,7 @@ const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
 @onready var wave_label: Label = $Root/TopBar/Margin/Content/WaveLabel
 @onready var stage_label: Label = $Root/TopBar/Margin/Content/StageLabel
 @onready var next_wave_button: Button = $Root/TopBar/Margin/Content/NextWaveButton
+@onready var supply_button: Button = $Root/TopBar/Margin/Content/SupplyButton
 @onready var pause_button: Button = $Root/TopBar/Margin/Content/PauseButton
 @onready var settings_button: Button = $Root/TopBar/Margin/Content/SettingsButton
 @onready var restart_button: Button = $Root/TopBar/Margin/Content/RestartButton
@@ -69,6 +72,7 @@ var _dialogue_advance_after_msec: int = 0
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	next_wave_button.pressed.connect(_on_next_wave_button_pressed)
+	supply_button.pressed.connect(func() -> void: battle_supply_pressed.emit())
 	pause_button.pressed.connect(_on_pause_button_pressed)
 	settings_button.pressed.connect(func() -> void: settings_pressed.emit())
 	restart_button.pressed.connect(_on_restart_button_pressed)
@@ -222,6 +226,7 @@ func _refresh_action_buttons() -> void:
 	)
 	pause_button.disabled = game_finished
 	settings_button.disabled = game_finished
+	supply_button.disabled = game_finished
 
 	if all_waves_completed:
 		next_wave_button.text = "全部波次完成"
@@ -338,20 +343,24 @@ func _refresh_tower_panel() -> void:
 		return
 
 	var max_level: int = _panel_stage_data.max_inbattle_upgrade_level if _panel_stage_data != null else 0
-	_tower_title_label.text = "%s · %s · 局内等级 %d/%d" % [
-		tower.display_name, tower.get_profession_name(), tower.battle_level, max_level
+	_tower_title_label.text = "%s · %s · 局内阶数 %d/%d" % [
+		tower.display_name, tower.get_profession_name(), tower.battle_rank, max_level
 	]
 	var attacks_per_second := 1.0 / maxf(tower.attack_cooldown, 0.01)
-	_tower_attr_label.text = "伤害 %d　　攻速 %.2f 次/秒　　射程 %d" % [
+	var attr_text := "伤害 %d　　攻速 %.2f 次/秒　　射程 %d" % [
 		tower.damage, attacks_per_second, int(tower.range_radius)
 	]
+	# 阶段 8：AOE 职业（投石车/术士）显示爆散范围，升阶范围提升可见。
+	if tower.get_battle_rank_aoe_multiplier() > 1.001:
+		attr_text += "　　爆散 %d" % ceili(BehaviorRegistry.LOB_EXPLOSION_RADIUS * tower.get_battle_rank_aoe_multiplier())
+	_tower_attr_label.text = attr_text
 
-	if _panel_stage_data != null and tower.battle_level < max_level:
+	if _panel_stage_data != null and tower.battle_rank < max_level:
 		var cost := tower.get_upgrade_cost(_panel_stage_data.upgrade_cost_factor)
-		_tower_upgrade_button.text = "升级（%d 金币）" % cost
+		_tower_upgrade_button.text = "升阶（%d 金币）" % cost
 		_tower_upgrade_button.disabled = GameManager.gold < cost
 	else:
-		_tower_upgrade_button.text = "已满级"
+		_tower_upgrade_button.text = "已满阶"
 		_tower_upgrade_button.disabled = true
 
 	var refund := tower.get_sell_refund(_panel_stage_data.sell_refund_ratio if _panel_stage_data != null else 0.6)
@@ -648,4 +657,3 @@ func show_result(data: Dictionary) -> void:
 func hide_result() -> void:
 	_result_center.visible = false
 	_result_panel.visible = false
-

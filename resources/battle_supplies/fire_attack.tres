@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BattleSupplyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleSupplyData.gd" id="1_supply"]
+
+[resource]
+script = ExtResource("1_supply")
+supply_id = &"fire_attack"
+display_name = "火攻"
+description = "引燃全场敌军：立即造成 50 伤害并灼烧 3 秒（每秒 25）。"
+cost = 80
+max_uses = 1
+instant_damage = 50
+burn_dps = 25
+effect_duration = 3.0

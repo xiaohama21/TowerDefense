@@ -32,17 +32,17 @@ func build_tower(
 	return tower
 
 
-## 局内升级（GDD 5.4）：伤害 +25%/级，攻速/射程/特性不变；局内临时状态。
+## 局内升阶（GDD 5.4/阶段 8）：按职业步进提升伤害/攻速/射程/范围；局内临时状态。
 func upgrade_tower(tower: Tower, stage_data: StageData) -> bool:
 	if tower == null or stage_data == null:
 		return false
-	if tower.battle_level >= stage_data.max_inbattle_upgrade_level:
+	if tower.battle_rank >= stage_data.max_inbattle_upgrade_level:
 		return false
 	var cost := tower.get_upgrade_cost(stage_data.upgrade_cost_factor)
 	if GameManager.gold < cost:
 		return false
 	GameManager.gold -= cost
-	tower.apply_upgrade(cost)
+	tower.apply_battle_rank(cost)
 	return true
 
 

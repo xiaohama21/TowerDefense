@@ -9,10 +9,14 @@ const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
 ## 选中环（v0.19.2）：金色光圈，选中塔明显可辨。
 const SELECT_RING_COLOR := Color(1.0, 0.82, 0.3)
 const RANGE_BORDER_WIDTH := 3.5
-## 局内升级每级伤害增幅（GDD 5.4：伤害 +25%/级，与 10.5 大招倍率同源）。
-## 局内升级伤害步进与大招步进（v0.18.0 起读 GameBalance 中心配置，默认与 .tres 一致）。
-var _upgrade_damage_step: float = 0.25
-var _ultimate_battle_step: float = 0.25
+## 局内升阶职业化步进（阶段 8，NUMBERS.md 10.9）：默认伤害 +25%/阶、其余 0（旧行为）；
+## 由 ProfessionData.battle_rank_* 提供，CharacterData.battle_rank_*_override 可覆盖。
+var _battle_rank_damage_step: float = 0.25
+var _battle_rank_attack_speed_step: float = 0.0
+var _battle_rank_range_step: float = 0.0
+var _battle_rank_aoe_step: float = 0.0
+var _battle_rank_buff_duration_step: float = 0.0
+var _battle_rank_buff_power_step: float = 0.0
 ## 怒气上限（GDD 4.6）：满 100 自动释放大招。
 ## 怒气上限（CHARACTERS.md 4.6；v0.18.0 起读 GameBalance）。
 var _max_rage: float = 100.0
@@ -47,8 +51,8 @@ signal selection_changed(tower: Tower)
 var target = null
 var is_selected: bool = false
 
-# 局内临时状态（GDD 5.4）：升级等级与总投入只存在于本局，不写入存档。
-var battle_level: int = 0
+# 局内临时状态（GDD 5.4/阶段 8）：升阶阶数（battle_rank）与总投入只存在于本局，不写入存档。
+var battle_rank: int = 0
 var total_invested: int = 0
 var build_cost: int = 0
 var assigned_slot: Node = null
@@ -66,6 +70,9 @@ var _profession_id: StringName = StringName()
 var _profession_name: String = ""
 var _behavior_id: StringName = StringName()
 var _base_damage: int = 40
+## 局内升阶基准（阶段 8）：建造时的基础攻速间隔与射程（含遗物/特性加成），升阶在其上乘步进。
+var _base_attack_cooldown: float = 0.8
+var _base_range: float = 150.0
 var _min_range: float = 0.0
 var _trait_id: StringName = StringName()
 var _trait_params: Dictionary = {}
@@ -149,6 +156,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	# 局内遗物射程加成（v0.19.0，与特性乘算）
 	range_radius *= 1.0 + float(relic_bonuses.get("range_bonus_pct", 0)) / 100.0
 	attack_cooldown = stats.attack_interval * float(relic_bonuses.get("attack_interval_factor", 1.0))
+	_base_attack_cooldown = attack_cooldown
+	_base_range = range_radius
 	_min_range = stats.min_range
 	# 信物全伤害加成（finalize_damage 管线使用，v0.13）
 	_relic_damage_bonus = relic.damage_bonus if relic != null else 0.0
@@ -158,17 +167,23 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	# 局内遗物伤害加成（v0.19.0，与科技/信物/羁绊同区叠加）
 	_battle_relic_damage_bonus = float(relic_bonuses.get("damage_bonus_pct", 0)) / 100.0
 	var balance := GameBalance.get_balance()
-	_upgrade_damage_step = balance.upgrade_damage_step
-	_ultimate_battle_step = balance.ultimate_battle_step
 	_max_rage = balance.max_rage
 	bullet_speed = character_data.projectile_speed
 	build_cost = character_data.build_cost
 
-	_profession_id = character_data.profession.profession_id if character_data.profession != null else StringName()
-	_profession_name = character_data.profession.display_name if character_data.profession != null else ""
-	_behavior_id = character_data.profession.behavior_id if character_data.profession != null else StringName()
+	var profession_data := character_data.profession
+	_profession_id = profession_data.profession_id if profession_data != null else StringName()
+	_profession_name = profession_data.display_name if profession_data != null else ""
+	_behavior_id = profession_data.behavior_id if profession_data != null else StringName()
 	if _behavior_id.is_empty():
 		_behavior_id = &"single_target_burst"
+	# 局内升阶职业化步进（阶段 8）：职业配置 + 角色覆盖（-1 继承）。
+	_battle_rank_damage_step = _resolve_rank_step(character_data.battle_rank_damage_step_override, profession_data.battle_rank_damage_step if profession_data != null else 0.25)
+	_battle_rank_attack_speed_step = _resolve_rank_step(character_data.battle_rank_attack_speed_step_override, profession_data.battle_rank_attack_speed_step if profession_data != null else 0.0)
+	_battle_rank_range_step = _resolve_rank_step(character_data.battle_rank_range_step_override, profession_data.battle_rank_range_step if profession_data != null else 0.0)
+	_battle_rank_aoe_step = _resolve_rank_step(character_data.battle_rank_aoe_step_override, profession_data.battle_rank_aoe_step if profession_data != null else 0.0)
+	_battle_rank_buff_duration_step = _resolve_rank_step(character_data.battle_rank_buff_duration_step_override, profession_data.battle_rank_buff_duration_step if profession_data != null else 0.0)
+	_battle_rank_buff_power_step = _resolve_rank_step(character_data.battle_rank_buff_power_step_override, profession_data.battle_rank_buff_power_step if profession_data != null else 0.0)
 	_trait_id = character_data.trait_id
 	_trait_params = character_data.trait_params.duplicate(true)
 	_granted_skills.assign(promotion.granted_skill_ids.duplicate()) if promotion != null else _granted_skills.clear()
@@ -203,9 +218,14 @@ func get_profession_name() -> String:
 	return _profession_name
 
 
+## 角色覆盖解析：override >= 0 用角色值，否则用职业默认。
+func _resolve_rank_step(override_value: float, profession_default: float) -> float:
+	return override_value if override_value >= 0.0 else profession_default
+
+
 func get_upgrade_cost(upgrade_cost_factor: float) -> int:
-	## 第 n 次升级费用 = build_cost × factor × n（n 从 1 起，向上取整）。
-	return ceili(build_cost * upgrade_cost_factor * (battle_level + 1))
+	## 第 n 次升阶费用 = build_cost × factor × n（n 从 1 起，向上取整）。
+	return ceili(build_cost * upgrade_cost_factor * (battle_rank + 1))
 
 
 func get_sell_refund(sell_refund_ratio: float) -> int:
@@ -213,10 +233,15 @@ func get_sell_refund(sell_refund_ratio: float) -> int:
 	return ceili(total_invested * sell_refund_ratio)
 
 
-func apply_upgrade(spent_cost: int) -> void:
-	battle_level += 1
+## 职业化升阶（阶段 8，NUMBERS.md 10.9）：伤害/攻速/射程/AOE 按职业步进加算到基础值。
+func apply_battle_rank(spent_cost: int) -> void:
+	battle_rank += 1
 	total_invested += spent_cost
-	damage = int(round(_base_damage * (1.0 + _upgrade_damage_step * battle_level)))
+	damage = int(round(_base_damage * (1.0 + _battle_rank_damage_step * battle_rank)))
+	attack_cooldown = _base_attack_cooldown / (1.0 + _battle_rank_attack_speed_step * battle_rank)
+	range_radius = _base_range * (1.0 + _battle_rank_range_step * battle_rank)
+	_rebuild_attack_timer()
+	_rebuild_range_area()
 	queue_redraw()
 
 
@@ -374,9 +399,23 @@ func _try_cast_ultimate() -> bool:
 	return true
 
 
-## 大招强度（10.5）：×(1 + 0.25 × 局内等级) × 转职 ultimate_multiplier。
+## 大招强度（10.5）：×(1 + 伤害步进 × 局内阶数) × 转职 ultimate_multiplier（与普攻升阶同源）。
 func ultimate_power() -> float:
-	return (1.0 + _ultimate_battle_step * battle_level) * _ultimate_multiplier
+	return (1.0 + _battle_rank_damage_step * battle_rank) * _ultimate_multiplier
+
+
+## 局内升阶 buff 增强（阶段 8）：施加方升阶后，其 buff 持续/效果按此放大（舞娘/刘备等辅助）。
+func get_battle_rank_buff_duration_multiplier() -> float:
+	return 1.0 + _battle_rank_buff_duration_step * battle_rank
+
+
+func get_battle_rank_buff_power_multiplier() -> float:
+	return 1.0 + _battle_rank_buff_power_step * battle_rank
+
+
+## 局内升阶 AOE 半径倍率（阶段 8）：投石车普攻爆散 / 术士大招范围。
+func get_battle_rank_aoe_multiplier() -> float:
+	return 1.0 + _battle_rank_aoe_step * battle_rank
 
 
 ## charge 技能（突击骑）：大招击杀返怒 50% × 档位系数（每 5 级 +10%）。

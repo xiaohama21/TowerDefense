@@ -306,7 +306,7 @@ starting_lives = 20
 starting_currency = 180
 squad_size = 4
 build_slot_count = 10
-max_inbattle_upgrade_level = 2
+max_inbattle_upgrade_level = 3
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
 waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_7")]
@@ -324,5 +324,4 @@ first_clear_rewards = [SubResource("ItemAmountData_cloth"), SubResource("ItemAmo
 probability_drops = [SubResource("DropEntry_cloth3")]
 repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 60
-
 

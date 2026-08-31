@@ -131,7 +131,7 @@ static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
 	tower.gain_rage_for_attack(bullet.damage)
 	var flight_time := tower.global_position.distance_to(target.global_position) / maxf(bullet.speed, 1.0)
 	var predicted := target.global_position + target.velocity_dir * target.speed * flight_time
-	bullet.launch_lob(predicted, LOB_EXPLOSION_RADIUS)
+	bullet.launch_lob(predicted, LOB_EXPLOSION_RADIUS * tower.get_battle_rank_aoe_multiplier())
 
 
 ## ============ 大招执行器（v0.11.2 数值生效，表现占位） ============
@@ -188,7 +188,7 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 			return false
 		center = enemies[0].global_position
 	for enemy in tower.enemies_in_range():
-		var aoe_radius := tower.ultimate_aoe_radius(LOB_EXPLOSION_RADIUS + 30.0)
+		var aoe_radius := tower.ultimate_aoe_radius(LOB_EXPLOSION_RADIUS + 30.0) * tower.get_battle_rank_aoe_multiplier()
 		if enemy.global_position.distance_to(center) <= aoe_radius:
 			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), tower.character_id)
 			enemy.apply_slow(0.6, 2.0)
@@ -197,11 +197,13 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 
 
 static func _ult_dancer_encourage(tower: Tower) -> bool:
-	# 全队鼓舞：攻速 +30%、伤害 +15%，持续 8 秒。
+	# 全队鼓舞：攻速 +30%、伤害 +15%，持续 8 秒；升阶增强 buff 效果/时长（阶段 8）。
+	var power_mult := tower.get_battle_rank_buff_power_multiplier()
+	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var ally := node as Tower
 		if ally != null and is_instance_valid(ally):
-			ally.apply_team_buff(1.3, 1.15, 8.0)
+			ally.apply_team_buff(1.0 + 0.3 * power_mult, 1.0 + 0.15 * power_mult, 8.0 * duration_mult)
 	tower.play_attack_flash()
 	return true
 
@@ -216,7 +218,7 @@ static func _ult_catapult_barrage(tower: Tower) -> bool:
 		if bullet != null:
 			bullet.damage = tower.finalize_damage(int(round(tower.damage * 0.8 * tower.ultimate_power())), target)
 			var spread := Vector2(randf_range(-40.0, 40.0), randf_range(-40.0, 40.0))
-			bullet.launch_lob(target.global_position + spread, LOB_EXPLOSION_RADIUS)
+			bullet.launch_lob(target.global_position + spread, LOB_EXPLOSION_RADIUS * tower.get_battle_rank_aoe_multiplier())
 	tower.play_attack_flash()
 	return true
 
@@ -272,10 +274,12 @@ static func moon_veil_rage_multiplier(tower: Tower) -> float:
 
 
 static func _attack_aura_pulse(tower: Tower, _target: Enemy) -> void:
-	## 舞娘光环脉冲：增益射程内友方攻速 +20%/3s（占位数值）；
+	## 舞娘光环脉冲：增益射程内友方攻速 +20%/3s；升阶增强 buff 效果/时长（阶段 8）。
 	## 辅助积怒与贡献经验经 gain_support_pulse 接入同一事件流。
+	var power_mult := tower.get_battle_rank_buff_power_multiplier()
+	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
 	var allies := tower.allies_in_range()
 	for ally in allies:
-		ally.apply_attack_speed_buff(1.2, 3.0)
+		ally.apply_attack_speed_buff(1.0 + 0.2 * power_mult, 3.0 * duration_mult)
 	tower.gain_support_pulse(allies.size())
 	tower.play_attack_flash()

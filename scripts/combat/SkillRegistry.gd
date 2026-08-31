@@ -5,7 +5,7 @@ class_name SkillRegistry
 ## 转职技能注册表（GDD modules/BEHAVIORS.md B.3.5，v0.15.0）：
 ## 技能 = 转职授予的被动/条件触发能力；战斗脚本只调用钩子，不在
 ## Tower/Enemy 等脚本中写死技能逻辑。数值经 PromotionData.skill_params 读取，
-## 档位系数 s = 1 + 0.1 × min(battle_level/5, 4)（每 5 级一档，上限 +40%）。
+## 档位系数 s = 1 + 0.1 × min(battle_rank/5, 4)（每 5 阶一档，上限 +40%）。
 
 const MAX_TIERS := 4
 const TIER_STEP := 0.1
@@ -28,9 +28,9 @@ const KNOWN_SKILLS: Array[StringName] = [
 ]
 
 
-## 档位系数：s = 1 + 0.1 × min(battle_level/5, 4)。
+## 档位系数：s = 1 + 0.1 × min(battle_rank/5, 4)。
 static func tier_multiplier(tower: Tower) -> float:
-	var tiers := mini(int(tower.battle_level / 5), MAX_TIERS)
+	var tiers := mini(int(tower.battle_rank / 5), MAX_TIERS)
 	return 1.0 + TIER_STEP * tiers
 
 
@@ -101,7 +101,9 @@ static func on_ultimate_cast(tower: Tower) -> void:
 	tower.play_skill_effect(Color(1.0, 0.8, 0.95))
 	if has_skill(tower, &"inspire"):
 		var speed_bonus := param(tower, &"inspire", "team_speed_bonus", 0.06) * s
-		var duration := param(tower, &"inspire", "duration", 8.0)
+		# 升阶 buff 增强（阶段 8）：施加方升阶后效果/时长放大。
+		var duration := param(tower, &"inspire", "duration", 8.0) * tower.get_battle_rank_buff_duration_multiplier()
+		speed_bonus *= tower.get_battle_rank_buff_power_multiplier()
 		for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 			var ally := node as Tower
 			if ally != null and is_instance_valid(ally):

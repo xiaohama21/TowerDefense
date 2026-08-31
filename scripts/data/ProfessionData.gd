@@ -41,6 +41,18 @@ enum AttackPattern {
 @export_range(0.0, 99.0, 0.1) var ultimate_gain_per_damage: float = 0.1
 @export_range(0, 99, 1) var support_ultimate_gain_per_tick: int = 2
 
+@export_category("Battle Rank (阶段 8 职业化升阶，NUMBERS.md 10.9)")
+## 局内升阶职业化步进（v0.20.1 定稿）：每阶加算到基础值；默认伤害 +25% 保持旧行为、
+## 其余 0；角色可用 CharacterData.battle_rank_*_override 覆盖。
+@export_range(0.0, 1.0, 0.01) var battle_rank_damage_step: float = 0.25
+@export_range(0.0, 1.0, 0.01) var battle_rank_attack_speed_step: float = 0.0
+@export_range(0.0, 1.0, 0.01) var battle_rank_range_step: float = 0.0
+## AOE 半径步进（投石车普攻爆散 / 术士大招范围）。
+@export_range(0.0, 1.0, 0.01) var battle_rank_aoe_step: float = 0.0
+## 辅助 buff 增强（舞娘光环/鼓舞等施加方）：持续时长与效果强度步进。
+@export_range(0.0, 1.0, 0.01) var battle_rank_buff_duration_step: float = 0.0
+@export_range(0.0, 1.0, 0.01) var battle_rank_buff_power_step: float = 0.0
+
 
 func is_valid() -> bool:
 	return not profession_id.is_empty() and not display_name.is_empty()

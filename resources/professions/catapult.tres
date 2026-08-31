@@ -17,3 +17,7 @@ min_range = 160.0
 behavior_id = &"lob_aoe"
 ultimate_id = &"ultimate_catapult_barrage"
 rage_gain_mode = &"hit+damage"
+battle_rank_damage_step = 0.12
+battle_rank_attack_speed_step = 0.08
+battle_rank_range_step = 0.03
+battle_rank_aoe_step = 0.08

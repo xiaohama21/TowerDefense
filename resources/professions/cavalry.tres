@@ -16,3 +16,6 @@ attack_interval_multiplier = 1.0
 behavior_id = &"single_target_burst"
 ultimate_id = &"ultimate_cavalry_breaker"
 rage_gain_mode = &"hit+damage"
+battle_rank_damage_step = 0.25
+battle_rank_attack_speed_step = 0.1
+battle_rank_range_step = 0.03

@@ -2,6 +2,8 @@ extends Node2D
 
 const BUILD_SLOT_SCENE: PackedScene = preload("res://scenes/BuildSlot.tscn")
 const DEFAULT_STAGE_ID: StringName = &"ch01_s01"
+## 局内军需（阶段 8 提交 1）：目录内 .tres 即道具配置（BattleSupplyData）。
+const BATTLE_SUPPLY_DIR := "res://resources/battle_supplies"
 
 @onready var enemy_manager = $EnemyManager
 @onready var tower_manager = $TowerManager
@@ -24,6 +26,11 @@ var _settings_popup: CanvasLayer = null
 var _was_paused_before_settings: bool = false
 ## Boss 横幅去抖（v0.15.0）：同名 Boss 短时间只播一次。
 var _last_boss_banner_msec: int = 0
+## 局内军需状态（阶段 8 提交 1）：道具列表与剩余次数（本局临时状态）。
+var _battle_supplies: Array[BattleSupplyData] = []
+var _supply_uses_left: Dictionary = {}
+var _battle_supply_popup: CanvasLayer = null
+var _supply_buttons: Dictionary = {}
 
 func _ready():
 	get_tree().paused = false
@@ -55,6 +62,7 @@ func _ready():
 	# Keep autoload signal connections idempotent when the scene is reloaded.
 	_disconnect_game_signals()
 	GameManager.gold_changed.connect(ui.update_gold)
+	GameManager.gold_changed.connect(_on_gold_changed)
 	GameManager.lives_changed.connect(ui.update_lives)
 	GameManager.wave_changed.connect(ui.update_wave)
 	GameManager.game_over.connect(_on_game_over)
@@ -71,6 +79,7 @@ func _ready():
 	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
 	ui.tower_upgrade_requested.connect(_on_tower_upgrade_requested)
 	ui.tower_sell_requested.connect(_on_tower_sell_requested)
+	ui.battle_supply_pressed.connect(_on_battle_supply_pressed)
 	ui.ultimate_cast_requested.connect(_on_ultimate_cast_requested)
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
@@ -81,6 +90,7 @@ func _ready():
 
 	ui.set_stage_name(stage_data.display_name)
 	ui.setup_character_bar(_available_characters)
+	_load_battle_supplies()
 	_select_character(str(_available_characters[0].character_id))
 
 	ui.update_gold(GameManager.gold)
@@ -239,11 +249,11 @@ func _on_tower_upgrade_requested() -> void:
 	if _selected_tower == null or not is_instance_valid(_selected_tower):
 		return
 	if tower_manager.upgrade_tower(_selected_tower, stage_data):
-		ui.show_status("升级完成，伤害提升 25%")
+		ui.show_status("升阶成功")
 		ui.show_tower_panel(_selected_tower, stage_data)
 		SfxLibrary.play(&"build", -12.0)
-	elif _selected_tower.battle_level >= stage_data.max_inbattle_upgrade_level:
-		ui.show_status("已达到本关升级上限")
+	elif _selected_tower.battle_rank >= stage_data.max_inbattle_upgrade_level:
+		ui.show_status("已达到本关升阶上限")
 	else:
 		ui.show_status("金币不足")
 
@@ -547,3 +557,159 @@ func _discard_active_session() -> void:
 	battle_session.abandon()
 	ProfileStore.discard_session(battle_session)
 	GameManager.set_battle_session(null)
+
+
+## ============ 局内军需（阶段 8 提交 1，NUMBERS.md 10.9） ============
+
+## 加载军需道具：目录扫描 .tres（PCK 兼容），按费用升序固定展示顺序。
+func _load_battle_supplies() -> void:
+	_battle_supplies.clear()
+	_supply_uses_left.clear()
+	for entry in ResourceLoader.list_directory(BATTLE_SUPPLY_DIR):
+		if not entry.ends_with(".tres"):
+			continue
+		var supply := load(BATTLE_SUPPLY_DIR + "/" + entry) as BattleSupplyData
+		if supply == null or not supply.is_valid():
+			push_warning("军需资源无效：%s" % entry)
+			continue
+		_battle_supplies.append(supply)
+		_supply_uses_left[str(supply.supply_id)] = supply.max_uses
+	_battle_supplies.sort_custom(func(a: BattleSupplyData, b: BattleSupplyData) -> bool:
+		return a.cost < b.cost)
+
+
+func _find_battle_supply(supply_id: String) -> BattleSupplyData:
+	for supply in _battle_supplies:
+		if str(supply.supply_id) == supply_id:
+			return supply
+	return null
+
+
+## 金币变化时刷新军需面板置灰状态（波次中金币增长即时生效）。
+func _on_gold_changed(_new_amount: int) -> void:
+	if _battle_supply_popup != null and is_instance_valid(_battle_supply_popup):
+		_refresh_battle_supply_popup()
+
+
+## 打开军需弹窗（不暂停：波次中可战术性购买）。
+func _on_battle_supply_pressed() -> void:
+	if _battle_supply_popup != null and is_instance_valid(_battle_supply_popup):
+		return
+	_supply_buttons.clear()
+	var popup := CanvasLayer.new()
+	popup.layer = 50
+	popup.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().root.add_child(popup)
+	_battle_supply_popup = popup
+	var dim := ColorRect.new()
+	dim.color = Color(0.02, 0.04, 0.06, 0.45)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	popup.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	popup.add_child(center)
+	var panel := PanelContainer.new()
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.055, 0.075, 0.12, 0.97)
+	panel_style.border_color = Color(0.25, 0.43, 0.68, 0.9)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(10)
+	panel.add_theme_stylebox_override("panel", panel_style)
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	margin.add_child(box)
+	var title := Label.new()
+	title.text = "军需"
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color(0.95, 0.93, 0.8))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	for supply in _battle_supplies:
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(400, 58)
+		button.add_theme_font_size_override("font_size", 15)
+		button.pressed.connect(_on_battle_supply_buy.bind(str(supply.supply_id)))
+		box.add_child(button)
+		_supply_buttons[str(supply.supply_id)] = button
+	var close_button := Button.new()
+	close_button.text = "关闭"
+	close_button.custom_minimum_size = Vector2(400, 44)
+	close_button.add_theme_font_size_override("font_size", 16)
+	close_button.pressed.connect(_close_battle_supply_popup)
+	box.add_child(close_button)
+	_refresh_battle_supply_popup()
+
+
+func _refresh_battle_supply_popup() -> void:
+	if _battle_supply_popup == null or not is_instance_valid(_battle_supply_popup):
+		return
+	for supply in _battle_supplies:
+		var key := str(supply.supply_id)
+		var button := _supply_buttons.get(key) as Button
+		if button == null or not is_instance_valid(button):
+			continue
+		var uses_left := int(_supply_uses_left.get(key, 0))
+		button.text = "%s —— %s\n%d 金币 · 剩余 %d" % [
+			supply.display_name, supply.description, supply.cost, uses_left
+		]
+		button.disabled = uses_left <= 0 or GameManager.gold < supply.cost
+
+
+func _close_battle_supply_popup() -> void:
+	if _battle_supply_popup != null and is_instance_valid(_battle_supply_popup):
+		_battle_supply_popup.queue_free()
+	_battle_supply_popup = null
+	_supply_buttons.clear()
+
+
+func _on_battle_supply_buy(supply_id: String) -> void:
+	var supply := _find_battle_supply(supply_id)
+	if supply == null:
+		return
+	var uses_left := int(_supply_uses_left.get(supply_id, 0))
+	if uses_left <= 0:
+		ui.show_status("该军需已用尽")
+		return
+	if GameManager.gold < supply.cost:
+		ui.show_status("金币不足")
+		return
+	GameManager.gold -= supply.cost
+	_supply_uses_left[supply_id] = uses_left - 1
+	_apply_battle_supply(supply)
+	_refresh_battle_supply_popup()
+	SfxLibrary.play(&"skill", -8.0)
+
+
+## 军需效果应用（NUMBERS.md 10.9）：修整/火攻/擂鼓/缓兵。
+func _apply_battle_supply(supply: BattleSupplyData) -> void:
+	if supply.heal_amount > 0:
+		GameManager.lives += supply.heal_amount
+		ui.show_status("%s：基地生命 +%d" % [supply.display_name, supply.heal_amount])
+	if supply.instant_damage > 0 or supply.burn_dps > 0:
+		var count := 0
+		for enemy in enemy_manager.get_alive_enemies():
+			if supply.instant_damage > 0:
+				enemy.take_damage(supply.instant_damage)
+			if supply.burn_dps > 0:
+				enemy.apply_burn(supply.burn_dps, supply.effect_duration)
+			count += 1
+		ui.show_status("%s：命中 %d 名敌人" % [supply.display_name, count])
+	if supply.attack_speed_bonus > 0.0:
+		for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+			var tower := node as Tower
+			if tower != null and is_instance_valid(tower):
+				tower.apply_attack_speed_buff(1.0 + supply.attack_speed_bonus, supply.effect_duration)
+		ui.show_status("%s：全队攻速 +%d%%（%ds）" % [supply.display_name, int(supply.attack_speed_bonus * 100), int(supply.effect_duration)])
+	if supply.slow_factor < 1.0:
+		var count := 0
+		for enemy in enemy_manager.get_alive_enemies():
+			enemy.apply_slow(supply.slow_factor, supply.effect_duration)
+			count += 1
+		ui.show_status("%s：全场减速 %d%%（%ds，%d 名敌人）" % [supply.display_name, int((1.0 - supply.slow_factor) * 100), int(supply.effect_duration), count])

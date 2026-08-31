@@ -54,7 +54,7 @@
   - 回收后建造槽立即可复用；该塔局内等级与怒气丢弃。
   - 准备期与波次中均可回收。
 - **数据层扩展（v0.9 已实施）**：`StageData` 新增 `max_inbattle_upgrade_level: int`、`upgrade_cost_factor: float`、`sell_refund_ratio: float`；战斗内通过已建塔交互面板操作，`TowerManager.upgrade_tower/sell_tower` 执行；数值均为初稿，平衡调整须同步更新本文档与 [NUMBERS.md](NUMBERS.md) 10.3。
-- **升阶更名（v0.20.0 定稿，v0.20.1 职业化，未开发）**：局内升级改称"升阶"（`battle_rank`），与局外经验升级严格区分；上限由初稿 2 提至 **3 阶**（0 阶起，后续开放 5 阶）；**数值按职业区分**（伤害/攻速/射程/范围/buff 各有侧重，等效强度每阶约 +30%，见 NUMBERS.md 10.9）；费用规则不变（`build_cost × upgrade_cost_factor × n`，factor=0.8）；升阶为局内临时状态、不写存档；3/5 阶特性解锁见 GAME_DESIGN.md 阶段 9。
+- **升阶更名（✅ v0.21.0 实施）**：局内升级改称"升阶"（`battle_rank`），与局外经验升级严格区分；上限由初稿 2 提至 **3 阶**（8 关全配置，后续开放 5 阶）；**数值按职业区分**（伤害/攻速/射程/范围/buff 各有侧重，`ProfessionData.battle_rank_*` + 角色 `battle_rank_*_override`，见 NUMBERS.md 10.9）；费用规则不变（`build_cost × upgrade_cost_factor × n`，factor=0.8）；升阶为局内临时状态、不写存档；3/5 阶特性解锁见 GAME_DESIGN.md 阶段 9。
 
 ---
 

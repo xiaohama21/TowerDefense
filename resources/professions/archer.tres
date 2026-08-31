@@ -16,3 +16,6 @@ attack_interval_multiplier = 0.95
 behavior_id = &"single_target_precision"
 ultimate_id = &"ultimate_archer_volley"
 rage_gain_mode = &"hit+damage"
+battle_rank_damage_step = 0.12
+battle_rank_attack_speed_step = 0.2
+battle_rank_range_step = 0.08
