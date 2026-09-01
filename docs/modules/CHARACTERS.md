@@ -8,7 +8,7 @@
 
 ## 4.1 基本概念
 
-- **角色 = 塔**。每个角色是一个可养成单位，拥有：身份（`CharacterData`）、职业（`ProfessionData`）、技能（转职授予，见 4.5）、**特性**（`trait_id`，常驻被动）、**大招**（按职业划分，怒气驱动）、转职路线（`promotion_ids`）、解锁条件（`unlock_stage_id`）。
+- **角色 = 塔**。每个角色是一个可养成单位，拥有：身份（`CharacterData`）、职业（`ProfessionData`）、技能（转职授予，见 4.5）、**角色技能**（武将专属差异化，见 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)，v0.27.2 定稿、排期阶段 8·提交 6）、**特性**（`trait_id`，常驻被动）、**大招**（按职业划分，怒气驱动）、转职路线（`promotion_ids`）、解锁条件（`unlock_stage_id`）。
 - 战斗中每个角色通过 `build_cost` 金币放置到 `build_slot_count` 个建造槽之一；**同一关卡可放置同一角色的多个塔（v0.7 拍板，正式规则）**。当前经济与关卡设计（初始 2 武将 + 10 建造槽 + 单关 6~9 座塔的收入规模）即按多塔规则平衡；"每武将同时限 1 座"转为【远期】高难关/挑战模式规则，不再是待定项。
 
 ---
@@ -49,8 +49,8 @@
 ## 4.5 转职
 
 - **一转（v0.10 已实现）**：每个武将一条简单线性路线（如关羽 → 突击骑 `guan_yu_charger`）。条件：达到 `required_level`（暂定 10 级）+ 消耗材料（`PromotionData.item_costs`，初稿黄巾布×10）。转职后按 `PromotionData` 的倍率改变数值（经 `compute_stats_at()` 应用到建造的塔）、获得技能（`granted_skill_ids`，见下条）、切换外观（`visual_variant_id`，阶段 5），并**强化大招**（`ultimate_multiplier`，阶段 3）。
-- **技能定位（v0.25.3 职业技能收敛定稿）**：`granted_skill_ids` 为**转职授予的被动/条件触发能力**，与怒气主动的大招构成"主动爆发 + 被动常态"循环。**职业技能归属职业且每职业仅一个**（6 职业 × 1 技能），代表职业身份；**转职 = 技能强化**——二转授予同名技能并显示 `+`（如蓄力 → 蓄力+），三转及以上 `++`，数值提升或按转职定位附加次级机制。**职业技能档位以局内升阶 `battle_rank` 为准（✅ v0.27.4 拍板，见 SKILLS.md 第 5 节）；角色技能与档位无关。**
-- **技能表（v0.25.3 设计定稿，数据与实现待同步）**：参数经 `PromotionData.skill_params: Dictionary` 配置（行为脚本不写死数值）。**档位系数 `s = 1 + 0.1 × min(battle_rank / 5, 4)`**（每 5 档 +10%、上限 4 档 +40%，仅职业技能），效果 = 基准 × s：
+- **技能定位（v0.27.1 职业技能收敛定稿）**：`granted_skill_ids` 为**转职授予的被动/条件触发能力**，与怒气主动的大招构成"主动爆发 + 被动常态"循环。**职业技能归属职业且每职业仅一个**（6 职业 × 1 技能），代表职业身份；**转职 = 技能强化**——二转授予同名技能并显示 `+`（如蓄力 → 蓄力+），三转及以上 `++`，数值提升或按转职定位附加次级机制。**职业技能档位以局内升阶 `battle_rank` 为准（✅ v0.27.4 拍板，见 SKILLS.md 第 5 节）；角色技能与档位无关**（角色技能 = 武将专属差异化，与职业技能/大招解耦，见 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)，数据字段 `CharacterData.character_skill_id/character_skill_params`，排期阶段 8·提交 6）。
+- **技能表（v0.27.1 设计定稿，数据与实现待同步）**：参数经 `PromotionData.skill_params: Dictionary` 配置（行为脚本不写死数值）。**档位系数 `s = 1 + 0.1 × min(battle_rank / 5, 4)`**（每 5 档 +10%、上限 4 档 +40%，仅职业技能），效果 = 基准 × s：
 
 | skill_id | 职业 | 名称 | 触发 | 效果（基准 × s） |
 |---|---|---|---|---|
@@ -72,14 +72,14 @@
 | 转职 | 角色 | 伤害 | 射程 | 攻速 | 消耗 |
 |---|---|---|---|---|---|
 | `guan_yu_charger` 突击骑 | 关羽 | ×1.2 | ×1.0 | ×0.9 | 黄巾布×10（授予 `charge`） |
-| `zhang_fei_vanguard` 蛇矛先锋 | 张飞 | ×1.25 | ×1.0 | ×0.95 | 黄巾布×10 |
-| `liu_bei_commander` 仁德统军 | 刘备 | ×1.15 | ×1.0 | ×0.9 | 黄巾布×10 |
-| `huang_zhong_sharpshooter` 神射手 | 黄忠 | ×1.2 | ×1.15 | ×1.0 | 黄巾布×10 |
-| `diao_chan_inspirer` 倾城鼓舞 | 貂蝉 | ×1.1 | ×1.0 | ×0.85 | 黄巾布×10 |
-| `huang_fu_song_zhechong` 折冲将军 | 皇甫嵩 | ×1.2 | ×1.1 | ×0.9 | 黄巾布×10 |
-| `zhao_yun_dragon_guard` 龙骧卫 | 赵云 | ×1.2 | ×1.05 | ×0.9 | 黄巾布×10 |
-| `zhou_wei_loyal_guard` 忠勇护卫 | 周仓 | ×1.2 | ×1.0 | ×0.95 | 黄巾布×10 |
-| `zhuge_liang_wolong` 卧龙 | 诸葛亮 | ×1.15 | ×1.1 | ×0.95 | 黄巾布×10 |
+| `zhang_fei_vanguard` 蛇矛先锋 | 张飞 | ×1.25 | ×1.0 | ×0.95 | 黄巾布×10（授予 `command` 军旗） |
+| `liu_bei_commander` 仁德统军 | 刘备 | ×1.15 | ×1.0 | ×0.9 | 黄巾布×10（授予 `command` 军旗） |
+| `huang_zhong_sharpshooter` 神射手 | 黄忠 | ×1.2 | ×1.15 | ×1.0 | 黄巾布×10（授予 `steady` 稳射） |
+| `diao_chan_inspirer` 倾城鼓舞 | 貂蝉 | ×1.1 | ×1.0 | ×0.85 | 黄巾布×10（授予 `inspire` 鼓舞） |
+| `huang_fu_song_zhechong` 折冲将军 | 皇甫嵩 | ×1.2 | ×1.1 | ×0.9 | 黄巾布×10（授予 `siege` 破城） |
+| `zhao_yun_dragon_guard` 龙骧卫 | 赵云 | ×1.2 | ×1.05 | ×0.9 | 黄巾布×10（授予 `charge` 蓄力） |
+| `zhou_wei_loyal_guard` 忠勇护卫 | 周仓 | ×1.2 | ×1.0 | ×0.95 | 黄巾布×10（授予 `command` 军旗） |
+| `zhuge_liang_wolong` 卧龙 | 诸葛亮 | ×1.15 | ×1.1 | ×0.95 | 黄巾布×10（授予 `wisdom` 奇谋） |
 | `guan_yu_wusheng` 武圣 | 关羽（二转，v0.17.0） | ×1.35 | ×1.0 | ×0.85 | 黄巾布×20（大招 ×1.4、蓄力+ 返还 70%） |
 | `guan_yu_qinglong` 青龙骑 | 关羽（二转，v0.17.0） | ×1.25 | ×1.05 | ×0.7 | 黄巾布×20（蓄力+：返怒 50% + 击杀下一击 +20%，快攻连击取向） |
 
@@ -100,10 +100,11 @@
 | 职业 | 大招 ID（示例） | 效果 | 定位 |
 |---|---|---|---|
 | 骑兵 | `ultimate_cavalry_breaker` | 对当前目标造成高额单体伤害；若击杀则返还 50% 怒气 | 精英/Boss 斩杀 |
-| 虎贲 | `ultimate_tiger_guard_sweep` | 破阵：对攻击范围内敌人造成范围伤害并击退，附近友方攻速提升 | 近战清群+激励 |
+| 虎贲 | `ultimate_tiger_guard_sweep` | 破阵：范围内敌人受到 1.5×普攻伤害并击退，附近友方攻速提升 | 近战清群+激励 |
 | 弓箭手 | `ultimate_archer_volley` | 快速连射 3~5 箭，优先锁定低血量敌人 | 收割漏怪 |
 | 术士 | `ultimate_strategist_blaze` | 大范围法术伤害并施加减速 | 清场/控场 |
 | 舞娘 | `ultimate_dancer_encourage` | 范围内友方攻速+伤害提升，持续数秒 | 全队爆发窗口 |
+| 投石车 | `ultimate_catapult_barrage` | 快速连发抛射轰击目标区域 | 远距离范围压制 |
 
 - **角色大招变体【远期，只预留字段】**：`CharacterData.ultimate_override_id` 可覆盖职业默认大招（如诸葛亮"八阵图"、关羽"青龙偃月"），初期统一用职业大招。
 - **转职强化大招**：`PromotionData` 增加 `ultimate_multiplier`（默认 1.0），转职后大招伤害/效果按倍率提升。
