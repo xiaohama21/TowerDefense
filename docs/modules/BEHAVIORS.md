@@ -24,7 +24,7 @@
 - 行为参数**不写死在脚本**：从数据资源读取（`CharacterData.trait_params: Dictionary`、`ProfessionData` 数值字段、`EnemyData` 字段等）。
 - 行为脚本无副作用留存：怒气、局内升级等级等临时状态只存在于本局（见总纲铁律）。
 - 怒气获取模式 `rage_gain_mode`（`hit+damage` / `support`）同属行为层属性，规则见 [CHARACTERS.md](CHARACTERS.md) 4.6。
-- **贡献事件流（v0.11，阶段 3 与怒气同源实现）**：武将行为产生带类型的贡献事件（伤害参与/击杀/增益施加/光环覆盖），由 `Enemy.damage_contributors`（输出侧，已有）与塔侧"增益贡献台账"（辅助侧，待建）汇成；**经验归属（CHARACTERS.md 4.4）与怒气获取（4.6）订阅同一事件流**，仅换算比例不同。新增贡献事件类型须先在本档登记。
+- **贡献事件流（v0.11 设计，v0.23.0 定稿）**：武将行为产生带类型的贡献事件（`damage_dealt`/`kill`/`buff_applied`/`aura_covered_time`/`debuff_applied`），由 `Enemy.damage_contributors`（输出侧，已有）与塔侧"增益贡献台账"（辅助侧，v0.23.0 定稿，实现随阶段排期）汇成；**经验归属（CHARACTERS.md 4.4）与怒气获取（4.6）订阅同一事件流**，仅换算比例不同；防刷限制（光环分段结算/短时重复不重复给满额/辅助贡献每波上限）见 NUMBERS.md 10.6。新增贡献事件类型须先在本档登记。
 - 职业克制（枪兵对 `cavalry` 标签 +15%）按 `EnemyData.tags` 查询实现，同样走行为/规则层，不在塔脚本写死。
 
 ## B.2 落地节奏
