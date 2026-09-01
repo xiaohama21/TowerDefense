@@ -1,6 +1,7 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.27.5（2026-09-01）
+> 版本：v0.27.6（2026-09-01）
+> v0.27.6 变更（开发约定固化）：①新增仓库级开发约定 [AGENTS.md](../AGENTS.md)——所有设计改动必须先同步对应模块文档、新增模块文档必须登记 0.1「模块文档索引」（防缺失/找不到/未关联）、跨模块变更须回写总纲并递增版本；②新增 Bug 修复记录文档 [modules/BUGS.md](modules/BUGS.md) v0.1——每次 bug 修复强制登记（问题/复现/根因/处理方式/关联版本号），历史条目由 changelog 回填；③0.1 索引补录 BUGS.md。项目版本号保持 0.8.4.0（无代码改动）。
 > v0.27.5 变更（文档一致性勘误）：①0.1 模块索引补录 SKILLS / CHARACTER_SKILLS / ENCYCLOPEDIA / UI_LAYOUT；②13 风险表更新技能档位（九技能→v0.27.1 收敛 6 职业技能、数据待同步）与科技树强度（三分支 9 项→v0.26.0 四类 31 项）两行；③破阵规格统一为"范围内 1.5×普攻伤害"（原"范围 1.5×"歧义表述修正，与 SKILLS/BEHAVIORS/NUMBERS 一致）；④模块文档同步：NUMBERS 5.3 波次奖励 / 10.9 状态标注 / 10.5 档位公式、UI_LAYOUT 提交 4 落地状态、CHARACTERS 4.6 补投石车大招行 / 4.5 版本与授予技能标注 / 角色技能引用、BEHAVIORS 克制名称与角色技能钩子登记、PROFESSIONS 破阵口径、CHARACTER_SKILLS 取消试点、README 技能描述；⑤补记 v0.27.4 变更行（版本行已升、变更记录缺失）。项目版本号保持 0.8.4.0（无代码改动）。
 > 版本：v0.27.4（2026-09-01）
 > v0.27.4 变更（提交 6 实施细节拍板）：技能档位**仅职业技能适用、以局内升阶 battle_rank 为准**（s = 1 + 0.1 × min(battle_rank / 5, 4)，第一章升阶上限 3 < 5 时 s 恒为 1）；角色技能与档位无关；角色技能 9 名武将**全部开发（取消 3~4 名试点）**；同步 SKILLS.md / CHARACTERS.md 4.5 / BEHAVIORS.md B.3.5 / CHARACTER_SKILLS.md。项目版本号保持 0.8.4.0（无代码改动）。
@@ -99,6 +100,7 @@
 | [modules/CHARACTER_SKILLS.md](modules/CHARACTER_SKILLS.md) | 角色技能：武将差异化、A 主动/B 被动、触发钩子 | 4.5 角色技能侧（v0.27.2 新增） |
 | [modules/ENCYCLOPEDIA.md](modules/ENCYCLOPEDIA.md) | 游戏百科：武将/敌人图鉴、数值模拟器 | 阶段 8 提交 5 |
 | [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) | 界面排版规范：网格、页签、语义色板 | 9 实现侧 |
+| [modules/BUGS.md](modules/BUGS.md) | Bug 修复记录：问题/复现/根因/处理，关联版本号 | 全阶段（v0.27.6 起强制登记） |
 
 ---
 
