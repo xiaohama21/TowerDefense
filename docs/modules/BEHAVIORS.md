@@ -88,19 +88,16 @@
 
 ### B.3.5 转职技能行为（`skill_id`，✅ v0.15.0 落地）
 
-技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_level/5, 4)`。完整规格见 CHARACTERS.md 4.5，按职业组织的职业技能清单见 [SKILLS.md](SKILLS.md)。
+技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(档/5, 4)`。**v0.25.3 收敛为每职业 1 个职业技能，转职=强化（+ / ++）**；完整规格见 CHARACTERS.md 4.5，按职业组织的职业技能清单见 [SKILLS.md](SKILLS.md)。
 
-| skill_id | 触发点 | 效果概要 | 演出 |
-|---|---|---|---|
-| `charge` | 大招击杀 | 返还怒气 50%×s | 大招名飘字 |
-| `ferocity` | 攻击命中 | 15% 概率追加 0.5×s 伤害 | "凶威"飘字 |
-| `command` | 常驻 | 周围 150px 友方伤害 +4%×s | —（光环） |
-| `steady` | 攻击命中 | 20% 概率追加 0.6×s 伤害 | "稳射"飘字 |
-| `inspire` | 大招释放 | 全队攻速 +6%×s 持续 8s | "鼓舞"飘字 |
-| `siege` | 常驻 | 对精英/Boss 伤害 +10%×s | — |
-| `bulwark` | 击杀 | 金币 +2×s | "斩获"飘字 |
-| `dragon_rush` | 击杀 | 下一次攻击伤害 +25%×s | "龙突"飘字 |
-| `wisdom` | 大招 | 大招范围 +10%×s | "奇谋"飘字 |
+| skill_id | 职业 | 触发点 | 效果概要 | 演出 |
+|---|---|---|---|---|
+| `charge` | 骑兵 | 大招击杀 | 返还怒气 50%×s（蓄力+：返怒 70%，或返怒 50% + 击杀下一击 +20%） | 大招名飘字 |
+| `command` | 剑客 | 常驻 | 周围 150px 友方伤害 +4%×s | —（光环） |
+| `steady` | 弓箭手 | 攻击（保底） | 每 5 次攻击必追加 0.6×s 伤害 | "稳射"飘字 |
+| `wisdom` | 术士 | 大招 | 大招范围 +10%×s | "奇谋"飘字 |
+| `inspire` | 舞娘 | 大招释放 | 全队攻速 +6%×s 持续 8s | "鼓舞"飘字 |
+| `siege` | 投石车 | 常驻 | 对精英/Boss 伤害 +10%×s（原名攻城锤，v0.25.3 改名破城） | — |
 
 ---
 
