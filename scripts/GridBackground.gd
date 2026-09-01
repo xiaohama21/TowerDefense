@@ -27,6 +27,7 @@ const DECOR_TYPES: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
 
 var road_cells: Array[Vector2i] = []
 var decor_cells: Array[Vector2i] = []
+var forbidden_cells: Array[Vector2i] = []
 var entry_cell := Vector2i(-1, -1)
 var base_cell := Vector2i(-1, -1)
 var theme_name: StringName = &"grass"
@@ -76,10 +77,12 @@ func configure(
 	stage_decor_cells: Array[Vector2i],
 	stage_entry_cell: Vector2i,
 	stage_base_cell: Vector2i,
-	stage_theme: StringName = &"grass"
+	stage_theme: StringName = &"grass",
+	stage_forbidden_cells: Array[Vector2i] = []
 ) -> void:
 	road_cells = stage_road_cells
 	decor_cells = stage_decor_cells
+	forbidden_cells = stage_forbidden_cells
 	entry_cell = stage_entry_cell
 	base_cell = stage_base_cell
 	theme_name = stage_theme
@@ -92,11 +95,37 @@ func configure(
 
 func _draw() -> void:
 	_draw_tiles()
+	_draw_forbidden()
 	_draw_grid_lines()
 	_draw_road()
 	_draw_landmarks()
 	_draw_decorations()
 	_draw_ambient()
+
+
+## 禁建地形（阶段 8 提交 3）：深色块 + 山形标记，明确覆盖表示不可建造。
+func _draw_forbidden() -> void:
+	if forbidden_cells.is_empty():
+		return
+	var fill_color := Color(0.33, 0.31, 0.27, 1.0)
+	var edge_color := Color(0.52, 0.44, 0.32, 1.0)
+	var peak_color := Color(0.24, 0.3, 0.24, 1.0)
+	var peak_light := Color(0.34, 0.42, 0.34, 1.0)
+	for cell in forbidden_cells:
+		var origin := cell_origin(cell)
+		draw_rect(Rect2(origin, Vector2(GRID_SIZE, GRID_SIZE)), fill_color)
+		draw_rect(Rect2(origin, Vector2(GRID_SIZE, GRID_SIZE)), edge_color, false, 2.0)
+		var center := cell_center(cell)
+		draw_colored_polygon(PackedVector2Array([
+			center + Vector2(-20, 12),
+			center + Vector2(0, -18),
+			center + Vector2(20, 12),
+		]), peak_color)
+		draw_colored_polygon(PackedVector2Array([
+			center + Vector2(-6, 12),
+			center + Vector2(8, -8),
+			center + Vector2(22, 12),
+		]), peak_light)
 
 
 func _draw_tiles() -> void:

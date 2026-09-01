@@ -38,7 +38,10 @@ func upgrade_tower(tower: Tower, stage_data: StageData) -> bool:
 		return false
 	if tower.battle_rank >= stage_data.max_inbattle_upgrade_level:
 		return false
-	var cost := tower.get_upgrade_cost(stage_data.upgrade_cost_factor)
+	# 科技树将略分支（阶段 8 提交 3）：升阶费用折扣。
+	var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+	var discount := float(tech_bonuses.get("upgrade_discount_pct", 0)) / 100.0
+	var cost := maxi(ceili(tower.get_upgrade_cost(stage_data.upgrade_cost_factor) * (1.0 - discount)), 1)
 	if GameManager.gold < cost:
 		return false
 	GameManager.gold -= cost
@@ -50,7 +53,10 @@ func upgrade_tower(tower: Tower, stage_data: StageData) -> bool:
 func sell_tower(tower: Tower, stage_data: StageData) -> bool:
 	if tower == null:
 		return false
-	GameManager.gold += tower.get_sell_refund(stage_data.sell_refund_ratio)
+	# 科技树将略分支（阶段 8 提交 3）：回收返还加成。
+	var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+	var bonus := float(tech_bonuses.get("sell_refund_pct", 0)) / 100.0
+	GameManager.gold += ceili(tower.get_sell_refund(stage_data.sell_refund_ratio) * (1.0 + bonus))
 	if is_instance_valid(tower.assigned_slot) and tower.assigned_slot.has_method("reset_slot"):
 		tower.assigned_slot.reset_slot()
 	tower.assigned_slot = null

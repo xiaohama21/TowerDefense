@@ -85,6 +85,11 @@ var _trait_params: Dictionary = {}
 var _relic_damage_bonus: float = 0.0
 ## 科技树军事分支加成（GDD 10.7，v0.14.1）：全武将伤害 +%，经 finalize_damage 应用。
 var _tech_damage_bonus: float = 0.0
+## 科技树职业分支加成（阶段 8 提交 3）：按职业伤害/攻速/buff 效果；积怒为全职业。
+var _tech_profession_damage_bonus: float = 0.0
+var _tech_attack_speed_pct: float = 0.0
+var _tech_buff_power_pct: float = 0.0
+var _tech_rage_gain_pct: float = 0.0
 ## 编队羁绊同队攻击加成（GDD modules/CHARACTERS.md 4.8，v0.17.0）：finalize_damage 乘法区。
 var _bond_damage_bonus: float = 0.0
 ## 局内遗物伤害加成（CHARACTERS.md 4.8，v0.19.0）：finalize_damage 乘法区。
@@ -183,6 +188,12 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_behavior_id = profession_data.behavior_id if profession_data != null else StringName()
 	if _behavior_id.is_empty():
 		_behavior_id = &"single_target_burst"
+	# 科技树职业分支（阶段 8 提交 3）：按职业 ID 读取对应效果键，无配置则为 0。
+	var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+	_tech_profession_damage_bonus = float(tech_bonuses.get("profession_%s_damage_pct" % _profession_id, 0)) / 100.0
+	_tech_attack_speed_pct = float(tech_bonuses.get("profession_%s_attack_speed_pct" % _profession_id, 0)) / 100.0
+	_tech_buff_power_pct = float(tech_bonuses.get("profession_%s_buff_power_pct" % _profession_id, 0)) / 100.0
+	_tech_rage_gain_pct = float(tech_bonuses.get("rage_gain_pct", 0)) / 100.0
 	# 局内升阶职业化步进（阶段 8）：职业配置 + 角色覆盖（-1 继承）。
 	_battle_rank_damage_step = _resolve_rank_step(character_data.battle_rank_damage_step_override, profession_data.battle_rank_damage_step if profession_data != null else 0.25)
 	_battle_rank_attack_speed_step = _resolve_rank_step(character_data.battle_rank_attack_speed_step_override, profession_data.battle_rank_attack_speed_step if profession_data != null else 0.0)
@@ -290,7 +301,7 @@ func _swing_offset() -> float:
 
 
 func _rebuild_attack_timer() -> void:
-	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks))
+	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks) * (1.0 + _tech_attack_speed_pct))
 	attack_timer.wait_time = maxf(effective, attack_cooldown * ATTACK_SPEED_FLOOR)
 
 
@@ -377,18 +388,23 @@ func gain_rage_for_attack(dealt: int) -> void:
 	gain_rage(float(_gain_per_hit) + float(dealt) * _gain_per_damage)
 
 
-## 辅助脉冲积怒（support 模式）：触发增益 +N，每覆盖一名友方再 +N（10.6 粗化占位）。
-func gain_support_pulse(allies_buffed: int) -> void:
-	if _rage_mode != &"support" or allies_buffed <= 0:
+## 辅助脉冲积怒（support 模式）：触发增益 +N，每覆盖一名友方再 +N；
+## 贡献经验经 GameManager.add_support_contribution 按 5s 去重与每波上限结算（10.6，阶段 8 提交 3）。
+func gain_support_pulse(allies: Array) -> void:
+	if _rage_mode != &"support" or allies.is_empty():
 		return
-	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies_buffed)
-	GameManager.add_support_contribution(character_id, allies_buffed)
+	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies.size())
+	var ally_ids: Array[String] = []
+	for ally in allies:
+		if ally != null and is_instance_valid(ally):
+			ally_ids.append(str(ally.character_id))
+	GameManager.add_support_contribution(character_id, ally_ids)
 
 
 func gain_rage(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	rage = minf(rage + amount * BehaviorRegistry.moon_veil_rage_multiplier(self), _max_rage)
+	rage = minf(rage + amount * BehaviorRegistry.moon_veil_rage_multiplier(self) * (1.0 + _tech_rage_gain_pct), _max_rage)
 	queue_redraw()
 
 
@@ -421,7 +437,7 @@ func get_battle_rank_buff_duration_multiplier() -> float:
 
 
 func get_battle_rank_buff_power_multiplier() -> float:
-	return 1.0 + _battle_rank_buff_power_step * battle_rank
+	return (1.0 + _battle_rank_buff_power_step * battle_rank) * (1.0 + _tech_buff_power_pct)
 
 
 ## 局内升阶 AOE 半径倍率（阶段 8）：投石车普攻爆散 / 术士大招范围。
@@ -511,7 +527,7 @@ func get_consecutive_hits() -> int:
 
 ## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
 func finalize_damage(base: int, target: Enemy) -> int:
-	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _bond_damage_bonus) * (1.0 + _battle_relic_damage_bonus)
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _tech_profession_damage_bonus) * (1.0 + _bond_damage_bonus) * (1.0 + _battle_relic_damage_bonus)
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	if BehaviorRegistry.has_benevolence_aura(self):
 		value *= BehaviorRegistry.benevolence_bonus(self)

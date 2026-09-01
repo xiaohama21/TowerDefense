@@ -17,6 +17,11 @@ signal combo_changed(count: int, tier: int)
 const COMBO_WINDOW_SECONDS: float = 3.0
 const COMBO_TIER_STEP: int = 5
 const MAX_COMBO_TIER: int = 3
+## 辅助经验防刷（P1 4.5 拍板，阶段 8 提交 3）：每波上限 = 本波击杀经验总额 ×1.5（下限 10）；
+## 光环覆盖按 5s 分段去重（10.6：+2 / 5秒 / 友方），同一增益对象短时重复不重复给满额。
+const SUPPORT_WAVE_CAP_RATIO: float = 1.5
+const SUPPORT_WAVE_CAP_FLOOR: int = 10
+const SUPPORT_COVERAGE_WINDOW: float = 5.0
 
 var gold: int = 100:
 	set(value):
@@ -39,6 +44,9 @@ var active_battle_session: BattleSession = null
 var combo_count: int = 0
 var combo_tier: int = 0
 var _combo_window_left: float = 0.0
+var _wave_kill_xp_total: int = 0
+var _wave_support_xp_granted: int = 0
+var _support_coverage_last_time: Dictionary = {}
 
 func enemy_reached_base(damage: int = 1):
 	if lives <= 0:
@@ -55,6 +63,7 @@ func enemy_died(
 ):
 	gold += int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 	if kill_xp > 0:
+		_wave_kill_xp_total += kill_xp
 		kill_xp = int(round(kill_xp * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 		_distribute_kill_xp(kill_xp, source_character_id, damage_contributors)
 	if not source_character_id.strip_edges().is_empty():
@@ -105,11 +114,29 @@ func _add_session_xp(character_id: String, amount: int) -> void:
 		active_battle_session.add_xp(character_id, corrected)
 
 
-## 辅助贡献事件经验（GDD 10.6，v0.11.2 粗化占位）：增益施加 +4、覆盖 +1/友/脉冲。
-func add_support_contribution(character_id: String, allies_buffed: int) -> void:
-	if allies_buffed <= 0:
+## 辅助贡献事件经验（GDD 10.6 落地，阶段 8 提交 3）：增益施加 +4/次，覆盖 +2/5秒/友方；
+## 同友方 5s 内重复覆盖去重；每波贡献不超过本波击杀经验 ×1.5（下限 10）。
+func add_support_contribution(character_id: String, ally_ids: Array) -> void:
+	if ally_ids.is_empty():
 		return
-	_add_session_xp(character_id, 4 + allies_buffed)
+	var now := float(Time.get_ticks_msec()) / 1000.0
+	var per_character: Dictionary = _support_coverage_last_time.get(character_id, {})
+	var fresh_cover := 0
+	for raw_ally_id in ally_ids:
+		var ally_id := str(raw_ally_id).strip_edges()
+		if ally_id.is_empty():
+			continue
+		if now - float(per_character.get(ally_id, -999.0)) >= SUPPORT_COVERAGE_WINDOW:
+			per_character[ally_id] = now
+			fresh_cover += 1
+	_support_coverage_last_time[character_id] = per_character
+	var amount := 4 + 2 * fresh_cover
+	var cap := maxi(int(round(_wave_kill_xp_total * SUPPORT_WAVE_CAP_RATIO)), SUPPORT_WAVE_CAP_FLOOR)
+	if _wave_support_xp_granted >= cap:
+		return
+	amount = mini(amount, cap - _wave_support_xp_granted)
+	_wave_support_xp_granted += amount
+	_add_session_xp(character_id, amount)
 
 
 ## 落后补正（GDD 4.4/10.6，v0.11.1）：武将等级低于编队平均 1 级以上时，
@@ -139,6 +166,10 @@ func start_wave():
 	if is_wave_active or current_wave >= total_waves or lives <= 0:
 		return false
 	is_wave_active = true
+	# 每波重置辅助经验统计（P1 4.5）：击杀经验总额与已发放贡献、覆盖去重表。
+	_wave_kill_xp_total = 0
+	_wave_support_xp_granted = 0
+	_support_coverage_last_time.clear()
 	return true
 
 func wave_completed():

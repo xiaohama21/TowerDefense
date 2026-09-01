@@ -317,6 +317,7 @@ fork_path_points = [Vector2(-40, 680), Vector2(40, 680), Vector2(40, 40), Vector
 build_slot_positions = [Vector2(760, 200), Vector2(920, 360), Vector2(1000, 440), Vector2(1160, 280), Vector2(760, 440), Vector2(200, 440), Vector2(480, 440), Vector2(680, 680), Vector2(200, 120), Vector2(600, 120)]
 build_slots = [SubResource("BuildSlotData_1"), SubResource("BuildSlotData_2"), SubResource("BuildSlotData_3"), SubResource("BuildSlotData_4"), SubResource("BuildSlotData_5"), SubResource("BuildSlotData_6"), SubResource("BuildSlotData_7"), SubResource("BuildSlotData_8"), SubResource("BuildSlotData_9"), SubResource("BuildSlotData_10")]
 decor_cells = [Vector2i(1, 4), Vector2i(5, 6), Vector2i(9, 8), Vector2i(14, 7), Vector2i(0, 5), Vector2i(3, 1), Vector2i(12, 3), Vector2i(15, 6)]
+forbidden_cells = [Vector2i(2, 6), Vector2i(11, 2), Vector2i(12, 8), Vector2i(15, 3)]
 prerequisite_stage_ids = [&"ch01_s07"]
 first_clear_unlock_character_ids = []
 first_clear_relic = ExtResource("21_relic")

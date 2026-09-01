@@ -120,16 +120,30 @@ func _run() -> void:
 		var merged2 := overridden.resolved()
 		_check(merged2.max_hp == 300 and merged2.armor == 0, "显式字段应覆盖模板值")
 
-	# 阶段 6 提交 2（v0.18.0）：科技树配置化——9 项可加载、加成汇总来自配置。
+	# 阶段 6 提交 2（v0.18.0）+ 阶段 8 提交 3：科技树配置化——四类分页、31 项、加成汇总来自配置。
 	var tech_items := TechTree.get_items()
-	_check(tech_items.size() == 9, "科技树配置应含 9 项（三分支）")
+	_check(tech_items.size() == 31, "科技树配置应含 31 项（军略15/后勤5/工事3/将略8）")
+	_check(TechTree.get_categories() == ["军略", "后勤", "工事", "将略"], "科技树应为四类分页（军略/后勤/工事/将略）")
+	_check(TechTree.get_items_by_category("军略").size() == 15, "军略分类应含 15 项（职业强化）")
 	# 独立临时档案验证加成，避免解锁污染共享存档（后续伤害断言不受 +6% 影响）。
 	var tech_profile := PlayerProfile.new()
-	tech_profile.add_tech_points(10)
+	tech_profile.add_tech_points(30)
 	tech_profile.unlock_tech("mil_dmg_1", 1)
 	tech_profile.unlock_tech("mil_dmg_2", 2)
 	_check(TechTree.get_tech_bonuses(tech_profile).get("damage_pct", 0) == 6,
 			"军事分支加成应来自配置（精兵 2% + 老兵 4%）")
+	# 阶段 8 提交 3：职业分支/机制分支效果与无条件重置。
+	tech_profile.unlock_tech("prof_pikeman_2", 2)
+	tech_profile.unlock_tech("eco_wave_2", 2)
+	tech_profile.unlock_tech("strat_refund_1", 1)
+	var tech_bonuses := TechTree.get_tech_bonuses(tech_profile)
+	_check(int(tech_bonuses.get("profession_pikeman_damage_pct", 0)) == 6, "枪兵职业加成应来自配置")
+	_check(int(tech_bonuses.get("wave_reward_pct", 0)) == 40, "波次奖励科技应生效（+40%）")
+	_check(int(tech_bonuses.get("sell_refund_pct", 0)) == 5, "回收率科技应生效（+5%）")
+	var reset_refund := TechTree.reset_tech(tech_profile)
+	_check(reset_refund == 8, "无条件重置应全额返还科技点（1+2+2+2+1）")
+	_check(tech_profile.tech_unlocks.is_empty() and tech_profile.tech_points == 30,
+		"重置后应清空科技并返还累计消耗")
 
 	# 阶段 7（v0.19.0）：局内遗物——5 件可加载、汇总叠加、出征消耗、s08 掉落、fast_charger 配置。
 	var battle_relic_ids: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
@@ -259,6 +273,28 @@ func _run() -> void:
 		_check(GameManager.gold == 0, "已解锁位不应重复扣费")
 		locked_slot.locked = false
 		locked_slot._unlocked_in_battle = false
+		# 阶段 8 提交 3（v0.23.0 拍板）：空地自由建造——非道路/非禁建/未占用网格两次点击确认。
+		GameManager.gold = 9999
+		build_manager.selected_character = guan_yu
+		var free_cell := Vector2i(2, 6)
+		var free_pos: Vector2 = build_manager.cell_center(free_cell)
+		var before_free := tower_manager.get_child_count()
+		build_manager._on_map_clicked(free_pos)
+		_check(build_manager._pending_cell == free_cell, "点击空地应进入待确认网格")
+		build_manager._on_map_clicked(free_pos)
+		await get_tree().process_frame
+		_check(tower_manager.get_child_count() == before_free + 1, "空地自由建造应成功建塔")
+		build_manager.cancel_pending()
+		build_manager._on_map_clicked(build_manager.cell_center(Vector2i(4, 3)))
+		_check(build_manager._pending_cell == Vector2i(-1, -1), "道路格应拒绝建造")
+		build_manager.cancel_pending()
+		build_manager._on_map_clicked(build_manager.cell_center(Vector2i(0, 1)))
+		_check(build_manager._pending_cell == Vector2i(-1, -1), "禁建地形应拒绝建造")
+		build_manager.cancel_pending()
+		var occupied_pos: Vector2 = tower_manager.get_child(0).global_position
+		build_manager._on_map_clicked(occupied_pos)
+		_check(build_manager._pending_cell == Vector2i(-1, -1), "已有防御塔网格应拒绝建造")
+		build_manager.cancel_pending()
 
 	var enemy_manager := main.get_node("EnemyManager")
 	# 程序化构造 EnemyData，替代旧的硬编码 spawn_enemy("boss")。
@@ -785,7 +821,7 @@ func _run() -> void:
 			# 射程内 2 名友方（出战塔 + 编队用例塔）：积怒 = (触发 6 + 覆盖 2×2) × 月幕自增 1.2 = 12
 			_check(is_equal_approx(dancer_tower.rage, 12.0), "辅助积怒应含触发/覆盖并受月幕 +20%")
 			var pending: Dictionary = support_session.get_pending_xp_by_character()
-			_check(int(pending.get("diao_chan", 0)) == 6, "辅助贡献经验应为 4 + 覆盖 2 = 6")
+			_check(int(pending.get("diao_chan", 0)) == 8, "辅助贡献经验应为 4 + 覆盖 2×2 = 8（10.6）")
 		if dancer_tower:
 			dancer_tower.queue_free()
 		if ally_tower:
@@ -833,6 +869,15 @@ func _run() -> void:
 			== wheel_amount_before + int(wheel_roll.get("amount", 0)), "道具入账数量应正确")
 	else:
 		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
+
+	# 阶段 8 提交 3：地图校验器——第一章 8 关布局全部通过（道路/禁建不重叠、通路完整、覆盖区与职业位达标）。
+	var map_issues: Array[String] = []
+	for stage_path in _collect_resource_paths("res://resources/stages"):
+		var map_stage := load(stage_path) as StageData
+		if map_stage != null and not MapValidator.validate_stage(map_stage, map_issues):
+			_check(false, "地图校验失败: %s: %s" % [stage_path, "；".join(map_issues)])
+			map_issues.clear()
+	_check(map_issues.is_empty(), "地图校验器不应有遗留问题")
 
 	_finish()
 

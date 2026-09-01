@@ -142,7 +142,8 @@ func _apply_stage_layout() -> void:
 		road_cells.append_array(GridBackground.derive_road_cells(stage_data.fork_path_points))
 	var entry_cell := _first_in_map_road_cell(road_cells, true)
 	var base_cell := _first_in_map_road_cell(road_cells, false)
-	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme)
+	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme, stage_data.forbidden_cells)
+	build_manager.setup_free_build(road_cells, stage_data.forbidden_cells)
 
 	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
 	base_marker.position = _first_in_map_point(stage_data.path_points, false)
@@ -352,9 +353,13 @@ func _on_wave_completed():
 	if completed_index >= 0 and completed_index < wave_manager.waves.size():
 		var completed_wave: WaveData = wave_manager.waves[completed_index]
 		if completed_wave != null and completed_wave.completion_currency > 0:
-			GameManager.gold += completed_wave.completion_currency
+			# 后勤科技（阶段 8 提交 3）：波次奖励 +20/40%。
+			var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+			var wave_bonus := 1.0 + float(tech_bonuses.get("wave_reward_pct", 0)) / 100.0
+			var reward := maxi(ceili(completed_wave.completion_currency * wave_bonus), 1)
+			GameManager.gold += reward
 			ui.show_status(
-				"第 %d 波完成：+%d 金币" % [completed_index + 1, completed_wave.completion_currency],
+				"第 %d 波完成：+%d 金币" % [completed_index + 1, reward],
 				1.2
 			)
 	GameManager.wave_completed()
@@ -719,10 +724,14 @@ func _refresh_battle_supply_popup() -> void:
 		if button == null or not is_instance_valid(button):
 			continue
 		var uses_left := int(_supply_uses_left.get(key, 0))
+		# 将略科技折扣（阶段 8 提交 3）：按钮展示实际支付价。
+		var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+		var discount := float(tech_bonuses.get("supply_discount_pct", 0)) / 100.0
+		var paid := maxi(ceili(supply.cost * (1.0 - discount)), 1)
 		button.text = "%s —— %s\n%d 金币 · 剩余 %d" % [
-			supply.display_name, supply.description, supply.cost, uses_left
+			supply.display_name, supply.description, paid, uses_left
 		]
-		button.disabled = uses_left <= 0 or GameManager.gold < supply.cost
+		button.disabled = uses_left <= 0 or GameManager.gold < paid
 
 
 func _close_battle_supply_popup() -> void:
@@ -743,7 +752,11 @@ func _on_battle_supply_buy(supply_id: String) -> void:
 	if GameManager.gold < supply.cost:
 		ui.show_status("金币不足")
 		return
-	GameManager.gold -= supply.cost
+	# 将略科技（阶段 8 提交 3）：军需折扣。
+	var tech_bonuses := TechTree.get_tech_bonuses(ProfileStore.get_profile())
+	var discount := float(tech_bonuses.get("supply_discount_pct", 0)) / 100.0
+	var paid := maxi(ceili(supply.cost * (1.0 - discount)), 1)
+	GameManager.gold -= paid
 	_supply_uses_left[supply_id] = uses_left - 1
 	_apply_battle_supply(supply)
 	_refresh_battle_supply_popup()

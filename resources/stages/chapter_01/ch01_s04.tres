@@ -183,6 +183,7 @@ theme = &"grass"
 path_points = [Vector2(-40, 120), Vector2(40, 120), Vector2(680, 120), Vector2(680, 520), Vector2(1080, 520), Vector2(1080, 200), Vector2(1240, 200), Vector2(1320, 200)]
 build_slot_positions = [Vector2(680, 40), Vector2(600, 480), Vector2(760, 440), Vector2(1160, 120), Vector2(200, 200), Vector2(440, 200), Vector2(840, 600), Vector2(1240, 360), Vector2(40, 280), Vector2(920, 120)]
 decor_cells = [Vector2i(1, 0), Vector2i(5, 0), Vector2i(11, 0), Vector2i(14, 0), Vector2i(0, 4), Vector2i(3, 7), Vector2i(10, 7), Vector2i(15, 6)]
+forbidden_cells = [Vector2i(0, 5), Vector2i(1, 3), Vector2i(12, 1), Vector2i(12, 8)]
 prerequisite_stage_ids = [&"ch01_s03"]
 first_clear_unlock_character_ids = [&"diao_chan"]
 first_clear_rewards = [SubResource("ItemAmountData_cloth")]

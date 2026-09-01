@@ -44,6 +44,9 @@ class_name StageData
 ## 结构化建造位（v0.14.1，GDD 5.1）：位置/类型/预锁位；非空时优先于 build_slot_positions。
 @export var build_slots: Array[BuildSlotData] = []
 @export var decor_cells: Array[Vector2i] = []
+## 禁建地形格（v0.23.0 拍板，阶段 8 提交 3）：山地/河流/城池等不可建造格，
+## GridBackground 以明显覆盖样式绘制；BuildManager 自由建造时排除。
+@export var forbidden_cells: Array[Vector2i] = []
 
 @export_category("Progression")
 @export var prerequisite_stage_ids: Array[StringName] = []

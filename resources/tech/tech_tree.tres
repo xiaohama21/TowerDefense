@@ -1,104 +1,428 @@
-[gd_resource type="Resource" script_class="TechTreeData" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="TechTreeData" load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/TechTreeData.gd" id="1_tree"]
 [ext_resource type="Script" path="res://scripts/data/TechItemData.gd" id="2_item"]
 
 [sub_resource type="Resource" id="TechItem_1"]
 script = ExtResource("2_item")
-id = "eco_gold_1"
-branch = "经济"
-tier = 1
-name = "军资扩编"
-desc = "初始金币 +20"
-cost = 1
-effect = {"start_gold": 20}
-
-[sub_resource type="Resource" id="TechItem_2"]
-script = ExtResource("2_item")
-id = "eco_gold_2"
-branch = "经济"
-tier = 2
-name = "粮草丰盈"
-desc = "初始金币 +40"
-cost = 2
-requires = "eco_gold_1"
-effect = {"start_gold": 40}
-
-[sub_resource type="Resource" id="TechItem_3"]
-script = ExtResource("2_item")
-id = "eco_gold_3"
-branch = "经济"
-tier = 3
-name = "国库充盈"
-desc = "初始金币 +60"
-cost = 3
-requires = "eco_gold_2"
-effect = {"start_gold": 60}
-
-[sub_resource type="Resource" id="TechItem_4"]
-script = ExtResource("2_item")
 id = "mil_dmg_1"
-branch = "军事"
+branch = "军略"
+category = "军略"
 tier = 1
 name = "精兵操练"
+summary = "全武将伤害 +2%"
+description = "全军日常操演不辍，士卒武艺精进。全武将伤害 +2%。"
 desc = "全武将伤害 +2%"
 cost = 1
 effect = {"damage_pct": 2}
 
-[sub_resource type="Resource" id="TechItem_5"]
+[sub_resource type="Resource" id="TechItem_2"]
 script = ExtResource("2_item")
 id = "mil_dmg_2"
-branch = "军事"
+branch = "军略"
+category = "军略"
 tier = 2
 name = "老兵经验"
+summary = "全武将伤害 +4%"
+description = "久经沙场的老兵以战代练，战力更上一层。全武将伤害 +4%。"
 desc = "全武将伤害 +4%"
 cost = 2
 requires = "mil_dmg_1"
 effect = {"damage_pct": 4}
 
-[sub_resource type="Resource" id="TechItem_6"]
+[sub_resource type="Resource" id="TechItem_3"]
 script = ExtResource("2_item")
 id = "mil_dmg_3"
-branch = "军事"
+branch = "军略"
+category = "军略"
 tier = 3
 name = "百战精锐"
+summary = "全武将伤害 +6%"
+description = "百战余生皆为精锐，出手即是杀招。全武将伤害 +6%。"
 desc = "全武将伤害 +6%"
 cost = 3
 requires = "mil_dmg_2"
 effect = {"damage_pct": 6}
 
+[sub_resource type="Resource" id="TechItem_4"]
+script = ExtResource("2_item")
+id = "prof_pikeman_1"
+branch = "军略"
+category = "军略"
+tier = 1
+name = "枪出如龙"
+summary = "枪兵伤害 +3%"
+description = "枪兵阵型严整，刺击迅猛。枪兵伤害 +3%。"
+desc = "枪兵伤害 +3%"
+cost = 1
+effect = {"profession_pikeman_damage_pct": 3}
+
+[sub_resource type="Resource" id="TechItem_5"]
+script = ExtResource("2_item")
+id = "prof_pikeman_2"
+branch = "军略"
+category = "军略"
+tier = 2
+name = "一往无前"
+summary = "枪兵伤害 +6%"
+description = "陷阵之志有进无退，枪兵伤害 +6%。"
+desc = "枪兵伤害 +6%"
+cost = 2
+requires = "prof_pikeman_1"
+effect = {"profession_pikeman_damage_pct": 6}
+
+[sub_resource type="Resource" id="TechItem_6"]
+script = ExtResource("2_item")
+id = "prof_cavalry_1"
+branch = "军略"
+category = "军略"
+tier = 1
+name = "铁骑冲锋"
+summary = "骑兵伤害 +3%"
+description = "重甲铁骑势如破竹，骑兵伤害 +3%。"
+desc = "骑兵伤害 +3%"
+cost = 1
+effect = {"profession_cavalry_damage_pct": 3}
+
 [sub_resource type="Resource" id="TechItem_7"]
 script = ExtResource("2_item")
+id = "prof_cavalry_2"
+branch = "军略"
+category = "军略"
+tier = 2
+name = "万马奔腾"
+summary = "骑兵伤害 +6%"
+description = "万马齐喑踏破敌阵，骑兵伤害 +6%。"
+desc = "骑兵伤害 +6%"
+cost = 2
+requires = "prof_cavalry_1"
+effect = {"profession_cavalry_damage_pct": 6}
+
+[sub_resource type="Resource" id="TechItem_8"]
+script = ExtResource("2_item")
+id = "prof_archer_1"
+branch = "军略"
+category = "军略"
+tier = 1
+name = "百步穿杨"
+summary = "弓手攻速 +3%"
+description = "弓马娴熟挽弓如月，弓手攻速 +3%。"
+desc = "弓手攻速 +3%"
+cost = 1
+effect = {"profession_archer_attack_speed_pct": 3}
+
+[sub_resource type="Resource" id="TechItem_9"]
+script = ExtResource("2_item")
+id = "prof_archer_2"
+branch = "军略"
+category = "军略"
+tier = 2
+name = "箭如雨下"
+summary = "弓手攻速 +6%"
+description = "万箭齐发遮天蔽日，弓手攻速 +6%。"
+desc = "弓手攻速 +6%"
+cost = 2
+requires = "prof_archer_1"
+effect = {"profession_archer_attack_speed_pct": 6}
+
+[sub_resource type="Resource" id="TechItem_10"]
+script = ExtResource("2_item")
+id = "prof_strategist_1"
+branch = "军略"
+category = "军略"
+tier = 1
+name = "运筹帷幄"
+summary = "术士伤害 +3%"
+description = "决胜千里算无遗策，术士伤害 +3%。"
+desc = "术士伤害 +3%"
+cost = 1
+effect = {"profession_strategist_damage_pct": 3}
+
+[sub_resource type="Resource" id="TechItem_11"]
+script = ExtResource("2_item")
+id = "prof_strategist_2"
+branch = "军略"
+category = "军略"
+tier = 2
+name = "火烧连营"
+summary = "术士伤害 +6%"
+description = "火计连环焚敌营垒，术士伤害 +6%。"
+desc = "术士伤害 +6%"
+cost = 2
+requires = "prof_strategist_1"
+effect = {"profession_strategist_damage_pct": 6}
+
+[sub_resource type="Resource" id="TechItem_12"]
+script = ExtResource("2_item")
+id = "prof_dancer_1"
+branch = "军略"
+category = "军略"
+tier = 1
+name = "鼓舞军心"
+summary = "舞娘buff效果 +3%"
+description = "曼舞轻歌提振士气，舞娘增益效果 +3%。"
+desc = "舞娘buff效果 +3%"
+cost = 1
+effect = {"profession_dancer_buff_power_pct": 3}
+
+[sub_resource type="Resource" id="TechItem_13"]
+script = ExtResource("2_item")
+id = "prof_dancer_2"
+branch = "军略"
+category = "军略"
+tier = 2
+name = "军乐震天"
+summary = "舞娘buff效果 +6%"
+description = "战鼓琴瑟同奏凯歌，舞娘增益效果 +6%。"
+desc = "舞娘buff效果 +6%"
+cost = 2
+requires = "prof_dancer_1"
+effect = {"profession_dancer_buff_power_pct": 6}
+
+[sub_resource type="Resource" id="TechItem_14"]
+script = ExtResource("2_item")
+id = "prof_catapult_1"
+branch = "军略"
+category = "军略"
+tier = 1
+name = "石破天惊"
+summary = "投石车伤害 +3%"
+description = "巨石破城势不可挡，投石车伤害 +3%。"
+desc = "投石车伤害 +3%"
+cost = 1
+effect = {"profession_catapult_damage_pct": 3}
+
+[sub_resource type="Resource" id="TechItem_15"]
+script = ExtResource("2_item")
+id = "prof_catapult_2"
+branch = "军略"
+category = "军略"
+tier = 2
+name = "天崩地裂"
+summary = "投石车伤害 +6%"
+description = "连发石弹地动山摇，投石车伤害 +6%。"
+desc = "投石车伤害 +6%"
+cost = 2
+requires = "prof_catapult_1"
+effect = {"profession_catapult_damage_pct": 6}
+
+[sub_resource type="Resource" id="TechItem_16"]
+script = ExtResource("2_item")
+id = "eco_gold_1"
+branch = "后勤"
+category = "后勤"
+tier = 1
+name = "军资扩编"
+summary = "初始金币 +20"
+description = "出征前多备粮草辎重，开局初始金币 +20。"
+desc = "初始金币 +20"
+cost = 1
+effect = {"start_gold": 20}
+
+[sub_resource type="Resource" id="TechItem_17"]
+script = ExtResource("2_item")
+id = "eco_gold_2"
+branch = "后勤"
+category = "后勤"
+tier = 2
+name = "粮草丰盈"
+summary = "初始金币 +40"
+description = "粮道畅通军需充足，开局初始金币 +40。"
+desc = "初始金币 +40"
+cost = 2
+requires = "eco_gold_1"
+effect = {"start_gold": 40}
+
+[sub_resource type="Resource" id="TechItem_18"]
+script = ExtResource("2_item")
+id = "eco_gold_3"
+branch = "后勤"
+category = "后勤"
+tier = 3
+name = "国库充盈"
+summary = "初始金币 +60"
+description = "国库拨付三军粮饷，开局初始金币 +60。"
+desc = "初始金币 +60"
+cost = 3
+requires = "eco_gold_2"
+effect = {"start_gold": 60}
+
+[sub_resource type="Resource" id="TechItem_19"]
+script = ExtResource("2_item")
+id = "eco_wave_1"
+branch = "后勤"
+category = "后勤"
+tier = 1
+name = "以战养战"
+summary = "波次奖励 +20%"
+description = "缴获敌军辎重补充军费，每波完成金币奖励 +20%。"
+desc = "波次奖励 +20%"
+cost = 1
+effect = {"wave_reward_pct": 20}
+
+[sub_resource type="Resource" id="TechItem_20"]
+script = ExtResource("2_item")
+id = "eco_wave_2"
+branch = "后勤"
+category = "后勤"
+tier = 2
+name = "连营烽火"
+summary = "波次奖励 +40%"
+description = "战事连绵缴获日丰，每波完成金币奖励 +40%。"
+desc = "波次奖励 +40%"
+cost = 2
+requires = "eco_wave_1"
+effect = {"wave_reward_pct": 40}
+
+[sub_resource type="Resource" id="TechItem_21"]
+script = ExtResource("2_item")
 id = "inf_hp_1"
-branch = "基建"
+branch = "工事"
+category = "工事"
 tier = 1
 name = "城墙加固"
+summary = "基地生命 +1"
+description = "夯土筑墙加固城防，基地生命 +1。"
 desc = "基地生命 +1"
 cost = 1
 effect = {"base_hp": 1}
 
-[sub_resource type="Resource" id="TechItem_8"]
+[sub_resource type="Resource" id="TechItem_22"]
 script = ExtResource("2_item")
 id = "inf_hp_2"
-branch = "基建"
+branch = "工事"
+category = "工事"
 tier = 2
 name = "箭塔增筑"
+summary = "基地生命 +2"
+description = "增设箭塔拱卫主城，基地生命 +2。"
 desc = "基地生命 +2"
 cost = 2
 requires = "inf_hp_1"
 effect = {"base_hp": 2}
 
-[sub_resource type="Resource" id="TechItem_9"]
+[sub_resource type="Resource" id="TechItem_23"]
 script = ExtResource("2_item")
 id = "inf_hp_3"
-branch = "基建"
+branch = "工事"
+category = "工事"
 tier = 3
 name = "城防翻新"
+summary = "基地生命 +3"
+description = "重修城垣固若金汤，基地生命 +3。"
 desc = "基地生命 +3"
 cost = 3
 requires = "inf_hp_2"
 effect = {"base_hp": 3}
 
+[sub_resource type="Resource" id="TechItem_24"]
+script = ExtResource("2_item")
+id = "strat_rage_1"
+branch = "将略"
+category = "将略"
+tier = 1
+name = "养精蓄锐"
+summary = "怒气积攒 +5%"
+description = "蓄势待发一战定乾坤，武将积怒速度 +5%。"
+desc = "怒气积攒 +5%"
+cost = 1
+effect = {"rage_gain_pct": 5}
+
+[sub_resource type="Resource" id="TechItem_25"]
+script = ExtResource("2_item")
+id = "strat_rage_2"
+branch = "将略"
+category = "将略"
+tier = 2
+name = "以逸待劳"
+summary = "怒气积攒 +10%"
+description = "以静制动伺机而发，武将积怒速度 +10%。"
+desc = "怒气积攒 +10%"
+cost = 2
+requires = "strat_rage_1"
+effect = {"rage_gain_pct": 10}
+
+[sub_resource type="Resource" id="TechItem_26"]
+script = ExtResource("2_item")
+id = "strat_refund_1"
+branch = "将略"
+category = "将略"
+tier = 1
+name = "变卖筹措"
+summary = "回收返还 +5%"
+description = "变卖旧装备筹措军资，卖塔返还比例 +5%。"
+desc = "回收返还 +5%"
+cost = 1
+effect = {"sell_refund_pct": 5}
+
+[sub_resource type="Resource" id="TechItem_27"]
+script = ExtResource("2_item")
+id = "strat_refund_2"
+branch = "将略"
+category = "将略"
+tier = 2
+name = "撤资回笼"
+summary = "回收返还 +10%"
+description = "及时撤资回笼资金，卖塔返还比例 +10%。"
+desc = "回收返还 +10%"
+cost = 2
+requires = "strat_refund_1"
+effect = {"sell_refund_pct": 10}
+
+[sub_resource type="Resource" id="TechItem_28"]
+script = ExtResource("2_item")
+id = "strat_upgrade_1"
+branch = "将略"
+category = "将略"
+tier = 1
+name = "事半功倍"
+summary = "升阶费用 -5%"
+description = "改良训练方法事半功倍，局内升阶费用 -5%。"
+desc = "升阶费用 -5%"
+cost = 1
+effect = {"upgrade_discount_pct": 5}
+
+[sub_resource type="Resource" id="TechItem_29"]
+script = ExtResource("2_item")
+id = "strat_upgrade_2"
+branch = "将略"
+category = "将略"
+tier = 2
+name = "军费筹划"
+summary = "升阶费用 -10%"
+description = "精打细算节制开销，局内升阶费用 -10%。"
+desc = "升阶费用 -10%"
+cost = 2
+requires = "strat_upgrade_1"
+effect = {"upgrade_discount_pct": 10}
+
+[sub_resource type="Resource" id="TechItem_30"]
+script = ExtResource("2_item")
+id = "strat_supply_1"
+branch = "将略"
+category = "将略"
+tier = 1
+name = "集市议价"
+summary = "军需折扣 -5%"
+description = "与商贾往来熟稔，局内军需费用 -5%。"
+desc = "军需折扣 -5%"
+cost = 1
+effect = {"supply_discount_pct": 5}
+
+[sub_resource type="Resource" id="TechItem_31"]
+script = ExtResource("2_item")
+id = "strat_supply_2"
+branch = "将略"
+category = "将略"
+tier = 2
+name = "官商合作"
+summary = "军需折扣 -10%"
+description = "官府商户通力合作，局内军需费用 -10%。"
+desc = "军需折扣 -10%"
+cost = 2
+requires = "strat_supply_1"
+effect = {"supply_discount_pct": 10}
+
 [resource]
 script = ExtResource("1_tree")
-items = [SubResource("TechItem_1"), SubResource("TechItem_2"), SubResource("TechItem_3"), SubResource("TechItem_4"), SubResource("TechItem_5"), SubResource("TechItem_6"), SubResource("TechItem_7"), SubResource("TechItem_8"), SubResource("TechItem_9")]
+items = [SubResource("TechItem_1"), SubResource("TechItem_2"), SubResource("TechItem_3"), SubResource("TechItem_4"), SubResource("TechItem_5"), SubResource("TechItem_6"), SubResource("TechItem_7"), SubResource("TechItem_8"), SubResource("TechItem_9"), SubResource("TechItem_10"), SubResource("TechItem_11"), SubResource("TechItem_12"), SubResource("TechItem_13"), SubResource("TechItem_14"), SubResource("TechItem_15"), SubResource("TechItem_16"), SubResource("TechItem_17"), SubResource("TechItem_18"), SubResource("TechItem_19"), SubResource("TechItem_20"), SubResource("TechItem_21"), SubResource("TechItem_22"), SubResource("TechItem_23"), SubResource("TechItem_24"), SubResource("TechItem_25"), SubResource("TechItem_26"), SubResource("TechItem_27"), SubResource("TechItem_28"), SubResource("TechItem_29"), SubResource("TechItem_30"), SubResource("TechItem_31")]

@@ -225,6 +225,7 @@ theme = &"grass"
 path_points = [Vector2(-40, 600), Vector2(40, 600), Vector2(600, 600), Vector2(600, 200), Vector2(1000, 200), Vector2(1000, 600), Vector2(1240, 600), Vector2(1320, 600)]
 build_slot_positions = [Vector2(520, 520), Vector2(760, 440), Vector2(520, 280), Vector2(840, 120), Vector2(1080, 280), Vector2(1120, 520), Vector2(240, 520), Vector2(440, 440), Vector2(840, 440), Vector2(920, 120)]
 decor_cells = [Vector2i(2, 4), Vector2i(5, 2), Vector2i(9, 0), Vector2i(14, 0), Vector2i(0, 4), Vector2i(3, 3), Vector2i(13, 7), Vector2i(15, 4)]
+forbidden_cells = [Vector2i(0, 3), Vector2i(0, 5), Vector2i(12, 0), Vector2i(14, 5)]
 prerequisite_stage_ids = [&"ch01_s05"]
 first_clear_unlock_character_ids = [&"zhao_yun"]
 first_clear_rewards = [SubResource("ItemAmountData_cloth")]

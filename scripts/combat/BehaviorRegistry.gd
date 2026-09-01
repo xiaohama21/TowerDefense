@@ -281,5 +281,5 @@ static func _attack_aura_pulse(tower: Tower, _target: Enemy) -> void:
 	var allies := tower.allies_in_range()
 	for ally in allies:
 		ally.apply_attack_speed_buff("aura_attack", 1.0 + 0.2 * power_mult, 3.0 * duration_mult)
-	tower.gain_support_pulse(allies.size())
+	tower.gain_support_pulse(allies)
 	tower.play_attack_flash()
