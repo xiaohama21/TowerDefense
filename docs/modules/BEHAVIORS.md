@@ -88,7 +88,7 @@
 
 ### B.3.5 转职技能行为（`skill_id`，✅ v0.15.0 落地）
 
-技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_level/5, 4)`。完整规格见 CHARACTERS.md 4.5。
+技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_level/5, 4)`。完整规格见 CHARACTERS.md 4.5，按职业组织的职业技能清单见 [SKILLS.md](SKILLS.md)。
 
 | skill_id | 触发点 | 效果概要 | 演出 |
 |---|---|---|---|
