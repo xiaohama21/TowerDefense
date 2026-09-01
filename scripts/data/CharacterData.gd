@@ -22,6 +22,12 @@ class_name CharacterData
 @export_range(0.0, 100.0, 0.1) var range_growth_per_level: float = 0.0
 @export var promotion_ids: Array[StringName] = []
 
+@export_category("Character Skill (阶段 8·提交 6，CHARACTER_SKILLS.md v0.1)")
+## 角色专属技能 ID（武将差异化；A 主动冷却 / B 条件触发，与职业技能解耦、不参与档位）。
+@export var character_skill_id: StringName
+## 角色技能数值参数（行为脚本按 ID 读取，复用 skill_params 模式）。
+@export var character_skill_params: Dictionary = {}
+
 @export_category("Trait & Ultimate (阶段 3 字段，v0.11.1 先行铺设)")
 ## 常驻被动特性 ID（行为脚本按 ID 注册，见 CHARACTERS.md 4.7）。
 @export var trait_id: StringName

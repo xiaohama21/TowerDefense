@@ -22,7 +22,7 @@ class_name PromotionData
 @export_range(0.0, 100.0, 0.01) var ultimate_multiplier: float = 1.0
 @export var granted_skill_ids: Array[StringName] = []
 ## 技能参数（v0.15.0，GDD modules/BEHAVIORS.md B.3.5）：skill_id -> 数值字典，
-## 档位系数由武将局内等级决定（每 5 级一档，见 CHARACTERS.md 4.5）。
+## 档位系数仅职业技能适用、以局内升阶 battle_rank 为准（v0.27.4 拍板，见 SKILLS.md 第 5 节）。
 @export var skill_params: Dictionary = {}
 @export var visual_variant_id: StringName
 

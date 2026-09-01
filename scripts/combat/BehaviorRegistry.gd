@@ -6,16 +6,16 @@ extends RefCounted
 ## 阶段 1 落地职业攻击行为（behavior_id）；大招/特性/敌人特殊行为随阶段 3 扩展。
 
 const CAVALRY_TAG: StringName = &"cavalry"
-## 枪兵职业克制：对带 cavalry 标签的敌人伤害 +15%（GDD 4.2）。
-const PIKEMAN_COUNTER_ID: StringName = &"pikeman"
-const PIKEMAN_COUNTER_MULTIPLIER: float = 1.15
+## 虎贲职业克制：对带 cavalry 标签的敌人伤害 +15%（GDD 4.2，v0.28.0 由剑客更名）。
+const TIGER_GUARD_COUNTER_ID: StringName = &"tiger_guard"
+const TIGER_GUARD_COUNTER_MULTIPLIER: float = 1.15
 ## 投石车落点爆炸半径（GDD 4.2 抛射范围伤害，v0.11.1）。
 const LOB_EXPLOSION_RADIUS: float = 90.0
 
 ## 大招显示名（v0.15.0 演出飘字）。
 const ULTIMATE_NAMES := {
 	&"ultimate_cavalry_breaker": "突击斩杀",
-	&"ultimate_pikeman_sweep": "横扫千军",
+	&"ultimate_tiger_guard_sweep": "破阵",
 	&"ultimate_archer_volley": "连珠齐射",
 	&"ultimate_strategist_blaze": "火烧连营",
 	&"ultimate_dancer_encourage": "倾城鼓舞",
@@ -40,7 +40,7 @@ static func _ensure_registry() -> void:
 	# 弹道类：弓箭手/术士（单体结算，职业范围结算随阶段 3 拆分）。
 	for behavior_id in [&"single_target_precision", &"area_spell"]:
 		_attack_executors[behavior_id] = _attack_single_target_bullet
-	# 近战类：直伤 + 武器挥击表现（无弹道）。骑兵与剑客同属贴路近战职业。
+	# 近战类：直伤 + 武器挥击表现（无弹道）。骑兵与虎贲同属贴路近战职业。
 	for behavior_id in [&"single_target_burst", &"melee_thrust"]:
 		_attack_executors[behavior_id] = _attack_melee_swing
 	# 抛射类：投石车，预判落点 + 范围伤害。
@@ -49,7 +49,7 @@ static func _ensure_registry() -> void:
 	_attack_executors[&"attack_speed_aura"] = _attack_aura_pulse
 	_ultimate_executors = {
 		&"ultimate_cavalry_breaker": _ult_cavalry_breaker,
-		&"ultimate_pikeman_sweep": _ult_pikeman_sweep,
+		&"ultimate_tiger_guard_sweep": _ult_tiger_guard_sweep,
 		&"ultimate_archer_volley": _ult_archer_volley,
 		&"ultimate_strategist_blaze": _ult_strategist_blaze,
 		&"ultimate_dancer_encourage": _ult_dancer_encourage,
@@ -85,8 +85,8 @@ static func execute_attack(behavior_id: StringName, tower, target) -> bool:
 
 ## 职业克制倍率：按职业与目标标签查询，默认 1.0。
 static func get_profession_counter(profession_id: StringName, enemy_tags: Array[StringName]) -> float:
-	if profession_id == PIKEMAN_COUNTER_ID and enemy_tags.has(CAVALRY_TAG):
-		return PIKEMAN_COUNTER_MULTIPLIER
+	if profession_id == TIGER_GUARD_COUNTER_ID and enemy_tags.has(CAVALRY_TAG):
+		return TIGER_GUARD_COUNTER_MULTIPLIER
 	return 1.0
 
 
@@ -151,14 +151,22 @@ static func _ult_cavalry_breaker(tower: Tower) -> bool:
 	return true
 
 
-static func _ult_pikeman_sweep(tower: Tower) -> bool:
-	# 横扫：范围内敌人 1.5×普攻伤害并击退 40px。
+static func _ult_tiger_guard_sweep(tower: Tower) -> bool:
+	# 破阵：范围内敌人 1.5×普攻伤害并击退 40px + 附近 200px 友方攻速 +15%/5s（激励段）。
 	var enemies := tower.enemies_in_range()
 	if enemies.is_empty():
 		return false
 	for enemy in enemies:
 		enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 1.5 * tower.ultimate_power())), enemy), tower.character_id)
 		enemy.progress = maxf(enemy.progress - 40.0, 0.0)
+	var power_mult := tower.get_battle_rank_buff_power_multiplier()
+	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var ally := node as Tower
+		if ally == null or ally == tower or not is_instance_valid(ally):
+			continue
+		if tower.global_position.distance_to(ally.global_position) <= 200.0:
+			ally.apply_attack_speed_buff("ult_tiger_guard_sweep", 1.0 + 0.15 * power_mult, 5.0 * duration_mult)
 	tower.play_melee_hit()
 	return true
 

@@ -4,18 +4,20 @@
 
 [resource]
 script = ExtResource("1_profession")
-profession_id = &"pikeman"
-display_name = "剑客"
-description = "便宜、稳定、手长的近战基础职业，对骑兵有克制。"
-combat_role = 0
+profession_id = &"tiger_guard"
+display_name = "虎贲"
+description = "近战抗线、持旗鼓舞友军的近战 buff 职业，对骑兵有克制。"
+combat_role = 3
 attack_pattern = 0
-tags = [&"melee"]
-damage_multiplier = 1.0
+tags = [&"melee", &"banner"]
+damage_multiplier = 0.9
 range_multiplier = 1.0
 attack_interval_multiplier = 1.0
 behavior_id = &"melee_thrust"
-ultimate_id = &"ultimate_pikeman_sweep"
+ultimate_id = &"ultimate_tiger_guard_sweep"
 rage_gain_mode = &"hit+damage"
-battle_rank_damage_step = 0.3
+battle_rank_damage_step = 0.15
 battle_rank_attack_speed_step = 0.08
 battle_rank_range_step = 0.03
+battle_rank_buff_duration_step = 0.1
+battle_rank_buff_power_step = 0.05

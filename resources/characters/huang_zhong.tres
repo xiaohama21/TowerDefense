@@ -17,6 +17,13 @@ attack_interval = 1.25
 projectile_speed = 520.0
 damage_growth_per_level = 4.5
 promotion_ids = [&"huang_zhong_sharpshooter"]
+character_skill_id = &"char_dingjun"
+character_skill_params = {
+"cooldown": 18.0,
+"mult": 2.5,
+"mark_duration": 5.0,
+"mark_damage_bonus": 0.15
+}
 trait_id = &"trait_hundred_step"
 trait_params = {
 "step": 0.1,

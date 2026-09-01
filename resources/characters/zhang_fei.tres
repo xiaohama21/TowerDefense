@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
-[ext_resource type="Resource" path="res://resources/professions/pikeman.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 
 [resource]
 script = ExtResource("1_character")
@@ -9,7 +9,7 @@ character_id = &"zhang_fei"
 display_name = "张飞"
 description = "燕人张飞，长矛连刺稳定输出，专克轻骑。"
 profession = ExtResource("2_profession")
-tags = [&"shu", &"pikeman"]
+tags = [&"shu", &"tiger_guard"]
 build_cost = 60
 base_damage = 52
 base_range = 120.0
@@ -17,6 +17,13 @@ attack_interval = 0.7
 projectile_speed = 400.0
 damage_growth_per_level = 4.0
 promotion_ids = [&"zhang_fei_vanguard"]
+character_skill_id = &"char_dangyang_roar"
+character_skill_params = {
+"cooldown": 22.0,
+"knockback": 60.0,
+"slow_factor": 0.4,
+"slow_duration": 3.0
+}
 trait_id = &"trait_yanyan_roar"
 trait_params = {
 "chance": 0.3,

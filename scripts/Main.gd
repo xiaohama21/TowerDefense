@@ -82,6 +82,7 @@ func _ready():
 	ui.tower_sell_requested.connect(_on_tower_sell_requested)
 	ui.battle_supply_pressed.connect(_on_battle_supply_pressed)
 	ui.ultimate_cast_requested.connect(_on_ultimate_cast_requested)
+	ui.character_skill_cast_requested.connect(_on_character_skill_cast_requested)
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
@@ -283,6 +284,17 @@ func _on_boss_entered(display_name: String) -> void:
 ## 手动大招（v0.15.0）：属性面板按钮触发。
 func _on_ultimate_cast_requested() -> void:
 	_try_cast_selected_ultimate()
+
+
+## 角色技能（阶段 8·提交 6）：属性面板"释放技能"按钮（手动模式）。
+func _on_character_skill_cast_requested() -> void:
+	if _selected_tower == null or not is_instance_valid(_selected_tower):
+		return
+	if _selected_tower.cast_character_skill():
+		ui.show_status("%s 释放 %s！" % [_selected_tower.display_name, SkillRegistry.get_character_skill_name(_selected_tower.get_character_skill_id())], 1.0)
+		ui.refresh_tower_panel()
+	else:
+		ui.show_status("技能未就绪或范围内无目标")
 
 
 ## R 键释放大招（v0.15.0，仅手动模式且选中塔）。

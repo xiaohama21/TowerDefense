@@ -17,6 +17,14 @@ attack_interval = 2.4
 projectile_speed = 320.0
 damage_growth_per_level = 6.0
 promotion_ids = [&"huang_fu_song_zhechong"]
+character_skill_id = &"char_burn_camp"
+character_skill_params = {
+"cooldown": 20.0,
+"mult": 1.5,
+"aoe_radius": 90.0,
+"burn_dps_mult": 0.25,
+"burn_duration": 3.0
+}
 trait_id = &"trait_royal_fire"
 trait_params = {
 "aoe_damage_bonus": 0.15

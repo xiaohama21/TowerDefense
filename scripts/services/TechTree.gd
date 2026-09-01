@@ -81,7 +81,7 @@ static func get_tech_bonuses(profile: PlayerProfile) -> Dictionary:
 		"start_gold": 0, "damage_pct": 0, "base_hp": 0,
 		"wave_reward_pct": 0, "sell_refund_pct": 0, "upgrade_discount_pct": 0,
 		"supply_discount_pct": 0, "rage_gain_pct": 0,
-		"profession_pikeman_damage_pct": 0, "profession_cavalry_damage_pct": 0,
+		"profession_tiger_guard_damage_pct": 0, "profession_cavalry_damage_pct": 0,
 		"profession_archer_attack_speed_pct": 0, "profession_strategist_damage_pct": 0,
 		"profession_dancer_buff_power_pct": 0, "profession_catapult_damage_pct": 0,
 	}
@@ -95,7 +95,7 @@ static func get_tech_bonuses(profile: PlayerProfile) -> Dictionary:
 			bonuses[key] = bonuses.get(key, 0) + int(item.effect[key])
 	bonuses["damage_pct"] = mini(bonuses.get("damage_pct", 0), DAMAGE_PCT_CAP)
 	for key in [
-		"profession_pikeman_damage_pct", "profession_cavalry_damage_pct",
+		"profession_tiger_guard_damage_pct", "profession_cavalry_damage_pct",
 		"profession_archer_attack_speed_pct", "profession_strategist_damage_pct",
 		"profession_dancer_buff_power_pct", "profession_catapult_damage_pct",
 	]:

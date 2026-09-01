@@ -30,7 +30,7 @@ const MELEE_SWING_TO := 0.95
 const MELEE_SLASH_RADIUS := 38.0
 const PROFESSION_COLORS := {
 	&"cavalry": Color(0.76, 0.24, 0.2, 1.0),
-	&"pikeman": Color(0.3, 0.62, 0.45, 1.0),
+	&"tiger_guard": Color(0.3, 0.62, 0.45, 1.0),
 	&"archer": Color(0.85, 0.55, 0.22, 1.0),
 	&"strategist": Color(0.28, 0.5, 0.85, 1.0),
 	&"dancer": Color(0.85, 0.42, 0.66, 1.0),
@@ -103,7 +103,24 @@ var _ultimate_multiplier: float = 1.0
 var _granted_skills: Array[StringName] = []
 ## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，来自 PromotionData。
 var _skill_params: Dictionary = {}
-## 龙突（赵云）：击杀后下一次伤害加成，finalize_damage 一次性消耗。
+## 当前转职（v0.28.0）：用于技能显示名 +（二转强化）判断。
+var _promotion: PromotionData = null
+## 稳射保底计数（阶段 8·提交 6）：每 5 次攻击必触发一次追加伤害。
+var steady_attack_counter: int = 0
+## 角色技能（武将专属差异化，CHARACTER_SKILLS.md v0.1）：ID、参数、冷却与状态。
+var _character_skill_id: StringName = StringName()
+var _character_skill_params: Dictionary = {}
+var _char_skill_cooldown_left: float = 0.0
+var _char_skill_ready: bool = false
+var _char_skill_ready_notified: bool = false
+## B 被动一次性激活标记（周仓·死战：基地低血后常驻）。
+var _char_skill_activated: bool = false
+## 角色技能攻速常驻加成（死战 +30%）。
+var _char_skill_speed_bonus: float = 0.0
+## 弹道速度增益（诸葛亮·借东风）：按来源取最大倍率。
+var _bullet_speed_buff: float = 1.0
+var _bullet_speed_sources: Dictionary = {}
+## 蓄力+（青龙骑）：击杀后下一次伤害加成，finalize_damage 一次性消耗。
 var _next_attack_bonus: float = 0.0
 ## 手动大招（v0.15.0）：满怒待发状态与提示去抖。
 var _ultimate_ready: bool = false
@@ -203,8 +220,20 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_battle_rank_buff_power_step = _resolve_rank_step(character_data.battle_rank_buff_power_step_override, profession_data.battle_rank_buff_power_step if profession_data != null else 0.0)
 	_trait_id = character_data.trait_id
 	_trait_params = character_data.trait_params.duplicate(true)
+	_promotion = promotion
 	_granted_skills.assign(promotion.granted_skill_ids.duplicate()) if promotion != null else _granted_skills.clear()
 	_skill_params = promotion.skill_params.duplicate(true) if promotion != null else {}
+	# 角色技能（阶段 8·提交 6）：初始冷却就绪；B 被动激活标记与常驻加成清零。
+	_character_skill_id = character_data.character_skill_id
+	_character_skill_params = character_data.character_skill_params.duplicate(true)
+	steady_attack_counter = 0
+	_char_skill_cooldown_left = 0.0
+	_char_skill_ready = true
+	_char_skill_ready_notified = false
+	_char_skill_activated = false
+	_char_skill_speed_bonus = 0.0
+	_bullet_speed_buff = 1.0
+	_bullet_speed_sources.clear()
 	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
 	_ultimate_multiplier = promotion.ultimate_multiplier if promotion != null else 1.0
 	_ultimate_id = character_data.ultimate_override_id
@@ -301,7 +330,8 @@ func _swing_offset() -> float:
 
 
 func _rebuild_attack_timer() -> void:
-	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks) * (1.0 + _tech_attack_speed_pct))
+	# 角色技能常驻攻速加成（周仓·死战）与职业 buff 同区相乘。
+	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks) * (1.0 + _char_skill_speed_bonus) * (1.0 + _tech_attack_speed_pct))
 	attack_timer.wait_time = maxf(effective, attack_cooldown * ATTACK_SPEED_FLOOR)
 
 
@@ -360,6 +390,34 @@ func _process(_delta: float) -> void:
 		_ult_visual_time = maxf(_ult_visual_time - _delta, 0.0)
 		queue_redraw()
 
+	# 弹道速度增益（借东风）：到期回落。
+	if not _bullet_speed_sources.is_empty():
+		var expired_bullet: Array[String] = []
+		for source_id in _bullet_speed_sources.keys():
+			var entry: Dictionary = _bullet_speed_sources[source_id]
+			entry["time_left"] = maxf(float(entry.get("time_left", 0.0)) - _delta, 0.0)
+			if float(entry["time_left"]) <= 0.0:
+				expired_bullet.append(str(source_id))
+		for source_id in expired_bullet:
+			_bullet_speed_sources.erase(source_id)
+		_recalc_bullet_speed_buff()
+
+	# 角色技能（阶段 8·提交 6）：B 被动轮询（基地低血）+ A 主动冷却计时。
+	SkillRegistry.check_base_low(self)
+	if SkillRegistry.has_character_skill(self) and not SkillRegistry.is_character_skill_b_type(self):
+		if _char_skill_cooldown_left > 0.0:
+			_char_skill_cooldown_left = maxf(_char_skill_cooldown_left - _delta, 0.0)
+			if _char_skill_cooldown_left <= 0.0:
+				_char_skill_ready = true
+				SkillRegistry.on_character_skill_ready(self)
+				if _char_skill_ready and not _char_skill_ready_notified:
+					_char_skill_ready_notified = true
+					spawn_float_text("技能就绪", Color(0.6, 0.9, 1.0), 14)
+		elif _char_skill_ready and not _manual_ultimate_mode:
+			if cast_character_skill():
+				_char_skill_ready = false
+				_char_skill_ready_notified = false
+
 	# 诸葛亮·观星：范围内敌人持续减速 8%（周期施加，取最强因子）
 	_aura_tick = maxf(_aura_tick - _delta, 0.0)
 	if _trait_id == &"trait_star_gazer" and _aura_tick <= 0.0:
@@ -394,11 +452,12 @@ func gain_support_pulse(allies: Array) -> void:
 	if _rage_mode != &"support" or allies.is_empty():
 		return
 	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies.size())
-	var ally_ids: Array[String] = []
+	var ally_keys: Array[String] = []
 	for ally in allies:
 		if ally != null and is_instance_valid(ally):
-			ally_ids.append(str(ally.character_id))
-	GameManager.add_support_contribution(character_id, ally_ids)
+			# 按塔实例去重（GDD 10.6"同一增益对象"）：同角色多塔分别计覆盖。
+			ally_keys.append("%s#%d" % [str(ally.character_id), ally.get_instance_id()])
+	GameManager.add_support_contribution(character_id, ally_keys)
 
 
 func gain_rage(amount: float) -> void:
@@ -455,12 +514,106 @@ func has_skill(skill_id: StringName) -> bool:
 
 
 func get_skill_param(skill_id: StringName, key: String, default: float) -> float:
+	# v0.28.0 职业技能收敛后每转职仅授 1 技能，.tres 参数为扁平格式（key 直存）；
+	# 兼容旧分层格式（skill_id -> dict）。
 	var params: Dictionary = _skill_params.get(skill_id, {})
-	return float(params.get(key, default))
+	if not params.is_empty():
+		return float(params.get(key, default))
+	return float(_skill_params.get(key, default))
+
 
 
 func set_next_attack_bonus(bonus: float) -> void:
 	_next_attack_bonus = maxf(bonus, 0.0)
+
+
+## ============ 角色技能（阶段 8·提交 6，CHARACTER_SKILLS.md v0.1） ============
+
+func get_character_skill_id() -> StringName:
+	return _character_skill_id
+
+
+func get_character_skill_param(key: String, default: float) -> float:
+	return float(_character_skill_params.get(key, default))
+
+
+func is_character_skill_ready() -> bool:
+	return _char_skill_ready
+
+
+func get_character_skill_cooldown_left() -> float:
+	return _char_skill_cooldown_left
+
+
+func is_character_skill_activated() -> bool:
+	return _char_skill_activated
+
+
+func set_character_skill_activated(activated: bool) -> void:
+	_char_skill_activated = activated
+
+
+## 角色技能常驻攻速加成（周仓·死战）：立即生效并重建攻击计时器。
+func set_character_skill_speed_bonus(bonus: float) -> void:
+	_char_skill_speed_bonus = maxf(bonus, 0.0)
+	_rebuild_attack_timer()
+	queue_redraw()
+
+
+## 冷却缩减（关羽·青龙偃月击杀返 CD）：不低于 0，到 0 即就绪。
+func refund_character_skill_cooldown(seconds: float) -> void:
+	_char_skill_cooldown_left = maxf(_char_skill_cooldown_left - seconds, 0.0)
+	if _char_skill_cooldown_left <= 0.0:
+		_char_skill_ready = true
+
+
+## 释放角色技能（A 主动冷却制 / B 条件触发）：成功则进入冷却，失败保留就绪。
+## 冷却先置再执行（v0.28.0）：执行器内可返冷却（青龙偃月击杀 -6s），不会被覆盖。
+func cast_character_skill() -> bool:
+	if _character_skill_id.is_empty() or not _char_skill_ready:
+		return false
+	var cooldown := SkillRegistry.character_skill_cooldown(self)
+	if cooldown > 0.0:
+		_char_skill_cooldown_left = cooldown
+		_char_skill_ready = false
+		_char_skill_ready_notified = false
+	if not SkillRegistry.cast_character_skill(self):
+		if cooldown > 0.0:
+			_char_skill_cooldown_left = 0.0
+			_char_skill_ready = true
+		return false
+	return true
+
+
+## 职业技能显示名（二转强化加 +，三转及以上 ++）。
+func get_skill_display_name(skill_id: StringName) -> String:
+	var name := SkillRegistry.get_skill_name(skill_id)
+	if _promotion != null and not str(_promotion.parent_id).is_empty() and has_skill(skill_id):
+		return name + "+"
+	return name
+
+
+func get_granted_skills() -> Array[StringName]:
+	return _granted_skills.duplicate()
+
+
+## 弹道速度增益（借东风）：按来源取最大倍率，时长刷新。
+func apply_bullet_speed_buff(source_id: String, multiplier: float, duration: float) -> void:
+	if source_id.is_empty() or duration <= 0.0:
+		return
+	_bullet_speed_sources[source_id] = {"mult": maxf(multiplier, 1.0), "time_left": duration}
+	_recalc_bullet_speed_buff()
+
+
+func get_bullet_speed_multiplier() -> float:
+	return _bullet_speed_buff
+
+
+func _recalc_bullet_speed_buff() -> void:
+	var best := 1.0
+	for entry in _bullet_speed_sources.values():
+		best = maxf(best, float(entry.get("mult", 1.0)))
+	_bullet_speed_buff = best
 
 
 ## 大招范围（v0.15.0）：诸葛亮·奇谋按档位放大爆炸半径。
@@ -536,7 +689,7 @@ func finalize_damage(base: int, target: Enemy) -> int:
 	if _next_attack_bonus > 0.0:
 		value *= 1.0 + _next_attack_bonus
 		_next_attack_bonus = 0.0
-		spawn_float_text(SkillRegistry.get_skill_name(&"dragon_rush"), Color(0.6, 0.9, 1.0))
+		spawn_float_text(SkillRegistry.get_skill_name(&"charge") + "+", Color(0.6, 0.9, 1.0))
 	return int(round(value))
 
 
@@ -668,7 +821,7 @@ func instantiate_bullet(target_enemy: Enemy) -> Bullet:
 
 	bullet.target = target_enemy
 	bullet.damage = damage
-	bullet.speed = bullet_speed
+	bullet.speed = bullet_speed * _bullet_speed_buff
 	bullet.source_character_id = character_id
 	bullet.kind = _profession_id
 	bullet.color = _hero_color
@@ -746,6 +899,7 @@ func _draw() -> void:
 	if _skill_flash > 0.0:
 		_draw_skill_flash()
 	_draw_rage_bar()
+	_draw_character_skill_cooldown()
 	if _ult_visual_time > 0.0:
 		_draw_ultimate_visual()
 	if is_selected:
@@ -784,6 +938,20 @@ func _draw_rage_bar() -> void:
 		draw_line(Vector2(x, origin.y), Vector2(x, origin.y + height), Color(0.0, 0.0, 0.0, 0.35), 1.0)
 
 
+## 角色技能冷却盘（阶段 8·提交 6）：塔身外细环按剩余冷却比例收缩，就绪时隐藏。
+func _draw_character_skill_cooldown() -> void:
+	if not SkillRegistry.has_character_skill(self) or SkillRegistry.is_character_skill_b_type(self):
+		return
+	if _char_skill_ready:
+		return
+	var total := SkillRegistry.character_skill_cooldown(self)
+	if total <= 0.0:
+		return
+	var remaining := clampf(_char_skill_cooldown_left / total, 0.0, 1.0)
+	var start := -PI / 2.0
+	draw_arc(Vector2.ZERO, 25.0, start, start + TAU * remaining, 24, Color(0.55, 0.85, 1.0, 0.85), 2.5, true)
+
+
 ## 大招专属视觉（v0.15.0，GDD 阶段 5 提交 1）：按 ultimate_id 绘制差异化演出，
 ## 由 _try_cast_ultimate 成功后触发，持续 ULT_VISUAL_DURATION。
 func _draw_ultimate_visual() -> void:
@@ -797,8 +965,8 @@ func _draw_ultimate_visual() -> void:
 			var sweep := lerpf(0.0, 2.4, t)
 			draw_arc(Vector2.ZERO, 52.0, start, start + sweep, 18, gold, 6.0)
 			draw_line(Vector2.ZERO, Vector2.from_angle(_aim_angle) * 62.0, Color(1.0, 0.95, 0.7, alpha * 0.9), 3.0)
-		&"ultimate_pikeman_sweep":
-			# 横扫千军：扩散圆环 + 六向震地线
+		&"ultimate_tiger_guard_sweep":
+			# 破阵：扩散圆环 + 六向震地线（激励段金色外环）
 			draw_arc(Vector2.ZERO, 30.0 + 46.0 * t, 0.0, TAU, 28, Color(0.6, 1.0, 0.7, alpha), 5.0)
 			for i in range(6):
 				var ang := _aim_angle + TAU * i / 6.0
@@ -846,16 +1014,18 @@ func _draw_body() -> void:
 			draw_circle(Vector2.ZERO, 9.0, _hero_color.darkened(0.15))
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			draw_circle(Vector2(0, -6), 6.5, _hero_color)
-		&"pikeman":
-			# 剑客：挺拔身形 + 肩上剑刃
+		&"tiger_guard":
+			# 虎贲：挺拔身形 + 背上军旗（持旗鼓舞）
 			draw_set_transform(Vector2(0, 3), 0.0, Vector2(1.0, 1.25))
 			draw_circle(Vector2.ZERO, 8.0, _hero_color.darkened(0.1))
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			draw_circle(Vector2(0, -4), 6.0, _hero_color)
-			var blade := PackedVector2Array([
-				Vector2(9, 6), Vector2(13, -8), Vector2(10, -9), Vector2(7, 5),
-			])
-			draw_colored_polygon(blade, Color(0.88, 0.9, 0.93, 1.0))
+			# 军旗：旗杆 + 三角旗面（向后飘展，士气象征）
+			draw_line(Vector2(-10, 8), Vector2(-10, -14), Color(0.55, 0.42, 0.26, 1.0), 2.5)
+			draw_colored_polygon(PackedVector2Array([
+				Vector2(-10, -14), Vector2(-24, -10), Vector2(-10, -5),
+			]), _hero_color.lightened(0.15))
+			draw_line(Vector2(-10, -14), Vector2(-24, -10), Color(1.0, 0.9, 0.6, 0.9), 1.5)
 		&"catapult":
 			# 投石车：车架 + 双轮 + 配重
 			draw_rect(Rect2(-14, -2, 28, 10), _hero_color.darkened(0.2))
@@ -887,7 +1057,7 @@ func _draw_body() -> void:
 
 func _draw_slash_arc() -> void:
 	# 挥击弧：从挥击起点画到当前位置，随挥动渐隐，跟随瞄准方向；
-	# 弧光按职业配色着色（骑兵偏红、剑客偏绿）。
+	# 弧光按职业配色着色（骑兵偏红、虎贲偏绿）。
 	var t := 1.0 - _melee_swing / MELEE_SWING_DURATION
 	var eased := 1.0 - (1.0 - t) * (1.0 - t)
 	var current := _aim_angle + lerpf(MELEE_SWING_FROM, MELEE_SWING_TO, eased)
@@ -908,11 +1078,12 @@ func _draw_weapon() -> void:
 			draw_colored_polygon(PackedVector2Array([
 				Vector2(-3, -34), Vector2(3, -34), Vector2(0, -43),
 			]), Color(0.92, 0.93, 0.95, 1.0))
-		&"pikeman":
-			# 剑：指向瞄准方向的长刃 + 护手
-			draw_line(Vector2(0, 6), Vector2(0, -26), Color(0.88, 0.9, 0.93, 1.0), 3.0)
-			draw_line(Vector2(-6, -22), Vector2(6, -22), Color(0.5, 0.38, 0.2, 1.0), 3.0)
-			draw_line(Vector2(0, 6), Vector2(0, 11), Color(0.5, 0.38, 0.2, 1.0), 4.0)
+		&"tiger_guard":
+			# 枪：长杆 + 枪头（持枪近战，无护手）
+			draw_line(Vector2(0, 8), Vector2(0, -24), Color(0.62, 0.45, 0.28, 1.0), 3.0)
+			draw_colored_polygon(PackedVector2Array([
+				Vector2(-2.5, -24), Vector2(2.5, -24), Vector2(0, -33),
+			]), Color(0.92, 0.93, 0.95, 1.0))
 		&"catapult":
 			# 抛臂：长杆 + 末端勺兜
 			draw_line(Vector2(-4, 10), Vector2(0, -30), Color(0.45, 0.36, 0.24, 1.0), 3.5)

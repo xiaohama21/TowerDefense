@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
-[ext_resource type="Resource" path="res://resources/professions/pikeman.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 
 [resource]
 script = ExtResource("1_character")
@@ -9,7 +9,7 @@ character_id = &"zhou_wei"
 display_name = "周仓"
 description = "关将军的贴身部将，专啃硬骨头。"
 profession = ExtResource("2_profession")
-tags = [&"shu", &"pikeman"]
+tags = [&"shu", &"tiger_guard"]
 build_cost = 65
 base_damage = 70
 base_range = 115.0
@@ -17,4 +17,9 @@ attack_interval = 0.9
 projectile_speed = 400.0
 damage_growth_per_level = 5.0
 promotion_ids = [&"zhou_wei_loyal_guard"]
+character_skill_id = &"char_death_fight"
+character_skill_params = {
+"hp_threshold": 0.5,
+"speed_bonus": 0.3
+}
 unlock_stage_id = &"ch01_s05"

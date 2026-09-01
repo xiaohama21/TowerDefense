@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
-[ext_resource type="Resource" path="res://resources/professions/pikeman.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 
 [resource]
 script = ExtResource("1_character")
@@ -9,7 +9,7 @@ character_id = &"liu_bei"
 display_name = "刘备"
 description = "仁德之君，亲执双剑陷阵，以剑气鼓舞诸将。"
 profession = ExtResource("2_profession")
-tags = [&"shu", &"leader"]
+tags = [&"shu", &"tiger_guard"]
 build_cost = 55
 base_damage = 38
 base_range = 130.0
@@ -17,6 +17,11 @@ attack_interval = 0.8
 projectile_speed = 400.0
 damage_growth_per_level = 3.5
 promotion_ids = [&"liu_bei_commander"]
+character_skill_id = &"char_carry_people"
+character_skill_params = {
+"team_speed_bonus": 0.15,
+"duration": 5.0
+}
 trait_id = &"trait_benevolence"
 trait_params = {
 "aura_damage_bonus": 0.08

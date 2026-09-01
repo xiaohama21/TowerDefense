@@ -36,6 +36,9 @@ var _slow_time_left: float = 0.0
 var burn_dps: int = 0
 var _burn_time_left: float = 0.0
 var _burn_acc: float = 0.0
+## 定军标记（黄忠·定军山，阶段 8·提交 6）：character_id -> 剩余秒数；
+## 被标记目标受该武将塔普攻伤害 +15%（SkillRegistry.passive_damage_multiplier 读取）。
+var marks: Dictionary = {}
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
@@ -87,6 +90,15 @@ func _process(delta: float) -> void:
 			_burn_acc -= tick
 			take_damage(tick)
 
+	if not marks.is_empty():
+		var expired_marks: Array[String] = []
+		for key in marks.keys():
+			marks[key] = maxf(float(marks[key]) - delta, 0.0)
+			if float(marks[key]) <= 0.0:
+				expired_marks.append(str(key))
+		for key in expired_marks:
+			marks.erase(key)
+
 	var before := global_position
 	progress += speed * slow_factor * delta
 	var delta_pos := global_position - before
@@ -96,6 +108,17 @@ func _process(delta: float) -> void:
 	if progress_ratio >= 1.0 - 0.0001:
 		GameManager.enemy_reached_base(damage_to_base)
 		die(false)
+
+
+## 施加定军标记：多来源按角色分别计时，时长刷新。
+func apply_mark(character_id: String, duration: float) -> void:
+	if is_dead or duration <= 0.0 or character_id.is_empty():
+		return
+	marks[character_id] = maxf(float(marks.get(character_id, 0.0)), duration)
+
+
+func has_mark(character_id: String) -> bool:
+	return not character_id.is_empty() and character_id in marks and float(marks.get(character_id, 0.0)) > 0.0
 
 
 ## 施加减速：多来源叠加时取最强因子（最小值），时长刷新。

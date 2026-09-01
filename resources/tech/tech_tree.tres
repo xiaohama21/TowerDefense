@@ -46,30 +46,30 @@ effect = {"damage_pct": 6}
 
 [sub_resource type="Resource" id="TechItem_4"]
 script = ExtResource("2_item")
-id = "prof_pikeman_1"
+id = "prof_tiger_guard_1"
 branch = "军略"
 category = "军略"
 tier = 1
-name = "枪出如龙"
-summary = "枪兵伤害 +3%"
-description = "枪兵阵型严整，刺击迅猛。枪兵伤害 +3%。"
-desc = "枪兵伤害 +3%"
+name = "虎贲军魂"
+summary = "虎贲伤害 +3%"
+description = "虎贲列阵当前，士气如虹。虎贲伤害 +3%。"
+desc = "虎贲伤害 +3%"
 cost = 1
-effect = {"profession_pikeman_damage_pct": 3}
+effect = {"profession_tiger_guard_damage_pct": 3}
 
 [sub_resource type="Resource" id="TechItem_5"]
 script = ExtResource("2_item")
-id = "prof_pikeman_2"
+id = "prof_tiger_guard_2"
 branch = "军略"
 category = "军略"
 tier = 2
-name = "一往无前"
-summary = "枪兵伤害 +6%"
-description = "陷阵之志有进无退，枪兵伤害 +6%。"
-desc = "枪兵伤害 +6%"
+name = "陷阵之志"
+summary = "虎贲伤害 +6%"
+description = "陷阵之志有进无退，虎贲伤害 +6%。"
+desc = "虎贲伤害 +6%"
 cost = 2
-requires = "prof_pikeman_1"
-effect = {"profession_pikeman_damage_pct": 6}
+requires = "prof_tiger_guard_1"
+effect = {"profession_tiger_guard_damage_pct": 6}
 
 [sub_resource type="Resource" id="TechItem_6"]
 script = ExtResource("2_item")

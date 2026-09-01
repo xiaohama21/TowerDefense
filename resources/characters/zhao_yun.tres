@@ -17,4 +17,10 @@ attack_interval = 0.75
 projectile_speed = 460.0
 damage_growth_per_level = 5.0
 promotion_ids = [&"zhao_yun_dragon_guard"]
+character_skill_id = &"char_seven_charges"
+character_skill_params = {
+"mult": 1.0,
+"speed_bonus": 0.3,
+"duration": 3.0
+}
 unlock_stage_id = &"ch01_s06"

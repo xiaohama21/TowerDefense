@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
-[ext_resource type="Resource" path="res://resources/professions/pikeman.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
@@ -14,7 +14,7 @@ amount = 10
 script = ExtResource("1_promotion")
 promotion_id = &"liu_bei_commander"
 display_name = "仁德统军"
-description = "刘备的一转路线，剑气愈盛、鼓舞愈强。"
+description = "刘备的一转路线，剑气愈盛、军旗愈扬。"
 parent_id = &""
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")

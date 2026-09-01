@@ -4,31 +4,51 @@ class_name SkillRegistry
 
 ## 转职技能注册表（GDD modules/BEHAVIORS.md B.3.5，v0.15.0）：
 ## 技能 = 转职授予的被动/条件触发能力；战斗脚本只调用钩子，不在
-## Tower/Enemy 等脚本中写死技能逻辑。数值经 PromotionData.skill_params 读取，
-## 档位系数 s = 1 + 0.1 × min(battle_rank/5, 4)（每 5 阶一档，上限 +40%）。
+## Tower/Enemy 等脚本中写死技能逻辑。数值经 PromotionData.skill_params 读取。
+## v0.28.0（阶段 8·提交 6）：
+## ①职业技能收敛——每职业 1 技能（6 技能），移除龙突/凶威/斩获；稳射改保底触发；
+## ②档位口径（v0.27.4 拍板）：档位系数 s = 1 + 0.1 × min(battle_rank/5, 4)，
+##   仅职业技能适用、以局内升阶 battle_rank 为准；角色技能不参与 s；
+## ③角色技能（武将专属差异化，CHARACTER_SKILLS.md v0.1）：A 主动冷却制 /
+##   B 条件触发被动，与职业层解耦。
 
 const MAX_TIERS := 4
 const TIER_STEP := 0.1
 
 const SKILL_NAMES := {
 	&"charge": "蓄力",
-	&"ferocity": "凶威",
-	&"command": "统军令",
+	&"command": "军旗",
 	&"steady": "稳射",
 	&"inspire": "鼓舞",
-	&"siege": "攻城锤",
-	&"bulwark": "斩获",
-	&"dragon_rush": "龙突",
+	&"siege": "破城",
 	&"wisdom": "奇谋",
 }
 
 const KNOWN_SKILLS: Array[StringName] = [
-	&"charge", &"ferocity", &"command", &"steady", &"inspire",
-	&"siege", &"bulwark", &"dragon_rush", &"wisdom",
+	&"charge", &"command", &"steady", &"inspire", &"siege", &"wisdom",
+]
+
+## 角色技能显示名（武将专属差异化，CHARACTER_SKILLS.md v0.1）。
+const CHARACTER_SKILL_NAMES := {
+	&"char_green_dragon": "青龙偃月",
+	&"char_dangyang_roar": "当阳桥",
+	&"char_carry_people": "携民渡江",
+	&"char_dingjun": "定军山",
+	&"char_moon_dance": "月下舞",
+	&"char_burn_camp": "焚营",
+	&"char_seven_charges": "七进七出",
+	&"char_death_fight": "死战",
+	&"char_borrow_wind": "借东风",
+}
+
+## B 型条件触发被动（无冷却、不自动释放）：每波首次漏怪 / 基地低血。
+const CHARACTER_SKILL_B_TYPE: Array[StringName] = [
+	&"char_carry_people", &"char_seven_charges", &"char_death_fight",
 ]
 
 
-## 档位系数：s = 1 + 0.1 × min(battle_rank/5, 4)。
+## 档位系数：s = 1 + 0.1 × min(battle_rank/5, 4)（每 5 阶一档，上限 +40%）。
+## 仅职业技能适用；角色技能与档位无关（v0.27.4 拍板）。
 static func tier_multiplier(tower: Tower) -> float:
 	var tiers := mini(int(tower.battle_rank / 5), MAX_TIERS)
 	return 1.0 + TIER_STEP * tiers
@@ -38,61 +58,149 @@ static func get_skill_name(skill_id: StringName) -> String:
 	return str(SKILL_NAMES.get(skill_id, str(skill_id)))
 
 
+static func get_character_skill_name(skill_id: StringName) -> String:
+	return str(CHARACTER_SKILL_NAMES.get(skill_id, str(skill_id)))
+
+
 static func has_skill(tower: Tower, skill_id: StringName) -> bool:
 	return tower != null and is_instance_valid(tower) and tower.has_skill(skill_id)
 
 
-## 技能参数（基准值 × 档位系数）。未持有技能时返回默认值。
+## 技能参数（基准值 × 档位系数由各触发点自行乘）。未持有技能时返回默认值。
 static func param(tower: Tower, skill_id: StringName, key: String, default: float) -> float:
 	if not has_skill(tower, skill_id):
 		return default
 	return float(tower.get_skill_param(skill_id, key, default))
 
 
-## 攻击命中钩子（普攻结算后由行为执行器调用）。
+## ============ 角色技能（武将专属差异化） ============
+
+static func get_character_skill_id(tower: Tower) -> StringName:
+	if tower == null or not is_instance_valid(tower):
+		return StringName()
+	return tower.get_character_skill_id()
+
+
+static func has_character_skill(tower: Tower, skill_id: StringName = StringName()) -> bool:
+	if tower == null or not is_instance_valid(tower):
+		return false
+	var actual := tower.get_character_skill_id()
+	if actual.is_empty():
+		return false
+	if not skill_id.is_empty():
+		return actual == skill_id
+	return true
+
+
+static func is_character_skill_b_type(tower: Tower) -> bool:
+	return CHARACTER_SKILL_B_TYPE.has(get_character_skill_id(tower))
+
+
+## 角色技能冷却（A 主动）：参数可覆盖默认值；B 被动返回 0。
+static func character_skill_cooldown(tower: Tower) -> float:
+	if not has_character_skill(tower) or is_character_skill_b_type(tower):
+		return 0.0
+	return float(tower.get_character_skill_param("cooldown", 0.0))
+
+
+static func character_param(tower: Tower, skill_id: StringName, key: String, default: float) -> float:
+	if not has_character_skill(tower, skill_id):
+		return default
+	return float(tower.get_character_skill_param(key, default))
+
+
+## 角色技能释放（A 由冷却就绪/手动按钮触发；B 由漏怪/基地低血钩子触发）。
+## 返回 false 表示前置条件不满足（如 A 主动射程内无目标），调用方不进入冷却。
+static func cast_character_skill(tower: Tower) -> bool:
+	if tower == null or not is_instance_valid(tower) or not has_character_skill(tower):
+		return false
+	match get_character_skill_id(tower):
+		&"char_green_dragon":
+			return _cast_green_dragon(tower)
+		&"char_dangyang_roar":
+			return _cast_dangyang_roar(tower)
+		&"char_carry_people":
+			return _cast_carry_people(tower)
+		&"char_dingjun":
+			return _cast_dingjun(tower)
+		&"char_moon_dance":
+			return _cast_moon_dance(tower)
+		&"char_burn_camp":
+			return _cast_burn_camp(tower)
+		&"char_seven_charges":
+			return _cast_seven_charges(tower)
+		&"char_death_fight":
+			return _cast_death_fight(tower)
+		&"char_borrow_wind":
+			return _cast_borrow_wind(tower)
+	return false
+
+
+## 漏怪钩子（B 被动·每波首次漏怪）：GameManager 每波仅分发一次；
+## 死战（基地低血）不走漏怪钩子，由 check_base_low 轮询触发。
+static func on_wave_first_leak(tower: Tower) -> void:
+	var skill_id := get_character_skill_id(tower)
+	if skill_id == &"char_carry_people" or skill_id == &"char_seven_charges":
+		cast_character_skill(tower)
+
+
+## 基地低血钩子（B 被动·周仓死战）：Tower._process 轮询调用，首次触发后常驻。
+static func check_base_low(tower: Tower) -> void:
+	if tower == null or not is_instance_valid(tower) or tower.is_character_skill_activated():
+		return
+	if not has_character_skill(tower, &"char_death_fight"):
+		return
+	if GameManager.lives <= GameManager.starting_lives * character_param(tower, &"char_death_fight", "hp_threshold", 0.5):
+		tower.set_character_skill_activated(true)
+		cast_character_skill(tower)
+
+
+## 冷却就绪钩子（A 主动）：自动模式立即释放；手动模式由面板按钮触发。
+static func on_character_skill_ready(tower: Tower) -> void:
+	if not has_character_skill(tower) or is_character_skill_b_type(tower):
+		return
+	if not GameFlow.is_gameplay_flag_enabled("manual_ultimate"):
+		tower.cast_character_skill()
+
+
+## ============ 职业技能钩子（每职业 1 个，效果 × 档位系数 s） ============
+
+## 攻击命中钩子（普攻结算后由行为执行器调用）：稳射（保底，每 5 次攻击必触发）。
 static func on_attack_hit(tower: Tower, target: Enemy, _dealt: int) -> void:
-	if not has_skill(tower, &"ferocity") and not has_skill(tower, &"steady"):
+	if not has_skill(tower, &"steady"):
 		return
 	if target == null or target.is_dead:
 		return
 	var s := tier_multiplier(tower)
-	if has_skill(tower, &"ferocity") and randf() < param(tower, &"ferocity", "chance", 0.15):
-		var extra := int(round(tower.damage * param(tower, &"ferocity", "mult", 0.5) * s))
-		if extra > 0:
-			target.take_damage(tower.finalize_damage(extra, target), tower.character_id)
-			tower.spawn_float_text(get_skill_name(&"ferocity"), Color(0.95, 0.5, 0.3))
-			tower.play_skill_effect(Color(0.95, 0.5, 0.3))
-			SfxLibrary.play(&"skill", -8.0)
-	if has_skill(tower, &"steady") and randf() < param(tower, &"steady", "chance", 0.2):
-		var extra := int(round(tower.damage * param(tower, &"steady", "mult", 0.6) * s))
-		if extra > 0:
-			target.take_damage(tower.finalize_damage(extra, target), tower.character_id)
-			tower.spawn_float_text(get_skill_name(&"steady"), Color(1.0, 0.9, 0.4))
-			tower.play_skill_effect(Color(1.0, 0.9, 0.4))
-			SfxLibrary.play(&"skill", -8.0)
+	tower.steady_attack_counter += 1
+	var every := maxi(int(param(tower, &"steady", "every", 5.0)), 1)
+	if tower.steady_attack_counter < every:
+		return
+	tower.steady_attack_counter = 0
+	var extra := int(round(tower.damage * param(tower, &"steady", "mult", 0.6) * s))
+	if extra > 0:
+		target.take_damage(tower.finalize_damage(extra, target), tower.character_id)
+		tower.spawn_float_text(get_skill_name(&"steady"), Color(1.0, 0.9, 0.4))
+		tower.play_skill_effect(Color(1.0, 0.9, 0.4))
+		SfxLibrary.play(&"skill", -8.0)
 
 
-## 击杀钩子（Enemy 死亡结算后由 Tower 订阅调用）。
+## 击杀钩子（Enemy 死亡结算后由 Tower 订阅调用）：
+## 蓄力+（青龙骑）= 击杀后下一次攻击 +20%×s（原龙突机制并入）。
 static func on_kill(tower: Tower, _enemy: Enemy) -> void:
 	if tower == null or not is_instance_valid(tower):
 		return
-	var s := tier_multiplier(tower)
-	if has_skill(tower, &"bulwark"):
-		var bonus := int(round(param(tower, &"bulwark", "gold", 2.0) * s))
-		if bonus > 0:
-			GameManager.gold += bonus
-			tower.spawn_float_text("%s +%d" % [get_skill_name(&"bulwark"), bonus], Color(1.0, 0.85, 0.4))
-			tower.play_skill_effect(Color(1.0, 0.85, 0.4))
-			SfxLibrary.play(&"kill", -9.0)
-	if has_skill(tower, &"dragon_rush"):
-		var bonus := param(tower, &"dragon_rush", "next_hit_bonus", 0.25) * s
-		tower.set_next_attack_bonus(bonus)
-		tower.spawn_float_text(get_skill_name(&"dragon_rush"), Color(0.6, 0.9, 1.0))
+	if not has_skill(tower, &"charge"):
+		return
+	var next_hit_bonus := param(tower, &"charge", "next_hit_bonus", 0.0)
+	if next_hit_bonus > 0.0:
+		tower.set_next_attack_bonus(next_hit_bonus * tier_multiplier(tower))
+		tower.spawn_float_text(get_skill_name(&"charge") + "+", Color(0.6, 0.9, 1.0))
 		tower.play_skill_effect(Color(0.6, 0.9, 1.0))
 		SfxLibrary.play(&"skill", -8.0)
 
 
-## 大招释放钩子（大招执行器成功后调用）。
+## 大招释放钩子（大招执行器成功后调用）：鼓舞 / 奇谋。
 static func on_ultimate_cast(tower: Tower) -> void:
 	if tower == null or not is_instance_valid(tower):
 		return
@@ -113,14 +221,13 @@ static func on_ultimate_cast(tower: Tower) -> void:
 		tower.spawn_float_text(get_skill_name(&"wisdom"), Color(0.7, 0.85, 1.0))
 
 
-## 常驻伤害倍率（叠加进 Tower.finalize_damage）：刘备·统军令光环 + 皇甫嵩·攻城锤。
+## 常驻伤害倍率（叠加进 Tower.finalize_damage）：虎贲·军旗光环 +
+## 投石车·破城 + 黄忠·定军山易伤标记。
 static func passive_damage_multiplier(tower: Tower, target: Enemy) -> float:
 	var multiplier := 1.0
 	if has_skill(tower, &"siege") and (target.tags.has(&"elite") or target.tags.has(&"boss")):
 		multiplier *= 1.0 + param(tower, &"siege", "elite_damage_bonus", 0.1) * tier_multiplier(tower)
-	if has_skill(tower, &"command"):
-		# 自身不吃统军令（周围友方受益）。
-		multiplier *= 1.0
+	# 军旗光环：自身不吃，周围 150px 友方受益。
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var other := node as Tower
 		if other == null or other == tower or not is_instance_valid(other):
@@ -130,18 +237,158 @@ static func passive_damage_multiplier(tower: Tower, target: Enemy) -> float:
 		var radius := param(other, &"command", "radius", 150.0)
 		if tower.global_position.distance_to(other.global_position) <= radius:
 			multiplier *= 1.0 + param(other, &"command", "ally_damage_bonus", 0.04) * tier_multiplier(other)
+	# 定军山：被定军标记的目标受该塔普攻伤害 +15%。
+	if has_character_skill(tower, &"char_dingjun") and target.has_mark(tower.character_id):
+		multiplier *= 1.0 + character_param(tower, &"char_dingjun", "mark_damage_bonus", 0.15)
 	return multiplier
 
 
-## 大招范围倍率（诸葛亮·奇谋，供术士大招计算爆炸半径）。
+## 大招范围倍率（术士·奇谋，供术士大招计算爆炸半径）。
 static func ultimate_aoe_radius_multiplier(tower: Tower) -> float:
 	if has_skill(tower, &"wisdom"):
 		return 1.0 + param(tower, &"wisdom", "aoe_radius_bonus", 0.1) * tier_multiplier(tower)
 	return 1.0
 
 
-## 大招击杀返怒（关羽·charge 强化；无 charge 时返回职业基础 50%）。
+## 大招击杀返怒（骑兵·蓄力强化；无 charge 时返回职业基础 50%）。
 static func kill_rage_refund(tower: Tower) -> float:
 	if has_skill(tower, &"charge"):
 		return param(tower, &"charge", "base_refund", 50.0) * tier_multiplier(tower)
 	return 50.0
+
+
+## ============ 角色技能执行器（演出：飘字 + 扩散环 + 音效） ============
+
+## 关羽·青龙偃月（A/CD18）：2.5× 普攻单体伤害；击杀则冷却 -6s。
+static func _cast_green_dragon(tower: Tower) -> bool:
+	var target: Enemy = tower.target
+	if target == null or not tower.is_target_valid(target):
+		return false
+	var hp_before := target.current_hp
+	target.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_green_dragon", "mult", 2.5))), target), tower.character_id)
+	if hp_before > 0 and target.current_hp <= 0:
+		tower.refund_character_skill_cooldown(character_param(tower, &"char_green_dragon", "kill_cd_refund", 6.0))
+	tower.spawn_float_text(get_character_skill_name(&"char_green_dragon"), Color(0.6, 0.95, 0.75))
+	tower.play_skill_effect(Color(0.6, 0.95, 0.75))
+	SfxLibrary.play(&"skill", -7.0)
+	return true
+
+
+## 张飞·当阳桥（A/CD22）：范围内敌人击退 60px + 减速 60% 3s。
+static func _cast_dangyang_roar(tower: Tower) -> bool:
+	var enemies := tower.enemies_in_range()
+	if enemies.is_empty():
+		return false
+	for enemy in enemies:
+		enemy.progress = maxf(enemy.progress - character_param(tower, &"char_dangyang_roar", "knockback", 60.0), 0.0)
+		enemy.apply_slow(character_param(tower, &"char_dangyang_roar", "slow_factor", 0.4), character_param(tower, &"char_dangyang_roar", "slow_duration", 3.0))
+	tower.spawn_float_text(get_character_skill_name(&"char_dangyang_roar"), Color(0.95, 0.6, 0.35))
+	tower.play_skill_effect(Color(0.95, 0.6, 0.35))
+	SfxLibrary.play(&"skill", -7.0)
+	return true
+
+
+## 刘备·携民渡江（B·每波首次漏怪）：全队攻速 +15% 5s。
+static func _cast_carry_people(tower: Tower) -> bool:
+	var speed_bonus := character_param(tower, &"char_carry_people", "team_speed_bonus", 0.15)
+	var duration := character_param(tower, &"char_carry_people", "duration", 5.0)
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var ally := node as Tower
+		if ally != null and is_instance_valid(ally):
+			ally.apply_attack_speed_buff("char_carry_people", 1.0 + speed_bonus, duration)
+	tower.spawn_float_text(get_character_skill_name(&"char_carry_people"), Color(0.7, 0.95, 0.8))
+	tower.play_skill_effect(Color(0.7, 0.95, 0.8))
+	SfxLibrary.play(&"skill", -8.0)
+	return true
+
+
+## 黄忠·定军山（A/CD18）：2.5× 单体伤害；未击杀则目标被定军标记 5s（普攻易伤 +15%）。
+static func _cast_dingjun(tower: Tower) -> bool:
+	var target: Enemy = tower.target
+	if target == null or not tower.is_target_valid(target):
+		return false
+	var hp_before := target.current_hp
+	target.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_dingjun", "mult", 2.5))), target), tower.character_id)
+	if hp_before > 0 and target.current_hp > 0:
+		target.apply_mark(tower.character_id, character_param(tower, &"char_dingjun", "mark_duration", 5.0))
+	tower.spawn_float_text(get_character_skill_name(&"char_dingjun"), Color(0.85, 0.75, 0.4))
+	tower.play_skill_effect(Color(0.85, 0.75, 0.4))
+	SfxLibrary.play(&"skill", -7.0)
+	return true
+
+
+## 貂蝉·月下舞（A/CD25）：全队怒气 +10（自身 +15）；怒气资源类间接关联为允许例外。
+static func _cast_moon_dance(tower: Tower) -> bool:
+	var team_rage := character_param(tower, &"char_moon_dance", "team_rage", 10.0)
+	var self_rage := team_rage + character_param(tower, &"char_moon_dance", "self_rage_extra", 5.0)
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var ally := node as Tower
+		if ally == null or not is_instance_valid(ally):
+			continue
+		ally.gain_rage(self_rage if ally == tower else team_rage)
+	tower.spawn_float_text(get_character_skill_name(&"char_moon_dance"), Color(1.0, 0.7, 0.9))
+	tower.play_skill_effect(Color(1.0, 0.7, 0.9))
+	SfxLibrary.play(&"skill", -7.0)
+	return true
+
+
+## 皇甫嵩·焚营（A/CD20）：目标区域 1.5× 范围伤害 + 灼烧 3s（每秒 0.25×）。
+static func _cast_burn_camp(tower: Tower) -> bool:
+	var center_target: Enemy = tower.target
+	var center := Vector2.ZERO
+	if center_target != null and tower.is_target_valid(center_target):
+		center = center_target.global_position
+	else:
+		var enemies := tower.enemies_in_range()
+		if enemies.is_empty():
+			return false
+		center = enemies[0].global_position
+	var aoe_radius := character_param(tower, &"char_burn_camp", "aoe_radius", 90.0)
+	var burn_dps := int(round(tower.damage * character_param(tower, &"char_burn_camp", "burn_dps_mult", 0.25)))
+	var burn_duration := character_param(tower, &"char_burn_camp", "burn_duration", 3.0)
+	for enemy in tower.enemies_in_range():
+		if enemy.global_position.distance_to(center) <= aoe_radius:
+			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_burn_camp", "mult", 1.5))), enemy), tower.character_id)
+			enemy.apply_burn(burn_dps, burn_duration)
+	tower.spawn_float_text(get_character_skill_name(&"char_burn_camp"), Color(1.0, 0.55, 0.3))
+	tower.play_skill_effect(Color(1.0, 0.55, 0.3))
+	SfxLibrary.play(&"skill", -7.0)
+	return true
+
+
+## 赵云·七进七出（B·每波首次漏怪）：射程内所有敌人 1× 范围伤害 + 自身攻速 +30% 3s。
+static func _cast_seven_charges(tower: Tower) -> bool:
+	for enemy in tower.enemies_in_range():
+		enemy.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_seven_charges", "mult", 1.0))), enemy), tower.character_id)
+	tower.apply_attack_speed_buff("char_seven_charges", 1.0 + character_param(tower, &"char_seven_charges", "speed_bonus", 0.3), character_param(tower, &"char_seven_charges", "duration", 3.0))
+	tower.spawn_float_text(get_character_skill_name(&"char_seven_charges"), Color(0.7, 0.85, 1.0))
+	tower.play_skill_effect(Color(0.7, 0.85, 1.0))
+	SfxLibrary.play(&"skill", -8.0)
+	return true
+
+
+## 周仓·死战（B·基地生命 ≤50%）：周仓攻速 +30% 常驻（仅触发一次）。
+static func _cast_death_fight(tower: Tower) -> bool:
+	tower.set_character_skill_activated(true)
+	tower.set_character_skill_speed_bonus(character_param(tower, &"char_death_fight", "speed_bonus", 0.3))
+	tower.spawn_float_text(get_character_skill_name(&"char_death_fight"), Color(0.9, 0.45, 0.35))
+	tower.play_skill_effect(Color(0.9, 0.45, 0.35))
+	SfxLibrary.play(&"skill", -8.0)
+	return true
+
+
+## 诸葛亮·借东风（A/CD30）：全图友方塔攻速 +20%、弹道速度 +50% 持续 8s。
+static func _cast_borrow_wind(tower: Tower) -> bool:
+	var speed_bonus := character_param(tower, &"char_borrow_wind", "team_speed_bonus", 0.2)
+	var bullet_speed_bonus := character_param(tower, &"char_borrow_wind", "bullet_speed_bonus", 0.5)
+	var duration := character_param(tower, &"char_borrow_wind", "duration", 8.0)
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var ally := node as Tower
+		if ally == null or not is_instance_valid(ally):
+			continue
+		ally.apply_attack_speed_buff("char_borrow_wind", 1.0 + speed_bonus, duration)
+		ally.apply_bullet_speed_buff("char_borrow_wind", 1.0 + bullet_speed_bonus, duration)
+	tower.spawn_float_text(get_character_skill_name(&"char_borrow_wind"), Color(0.6, 0.85, 1.0))
+	tower.play_skill_effect(Color(0.6, 0.85, 1.0))
+	SfxLibrary.play(&"skill", -6.0)
+	return true

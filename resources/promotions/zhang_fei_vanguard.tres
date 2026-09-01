@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
-[ext_resource type="Resource" path="res://resources/professions/pikeman.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
@@ -14,7 +14,7 @@ amount = 10
 script = ExtResource("1_promotion")
 promotion_id = &"zhang_fei_vanguard"
 display_name = "蛇矛先锋"
-description = "张飞的一转路线，攻速与爆发并进。"
+description = "张飞的一转路线，攻速与爆发并进，树起军旗鼓舞友军。"
 parent_id = &""
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")
@@ -22,7 +22,7 @@ required_level = 10
 damage_multiplier = 1.25
 range_multiplier = 1.0
 attack_interval_multiplier = 0.95
-granted_skill_ids = [&"ferocity"]
-skill_params = {"chance": 0.15, "mult": 0.5}
+granted_skill_ids = [&"command"]
+skill_params = {"ally_damage_bonus": 0.04, "radius": 150.0}
 visual_variant_id = &"zhang_fei_vanguard"
 item_costs = [SubResource("ItemAmountData_cloth10")]

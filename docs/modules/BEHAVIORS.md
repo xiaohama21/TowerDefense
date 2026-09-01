@@ -25,11 +25,11 @@
 - 行为脚本无副作用留存：怒气、局内升级等级等临时状态只存在于本局（见总纲铁律）。
 - 怒气获取模式 `rage_gain_mode`（`hit+damage` / `support`）同属行为层属性，规则见 [CHARACTERS.md](CHARACTERS.md) 4.6。
 - **贡献事件流（v0.11 设计，v0.23.0 定稿）**：武将行为产生带类型的贡献事件（`damage_dealt`/`kill`/`buff_applied`/`aura_covered_time`/`debuff_applied`），由 `Enemy.damage_contributors`（输出侧，已有）与塔侧"增益贡献台账"（辅助侧，v0.23.0 定稿，实现随阶段排期）汇成；**经验归属（CHARACTERS.md 4.4）与怒气获取（4.6）订阅同一事件流**，仅换算比例不同；防刷限制（光环分段结算/短时重复不重复给满额/辅助贡献每波上限）见 NUMBERS.md 10.6。新增贡献事件类型须先在本档登记。
-- 职业克制（虎贲对 `cavalry` 标签 +15%，常量 `PIKEMAN_COUNTER_MULTIPLIER` 待阶段 8·提交 6b（虎贲重构）同步更名）按 `EnemyData.tags` 查询实现，同样走行为/规则层，不在塔脚本写死。
+- 职业克制（虎贲对 `cavalry` 标签 +15%，常量 `TIGER_GUARD_COUNTER_MULTIPLIER`，✅ v0.29.0 已更名）按 `EnemyData.tags` 查询实现，同样走行为/规则层，不在塔脚本写死。
 
 ## B.2 落地节奏
 
-- **阶段 1（v0.9 已落地）**：最小行为注册表 `scripts/combat/BehaviorRegistry.gd` 上线——`Tower.attack()` 按 `behavior_id` 分发执行器；现有四个职业的弹道攻击迁入注册表（共用单体执行器，视觉差异由弹道造型承载）；新增 `melee_thrust` 近战直伤行为（虎贲，无弹道）与职业克制查询（虎贲对 `cavalry` 标签 +15%，常量 `PIKEMAN_COUNTER_MULTIPLIER` 待提交 6b 更名）；`Enemy` 接收 `EnemyData.tags` 供克制查询。
+- **阶段 1（v0.9 已落地）**：最小行为注册表 `scripts/combat/BehaviorRegistry.gd` 上线——`Tower.attack()` 按 `behavior_id` 分发执行器；现有四个职业的弹道攻击迁入注册表（共用单体执行器，视觉差异由弹道造型承载）；新增 `melee_thrust` 近战直伤行为（虎贲，无弹道）与职业克制查询（虎贲对 `cavalry` 标签 +15%，常量 `TIGER_GUARD_COUNTER_MULTIPLIER`，✅ v0.29.0 已更名）；`Enemy` 接收 `EnemyData.tags` 供克制查询。
 - **阶段 3（✅ v0.11.2/v0.11.3）**：注册表已扩展至 `special_behavior_id` / `ultimate_id` / `trait_id`，数值生效（演出于阶段 5 补全，见下）。
 - **阶段 5（✅ v0.15.0/v0.16.0）**：演出差异化（特效/音效/飘字）挂在行为执行结果上，不改注册表结构——大招职业专属视觉/飘字 v0.15.0，技能音效+扩散环 v0.16.0。
 
@@ -67,7 +67,7 @@
 | ID | 职业 | 效果概要（完整规格见 CHARACTERS.md 4.6，数值见 NUMBERS.md 10.5） | 状态 |
 |---|---|---|---|
 | `ultimate_cavalry_breaker` | 骑兵 | 3×普攻单体伤害；击杀返还 50% 怒气（受 charge 技能强化） | ✅ |
-| `ultimate_tiger_guard_sweep` | 虎贲 | 范围内敌人 1.5×普攻伤害 + 击退 40px + 附近 200px 友方攻速 +15%/5s（v0.27.2 破阵重构，数值待实测） | ✅ 机制；激励段待实现 |
+| `ultimate_tiger_guard_sweep` | 虎贲 | 范围内敌人 1.5×普攻伤害 + 击退 40px + 附近 200px 友方攻速 +15%/5s（v0.27.2 破阵重构，数值待实测） | ✅ 已实现（v0.29.0） |
 | `ultimate_archer_volley` | 弓箭手 | 4 箭连射（0.8×普攻），优先低血量 | ✅ |
 | `ultimate_strategist_blaze` | 术士 | 目标区域 2×普攻范围伤害 + 减速 40%/2s | ✅ |
 | `ultimate_dancer_encourage` | 舞娘 | 全队攻速 +30%、伤害 +15%，持续 8s | ✅ |
@@ -109,7 +109,7 @@
 > v0.4 移除废弃钩子（ferocity / bulwark / dragon_rush）与旧角色绑定转职映射；新技能钩子：概率追加（`on_attack_hit` 分支）、每波首次大招（`on_ultimate_cast` 计数）、友军受击分担（`on_ally_damaged`）。
 | `siege` | 投石车 | 常驻 | 对精英/Boss 伤害 +10%×s（原名攻城锤，v0.27.1 改名破城） | — |
 
-### B.3.6 角色技能钩子（v0.27.2 设计定稿，排期阶段 8·提交 7a，待开发）
+### B.3.6 角色技能钩子（v0.27.2 设计定稿，✅ v0.29.0 已落地）
 
 角色技能 = 武将专属差异化能力（A 主动冷却制 / B 条件触发被动），与职业层解耦，仅允许怒气资源类间接关联（见 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)）。行为分发进 `SkillRegistry`，战斗脚本只按事件调用钩子、不写死技能逻辑；数据字段 `CharacterData.character_skill_id / character_skill_params`。
 

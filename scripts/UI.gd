@@ -14,6 +14,8 @@ signal tower_upgrade_requested
 signal tower_sell_requested
 ## 手动大招（v0.15.0）：属性面板"释放大招"按钮。
 signal ultimate_cast_requested
+## 角色技能（阶段 8·提交 6）：属性面板"释放技能"按钮（手动模式）。
+signal character_skill_cast_requested
 signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
@@ -54,6 +56,8 @@ var _tower_title_label: Label
 var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
+var _tower_skill_label: Label
+var _tower_char_skill_button: Button
 var _tower_ultimate_button: Button
 var _boss_banner: Label
 var _boss_banner_timer: SceneTreeTimer = null
@@ -297,6 +301,12 @@ func _create_tower_panel() -> void:
 	_tower_attr_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_tower_attr_label)
 
+	_tower_skill_label = Label.new()
+	_tower_skill_label.add_theme_font_size_override("font_size", 14)
+	_tower_skill_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.72))
+	_tower_skill_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_tower_skill_label)
+
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	vbox.add_child(buttons)
@@ -324,6 +334,15 @@ func _create_tower_panel() -> void:
 	_tower_ultimate_button.pressed.connect(func() -> void: ultimate_cast_requested.emit())
 	buttons.add_child(_tower_ultimate_button)
 
+	# 角色技能（阶段 8·提交 6）：A 主动手动释放 / B 被动说明；冷却中置灰。
+	_tower_char_skill_button = Button.new()
+	_tower_char_skill_button.custom_minimum_size = Vector2(0, 40)
+	_tower_char_skill_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tower_char_skill_button.add_theme_font_size_override("font_size", 16)
+	_tower_char_skill_button.add_theme_color_override("font_color", Color(0.6, 0.9, 1.0))
+	_tower_char_skill_button.pressed.connect(func() -> void: character_skill_cast_requested.emit())
+	buttons.add_child(_tower_char_skill_button)
+
 
 func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
 	_panel_tower = tower
@@ -336,6 +355,11 @@ func hide_tower_panel() -> void:
 	_panel_tower = null
 	_panel_stage_data = null
 	_tower_panel.visible = false
+
+
+## 刷新当前塔面板（Main 在角色技能释放后调用）。
+func refresh_tower_panel() -> void:
+	_refresh_tower_panel()
 
 
 func _refresh_tower_panel() -> void:
@@ -371,8 +395,35 @@ func _refresh_tower_panel() -> void:
 	_tower_sell_button.text = "回收（返还 %d）" % refund
 	_tower_sell_button.disabled = false
 
-	# 手动大招按钮（v0.15.0）
 	var manual_mode: bool = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
+	# 技能行（阶段 8·提交 6）：职业技能（转职授予） + 角色技能（武将专属）。
+	var skill_parts: Array[String] = []
+	for skill_id in tower.get_granted_skills():
+		skill_parts.append(tower.get_skill_display_name(skill_id))
+	var char_skill_id: StringName = tower.get_character_skill_id()
+	var char_skill_name := ""
+	if not char_skill_id.is_empty():
+		char_skill_name = SkillRegistry.get_character_skill_name(char_skill_id)
+	var skill_text := "职业技能：" + ("、".join(skill_parts) if not skill_parts.is_empty() else "无")
+	if not char_skill_name.is_empty():
+		skill_text += "　角色技：" + char_skill_name
+	_tower_skill_label.text = skill_text
+
+	# 角色技能按钮（A 主动手动释放；B 被动仅说明）
+	var has_char_skill := not char_skill_id.is_empty()
+	_tower_char_skill_button.visible = has_char_skill
+	if has_char_skill:
+		if SkillRegistry.is_character_skill_b_type(tower):
+			_tower_char_skill_button.text = "%s（被动）" % char_skill_name
+			_tower_char_skill_button.disabled = true
+		elif tower.is_character_skill_ready():
+			_tower_char_skill_button.text = "释放 %s！" % char_skill_name
+			_tower_char_skill_button.disabled = not manual_mode
+		else:
+			_tower_char_skill_button.text = "%s · 冷却 %.1fs" % [char_skill_name, tower.get_character_skill_cooldown_left()]
+			_tower_char_skill_button.disabled = true
+
+	# 手动大招按钮（v0.15.0）
 	_tower_ultimate_button.visible = manual_mode
 	if manual_mode:
 		if tower.is_ultimate_ready():
