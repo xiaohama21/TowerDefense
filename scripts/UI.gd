@@ -293,7 +293,7 @@ func _create_tower_panel() -> void:
 
 	_tower_attr_label = Label.new()
 	_tower_attr_label.add_theme_font_size_override("font_size", 15)
-	_tower_attr_label.add_theme_color_override("font_color", Color(0.65, 0.84, 1.0))
+	_tower_attr_label.add_theme_color_override("font_color", UITheme.BLUE)
 	_tower_attr_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_tower_attr_label)
 
@@ -389,7 +389,7 @@ func _create_boss_banner() -> void:
 	_boss_banner.name = "BossBanner"
 	_boss_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_boss_banner.add_theme_font_size_override("font_size", 44)
-	_boss_banner.add_theme_color_override("font_color", Color(1.0, 0.8, 0.3))
+	_boss_banner.add_theme_color_override("font_color", UITheme.RED)
 	_boss_banner.add_theme_color_override("font_outline_color", Color(0.4, 0.1, 0.05))
 	_boss_banner.add_theme_constant_override("outline_size", 10)
 	_boss_banner.visible = false
@@ -476,7 +476,7 @@ func _create_dialogue_layer() -> void:
 	var hint := Label.new()
 	hint.text = "点击对话框继续 ▼（地图可正常建造）"
 	hint.add_theme_font_size_override("font_size", 15)
-	hint.add_theme_color_override("font_color", Color(0.65, 0.84, 1.0))
+	hint.add_theme_color_override("font_color", UITheme.BLUE)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hint_row.add_child(hint)
 
@@ -605,7 +605,7 @@ func _create_result_panel() -> void:
 	wheel_label.name = "ResultWheelLabel"
 	wheel_label.add_theme_font_size_override("font_size", 16)
 	wheel_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	wheel_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.42))
+	wheel_label.add_theme_color_override("font_color", UITheme.GOLD)
 	wheel_label.visible = false
 	vbox.add_child(wheel_label)
 	_result_wheel_label = wheel_label
@@ -642,7 +642,7 @@ func show_result(data: Dictionary) -> void:
 	var lines := _result_lines_label
 	title.text = "胜 利" if victory else "战 败"
 	title.add_theme_color_override("font_color",
-		Color(1.0, 0.85, 0.4) if victory else Color(0.9, 0.4, 0.35))
+		UITheme.GREEN if victory else UITheme.RED)
 
 	var line_parts: Array[String] = []
 	if victory:

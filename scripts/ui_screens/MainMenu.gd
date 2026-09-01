@@ -4,9 +4,6 @@ extends Control
 
 const TITLE_TEXT := "烽火连营"
 const SUBTITLE_TEXT := "三国塔防 · 第一章 黄巾之乱"
-const BG_COLOR := Color(0.06, 0.09, 0.08)
-const TITLE_COLOR := Color(0.92, 0.78, 0.42)
-const ACCENT_COLOR := Color(0.78, 0.92, 0.8)
 
 
 func _ready() -> void:
@@ -15,7 +12,7 @@ func _ready() -> void:
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
-	background.color = BG_COLOR
+	background.color = UITheme.BG
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -30,7 +27,7 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = TITLE_TEXT
 	title.add_theme_font_size_override("font_size", 64)
-	title.add_theme_color_override("font_color", TITLE_COLOR)
+	title.add_theme_color_override("font_color", UITheme.GOLD)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center.add_child(title)
 
@@ -38,7 +35,7 @@ func _build_ui() -> void:
 	var version: String = ProjectSettings.get_setting("application/config/version", "")
 	subtitle.text = SUBTITLE_TEXT if version.is_empty() else "%s  ·  v%s" % [SUBTITLE_TEXT, version]
 	subtitle.add_theme_font_size_override("font_size", 20)
-	subtitle.add_theme_color_override("font_color", ACCENT_COLOR)
+	subtitle.add_theme_color_override("font_color", UITheme.GREEN)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center.add_child(subtitle)
 

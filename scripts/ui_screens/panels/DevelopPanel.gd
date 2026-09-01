@@ -1,16 +1,26 @@
 extends VBoxContainer
 
-## 武将养成面板（GDD 阶段 2，v0.10.1 移入游戏大厅）：等级/经验、属性
-## （等级+转职实时计算）、一转流程（等级+材料校验、不可逆确认、扣料写档）。
+## 武将养成面板（阶段 8 提交 4 重构，UI_LAYOUT.md 第 5 节）：
+## 左侧武将网格（2 列卡片，未解锁灰卡显示获取方式）；右侧上半=基础信息卡
+## （等级+经验条/职业/属性摘要，只展示基础信息）；右侧下半=页签区
+## （转职/升星/信物/遗物/特性），进阶信息全部经页签承载；新增角色功能=新增页签。
 
 signal back_requested
 
-const TITLE_COLOR := Color(0.92, 0.78, 0.42)
-const TEXT_COLOR := Color(0.88, 0.9, 0.84)
-const OK_COLOR := Color(0.55, 0.9, 0.6)
-const BAD_COLOR := Color(0.9, 0.45, 0.4)
-const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 const EXP_SCROLL_ID := "exp_scroll"
+
+## 特性展示文案（CHARACTERS.md 4.7；阶段 9 升阶特性接入后改由数据源驱动）。
+const TRAIT_HINTS := {
+	&"trait_wusheng": "武圣：对精英/Boss 伤害 +25%",
+	&"trait_royal_fire": "皇家烈焰：范围伤害 +15%",
+	&"trait_yanyan_roar": "燕颜咆哮：攻击命中概率使目标短暂减速",
+	&"trait_hundred_step": "百步穿杨：连续攻击同一目标伤害逐步提升（至多 +30%）",
+	&"trait_benevolence": "仁德：光环——场上所有友方塔伤害 +8%（不可叠加）",
+	&"trait_moon_veil": "月纱：自身大招怒气获取 +20%，友方大招怒气获取 +10%",
+	&"trait_captain": "统军：对高血量敌人（当前生命 >70%）伤害 +30%",
+	&"trait_dragon_spirit": "龙魂：每击杀一名敌人攻速 +4%（可叠加，脱战重置）",
+	&"trait_star_gazer": "观星：射程 +12%，范围内敌人减速 8%",
+}
 
 var _profile: PlayerProfile
 var _owned: Array[CharacterData] = []
@@ -29,17 +39,20 @@ var _stars_label: Label
 var _promote_star_button: Button
 var _relic_label: Label
 var _relic_button: Button
+var _run_relics_label: Label
+var _trait_label: Label
 var _gacha_label: Label
 var _gacha_button: Button
 var _exp_scroll_label: Label
 var _exp_scroll_button: Button
 var _exp_scroll_hint: Label
+var _tab_container: TabContainer
 
 
 func _ready() -> void:
 	_profile = ProfileStore.get_profile()
 	_load_owned_characters()
-	add_theme_constant_override("separation", 12)
+	add_theme_constant_override("separation", 10)
 	_build_ui()
 	if not _owned.is_empty() and _selected_id.is_empty():
 		_select_character(str(_owned[0].character_id))
@@ -66,181 +79,229 @@ func _load_owned_characters() -> void:
 
 
 func _build_ui() -> void:
+	# 标题行：标题 + 右上角求贤入口（求贤令余额 + 单抽按钮）。
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 16)
+	add_child(title_row)
 	var title := Label.new()
 	title.text = "武将养成"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", TITLE_COLOR)
-	add_child(title)
-
-	var gacha_row := HBoxContainer.new()
-	gacha_row.add_theme_constant_override("separation", 16)
-	add_child(gacha_row)
-
+	title.add_theme_color_override("font_color", UITheme.GOLD)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(title)
 	_gacha_label = Label.new()
 	_gacha_label.add_theme_font_size_override("font_size", 17)
-	_gacha_label.add_theme_color_override("font_color", ACCENT_COLOR)
-	gacha_row.add_child(_gacha_label)
-
+	_gacha_label.add_theme_color_override("font_color", UITheme.GOLD)
+	title_row.add_child(_gacha_label)
 	_gacha_button = Button.new()
-	_gacha_button.custom_minimum_size = Vector2(180, 40)
+	_gacha_button.custom_minimum_size = Vector2(150, 40)
 	_gacha_button.add_theme_font_size_override("font_size", 16)
 	_gacha_button.pressed.connect(_on_gacha_pressed)
-	gacha_row.add_child(_gacha_button)
+	title_row.add_child(_gacha_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	columns.add_theme_constant_override("separation", 24)
+	columns.add_theme_constant_override("separation", 20)
 	add_child(columns)
 
-	# 列表滚动（v0.19.3）：武将过多时纵向滚动，避免溢出。
+	# 左侧：武将网格（2 列卡片；滚动仅当角色数超出屏幕时出现，当前 9 名一屏放得下）。
 	var list_scroll := ScrollContainer.new()
-	list_scroll.custom_minimum_size = Vector2(220, 0)
+	list_scroll.custom_minimum_size = Vector2(320, 0)
 	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	columns.add_child(list_scroll)
-	var list_box := VBoxContainer.new()
-	list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list_box.add_theme_constant_override("separation", 8)
-	list_scroll.add_child(list_box)
+	var character_grid := GridContainer.new()
+	character_grid.columns = 2
+	character_grid.add_theme_constant_override("h_separation", 8)
+	character_grid.add_theme_constant_override("v_separation", 8)
+	character_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_scroll.add_child(character_grid)
 
 	if _owned.is_empty():
 		var empty := Label.new()
 		empty.text = "暂无武将，请先开始游戏"
-		empty.add_theme_font_size_override("font_size", 17)
-		list_box.add_child(empty)
+		empty.add_theme_font_size_override("font_size", 16)
+		empty.add_theme_color_override("font_color", UITheme.GRAY)
+		character_grid.add_child(empty)
 
 	for character_data in _owned:
 		var character_id := str(character_data.character_id)
 		var level := GameFlow.get_character_level(_profile, character_id)
+		var profession_name := character_data.profession.display_name if character_data.profession != null else "未知职业"
 		var button := Button.new()
-		button.text = "%s · Lv.%d" % [character_data.display_name, level]
-		button.custom_minimum_size = Vector2(0, 44)
-		button.add_theme_font_size_override("font_size", 17)
+		button.text = "%s\n%s · Lv.%d" % [character_data.display_name, profession_name, level]
+		button.custom_minimum_size = Vector2(150, 54)
+		button.add_theme_font_size_override("font_size", 14)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.toggle_mode = true
 		button.pressed.connect(_on_character_pressed.bind(character_id))
-		_apply_selected_style(button)
-		list_box.add_child(button)
+		UITheme.apply_selected_style(button)
+		character_grid.add_child(button)
 		_character_buttons[character_id] = button
 
 	if not _locked_ids.is_empty():
 		var hint := Label.new()
 		hint.text = "未解锁武将"
-		hint.add_theme_font_size_override("font_size", 15)
-		hint.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
-		list_box.add_child(hint)
+		hint.add_theme_font_size_override("font_size", 13)
+		hint.add_theme_color_override("font_color", UITheme.GRAY)
+		character_grid.add_child(hint)
 	for character_id in _locked_ids:
 		var character_data := GameFlow.load_character_data(character_id)
 		if character_data == null:
 			continue
 		var locked_button := Button.new()
-		locked_button.text = "%s · %s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
-		locked_button.custom_minimum_size = Vector2(0, 40)
+		locked_button.text = "%s\n%s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
+		locked_button.custom_minimum_size = Vector2(150, 50)
 		locked_button.add_theme_font_size_override("font_size", 13)
-		locked_button.add_theme_color_override("font_color", Color(0.55, 0.57, 0.53))
+		locked_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		locked_button.add_theme_color_override("font_color", UITheme.DISABLED)
+		locked_button.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
 		locked_button.disabled = true
-		list_box.add_child(locked_button)
+		character_grid.add_child(locked_button)
 
-	# 详情滚动（v0.19.3）：转职/信物/练兵令等长内容可滚动，避免溢出窗口。
-	var detail_scroll := ScrollContainer.new()
-	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	columns.add_child(detail_scroll)
-	var detail_box := VBoxContainer.new()
-	detail_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_box.add_theme_constant_override("separation", 10)
-	detail_scroll.add_child(detail_box)
+	# 右侧：基础信息卡 + 页签区。
+	var right_column := VBoxContainer.new()
+	right_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_column.add_theme_constant_override("separation", 10)
+	columns.add_child(right_column)
+
+	var info_panel := PanelContainer.new()
+	var info_style := StyleBoxFlat.new()
+	info_style.bg_color = UITheme.PANEL_BG
+	info_style.border_color = UITheme.GOLD
+	info_style.set_border_width_all(1)
+	info_style.set_corner_radius_all(8)
+	info_style.content_margin_left = 14.0
+	info_style.content_margin_right = 14.0
+	info_style.content_margin_top = 10.0
+	info_style.content_margin_bottom = 10.0
+	info_panel.add_theme_stylebox_override("panel", info_style)
+	right_column.add_child(info_panel)
+	var info_box := VBoxContainer.new()
+	info_box.add_theme_constant_override("separation", 6)
+	info_panel.add_child(info_box)
 
 	_detail_name_label = Label.new()
-	_detail_name_label.add_theme_font_size_override("font_size", 24)
-	_detail_name_label.add_theme_color_override("font_color", TEXT_COLOR)
-	detail_box.add_child(_detail_name_label)
+	_detail_name_label.add_theme_font_size_override("font_size", 22)
+	_detail_name_label.add_theme_color_override("font_color", UITheme.TEXT)
+	info_box.add_child(_detail_name_label)
 
+	var exp_row := HBoxContainer.new()
+	exp_row.add_theme_constant_override("separation", 12)
+	info_box.add_child(exp_row)
 	_exp_bar = ProgressBar.new()
-	_exp_bar.custom_minimum_size = Vector2(0, 22)
+	_exp_bar.custom_minimum_size = Vector2(0, 20)
 	_exp_bar.show_percentage = false
-	detail_box.add_child(_exp_bar)
-
+	_exp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	exp_row.add_child(_exp_bar)
 	_exp_label = Label.new()
-	_exp_label.add_theme_font_size_override("font_size", 16)
-	_exp_label.add_theme_color_override("font_color", ACCENT_COLOR)
-	detail_box.add_child(_exp_label)
+	_exp_label.add_theme_font_size_override("font_size", 14)
+	_exp_label.add_theme_color_override("font_color", UITheme.BLUE)
+	exp_row.add_child(_exp_label)
 
 	_stats_label = Label.new()
-	_stats_label.add_theme_font_size_override("font_size", 18)
-	_stats_label.add_theme_color_override("font_color", TEXT_COLOR)
-	detail_box.add_child(_stats_label)
+	_stats_label.add_theme_font_size_override("font_size", 16)
+	_stats_label.add_theme_color_override("font_color", UITheme.BLUE)
+	info_box.add_child(_stats_label)
 
+	var exp_scroll_row := HBoxContainer.new()
+	exp_scroll_row.add_theme_constant_override("separation", 12)
+	info_box.add_child(exp_scroll_row)
+	_exp_scroll_label = Label.new()
+	_exp_scroll_label.add_theme_font_size_override("font_size", 14)
+	_exp_scroll_label.add_theme_color_override("font_color", UITheme.BLUE)
+	exp_scroll_row.add_child(_exp_scroll_label)
+	_exp_scroll_button = Button.new()
+	_exp_scroll_button.text = "使用练兵令（测试：直接升 1 级）"
+	_exp_scroll_button.custom_minimum_size = Vector2(240, 34)
+	_exp_scroll_button.add_theme_font_size_override("font_size", 13)
+	_exp_scroll_button.pressed.connect(_on_exp_scroll_pressed)
+	exp_scroll_row.add_child(_exp_scroll_button)
+	_exp_scroll_hint = Label.new()
+	_exp_scroll_hint.add_theme_font_size_override("font_size", 13)
+	_exp_scroll_hint.add_theme_color_override("font_color", UITheme.GRAY)
+	exp_scroll_row.add_child(_exp_scroll_hint)
+
+	# 页签区：转职 / 升星 / 信物 / 遗物 / 特性（新增角色功能=新增页签）。
+	_tab_container = TabContainer.new()
+	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_tab_container.add_theme_font_size_override("font_size", 15)
+	right_column.add_child(_tab_container)
+	_build_promotion_tab()
+	_build_star_tab()
+	_build_relic_tab()
+	_build_run_relics_tab()
+	_build_trait_tab()
+
+
+func _make_tab_page(tab_title: String) -> VBoxContainer:
+	var page := VBoxContainer.new()
+	page.name = tab_title
+	page.add_theme_constant_override("separation", 10)
+	_tab_container.add_child(page)
+	return page
+
+
+func _build_promotion_tab() -> void:
+	var page := _make_tab_page("转职")
 	_promotion_label = Label.new()
-	_promotion_label.add_theme_font_size_override("font_size", 17)
-	_promotion_label.add_theme_color_override("font_color", TEXT_COLOR)
+	_promotion_label.add_theme_font_size_override("font_size", 16)
+	_promotion_label.add_theme_color_override("font_color", UITheme.TEXT)
 	_promotion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_box.add_child(_promotion_label)
-
+	page.add_child(_promotion_label)
 	_promotion_buttons_box = VBoxContainer.new()
 	_promotion_buttons_box.add_theme_constant_override("separation", 8)
-	detail_box.add_child(_promotion_buttons_box)
+	_promotion_buttons_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_child(_promotion_buttons_box)
 
+
+func _build_star_tab() -> void:
+	var page := _make_tab_page("升星")
 	_stars_label = Label.new()
 	_stars_label.add_theme_font_size_override("font_size", 17)
-	_stars_label.add_theme_color_override("font_color", ACCENT_COLOR)
-	detail_box.add_child(_stars_label)
-
+	_stars_label.add_theme_color_override("font_color", UITheme.GOLD)
+	page.add_child(_stars_label)
 	_promote_star_button = Button.new()
 	_promote_star_button.text = "升 星"
 	_promote_star_button.custom_minimum_size = Vector2(220, 44)
 	_promote_star_button.add_theme_font_size_override("font_size", 17)
 	_promote_star_button.pressed.connect(_on_promote_star_pressed)
-	detail_box.add_child(_promote_star_button)
+	page.add_child(_promote_star_button)
 
+
+func _build_relic_tab() -> void:
+	var page := _make_tab_page("信物")
 	_relic_label = Label.new()
-	_relic_label.add_theme_font_size_override("font_size", 17)
-	_relic_label.add_theme_color_override("font_color", TEXT_COLOR)
+	_relic_label.add_theme_font_size_override("font_size", 16)
+	_relic_label.add_theme_color_override("font_color", UITheme.TEXT)
 	_relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_box.add_child(_relic_label)
-
+	page.add_child(_relic_label)
 	_relic_button = Button.new()
 	_relic_button.custom_minimum_size = Vector2(220, 44)
-	_relic_button.add_theme_font_size_override("font_size", 17)
+	_relic_button.add_theme_font_size_override("font_size", 16)
 	_relic_button.pressed.connect(_on_relic_pressed)
-	detail_box.add_child(_relic_button)
-
-	# 练兵令（测试，v0.15.1）：消耗 1 枚使选中武将直接升 1 级（上限 30）。
-	var exp_scroll_row := HBoxContainer.new()
-	exp_scroll_row.add_theme_constant_override("separation", 12)
-	detail_box.add_child(exp_scroll_row)
-	_exp_scroll_label = Label.new()
-	_exp_scroll_label.add_theme_font_size_override("font_size", 17)
-	_exp_scroll_label.add_theme_color_override("font_color", ACCENT_COLOR)
-	exp_scroll_row.add_child(_exp_scroll_label)
-	_exp_scroll_button = Button.new()
-	_exp_scroll_button.text = "使用练兵令（测试：直接升 1 级）"
-	_exp_scroll_button.custom_minimum_size = Vector2(260, 40)
-	_exp_scroll_button.add_theme_font_size_override("font_size", 15)
-	_exp_scroll_button.pressed.connect(_on_exp_scroll_pressed)
-	exp_scroll_row.add_child(_exp_scroll_button)
-	_exp_scroll_hint = Label.new()
-	_exp_scroll_hint.add_theme_font_size_override("font_size", 14)
-	_exp_scroll_hint.add_theme_color_override("font_color", Color(0.6, 0.62, 0.58))
-	exp_scroll_row.add_child(_exp_scroll_hint)
+	page.add_child(_relic_button)
 
 
-## 选中态高亮（v0.19.2）：金色底 + 深色文字（与编队界面一致）。
-func _apply_selected_style(button: Button) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.82, 0.3)
-	style.border_color = Color(1.0, 0.92, 0.62)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 10.0
-	style.content_margin_right = 10.0
-	style.content_margin_top = 6.0
-	style.content_margin_bottom = 6.0
-	button.add_theme_stylebox_override("pressed", style)
-	button.add_theme_stylebox_override("hover_pressed", style)
-	button.add_theme_color_override("font_pressed_color", Color(0.12, 0.09, 0.02))
-	button.add_theme_color_override("font_hover_pressed_color", Color(0.12, 0.09, 0.02))
+## 遗物页（只读）：局内遗物库存与效果说明；选带在编队页。
+func _build_run_relics_tab() -> void:
+	var page := _make_tab_page("遗物")
+	_run_relics_label = Label.new()
+	_run_relics_label.add_theme_font_size_override("font_size", 15)
+	_run_relics_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_run_relics_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	page.add_child(_run_relics_label)
+
+
+## 特性页（预留页签）：展示现有常驻特性；阶段 9 升阶特性接入时直接挂载，不改布局。
+func _build_trait_tab() -> void:
+	var page := _make_tab_page("特性")
+	_trait_label = Label.new()
+	_trait_label.add_theme_font_size_override("font_size", 15)
+	_trait_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	page.add_child(_trait_label)
 
 
 func _on_character_pressed(character_id: String) -> void:
@@ -293,6 +354,8 @@ func _refresh() -> void:
 	_refresh_promotion(character, level)
 	_refresh_stars(level)
 	_refresh_relic(character)
+	_refresh_run_relics()
+	_refresh_trait(character)
 	_refresh_exp_scroll(level)
 
 
@@ -338,7 +401,7 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 		label.text = "\n".join(lines)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.add_theme_font_size_override("font_size", 15)
-		label.add_theme_color_override("font_color", OK_COLOR if (level_ok and materials_ok) else BAD_COLOR)
+		label.add_theme_color_override("font_color", UITheme.GREEN if (level_ok and materials_ok) else UITheme.RED)
 		_promotion_buttons_box.add_child(label)
 
 		var button := Button.new()
@@ -488,6 +551,30 @@ func _on_relic_pressed() -> void:
 	_refresh()
 
 
+## 遗物页（只读）：局内遗物库存与效果说明。
+func _refresh_run_relics() -> void:
+	var relic_ids := GameFlow.get_owned_relic_ids(_profile)
+	if relic_ids.is_empty():
+		_run_relics_label.text = "暂无局内遗物。\n获取后可在编队页选带（每局最多 2 件，胜利结算后消耗）。"
+		return
+	var lines: Array[String] = ["已拥有局内遗物（只读；选带在编队页，胜利结算后消耗）："]
+	for relic_id in relic_ids:
+		var relic := GameFlow.load_battle_relic_data(relic_id)
+		if relic == null:
+			continue
+		lines.append("· %s：%s" % [relic.display_name, relic.description])
+	_run_relics_label.text = "\n".join(lines)
+
+
+## 特性页（预留）：展示现有常驻特性，阶段 9 升阶特性接入后挂载分支选择。
+func _refresh_trait(character: CharacterData) -> void:
+	var hint: String = TRAIT_HINTS.get(character.trait_id, "")
+	if hint.is_empty():
+		_trait_label.text = "特性：%s（详细说明随阶段 9 完善）" % str(character.trait_id)
+		return
+	_trait_label.text = "%s\n（常驻被动；阶段 9 升阶特性接入后新增特性分支选择）" % hint
+
+
 ## 求贤（GDD modules/DROPS_GACHA.md 7.3，v0.14.1 入口落地）：
 ## 消耗求贤令×1 单抽；重复武将转碎片，每 10 抽保底未拥有角色（或碎片折算）。
 func _refresh_gacha() -> void:
@@ -528,4 +615,3 @@ func _show_gacha_result(message: String) -> void:
 	dialog.ok_button_text = "好"
 	dialog.popup_centered()
 	add_child(dialog)
-

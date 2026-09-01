@@ -2,9 +2,6 @@ extends VBoxContainer
 
 ## 设置面板（GDD v0.10.1）：全屏切换、主音量；持久化至 user://settings.cfg。
 
-const TITLE_COLOR := Color(0.92, 0.78, 0.42)
-const TEXT_COLOR := Color(0.88, 0.9, 0.84)
-const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 
 var _fullscreen_button: Button
 var _skip_dialogue_check: CheckButton
@@ -24,7 +21,7 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "设置"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", TITLE_COLOR)
+	title.add_theme_color_override("font_color", UITheme.GOLD)
 	add_child(title)
 
 	_fullscreen_button = Button.new()
@@ -54,7 +51,7 @@ func _build_ui() -> void:
 	var volume_label := Label.new()
 	volume_label.text = "主音量"
 	volume_label.add_theme_font_size_override("font_size", 18)
-	volume_label.add_theme_color_override("font_color", TEXT_COLOR)
+	volume_label.add_theme_color_override("font_color", UITheme.TEXT)
 	add_child(volume_label)
 
 	_volume_slider = HSlider.new()
@@ -67,13 +64,13 @@ func _build_ui() -> void:
 
 	_volume_value_label = Label.new()
 	_volume_value_label.add_theme_font_size_override("font_size", 16)
-	_volume_value_label.add_theme_color_override("font_color", ACCENT_COLOR)
+	_volume_value_label.add_theme_color_override("font_color", UITheme.BLUE)
 	add_child(_volume_value_label)
 
 	var note := Label.new()
 	note.text = "更多设置（画质、按键等）将随后续版本加入。"
 	note.add_theme_font_size_override("font_size", 15)
-	note.add_theme_color_override("font_color", Color(0.65, 0.67, 0.63))
+	note.add_theme_color_override("font_color", UITheme.GRAY)
 	add_child(note)
 
 

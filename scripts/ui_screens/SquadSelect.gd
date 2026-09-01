@@ -3,9 +3,6 @@ extends Control
 ## 编队界面（GDD 阶段 1）：从已拥有武将中选出 squad_size 个出战。
 ## 未解锁角色不会出现在拥有列表中（解锁即拥有，见 CHARACTERS.md 4.3）。
 
-const BG_COLOR := Color(0.06, 0.09, 0.08)
-const TITLE_COLOR := Color(0.92, 0.78, 0.42)
-const SELECTED_COLOR := Color(1.0, 0.82, 0.3)
 const RELIC_CAP := 2
 
 var _stage_data: StageData
@@ -57,7 +54,7 @@ func _load_owned_characters() -> void:
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
-	background.color = BG_COLOR
+	background.color = UITheme.BG
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -79,7 +76,7 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "编队出征 · %s（最多 %d 名武将 · %s）" % [stage_name, squad_cap, diff_name]
 	title.add_theme_font_size_override("font_size", 30)
-	title.add_theme_color_override("font_color", TITLE_COLOR)
+	title.add_theme_color_override("font_color", UITheme.GOLD)
 	root.add_child(title)
 
 	var grid := GridContainer.new()
@@ -110,7 +107,7 @@ func _build_ui() -> void:
 
 	_bond_label = Label.new()
 	_bond_label.add_theme_font_size_override("font_size", 15)
-	_bond_label.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
+	_bond_label.add_theme_color_override("font_color", UITheme.GRAY)
 	_bond_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(_bond_label)
 
@@ -118,7 +115,7 @@ func _build_ui() -> void:
 	var relic_hint := Label.new()
 	relic_hint.text = "遗物选带（最多 %d 件，进入战斗即消耗，仅本局生效）" % RELIC_CAP
 	relic_hint.add_theme_font_size_override("font_size", 16)
-	relic_hint.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
+	relic_hint.add_theme_color_override("font_color", UITheme.GRAY)
 	root.add_child(relic_hint)
 
 	# HFlowContainer 自动换行，避免遗物按钮过多时溢出屏幕（v0.19.1 修复）。 
@@ -144,7 +141,7 @@ func _build_ui() -> void:
 
 	_relic_counter_label = Label.new()
 	_relic_counter_label.add_theme_font_size_override("font_size", 15)
-	_relic_counter_label.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68))
+	_relic_counter_label.add_theme_color_override("font_color", UITheme.GRAY)
 	root.add_child(_relic_counter_label)
 
 	var actions := HBoxContainer.new()
@@ -196,21 +193,9 @@ func _profession_name(character_data: CharacterData) -> String:
 	return character_data.profession.display_name if character_data.profession != null else "未知职业"
 
 
-## 选中态高亮（v0.19.2）：金色底 + 深色文字，避免默认主题按压态不明显。
+## 选中态高亮（v0.19.2）：金色底 + 深色文字（统一走 UITheme 封装）。
 func _apply_selected_style(button: Button) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = SELECTED_COLOR
-	style.border_color = Color(1.0, 0.92, 0.62)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 10.0
-	style.content_margin_right = 10.0
-	style.content_margin_top = 6.0
-	style.content_margin_bottom = 6.0
-	button.add_theme_stylebox_override("pressed", style)
-	button.add_theme_stylebox_override("hover_pressed", style)
-	button.add_theme_color_override("font_pressed_color", Color(0.12, 0.09, 0.02))
-	button.add_theme_color_override("font_hover_pressed_color", Color(0.12, 0.09, 0.02))
+	UITheme.apply_selected_style(button)
 
 
 func _on_character_toggled(pressed: bool, character_id: String) -> void:

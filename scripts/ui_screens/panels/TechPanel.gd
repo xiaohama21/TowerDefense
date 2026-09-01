@@ -3,11 +3,6 @@ extends VBoxContainer
 ## 科技树面板（阶段 8 提交 3）：四类分页（军略/后勤/工事/将略）+ 成语命名 + 摘要列表 +
 ## 点击条目显示详细描述与数值；科技重置（v0.23.0 拍板）无条件——免费/不限次数/全额返还。
 
-const TITLE_COLOR := Color(0.92, 0.78, 0.42)
-const TEXT_COLOR := Color(0.88, 0.9, 0.84)
-const OK_COLOR := Color(0.55, 0.9, 0.6)
-const LOCKED_COLOR := Color(0.55, 0.55, 0.55)
-const DETAIL_COLOR := Color(0.72, 0.84, 0.95)
 
 var _points_label: Label
 var _detail_label: Label
@@ -28,7 +23,7 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "科技树"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", TITLE_COLOR)
+	title.add_theme_color_override("font_color", UITheme.GOLD)
 	add_child(title)
 
 	var top_row := HBoxContainer.new()
@@ -36,7 +31,7 @@ func _build_ui() -> void:
 	add_child(top_row)
 	_points_label = Label.new()
 	_points_label.add_theme_font_size_override("font_size", 18)
-	_points_label.add_theme_color_override("font_color", Color(0.65, 0.84, 1.0))
+	_points_label.add_theme_color_override("font_color", UITheme.BLUE)
 	top_row.add_child(_points_label)
 	var reset_button := Button.new()
 	reset_button.text = "重置科技（全额返还）"
@@ -65,7 +60,7 @@ func _build_ui() -> void:
 	_detail_label.text = "点击科技条目查看详细说明"
 	_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail_label.add_theme_font_size_override("font_size", 15)
-	_detail_label.add_theme_color_override("font_color", DETAIL_COLOR)
+	_detail_label.add_theme_color_override("font_color", UITheme.BLUE)
 	_detail_label.custom_minimum_size = Vector2(0, 84)
 	_detail_label.size_flags_vertical = Control.SIZE_SHRINK_END
 	add_child(_detail_label)
@@ -112,15 +107,15 @@ func _refresh() -> void:
 			if unlocked:
 				button.text = "已解锁 ✓"
 				button.disabled = true
-				name_button.add_theme_color_override("font_color", OK_COLOR)
+				name_button.add_theme_color_override("font_color", UITheme.GREEN)
 			elif not prereq_ok:
 				button.text = "需前置科技"
 				button.disabled = true
-				name_button.add_theme_color_override("font_color", LOCKED_COLOR)
+				name_button.add_theme_color_override("font_color", UITheme.DISABLED)
 			else:
 				button.text = "解锁（%d 点）" % item.cost
 				button.disabled = profile.tech_points < item.cost
-				name_button.add_theme_color_override("font_color", TEXT_COLOR)
+				name_button.add_theme_color_override("font_color", UITheme.TEXT)
 
 
 func _on_item_selected(item: TechItemData) -> void:

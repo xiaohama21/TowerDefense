@@ -153,9 +153,16 @@ func _test_hub(profile: PlayerProfile) -> void:
 	for button in map_buttons:
 		if button.disabled:
 			disabled_count += 1
-	# 新版地图面板：章节行 + 关卡行（含难度按钮）→ 按钮总数与禁用数随难度按钮扩展
-	_check(map_buttons.size() >= 20, "地图面板应包含章节行与关卡行（含难度按钮）")
-	_check(disabled_count >= 13, "预留章节、章节展示钮与未解锁关卡应禁用")
+	# 界面排版重构（阶段 8 提交 4）：章节一行 + 关卡 2×4 网格 + 底部操作条，无滚动条。
+	_check(map_buttons.size() >= 20, "地图面板应包含章节行 + 8 关卡卡片 + 底部操作条")
+	_check(disabled_count >= 12, "预留章节、未解锁关卡与未解锁难度应禁用")
+	var map_scrolls := map_panel.find_children("*", "ScrollContainer", true, false)
+	_check(map_scrolls.is_empty(), "地图面板应一屏展示无滚动条")
+	var stage_card_count := 0
+	for card in map_panel.find_children("*", "Button", true, false):
+		if card.has_meta("stage_id"):
+			stage_card_count += 1
+	_check(stage_card_count == 8, "地图面板应展示第一章 8 关卡片（2×4 网格）")
 
 	# 切换到武将养成面板
 	_show_hub_panel(hub, &"develop")
@@ -222,28 +229,27 @@ func _test_hub(profile: PlayerProfile) -> void:
 
 	# 难度选择（v0.16.0 修复）：面板难度更新 _selected_difficulty，并随一键通关按所选难度写档。
 	_show_hub_panel(hub, &"map")
-	map_panel._on_difficulty_changed(true, Difficulty.HARD, &"ch01_s02")
+	# 界面排版重构（v0.27.0）：默认选中首个已解锁关卡（s01），一键通关在底部操作条。
+	var clear_button: Button = null
+	for button in _collect_buttons(map_panel):
+		if button.text == "一键通关（测试）":
+			clear_button = button
+			break
+	_check(clear_button != null, "地图面板底部操作条应有一键通关按钮")
+	map_panel._on_difficulty_changed(true, Difficulty.HARD)
 	_check(int(map_panel.get("_selected_difficulty")) == Difficulty.HARD,
 		"选择困难应更新地图面板所选难度")
-
-	# 一键通关（测试，v0.15.1）：按正常胜利结算写档并推进解锁链。
-	var clear_button_s02: Button = null
-	for button in _collect_buttons(map_panel):
-		if button.text == "一键通关" and str(button.get_meta("stage_id", "")) == "ch01_s02":
-			clear_button_s02 = button
-			break
-	_check(clear_button_s02 != null, "s02 关卡行应有一键通关按钮")
-	if clear_button_s02 != null:
-		clear_button_s02.pressed.emit()
+	if clear_button != null:
+		clear_button.pressed.emit()
 		await get_tree().process_frame
 		await get_tree().process_frame
-		var s02_entry = profile.stage_progress.get("ch01_s02", {})
-		_check(s02_entry is Dictionary and s02_entry.get("completed", false),
-			"一键通关应标记 s02 已通关并写档")
-		_check(GameFlow.is_stage_unlocked(profile, GameFlow.load_stage_data(&"ch01_s03")),
-			"一键通关 s02 后应解锁 s03")
-		var s02_diffs: Dictionary = s02_entry.get("difficulties", {})
-		_check(s02_diffs.has(Difficulty.key_name(Difficulty.HARD)),
+		var s01_entry = profile.stage_progress.get("ch01_s01", {})
+		_check(s01_entry is Dictionary and s01_entry.get("completed", false),
+			"一键通关应标记 s01 已通关并写档")
+		_check(GameFlow.is_stage_unlocked(profile, GameFlow.load_stage_data(&"ch01_s02")),
+			"一键通关 s01 后应解锁 s02")
+		var s01_diffs: Dictionary = s01_entry.get("difficulties", {})
+		_check(s01_diffs.has(Difficulty.key_name(Difficulty.HARD)),
 			"一键通关应按所选困难难度写档")
 
 	hub.queue_free()

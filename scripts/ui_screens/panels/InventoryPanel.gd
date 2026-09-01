@@ -5,10 +5,6 @@ extends VBoxContainer
 
 signal back_requested
 
-const TITLE_COLOR := Color(0.92, 0.78, 0.42)
-const TEXT_COLOR := Color(0.88, 0.9, 0.84)
-const DIM_COLOR := Color(0.6, 0.62, 0.58)
-const ACCENT_COLOR := Color(0.65, 0.84, 1.0)
 const EXP_SCROLL_ID := "exp_scroll"
 ## 测试发放的局内遗物（v0.19.0，CHARACTERS.md 4.8）：全部 5 件各 1。
 const TEST_RELIC_IDS: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
@@ -32,7 +28,7 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "背包"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", TITLE_COLOR)
+	title.add_theme_color_override("font_color", UITheme.GOLD)
 	add_child(title)
 
 	# 测试发放行（v0.15.1）：提供测试道具获取途径，仅测试使用。
@@ -42,7 +38,7 @@ func _build_ui() -> void:
 	var grant_hint := Label.new()
 	grant_hint.text = "测试工具："
 	grant_hint.add_theme_font_size_override("font_size", 17)
-	grant_hint.add_theme_color_override("font_color", DIM_COLOR)
+	grant_hint.add_theme_color_override("font_color", UITheme.DISABLED)
 	grant_row.add_child(grant_hint)
 	var grant_button := Button.new()
 	grant_button.text = "获得练兵令 ×10"
@@ -59,13 +55,13 @@ func _build_ui() -> void:
 	var grant_note := Label.new()
 	grant_note.text = "（仅测试发放，不进掉落表）"
 	grant_note.add_theme_font_size_override("font_size", 15)
-	grant_note.add_theme_color_override("font_color", DIM_COLOR)
+	grant_note.add_theme_color_override("font_color", UITheme.DISABLED)
 	grant_row.add_child(grant_note)
 
 	var hint := Label.new()
 	hint.text = "道具清单"
 	hint.add_theme_font_size_override("font_size", 16)
-	hint.add_theme_color_override("font_color", DIM_COLOR)
+	hint.add_theme_color_override("font_color", UITheme.DISABLED)
 	add_child(hint)
 
 	# 背包列表滚动（v0.19.3）：道具多时纵向滚动，避免溢出。
@@ -109,7 +105,7 @@ func _refresh() -> void:
 		var empty := Label.new()
 		empty.text = "背包空空如也——通关掉落、一键通关或测试发放会获得道具。"
 		empty.add_theme_font_size_override("font_size", 17)
-		empty.add_theme_color_override("font_color", DIM_COLOR)
+		empty.add_theme_color_override("font_color", UITheme.DISABLED)
 		_item_box.add_child(empty)
 		return
 	for entry in entries:
@@ -126,12 +122,12 @@ func _make_item_row(item_id: String, amount: int) -> HBoxContainer:
 	name_label.text = "%s ×%d　[%s]" % [display_name, amount, type_name]
 	name_label.custom_minimum_size = Vector2(300, 0)
 	name_label.add_theme_font_size_override("font_size", 17)
-	name_label.add_theme_color_override("font_color", TEXT_COLOR)
+	name_label.add_theme_color_override("font_color", UITheme.TEXT)
 	row.add_child(name_label)
 	var desc_label := Label.new()
 	desc_label.text = item.description if item != null and not item.description.is_empty() else "（无描述）"
 	desc_label.add_theme_font_size_override("font_size", 15)
-	desc_label.add_theme_color_override("font_color", DIM_COLOR)
+	desc_label.add_theme_color_override("font_color", UITheme.DISABLED)
 	desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(desc_label)
 	row.set_meta("item_id", item_id)
