@@ -9,6 +9,14 @@ signal victory
 signal enemy_killed_by_character(character_id: String)
 ## Boss 登场（v0.15.0 演出）：Boss 敌人出生时发出，供横幅/血条演出。
 signal boss_entered(display_name: String)
+## 击杀连击档位（阶段 8 提交 2）：达到 5/10/15 连击触发（tier 1/2/3，攻速 +5%/10%/15%）。
+signal combo_changed(count: int, tier: int)
+
+## 连击规则（P1 4.1 拍板）：窗口 3s；召唤物计入、Boss 不计入普通连击；每波结束清零；
+## 攻速奖励上限 +15%（tier 3）；暂停时 _process 停止计时，天然冻结连击窗口。
+const COMBO_WINDOW_SECONDS: float = 3.0
+const COMBO_TIER_STEP: int = 5
+const MAX_COMBO_TIER: int = 3
 
 var gold: int = 100:
 	set(value):
@@ -27,6 +35,11 @@ var total_waves: int = 5
 var is_wave_active: bool = false
 var active_battle_session: BattleSession = null
 
+## 击杀连击状态（局内临时，不写存档）。
+var combo_count: int = 0
+var combo_tier: int = 0
+var _combo_window_left: float = 0.0
+
 func enemy_reached_base(damage: int = 1):
 	if lives <= 0:
 		return
@@ -36,7 +49,9 @@ func enemy_died(
 	reward: int,
 	kill_xp: int = 0,
 	source_character_id: String = "",
-	damage_contributors: Dictionary = {}
+	damage_contributors: Dictionary = {},
+	is_boss: bool = false,
+	is_summon: bool = false
 ):
 	gold += int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 	if kill_xp > 0:
@@ -44,6 +59,9 @@ func enemy_died(
 		_distribute_kill_xp(kill_xp, source_character_id, damage_contributors)
 	if not source_character_id.strip_edges().is_empty():
 		enemy_killed_by_character.emit(source_character_id.strip_edges())
+	# 连击（P0 4.1 拍板）：Boss 不计入普通连击，召唤物计入。
+	if not is_boss:
+		_advance_combo()
 
 
 ## 击杀经验归属（GDD 4.4）：发出的经验总量守恒等于 kill_xp；最后一击得 50%
@@ -128,9 +146,33 @@ func wave_completed():
 		return
 	is_wave_active = false
 	current_wave += 1
+	reset_combo()
 	wave_changed.emit(current_wave, total_waves)
 	if current_wave >= total_waves:
 		victory.emit()
+
+
+## 连击推进：窗口内击杀递增，否则重新从 1 开始；每 5 连击升一档并广播。
+func _advance_combo() -> void:
+	combo_count = combo_count + 1 if _combo_window_left > 0.0 else 1
+	_combo_window_left = COMBO_WINDOW_SECONDS
+	var new_tier := mini(int(combo_count / COMBO_TIER_STEP), MAX_COMBO_TIER)
+	if new_tier > combo_tier:
+		combo_tier = new_tier
+		combo_changed.emit(combo_count, combo_tier)
+
+
+## 每波结束清零（P1 4.1 拍板）。
+func reset_combo() -> void:
+	combo_count = 0
+	combo_tier = 0
+	_combo_window_left = 0.0
+
+
+func _process(delta: float) -> void:
+	# 暂停时（设置弹窗/结算）树暂停，本函数停止执行，连击窗口自然冻结。
+	if _combo_window_left > 0.0:
+		_combo_window_left = maxf(_combo_window_left - delta, 0.0)
 
 func reset(starting_gold: int = 100, starting_lives: int = 20, wave_count: int = 5):
 	gold = maxi(starting_gold, 0)

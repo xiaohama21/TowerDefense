@@ -68,6 +68,7 @@ func _ready():
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.victory.connect(_on_victory)
 	GameManager.boss_entered.connect(_on_boss_entered)
+	GameManager.combo_changed.connect(_on_combo_changed)
 
 	wave_manager.wave_completed.connect(_on_wave_completed)
 	ui.next_wave_pressed.connect(_on_next_wave_pressed)
@@ -84,6 +85,7 @@ func _ready():
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
+	ui.result_wheel_pressed.connect(_on_result_wheel_pressed)
 	ui.exit_pressed.connect(_on_exit_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
 	tower_manager.tower_created.connect(_on_tower_created)
@@ -345,9 +347,34 @@ func _try_start_wave() -> void:
 		ui.update_wave(GameManager.current_wave, GameManager.total_waves)
 
 func _on_wave_completed():
+	# 波次完成奖励（阶段 8 提交 2）：部分关卡启用 completion_currency（每波 10~20 金）。
+	var completed_index := GameManager.current_wave
+	if completed_index >= 0 and completed_index < wave_manager.waves.size():
+		var completed_wave: WaveData = wave_manager.waves[completed_index]
+		if completed_wave != null and completed_wave.completion_currency > 0:
+			GameManager.gold += completed_wave.completion_currency
+			ui.show_status(
+				"第 %d 波完成：+%d 金币" % [completed_index + 1, completed_wave.completion_currency],
+				1.2
+			)
 	GameManager.wave_completed()
 	if GameFlow.is_gameplay_flag_enabled("auto_next_wave"):
 		_try_start_wave()
+
+
+## 击杀连击奖励（P1 4.1 拍板）：5/10/15 连击全队攻速 +5%/+10%/+15%（3s，上限 +15%）。
+func _on_combo_changed(count: int, tier: int) -> void:
+	if tier <= 0:
+		return
+	var speed_bonus := 0.05 * tier
+	for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var tower := node as Tower
+		if tower != null and is_instance_valid(tower):
+			tower.apply_attack_speed_buff("combo", 1.0 + speed_bonus, 3.0)
+	ui.show_status(
+		"%d 连击！全队攻速 +%d%%（3s）" % [count, int(speed_bonus * 100)],
+		1.2
+	)
 
 
 ## 调试：从任意波次直接开打（仅调试构建的测试面板会触发）。
@@ -416,6 +443,7 @@ func _on_victory():
 		"unlock_names": unlock_names,
 		"saved": saved,
 		"next_stage_name": _next_stage_display_name(),
+		"remaining_gold": GameManager.gold,
 	})
 	get_tree().paused = true
 
@@ -453,6 +481,38 @@ func _on_result_retry_pressed() -> void:
 func _on_result_menu_pressed() -> void:
 	GameFlow.clear_squad_relics()
 	GameFlow.goto_hub()
+
+
+## 结算转盘（阶段 8 提交 2）：胜利结算页抽 1 次（≥150 金），结果直接入档。
+func _on_result_wheel_pressed() -> void:
+	var result := SettlementWheel.roll(ProfileStore.get_profile())
+	if result.is_empty():
+		ui.show_result_wheel_result("转盘暂无可抽奖励")
+		return
+	if not ProfileStore.commit_settlement_reward(result):
+		ui.show_result_wheel_result("转盘入账失败，请重试")
+		return
+	SfxLibrary.play(&"skill", -6.0)
+	ui.show_result_wheel_result("转盘奖励：%s" % _format_settlement_reward(result))
+
+
+func _format_settlement_reward(result: Dictionary) -> String:
+	match str(result.get("kind", "")):
+		"item":
+			return "%s ×%d" % [
+				GameFlow.get_item_display_name(str(result.get("item_id", ""))),
+				int(result.get("amount", 0)),
+			]
+		"shards":
+			var character := GameFlow.load_character_data(str(result.get("character_id", "")))
+			return "%s 碎片 ×%d" % [
+				character.display_name if character != null else "武将",
+				int(result.get("amount", 0)),
+			]
+		"tech_points":
+			return "科技点 ×%d" % int(result.get("amount", 0))
+		_:
+			return "未知奖励"
 
 
 ## 顶栏退出（GDD v0.9.3）：本局尚未出结果时弹确认——中途退出收益作废
@@ -708,7 +768,7 @@ func _apply_battle_supply(supply: BattleSupplyData) -> void:
 		for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 			var tower := node as Tower
 			if tower != null and is_instance_valid(tower):
-				tower.apply_attack_speed_buff(1.0 + supply.attack_speed_bonus, supply.effect_duration)
+				tower.apply_attack_speed_buff(str(supply.supply_id), 1.0 + supply.attack_speed_bonus, supply.effect_duration)
 		ui.show_status("%s：全队攻速 +%d%%（%ds）" % [supply.display_name, int(supply.attack_speed_bonus * 100), int(supply.effect_duration)])
 	if supply.slow_factor < 1.0:
 		var count := 0

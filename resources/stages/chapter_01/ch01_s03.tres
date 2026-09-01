@@ -171,3 +171,7 @@ first_clear_unlock_character_ids = [&"huang_zhong", &"huang_fu_song"]
 first_clear_rewards = [SubResource("ItemAmountData_cloth")]
 repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 50
+recommended_tower_count = 5
+recommended_rank_count = 2
+recommended_supply_count = 0
+target_remaining_gold = 150

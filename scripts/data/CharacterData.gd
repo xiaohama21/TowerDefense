@@ -20,7 +20,6 @@ class_name CharacterData
 @export_category("Growth")
 @export_range(0.0, 1000.0, 0.1) var damage_growth_per_level: float = 4.0
 @export_range(0.0, 100.0, 0.1) var range_growth_per_level: float = 0.0
-@export var initial_skill_ids: Array[StringName] = []
 @export var promotion_ids: Array[StringName] = []
 
 @export_category("Trait & Ultimate (阶段 3 字段，v0.11.1 先行铺设)")

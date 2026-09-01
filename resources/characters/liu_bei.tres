@@ -16,7 +16,6 @@ base_range = 130.0
 attack_interval = 0.8
 projectile_speed = 400.0
 damage_growth_per_level = 3.5
-initial_skill_ids = [&"benevolent_command"]
 promotion_ids = [&"liu_bei_commander"]
 trait_id = &"trait_benevolence"
 trait_params = {

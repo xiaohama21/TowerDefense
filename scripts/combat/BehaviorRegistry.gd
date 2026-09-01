@@ -203,7 +203,7 @@ static func _ult_dancer_encourage(tower: Tower) -> bool:
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var ally := node as Tower
 		if ally != null and is_instance_valid(ally):
-			ally.apply_team_buff(1.0 + 0.3 * power_mult, 1.0 + 0.15 * power_mult, 8.0 * duration_mult)
+			ally.apply_team_buff("ult_dancer_encourage", 1.0 + 0.3 * power_mult, 1.0 + 0.15 * power_mult, 8.0 * duration_mult)
 	tower.play_attack_flash()
 	return true
 
@@ -280,6 +280,6 @@ static func _attack_aura_pulse(tower: Tower, _target: Enemy) -> void:
 	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
 	var allies := tower.allies_in_range()
 	for ally in allies:
-		ally.apply_attack_speed_buff(1.0 + 0.2 * power_mult, 3.0 * duration_mult)
+		ally.apply_attack_speed_buff("aura_attack", 1.0 + 0.2 * power_mult, 3.0 * duration_mult)
 	tower.gain_support_pulse(allies.size())
 	tower.play_attack_flash()

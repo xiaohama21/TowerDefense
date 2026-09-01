@@ -164,3 +164,7 @@ first_clear_unlock_character_ids = [&"zhang_fei"]
 first_clear_rewards = [SubResource("ItemAmountData_cloth")]
 repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 50
+recommended_tower_count = 5
+recommended_rank_count = 1
+recommended_supply_count = 0
+target_remaining_gold = 150

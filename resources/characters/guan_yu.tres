@@ -16,7 +16,6 @@ base_range = 130.0
 attack_interval = 1.15
 projectile_speed = 460.0
 damage_growth_per_level = 5.5
-initial_skill_ids = [&"green_dragon_slash"]
 promotion_ids = [&"guan_yu_charger"]
 trait_id = &"trait_wusheng"
 trait_params = {

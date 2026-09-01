@@ -255,6 +255,25 @@ func finish_defeat(session: BattleSession, defeat_result: Dictionary = {}) -> bo
 	return discard_session(session)
 
 
+## 结算转盘入账（阶段 8 提交 2）：胜利结算页抽奖结果直接写档（物品/碎片/科技点）。
+## 失败作废由"仅胜利结算页出现转盘"保证；单次入账由 UI 单次点击保证（同 run 不重复出现）。
+func commit_settlement_reward(result: Dictionary) -> bool:
+	if not result is Dictionary or result.is_empty():
+		return false
+	var candidate := get_profile().duplicate_profile()
+	match str(result.get("kind", "")):
+		"item":
+			candidate.add_item(str(result.get("item_id", "")), int(result.get("amount", 0)))
+		"shards":
+			candidate.add_character_shards(str(result.get("character_id", "")), int(result.get("amount", 0)))
+		"tech_points":
+			candidate.add_tech_points(int(result.get("amount", 0)))
+		_:
+			return false
+	# save_profile 成功后内部已同步内存 profile（profile.copy_from(candidate)）。
+	return save_profile(candidate)
+
+
 func _read_profile_file(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {"ok": false, "error": "文件不存在"}

@@ -23,6 +23,12 @@ class_name StageData
 @export_range(0, 9, 1) var max_inbattle_upgrade_level: int = 3
 @export_range(0.0, 10.0, 0.05) var upgrade_cost_factor: float = 0.8
 @export_range(0.0, 1.0, 0.05) var sell_refund_ratio: float = 0.6
+## 每关经济预算（P0 3.3 拍板，阶段 8 提交 2）：设计基准表字段，仅用于关卡校验与
+## 文档对照，不参与运行时逻辑；基准=标准难度/无遗物/无科技加成（NUMBERS.md 10.10）。
+@export_range(0, 99, 1) var recommended_tower_count: int = 6
+@export_range(0, 99, 1) var recommended_rank_count: int = 2
+@export_range(0, 99, 1) var recommended_supply_count: int = 0
+@export_range(0, 99999, 1) var target_remaining_gold: int = 150
 
 @export_category("Layout")
 ## 战场布局（v0.9 数据驱动化）。path_points 为直角折线拐点（含图外出入口延长段），

@@ -105,7 +105,7 @@ func _draw_tiles() -> void:
 			var cell := Vector2i(col, row)
 			if _road_set.has(cell):
 				continue
-			var color: Color = _palette.tile_a if (col + row) % 2 == 0 else _palette.tile_b
+			var color: Color = _palette["tile_a"] if (col + row) % 2 == 0 else _palette["tile_b"]
 			draw_rect(Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE)), color)
 
 
@@ -122,14 +122,14 @@ func _draw_road() -> void:
 	for index in range(road_cells.size()):
 		var cell := road_cells[index]
 		var rect := Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE))
-		draw_rect(rect, _palette.road)
-		draw_rect(rect, _palette.road_edge, false, 2.0)
+		draw_rect(rect, _palette["road"])
+		draw_rect(rect, _palette["road_edge"], false, 2.0)
 		# Centre line dashes help show the lane direction.
 		if index + 1 < road_cells.size() and _are_adjacent(cell, road_cells[index + 1]):
 			draw_line(
 				cell_center(cell),
 				cell_center(road_cells[index + 1]),
-				_palette.road_highlight,
+				_palette["road_highlight"],
 				3.0
 			)
 
@@ -159,8 +159,8 @@ func _draw_decorations() -> void:
 		if texture != null:
 			draw_texture_rect(texture, Rect2(center - Vector2(DECOR_TEXTURE_SIZE, DECOR_TEXTURE_SIZE) * 0.5, Vector2(DECOR_TEXTURE_SIZE, DECOR_TEXTURE_SIZE)), false)
 			continue
-		draw_circle(center + Vector2(0, 16), 8.0, _palette.trunk)
-		draw_circle(center + Vector2(0, 2), 14.0, _palette.leaf)
+		draw_circle(center + Vector2(0, 16), 8.0, _palette["trunk"])
+		draw_circle(center + Vector2(0, 2), 14.0, _palette["leaf"])
 
 
 ## 装饰类型（确定性哈希，不依赖布局数据改动）：
@@ -193,13 +193,13 @@ func _load_decor_textures() -> void:
 
 func _draw_ambient() -> void:
 	# 氛围层（夜战调暗/火攻暖色）先于光源绘制，火把/火光在其上"点亮"。
-	var ambient: Color = _palette.ambient
+	var ambient: Color = _palette["ambient"]
 	if ambient.a > 0.0:
 		draw_rect(Rect2(0, 0, COLS * GRID_SIZE, ROWS * GRID_SIZE), ambient)
-	if _palette.glow:
-		var step: int = _palette.glow_step
-		var radius: float = _palette.glow_radius
-		var glow: Color = _palette.glow_color
+	if _palette["glow"]:
+		var step: int = _palette["glow_step"]
+		var radius: float = _palette["glow_radius"]
+		var glow: Color = _palette["glow_color"]
 		for index in range(0, road_cells.size(), step):
 			draw_circle(cell_center(road_cells[index]), radius, glow)
 

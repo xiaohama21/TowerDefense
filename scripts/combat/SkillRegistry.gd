@@ -107,7 +107,7 @@ static func on_ultimate_cast(tower: Tower) -> void:
 		for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 			var ally := node as Tower
 			if ally != null and is_instance_valid(ally):
-				ally.apply_attack_speed_buff(1.0 + speed_bonus, duration)
+				ally.apply_attack_speed_buff("skill_inspire", 1.0 + speed_bonus, duration)
 		tower.spawn_float_text(get_skill_name(&"inspire"), Color(1.0, 0.75, 0.9))
 	if has_skill(tower, &"wisdom"):
 		tower.spawn_float_text(get_skill_name(&"wisdom"), Color(0.7, 0.85, 1.0))

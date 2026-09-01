@@ -16,6 +16,5 @@ base_range = 120.0
 attack_interval = 0.75
 projectile_speed = 460.0
 damage_growth_per_level = 5.0
-initial_skill_ids = [&"dragon_charge"]
 promotion_ids = [&"zhao_yun_dragon_guard"]
 unlock_stage_id = &"ch01_s06"

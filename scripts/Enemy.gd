@@ -29,6 +29,8 @@ var special_behavior_id: StringName = &""
 var special_cooldown: float = 0.0
 # 减速 debuff（术士大招/张飞咆哮/诸葛亮光环等）：取最强因子，倒计时归零解除。
 var slow_factor: float = 1.0
+## 召唤物标记（阶段 8 提交 2）：连击计入召唤物（P1 4.1 拍板），由召唤方设置。
+var is_summon: bool = false
 var _slow_time_left: float = 0.0
 ## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
 var burn_dps: int = 0
@@ -137,7 +139,14 @@ func die(give_reward: bool) -> void:
 	is_dead = true
 
 	if give_reward:
-		GameManager.enemy_died(reward, kill_xp, last_damage_source_character_id, damage_contributors)
+		GameManager.enemy_died(
+			reward,
+			kill_xp,
+			last_damage_source_character_id,
+			damage_contributors,
+			tags.has(&"boss"),
+			is_summon
+		)
 
 	queue_free()
 

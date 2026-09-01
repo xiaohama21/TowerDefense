@@ -17,6 +17,7 @@ signal ultimate_cast_requested
 signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
+signal result_wheel_pressed
 signal exit_pressed
 signal dialogue_finished
 
@@ -61,6 +62,9 @@ var _result_center: CenterContainer
 var _result_title_label: Label
 var _result_lines_label: Label
 var _result_next_button: Button
+var _result_wheel_button: Button
+var _result_wheel_label: Label
+var _wheel_rolled: bool = false
 var _dialogue_layer: Control
 var _dialogue_speaker_label: Label
 var _dialogue_text_label: Label
@@ -589,6 +593,23 @@ func _create_result_panel() -> void:
 	vbox.add_child(lines)
 	_result_lines_label = lines
 
+	var wheel_button := Button.new()
+	wheel_button.name = "ResultWheelButton"
+	wheel_button.custom_minimum_size = Vector2(0, 42)
+	wheel_button.add_theme_font_size_override("font_size", 17)
+	wheel_button.pressed.connect(func() -> void: result_wheel_pressed.emit())
+	vbox.add_child(wheel_button)
+	_result_wheel_button = wheel_button
+
+	var wheel_label := Label.new()
+	wheel_label.name = "ResultWheelLabel"
+	wheel_label.add_theme_font_size_override("font_size", 16)
+	wheel_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wheel_label.add_theme_color_override("font_color", Color(0.92, 0.78, 0.42))
+	wheel_label.visible = false
+	vbox.add_child(wheel_label)
+	_result_wheel_label = wheel_label
+
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 14)
@@ -649,9 +670,31 @@ func show_result(data: Dictionary) -> void:
 	_result_next_button.visible = victory and not next_stage_name.is_empty()
 	_result_next_button.text = "下一关：%s" % next_stage_name
 
+	# 结算转盘（阶段 8 提交 2）：胜利且剩余金币 ≥150 可抽 1 次（仅 1 次）。
+	_wheel_rolled = false
+	_result_wheel_label.visible = false
+	var remaining_gold := int(data.get("remaining_gold", 0))
+	if victory and remaining_gold >= SettlementWheel.MIN_REMAINING_GOLD:
+		_result_wheel_button.visible = true
+		_result_wheel_button.disabled = false
+		_result_wheel_button.text = "结算转盘：剩余金币 %d 可抽 1 次" % remaining_gold
+	else:
+		_result_wheel_button.visible = false
+
 	_tower_panel.visible = false
 	_result_center.visible = true
 	_result_panel.visible = true
+
+
+## 转盘结果展示（阶段 8 提交 2）：入账成功后由 Main 调用；单次点击后禁用。
+func show_result_wheel_result(text: String) -> void:
+	if _wheel_rolled:
+		return
+	_wheel_rolled = true
+	_result_wheel_button.disabled = true
+	_result_wheel_button.text = "转盘已抽取"
+	_result_wheel_label.text = text
+	_result_wheel_label.visible = true
 
 
 func hide_result() -> void:

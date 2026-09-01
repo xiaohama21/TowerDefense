@@ -59,10 +59,16 @@ var assigned_slot: Node = null
 
 # 怒气（局内临时状态，GDD 4.6）：满 100 自动释放大招，不写存档。
 var rage: float = 0.0
-# 增益（舞娘光环/鼓舞）：攻速与伤害倍率，到期回落。
+## 局内同类增益总上限（P0 3.2 拍板）：加法叠加但设上限，倍率 ≤ +100%。
+const TEAM_BUFF_MULTIPLIER_CAP: float = 2.0
+## 最终攻速倍率下限（P0 3.2 拍板）：攻速间隔最快为 0.55 × 当前基础间隔。
+const ATTACK_SPEED_FLOOR: float = 0.55
+# 增益（鼓舞/军需/连击）：按来源加法叠加、设总上限，到期逐来源回落（3.2/3.4）。
 var attack_speed_buff: float = 1.0
 var damage_buff: float = 1.0
 var _buff_time_left: float = 0.0
+## buff 来源表：source_id -> {speed_add: float, damage_add: float, time_left: float}
+var _buff_sources: Dictionary = {}
 # 龙魂击杀叠层（赵云特性）：击杀 +1 层攻速，目标丢失时清零。
 var kill_stacks := 0
 
@@ -285,7 +291,7 @@ func _swing_offset() -> float:
 
 func _rebuild_attack_timer() -> void:
 	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks))
-	attack_timer.wait_time = maxf(effective, 0.05)
+	attack_timer.wait_time = maxf(effective, attack_cooldown * ATTACK_SPEED_FLOOR)
 
 
 func _rebuild_range_area() -> void:
@@ -309,12 +315,17 @@ func _process(_delta: float) -> void:
 	if not passive and not _is_target_in_range(target):
 		target = find_target()
 
-	if _buff_time_left > 0.0:
-		_buff_time_left = maxf(_buff_time_left - _delta, 0.0)
-		if _buff_time_left <= 0.0:
-			attack_speed_buff = 1.0
-			damage_buff = 1.0
-			_rebuild_attack_timer()
+	if not _buff_sources.is_empty():
+		var expired: Array[String] = []
+		for source_id in _buff_sources.keys():
+			var entry: Dictionary = _buff_sources[source_id]
+			entry["time_left"] = maxf(float(entry.get("time_left", 0.0)) - _delta, 0.0)
+			if float(entry["time_left"]) <= 0.0:
+				expired.append(str(source_id))
+		for source_id in expired:
+			_buff_sources.erase(source_id)
+		_recalc_team_buff()
+		_rebuild_attack_timer()
 		queue_redraw()
 
 	if target:
@@ -543,19 +554,39 @@ func lowest_hp_targets_in_range(count: int) -> Array[Enemy]:
 	return enemies.slice(0, mini(count, enemies.size()))
 
 
-func apply_attack_speed_buff(multiplier: float, duration: float) -> void:
-	attack_speed_buff = maxf(attack_speed_buff, multiplier)
-	_buff_time_left = maxf(_buff_time_left, duration)
+## 攻速增益（按来源加法叠加、总上限 +100%；同来源刷新时长不重复叠加——3.2/3.4）。
+func apply_attack_speed_buff(source_id: String, multiplier: float, duration: float) -> void:
+	_apply_buff_source(source_id, multiplier - 1.0, 0.0, duration)
 	_rebuild_attack_timer()
 	queue_redraw()
 
 
-func apply_team_buff(speed_multiplier: float, damage_multiplier: float, duration: float) -> void:
-	attack_speed_buff = maxf(attack_speed_buff, speed_multiplier)
-	damage_buff = maxf(damage_buff, damage_multiplier)
-	_buff_time_left = maxf(_buff_time_left, duration)
+func apply_team_buff(source_id: String, speed_multiplier: float, damage_multiplier: float, duration: float) -> void:
+	_apply_buff_source(source_id, speed_multiplier - 1.0, damage_multiplier - 1.0, duration)
 	_rebuild_attack_timer()
 	queue_redraw()
+
+
+func _apply_buff_source(source_id: String, speed_add: float, damage_add: float, duration: float) -> void:
+	if source_id.is_empty() or duration <= 0.0:
+		return
+	var entry: Dictionary = _buff_sources.get(source_id, {"speed_add": 0.0, "damage_add": 0.0, "time_left": 0.0})
+	entry["speed_add"] = maxf(float(entry["speed_add"]), speed_add)
+	entry["damage_add"] = maxf(float(entry["damage_add"]), damage_add)
+	entry["time_left"] = maxf(float(entry["time_left"]), duration)
+	_buff_sources[source_id] = entry
+	_recalc_team_buff()
+
+
+## 汇总 buff：各来源加法求和后 clamp 总上限（+100%），到期来源由 _process 移除。
+func _recalc_team_buff() -> void:
+	var total_speed := 0.0
+	var total_damage := 0.0
+	for entry in _buff_sources.values():
+		total_speed += float(entry.get("speed_add", 0.0))
+		total_damage += float(entry.get("damage_add", 0.0))
+	attack_speed_buff = 1.0 + clampf(total_speed, 0.0, TEAM_BUFF_MULTIPLIER_CAP - 1.0)
+	damage_buff = 1.0 + clampf(total_damage, 0.0, TEAM_BUFF_MULTIPLIER_CAP - 1.0)
 
 
 func _on_enemy_killed(character_id: String) -> void:

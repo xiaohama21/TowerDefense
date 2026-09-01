@@ -16,7 +16,6 @@ base_range = 120.0
 attack_interval = 0.7
 projectile_speed = 400.0
 damage_growth_per_level = 4.0
-initial_skill_ids = [&"serpent_spear"]
 promotion_ids = [&"zhang_fei_vanguard"]
 trait_id = &"trait_yanyan_roar"
 trait_params = {

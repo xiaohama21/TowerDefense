@@ -317,8 +317,12 @@ func _run() -> void:
 	wave.wave_id = &"smoke_wave"
 	wave.wave_number = 1
 	wave.spawn_groups = [spawn]
+	# 阶段 8 提交 2（P0 3.3）：波次完成金币奖励。
+	wave.completion_currency = 10
 	wave_manager.configure_waves([wave])
 	GameManager.total_waves = 1
+	GameManager.reset_combo()
+	var gold_before_wave := GameManager.gold
 	wave_manager.start_wave(0)
 	await get_tree().process_frame
 	_check(GameManager.is_wave_active, "开波后应进入战斗状态")
@@ -329,6 +333,26 @@ func _run() -> void:
 	for _i in range(5):
 		await get_tree().process_frame
 	_check(GameManager.current_wave == 1 and not GameManager.is_wave_active, "击杀最后一只敌人后应完成波次")
+	# 击杀奖励（士兵 10 金）+ 波次奖励（completion_currency 10 金）。
+	_check(GameManager.gold == gold_before_wave + 20,
+		"波次完成应发放击杀奖励与 completion_currency（实际 +%d）" % (GameManager.gold - gold_before_wave))
+	_check(GameManager.combo_count == 0 and GameManager.combo_tier == 0, "每波结束应清零连击")
+	# 连击档位（P0 4.1）：5/10/15 连击进入 1/2/3 档，每波结束清零。
+	GameManager._advance_combo()
+	GameManager._advance_combo()
+	GameManager._advance_combo()
+	GameManager._advance_combo()
+	GameManager._advance_combo()
+	_check(GameManager.combo_count == 5 and GameManager.combo_tier == 1,
+		"5 连击应进入连击档位 1（实际 count=%d tier=%d）" % [GameManager.combo_count, GameManager.combo_tier])
+	for _i in range(5):
+		GameManager._advance_combo()
+	_check(GameManager.combo_tier == 2, "10 连击应进入连击档位 2（实际 tier=%d）" % GameManager.combo_tier)
+	for _i in range(5):
+		GameManager._advance_combo()
+	_check(GameManager.combo_tier == 3, "15 连击应进入连击档位 3（实际 tier=%d）" % GameManager.combo_tier)
+	GameManager.reset_combo()
+	_check(GameManager.combo_count == 0 and GameManager.combo_tier == 0, "波次结束/重开应清零连击")
 
 	# 局内升级/回收（GDD 5.4）：费用 = 造价×0.8×次数，返还 = 总投入×0.6（向上取整）。
 	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
@@ -766,6 +790,49 @@ func _run() -> void:
 			dancer_tower.queue_free()
 		if ally_tower:
 			ally_tower.queue_free()
+
+	# 阶段 8 提交 2（P0 3.2/3.4）：攻速 buff 按来源加法叠加、总上限 +100%、间隔下限 0.55。
+	var speed_tower: Tower = tower_manager.build_tower(Vector2(320, 100), guan_yu, null, {"level": 1})
+	if speed_tower != null:
+		speed_tower.apply_attack_speed_buff("test_a", 1.5, 5.0)
+		speed_tower.apply_attack_speed_buff("test_b", 1.5, 5.0)
+		_check(is_equal_approx(speed_tower.attack_speed_buff, 2.0), "多来源攻速 buff 应加法叠加并封顶 +100%")
+		speed_tower.apply_attack_speed_buff("test_c", 3.0, 5.0)
+		_check(is_equal_approx(speed_tower.attack_speed_buff, 2.0), "攻速 buff 总上限应为 2.0（+100%）")
+		speed_tower.attack_cooldown = 1.0
+		speed_tower.kill_stacks = 0
+		speed_tower.attack_speed_buff = 2.0
+		speed_tower._rebuild_attack_timer()
+		_check(is_equal_approx(speed_tower.attack_timer.wait_time, 0.55), "攻速间隔下限应为基础间隔×0.55")
+		speed_tower.queue_free()
+
+	# 阶段 8 提交 2（P0 3.3）：结算转盘——奖池 5~7 件、≥150 金抽 1 次、结果入档（隔离存档）。
+	_check(SettlementWheel.MIN_REMAINING_GOLD == 150, "转盘门槛应为剩余金币 ≥150（仅一次）")
+	_check(SettlementWheel.POOL.size() >= 5 and SettlementWheel.POOL.size() <= 7, "转盘奖池应为 5~7 件道具")
+	var wheel_profile := ProfileStore.get_profile()
+	var wheel_roll := SettlementWheel.roll(wheel_profile)
+	_check(not wheel_roll.is_empty(), "转盘应能抽取奖励")
+	var wheel_kind := str(wheel_roll.get("kind", ""))
+	_check(["item", "shards", "tech_points"].has(wheel_kind), "转盘奖励类型应合法")
+	var wheel_amount_before := 0
+	if wheel_kind == "shards":
+		var wheel_char := str(wheel_roll.get("character_id", ""))
+		_check(not wheel_char.is_empty(), "碎片奖励应指定武将")
+		wheel_amount_before = int(wheel_profile.get_character(wheel_char).get("shards", 0))
+	elif wheel_kind == "item":
+		wheel_amount_before = int(wheel_profile.items.get(str(wheel_roll.get("item_id", "")), 0))
+	else:
+		wheel_amount_before = wheel_profile.tech_points
+	_check(ProfileStore.commit_settlement_reward(wheel_roll), "转盘结果应能入账（隔离存档）")
+	if wheel_kind == "shards":
+		var wheel_char2 := str(wheel_roll.get("character_id", ""))
+		_check(int(wheel_profile.get_character(wheel_char2).get("shards", 0))
+			== wheel_amount_before + int(wheel_roll.get("amount", 0)), "碎片入账数量应正确")
+	elif wheel_kind == "item":
+		_check(int(wheel_profile.items.get(str(wheel_roll.get("item_id", "")), 0))
+			== wheel_amount_before + int(wheel_roll.get("amount", 0)), "道具入账数量应正确")
+	else:
+		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
 
 	_finish()
 

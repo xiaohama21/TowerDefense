@@ -93,5 +93,7 @@ func _summon_guards(boss: Enemy) -> void:
 		var guard := _spawn_on(fork_path if fork_path != null else path, soldier)
 		if guard == null:
 			continue
+		# 召唤物标记（阶段 8 提交 2）：连击计入召唤物、图鉴/百科可见性后续按此区分。
+		guard.is_summon = true
 		# 岔路召唤：护卫自岔路入口进场（无岔路时在 Boss 身后沿主路出现）
 		guard.progress = 0.0 if fork_path != null else maxf(boss.progress - 60.0, 0.0)

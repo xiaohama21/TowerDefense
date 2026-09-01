@@ -27,7 +27,7 @@ wave_id = &"ch01_s07_w01"
 wave_number = 1
 spawn_groups = [SubResource("EnemySpawnData_w1_0")]
 preparation_time = 0.0
-completion_currency = 0
+completion_currency = 10
 is_boss_wave = false
 
 [sub_resource type="Resource" id="EnemySpawnData_w2_0"]
@@ -48,7 +48,7 @@ wave_id = &"ch01_s07_w02"
 wave_number = 2
 spawn_groups = [SubResource("EnemySpawnData_w2_0"), SubResource("EnemySpawnData_w2_1")]
 preparation_time = 2.0
-completion_currency = 0
+completion_currency = 10
 is_boss_wave = false
 
 [sub_resource type="Resource" id="EnemySpawnData_w3_0"]
@@ -75,7 +75,7 @@ wave_id = &"ch01_s07_w03"
 wave_number = 3
 spawn_groups = [SubResource("EnemySpawnData_w3_0"), SubResource("EnemySpawnData_w3_1"), SubResource("EnemySpawnData_w3_2")]
 preparation_time = 2.0
-completion_currency = 0
+completion_currency = 10
 is_boss_wave = false
 
 [sub_resource type="Resource" id="EnemySpawnData_w4_0"]
@@ -96,7 +96,7 @@ wave_id = &"ch01_s07_w04"
 wave_number = 4
 spawn_groups = [SubResource("EnemySpawnData_w4_0"), SubResource("EnemySpawnData_w4_1")]
 preparation_time = 2.0
-completion_currency = 0
+completion_currency = 10
 is_boss_wave = false
 
 [sub_resource type="Resource" id="EnemySpawnData_w5_0"]
@@ -123,7 +123,7 @@ wave_id = &"ch01_s07_w05"
 wave_number = 5
 spawn_groups = [SubResource("EnemySpawnData_w5_0"), SubResource("EnemySpawnData_w5_1"), SubResource("EnemySpawnData_w5_2")]
 preparation_time = 2.0
-completion_currency = 0
+completion_currency = 10
 is_boss_wave = false
 
 [sub_resource type="Resource" id="EnemySpawnData_w6_0"]
@@ -156,7 +156,7 @@ wave_id = &"ch01_s07_w06"
 wave_number = 6
 spawn_groups = [SubResource("EnemySpawnData_w6_0"), SubResource("EnemySpawnData_w6_1"), SubResource("EnemySpawnData_w6_2"), SubResource("EnemySpawnData_w6_3")]
 preparation_time = 2.0
-completion_currency = 0
+completion_currency = 10
 is_boss_wave = true
 
 [sub_resource type="Resource" id="ItemAmountData_cloth"]
@@ -216,3 +216,7 @@ first_clear_rewards = [SubResource("ItemAmountData_cloth")]
 probability_drops = [SubResource("DropEntry_cloth3")]
 repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
 participant_xp = 60
+recommended_tower_count = 7
+recommended_rank_count = 3
+recommended_supply_count = 1
+target_remaining_gold = 150

@@ -16,7 +16,6 @@ base_range = 145.0
 attack_interval = 1.4
 projectile_speed = 380.0
 damage_growth_per_level = 2.0
-initial_skill_ids = [&"moonlit_dance"]
 promotion_ids = [&"diao_chan_inspirer"]
 trait_id = &"trait_moon_veil"
 trait_params = {

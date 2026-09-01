@@ -16,6 +16,5 @@ base_range = 115.0
 attack_interval = 0.9
 projectile_speed = 400.0
 damage_growth_per_level = 5.0
-initial_skill_ids = [&"iron_will"]
 promotion_ids = [&"zhou_wei_loyal_guard"]
 unlock_stage_id = &"ch01_s05"
