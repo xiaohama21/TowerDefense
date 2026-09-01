@@ -3,7 +3,7 @@ extends VBoxContainer
 ## 武将养成面板（阶段 8 提交 4 重构，UI_LAYOUT.md 第 5 节）：
 ## 左侧武将网格（2 列卡片，未解锁灰卡显示获取方式）；右侧上半=基础信息卡
 ## （等级+经验条/职业/属性摘要，只展示基础信息）；右侧下半=页签区
-## （转职/升星/信物/遗物/特性），进阶信息全部经页签承载；新增角色功能=新增页签。
+## （转职/信物/遗物/特性），进阶信息全部经页签承载；新增角色功能=新增页签。
 
 signal back_requested
 
@@ -35,14 +35,10 @@ var _stats_label: Label
 var _promotion_label: Label
 var _promotion_buttons: Array[Button] = []
 var _promotion_buttons_box: VBoxContainer
-var _stars_label: Label
-var _promote_star_button: Button
 var _relic_label: Label
 var _relic_button: Button
 var _run_relics_label: Label
 var _trait_label: Label
-var _gacha_label: Label
-var _gacha_button: Button
 var _exp_scroll_label: Label
 var _exp_scroll_button: Button
 var _exp_scroll_hint: Label
@@ -79,7 +75,7 @@ func _load_owned_characters() -> void:
 
 
 func _build_ui() -> void:
-	# 标题行：标题 + 右上角求贤入口（求贤令余额 + 单抽按钮）。
+	# 标题行：标题。
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 16)
 	add_child(title_row)
@@ -89,15 +85,6 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", UITheme.GOLD)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
-	_gacha_label = Label.new()
-	_gacha_label.add_theme_font_size_override("font_size", 17)
-	_gacha_label.add_theme_color_override("font_color", UITheme.GOLD)
-	title_row.add_child(_gacha_label)
-	_gacha_button = Button.new()
-	_gacha_button.custom_minimum_size = Vector2(150, 40)
-	_gacha_button.add_theme_font_size_override("font_size", 16)
-	_gacha_button.pressed.connect(_on_gacha_pressed)
-	title_row.add_child(_gacha_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -223,13 +210,12 @@ func _build_ui() -> void:
 	_exp_scroll_hint.add_theme_color_override("font_color", UITheme.GRAY)
 	exp_scroll_row.add_child(_exp_scroll_hint)
 
-	# 页签区：转职 / 升星 / 信物 / 遗物 / 特性（新增角色功能=新增页签）。
+	# 页签区：转职 / 信物 / 遗物 / 特性（新增角色功能=新增页签）。
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_tab_container.add_theme_font_size_override("font_size", 15)
 	right_column.add_child(_tab_container)
 	_build_promotion_tab()
-	_build_star_tab()
 	_build_relic_tab()
 	_build_run_relics_tab()
 	_build_trait_tab()
@@ -254,20 +240,6 @@ func _build_promotion_tab() -> void:
 	_promotion_buttons_box.add_theme_constant_override("separation", 8)
 	_promotion_buttons_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	page.add_child(_promotion_buttons_box)
-
-
-func _build_star_tab() -> void:
-	var page := _make_tab_page("升星")
-	_stars_label = Label.new()
-	_stars_label.add_theme_font_size_override("font_size", 17)
-	_stars_label.add_theme_color_override("font_color", UITheme.GOLD)
-	page.add_child(_stars_label)
-	_promote_star_button = Button.new()
-	_promote_star_button.text = "升 星"
-	_promote_star_button.custom_minimum_size = Vector2(220, 44)
-	_promote_star_button.add_theme_font_size_override("font_size", 17)
-	_promote_star_button.pressed.connect(_on_promote_star_pressed)
-	page.add_child(_promote_star_button)
 
 
 func _build_relic_tab() -> void:
@@ -325,7 +297,6 @@ func _selected_character() -> CharacterData:
 
 
 func _refresh() -> void:
-	_refresh_gacha()
 	var character := _selected_character()
 	if character == null:
 		return
@@ -352,7 +323,6 @@ func _refresh() -> void:
 		stats.damage, 1.0 / maxf(stats.attack_interval, 0.01), int(stats.range),
 	]
 	_refresh_promotion(character, level)
-	_refresh_stars(level)
 	_refresh_relic(character)
 	_refresh_run_relics()
 	_refresh_trait(character)
@@ -485,30 +455,6 @@ func _apply_promotion(promotion: PromotionData, dialog: ConfirmationDialog) -> v
 	_refresh()
 
 
-## 星级（GDD 4.8 升星）：碎片逐星 20/40/80/160，成长系数 +5%/星。
-func _refresh_stars(_level: int) -> void:
-	var stars := _profile.get_character_stars(_selected_id)
-	var shards: int = int(_profile.get_character(_selected_id).get("shards", 0))
-	var stars_text := ""
-	for _i in range(stars):
-		stars_text += "★"
-	if stars >= 5:
-		_stars_label.text = "星级：%s（已满星）" % stars_text
-		_promote_star_button.visible = false
-		return
-	_stars_label.text = "星级：%s" % (stars_text if stars_text != "" else "☆")
-	var cost: int = [20, 40, 80, 160][stars]
-	_promote_star_button.visible = true
-	_promote_star_button.text = "升星（碎片 %d/%d）" % [int(shards), cost]
-	_promote_star_button.disabled = int(shards) < cost
-
-
-func _on_promote_star_pressed() -> void:
-	if _profile.promote_character_star(_selected_id):
-		ProfileStore.save_profile(_profile)
-	_refresh()
-
-
 ## 信物（GDD 4.8）：碎片兑换 + 装备/卸下；建造时经 loadout 生效。
 func _refresh_relic(character: CharacterData) -> void:
 	var relic := GameFlow.get_relic_for_character(_selected_id)
@@ -574,44 +520,3 @@ func _refresh_trait(character: CharacterData) -> void:
 		return
 	_trait_label.text = "%s\n（常驻被动；阶段 9 升阶特性接入后新增特性分支选择）" % hint
 
-
-## 求贤（GDD modules/DROPS_GACHA.md 7.3，v0.14.1 入口落地）：
-## 消耗求贤令×1 单抽；重复武将转碎片，每 10 抽保底未拥有角色（或碎片折算）。
-func _refresh_gacha() -> void:
-	var tokens: int = int(_profile.items.get("gacha_token", 0))
-	_gacha_label.text = "求贤令：%d" % tokens
-	_gacha_button.text = "求 贤（×1）"
-	_gacha_button.disabled = tokens < 1
-
-
-func _on_gacha_pressed() -> void:
-	var result := GameFlow.pull_gacha(_profile)
-	if result.is_empty():
-		_show_gacha_result("求贤令不足或卡池为空")
-		return
-	_show_gacha_result(_gacha_result_text(result))
-	_refresh()
-
-
-func _gacha_result_text(result: Dictionary) -> String:
-	var character_id := str(result.get("character_id", ""))
-	var character := GameFlow.load_character_data(character_id)
-	var name_text := character.display_name if character != null else character_id
-	match result.get("type", ""):
-		"pity_char":
-			return "保底：获得新武将「%s」！" % name_text
-		"pity_shards":
-			return "保底：%s 碎片 ×%d" % [name_text, int(result.get("shards", 0))]
-		"dup":
-			return "%s 碎片 ×%d（重复武将转化）" % [name_text, int(result.get("shards", 0))]
-		_:
-			return "求贤结果异常"
-
-
-func _show_gacha_result(message: String) -> void:
-	var dialog := AcceptDialog.new()
-	dialog.title = "求贤"
-	dialog.dialog_text = message
-	dialog.ok_button_text = "好"
-	dialog.popup_centered()
-	add_child(dialog)

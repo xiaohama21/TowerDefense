@@ -97,6 +97,8 @@ func _refresh() -> void:
 	var entries: Array = []
 	for key in profile.items.keys():
 		var item_id := str(key)
+		if item_id == "gacha_token":
+			continue  # 求贤令抽将暂时移除（v0.30.0）：库存隐藏，恢复时删除本过滤
 		var amount := int(profile.items.get(key, 0))
 		if amount > 0:
 			entries.append([item_id, amount])

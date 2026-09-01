@@ -69,7 +69,7 @@ func _on_jump_pressed() -> void:
 
 
 func _on_shards_pressed() -> void:
-	# 调试：为所有已拥有武将补充碎片（用于验证升星/信物兑换）
+	# 调试：为所有已拥有武将补充碎片（用于验证信物兑换；升星已暂时移除 v0.30.0）
 	var profile := ProfileStore.get_profile()
 	for character_id in profile.get_owned_character_ids():
 		profile.add_character_shards(character_id, 20)

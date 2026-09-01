@@ -169,7 +169,7 @@ func _ready() -> void:
 func apply_character(character_data: CharacterData, loadout: Dictionary = {}) -> void:
 	var level: int = int(loadout.get("level", 1))
 	var promotion: PromotionData = loadout.get("promotion", null)
-	var stars: int = int(loadout.get("stars", 0))
+	var stars: int = 0  # 升星暂时移除（v0.30.0）：星级成长停用；恢复时改回 loadout
 	var relic: RelicData = loadout.get("relic", null)
 	character_id = character_data.character_id
 	display_name = character_data.display_name
