@@ -388,11 +388,9 @@ func _on_victory():
 	var xp_by_character: Dictionary = {}
 	var loot: Dictionary = {}
 	var unlock_names: Array[String] = []
-	if battle_session != null and battle_session.mark_victory({
-		"remaining_lives": GameManager.lives,
-		"completed_waves": GameManager.current_wave,
-		"difficulty": Difficulty.key_name(GameFlow.selected_difficulty),
-	}):
+	# v0.21.1 修复：先收集奖励再 mark_victory，与一键通关（MapPanel）顺序统一，
+	# 避免胜利状态后 is_in_progress() 守卫拦截首通解锁/掉落写入。
+	if battle_session != null:
 		var profile := ProfileStore.get_profile()
 		var first_clear := not profile.stage_progress.has(stage_data.stage_id)
 		GameFlow.collect_stage_rewards(battle_session, stage_data, first_clear)
@@ -401,10 +399,15 @@ func _on_victory():
 			battle_session.get_deployed_character_ids(),
 			stage_data.participant_xp
 		)
-		saved = ProfileStore.commit_victory(battle_session)
-		xp_by_character = battle_session.get_pending_xp_by_character()
-		loot = battle_session.get_pending_loot()
-		unlock_names = _resolve_character_names(battle_session.get_pending_unlocks())
+		if battle_session.mark_victory({
+			"remaining_lives": GameManager.lives,
+			"completed_waves": GameManager.current_wave,
+			"difficulty": Difficulty.key_name(GameFlow.selected_difficulty),
+		}):
+			saved = ProfileStore.commit_victory(battle_session)
+			xp_by_character = battle_session.get_pending_xp_by_character()
+			loot = battle_session.get_pending_loot()
+			unlock_names = _resolve_character_names(battle_session.get_pending_unlocks())
 	build_manager.cancel_pending()
 	ui.show_result({
 		"victory": true,

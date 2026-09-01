@@ -131,6 +131,11 @@ func get_status() -> String:
 func is_in_progress() -> bool:
 	return status == STATUS_IN_PROGRESS
 
+## 结算窗口（v0.21.1）：进行中或已胜利未提交的战局仍可累计战利品，
+## 修复“先 mark_victory 再收集奖励”的顺序依赖。
+func can_accumulate_rewards() -> bool:
+	return status == STATUS_IN_PROGRESS or status == STATUS_VICTORY
+
 
 func is_victory() -> bool:
 	return status == STATUS_VICTORY or status == STATUS_COMMITTED
@@ -149,7 +154,7 @@ func can_commit() -> bool:
 
 
 func add_xp(character_id: String, amount: int) -> int:
-	if not is_in_progress() or amount <= 0:
+	if not can_accumulate_rewards() or amount <= 0:
 		return _coerce_non_negative_int(pending_xp_by_character.get(character_id.strip_edges(), 0))
 	var key := character_id.strip_edges()
 	if key.is_empty():
@@ -171,7 +176,7 @@ func add_participation_xp(character_ids: Array, amount: int) -> void:
 
 
 func add_loot(item_id: String, amount: int) -> int:
-	if not is_in_progress() or amount <= 0:
+	if not can_accumulate_rewards() or amount <= 0:
 		return _coerce_non_negative_int(pending_loot.get(item_id.strip_edges(), 0))
 	var key := item_id.strip_edges()
 	if key.is_empty():
@@ -187,7 +192,7 @@ func add_drop(item_id: String, amount: int) -> int:
 
 ## 首通信物授予（去重）。
 func add_relic(relic_id: String) -> bool:
-	if not is_in_progress():
+	if not can_accumulate_rewards():
 		return false
 	var key := relic_id.strip_edges()
 	if key.is_empty() or pending_relics.has(key):
@@ -202,7 +207,7 @@ func get_pending_relics() -> Array[String]:
 
 ## 科技点暂存（GDD modules/NUMBERS.md 10.7）：通关后随战局提交写档。
 func add_tech_points(amount: int) -> int:
-	if not is_in_progress() or amount <= 0:
+	if not can_accumulate_rewards() or amount <= 0:
 		return pending_tech_points
 	pending_tech_points += amount
 	return pending_tech_points
@@ -213,7 +218,7 @@ func get_pending_tech_points() -> int:
 
 
 func add_unlock(character_id: String) -> bool:
-	if not is_in_progress():
+	if not can_accumulate_rewards():
 		return false
 	var key := character_id.strip_edges()
 	if key.is_empty() or pending_unlocks.has(key):
