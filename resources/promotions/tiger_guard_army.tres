@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
-[ext_resource type="Resource" path="res://resources/professions/catapult.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
@@ -12,17 +12,18 @@ amount = 10
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"huang_fu_song_zhechong"
-display_name = "折冲将军"
-description = "皇甫嵩的一转路线，石落如雷、覆盖更广。"
+promotion_id = &"tiger_guard_army"
+display_name = "虎贲军"
+description = "虎贲一转：虎贲军阵，军旗光环为周围友军增益。"
 parent_id = &""
-next_promotion_ids = []
+next_promotion_ids = [&"tiger_guard_vanguard", &"tiger_guard_guard"]
 target_profession = ExtResource("2_profession")
 required_level = 10
 damage_multiplier = 1.2
-range_multiplier = 1.1
-attack_interval_multiplier = 0.9
-granted_skill_ids = [&"siege"]
-skill_params = {"elite_damage_bonus": 0.1}
-visual_variant_id = &"huang_fu_song_zhechong"
+range_multiplier = 1
+attack_interval_multiplier = 0.95
+ultimate_multiplier = 1
+granted_skill_ids = [&"command"]
+skill_params = {"ally_damage_bonus": 0.04, "radius": 150.0}
+visual_variant_id = &"tiger_guard_army"
 item_costs = [SubResource("ItemAmountData_cloth10")]

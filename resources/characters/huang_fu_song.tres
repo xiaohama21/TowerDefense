@@ -16,7 +16,8 @@ base_range = 360.0
 attack_interval = 2.4
 projectile_speed = 320.0
 damage_growth_per_level = 6.0
-promotion_ids = [&"huang_fu_song_zhechong"]
+promotion_ids = [&"catapult_thunder"]
+titles = ["折冲将军"]
 character_skill_id = &"char_burn_camp"
 character_skill_params = {
 "cooldown": 20.0,

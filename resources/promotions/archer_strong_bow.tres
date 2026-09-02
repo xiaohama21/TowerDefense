@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
+[ext_resource type="Resource" path="res://resources/professions/archer.tres" id="2_profession"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
+
+[sub_resource type="Resource" id="ItemAmountData_cloth10"]
+script = ExtResource("3_amount")
+item = ExtResource("4_cloth")
+amount = 10
+
+[resource]
+script = ExtResource("1_promotion")
+promotion_id = &"archer_strong_bow"
+display_name = "劲弓"
+description = "弓箭手一转：劲弓强射，稳射每 5 次攻击必追加伤害。"
+parent_id = &""
+next_promotion_ids = [&"archer_piercing_cloud", &"archer_crossbow"]
+target_profession = ExtResource("2_profession")
+required_level = 10
+damage_multiplier = 1.15
+range_multiplier = 1.1
+attack_interval_multiplier = 0.95
+ultimate_multiplier = 1
+granted_skill_ids = [&"steady"]
+skill_params = {"every": 5, "mult": 0.6}
+visual_variant_id = &"archer_strong_bow"
+item_costs = [SubResource("ItemAmountData_cloth10")]

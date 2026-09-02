@@ -5,24 +5,25 @@
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
-[sub_resource type="Resource" id="ItemAmountData_cloth10"]
+[sub_resource type="Resource" id="ItemAmountData_cloth20"]
 script = ExtResource("3_amount")
 item = ExtResource("4_cloth")
-amount = 10
+amount = 20
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"zhuge_liang_wolong"
-display_name = "卧龙"
-description = "诸葛亮的一转路线，羽扇纶巾、算无遗策。"
-parent_id = &""
+promotion_id = &"strategist_heavenly_master"
+display_name = "天师"
+description = "术士二转新技能：天师奇门（奇门，提交 7 接入），数值略低。"
+parent_id = &"strategist_mage"
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")
-required_level = 10
-damage_multiplier = 1.15
+required_level = 20
+damage_multiplier = 1.25
 range_multiplier = 1.1
-attack_interval_multiplier = 0.95
+attack_interval_multiplier = 0.9
+ultimate_multiplier = 1.15
 granted_skill_ids = [&"wisdom"]
 skill_params = {"aoe_radius_bonus": 0.1}
-visual_variant_id = &"zhuge_liang_wolong"
-item_costs = [SubResource("ItemAmountData_cloth10")]
+visual_variant_id = &"strategist_heavenly_master"
+item_costs = [SubResource("ItemAmountData_cloth20")]

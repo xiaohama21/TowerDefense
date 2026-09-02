@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
+[ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
+
+[sub_resource type="Resource" id="ItemAmountData_cloth20"]
+script = ExtResource("3_amount")
+item = ExtResource("4_cloth")
+amount = 20
+
+[resource]
+script = ExtResource("1_promotion")
+promotion_id = &"cavalry_heavy_armor"
+display_name = "玄甲"
+description = "骑兵二转强化：重装爆发，蓄力+返怒 70%，强化大招。"
+parent_id = &"cavalry_iron_rider"
+next_promotion_ids = []
+target_profession = ExtResource("2_profession")
+required_level = 20
+damage_multiplier = 1.35
+range_multiplier = 1
+attack_interval_multiplier = 0.85
+ultimate_multiplier = 1.3
+granted_skill_ids = [&"charge"]
+skill_params = {"base_refund": 70}
+visual_variant_id = &"cavalry_heavy_armor"
+item_costs = [SubResource("ItemAmountData_cloth20")]

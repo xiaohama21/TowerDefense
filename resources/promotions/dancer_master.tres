@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
-[ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/dancer.tres" id="2_profession"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
@@ -12,17 +12,18 @@ amount = 10
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"guan_yu_charger"
-display_name = "突击骑"
-description = "关羽的一转路线，强化单体爆发。"
+promotion_id = &"dancer_master"
+display_name = "舞师"
+description = "舞娘一转：舞师鼓舞，大招释放全队攻速提升。"
 parent_id = &""
-next_promotion_ids = [&"guan_yu_wusheng", &"guan_yu_qinglong"]
+next_promotion_ids = [&"dancer_phoenix", &"dancer_echo"]
 target_profession = ExtResource("2_profession")
 required_level = 10
-damage_multiplier = 1.2
-range_multiplier = 1.0
-attack_interval_multiplier = 0.9
-granted_skill_ids = [&"charge"]
-skill_params = {"base_refund": 50}
-visual_variant_id = &"guan_yu_charger"
+damage_multiplier = 1.1
+range_multiplier = 1
+attack_interval_multiplier = 0.85
+ultimate_multiplier = 1
+granted_skill_ids = [&"inspire"]
+skill_params = {"team_speed_bonus": 0.06, "duration": 8.0}
+visual_variant_id = &"dancer_master"
 item_costs = [SubResource("ItemAmountData_cloth10")]

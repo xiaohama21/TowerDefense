@@ -25,6 +25,8 @@ enum AttackPattern {
 @export var tags: Array[StringName] = []
 
 @export_category("Base Modifiers")
+## 纯参考字段（设计基调，不参与计算）：职业差异化由角色基础属性（base_damage/base_range/attack_interval）体现，
+## 见 PROFESSIONS.md 4.2；勿在代码中读取，防止与 PromotionData（转职倍率）同名字段混淆。
 @export_range(0.0, 10.0, 0.01) var damage_multiplier: float = 1.0
 @export_range(0.0, 10.0, 0.01) var range_multiplier: float = 1.0
 @export_range(0.01, 10.0, 0.01) var attack_interval_multiplier: float = 1.0

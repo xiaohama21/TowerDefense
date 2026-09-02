@@ -4,7 +4,9 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 1
+const CURRENT_SCHEMA_VERSION: int = 2
+## v2（阶段 8·提交 6，职业级转职树落地）：旧档角色绑定转职路径作废，
+## 统一按职业级转职树重新转职——加载迁移时清空所有 promotion_path（v0.28 拍板）。
 
 var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}

@@ -16,7 +16,8 @@ base_range = 130.0
 attack_interval = 0.8
 projectile_speed = 400.0
 damage_growth_per_level = 3.5
-promotion_ids = [&"liu_bei_commander"]
+promotion_ids = [&"tiger_guard_army"]
+titles = ["仁德统军"]
 character_skill_id = &"char_carry_people"
 character_skill_params = {
 "team_speed_bonus": 0.15,

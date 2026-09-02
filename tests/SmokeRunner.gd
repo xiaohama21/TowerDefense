@@ -30,19 +30,29 @@ func _run() -> void:
 	_check(exp_scroll != null and exp_scroll.item_type == ItemData.ItemType.CONSUMABLE,
 		"练兵令应为可用的消耗品道具")
 
-	# 阶段 6（v0.17.0）：多分支转职图结构——关羽一转 → 武圣/青龙骑双分支。
-	var promo_charger := load("res://resources/promotions/guan_yu_charger.tres") as PromotionData
-	var promo_wusheng := load("res://resources/promotions/guan_yu_wusheng.tres") as PromotionData
-	var promo_qinglong := load("res://resources/promotions/guan_yu_qinglong.tres") as PromotionData
-	_check(promo_charger != null and promo_wusheng != null and promo_qinglong != null, "关羽二转分支资源应齐全")
-	if promo_charger and promo_wusheng and promo_qinglong:
-		_check(promo_charger.next_promotion_ids.size() == 2
-			and promo_charger.next_promotion_ids.has(&"guan_yu_wusheng")
-			and promo_charger.next_promotion_ids.has(&"guan_yu_qinglong"), "突击骑应配置武圣/青龙骑两个二转分支")
-		_check(str(promo_wusheng.parent_id) == "guan_yu_charger"
-			and str(promo_qinglong.parent_id) == "guan_yu_charger", "二转候选 parent 应指向突击骑")
-		_check(promo_wusheng.ultimate_multiplier > 1.0
-			and promo_qinglong.attack_interval_multiplier < 1.0, "武圣应强化大招、青龙骑应强化攻速")
+	# 阶段 8 提交 6（v0.31.0）：职业级转职树——骑兵树铁骑 → 玄甲（强化）/骁骑（新技能）双分支。
+	var promo_iron := load("res://resources/promotions/cavalry_iron_rider.tres") as PromotionData
+	var promo_heavy := load("res://resources/promotions/cavalry_heavy_armor.tres") as PromotionData
+	var promo_raider := load("res://resources/promotions/cavalry_swift_raider.tres") as PromotionData
+	_check(promo_iron != null and promo_heavy != null and promo_raider != null, "骑兵职业树二转分支资源应齐全")
+	if promo_iron and promo_heavy and promo_raider:
+		_check(promo_iron.next_promotion_ids.size() == 2
+			and promo_iron.next_promotion_ids.has(&"cavalry_heavy_armor")
+			and promo_iron.next_promotion_ids.has(&"cavalry_swift_raider"), "铁骑应配置玄甲/骁骑两个二转分支")
+		_check(str(promo_heavy.parent_id) == "cavalry_iron_rider"
+			and str(promo_raider.parent_id) == "cavalry_iron_rider", "二转候选 parent 应指向铁骑")
+		_check(promo_heavy.ultimate_multiplier > 1.0
+			and promo_heavy.damage_multiplier > promo_iron.damage_multiplier, "玄甲应强化大招与三围")
+	# 同职业角色共享同一转职树（关羽/赵云均为骑兵，promotion_ids 应一致）。
+	var guan_yu_data := load("res://resources/characters/guan_yu.tres") as CharacterData
+	var zhao_yun_data := load("res://resources/characters/zhao_yun.tres") as CharacterData
+	_check(guan_yu_data != null and zhao_yun_data != null
+		and guan_yu_data.promotion_ids == zhao_yun_data.promotion_ids
+		and not guan_yu_data.promotion_ids.is_empty(), "同职业角色应共享同一职业转职树")
+	# 角色称号（v0.28 纯记录无机制）：原角色专属转职名保留展示。
+	_check(guan_yu_data != null and guan_yu_data.titles == ["突击骑", "武圣", "青龙骑"],
+		"关羽称号应保留原专属转职名（突击骑/武圣/青龙骑）")
+	_check(zhao_yun_data != null and zhao_yun_data.titles == ["龙骧卫"], "赵云称号应为龙骧卫")
 
 	# 阶段 6（v0.17.0）：羁绊试点——资源齐全、桃园满员激活 +5%、五虎将缺员预览不激活。
 	var taoyuan := load("res://resources/bonds/taoyuan_oath.tres") as BondData
@@ -55,30 +65,29 @@ func _run() -> void:
 	_check(GameFlow.get_squad_bond_damage_bonus(["guan_yu", "zhang_fei", "zhao_yun", "huang_zhong"]) == 0.0,
 		"五虎将缺马超（预览）不应激活加成")
 
-	# 阶段 6（v0.17.0）：转职候选图——未转职给一转，突击骑给两个二转分支。
+	# 阶段 8 提交 6（v0.31.0）：转职候选图——未转职给一转（铁骑），铁骑给两个二转分支。
 	var stage6_profile := ProfileStore.get_profile()
 	if stage6_profile != null:
 		stage6_profile.ensure_character("guan_yu")
 		stage6_profile.set_promotion_path("guan_yu", [])
 		var first_round := GameFlow.get_promotion_candidates(stage6_profile, "guan_yu")
-		_check(first_round.size() == 1 and str(first_round[0].promotion_id) == "guan_yu_charger",
-			"未转职关羽应只有一转候选")
-		stage6_profile.set_promotion_path("guan_yu", ["guan_yu_charger"])
+		_check(first_round.size() == 1 and str(first_round[0].promotion_id) == "cavalry_iron_rider",
+			"未转职关羽应只有一转候选（铁骑）")
+		stage6_profile.set_promotion_path("guan_yu", ["cavalry_iron_rider"])
 		var second_round := GameFlow.get_promotion_candidates(stage6_profile, "guan_yu")
-		_check(second_round.size() == 2, "突击骑应提供两个二转分支候选")
-		stage6_profile.set_promotion_path("guan_yu", ["guan_yu_charger", "guan_yu_wusheng"])
+		_check(second_round.size() == 2, "铁骑应提供两个二转分支候选")
+		stage6_profile.set_promotion_path("guan_yu", ["cavalry_iron_rider", "cavalry_heavy_armor"])
 		var second_active := GameFlow.get_active_promotion(stage6_profile, "guan_yu")
-		_check(second_active != null and str(second_active.promotion_id) == "guan_yu_wusheng",
-			"二转后生效转职应为路径末位（武圣）")
+		_check(second_active != null and str(second_active.promotion_id) == "cavalry_heavy_armor",
+			"二转后生效转职应为路径末位（玄甲）")
 		var stage6_guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
 		if stage6_guan_yu != null and second_active != null:
-			var wusheng_stats := stage6_guan_yu.compute_stats_at(20, second_active)
-			var wusheng_expected := int(round((stage6_guan_yu.base_damage + stage6_guan_yu.damage_growth_per_level * 19) * 1.35))
-			_check(int(wusheng_stats["damage"]) == wusheng_expected,
-				"二转武圣伤害倍率应生效（×1.35，含 20 级成长）")
+			var xuanjia_stats := stage6_guan_yu.compute_stats_at(20, second_active)
+			var xuanjia_expected := int(round((stage6_guan_yu.base_damage + stage6_guan_yu.damage_growth_per_level * 19) * 1.35))
+			_check(int(xuanjia_stats["damage"]) == xuanjia_expected,
+				"二转玄甲伤害倍率应生效（×1.35，含 20 级成长）")
 		# 还原共享存档状态，避免污染后续建塔用例（塔伤害断言基于未转职）。
 		stage6_profile.set_promotion_path("guan_yu", [])
-
 	# 阶段 6 提交 2（v0.18.0）：数值配置中心化——game_balance 可加载且 LevelCurve/Difficulty 生效。
 	var balance := GameBalance.get_balance()
 	_check(balance != null and balance.is_valid(), "game_balance 中心配置应有效")
@@ -480,14 +489,14 @@ func _run() -> void:
 	_check(LevelCurve.level_from_total_exp(999999) == LevelCurve.max_level(), "等级不应超过上限")
 
 	# 等级与转职属性应用（GDD 4.4/4.5）：伤害 = (基础 + 成长×(级-1)) × 转职倍率
-	var charger := load("res://resources/promotions/guan_yu_charger.tres") as PromotionData
+	var charger := load("res://resources/promotions/cavalry_iron_rider.tres") as PromotionData
 	_check(charger != null and not charger.item_costs.is_empty(), "一转配置应含材料消耗")
 	GameManager.reset(9999, 20, stage_data.waves.size())
 	var leveled_tower: Tower = tower_manager.build_tower(Vector2(60, 640), guan_yu, null, {"level": 10, "promotion": charger})
 	_check(leveled_tower != null, "应以等级/转职参数建造武将塔")
 	if leveled_tower:
 		var expected_damage := int(round((guan_yu.base_damage + guan_yu.damage_growth_per_level * 9) * charger.damage_multiplier))
-		_check(leveled_tower.damage == expected_damage, "10 级 + 突击骑伤害应为 %d" % expected_damage)
+		_check(leveled_tower.damage == expected_damage, "10 级 + 铁骑伤害应为 %d" % expected_damage)
 		_check(is_equal_approx(leveled_tower.attack_cooldown, guan_yu.attack_interval * charger.attack_interval_multiplier),
 			"转职攻速倍率应生效")
 		leveled_tower.queue_free()
@@ -627,9 +636,9 @@ func _run() -> void:
 		relic_probe_enemy.queue_free()
 		relic_probe_tower.queue_free()
 	GameFlow.clear_squad_relics()
-	# charge（关羽·突击骑）：大招击杀返怒 50% × s。
+	# charge（关羽·铁骑）：大招击杀返怒 50% × s。
 	var charge_tower: Tower = tower_manager.build_tower(Vector2(240, 640), guan_yu, null, {"level": 10, "promotion": charger})
-	_check(charge_tower != null and charge_tower.has_skill(&"charge"), "突击骑应持有 charge 技能")
+	_check(charge_tower != null and charge_tower.has_skill(&"charge"), "铁骑应持有 charge 技能")
 	if charge_tower:
 		charge_tower.set_process(false)
 		_check(is_equal_approx(charge_tower.kill_rage_refund(), 50.0), "charge 基准返怒应为 50")
@@ -654,11 +663,11 @@ func _run() -> void:
 		_check(charge_tower._try_cast_ultimate(), "5 级满怒大招应能释放")
 		_check(is_equal_approx(charge_tower.rage, 55.0), "5 级 charge 击杀返怒应为 55")
 		charge_tower.queue_free()
-	# siege（皇甫嵩·折冲将军）：对精英/Boss 伤害 +10% × s。
-	var siege_promo := load("res://resources/promotions/huang_fu_song_zhechong.tres") as PromotionData
+	# siege（皇甫嵩·霹雳车）：对精英/Boss 伤害 +10% × s。
+	var siege_promo := load("res://resources/promotions/catapult_thunder.tres") as PromotionData
 	var siege_tower: Tower = tower_manager.build_tower(Vector2(340, 640), huang_fu_song, null, {"level": 10, "promotion": siege_promo})
 	var sergeant_data := load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData
-	_check(siege_tower != null and siege_tower.has_skill(&"siege"), "折冲将军应持有破城技能")
+	_check(siege_tower != null and siege_tower.has_skill(&"siege"), "霹雳车应持有破城技能")
 	if siege_tower:
 		siege_tower.set_process(false)
 		var siege_elite := enemy_manager.spawn_enemy_from_data(sergeant_data) as Enemy
@@ -675,11 +684,11 @@ func _run() -> void:
 		siege_elite.queue_free()
 		siege_soldier.queue_free()
 		siege_tower.queue_free()
-	# wisdom（诸葛亮·卧龙）：大招范围 +10% × s。
+	# wisdom（诸葛亮·方士）：大招范围 +10% × s。
 	var zhuge_liang := load("res://resources/characters/zhuge_liang.tres") as CharacterData
-	var wisdom_promo := load("res://resources/promotions/zhuge_liang_wolong.tres") as PromotionData
+	var wisdom_promo := load("res://resources/promotions/strategist_mage.tres") as PromotionData
 	var wisdom_tower: Tower = tower_manager.build_tower(Vector2(460, 640), zhuge_liang, null, {"level": 10, "promotion": wisdom_promo})
-	_check(wisdom_tower != null and wisdom_tower.has_skill(&"wisdom"), "卧龙应持有奇谋技能")
+	_check(wisdom_tower != null and wisdom_tower.has_skill(&"wisdom"), "方士应持有奇谋技能")
 	if wisdom_tower:
 		wisdom_tower.set_process(false)
 		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 110.0), "奇谋大招范围应 +10%")
@@ -697,39 +706,32 @@ func _run() -> void:
 	_check(not SkillRegistry.KNOWN_SKILLS.has(&"dragon_rush")
 		and not SkillRegistry.KNOWN_SKILLS.has(&"ferocity")
 		and not SkillRegistry.KNOWN_SKILLS.has(&"bulwark"), "龙突/凶威/斩获应已移除")
-	# 蓄力（赵云·龙骧卫）：大招击杀返怒 50%（基础，原龙突移除）。
+	# 蓄力（赵云·铁骑）：大招击杀返怒 50%（基础，原龙突移除）。
 	var zhao_yun := load("res://resources/characters/zhao_yun.tres") as CharacterData
-	var dragon_promo := load("res://resources/promotions/zhao_yun_dragon_guard.tres") as PromotionData
+	var dragon_promo := load("res://resources/promotions/cavalry_iron_rider.tres") as PromotionData
 	var dragon_tower: Tower = tower_manager.build_tower(Vector2(560, 640), zhao_yun, null, {"level": 10, "promotion": dragon_promo})
-	_check(dragon_tower != null and dragon_tower.has_skill(&"charge"), "龙骧卫应持有蓄力技能")
+	_check(dragon_tower != null and dragon_tower.has_skill(&"charge"), "铁骑应持有蓄力技能")
 	if dragon_tower:
 		dragon_tower.set_process(false)
 		_check(is_equal_approx(dragon_tower.kill_rage_refund(), 50.0), "龙骧卫蓄力基础返怒应为 50%")
 		_check(is_equal_approx(float(dragon_tower.get("_next_attack_bonus")), 0.0), "基础蓄力不应附带击杀下一击加成")
 		dragon_tower.queue_free()
-	# 蓄力+（关羽·青龙骑）：击杀后下一次攻击 +20%×s 一次性消耗。
-	var qinglong_promo := load("res://resources/promotions/guan_yu_qinglong.tres") as PromotionData
-	var qinglong_tower: Tower = tower_manager.build_tower(Vector2(560, 640), guan_yu, null, {"level": 20, "promotion": qinglong_promo})
-	_check(qinglong_tower != null and qinglong_tower.has_skill(&"charge"), "青龙骑应持有蓄力+技能")
-	if qinglong_tower:
-		qinglong_tower.set_process(false)
-		_check(qinglong_tower.get_skill_display_name(&"charge") == "蓄力+", "二转技能显示名应加 +")
-		_check(is_equal_approx(qinglong_tower.kill_rage_refund(), 50.0), "青龙骑返怒应保持 50%")
-		var qinglong_kill := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
-		qinglong_kill.set_process(false)
-		qinglong_kill.take_damage(9999, "guan_yu")
-		await get_tree().process_frame
-		_check(is_equal_approx(float(qinglong_tower.get("_next_attack_bonus")), 0.2), "青龙骑击杀后应蓄力下一次攻击 +20%")
-		var qinglong_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
-		qinglong_target.set_process(false)
-		_check(qinglong_tower.finalize_damage(qinglong_tower.damage, qinglong_target) == int(round(qinglong_tower.damage * 1.2)),
-			"蓄力+下一次伤害应 +20%")
-		_check(is_equal_approx(float(qinglong_tower.get("_next_attack_bonus")), 0.0), "蓄力+应一次性消耗")
-		qinglong_target.queue_free()
-		qinglong_tower.queue_free()
-	# 军旗（张飞·蛇矛先锋）：常驻光环，周围 150px 友方伤害 +4%×s。
-	var vanguard_promo := load("res://resources/promotions/zhang_fei_vanguard.tres") as PromotionData
-	var steady_promo := load("res://resources/promotions/huang_zhong_sharpshooter.tres") as PromotionData
+	# 蓄力+（关羽·玄甲）：二转强化线——大招击杀返怒 70%×s（SKILLS.md 4.1）。
+	var heavy_promo := load("res://resources/promotions/cavalry_heavy_armor.tres") as PromotionData
+	var heavy_tower: Tower = tower_manager.build_tower(Vector2(560, 640), guan_yu, null, {"level": 20, "promotion": heavy_promo})
+	_check(heavy_tower != null and heavy_tower.has_skill(&"charge"), "玄甲应持有蓄力+技能")
+	if heavy_tower:
+		heavy_tower.set_process(false)
+		_check(heavy_tower.get_skill_display_name(&"charge") == "蓄力+", "二转强化技能显示名应加 +")
+		_check(is_equal_approx(heavy_tower.kill_rage_refund(), 70.0), "玄甲蓄力+基准返怒应为 70%")
+		heavy_tower.battle_rank = 5
+		_check(is_equal_approx(heavy_tower.kill_rage_refund(), 77.0), "玄甲 5 阶返怒应为 77%（档位按局内升阶）")
+		heavy_tower.battle_rank = 20
+		_check(is_equal_approx(heavy_tower.kill_rage_refund(), 98.0), "玄甲 20 阶返怒应封顶 98%")
+		heavy_tower.queue_free()
+	# 军旗（张飞·虎贲军）：常驻光环，周围 150px 友方伤害 +4%×s。
+	var vanguard_promo := load("res://resources/promotions/tiger_guard_army.tres") as PromotionData
+	var steady_promo := load("res://resources/promotions/archer_strong_bow.tres") as PromotionData
 	var huang_zhong := load("res://resources/characters/huang_zhong.tres") as CharacterData
 	var skill_tank := EnemyData.new()
 	skill_tank.enemy_id = &"smoke_skill_tank"
@@ -742,7 +744,7 @@ func _run() -> void:
 	skill_tank.body_color = Color.GRAY
 	skill_tank.body_size = Vector2(40, 40)
 	var vanguard_tower: Tower = tower_manager.build_tower(Vector2(660, 640), zhang_fei, null, {"level": 10, "promotion": vanguard_promo})
-	_check(vanguard_tower != null and vanguard_tower.has_skill(&"command"), "蛇矛先锋应持有军旗技能")
+	_check(vanguard_tower != null and vanguard_tower.has_skill(&"command"), "虎贲军应持有军旗技能")
 	if vanguard_tower:
 		vanguard_tower.set_process(false)
 		var banner_ally: Tower = tower_manager.build_tower(Vector2(700, 640), guan_yu, null, {"level": 1})
@@ -757,9 +759,9 @@ func _run() -> void:
 		vanguard_tower.queue_free()
 		# 等一帧释放军旗塔，避免其光环污染稳射的伤害断言。
 		await get_tree().process_frame
-	# 稳射（黄忠·神射手）：保底触发——每 5 次攻击必追加 0.6× 普攻伤害。
+	# 稳射（黄忠·劲弓）：保底触发——每 5 次攻击必追加 0.6× 普攻伤害。
 	var steady_tower: Tower = tower_manager.build_tower(Vector2(660, 640), huang_zhong, null, {"level": 10, "promotion": steady_promo})
-	_check(steady_tower != null and steady_tower.has_skill(&"steady"), "神射手应持有稳射技能")
+	_check(steady_tower != null and steady_tower.has_skill(&"steady"), "劲弓应持有稳射技能")
 	if steady_tower:
 		steady_tower.set_process(false)
 		var steady_target := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
@@ -805,12 +807,12 @@ func _run() -> void:
 		_check(float(auto_tower.get("_ult_visual_time")) > 0.0, "自动释放应触发大招视觉")
 		auto_tower.queue_free()
 	mode_tank.queue_free()
-	# command（刘备·仁德统军）：150px 内友方伤害 +4% × s。
-	var commander_promo := load("res://resources/promotions/liu_bei_commander.tres") as PromotionData
+	# command（刘备·虎贲军）：150px 内友方伤害 +4% × s。
+	var commander_promo := load("res://resources/promotions/tiger_guard_army.tres") as PromotionData
 	var commander_tower: Tower = tower_manager.build_tower(Vector2(760, 640), liu_bei, null, {"level": 10, "promotion": commander_promo})
 	var command_ally_in: Tower = tower_manager.build_tower(Vector2(820, 640), guan_yu, null, {"level": 1})
 	var command_ally_out: Tower = tower_manager.build_tower(Vector2(1040, 640), guan_yu, null, {"level": 1})
-	_check(commander_tower != null and commander_tower.has_skill(&"command"), "仁德统军应持有军旗技能")
+	_check(commander_tower != null and commander_tower.has_skill(&"command"), "虎贲军应持有军旗技能")
 	if commander_tower and command_ally_in and command_ally_out:
 		commander_tower.set_process(false)
 		command_ally_in.set_process(false)

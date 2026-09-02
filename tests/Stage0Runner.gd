@@ -69,6 +69,7 @@ func _run() -> void:
 	_test_player_profile()
 	_test_battle_session_contract()
 	_test_save_manager_corruption_fallback()
+	_test_save_migration_v1_to_v2()
 	_restore_profile_files()
 	_finish()
 
@@ -152,8 +153,8 @@ func _test_data_resources() -> void:
 	_check(chapter.is_valid(), "ChapterData 基础数据应有效")
 
 	var promotion = promotion_script.new()
-	promotion.promotion_id = &"guan_yu_charger"
-	promotion.display_name = "突击骑"
+	promotion.promotion_id = &"cavalry_iron_rider"
+	promotion.display_name = "铁骑"
 	promotion.required_level = 10
 	_check(promotion.is_valid(), "PromotionData 基础数据应有效")
 
@@ -196,11 +197,11 @@ func _test_player_profile() -> void:
 	_check(not profile.spend_item("yellow_turban_cloth", 99), "材料不足时消耗应失败且不改数量")
 	_check(profile.spend_item("yellow_turban_cloth", 10), "材料充足时应能消耗")
 	_check(int(profile.items.get("yellow_turban_cloth", 0)) == 0, "消耗后数量应正确")
-	_check(profile.set_promotion_path("guan_yu", ["guan_yu_charger"]), "转职路径应能写入")
+	_check(profile.set_promotion_path("guan_yu", ["cavalry_iron_rider"]), "转职路径应能写入")
 	var promotion_roundtrip = script.new()
 	promotion_roundtrip.load_dict(profile.to_dict())
 	_check(
-		promotion_roundtrip.get_character("guan_yu").get("promotion_path", []) == ["guan_yu_charger"],
+		promotion_roundtrip.get_character("guan_yu").get("promotion_path", []) == ["cavalry_iron_rider"],
 		"转职路径应随存档往返保留",
 	)
 
@@ -355,6 +356,44 @@ func _test_save_manager_corruption_fallback() -> void:
 		_check(not manager.commit_victory(defeat_session, commit_profile), "失败战局不可通过胜利接口提交")
 		_check(commit_profile.get_character_exp("commit_probe") == 41, "失败战局不应改变永久经验")
 
+
+func _test_save_migration_v1_to_v2() -> void:
+		# 阶段 8 提交 6（v0.31.0）：存档 schema v1→v2——旧角色绑定转职路径作废清空。
+		if not ResourceLoader.exists(SAVE_MANAGER_PATH):
+			return
+		var script := load(SAVE_MANAGER_PATH) as Script
+		_check(script != null, "SaveManager.gd 无法加载")
+		if script == null:
+			return
+		var manager = script.new()
+		_check(manager.has_method("_migrate_to_current"), "SaveManager 应提供 _migrate_to_current")
+		if not manager.has_method("_migrate_to_current"):
+			return
+		var old_data := {
+			"schema_version": 1,
+			"characters": {
+				"guan_yu": {"promotion_path": ["guan_yu_charger", "guan_yu_wusheng"], "total_exp": 100},
+				"liu_bei": {"promotion_path": ["liu_bei_commander"], "total_exp": 50},
+			},
+			"items": {"yellow_turban_cloth": 5},
+			"stage_progress": {},
+			"gacha_state": {},
+		}
+		var migrated: Dictionary = manager._migrate_to_current(old_data)
+		_check(bool(migrated.get("ok", false)), "v1 存档迁移应成功")
+		if not bool(migrated.get("ok", false)):
+			return
+		_check(bool(migrated.get("migrated", false)), "v1 存档应标记为已迁移")
+		var migrated_data: Dictionary = migrated.get("data", {})
+		_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
+			"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
+		var chars: Dictionary = migrated_data.get("characters", {})
+		_check(chars.get("guan_yu", {}).get("promotion_path", []) == [], "v1 迁移应清空关羽旧转职路径")
+		_check(chars.get("liu_bei", {}).get("promotion_path", []) == [], "v1 迁移应清空刘备旧转职路径")
+		_check(int(chars.get("guan_yu", {}).get("total_exp", 0)) == 100, "迁移应保留角色经验")
+		var idempotent: Dictionary = manager._migrate_to_current(migrated_data)
+		_check(bool(idempotent.get("ok", false)) and not bool(idempotent.get("migrated", false)),
+			"v2 存档重复迁移应为幂等（不重复迁移）")
 
 func _load_first_script(paths: Array) -> Script:
 	for path in paths:

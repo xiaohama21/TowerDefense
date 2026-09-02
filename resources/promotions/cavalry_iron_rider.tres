@@ -12,17 +12,18 @@ amount = 10
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"zhao_yun_dragon_guard"
-display_name = "龙骧卫"
-description = "赵云的一转路线，龙胆枪出、进退如风，蓄力返怒连发大招。"
+promotion_id = &"cavalry_iron_rider"
+display_name = "铁骑"
+description = "骑兵一转：铁骑冲锋，蓄力返怒形成大招连发循环。"
 parent_id = &""
-next_promotion_ids = []
+next_promotion_ids = [&"cavalry_heavy_armor", &"cavalry_swift_raider"]
 target_profession = ExtResource("2_profession")
 required_level = 10
 damage_multiplier = 1.2
-range_multiplier = 1.05
+range_multiplier = 1
 attack_interval_multiplier = 0.9
+ultimate_multiplier = 1
 granted_skill_ids = [&"charge"]
 skill_params = {"base_refund": 50}
-visual_variant_id = &"zhao_yun_dragon_guard"
+visual_variant_id = &"cavalry_iron_rider"
 item_costs = [SubResource("ItemAmountData_cloth10")]

@@ -32,6 +32,7 @@ var _detail_name_label: Label
 var _exp_bar: ProgressBar
 var _exp_label: Label
 var _stats_label: Label
+var _title_label: Label
 var _promotion_label: Label
 var _promotion_buttons: Array[Button] = []
 var _promotion_buttons_box: VBoxContainer
@@ -202,6 +203,10 @@ func _build_ui() -> void:
 	_stats_label.add_theme_font_size_override("font_size", 16)
 	_stats_label.add_theme_color_override("font_color", UITheme.BLUE)
 	info_box.add_child(_stats_label)
+	_title_label = Label.new()
+	_title_label.add_theme_font_size_override("font_size", 14)
+	_title_label.add_theme_color_override("font_color", UITheme.GOLD)
+	info_box.add_child(_title_label)
 
 	var exp_scroll_row := HBoxContainer.new()
 	exp_scroll_row.add_theme_constant_override("separation", 12)
@@ -322,6 +327,8 @@ func _refresh() -> void:
 		character.profession.display_name if character.profession != null else "未知职业",
 		level,
 	]
+	# 角色称号（v0.28 纯记录无机制，CHARACTERS.md 4.5 称号表）：原角色专属转职名。
+	_title_label.text = "称号：%s" % (" / ".join(character.titles) if not character.titles.is_empty() else "无")
 	_exp_bar.max_value = maxi(int(progress.exp_for_next), 1)
 	_exp_bar.value = int(progress.exp_into_level)
 	if progress.is_max_level:

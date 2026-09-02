@@ -5,24 +5,25 @@
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
-[sub_resource type="Resource" id="ItemAmountData_cloth10"]
+[sub_resource type="Resource" id="ItemAmountData_cloth20"]
 script = ExtResource("3_amount")
 item = ExtResource("4_cloth")
-amount = 10
+amount = 20
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"zhang_fei_vanguard"
-display_name = "蛇矛先锋"
-description = "张飞的一转路线，攻速与爆发并进，树起军旗鼓舞友军。"
-parent_id = &""
+promotion_id = &"tiger_guard_guard"
+display_name = "虎卫"
+description = "虎贲二转新技能：贴身护卫（护卫，提交 7 接入），数值略低。"
+parent_id = &"tiger_guard_army"
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")
-required_level = 10
+required_level = 20
 damage_multiplier = 1.25
-range_multiplier = 1.0
-attack_interval_multiplier = 0.95
+range_multiplier = 1
+attack_interval_multiplier = 0.9
+ultimate_multiplier = 1.15
 granted_skill_ids = [&"command"]
 skill_params = {"ally_damage_bonus": 0.04, "radius": 150.0}
-visual_variant_id = &"zhang_fei_vanguard"
-item_costs = [SubResource("ItemAmountData_cloth10")]
+visual_variant_id = &"tiger_guard_guard"
+item_costs = [SubResource("ItemAmountData_cloth20")]

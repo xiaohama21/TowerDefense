@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
-[ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
@@ -12,18 +12,18 @@ amount = 20
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"guan_yu_qinglong"
-display_name = "青龙骑"
-description = "关羽的二转路线：强化快攻连击——攻速大幅提升，击杀蓄力下一次攻击。"
-parent_id = &"guan_yu_charger"
+promotion_id = &"tiger_guard_vanguard"
+display_name = "陷阵"
+description = "虎贲二转强化：陷阵之士，军旗+范围与效果提升。"
+parent_id = &"tiger_guard_army"
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")
 required_level = 20
-damage_multiplier = 1.25
-range_multiplier = 1.05
-attack_interval_multiplier = 0.7
-ultimate_multiplier = 1.15
-granted_skill_ids = [&"charge"]
-skill_params = {"base_refund": 50, "next_hit_bonus": 0.2}
-visual_variant_id = &"guan_yu_qinglong"
+damage_multiplier = 1.35
+range_multiplier = 1
+attack_interval_multiplier = 0.9
+ultimate_multiplier = 1.25
+granted_skill_ids = [&"command"]
+skill_params = {"ally_damage_bonus": 0.06, "radius": 180.0}
+visual_variant_id = &"tiger_guard_vanguard"
 item_costs = [SubResource("ItemAmountData_cloth20")]

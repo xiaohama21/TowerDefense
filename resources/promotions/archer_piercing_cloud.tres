@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
+[ext_resource type="Resource" path="res://resources/professions/archer.tres" id="2_profession"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
+[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
+
+[sub_resource type="Resource" id="ItemAmountData_cloth20"]
+script = ExtResource("3_amount")
+item = ExtResource("4_cloth")
+amount = 20
+
+[resource]
+script = ExtResource("1_promotion")
+promotion_id = &"archer_piercing_cloud"
+display_name = "穿云"
+description = "弓箭手二转强化：穿云之箭，稳射+追加伤害提升。"
+parent_id = &"archer_strong_bow"
+next_promotion_ids = []
+target_profession = ExtResource("2_profession")
+required_level = 20
+damage_multiplier = 1.3
+range_multiplier = 1.15
+attack_interval_multiplier = 0.9
+ultimate_multiplier = 1.25
+granted_skill_ids = [&"steady"]
+skill_params = {"every": 5, "mult": 0.8}
+visual_variant_id = &"archer_piercing_cloud"
+item_costs = [SubResource("ItemAmountData_cloth20")]

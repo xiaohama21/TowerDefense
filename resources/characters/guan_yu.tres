@@ -16,7 +16,8 @@ base_range = 130.0
 attack_interval = 1.15
 projectile_speed = 460.0
 damage_growth_per_level = 5.5
-promotion_ids = [&"guan_yu_charger"]
+promotion_ids = [&"cavalry_iron_rider"]
+titles = ["突击骑", "武圣", "青龙骑"]
 character_skill_id = &"char_green_dragon"
 character_skill_params = {
 "cooldown": 18.0,

@@ -16,7 +16,8 @@ base_range = 145.0
 attack_interval = 1.4
 projectile_speed = 380.0
 damage_growth_per_level = 2.0
-promotion_ids = [&"diao_chan_inspirer"]
+promotion_ids = [&"dancer_master"]
+titles = ["倾城鼓舞"]
 character_skill_id = &"char_moon_dance"
 character_skill_params = {
 "cooldown": 25.0,

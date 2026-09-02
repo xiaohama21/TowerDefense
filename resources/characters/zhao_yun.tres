@@ -16,7 +16,8 @@ base_range = 120.0
 attack_interval = 0.75
 projectile_speed = 460.0
 damage_growth_per_level = 5.0
-promotion_ids = [&"zhao_yun_dragon_guard"]
+promotion_ids = [&"cavalry_iron_rider"]
+titles = ["龙骧卫"]
 character_skill_id = &"char_seven_charges"
 character_skill_params = {
 "mult": 1.0,

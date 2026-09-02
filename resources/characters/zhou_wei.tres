@@ -16,7 +16,8 @@ base_range = 115.0
 attack_interval = 0.9
 projectile_speed = 400.0
 damage_growth_per_level = 5.0
-promotion_ids = [&"zhou_wei_loyal_guard"]
+promotion_ids = [&"tiger_guard_army"]
+titles = ["忠勇护卫"]
 character_skill_id = &"char_death_fight"
 character_skill_params = {
 "hp_threshold": 0.5,

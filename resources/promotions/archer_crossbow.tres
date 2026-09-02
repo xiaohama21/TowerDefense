@@ -5,24 +5,25 @@
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
-[sub_resource type="Resource" id="ItemAmountData_cloth10"]
+[sub_resource type="Resource" id="ItemAmountData_cloth20"]
 script = ExtResource("3_amount")
 item = ExtResource("4_cloth")
-amount = 10
+amount = 20
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"huang_zhong_sharpshooter"
-display_name = "神射手"
-description = "黄忠的一转路线，箭无虚发、射程更远，每五箭必出追命一箭。"
-parent_id = &""
+promotion_id = &"archer_crossbow"
+display_name = "连弩"
+description = "弓箭手二转新技能：连弩齐射（连矢，提交 7 接入），数值略低。"
+parent_id = &"archer_strong_bow"
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")
-required_level = 10
-damage_multiplier = 1.2
-range_multiplier = 1.15
-attack_interval_multiplier = 1.0
+required_level = 20
+damage_multiplier = 1.25
+range_multiplier = 1.1
+attack_interval_multiplier = 0.9
+ultimate_multiplier = 1.15
 granted_skill_ids = [&"steady"]
-skill_params = {"mult": 0.6, "every": 5}
-visual_variant_id = &"huang_zhong_sharpshooter"
-item_costs = [SubResource("ItemAmountData_cloth10")]
+skill_params = {"every": 5, "mult": 0.6}
+visual_variant_id = &"archer_crossbow"
+item_costs = [SubResource("ItemAmountData_cloth20")]

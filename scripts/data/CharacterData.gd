@@ -22,6 +22,10 @@ class_name CharacterData
 @export_range(0.0, 100.0, 0.1) var range_growth_per_level: float = 0.0
 @export var promotion_ids: Array[StringName] = []
 
+@export_category("Title (v0.28 角色称号，纯记录无机制)")
+## 原角色专属转职名保留为角色称号（CHARACTERS.md 4.5 称号表），仅作展示/记录。
+@export var titles: Array[String] = []
+
 @export_category("Character Skill (阶段 8·提交 6，CHARACTER_SKILLS.md v0.1)")
 ## 角色专属技能 ID（武将差异化；A 主动冷却 / B 条件触发，与职业技能解耦、不参与档位）。
 @export var character_skill_id: StringName

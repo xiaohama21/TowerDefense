@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PromotionData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/PromotionData.gd" id="1_promotion"]
-[ext_resource type="Resource" path="res://resources/professions/cavalry.tres" id="2_profession"]
+[ext_resource type="Resource" path="res://resources/professions/catapult.tres" id="2_profession"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="3_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="4_cloth"]
 
@@ -12,18 +12,18 @@ amount = 20
 
 [resource]
 script = ExtResource("1_promotion")
-promotion_id = &"guan_yu_wusheng"
-display_name = "武圣"
-description = "关羽的二转路线：强化单体斩杀——大招伤害大幅提升，charge 返还增强。"
-parent_id = &"guan_yu_charger"
+promotion_id = &"catapult_city_breaker"
+display_name = "拔城"
+description = "投石车二转强化：拔城破垒，破城+对精英/Boss 增伤大幅提升。"
+parent_id = &"catapult_thunder"
 next_promotion_ids = []
 target_profession = ExtResource("2_profession")
 required_level = 20
 damage_multiplier = 1.35
-range_multiplier = 1.0
-attack_interval_multiplier = 0.85
-ultimate_multiplier = 1.4
-granted_skill_ids = [&"charge"]
-skill_params = {"base_refund": 70}
-visual_variant_id = &"guan_yu_wusheng"
+range_multiplier = 1.1
+attack_interval_multiplier = 0.9
+ultimate_multiplier = 1.3
+granted_skill_ids = [&"siege"]
+skill_params = {"elite_damage_bonus": 0.15}
+visual_variant_id = &"catapult_city_breaker"
 item_costs = [SubResource("ItemAmountData_cloth20")]

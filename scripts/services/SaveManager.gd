@@ -333,6 +333,25 @@ func _write_primary_without_rotation(source: PlayerProfile) -> bool:
 	return true
 
 
+## v1 → v2（阶段 8·提交 6，职业级转职树落地）：旧角色绑定转职 ID 已废弃删除，
+## promotion_path 一律清空，玩家按职业级转职树（6 职业 × 一转 → 二转 2 分支）重新转职。
+func _migrate_v1_to_v2(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var characters: Dictionary = {}
+	if data.get("characters", {}) is Dictionary:
+		characters = data.get("characters", {}).duplicate(true)
+	for character_id in characters.keys():
+		var entry = characters[character_id]
+		if not entry is Dictionary:
+			continue
+		entry = entry.duplicate(true)
+		entry["promotion_path"] = []
+		characters[character_id] = entry
+	data["schema_version"] = 2
+	data["characters"] = characters
+	return data
+
+
 ## Migration entry point. Add one version step at a time as schemas evolve.
 func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	var data := raw_data.duplicate(true)
@@ -347,6 +366,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			0:
 				data = _migrate_v0_to_v1(data)
 				version = 1
+				migrated = true
+			1:
+				data = _migrate_v1_to_v2(data)
+				version = 2
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

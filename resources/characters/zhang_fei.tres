@@ -16,7 +16,8 @@ base_range = 120.0
 attack_interval = 0.7
 projectile_speed = 400.0
 damage_growth_per_level = 4.0
-promotion_ids = [&"zhang_fei_vanguard"]
+promotion_ids = [&"tiger_guard_army"]
+titles = ["蛇矛先锋"]
 character_skill_id = &"char_dangyang_roar"
 character_skill_params = {
 "cooldown": 22.0,
