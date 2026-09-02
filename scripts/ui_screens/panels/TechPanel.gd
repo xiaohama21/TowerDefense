@@ -1,10 +1,12 @@
 extends VBoxContainer
 
-## 科技树面板（阶段 8 提交 3；v0.30.2 树状重构）：
-## 四类分页（军略/后勤/工事/将略）+ 树状布局（前置链分列、tier 分层、竖线连接）+
+## 科技树面板（阶段 8 提交 3；v0.30.2 树状重构、v0.30.3 布局修正）：
+## 四类分页（军略/后勤/工事/将略）+ 树状布局——行 = tier 层级（同级并排）、列 = 前置链，
+## 根节点金边、叶子节点绿边、中间节点灰边，父→子以竖线连接；
 ## 点击节点显示详情与解锁操作；科技重置（v0.23.0 拍板）无条件——免费/不限次数/全额返还（v0.30.2 补确认框）。
 
-const NODE_SIZE := Vector2(140, 62)
+const NODE_MIN_WIDTH := 116
+const NODE_HEIGHT := 62
 
 var _points_label: Label
 var _tab_container: TabContainer
@@ -20,7 +22,7 @@ var _node_buttons: Dictionary = {}
 
 
 func _ready() -> void:
-	add_theme_constant_override("separation", 10)
+	add_theme_constant_override("separation", 8)
 	_build_ui()
 	_refresh()
 
@@ -50,7 +52,14 @@ func _build_ui() -> void:
 	reset_button.pressed.connect(_on_reset_pressed)
 	top_row.add_child(reset_button)
 
+	var legend := Label.new()
+	legend.text = "图例：金边=根节点（起点） · 绿边=叶子节点（终点） · 竖线=前置关系"
+	legend.add_theme_font_size_override("font_size", 12)
+	legend.add_theme_color_override("font_color", UITheme.GRAY)
+	add_child(legend)
+
 	_tab_container = TabContainer.new()
+	_tab_container.name = "Tabs"
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_tab_container)
 	for category in TechTree.get_categories():
@@ -60,28 +69,35 @@ func _build_ui() -> void:
 	_build_confirm_dialog()
 
 
-## 树状布局：每个分类内按前置链分列（GridContainer 列 = 链），
-## 列内节点按 tier 从上到下排列，节点间以竖线连接，形成清晰的树形结构。
+## 树状布局：GridContainer 按「行 = tier 层级、列 = 前置链」排布，
+## 同一 tier 的节点并排展示；链内父→子之间插入竖线连接行；无节点的格子以占位保持列对齐。
 func _build_tree(category: String) -> Control:
 	var scroll := ScrollContainer.new()
 	scroll.name = category
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var chains := _get_chains(category)
 	var grid := GridContainer.new()
 	grid.name = "TreeGrid"
-	grid.add_theme_constant_override("h_separation", 16)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.columns = chains.size()
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 2)
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(grid)
-	for chain in _get_chains(category):
-		var column := VBoxContainer.new()
-		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		column.add_theme_constant_override("separation", 4)
-		for i in chain.size():
-			var item: TechItemData = chain[i]
-			column.add_child(_make_node_button(item))
-			if i < chain.size() - 1:
-				column.add_child(_make_connector())
-		grid.add_child(column)
+	var max_tier := 1
+	for chain in chains:
+		var last: TechItemData = chain[chain.size() - 1]
+		max_tier = maxi(max_tier, last.tier)
+	for tier in range(1, max_tier + 1):
+		if tier > 1:
+			# 连接行：链在该层有节点才显示竖线，其余格子占位保持列对齐。
+			for chain in chains:
+				grid.add_child(_make_connector(_chain_item_at_tier(chain, tier) != null))
+		for chain in chains:
+			var item := _chain_item_at_tier(chain, tier)
+			if item != null:
+				grid.add_child(_make_node_button(item, _is_chain_root(chain, item), _is_chain_leaf(chain, item)))
+			else:
+				grid.add_child(Control.new())
 	return scroll
 
 
@@ -111,26 +127,44 @@ func _get_chains(category: String) -> Array:
 	return chains
 
 
-func _make_node_button(item: TechItemData) -> Button:
+func _chain_item_at_tier(chain: Array, tier: int) -> TechItemData:
+	for item in chain:
+		if item.tier == tier:
+			return item
+	return null
+
+
+func _is_chain_root(chain: Array, item: TechItemData) -> bool:
+	return item.id == (chain[0] as TechItemData).id
+
+
+func _is_chain_leaf(chain: Array, item: TechItemData) -> bool:
+	return item.id == (chain[chain.size() - 1] as TechItemData).id
+
+
+func _make_node_button(item: TechItemData, is_root: bool, is_leaf: bool) -> Button:
 	var button := Button.new()
-	button.custom_minimum_size = NODE_SIZE
+	button.custom_minimum_size = Vector2(NODE_MIN_WIDTH, NODE_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	button.add_theme_font_size_override("font_size", 15)
 	button.toggle_mode = true
 	button.pressed.connect(_on_node_pressed.bind(item))
 	button.set_meta("tech_id", item.id)
+	button.set_meta("is_root", is_root)
+	button.set_meta("is_leaf", is_leaf)
 	_node_buttons[item.id] = button
 	return button
 
 
-func _make_connector() -> Control:
-	var connector := CenterContainer.new()
-	var line := ColorRect.new()
-	line.color = UITheme.DISABLED
-	line.custom_minimum_size = Vector2(2, 14)
-	connector.add_child(line)
-	return connector
+func _make_connector(has_child: bool) -> Control:
+	var cell := CenterContainer.new()
+	if has_child:
+		var line := ColorRect.new()
+		line.color = UITheme.DISABLED
+		line.custom_minimum_size = Vector2(2, 16)
+		cell.add_child(line)
+	return cell
 
 
 func _build_detail_panel() -> void:
@@ -207,7 +241,8 @@ func _refresh() -> void:
 		_show_detail(_selected_item)
 
 
-## 节点状态：已解锁=绿、可解锁=金（点数不足=正文色）、前置未满足=灰锁。
+## 节点状态：已解锁=绿、可解锁=金（点数不足=正文色）、前置未满足=灰锁；
+## 层级描边：根节点=金边、叶子节点=绿边、中间节点=灰边（文字色仍表状态）。
 func _refresh_node(button: Button, item: TechItemData) -> void:
 	var profile := ProfileStore.get_profile()
 	var unlocked := TechTree.is_unlocked(profile, item.id)
@@ -223,22 +258,47 @@ func _refresh_node(button: Button, item: TechItemData) -> void:
 		button.text = "%s\n需前置科技" % item.name
 		state_color = UITheme.DISABLED
 	button.add_theme_color_override("font_color", state_color)
+	button.add_theme_stylebox_override("normal", _make_node_style(button, false))
+	button.add_theme_stylebox_override("hover", _make_node_style(button, true))
 	var selected := _selected_item != null and _selected_item.id == item.id
 	_apply_node_selected_style(button, selected)
 
 
-## 选中节点：金色描边 + 按下态保持（不改变状态色语义）。
+## 层级样式：根=金边、叶=绿边、中间=灰边；hover 底色加深。
+func _make_node_style(button: Button, hover: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = UITheme.PANEL_BG.darkened(0.12 if hover else 0.0)
+	style.set_corner_radius_all(8)
+	style.set_border_width_all(2)
+	if bool(button.get_meta("is_root", false)):
+		style.border_color = UITheme.SELECT_BORDER
+	elif bool(button.get_meta("is_leaf", false)):
+		style.border_color = UITheme.GREEN.darkened(0.35)
+	else:
+		style.border_color = UITheme.SIDEBAR_BORDER
+	style.content_margin_left = 6
+	style.content_margin_right = 6
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	return style
+
+
+## 选中节点：金色底 + 深色文字（覆盖按下态，不改变层级描边语义）。
 func _apply_node_selected_style(button: Button, selected: bool) -> void:
 	if selected:
 		var style := StyleBoxFlat.new()
-		style.bg_color = UITheme.PANEL_BG
+		style.bg_color = UITheme.SELECT_BG
 		style.border_color = UITheme.SELECT_BORDER
 		style.set_border_width_all(2)
 		style.set_corner_radius_all(6)
 		button.add_theme_stylebox_override("pressed", style)
+		button.add_theme_color_override("font_pressed_color", UITheme.SELECT_TEXT)
+		button.add_theme_color_override("font_hover_pressed_color", UITheme.SELECT_TEXT)
 		button.set_pressed_no_signal(true)
 	else:
 		button.remove_theme_stylebox_override("pressed")
+		button.remove_theme_color_override("font_pressed_color")
+		button.remove_theme_color_override("font_hover_pressed_color")
 		button.set_pressed_no_signal(false)
 
 
@@ -283,7 +343,7 @@ func _show_default_detail() -> void:
 	_detail_state.text = ""
 	_unlock_button.text = ""
 	_unlock_button.disabled = true
-	_detail_summary.text = "点击科技节点查看详细说明；同一列节点需逐级解锁。"
+	_detail_summary.text = "点击科技节点查看详细说明；同一链（同列）节点需逐级解锁。"
 	_detail_desc.text = ""
 
 
