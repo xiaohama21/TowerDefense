@@ -159,21 +159,28 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 ## 首通奖励文案：解锁武将 + 首通道具 + Boss 首通信物。
 func _first_clear_text(stage: StageData) -> String:
 	var parts: Array[String] = []
+	var character_names: Array[String] = []
 	for character_id in stage.first_clear_unlock_character_ids:
 		var character := GameFlow.load_character_data(str(character_id))
-		parts.append(character.display_name if character != null else str(character_id))
+		character_names.append(character.display_name if character != null else str(character_id))
+	if not character_names.is_empty():
+		parts.append("解锁武将：%s" % "、".join(character_names))
+	var item_parts: Array[String] = []
 	for reward in stage.first_clear_rewards:
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue
-		parts.append("%s×%d" % [reward.item.display_name, reward.amount])
+		item_parts.append("%s×%d" % [reward.item.display_name, reward.amount])
+	if not item_parts.is_empty():
+		parts.append("、".join(item_parts))
 	if stage.first_clear_relic != null:
-		parts.append(stage.first_clear_relic.display_name)
+		parts.append("信物：%s" % stage.first_clear_relic.display_name)
 	if parts.is_empty():
 		return "无固定奖励"
-	return "、".join(parts)
+	return "；".join(parts)
 
 
 func _refresh_stages() -> void:
+	_status_label.visible = false
 	for child in _stage_grid.get_children():
 		child.queue_free()
 	_stage_cards.clear()
@@ -233,8 +240,9 @@ func _refresh_action_bar() -> void:
 		_selected_difficulty = 1
 	if not GameFlow.is_difficulty_unlocked(profile, stage.stage_id, _selected_difficulty):
 		_selected_difficulty = 1
-	_summary_label.text = "第 %d 关 · %s —— %s\n首通：%s" % [
-		stage.stage_number, stage.display_name, stage.description, _first_clear_text(stage),
+	_summary_label.text = "第 %d 关 · %s —— %s\n当前难度：%s\n首通：%s" % [
+		stage.stage_number, stage.display_name, stage.description,
+		Difficulty.NAMES[_selected_difficulty], _first_clear_text(stage),
 	]
 	_summary_label.add_theme_color_override("font_color", UITheme.TEXT if unlocked else UITheme.DISABLED)
 	_deploy_button.disabled = not unlocked
