@@ -97,19 +97,24 @@ func _build_ui() -> void:
 	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	columns.add_child(list_scroll)
-	var character_grid := GridContainer.new()
-	character_grid.columns = 2
-	character_grid.add_theme_constant_override("h_separation", 8)
-	character_grid.add_theme_constant_override("v_separation", 8)
-	character_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list_scroll.add_child(character_grid)
+	var list_box := VBoxContainer.new()
+	list_box.add_theme_constant_override("separation", 6)
+	list_scroll.add_child(list_box)
+
+	# 已拥有武将网格（v0.30.5：与未解锁分组分离，标题不再混入网格格子）。
+	var owned_grid := GridContainer.new()
+	owned_grid.columns = 2
+	owned_grid.add_theme_constant_override("h_separation", 8)
+	owned_grid.add_theme_constant_override("v_separation", 8)
+	owned_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_box.add_child(owned_grid)
 
 	if _owned.is_empty():
 		var empty := Label.new()
 		empty.text = "暂无武将，请先开始游戏"
 		empty.add_theme_font_size_override("font_size", 16)
 		empty.add_theme_color_override("font_color", UITheme.GRAY)
-		character_grid.add_child(empty)
+		owned_grid.add_child(empty)
 
 	for character_data in _owned:
 		var character_id := str(character_data.character_id)
@@ -123,28 +128,34 @@ func _build_ui() -> void:
 		button.toggle_mode = true
 		button.pressed.connect(_on_character_pressed.bind(character_id))
 		UITheme.apply_selected_style(button)
-		character_grid.add_child(button)
+		owned_grid.add_child(button)
 		_character_buttons[character_id] = button
 
 	if not _locked_ids.is_empty():
 		var hint := Label.new()
-		hint.text = "未解锁武将"
+		hint.text = "未解锁武将（首通对应关卡解锁）"
 		hint.add_theme_font_size_override("font_size", 13)
 		hint.add_theme_color_override("font_color", UITheme.GRAY)
-		character_grid.add_child(hint)
-	for character_id in _locked_ids:
-		var character_data := GameFlow.load_character_data(character_id)
-		if character_data == null:
-			continue
-		var locked_button := Button.new()
-		locked_button.text = "%s\n%s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
-		locked_button.custom_minimum_size = Vector2(150, 50)
-		locked_button.add_theme_font_size_override("font_size", 13)
-		locked_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		locked_button.add_theme_color_override("font_color", UITheme.DISABLED)
-		locked_button.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
-		locked_button.disabled = true
-		character_grid.add_child(locked_button)
+		list_box.add_child(hint)
+		var locked_grid := GridContainer.new()
+		locked_grid.columns = 2
+		locked_grid.add_theme_constant_override("h_separation", 8)
+		locked_grid.add_theme_constant_override("v_separation", 8)
+		locked_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		list_box.add_child(locked_grid)
+		for character_id in _locked_ids:
+			var character_data := GameFlow.load_character_data(character_id)
+			if character_data == null:
+				continue
+			var locked_button := Button.new()
+			locked_button.text = "%s\n%s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
+			locked_button.custom_minimum_size = Vector2(150, 50)
+			locked_button.add_theme_font_size_override("font_size", 13)
+			locked_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			locked_button.add_theme_color_override("font_color", UITheme.DISABLED)
+			locked_button.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
+			locked_button.disabled = true
+			locked_grid.add_child(locked_button)
 
 	# 右侧：基础信息卡 + 页签区。
 	var right_column := VBoxContainer.new()

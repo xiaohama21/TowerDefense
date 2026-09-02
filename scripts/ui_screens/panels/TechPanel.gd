@@ -63,7 +63,7 @@ func _build_ui() -> void:
 	top_row.add_child(debug_button)
 
 	var legend := Label.new()
-	legend.text = "图例：金边=根节点（起点） · 绿边=叶子节点（终点） · 竖线=前置关系"
+	legend.text = "图例：◆ 根节点（起点） · ○ 叶子节点（终点） · 边框色=状态（金=可解锁/绿=已解锁/灰=需前置） · 竖线=前置关系"
 	legend.add_theme_font_size_override("font_size", 12)
 	legend.add_theme_color_override("font_color", UITheme.GRAY)
 	add_child(legend)
@@ -252,40 +252,45 @@ func _refresh() -> void:
 
 
 ## 节点状态：已解锁=绿、可解锁=金（点数不足=正文色）、前置未满足=灰锁；
-## 层级描边：根节点=金边、叶子节点=绿边、中间节点=灰边（文字色仍表状态）。
+## 边框色表状态（醒目），根/叶层级用 ◆ / ○ 前缀区分。
 func _refresh_node(button: Button, item: TechItemData) -> void:
 	var profile := ProfileStore.get_profile()
 	var unlocked := TechTree.is_unlocked(profile, item.id)
 	var prereq_ok := TechTree.prerequisites_met(profile, item)
+	var marker := _node_marker(button)
 	var state_color := UITheme.TEXT
 	if unlocked:
-		button.text = "%s\n已解锁 ✓" % item.name
+		button.text = "%s%s\n已解锁 ✓" % [marker, item.name]
 		state_color = UITheme.GREEN
 	elif prereq_ok:
-		button.text = "%s\n解锁（%d 点）" % [item.name, item.cost]
+		button.text = "%s%s\n解锁（%d 点）" % [marker, item.name, item.cost]
 		state_color = UITheme.GOLD if profile.tech_points >= item.cost else UITheme.TEXT
 	else:
-		button.text = "%s\n需前置科技" % item.name
+		button.text = "%s%s\n需前置科技" % [marker, item.name]
 		state_color = UITheme.DISABLED
 	button.add_theme_color_override("font_color", state_color)
-	button.add_theme_stylebox_override("normal", _make_node_style(button, false))
-	button.add_theme_stylebox_override("hover", _make_node_style(button, true))
+	button.add_theme_stylebox_override("normal", _make_node_style(state_color, false))
+	button.add_theme_stylebox_override("hover", _make_node_style(state_color, true))
 	var selected := _selected_item != null and _selected_item.id == item.id
 	_apply_node_selected_style(button, selected)
 
 
-## 层级样式：根=金边、叶=绿边、中间=灰边；hover 底色加深。
-func _make_node_style(button: Button, hover: bool) -> StyleBoxFlat:
+## 层级前缀：根节点 ◆、叶子节点 ○、中间节点无。
+func _node_marker(button: Button) -> String:
+	if bool(button.get_meta("is_root", false)):
+		return "◆ "
+	if bool(button.get_meta("is_leaf", false)):
+		return "○ "
+	return ""
+
+
+## 节点样式：边框色 = 状态色（绿/金/灰）；hover 底色加深。
+func _make_node_style(state_color: Color, hover: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = UITheme.PANEL_BG.darkened(0.12 if hover else 0.0)
 	style.set_corner_radius_all(8)
 	style.set_border_width_all(2)
-	if bool(button.get_meta("is_root", false)):
-		style.border_color = UITheme.SELECT_BORDER
-	elif bool(button.get_meta("is_leaf", false)):
-		style.border_color = UITheme.GREEN.darkened(0.35)
-	else:
-		style.border_color = UITheme.SIDEBAR_BORDER
+	style.border_color = state_color
 	style.content_margin_left = 6
 	style.content_margin_right = 6
 	style.content_margin_top = 4
@@ -293,7 +298,8 @@ func _make_node_style(button: Button, hover: bool) -> StyleBoxFlat:
 	return style
 
 
-## 选中节点：金色底 + 深色文字（覆盖按下态，不改变层级描边语义）。
+## 选中节点：金色底 + 深色文字，覆盖 normal/hover/pressed/hover_pressed 四态，
+## 鼠标悬停与离开均保持高亮（v0.30.5 修复：原只覆盖 pressed，悬停时退回 hover 样式导致看不出选中）。
 func _apply_node_selected_style(button: Button, selected: bool) -> void:
 	if selected:
 		var style := StyleBoxFlat.new()
@@ -301,12 +307,22 @@ func _apply_node_selected_style(button: Button, selected: bool) -> void:
 		style.border_color = UITheme.SELECT_BORDER
 		style.set_border_width_all(2)
 		style.set_corner_radius_all(6)
+		style.content_margin_left = 6
+		style.content_margin_right = 6
+		style.content_margin_top = 4
+		style.content_margin_bottom = 4
+		button.add_theme_stylebox_override("normal", style)
+		button.add_theme_stylebox_override("hover", style)
 		button.add_theme_stylebox_override("pressed", style)
+		button.add_theme_stylebox_override("hover_pressed", style)
+		button.add_theme_color_override("font_color", UITheme.SELECT_TEXT)
+		button.add_theme_color_override("font_hover_color", UITheme.SELECT_TEXT)
 		button.add_theme_color_override("font_pressed_color", UITheme.SELECT_TEXT)
 		button.add_theme_color_override("font_hover_pressed_color", UITheme.SELECT_TEXT)
 		button.set_pressed_no_signal(true)
 	else:
 		button.remove_theme_stylebox_override("pressed")
+		button.remove_theme_stylebox_override("hover_pressed")
 		button.remove_theme_color_override("font_pressed_color")
 		button.remove_theme_color_override("font_hover_pressed_color")
 		button.set_pressed_no_signal(false)
@@ -325,6 +341,7 @@ func _show_detail(item: TechItemData) -> void:
 	var profile := ProfileStore.get_profile()
 	var unlocked := TechTree.is_unlocked(profile, item.id)
 	var prereq_ok := TechTree.prerequisites_met(profile, item)
+	var can_unlock := prereq_ok and not unlocked and profile.tech_points >= item.cost
 	_detail_title.text = item.name
 	_detail_title.add_theme_color_override("font_color", UITheme.GOLD)
 	if unlocked:
@@ -343,8 +360,26 @@ func _show_detail(item: TechItemData) -> void:
 		var req := TechTree.get_item(item.requires)
 		_unlock_button.text = "需前置：%s" % (req.name if req != null else item.requires)
 		_unlock_button.disabled = true
+	_apply_unlock_button_style(can_unlock)
 	_detail_summary.text = item.summary
 	_detail_desc.text = item.description
+
+
+## 解锁按钮样式：可解锁=金色描边+金字（醒目），不可解锁=灰。
+func _apply_unlock_button_style(enabled: bool) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = UITheme.PANEL_BG
+	style.set_corner_radius_all(6)
+	style.set_border_width_all(2)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	style.border_color = UITheme.GOLD if enabled else UITheme.SIDEBAR_BORDER
+	_unlock_button.add_theme_stylebox_override("normal", style)
+	_unlock_button.add_theme_stylebox_override("hover", style)
+	_unlock_button.add_theme_color_override("font_color", UITheme.GOLD if enabled else UITheme.DISABLED)
+	_unlock_button.add_theme_color_override("font_hover_color", UITheme.GOLD if enabled else UITheme.DISABLED)
 
 
 func _show_default_detail() -> void:
