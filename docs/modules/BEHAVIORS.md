@@ -90,25 +90,24 @@
 
 ### B.3.5 转职技能行为（`skill_id`，✅ v0.15.0 落地）
 
-技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `on_ally_damaged` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_rank / 5, 4)`（✅ v0.27.4 拍板：仅职业技能、按局内升阶）。**v0.4（v0.28）转职体系重构：6 职业各 1 个核心技能（一转授予），二转分支 = 强化（同名 `+`）或新技能（独立 `skill_id`）**；完整规格见 [SKILLS.md](SKILLS.md) v0.4 与 CHARACTERS.md 4.5。
+技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_rank / 5, 4)`（✅ v0.27.4 拍板：仅职业技能、按局内升阶）。**v0.4（v0.28）转职体系重构：6 职业各 1 个核心技能（一转授予），二转分支 = 强化（同名 `+`）或新技能（独立 `skill_id`）**；完整规格见 [SKILLS.md](SKILLS.md) v0.4 与 CHARACTERS.md 4.5。
 
 | skill_id | 职业 | 触发点 | 效果概要 | 演出 |
 |---|---|---|---|---|
 | `charge` | 骑兵 | 大招击杀 | 返还怒气 50%×s（蓄力+：返怒 70%×s） | 大招名飘字 |
-| `assault` | 骑兵 | 击杀 | 下一次攻击 +25%×s（骁骑·突袭，新技能） | "突袭"飘字 |
+| `assault` | 骑兵 | 击杀 / 精英/Boss 命中累计 | 叠层：击杀+1、对精英/Boss 每 4 次命中+1（上限 3），普攻消耗 1 层该次 +25%×s（骁骑·突袭，新技能） | "突袭"飘字 |
 | `command` | 虎贲 | 常驻 | 周围 150px 友方伤害 +4%×s（军旗，自身不吃） | —（光环） |
-| `guard` | 虎贲 | 友军受击 | 周围 150px 友军受击时自身分担 10%×s 伤害（虎卫·护卫，新技能） | "护卫"飘字 |
+| `guard` | 虎贲 | 近战命中 | 25%×s 概率将目标沿路径拖回 20px、内置冷却 2.5s（虎卫·护卫，新技能；复用 `enemy.progress` 位移） | "护卫"飘字 |
 | `steady` | 弓箭手 | 攻击命中（保底） | 每 5 次命中必追加 0.6×s 伤害 | "稳射"飘字 |
 | `chain_arrow` | 弓箭手 | 攻击命中 | 20% 概率追加 0.5×s 箭矢（连弩·连矢，新技能） | "连矢"飘字 |
 | `wisdom` | 术士 | 大招释放 | 大招范围 +10%×s | "奇谋"飘字 |
-| `mystic_gate` | 术士 | 每波首次大招 | 范围内敌人减速 25%×s/3s（天师·奇门，新技能） | "奇门"飘字 |
+| `mystic_gate` | 术士 | 大招释放 | 落点范围内敌人易伤 4s：受所有来源伤害 +10%×s（天师·奇门，新技能） | "奇门"飘字 |
 | `inspire` | 舞娘 | 大招释放 | 全队攻速 +6%×s 持续 8s | "鼓舞"飘字 |
 | `echo` | 舞娘 | 大招释放 | 全队伤害 +8%×s 持续 5s（绕梁·余音，新技能） | "余音"飘字 |
 | `siege` | 投石车 | 常驻 | 对精英/Boss 伤害 +10%×s（原名攻城锤，v0.27.1 改名破城） | — |
-| `tremor` | 投石车 | 大招落点 | 落点范围敌人减速 30%×s/2s（震山·震地，新技能） | "震地"飘字 |
+| `tremor` | 投石车 | 大招落点 | 落点敌人眩晕 0.5s×s、同一敌人内置冷却 2.5s（震山·震地，新技能） | "震地"飘字 |
 
-> v0.4 移除废弃钩子（ferocity / bulwark / dragon_rush）与旧角色绑定转职映射；新技能钩子：概率追加（`on_attack_hit` 分支）、每波首次大招（`on_ultimate_cast` 计数）、友军受击分担（`on_ally_damaged`）。
-| `siege` | 投石车 | 常驻 | 对精英/Boss 伤害 +10%×s（原名攻城锤，v0.27.1 改名破城） | — |
+> v0.4 移除废弃钩子（ferocity / bulwark / dragon_rush）与旧角色绑定转职映射；新技能钩子：概率追加（`on_attack_hit` 分支）、每波首次大招（`on_ultimate_cast` 计数）、友军受击分担（`on_ally_damaged`）。 **v0.31.5（SKILLS v0.6.3）触发口径调整：**`on_ally_damaged`（友军受击分担）废弃（塔无生命值、敌人不攻击塔）；奇门触发由「每波首次大招」改「每次大招释放」（落点易伤）；震地由落点减速改落点眩晕；突袭改叠层双来源（`on_kill` + `on_attack_hit` 计数）；护卫改近战命中概率拖回拦截（`on_attack_hit` 分支）。
 
 ### B.3.6 角色技能钩子（v0.27.2 设计定稿，✅ v0.29.0 已落地）
 
