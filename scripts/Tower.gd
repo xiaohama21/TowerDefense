@@ -63,6 +63,11 @@ var rage: float = 0.0
 const TEAM_BUFF_MULTIPLIER_CAP: float = 2.0
 ## 最终攻速倍率下限（P0 3.2 拍板）：攻速间隔最快为 0.55 × 当前基础间隔。
 const ATTACK_SPEED_FLOOR: float = 0.55
+## 常驻光环伤害桶上限（STATS_PIPELINE 增益档次 1，v0.31.6 拍板 +50% 初稿）：
+## 刘备仁德 + 虎贲军旗同类加法求和后 clamp 至此，finalize_damage 只乘一次。
+const AURA_DAMAGE_CAP: float = 0.5
+## 常驻光环低频兜底扫描周期（提交 7）：塔静止、光环成员仅随建/拆塔变化，0.25s 足够。
+const AURA_SCAN_INTERVAL: float = 0.25
 # 增益（鼓舞/军需/连击）：按来源加法叠加、设总上限，到期逐来源回落（3.2/3.4）。
 var attack_speed_buff: float = 1.0
 var damage_buff: float = 1.0
@@ -103,10 +108,26 @@ var _ultimate_multiplier: float = 1.0
 var _granted_skills: Array[StringName] = []
 ## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，来自 PromotionData。
 var _skill_params: Dictionary = {}
-## 当前转职（v0.28.0）：用于技能显示名 +（二转强化）判断。
+## 当前转职（v0.28.0/提交 7）：技能显示名 + 按 enhanced_skill_ids 判断。
 var _promotion: PromotionData = null
-## 稳射保底计数（阶段 8·提交 6）：每 5 次攻击必触发一次追加伤害。
+## 稳射保底计数（阶段 8·提交 6）：每 5 次命中必触发一次追加伤害。
 var steady_attack_counter: int = 0
+## 突袭叠层（骁骑，提交 7）：击杀 +1 层 / 对精英/Boss 每 4 次命中 +1 层；普攻消耗 1 层该次 +25%×s。
+var assault_stacks: int = 0
+## 突袭对精英/Boss 命中计数（每 hit_every 次 +1 层，击杀那发计入）。
+var assault_hit_counter: int = 0
+## 护卫拖回冷却剩余（虎卫，提交 7）：内置冷却防「钉死」。
+var guard_cooldown_left: float = 0.0
+## 连矢保底顺延（连弩，提交 7）：概率触发命中但目标已死时，标记下一次存活命中必追加。
+var chain_arrow_pending: bool = false
+## 震地眩晕同目标冷却表（震山，提交 7）：enemy instance_id -> 剩余秒数（防 3 连发叠晕）。
+var tremor_stun_cooldowns: Dictionary = {}
+## 常驻光环伤害桶汇总（提交 7，增益档次 1）：刘备仁德 + 虎贲军旗加算后 clamp(AURA_DAMAGE_CAP)。
+var _aura_damage_bonus: float = 0.0
+var _aura_scan_tick: float = 0.0
+## 上次光环刷新时间戳（ms）：finalize_damage 前惰性节流刷新，保证直接 queue_free
+## 拆塔（不经 sell_tower）或塔停 _process 时光环桶也能在结算前自愈。
+var _aura_last_scan_ms: int = -1
 ## 角色技能（武将专属差异化，CHARACTER_SKILLS.md v0.1）：ID、参数、冷却与状态。
 var _character_skill_id: StringName = StringName()
 var _character_skill_params: Dictionary = {}
@@ -120,8 +141,10 @@ var _char_skill_speed_bonus: float = 0.0
 ## 弹道速度增益（诸葛亮·借东风）：按来源取最大倍率。
 var _bullet_speed_buff: float = 1.0
 var _bullet_speed_sources: Dictionary = {}
-## 蓄力+（青龙骑）：击杀后下一次伤害加成，finalize_damage 一次性消耗。
+## 下一次普攻伤害加成（charge 击杀后 / assault 层消耗，提交 7 双来源）：
+## finalize_damage 一次性消耗，飘字按来源显示。
 var _next_attack_bonus: float = 0.0
+var _next_attack_bonus_source: StringName = &"charge"
 ## 手动大招（v0.15.0）：满怒待发状态与提示去抖。
 var _ultimate_ready: bool = false
 var _rage_ready_notified: bool = false
@@ -146,6 +169,18 @@ var _skill_flash_color: Color = Color(1.0, 0.85, 0.4)
 @onready var selection_area: Area2D = $SelectionArea
 @onready var muzzle: Marker2D = $Muzzle
 @onready var name_label: Label = $NameLabel
+
+
+func _exit_tree() -> void:
+	# 常驻光环桶（提交 7）：本塔拆除/离场立即广播全员刷新（建/拆塔事件驱动），
+	# 避免其它塔缓存到 0.25s 兜底扫描才更新；场景卸载时 get_tree 不可用则跳过。
+	var tree := get_tree()
+	if tree == null:
+		return
+	for node in tree.get_nodes_in_group(TOWER_GROUP):
+		var other := node as Tower
+		if other != null and other != self and is_instance_valid(other):
+			other.refresh_aura_damage_bonus()
 
 
 func _enter_tree() -> void:
@@ -227,6 +262,17 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_character_skill_id = character_data.character_skill_id
 	_character_skill_params = character_data.character_skill_params.duplicate(true)
 	steady_attack_counter = 0
+	# 提交 7 新技能状态：突袭叠层 / 护卫冷却 / 连矢顺延 / 震地冷却 / aura 桶清零。
+	assault_stacks = 0
+	assault_hit_counter = 0
+	guard_cooldown_left = 0.0
+	chain_arrow_pending = false
+	tremor_stun_cooldowns.clear()
+	_next_attack_bonus = 0.0
+	_next_attack_bonus_source = &"charge"
+	_aura_damage_bonus = 0.0
+	_aura_scan_tick = 0.0
+	_aura_last_scan_ms = -1
 	_char_skill_cooldown_left = 0.0
 	_char_skill_ready = true
 	_char_skill_ready_notified = false
@@ -418,6 +464,24 @@ func _process(_delta: float) -> void:
 				_char_skill_ready = false
 				_char_skill_ready_notified = false
 
+	# 提交 7：护卫拖回冷却 / 震地同目标眩晕冷却递减（到 0 移除；敌人已死条目随帧过期）。
+	if guard_cooldown_left > 0.0:
+		guard_cooldown_left = maxf(guard_cooldown_left - _delta, 0.0)
+	if not tremor_stun_cooldowns.is_empty():
+		var expired_stun: Array = []
+		for key in tremor_stun_cooldowns.keys():
+			tremor_stun_cooldowns[key] = maxf(float(tremor_stun_cooldowns[key]) - _delta, 0.0)
+			if float(tremor_stun_cooldowns[key]) <= 0.0:
+				expired_stun.append(key)
+		for key in expired_stun:
+			tremor_stun_cooldowns.erase(key)
+	# 常驻光环伤害桶（提交 7，增益档次 1）：0.25s 低频兜底扫描；建/拆塔由
+	# TowerManager 即时刷新，见 _refresh_aura_all。
+	_aura_scan_tick = maxf(_aura_scan_tick - _delta, 0.0)
+	if _aura_scan_tick <= 0.0:
+		_aura_scan_tick = AURA_SCAN_INTERVAL
+		_ensure_aura_fresh()
+
 	# 诸葛亮·观星：范围内敌人持续减速 8%（周期施加，取最强因子）
 	_aura_tick = maxf(_aura_tick - _delta, 0.0)
 	if _trait_id == &"trait_star_gazer" and _aura_tick <= 0.0:
@@ -538,8 +602,40 @@ func get_skill_param(skill_id: StringName, key: String, default: float) -> float
 
 
 
-func set_next_attack_bonus(bonus: float) -> void:
+## 挂载下一次普攻伤害加成（charge 击杀 / assault 层消耗）：来源决定飘字显示。
+func set_next_attack_bonus(source: StringName, bonus: float) -> void:
 	_next_attack_bonus = maxf(bonus, 0.0)
+	_next_attack_bonus_source = source
+
+
+## 常驻光环伤害桶汇总（提交 7，STATS_PIPELINE 增益档次 1）：扫描场上其他塔——
+## ①刘备仁德（trait_benevolence，全图、自身不吃）；②虎贲军旗（command 光环，
+## 受益者距离 ≤ radius、自身不吃，加成 × 施法者档位 s）。同类加法求和后
+## clamp(0, AURA_DAMAGE_CAP)；两者均不再进 passive_damage_multiplier 独立乘区。
+## 多虎贲互乘（1.06^n）与「军旗 × 仁德」互乘路径由此消除。
+func refresh_aura_damage_bonus() -> void:
+	var total := 0.0
+	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
+		var other := node as Tower
+		if other == null or other == self or not is_instance_valid(other) or other.is_queued_for_deletion():
+			continue
+		if other.get_trait_id() == &"trait_benevolence":
+			total += other.get_trait_param("aura_damage_bonus", 0.08)
+		if other.has_skill(&"command"):
+			var radius := other.get_skill_param(&"command", "radius", 150.0)
+			if radius > 0.0 and global_position.distance_to(other.global_position) <= radius:
+				total += other.get_skill_param(&"command", "ally_damage_bonus", 0.04) * SkillRegistry.tier_multiplier(other)
+	_aura_damage_bonus = clampf(total, 0.0, AURA_DAMAGE_CAP)
+	_aura_last_scan_ms = Time.get_ticks_msec()
+
+
+## 光环桶惰性节流刷新（提交 7）：距上次扫描 ≥ AURA_SCAN_INTERVAL 才重算，
+## 供 finalize_damage 在结算前调用——拆塔（含直接 queue_free）后最多延迟一个周期生效。
+func _ensure_aura_fresh() -> void:
+	var now := Time.get_ticks_msec()
+	if _aura_last_scan_ms < 0 or now - _aura_last_scan_ms >= int(AURA_SCAN_INTERVAL * 1000.0):
+		refresh_aura_damage_bonus()
+		_aura_last_scan_ms = now
 
 
 ## ============ 角色技能（阶段 8·提交 6，CHARACTER_SKILLS.md v0.1） ============
@@ -600,10 +696,11 @@ func cast_character_skill() -> bool:
 	return true
 
 
-## 职业技能显示名（二转强化加 +，三转及以上 ++）。
+## 职业技能显示名（提交 7 继承与显示规则，v0.31.3）：仅对 PromotionData.enhanced_skill_ids
+## 命中的技能加 +（强化线配核心技能 id、新技能线留空——双技能均不带 +，不再按 parent_id 推断）。
 func get_skill_display_name(skill_id: StringName) -> String:
 	var name := SkillRegistry.get_skill_name(skill_id)
-	if _promotion != null and not str(_promotion.parent_id).is_empty() and has_skill(skill_id):
+	if _promotion != null and has_skill(skill_id) and _promotion.enhanced_skill_ids.has(skill_id):
 		return name + "+"
 	return name
 
@@ -693,18 +790,22 @@ func get_consecutive_hits() -> int:
 	return _consecutive_hits
 
 
-## 伤害结算管线：基础值 × 增益 × 职业克制 × 特性（含刘备光环）。
+## 伤害结算管线：基础值 × 增益 × 常驻光环桶 × 职业克制 × 特性（提交 7：刘备仁德与
+## 虎贲军旗收敛进 _aura_damage_bonus 加法桶，只乘一次 (1+clamp(Σ,0,+50%))）。
 func finalize_damage(base: int, target: Enemy) -> int:
+	# 常驻光环桶惰性刷新（提交 7）：拆塔/建塔后结算前自愈，避免缓存过期。
+	_ensure_aura_fresh()
 	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _tech_profession_damage_bonus) * (1.0 + _bond_damage_bonus) * (1.0 + _battle_relic_damage_bonus)
+	value *= 1.0 + _aura_damage_bonus
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
-	if BehaviorRegistry.has_benevolence_aura(self):
-		value *= BehaviorRegistry.benevolence_bonus(self)
 	value *= BehaviorRegistry.get_trait_damage_multiplier(self, target)
 	value *= SkillRegistry.passive_damage_multiplier(self, target)
 	if _next_attack_bonus > 0.0:
 		value *= 1.0 + _next_attack_bonus
 		_next_attack_bonus = 0.0
-		spawn_float_text(SkillRegistry.get_skill_name(&"charge") + "+", Color(0.6, 0.9, 1.0))
+		var bonus_source := _next_attack_bonus_source
+		_next_attack_bonus_source = &"charge"
+		spawn_float_text(SkillRegistry.get_skill_name(bonus_source) + "+", Color(0.6, 0.9, 1.0))
 	return int(round(value))
 
 
@@ -820,6 +921,9 @@ func attack() -> void:
 			_consecutive_hits = 1
 			_last_attacked_target = target
 
+	# 突袭（骁骑，提交 7）：普攻前消耗 1 层挂载该次加成（弹道发射时随伤害锁定，
+	# 与 charge「击杀后下一次攻击加成」同语义；大招/角色技能不走 attack() 不消耗层）。
+	SkillRegistry.try_consume_assault(self)
 	# 攻击行为按职业 behavior_id 分发（GDD modules/BEHAVIORS.md），
 	# 塔脚本不硬编码任何职业的攻击逻辑与攻击表现。
 	BehaviorRegistry.execute_attack(_behavior_id, self, target)

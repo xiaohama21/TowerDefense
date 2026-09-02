@@ -24,6 +24,7 @@ range_multiplier = 1.1
 attack_interval_multiplier = 0.9
 ultimate_multiplier = 1.3
 granted_skill_ids = [&"siege"]
+enhanced_skill_ids = [&"siege"]
 skill_params = {"elite_damage_bonus": 0.15}
 visual_variant_id = &"catapult_city_breaker"
 item_costs = [SubResource("ItemAmountData_cloth20")]

@@ -11,6 +11,11 @@ class_name SkillRegistry
 ##   仅职业技能适用、以局内升阶 battle_rank 为准；角色技能不参与 s；
 ## ③角色技能（武将专属差异化，CHARACTER_SKILLS.md v0.1）：A 主动冷却制 /
 ##   B 条件触发被动，与职业层解耦。
+## v0.32.0（阶段 8·提交 7，职业技能双轨）：
+## ①二转新技能线接入 6 个新技能（assault/guard/chain_arrow/mystic_gate/echo/tremor），
+##   新技能线节点显式配置「核心技能 + 新技能」两 id，无代码级父节点继承；
+## ②军旗光环移出本表乘区（收敛进 Tower 常驻光环伤害桶，STATS_PIPELINE 增益档次 1）；
+## ③新增敌人减益：易伤（奇门）、眩晕（震地）。
 
 const MAX_TIERS := 4
 const TIER_STEP := 0.1
@@ -22,10 +27,18 @@ const SKILL_NAMES := {
 	&"inspire": "鼓舞",
 	&"siege": "破城",
 	&"wisdom": "奇谋",
+	# 二转新技能线（提交 7）
+	&"assault": "突袭",
+	&"guard": "护卫",
+	&"chain_arrow": "连矢",
+	&"mystic_gate": "奇门",
+	&"echo": "余音",
+	&"tremor": "震地",
 }
 
 const KNOWN_SKILLS: Array[StringName] = [
 	&"charge", &"command", &"steady", &"inspire", &"siege", &"wisdom",
+	&"assault", &"guard", &"chain_arrow", &"mystic_gate", &"echo", &"tremor",
 ]
 
 ## 角色技能显示名（武将专属差异化，CHARACTER_SKILLS.md v0.1）。
@@ -165,11 +178,22 @@ static func on_character_skill_ready(tower: Tower) -> void:
 
 ## ============ 职业技能钩子（每职业 1 个，效果 × 档位系数 s） ============
 
-## 攻击命中钩子（普攻结算后由行为执行器调用）：稳射（保底，每 5 次攻击必触发）。
+## 攻击命中钩子（普攻实际命中造成伤害后由 Tower.notify_attack_damage_dealt 调用）：
+## v0.31.4/0.8.6.2 命中口径——实际命中即计数（击杀那发计入）；追加顺延至目标存活的下一次命中。
+## 提交 7 扩展：稳射（保底追加）/ 连矢（概率追加）/ 突袭（精英命中叠层）/ 护卫（近战概率拖回）。
 static func on_attack_hit(tower: Tower, target: Enemy, _dealt: int) -> void:
+	if tower == null or not is_instance_valid(tower):
+		return
+	_steady_proc(tower, target)
+	_chain_arrow_proc(tower, target)
+	_assault_gain_on_hit(tower, target)
+	_guard_proc(tower, target)
+
+
+## 稳射（保底追加）：每 every 次命中必触发一次 mult×s 追加伤害。
+static func _steady_proc(tower: Tower, target: Enemy) -> void:
 	if not has_skill(tower, &"steady"):
 		return
-	# v0.31.4 / 0.8.6.2 命中口径：实际命中即计数（含击杀那发）；追加只对存活目标结算。
 	tower.steady_attack_counter += 1
 	if target == null or target.is_dead:
 		return
@@ -180,28 +204,110 @@ static func on_attack_hit(tower: Tower, target: Enemy, _dealt: int) -> void:
 	tower.steady_attack_counter = 0
 	var extra := int(round(tower.damage * param(tower, &"steady", "mult", 0.6) * s))
 	if extra > 0:
-		target.take_damage(tower.finalize_damage(extra, target), tower.character_id)
-		tower.spawn_float_text(get_skill_name(&"steady"), Color(1.0, 0.9, 0.4))
-		tower.play_skill_effect(Color(1.0, 0.9, 0.4))
-		SfxLibrary.play(&"skill", -8.0)
+		_deliver_extra_damage(tower, target, extra, get_skill_name(&"steady"), Color(1.0, 0.9, 0.4))
+
+
+## 连矢（概率追加）：命中 chance×s 概率触发 mult×s 追加箭矢；roll 中但目标已死
+## （击杀那发）顺延至下一次存活命中，不吞触发。
+static func _chain_arrow_proc(tower: Tower, target: Enemy) -> void:
+	if not has_skill(tower, &"chain_arrow"):
+		return
+	var s := tier_multiplier(tower)
+	var chance := param(tower, &"chain_arrow", "chance", 0.2)
+	var trigger := tower.chain_arrow_pending
+	if not trigger and randf() < chance:
+		trigger = true
+	if not trigger:
+		return
+	if target == null or target.is_dead:
+		tower.chain_arrow_pending = true
+		return
+	tower.chain_arrow_pending = false
+	var extra := int(round(tower.damage * param(tower, &"chain_arrow", "mult", 0.5) * s))
+	_deliver_extra_damage(tower, target, extra, get_skill_name(&"chain_arrow"), Color(0.75, 0.95, 0.6))
+
+
+## 突袭（精英/Boss 命中叠层来源 2）：对精英/Boss 每 hit_every 次自身命中 +1 层。
+static func _assault_gain_on_hit(tower: Tower, target: Enemy) -> void:
+	if not has_skill(tower, &"assault"):
+		return
+	if target == null:
+		return
+	if not (target.tags.has(&"elite") or target.tags.has(&"boss")):
+		return
+	tower.assault_hit_counter += 1
+	var every := maxi(int(param(tower, &"assault", "hit_every", 4.0)), 1)
+	if tower.assault_hit_counter < every:
+		return
+	tower.assault_hit_counter = 0
+	_add_assault_stack(tower)
+
+
+## 护卫（近战命中概率拖回拦截）：命中 chance×s 概率将目标沿路径拖回 pull px；
+## 内置冷却 cooldown s 防「钉死」（复用破阵/当阳桥 enemy.progress 位移）。
+static func _guard_proc(tower: Tower, target: Enemy) -> void:
+	if not has_skill(tower, &"guard"):
+		return
+	if tower.guard_cooldown_left > 0.0 or target == null or target.is_dead:
+		return
+	var s := tier_multiplier(tower)
+	if randf() >= param(tower, &"guard", "chance", 0.25) * s:
+		return
+	tower.guard_cooldown_left = param(tower, &"guard", "cooldown", 2.5)
+	target.progress = maxf(target.progress - param(tower, &"guard", "pull", 20.0), 0.0)
+	tower.spawn_float_text(get_skill_name(&"guard"), Color(0.6, 0.9, 1.0))
+	tower.play_skill_effect(Color(0.6, 0.9, 1.0))
+	SfxLibrary.play(&"skill", -8.0)
+
+
+## 追加伤害统一交付：走 finalize_damage 管线 + 飘字/扩散环/音效。
+static func _deliver_extra_damage(tower: Tower, target: Enemy, amount: int, label: String, color: Color) -> void:
+	if amount <= 0 or tower == null or not is_instance_valid(tower) or target == null or target.is_dead:
+		return
+	target.take_damage(tower.finalize_damage(amount, target), tower.character_id)
+	tower.spawn_float_text(label, color)
+	tower.play_skill_effect(color)
+	SfxLibrary.play(&"skill", -8.0)
+
+
+## 突袭叠层叠加：击杀（on_kill）与精英/Boss 命中来源共用；满层不叠加。
+static func _add_assault_stack(tower: Tower) -> void:
+	if tower == null or not is_instance_valid(tower) or not has_skill(tower, &"assault"):
+		return
+	var max_stacks := maxi(int(param(tower, &"assault", "max_stacks", 3.0)), 1)
+	if tower.assault_stacks >= max_stacks:
+		return
+	tower.assault_stacks = mini(tower.assault_stacks + 1, max_stacks)
+	tower.spawn_float_text("%s %d/%d" % [get_skill_name(&"assault"), tower.assault_stacks, max_stacks], Color(0.6, 0.9, 1.0))
+
+
+## 突袭层消耗（Tower.attack 普攻前调用）：有层则消耗 1 层，挂载该次普攻 +bonus×s。
+static func try_consume_assault(tower: Tower) -> void:
+	if tower == null or not is_instance_valid(tower) or not has_skill(tower, &"assault"):
+		return
+	if tower.assault_stacks <= 0:
+		return
+	tower.assault_stacks -= 1
+	tower.set_next_attack_bonus(&"assault", param(tower, &"assault", "bonus", 0.25) * tier_multiplier(tower))
 
 
 ## 击杀钩子（Enemy 死亡结算后由 Tower 订阅调用）：
-## 蓄力+（青龙骑）= 击杀后下一次攻击 +20%×s（原龙突机制并入）。
+## charge（蓄力强化线）= 击杀后下一次攻击加成（next_hit_bonus 配置）；
+## assault（骁骑）= 击杀任意敌人 +1 层。
 static func on_kill(tower: Tower, _enemy: Enemy) -> void:
 	if tower == null or not is_instance_valid(tower):
 		return
-	if not has_skill(tower, &"charge"):
-		return
-	var next_hit_bonus := param(tower, &"charge", "next_hit_bonus", 0.0)
-	if next_hit_bonus > 0.0:
-		tower.set_next_attack_bonus(next_hit_bonus * tier_multiplier(tower))
-		tower.spawn_float_text(get_skill_name(&"charge") + "+", Color(0.6, 0.9, 1.0))
-		tower.play_skill_effect(Color(0.6, 0.9, 1.0))
-		SfxLibrary.play(&"skill", -8.0)
+	if has_skill(tower, &"charge"):
+		var next_hit_bonus := param(tower, &"charge", "next_hit_bonus", 0.0)
+		if next_hit_bonus > 0.0:
+			tower.set_next_attack_bonus(&"charge", next_hit_bonus * tier_multiplier(tower))
+			tower.spawn_float_text(get_skill_name(&"charge") + "+", Color(0.6, 0.9, 1.0))
+			tower.play_skill_effect(Color(0.6, 0.9, 1.0))
+			SfxLibrary.play(&"skill", -8.0)
+	_add_assault_stack(tower)
 
 
-## 大招释放钩子（大招执行器成功后调用）：鼓舞 / 奇谋。
+## 大招释放钩子（大招执行器成功后调用）：鼓舞 / 余音 / 奇谋飘字。
 static func on_ultimate_cast(tower: Tower) -> void:
 	if tower == null or not is_instance_valid(tower):
 		return
@@ -210,7 +316,6 @@ static func on_ultimate_cast(tower: Tower) -> void:
 	tower.play_skill_effect(Color(1.0, 0.8, 0.95))
 	if has_skill(tower, &"inspire"):
 		var speed_bonus := param(tower, &"inspire", "team_speed_bonus", 0.06) * s
-		# 升阶 buff 增强（阶段 8）：施加方升阶后效果/时长放大。
 		var duration := param(tower, &"inspire", "duration", 8.0) * tower.get_battle_rank_buff_duration_multiplier()
 		speed_bonus *= tower.get_battle_rank_buff_power_multiplier()
 		for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
@@ -218,26 +323,56 @@ static func on_ultimate_cast(tower: Tower) -> void:
 			if ally != null and is_instance_valid(ally):
 				ally.apply_attack_speed_buff("skill_inspire", 1.0 + speed_bonus, duration)
 		tower.spawn_float_text(get_skill_name(&"inspire"), Color(1.0, 0.75, 0.9))
+	if has_skill(tower, &"echo"):
+		var damage_bonus := param(tower, &"echo", "team_damage_bonus", 0.08) * s
+		var echo_duration := param(tower, &"echo", "duration", 5.0) * tower.get_battle_rank_buff_duration_multiplier()
+		damage_bonus *= tower.get_battle_rank_buff_power_multiplier()
+		for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+			var ally := node as Tower
+			if ally != null and is_instance_valid(ally):
+				ally.apply_team_buff("skill_echo", 1.0, 1.0 + damage_bonus, echo_duration)
+		tower.spawn_float_text(get_skill_name(&"echo"), Color(0.85, 0.9, 0.55))
 	if has_skill(tower, &"wisdom"):
 		tower.spawn_float_text(get_skill_name(&"wisdom"), Color(0.7, 0.85, 1.0))
 
 
-## 常驻伤害倍率（叠加进 Tower.finalize_damage）：虎贲·军旗光环 +
-## 投石车·破城 + 黄忠·定军山易伤标记。
+## 奇门（天师）：大招落点命中敌人施加易伤（同类不叠加、时长刷新，NUMBERS 10.10）。
+## 由术士大招执行器（_ult_strategist_blaze）对范围内敌人调用。
+static func apply_mystic_gate(tower: Tower, enemy: Enemy) -> void:
+	if tower == null or not is_instance_valid(tower) or enemy == null or enemy.is_dead:
+		return
+	if not has_skill(tower, &"mystic_gate"):
+		return
+	var s := tier_multiplier(tower)
+	var bonus := param(tower, &"mystic_gate", "vulnerability", 0.1) * s
+	var duration := param(tower, &"mystic_gate", "duration", 4.0)
+	enemy.apply_vulnerability(bonus, duration)
+
+
+## 震地（震山）：大招每发落点命中敌人眩晕 duration×s；同一敌人内置冷却防 3 连发叠晕。
+## 由 Bullet._explode（大招抛射弹）对落点范围内敌人调用。
+static func try_apply_tremor_stun(tower: Tower, enemy: Enemy) -> void:
+	if tower == null or not is_instance_valid(tower) or enemy == null or enemy.is_dead:
+		return
+	if not has_skill(tower, &"tremor"):
+		return
+	var key := enemy.get_instance_id()
+	var cooldowns: Dictionary = tower.tremor_stun_cooldowns
+	if float(cooldowns.get(key, 0.0)) > 0.0:
+		return
+	var s := tier_multiplier(tower)
+	var duration := param(tower, &"tremor", "stun_duration", 0.5) * s
+	enemy.apply_stun(duration)
+	cooldowns[key] = param(tower, &"tremor", "cooldown", 2.5)
+	tower.spawn_float_text(get_skill_name(&"tremor"), Color(1.0, 0.8, 0.5))
+
+
+## 常驻伤害倍率（叠加进 Tower.finalize_damage）：投石车·破城（条件增伤，档次 3 预算）+
+## 黄忠·定军山易伤标记。军旗光环已收敛进 Tower 常驻光环伤害桶（档次 1，STATS_PIPELINE）。
 static func passive_damage_multiplier(tower: Tower, target: Enemy) -> float:
 	var multiplier := 1.0
 	if has_skill(tower, &"siege") and (target.tags.has(&"elite") or target.tags.has(&"boss")):
 		multiplier *= 1.0 + param(tower, &"siege", "elite_damage_bonus", 0.1) * tier_multiplier(tower)
-	# 军旗光环：自身不吃，周围 150px 友方受益。
-	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-		var other := node as Tower
-		if other == null or other == tower or not is_instance_valid(other):
-			continue
-		if not has_skill(other, &"command"):
-			continue
-		var radius := param(other, &"command", "radius", 150.0)
-		if tower.global_position.distance_to(other.global_position) <= radius:
-			multiplier *= 1.0 + param(other, &"command", "ally_damage_bonus", 0.04) * tier_multiplier(other)
 	# 定军山：被定军标记的目标受该塔普攻伤害 +15%。
 	if has_character_skill(tower, &"char_dingjun") and target.has_mark(tower.character_id):
 		multiplier *= 1.0 + character_param(tower, &"char_dingjun", "mark_damage_bonus", 0.15)
@@ -249,7 +384,6 @@ static func ultimate_aoe_radius_multiplier(tower: Tower) -> float:
 	if has_skill(tower, &"wisdom"):
 		return 1.0 + param(tower, &"wisdom", "aoe_radius_bonus", 0.1) * tier_multiplier(tower)
 	return 1.0
-
 
 ## 大招击杀返怒（骑兵·蓄力强化；无 charge 时返回职业基础 50%）。
 static func kill_rage_refund(tower: Tower) -> float:

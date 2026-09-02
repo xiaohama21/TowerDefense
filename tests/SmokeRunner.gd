@@ -701,12 +701,15 @@ func _run() -> void:
 		wisdom_tower.battle_rank = 20
 		_check(is_equal_approx(wisdom_tower.ultimate_aoe_radius(100.0), 114.0), "奇谋 20 级大招范围应封顶 +14%")
 		wisdom_tower.queue_free()
-	# 职业技能收敛（v0.28.0）：每职业 1 技能，龙突/凶威/斩获已移除。
-	_check(SkillRegistry.KNOWN_SKILLS.size() == 6
+	# 职业技能注册表（提交 7）：6 核心 + 6 二转新技能；龙突/凶威/斩获已移除。
+	_check(SkillRegistry.KNOWN_SKILLS.size() == 12
 		and SkillRegistry.KNOWN_SKILLS.has(&"charge") and SkillRegistry.KNOWN_SKILLS.has(&"command")
 		and SkillRegistry.KNOWN_SKILLS.has(&"steady") and SkillRegistry.KNOWN_SKILLS.has(&"wisdom")
-		and SkillRegistry.KNOWN_SKILLS.has(&"inspire") and SkillRegistry.KNOWN_SKILLS.has(&"siege"),
-		"职业技能应收敛为 6 个")
+		and SkillRegistry.KNOWN_SKILLS.has(&"inspire") and SkillRegistry.KNOWN_SKILLS.has(&"siege")
+		and SkillRegistry.KNOWN_SKILLS.has(&"assault") and SkillRegistry.KNOWN_SKILLS.has(&"guard")
+		and SkillRegistry.KNOWN_SKILLS.has(&"chain_arrow") and SkillRegistry.KNOWN_SKILLS.has(&"mystic_gate")
+		and SkillRegistry.KNOWN_SKILLS.has(&"echo") and SkillRegistry.KNOWN_SKILLS.has(&"tremor"),
+		"职业技能应为 6 核心 + 6 二转新技能（提交 7）")
 	_check(not SkillRegistry.KNOWN_SKILLS.has(&"dragon_rush")
 		and not SkillRegistry.KNOWN_SKILLS.has(&"ferocity")
 		and not SkillRegistry.KNOWN_SKILLS.has(&"bulwark"), "龙突/凶威/斩获应已移除")
@@ -756,8 +759,9 @@ func _run() -> void:
 		banner_target.set_process(false)
 		if banner_ally:
 			banner_ally.set_process(false)
-			_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(banner_ally, banner_target), 1.04),
-				"军旗应使射程内友方伤害 +4%")
+			banner_ally.refresh_aura_damage_bonus()
+			_check(is_equal_approx(float(banner_ally.get("_aura_damage_bonus")), 0.04),
+				"军旗应使射程内友方伤害 +4%（收敛进光环伤害桶）")
 			banner_ally.queue_free()
 		banner_target.queue_free()
 		vanguard_tower.queue_free()
@@ -874,18 +878,259 @@ func _run() -> void:
 		command_ally_out.set_process(false)
 		var command_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
 		command_target.set_process(false)
-		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_in, command_target), 1.04),
-			"军旗应使射程内友方伤害 +4%")
-		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_out, command_target), 1.0),
-			"军旗对射程外友方应无加成")
+		# 刘备塔同时是仁德源（全图 +8%）与军旗源（150px +4%）：收敛为光环桶加法。
+		command_ally_in.refresh_aura_damage_bonus()
+		command_ally_out.refresh_aura_damage_bonus()
+		_check(is_equal_approx(float(command_ally_in.get("_aura_damage_bonus")), 0.12),
+			"军旗+仁德应同区加法收敛（档次 1：0.08 + 0.04 = 0.12，射程内）")
+		_check(is_equal_approx(float(command_ally_out.get("_aura_damage_bonus")), 0.08),
+			"军旗对射程外友方应无加成（仅剩仁德 0.08）")
 		commander_tower.battle_rank = 5
-		_check(is_equal_approx(SkillRegistry.passive_damage_multiplier(command_ally_in, command_target), 1.044),
-			"军旗 5 阶应 +4.4%（档位按局内升阶）")
+		command_ally_in.refresh_aura_damage_bonus()
+		_check(is_equal_approx(float(command_ally_in.get("_aura_damage_bonus")), 0.124),
+			"军旗 5 阶应 +4.4%（档位按局内升阶 → 0.08 + 0.044 = 0.124）")
 		command_target.queue_free()
 	commander_tower.queue_free()
 	command_ally_in.queue_free()
 	command_ally_out.queue_free()
 	# 等一帧释放刘备塔，避免其仁德光环污染后续角色技能伤害断言。
+	# ===== 阶段 8 提交 7（v0.32.0 / 0.8.7.0）：职业技能双轨——继承/显示/新技能口径/光环桶 =====
+	# 双轨数据：6 条二转新技能线 = 核心技能 + 新技能两个 id、enhanced 留空；
+	# 6 条强化线 granted 与 enhanced 均配核心技能 id（显示带 + 由 enhanced 决定）。
+	var c7_dual := [
+		["res://resources/promotions/cavalry_swift_raider.tres", &"charge", &"assault"],
+		["res://resources/promotions/tiger_guard_guard.tres", &"command", &"guard"],
+		["res://resources/promotions/archer_crossbow.tres", &"steady", &"chain_arrow"],
+		["res://resources/promotions/strategist_heavenly_master.tres", &"wisdom", &"mystic_gate"],
+		["res://resources/promotions/dancer_echo.tres", &"inspire", &"echo"],
+		["res://resources/promotions/catapult_earthquake.tres", &"siege", &"tremor"],
+	]
+	for c7_entry in c7_dual:
+		var c7_promo := load(c7_entry[0]) as PromotionData
+		_check(c7_promo != null and c7_promo.granted_skill_ids == [c7_entry[1], c7_entry[2]]
+			and c7_promo.enhanced_skill_ids.is_empty(),
+			"%s 应显式继承核心技能+新技能且强化标记留空（提交 7）" % c7_entry[0])
+		_check(c7_promo != null and c7_promo.skill_params.has(c7_entry[1]) and c7_promo.skill_params.has(c7_entry[2]),
+			"%s 双技能参数应为嵌套字典（核心+新技能各一份）" % c7_entry[0])
+	var c7_enhanced := [
+		["res://resources/promotions/cavalry_heavy_armor.tres", &"charge"],
+		["res://resources/promotions/tiger_guard_vanguard.tres", &"command"],
+		["res://resources/promotions/archer_piercing_cloud.tres", &"steady"],
+		["res://resources/promotions/strategist_sage.tres", &"wisdom"],
+		["res://resources/promotions/dancer_phoenix.tres", &"inspire"],
+		["res://resources/promotions/catapult_city_breaker.tres", &"siege"],
+	]
+	for c7_entry in c7_enhanced:
+		var c7_promo := load(c7_entry[0]) as PromotionData
+		_check(c7_promo != null and c7_promo.granted_skill_ids == [c7_entry[1]]
+			and c7_promo.enhanced_skill_ids == [c7_entry[1]],
+			"%s 强化线应配核心技能 id（granted 与 enhanced 同源）" % c7_entry[0])
+	# 突袭（骁骑）：击杀 +1 层 / 对精英每 4 次命中 +1 层（上限 3），普攻消耗 1 层该次 +25%×s。
+	GameManager.gold = 9999
+	var c7_raider_promo := load("res://resources/promotions/cavalry_swift_raider.tres") as PromotionData
+	var c7_raider_tower: Tower = tower_manager.build_tower(Vector2(60, 100), guan_yu, null, {"level": 20, "promotion": c7_raider_promo})
+	_check(c7_raider_tower != null and c7_raider_tower.has_skill(&"charge") and c7_raider_tower.has_skill(&"assault"),
+		"骁骑应同时持有蓄力与突袭（双技能继承）")
+	if c7_raider_tower:
+		c7_raider_tower.set_process(false)
+		_check(c7_raider_tower.get_skill_display_name(&"charge") == "蓄力", "骁骑保留的蓄力不应带 +")
+		_check(c7_raider_tower.get_skill_display_name(&"assault") == "突袭", "新技能突袭不应带 +")
+		var c7_elite := enemy_manager.spawn_enemy_from_data(sergeant_data) as Enemy
+		c7_elite.set_process(false)
+		for _i in range(4):
+			SkillRegistry.on_attack_hit(c7_raider_tower, c7_elite, 10)
+		_check(c7_raider_tower.assault_stacks == 1, "突袭对精英每 4 次命中应叠 1 层")
+		for _i in range(4):
+			SkillRegistry.on_attack_hit(c7_raider_tower, c7_elite, 10)
+		_check(c7_raider_tower.assault_stacks == 2, "突袭精英命中叠层应累计")
+		SkillRegistry.on_kill(c7_raider_tower, null)
+		_check(c7_raider_tower.assault_stacks == 3, "突袭击杀应 +1 层")
+		SkillRegistry.on_kill(c7_raider_tower, null)
+		_check(c7_raider_tower.assault_stacks == 3, "突袭叠层应封顶 3 层")
+		var c7_assault_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		c7_assault_tank.set_process(false)
+		SkillRegistry.try_consume_assault(c7_raider_tower)
+		_check(c7_raider_tower.assault_stacks == 2 and is_equal_approx(float(c7_raider_tower.get("_next_attack_bonus")), 0.25),
+			"普攻应消耗 1 层突袭并挂载 +25%")
+		_check(c7_raider_tower.finalize_damage(100, c7_assault_tank) == 125, "突袭层消耗该次伤害应 +25%")
+		_check(is_equal_approx(float(c7_raider_tower.get("_next_attack_bonus")), 0.0), "突袭加成应一次性消耗")
+		c7_raider_tower.battle_rank = 5
+		c7_raider_tower.assault_stacks = 1
+		SkillRegistry.try_consume_assault(c7_raider_tower)
+		_check(is_equal_approx(float(c7_raider_tower.get("_next_attack_bonus")), 0.275),
+			"突袭加成应随档位放大（5 阶 = 0.25×1.1）")
+		c7_raider_tower.queue_free()
+		if is_instance_valid(c7_elite):
+			c7_elite.queue_free()
+		if is_instance_valid(c7_assault_tank):
+			c7_assault_tank.queue_free()
+	# 连矢（连弩）：概率追加——roll 中但目标已死则顺延至下一次存活命中，不吞触发。
+	var c7_chain_promo := load("res://resources/promotions/archer_crossbow.tres") as PromotionData
+	var c7_chain_tower: Tower = tower_manager.build_tower(Vector2(140, 100), huang_zhong, null, {"level": 20, "promotion": c7_chain_promo})
+	_check(c7_chain_tower != null and c7_chain_tower.has_skill(&"steady") and c7_chain_tower.has_skill(&"chain_arrow"),
+		"连弩应同时持有稳射与连矢")
+	if c7_chain_tower:
+		c7_chain_tower.set_process(false)
+		_check(c7_chain_tower.get_skill_display_name(&"steady") == "稳射", "连弩保留的稳射不应带 +")
+		_check(c7_chain_tower.get_skill_display_name(&"chain_arrow") == "连矢", "新技能连矢不应带 +")
+		var c7_chain_dead := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		c7_chain_dead.set_process(false)
+		c7_chain_dead.die(false)
+		c7_chain_tower.chain_arrow_pending = true
+		SkillRegistry.on_attack_hit(c7_chain_tower, c7_chain_dead, 10)
+		_check(c7_chain_tower.chain_arrow_pending, "连矢命中已死目标应顺延、不吞触发")
+		var c7_chain_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		c7_chain_tank.set_process(false)
+		var c7_chain_before := c7_chain_tank.current_hp
+		SkillRegistry.on_attack_hit(c7_chain_tower, c7_chain_tank, 10)
+		var c7_chain_extra := int(round(c7_chain_tower.damage * 0.5))
+		_check(not c7_chain_tower.chain_arrow_pending, "连矢顺延触发后应复位")
+		_check(c7_chain_before - c7_chain_tank.current_hp == c7_chain_extra, "连矢应追加 0.5× 普攻伤害")
+		c7_chain_tower.queue_free()
+		if is_instance_valid(c7_chain_dead):
+			c7_chain_dead.queue_free()
+		if is_instance_valid(c7_chain_tank):
+			c7_chain_tank.queue_free()
+	# 奇门（天师）：大招落点易伤 +10%×s/4s——同类不叠加、时长刷新，所有来源伤害受益。
+	var c7_mystic_promo := load("res://resources/promotions/strategist_heavenly_master.tres") as PromotionData
+	var c7_mystic_tower: Tower = tower_manager.build_tower(Vector2(220, 100), zhuge_liang, null, {"level": 20, "promotion": c7_mystic_promo})
+	_check(c7_mystic_tower != null and c7_mystic_tower.has_skill(&"wisdom") and c7_mystic_tower.has_skill(&"mystic_gate"),
+		"天师应同时持有奇谋与奇门")
+	if c7_mystic_tower:
+		c7_mystic_tower.set_process(false)
+		_check(c7_mystic_tower.get_skill_display_name(&"wisdom") == "奇谋", "天师保留的奇谋不应带 +")
+		_check(c7_mystic_tower.get_skill_display_name(&"mystic_gate") == "奇门", "新技能奇门不应带 +")
+		var c7_vuln_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		c7_vuln_tank.set_process(false)
+		SkillRegistry.apply_mystic_gate(c7_mystic_tower, c7_vuln_tank)
+		_check(is_equal_approx(c7_vuln_tank.get_vulnerability_multiplier(), 1.1), "奇门应施加 +10% 易伤")
+		var c7_vuln_before := c7_vuln_tank.current_hp
+		c7_vuln_tank.take_damage(100)
+		_check(c7_vuln_before - c7_vuln_tank.current_hp == 110, "易伤应使所有来源伤害 +10%")
+		SkillRegistry.apply_mystic_gate(c7_mystic_tower, c7_vuln_tank)
+		_check(is_equal_approx(c7_vuln_tank.get_vulnerability_multiplier(), 1.1), "同类易伤应不叠加")
+		c7_vuln_tank.set("_vulnerability_time_left", 1.0)
+		SkillRegistry.apply_mystic_gate(c7_mystic_tower, c7_vuln_tank)
+		_check(is_equal_approx(float(c7_vuln_tank.get("_vulnerability_time_left")), 4.0), "同类易伤应刷新时长")
+		c7_mystic_tower.battle_rank = 5
+		SkillRegistry.apply_mystic_gate(c7_mystic_tower, c7_vuln_tank)
+		_check(is_equal_approx(c7_vuln_tank.get_vulnerability_multiplier(), 1.11), "奇门易伤应随档位放大（5 阶 1.11）")
+		c7_mystic_tower.queue_free()
+		if is_instance_valid(c7_vuln_tank):
+			c7_vuln_tank.queue_free()
+	# 护卫（虎卫）：近战命中概率沿路径拖回 20px（内置冷却 2.5s 防钉死）。
+	var c7_guard_promo := load("res://resources/promotions/tiger_guard_guard.tres") as PromotionData
+	var c7_guard_tower: Tower = tower_manager.build_tower(Vector2(340, 100), zhang_fei, null, {"level": 20, "promotion": c7_guard_promo})
+	_check(c7_guard_tower != null and c7_guard_tower.has_skill(&"command") and c7_guard_tower.has_skill(&"guard"),
+		"虎卫应同时持有军旗与护卫")
+	if c7_guard_tower:
+		c7_guard_tower.set_process(false)
+		c7_guard_tower.battle_rank = 20
+		_check(c7_guard_tower.get_skill_display_name(&"command") == "军旗", "虎卫保留的军旗不应带 +")
+		_check(c7_guard_tower.get_skill_display_name(&"guard") == "护卫", "新技能护卫不应带 +")
+		var c7_guard_target := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		c7_guard_target.set_process(false)
+		c7_guard_target.progress = 300.0
+		for _i in range(100):
+			SkillRegistry.on_attack_hit(c7_guard_tower, c7_guard_target, 10)
+			if c7_guard_target.progress < 300.0:
+				break
+		_check(is_equal_approx(c7_guard_target.progress, 280.0) and c7_guard_tower.guard_cooldown_left > 0.0,
+			"护卫应命中拖回 20px 并进入内置冷却")
+		for _i in range(20):
+			SkillRegistry.on_attack_hit(c7_guard_tower, c7_guard_target, 10)
+		_check(is_equal_approx(c7_guard_target.progress, 280.0), "护卫冷却期内不应反复拖回")
+		c7_guard_tower.queue_free()
+		if is_instance_valid(c7_guard_target):
+			c7_guard_target.queue_free()
+	# 余音（绕梁）：大招后全队伤害 +8%×s/5s（鼓舞线核心技能保留，走同一次大招钩子）。
+	var c7_diao_chan := load("res://resources/characters/diao_chan.tres") as CharacterData
+	var c7_echo_promo := load("res://resources/promotions/dancer_echo.tres") as PromotionData
+	var c7_echo_tower: Tower = tower_manager.build_tower(Vector2(420, 100), c7_diao_chan, null, {"level": 20, "promotion": c7_echo_promo})
+	var c7_echo_ally: Tower = tower_manager.build_tower(Vector2(480, 100), guan_yu, null, {"level": 1})
+	_check(c7_echo_tower != null and c7_echo_tower.has_skill(&"inspire") and c7_echo_tower.has_skill(&"echo")
+		and c7_echo_ally != null, "绕梁应同时持有鼓舞与余音")
+	if c7_echo_tower and c7_echo_ally:
+		c7_echo_tower.set_process(false)
+		c7_echo_ally.set_process(false)
+		_check(c7_echo_tower.get_skill_display_name(&"inspire") == "鼓舞", "绕梁保留的鼓舞不应带 +")
+		_check(c7_echo_tower.get_skill_display_name(&"echo") == "余音", "新技能余音不应带 +")
+		SkillRegistry.on_ultimate_cast(c7_echo_tower)
+		_check(is_equal_approx(c7_echo_ally.damage_buff, 1.08), "余音应使全队伤害 +8%")
+	if c7_echo_tower:
+		c7_echo_tower.queue_free()
+	if c7_echo_ally:
+		c7_echo_ally.queue_free()
+	# 震地（震山）：大招每发落点眩晕 0.5s×s（同目标内置冷却 2.5s 防 3 连发叠晕）。
+	var c7_tremor_promo := load("res://resources/promotions/catapult_earthquake.tres") as PromotionData
+	var c7_tremor_tower: Tower = tower_manager.build_tower(Vector2(540, 100), huang_fu_song, null, {"level": 20, "promotion": c7_tremor_promo})
+	_check(c7_tremor_tower != null and c7_tremor_tower.has_skill(&"siege") and c7_tremor_tower.has_skill(&"tremor"),
+		"震山应同时持有破城与震地")
+	if c7_tremor_tower:
+		c7_tremor_tower.set_process(false)
+		_check(c7_tremor_tower.get_skill_display_name(&"siege") == "破城", "震山保留的破城不应带 +")
+		_check(c7_tremor_tower.get_skill_display_name(&"tremor") == "震地", "新技能震地不应带 +")
+		var c7_stun_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		c7_stun_enemy.set_process(false)
+		c7_stun_enemy.progress = 300.0
+		SkillRegistry.try_apply_tremor_stun(c7_tremor_tower, c7_stun_enemy)
+		_check(is_equal_approx(float(c7_stun_enemy.get("_stun_time_left")), 0.5), "震地应眩晕 0.5s")
+		c7_stun_enemy._process(0.1)
+		_check(is_equal_approx(c7_stun_enemy.progress, 300.0), "眩晕期间敌人应停止移动")
+		c7_stun_enemy.set("_stun_time_left", 0.05)
+		SkillRegistry.try_apply_tremor_stun(c7_tremor_tower, c7_stun_enemy)
+		_check(is_equal_approx(float(c7_stun_enemy.get("_stun_time_left")), 0.05), "同目标冷却 2.5s 内不应叠晕")
+		c7_tremor_tower.tremor_stun_cooldowns.erase(c7_stun_enemy.get_instance_id())
+		c7_tremor_tower.battle_rank = 5
+		SkillRegistry.try_apply_tremor_stun(c7_tremor_tower, c7_stun_enemy)
+		_check(is_equal_approx(float(c7_stun_enemy.get("_stun_time_left")), 0.55), "震地眩晕应随档位放大（5 阶 0.55s）")
+		c7_stun_enemy._process(0.6)
+		_check(is_equal_approx(float(c7_stun_enemy.get("_stun_time_left")), 0.0), "眩晕应到时解除")
+		var c7_stun_progress_before := c7_stun_enemy.progress
+		c7_stun_enemy._process(0.1)
+		_check(c7_stun_enemy.progress > c7_stun_progress_before, "眩晕解除后敌人应恢复移动")
+		c7_tremor_tower.queue_free()
+		if is_instance_valid(c7_stun_enemy):
+			c7_stun_enemy.queue_free()
+	# 等一帧释放本组测试塔，避免护卫光环/余音增益污染后续光环桶与角色技能断言。
+	await get_tree().process_frame
+	# 常驻光环伤害桶（提交 7 验收）：军旗+（0.06×s）多源加法求和 + clamp(+50%)，最终只乘一次。
+	var c7_aura_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+	c7_aura_tank.set_process(false)
+	var c7_aura_probe: Tower = tower_manager.build_tower(Vector2(620, 100), guan_yu, null, {"level": 1})
+	_check(c7_aura_probe != null, "应能建造光环桶探针塔")
+	if c7_aura_probe:
+		c7_aura_probe.set_process(false)
+		var c7_aura_sources: Array[Tower] = []
+		var c7_aura_offsets := [-160.0, -80.0, 40.0, 120.0, 160.0, -120.0]
+		for c7_i in range(5):
+			var c7_source: Tower = tower_manager.build_tower(
+				Vector2(620.0 + c7_aura_offsets[c7_i], 100.0), zhang_fei, null,
+				{"level": 20, "promotion": load("res://resources/promotions/tiger_guard_vanguard.tres")})
+			if c7_source != null:
+				c7_source.set_process(false)
+				c7_source.battle_rank = 20
+				c7_aura_sources.append(c7_source)
+		c7_aura_probe.refresh_aura_damage_bonus()
+		_check(is_equal_approx(float(c7_aura_probe.get("_aura_damage_bonus")), 0.42),
+			"军旗+ 5 座应加法求和 +42%（0.06×1.4×5，多源互乘路径应消除）")
+		_check(c7_aura_probe.finalize_damage(100, c7_aura_tank) == 142, "光环桶应只乘一次 (1+0.42)")
+		var c7_sixth: Tower = tower_manager.build_tower(
+			Vector2(620.0 + c7_aura_offsets[5], 100.0), zhang_fei, null,
+			{"level": 20, "promotion": load("res://resources/promotions/tiger_guard_vanguard.tres")})
+		if c7_sixth != null:
+			c7_sixth.set_process(false)
+			c7_sixth.battle_rank = 20
+			c7_aura_sources.append(c7_sixth)
+		c7_aura_probe.refresh_aura_damage_bonus()
+		_check(is_equal_approx(float(c7_aura_probe.get("_aura_damage_bonus")), 0.5),
+			"光环桶应封顶 +50%（0.504 → clamp 0.5）")
+		_check(c7_aura_probe.finalize_damage(100, c7_aura_tank) == 150, "光环桶上限 1.5 应生效")
+		for c7_source in c7_aura_sources:
+			c7_source.queue_free()
+		c7_aura_probe.queue_free()
+	if is_instance_valid(c7_aura_tank):
+		c7_aura_tank.queue_free()
 	await get_tree().process_frame
 	# 虎贲职业重构（v0.28.0）：profession_id/大招 ID/克制/升阶步进配置同步。
 	var tiger_guard_prof := load("res://resources/professions/tiger_guard.tres") as ProfessionData

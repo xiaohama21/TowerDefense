@@ -200,6 +200,8 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 		if enemy.global_position.distance_to(center) <= aoe_radius:
 			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), tower.character_id)
 			enemy.apply_slow(0.6, 2.0)
+			# 奇门（天师，提交 7）：大招落点命中敌人施加易伤（同类不叠加、时长刷新）。
+			SkillRegistry.apply_mystic_gate(tower, enemy)
 	tower.play_attack_flash()
 	return true
 
@@ -225,6 +227,8 @@ static func _ult_catapult_barrage(tower: Tower) -> bool:
 		var bullet := tower.instantiate_bullet(target)
 		if bullet != null:
 			bullet.damage = tower.finalize_damage(int(round(tower.damage * 0.8 * tower.ultimate_power())), target)
+			# 震地（震山，提交 7）：大招每发落点范围内敌人眩晕（弹道爆炸时逐目标施加）。
+			bullet.tremor_stun = SkillRegistry.has_skill(tower, &"tremor")
 			var spread := Vector2(randf_range(-40.0, 40.0), randf_range(-40.0, 40.0))
 			bullet.launch_lob(target.global_position + spread, LOB_EXPLOSION_RADIUS * tower.get_battle_rank_aoe_multiplier())
 	tower.play_attack_flash()
@@ -250,24 +254,6 @@ static func get_trait_damage_multiplier(tower: Tower, target: Enemy) -> float:
 				return 1.0 + tower.get_trait_param("aoe_damage_bonus", 0.15)
 	return 1.0
 
-
-## 刘备仁德光环（不可叠加）：场上存在刘备塔时，其他塔伤害 +8%。
-static func has_benevolence_aura(tower: Tower) -> bool:
-	if tower.get_trait_id() == &"trait_benevolence":
-		return false
-	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-		var other := node as Tower
-		if other != null and other != tower and is_instance_valid(other) and other.get_trait_id() == &"trait_benevolence":
-			return true
-	return false
-
-
-static func benevolence_bonus(tower: Tower) -> float:
-	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-		var other := node as Tower
-		if other != null and other != tower and is_instance_valid(other) and other.get_trait_id() == &"trait_benevolence":
-			return 1.0 + other.get_trait_param("aura_damage_bonus", 0.08)
-	return 1.0
 
 
 ## 貂蝉月幕：自身大招积怒 +20%，友方大招积怒 +10%（貂蝉在场时）。

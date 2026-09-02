@@ -29,6 +29,8 @@ func build_tower(
 	tower.record_build_investment(cost)
 	tower.assigned_slot = slot
 	tower_created.emit(tower)
+	# 常驻光环伤害桶（提交 7）：建塔后立即刷新全员，避免等 0.25s 兜底扫描。
+	_refresh_aura_all()
 	return tower
 
 
@@ -61,4 +63,15 @@ func sell_tower(tower: Tower, stage_data: StageData) -> bool:
 		tower.assigned_slot.reset_slot()
 	tower.assigned_slot = null
 	tower.queue_free()
+	# 常驻光环伤害桶（提交 7）：拆塔后立即刷新全员（光环成员变化即时生效）。
+	_refresh_aura_all()
 	return true
+
+
+## 常驻光环伤害桶全员刷新（提交 7，STATS_PIPELINE 增益档次 1）：遍历本管理器持有的塔，
+## 各自重算仁德/军旗加算汇总；Tower._process 另有 0.25s 低频兜底扫描兜底。
+func _refresh_aura_all() -> void:
+	for child in get_children():
+		var tower := child as Tower
+		if tower != null and is_instance_valid(tower) and not tower.is_queued_for_deletion():
+			tower.refresh_aura_damage_bonus()

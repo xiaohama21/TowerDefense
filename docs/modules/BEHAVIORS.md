@@ -88,9 +88,9 @@
 | `trait_dragon_spirit` | 赵云 | 每击杀叠 4% 攻速（可叠加，脱战重置） |
 | `trait_star_gazer` | 诸葛亮 | 射程 +12%，范围内敌人减速 8% |
 
-### B.3.5 转职技能行为（`skill_id`，✅ v0.15.0 落地）
+### B.3.5 转职技能行为（`skill_id`，✅ v0.15.0 落地；职业技能双轨 ✅ v0.32.0 / 阶段 8·提交 7 接入）
 
-技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_rank / 5, 4)`（✅ v0.27.4 拍板：仅职业技能、按局内升阶）。**v0.4（v0.28）转职体系重构：6 职业各 1 个核心技能（一转授予），二转分支 = 强化（同名 `+`）或新技能（独立 `skill_id`）**；完整规格见 [SKILLS.md](SKILLS.md) v0.4 与 CHARACTERS.md 4.5。
+技能 = 转职授予的被动/条件触发能力，由 **`SkillRegistry`**（`scripts/combat/SkillRegistry.gd`）按 `skill_id` 分发，战斗脚本只调用钩子（`on_attack_hit` / `on_kill` / `on_ultimate_cast` / `passive_multipliers`），不写死任何技能逻辑。数值经 `PromotionData.skill_params` 读取；档位系数 `s = 1 + 0.1 × min(battle_rank / 5, 4)`（✅ v0.27.4 拍板：仅职业技能、按局内升阶）。**v0.4（v0.28）转职体系重构：6 职业各 1 个核心技能（一转授予），二转分支 = 强化（同名 `+`）或新技能（独立 `skill_id`）**；完整规格见 [SKILLS.md](SKILLS.md) v0.7 与 CHARACTERS.md 4.5。**✅ v0.32.0（阶段 8·提交 7）**：下表 6 个新技能行（`assault`/`guard`/`chain_arrow`/`mystic_gate`/`echo`/`tremor`）已全部接入——触发入口统一为 `on_attack_hit`（稳射保底/连矢概率追加/突袭精英命中叠层/护卫拖回各带 `has_skill` 守卫）/ `on_kill`（charge 强化 + 突袭击杀叠层）/ `on_ultimate_cast`（inspire + echo）；奇门在术士大招执行器落点施加易伤、震地在投石车大招抛射弹落点施加眩晕（`Enemy.apply_vulnerability` / `apply_stun`）；`on_ally_damaged` 钩子废弃、代码无残留调用。
 
 | skill_id | 职业 | 触发点 | 效果概要 | 演出 |
 |---|---|---|---|---|

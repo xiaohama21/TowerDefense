@@ -39,6 +39,14 @@ var _burn_acc: float = 0.0
 ## 定军标记（黄忠·定军山，阶段 8·提交 6）：character_id -> 剩余秒数；
 ## 被标记目标受该武将塔普攻伤害 +15%（SkillRegistry.passive_damage_multiplier 读取）。
 var marks: Dictionary = {}
+## 眩晕（震山·震地，提交 7）：时长类控制——剩余秒数内停止移动；
+## 同一敌人叠晕由施法者塔内置冷却（2.5s）防抖，见 SkillRegistry.try_apply_tremor_stun。
+var _stun_time_left: float = 0.0
+var _stun_pulse: float = 0.0
+## 易伤（天师·奇门，提交 7）：剩余秒数内受所有来源伤害 +_vulnerability_bonus；
+## 同类不叠加（取更强加成）、时长刷新（NUMBERS 10.10）。
+var _vulnerability_bonus: float = 0.0
+var _vulnerability_time_left: float = 0.0
 
 @onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
@@ -99,11 +107,22 @@ func _process(delta: float) -> void:
 		for key in expired_marks:
 			marks.erase(key)
 
-	var before := global_position
-	progress += speed * slow_factor * delta
-	var delta_pos := global_position - before
-	if delta_pos.length_squared() > 0.01:
-		velocity_dir = delta_pos.normalized()
+	if _vulnerability_time_left > 0.0:
+		_vulnerability_time_left = maxf(_vulnerability_time_left - delta, 0.0)
+		if _vulnerability_time_left <= 0.0:
+			_vulnerability_bonus = 0.0
+
+	# 眩晕（震地，提交 7）：期间停止移动、进度不推进；Boss 控制抗性折减随阶段 9 统一落地。
+	if _stun_time_left > 0.0:
+		_stun_time_left = maxf(_stun_time_left - delta, 0.0)
+		_stun_pulse += delta
+		queue_redraw()
+	else:
+		var before := global_position
+		progress += speed * slow_factor * delta
+		var delta_pos := global_position - before
+		if delta_pos.length_squared() > 0.01:
+			velocity_dir = delta_pos.normalized()
 
 	if progress_ratio >= 1.0 - 0.0001:
 		GameManager.enemy_reached_base(damage_to_base)
@@ -135,6 +154,31 @@ func apply_burn(dps: int, duration: float) -> void:
 	_burn_time_left = maxf(_burn_time_left, duration)
 
 
+## 施加眩晕（震地，提交 7）：时长类控制，取更长剩余时长；期间停止移动。
+func apply_stun(duration: float) -> void:
+	if is_dead or duration <= 0.0:
+		return
+	_stun_time_left = maxf(_stun_time_left, duration)
+	queue_redraw()
+
+
+## 施加易伤（奇门，提交 7）：同类不叠加（取更强加成）、时长刷新（NUMBERS 10.10）；
+## 作用在 Enemy.take_damage——所有来源伤害（普攻/技能/灼烧等）均受益。
+func apply_vulnerability(bonus: float, duration: float) -> void:
+	if is_dead or duration <= 0.0 or bonus <= 0.0:
+		return
+	_vulnerability_bonus = maxf(_vulnerability_bonus, bonus)
+	_vulnerability_time_left = maxf(_vulnerability_time_left, duration)
+	queue_redraw()
+
+
+## 易伤倍率：有效期内 1 + bonus，否则 1.0。
+func get_vulnerability_multiplier() -> float:
+	if _vulnerability_time_left <= 0.0:
+		return 1.0
+	return 1.0 + _vulnerability_bonus
+
+
 func take_damage(amount: int, source_character_id: String = "") -> void:
 	if is_dead or amount <= 0:
 		return
@@ -142,8 +186,12 @@ func take_damage(amount: int, source_character_id: String = "") -> void:
 	if not source_id.is_empty():
 		last_damage_source_character_id = source_id
 
+	# 易伤（奇门）：所有来源伤害先乘易伤倍率（同类不叠加只刷新，NUMBERS 10.10）。
+	var scaled := int(round(float(amount) * get_vulnerability_multiplier()))
+	if scaled <= 0:
+		return
 	# 护甲减算保留 10% 伤害下限，高护甲也不完全免伤（GDD 5.5）。
-	var effective := maxi(amount - armor, ceili(amount * 0.1))
+	var effective := maxi(scaled - armor, ceili(scaled * 0.1))
 	current_hp = maxi(current_hp - effective, 0)
 	if not source_id.is_empty():
 		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
@@ -226,3 +274,13 @@ func _draw() -> void:
 	# 眼睛
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 2.0, Color(0.95, 0.96, 0.97, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
+	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
+	# 眩晕表现（震地，提交 7）：头顶旋转三小星，眩晕结束自动消失（queue_redraw 由计时驱动）。
+	if _stun_time_left > 0.0:
+		var spin := _stun_pulse * 6.0
+		for i in range(3):
+			var angle := spin + float(i) * TAU / 3.0
+			draw_circle(
+				Vector2(cos(angle) * 8.0, -half.y - 16.0 + sin(angle) * 3.0),
+				2.4, Color(1.0, 0.85, 0.35, 0.95)
+			)

@@ -24,6 +24,7 @@ range_multiplier = 1
 attack_interval_multiplier = 0.8
 ultimate_multiplier = 1.2
 granted_skill_ids = [&"inspire"]
+enhanced_skill_ids = [&"inspire"]
 skill_params = {"team_speed_bonus": 0.09, "duration": 10.0}
 visual_variant_id = &"dancer_phoenix"
 item_costs = [SubResource("ItemAmountData_cloth20")]

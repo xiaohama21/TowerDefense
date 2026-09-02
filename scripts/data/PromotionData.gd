@@ -21,6 +21,9 @@ class_name PromotionData
 ## 转职大招强化倍率（阶段 3 怒气系统使用，v0.11.1 先行铺设）。
 @export_range(0.0, 100.0, 0.01) var ultimate_multiplier: float = 1.0
 @export var granted_skill_ids: Array[StringName] = []
+## 强化标记列表（v0.31.3 提交 7 落地，SKILLS.md）：命中该列表的技能在属性面板
+## 显示名带 +（核心技能强化线配 [核心技能 id]；新技能线留空，双技能均不带 +）。
+@export var enhanced_skill_ids: Array[StringName] = []
 ## 技能参数（v0.15.0，GDD modules/BEHAVIORS.md B.3.5）：skill_id -> 数值字典，
 ## 档位系数仅职业技能适用、以局内升阶 battle_rank 为准（v0.27.4 拍板，见 SKILLS.md 第 5 节）。
 @export var skill_params: Dictionary = {}

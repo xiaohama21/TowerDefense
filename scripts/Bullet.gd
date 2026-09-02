@@ -12,6 +12,9 @@ var source_character_id: String = ""
 var source_tower: Tower = null
 ## 是否按普攻命中事件结算（普攻弹道置 true；大招/技能弹道默认 false）。
 var counts_as_attack: bool = false
+## 震地眩晕标记（震山·震地，提交 7）：大招抛射弹爆炸时对落点范围内敌人
+## 施加眩晕（同一敌人内置冷却由施法者塔维护，见 SkillRegistry.try_apply_tremor_stun）。
+var tremor_stun: bool = false
 var max_lifetime: float = 5.0
 var hit_radius: float = 6.0
 
@@ -102,6 +105,9 @@ func _explode() -> void:
 			continue
 		if enemy.global_position.distance_to(lob_landing) <= explosion_radius:
 			enemy.take_damage(damage, source_character_id)
+			# 震地（提交 7）：大招每发落点范围内敌人眩晕（同目标冷却防 3 连发叠晕）。
+			if tremor_stun and source_tower != null and is_instance_valid(source_tower):
+				SkillRegistry.try_apply_tremor_stun(source_tower, enemy)
 			hit_any = true
 	# AOE 攻击级事件（v0.31.4 / 0.8.6.2）：命中≥1 才按该发伤害计一次怒气（空爆不计）。
 	if counts_as_attack and hit_any and source_tower != null and is_instance_valid(source_tower):
