@@ -490,7 +490,9 @@ func _on_promote_pressed(promotion: PromotionData) -> void:
 	dialog.ok_button_text = "确认转职"
 	dialog.cancel_button_text = "取消"
 	dialog.confirmed.connect(_apply_promotion.bind(promotion, dialog))
-	dialog.cancelled.connect(dialog.queue_free)
+	# Godot 4 取消信号名为 canceled（Godot 3 旧名 cancelled 已移除，v0.32.2 修复）。
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.close_requested.connect(dialog.queue_free)
 	add_child(dialog)
 	dialog.popup_centered()
 
