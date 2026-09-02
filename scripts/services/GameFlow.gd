@@ -29,8 +29,8 @@ var squad_character_ids: Array[String] = []
 var squad_relic_ids: Array[String] = []
 ## 游戏大厅当前页签（map/develop/settings），战斗结算"返回大厅"时恢复。
 var hub_active_panel: StringName = &"map"
-## 当前难度（0=轻松 1=标准 2=困难），默认标准。
-var selected_difficulty: int = 1
+## 当前难度（index 对应 difficulty_presets，默认标准=0）。
+var selected_difficulty: int = Difficulty.NORMAL
 
 
 ## 新的征程：清空现有档案并发放初始武将。
@@ -157,14 +157,14 @@ func get_squad_bond_damage_bonus(squad_ids: Array) -> float:
 			bonus += (progress["bond"] as BondData).damage_bonus
 	return bonus
 
-## 难度解锁：困难需该关标准难度通关（v0.14.1 接通写档：结算按难度记录）。
+## 难度解锁（v0.14.1 接通写档：结算按难度记录；v0.31.2 通用化）：首档恒解锁，后续档需通关上一档。
 func is_difficulty_unlocked(profile: PlayerProfile, stage_id: StringName, difficulty: int) -> bool:
 	if difficulty <= Difficulty.NORMAL:
 		return true
 	var entry = profile.stage_progress.get(str(stage_id), {})
 	if entry is Dictionary:
 		var diffs: Dictionary = entry.get("difficulties", {})
-		return diffs.has(Difficulty.key_name(Difficulty.NORMAL))
+		return diffs.has(Difficulty.key_name(difficulty - 1))
 	return false
 
 
@@ -450,7 +450,7 @@ func goto_hub() -> void:
 	_change_scene(GAME_HUB_SCENE)
 
 
-func goto_squad_select(difficulty: int = 1) -> void:
+func goto_squad_select(difficulty: int = Difficulty.NORMAL) -> void:
 	selected_difficulty = difficulty
 	_change_scene(SQUAD_SELECT_SCENE)
 

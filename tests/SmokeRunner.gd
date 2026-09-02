@@ -97,6 +97,10 @@ func _run() -> void:
 		and is_equal_approx(Difficulty.reward_mult(Difficulty.HARD), 1.6)
 		and is_equal_approx(Difficulty.material_mult(Difficulty.HARD), 2.0),
 		"难度倍率应读中心配置（困难 1.4/1.6/2.0）")
+	_check(Difficulty.count() == 2 and Difficulty.name(Difficulty.NORMAL) == "标准"
+		and Difficulty.name(Difficulty.HARD) == "困难"
+		and Difficulty.key_name(Difficulty.NORMAL) == "normal",
+		"难度应两档化（标准/困难，data-driven difficulty_presets，v0.31.2）")
 
 	# 阶段 6 提交 2（v0.18.0）：敌人模板——模板可加载、哨兵字段继承、显式字段覆盖。
 	var heavy_cavalry := load("res://resources/enemy_templates/heavy_cavalry.tres") as EnemyTemplateData

@@ -7,9 +7,19 @@ script = ExtResource("1_balance")
 exp_base_per_level = 40
 exp_growth_per_level = 15
 max_level = 30
-enemy_hp_mult = Array[float]([0.8, 1.0, 1.4])
-reward_mult = Array[float]([0.8, 1.0, 1.6])
-material_mult = Array[float]([0.8, 1.0, 2.0])
+difficulty_presets = [{
+"key": "normal",
+"name": "标准",
+"enemy_hp_mult": 1.0,
+"reward_mult": 1.0,
+"material_mult": 1.0
+}, {
+"key": "hard",
+"name": "困难",
+"enemy_hp_mult": 1.4,
+"reward_mult": 1.6,
+"material_mult": 2.0
+}]
 upgrade_damage_step = 0.25
 ultimate_battle_step = 0.25
 max_rage = 100.0

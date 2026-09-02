@@ -154,7 +154,19 @@ func _test_hub(profile: PlayerProfile) -> void:
 		if button.disabled:
 			disabled_count += 1
 	# 界面排版重构（阶段 8 提交 4）：章节一行 + 关卡 2×4 网格 + 底部操作条，无滚动条。
-	_check(map_buttons.size() >= 20, "地图面板应包含章节行 + 8 关卡卡片 + 底部操作条")
+	# v0.31.2：难度两档（标准/困难），按文本精确断言，避免按钮数随档位变化失效。
+	var has_deploy := false
+	var has_instant_clear := false
+	var diff_name_count := 0
+	for button in map_buttons:
+		if button.text == "出 征":
+			has_deploy = true
+		elif button.text == "一键通关（测试）":
+			has_instant_clear = true
+		elif button.text == "标准" or button.text == "困难":
+			diff_name_count += 1
+	_check(map_buttons.size() >= 19 and has_deploy and has_instant_clear and diff_name_count == 2,
+		"地图面板应包含章节行 + 8 关卡卡片 + 底部操作条（难度 2 档 + 出征 + 一键通关）")
 	_check(disabled_count >= 12, "预留章节、未解锁关卡与未解锁难度应禁用")
 	var map_scrolls := map_panel.find_children("*", "ScrollContainer", true, false)
 	_check(map_scrolls.is_empty(), "地图面板应一屏展示无滚动条")
@@ -251,6 +263,39 @@ func _test_hub(profile: PlayerProfile) -> void:
 		var s01_diffs: Dictionary = s01_entry.get("difficulties", {})
 		_check(s01_diffs.has(Difficulty.key_name(Difficulty.HARD)),
 			"一键通关应按所选困难难度写档")
+
+	# 难度两档化 + 出征确认（v0.31.2）：难度切换仅标准/困难；出征先弹确认框、确认后才发信号。
+	var diff_buttons: Array[Button] = []
+	for button in _collect_buttons(map_panel):
+		if button.text == "标准" or button.text == "困难":
+			diff_buttons.append(button)
+	_check(diff_buttons.size() == Difficulty.count() and diff_buttons.size() == 2,
+		"难度切换应只有标准/困难两档（随 difficulty_presets 扩展）")
+	var deploy_button: Button = null
+	for button in _collect_buttons(map_panel):
+		if button.text == "出 征":
+			deploy_button = button
+			break
+	var deploy_confirm: ConfirmationDialog = map_panel.get("_deploy_confirm")
+	_check(deploy_confirm != null, "地图面板应挂载出征确认框")
+	if deploy_button != null and deploy_confirm != null:
+		deploy_button.pressed.emit()
+		await get_tree().process_frame
+		_check(deploy_confirm.visible, "点击出征应弹出确认框（不直接进入编队）")
+		_check(deploy_confirm.dialog_text.contains(Difficulty.name(map_panel.get("_selected_difficulty"))),
+			"出征确认框应展示当前难度")
+		var emitted: Array = []
+		var capture := func(stage_id: StringName, difficulty: int) -> void:
+			emitted.append([stage_id, difficulty])
+		for conn in map_panel.stage_selected.get_connections():
+			map_panel.stage_selected.disconnect(conn["callable"])
+		map_panel.stage_selected.connect(capture)
+		deploy_confirm.confirmed.emit()
+		await get_tree().process_frame
+		_check(emitted.size() == 1 and emitted[0][0] == &"ch01_s01"
+			and int(emitted[0][1]) == Difficulty.HARD,
+			"确认出征后应发出 stage_selected（当前所选关卡与难度）")
+		deploy_confirm.hide()
 
 	hub.queue_free()
 	await get_tree().process_frame

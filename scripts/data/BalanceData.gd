@@ -12,10 +12,12 @@ class_name BalanceData
 @export_range(1, 999, 1) var max_level: int = 30
 
 @export_category("Difficulty (NUMBERS.md 10.7)")
-## 三档倍率（轻松/标准/困难）。
-@export var enemy_hp_mult: Array[float] = [0.8, 1.0, 1.4]
-@export var reward_mult: Array[float] = [0.8, 1.0, 1.6]
-@export var material_mult: Array[float] = [0.8, 1.0, 2.0]
+## 难度档位预设（v0.31.2 数据驱动，轻松已移除）：首档恒解锁，后续档需通关上一档解锁
+## （GameFlow.is_difficulty_unlocked）。拓展新难度 = 在此追加一项（key/name/三倍率），无需改代码。
+@export var difficulty_presets: Array[Dictionary] = [
+	{"key": "normal", "name": "标准", "enemy_hp_mult": 1.0, "reward_mult": 1.0, "material_mult": 1.0},
+	{"key": "hard", "name": "困难", "enemy_hp_mult": 1.4, "reward_mult": 1.6, "material_mult": 2.0},
+]
 
 @export_category("Battle (NUMBERS.md 10.3/10.5)")
 ## 局内塔升级伤害步进（+25%/级，STAGES.md 5.4）。
@@ -37,4 +39,12 @@ class_name BalanceData
 
 
 func is_valid() -> bool:
-	return max_level > 0 and enemy_hp_mult.size() == 3 and reward_mult.size() == 3 and material_mult.size() == 3
+	if max_level <= 0 or difficulty_presets.size() < 2:
+		return false
+	for preset in difficulty_presets:
+		if not preset is Dictionary:
+			return false
+		for key in ["key", "name", "enemy_hp_mult", "reward_mult", "material_mult"]:
+			if not preset.has(key):
+				return false
+	return true

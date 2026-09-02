@@ -72,7 +72,7 @@ func _build_ui() -> void:
 
 	var squad_cap: int = _stage_data.squad_size if _stage_data != null else 4
 	var stage_name: String = _stage_data.display_name if _stage_data != null else "未选择关卡"
-	var diff_name: String = Difficulty.NAMES[GameFlow.selected_difficulty] if GameFlow.selected_difficulty < 3 else "标准"
+	var diff_name: String = Difficulty.name(GameFlow.selected_difficulty)
 	var title := Label.new()
 	title.text = "编队出征 · %s（最多 %d 名武将 · %s）" % [stage_name, squad_cap, diff_name]
 	title.add_theme_font_size_override("font_size", 30)
