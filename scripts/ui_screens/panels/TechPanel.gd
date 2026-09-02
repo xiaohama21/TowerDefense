@@ -7,6 +7,8 @@ extends VBoxContainer
 
 const NODE_MIN_WIDTH := 116
 const NODE_HEIGHT := 62
+## 测试辅助（v0.30.4）：单次点击增加的科技点，不改变正式数值与结算逻辑。
+const DEBUG_POINTS_AMOUNT: int = 50
 
 var _points_label: Label
 var _tab_container: TabContainer
@@ -51,6 +53,14 @@ func _build_ui() -> void:
 	reset_button.add_theme_font_size_override("font_size", 15)
 	reset_button.pressed.connect(_on_reset_pressed)
 	top_row.add_child(reset_button)
+
+	var debug_button := Button.new()
+	debug_button.text = "科技点+%d（测试）" % DEBUG_POINTS_AMOUNT
+	debug_button.custom_minimum_size = Vector2(140, 38)
+	debug_button.add_theme_font_size_override("font_size", 13)
+	debug_button.add_theme_color_override("font_color", UITheme.GRAY)
+	debug_button.pressed.connect(_on_debug_add_points)
+	top_row.add_child(debug_button)
 
 	var legend := Label.new()
 	legend.text = "图例：金边=根节点（起点） · 绿边=叶子节点（终点） · 竖线=前置关系"
@@ -357,6 +367,14 @@ func _on_tech_unlock(tech_id: String, cost: int) -> void:
 	if ProfileStore.get_profile().unlock_tech(tech_id, cost):
 		ProfileStore.save_profile(ProfileStore.get_profile())
 		_refresh()
+
+
+## 测试辅助（仅测试用，v0.30.4）：快速增加科技点，便于验证科技树解锁链路。
+func _on_debug_add_points() -> void:
+	var profile := ProfileStore.get_profile()
+	profile.tech_points += DEBUG_POINTS_AMOUNT
+	ProfileStore.save_profile(profile)
+	_refresh()
 
 
 ## 重置（v0.30.2 补确认框）：弹出确认后再清空，防止误触丢失全部科技。
