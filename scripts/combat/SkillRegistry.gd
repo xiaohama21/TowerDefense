@@ -169,10 +169,11 @@ static func on_character_skill_ready(tower: Tower) -> void:
 static func on_attack_hit(tower: Tower, target: Enemy, _dealt: int) -> void:
 	if not has_skill(tower, &"steady"):
 		return
+	# v0.31.4 / 0.8.6.2 命中口径：实际命中即计数（含击杀那发）；追加只对存活目标结算。
+	tower.steady_attack_counter += 1
 	if target == null or target.is_dead:
 		return
 	var s := tier_multiplier(tower)
-	tower.steady_attack_counter += 1
 	var every := maxi(int(param(tower, &"steady", "every", 5.0)), 1)
 	if tower.steady_attack_counter < every:
 		return

@@ -446,6 +446,21 @@ func gain_rage_for_attack(dealt: int) -> void:
 	gain_rage(float(_gain_per_hit) + float(dealt) * _gain_per_damage)
 
 
+## 单体攻击命中结算统一入口（v0.31.4 / 0.8.6.2 命中事件拆分）：
+## 近战挥击与弹道命中共用，仅在实际造成伤害后调用——怒气 / 职业技能命中钩子
+## （稳射等计数与追加）/ 命中型特性（咆哮等）。目标飞行中死亡或空爆不触发。
+func notify_attack_damage_dealt(target: Enemy, dealt: int) -> void:
+	gain_rage_for_attack(dealt)
+	SkillRegistry.on_attack_hit(self, target, dealt)
+	BehaviorRegistry.notify_hit_trait(self, target)
+
+
+## AOE 命中结算攻击级入口（v0.31.4 / 0.8.6.2）：每发一次（命中≥1 才调用），
+## 怒气按该发伤害计一次、不按命中数叠加；目标级效果由 AOE 行为执行器逐目标施加。
+func notify_aoe_damage_dealt(dealt: int) -> void:
+	gain_rage_for_attack(dealt)
+
+
 ## 辅助脉冲积怒（support 模式）：触发增益 +N，每覆盖一名友方再 +N；
 ## 贡献经验经 GameManager.add_support_contribution 按 5s 去重与每波上限结算（10.6，阶段 8 提交 3）。
 func gain_support_pulse(allies: Array) -> void:
@@ -823,6 +838,7 @@ func instantiate_bullet(target_enemy: Enemy) -> Bullet:
 	bullet.damage = damage
 	bullet.speed = bullet_speed * _bullet_speed_buff
 	bullet.source_character_id = character_id
+	bullet.source_tower = self
 	bullet.kind = _profession_id
 	bullet.color = _hero_color
 

@@ -91,11 +91,12 @@ static func get_profession_counter(profession_id: StringName, enemy_tags: Array[
 
 
 static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
+	## 弹道普攻（v0.31.4 / 0.8.6.2）：发射只创建弹道并锁定伤害；怒气 / 稳射等命中事件
+	## 由子弹命中结算后回调 Tower.notify_attack_damage_dealt（目标死亡/丢失则整发作废）。
 	var bullet := tower.instantiate_bullet(target)
 	if bullet != null:
 		bullet.damage = tower.finalize_damage(tower.damage, target)
-		tower.gain_rage_for_attack(bullet.damage)
-		SkillRegistry.on_attack_hit(tower, target, bullet.damage)
+		bullet.counts_as_attack = true
 	# 弹道类攻击表现：枪口闪光（近战类由各自执行器触发挥击表现）。
 	tower.play_attack_flash()
 
@@ -104,14 +105,13 @@ static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
 	## 近战直伤 + 武器挥击表现；伤害走结算管线（克制/特性/增益）。
 	var damage := tower.finalize_damage(tower.damage, target)
 	target.take_damage(damage, tower.character_id)
-	tower.gain_rage_for_attack(damage)
-	SkillRegistry.on_attack_hit(tower, target, damage)
-	_notify_damage_dealt(tower, target)
+	tower.notify_attack_damage_dealt(target, damage)
 	tower.play_melee_hit()
 
 
 ## 命中后特性触发（v0.11.2）：张飞咆哮按概率减速目标。
-static func _notify_damage_dealt(tower: Tower, target: Enemy) -> void:
+## v0.31.4 / 0.8.6.2：由 Tower.notify_attack_damage_dealt 统一调用（近战与弹道命中共用）。
+static func notify_hit_trait(tower: Tower, target: Enemy) -> void:
 	if tower.get_trait_id() == &"trait_yanyan_roar":
 		if randf() < tower.get_trait_param("chance", 0.3):
 			target.apply_slow(
@@ -128,7 +128,7 @@ static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
 	if bullet == null:
 		return
 	bullet.damage = tower.finalize_damage(tower.damage, target)
-	tower.gain_rage_for_attack(bullet.damage)
+	bullet.counts_as_attack = true
 	var flight_time := tower.global_position.distance_to(target.global_position) / maxf(bullet.speed, 1.0)
 	var predicted := target.global_position + target.velocity_dir * target.speed * flight_time
 	bullet.launch_lob(predicted, LOB_EXPLOSION_RADIUS * tower.get_battle_rank_aoe_multiplier())

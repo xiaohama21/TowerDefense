@@ -779,7 +779,58 @@ func _run() -> void:
 		_check(steady_loss % int(round(steady_tower.damage * 0.6)) == 0,
 			"稳射追加伤害应为 0.6× 普攻的整数倍")
 		steady_target.queue_free()
-		steady_tower.queue_free()	# 大招模式（v0.15.0）：手动满怒待发，自动满怒即放；均触发专属视觉。
+		steady_tower.queue_free()
+
+	# 命中事件拆分（v0.31.4 / 0.8.6.2）：远程普攻发射不积怒，弹道命中造成伤害后才积怒；
+	# 目标飞行中死亡则整发作废（不积怒、不计数）。
+	var event_char := load("res://resources/characters/huang_zhong.tres") as CharacterData
+	var event_tower: Tower = tower_manager.build_tower(Vector2(80, 700), event_char, null, {"level": 1})
+	_check(event_tower != null, "应能建造命中事件用例塔（黄忠·弓箭手）")
+	if event_tower != null:
+		event_tower.set_process(false)
+		event_tower.rage = 0.0
+		var hit_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		hit_enemy.set_process(false)
+		hit_enemy.global_position = event_tower.global_position + Vector2(120, 0)
+		event_tower.target = hit_enemy
+		event_tower.attack()
+		_check(is_equal_approx(event_tower.rage, 0.0), "远程普攻发射瞬间不应积怒（v0.31.4）")
+		var arrow: Bullet = null
+		for child in event_tower.get_tree().current_scene.get_children():
+			if child is Bullet and not child.is_queued_for_deletion() and (child as Bullet).source_tower == event_tower:
+				arrow = child
+				break
+		_check(arrow != null, "发射后应存在飞行中的子弹")
+		if arrow != null and is_instance_valid(hit_enemy):
+			var expected_rage := 4.0 + float(arrow.damage) * 0.1
+			arrow.max_lifetime = 60.0
+			arrow._physics_process(10.0)
+			_check(is_equal_approx(event_tower.rage, expected_rage),
+				"子弹命中造成伤害后才应积怒（4 + 伤害×0.1）")
+		# 目标飞行中死亡：该发作废、不积怒。
+		event_tower.rage = 0.0
+		var lost_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		lost_enemy.set_process(false)
+		lost_enemy.global_position = event_tower.global_position + Vector2(120, 0)
+		event_tower.target = lost_enemy
+		event_tower.attack()
+		var dud_arrow: Bullet = null
+		for child in event_tower.get_tree().current_scene.get_children():
+			if child is Bullet and not child.is_queued_for_deletion() and (child as Bullet).source_tower == event_tower:
+				dud_arrow = child
+				break
+		if dud_arrow != null:
+			dud_arrow.max_lifetime = 60.0
+			lost_enemy.take_damage(99999, "other_tower")
+			dud_arrow._physics_process(10.0)
+			_check(is_equal_approx(event_tower.rage, 0.0), "目标飞行中死亡，子弹作废不应积怒（v0.31.4）")
+		event_tower.queue_free()
+		if is_instance_valid(hit_enemy):
+			hit_enemy.queue_free()
+		if is_instance_valid(lost_enemy):
+			lost_enemy.queue_free()
+
+		# 大招模式（v0.15.0）：手动满怒待发，自动满怒即放；均触发专属视觉。
 	var mode_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
 	mode_tank.set_process(false)
 	mode_tank.global_position = Vector2(180, 640)

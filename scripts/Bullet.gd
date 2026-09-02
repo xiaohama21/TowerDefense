@@ -6,6 +6,12 @@ var target: Enemy = null
 var damage: int = 10
 var speed: float = 400.0
 var source_character_id: String = ""
+
+## 命中结算来源塔（v0.31.4 / 0.8.6.2 命中事件拆分）：普攻弹道命中/爆炸后回调
+## 怒气与技能命中钩子；大招/主动技能弹道不置位（只结算伤害，不接普攻命中事件）。
+var source_tower: Tower = null
+## 是否按普攻命中事件结算（普攻弹道置 true；大招/技能弹道默认 false）。
+var counts_as_attack: bool = false
 var max_lifetime: float = 5.0
 var hit_radius: float = 6.0
 
@@ -49,6 +55,7 @@ func _physics_process(delta: float) -> void:
 	# avoids fast bullets skipping past it on a low frame rate.
 	if distance <= hit_radius or travel_distance >= distance:
 		target.take_damage(damage, source_character_id)
+		_notify_hit_events(target)
 		queue_free()
 		return
 
@@ -57,6 +64,13 @@ func _physics_process(delta: float) -> void:
 	rotation = direction.angle()
 	queue_redraw()
 
+
+## 命中事件回调（v0.31.4 / 0.8.6.2）：仅普攻弹道在造成伤害后调用（近战即时结算
+## 走 BehaviorRegistry，不走本回调）。
+func _notify_hit_events(target: Enemy) -> void:
+	if not counts_as_attack or source_tower == null or not is_instance_valid(source_tower):
+		return
+	source_tower.notify_attack_damage_dealt(target, damage)
 
 ## 启动抛射：设定落点与爆炸半径，飞行总距离据此计算。
 func launch_lob(landing: Vector2, radius: float) -> void:
@@ -81,12 +95,17 @@ func _process_lob(delta: float) -> void:
 ## 落点范围伤害：对该范围内所有存活敌人结算（来源计入经验归属台账）。
 func _explode() -> void:
 	var enemies := get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP)
+	var hit_any := false
 	for node in enemies:
 		var enemy := node as Enemy
 		if enemy == null or enemy.is_dead:
 			continue
 		if enemy.global_position.distance_to(lob_landing) <= explosion_radius:
 			enemy.take_damage(damage, source_character_id)
+			hit_any = true
+	# AOE 攻击级事件（v0.31.4 / 0.8.6.2）：命中≥1 才按该发伤害计一次怒气（空爆不计）。
+	if counts_as_attack and hit_any and source_tower != null and is_instance_valid(source_tower):
+		source_tower.notify_aoe_damage_dealt(damage)
 
 
 func _draw_lob() -> void:
