@@ -24,6 +24,7 @@ range_multiplier = 1.1
 attack_interval_multiplier = 0.9
 ultimate_multiplier = 1.25
 granted_skill_ids = [&"wisdom"]
+enhanced_skill_ids = [&"wisdom"]
 skill_params = {"aoe_radius_bonus": 0.15}
 visual_variant_id = &"strategist_sage"
 item_costs = [SubResource("ItemAmountData_cloth20")]
