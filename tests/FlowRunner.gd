@@ -37,7 +37,7 @@ func _test_unlock_logic() -> PlayerProfile:
 	if profile == null:
 		return null
 	GameFlow.ensure_initial_characters(profile)
-	_check(profile.has_character("liu_bei") and not profile.has_character("guan_yu"), "新档应仅初始拥有刘备（关羽待 s01 首通解锁）")
+	_check(profile.has_character("liu_bei") and profile.has_character("guan_yu"), "新档应初始拥有刘备、关羽")
 
 	var stage_ids := [&"ch01_s01", &"ch01_s02", &"ch01_s03", &"ch01_s04", &"ch01_s05", &"ch01_s06", &"ch01_s07", &"ch01_s08"]
 	var stages: Array[StageData] = []
@@ -171,7 +171,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	for button in _collect_buttons(develop_panel):
 		if button.toggle_mode:
 			toggles += 1
-	_check(toggles == 1, "养成面板应仅列出初始武将刘备")
+	_check(toggles == 2, "养成面板应列出 2 名初始武将（刘备/关羽）")
 	# 武将图鉴（v0.11.3）：9 名角色全部可见，未解锁 7 名置灰标注获取方式
 	var develop_buttons := _collect_buttons(develop_panel)
 	var locked_count := 0
@@ -179,7 +179,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		if button.disabled and not button.toggle_mode:
 			locked_count += 1
 	print("PROBE develop_buttons=", develop_buttons.size(), " locked_disabled=", locked_count)
-	_check(locked_count >= 8, "图鉴应显示未拥有武将（置灰）")
+	_check(locked_count >= 7, "图鉴应显示 7 名未拥有武将（置灰）")
 	# 转职分支候选（v0.17.0）：未转职时展示一转候选按钮，等级/材料不足应禁用。
 	var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
 	var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
@@ -275,7 +275,7 @@ func _test_squad_select_screen() -> void:
 	for button in _collect_buttons(scene):
 		if button.toggle_mode:
 			toggles.append(button)
-	_check(toggles.size() == 1, "新档编队界面应仅展示初始武将刘备")
+	_check(toggles.size() == 2, "新档编队界面应展示 2 名初始武将（刘备/关羽）")
 	_check((scene.get_child(0) as Control).size == get_viewport().get_visible_rect().size, "编队界面背景应铺满视口")
 	for toggle in toggles:
 		toggle.set_pressed(true)

@@ -17,9 +17,9 @@ const ITEM_RESOURCE_DIR := "res://resources/items"
 const BOND_RESOURCE_DIR := "res://resources/bonds"
 const BATTLE_RELIC_RESOURCE_DIR := "res://resources/battle_relics"
 
-## 新档初始武将（v0.30.2 调整：仅刘备；关羽改由 ch01_s01 首通解锁，
-## 原初始双将导致 s01 首通奖励重复获取，玩家体验困惑）。
-const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei"]
+## 新档初始武将（v0.30.6 回滚：恢复刘备、关羽；v0.30.2"仅刘备"调整作废，
+## s01 首通奖励不再发放关羽，避免重复获取困惑）。
+const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei", "guan_yu"]
 
 var selected_stage_id: StringName = &""
 var squad_character_ids: Array[String] = []

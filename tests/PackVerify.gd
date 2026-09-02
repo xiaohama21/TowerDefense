@@ -44,7 +44,7 @@ func _run() -> void:
 	_check("全新环境：user:// 下无存档", not FileAccess.file_exists(ProfileStore.get_profile_path()))
 	_check("开始游戏：创建新档成功", GameFlow.start_new_game())
 	var profile := ProfileStore.get_profile()
-	_check("初始武将入库（仅刘备，关羽待 s01 首通）", profile != null and profile.has_character("liu_bei") and not profile.has_character("guan_yu"))
+	_check("初始武将入库（刘备/关羽）", profile != null and profile.has_character("liu_bei") and profile.has_character("guan_yu"))
 	_check("幂等：重复调用不重复发放", _initial_characters_idempotent(profile))
 	_check("编队角色链路（SquadSelect 同款）", _squad_select_link(profile))
 	_check("全量角色/职业/转职资源", _characters_integrity())
@@ -81,10 +81,13 @@ func _squad_select_link(profile: PlayerProfile) -> bool:
 			missing.append(character_id)
 	details.append("编队可用角色=%d（已拥有=%d，加载失败=%s）" % [loaded.size(), owned.size(), str(missing)])
 	var has_liu_bei := false
+	var has_guan_yu := false
 	for character_data in loaded:
 		if character_data.character_id == &"liu_bei":
 			has_liu_bei = true
-	return loaded.size() >= 1 and has_liu_bei
+		elif character_data.character_id == &"guan_yu":
+			has_guan_yu = true
+	return loaded.size() >= 2 and has_liu_bei and has_guan_yu
 
 
 func _characters_integrity() -> bool:
