@@ -384,7 +384,10 @@ func load_battle_relic_data(relic_id: String) -> BattleRelicData:
 	var key := str(relic_id).strip_edges()
 	if key.is_empty():
 		return null
-	return load("%s/%s.tres" % [BATTLE_RELIC_RESOURCE_DIR, key]) as BattleRelicData
+	var path := "%s/%s.tres" % [BATTLE_RELIC_RESOURCE_DIR, key]
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as BattleRelicData
 
 
 ## 背包中拥有的遗物 ID 列表（items 库存 × 对应 BattleRelicData 存在）。

@@ -28,6 +28,8 @@ var _locked_ids: Array[String] = []
 var _selected_id: String = ""
 
 var _character_buttons: Dictionary = {}
+var _owned_grid: GridContainer
+var _locked_box: VBoxContainer
 var _detail_name_label: Label
 var _exp_bar: ProgressBar
 var _exp_label: Label
@@ -48,7 +50,7 @@ var _tab_container: TabContainer
 
 func _ready() -> void:
 	_profile = ProfileStore.get_profile()
-	_load_owned_characters()
+	_reload_characters()
 	add_theme_constant_override("separation", 10)
 	_build_ui()
 	if not _owned.is_empty() and _selected_id.is_empty():
@@ -57,11 +59,22 @@ func _ready() -> void:
 
 
 func _on_shown() -> void:
-	# 每次切回面板时刷新（战斗结算后等级/材料可能已变化）。
+	# 每次切回面板整体重载（战斗/一键通关会新增武将、提升等级；v0.32.1 修复：
+	# 旧实现只刷新右侧详情，左侧列表停留在面板构建时状态，新解锁武将不出现、等级滞留）。
+	_profile = ProfileStore.get_profile()
+	_reload_characters()
+	_rebuild_left_list()
+	if not _owned.is_empty():
+		if _selected_id.is_empty() or _character_data_by_id(_selected_id) == null:
+			_select_character(str(_owned[0].character_id))
+		else:
+			_select_character(_selected_id)
 	_refresh()
 
 
-func _load_owned_characters() -> void:
+func _reload_characters() -> void:
+	_owned.clear()
+	_locked_ids.clear()
 	for character_id in _profile.get_owned_character_ids():
 		var character_data := GameFlow.load_character_data(character_id)
 		if character_data != null:
@@ -103,60 +116,20 @@ func _build_ui() -> void:
 	list_scroll.add_child(list_box)
 
 	# 已拥有武将网格（v0.30.5：与未解锁分组分离，标题不再混入网格格子）。
-	var owned_grid := GridContainer.new()
-	owned_grid.columns = 2
-	owned_grid.add_theme_constant_override("h_separation", 8)
-	owned_grid.add_theme_constant_override("v_separation", 8)
-	owned_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list_box.add_child(owned_grid)
+	# v0.32.1：网格内容由 _rebuild_left_list 填充，切回面板时整体重载（解锁/等级刷新）。
+	_owned_grid = GridContainer.new()
+	_owned_grid.columns = 2
+	_owned_grid.add_theme_constant_override("h_separation", 8)
+	_owned_grid.add_theme_constant_override("v_separation", 8)
+	_owned_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_box.add_child(_owned_grid)
 
-	if _owned.is_empty():
-		var empty := Label.new()
-		empty.text = "暂无武将，请先开始游戏"
-		empty.add_theme_font_size_override("font_size", 16)
-		empty.add_theme_color_override("font_color", UITheme.GRAY)
-		owned_grid.add_child(empty)
+	# 未解锁武将分组容器（标题 + 置灰网格；内容随 _rebuild_left_list 重载）。
+	_locked_box = VBoxContainer.new()
+	_locked_box.add_theme_constant_override("separation", 6)
+	list_box.add_child(_locked_box)
 
-	for character_data in _owned:
-		var character_id := str(character_data.character_id)
-		var level := GameFlow.get_character_level(_profile, character_id)
-		var profession_name := character_data.profession.display_name if character_data.profession != null else "未知职业"
-		var button := Button.new()
-		button.text = "%s\n%s · Lv.%d" % [character_data.display_name, profession_name, level]
-		button.custom_minimum_size = Vector2(150, 54)
-		button.add_theme_font_size_override("font_size", 14)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.toggle_mode = true
-		button.pressed.connect(_on_character_pressed.bind(character_id))
-		UITheme.apply_selected_style(button)
-		owned_grid.add_child(button)
-		_character_buttons[character_id] = button
-
-	if not _locked_ids.is_empty():
-		var hint := Label.new()
-		hint.text = "未解锁武将（首通对应关卡解锁）"
-		hint.add_theme_font_size_override("font_size", 13)
-		hint.add_theme_color_override("font_color", UITheme.GRAY)
-		list_box.add_child(hint)
-		var locked_grid := GridContainer.new()
-		locked_grid.columns = 2
-		locked_grid.add_theme_constant_override("h_separation", 8)
-		locked_grid.add_theme_constant_override("v_separation", 8)
-		locked_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		list_box.add_child(locked_grid)
-		for character_id in _locked_ids:
-			var character_data := GameFlow.load_character_data(character_id)
-			if character_data == null:
-				continue
-			var locked_button := Button.new()
-			locked_button.text = "%s\n%s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
-			locked_button.custom_minimum_size = Vector2(150, 50)
-			locked_button.add_theme_font_size_override("font_size", 13)
-			locked_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			locked_button.add_theme_color_override("font_color", UITheme.DISABLED)
-			locked_button.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
-			locked_button.disabled = true
-			locked_grid.add_child(locked_button)
+	_rebuild_left_list()
 
 	# 右侧：基础信息卡 + 页签区。
 	var right_column := VBoxContainer.new()
@@ -305,6 +278,86 @@ func _select_character(character_id: String) -> void:
 			button.set_pressed_no_signal(str(key) == character_id)
 
 
+## 左侧列表整体重建（v0.32.1 从 _build_ui 抽离）：按当前档案实时重列
+## 已拥有（等级实时）与未解锁武将，供 _on_shown 每次切回时调用。
+func _rebuild_left_list() -> void:
+	# 先摘除再释放：避免当帧新旧按钮并存（释放前的旧节点仍挂在容器内）。
+	for child in _owned_grid.get_children():
+		_owned_grid.remove_child(child)
+		child.queue_free()
+	for child in _locked_box.get_children():
+		_locked_box.remove_child(child)
+		child.queue_free()
+	_character_buttons.clear()
+
+	if _owned.is_empty():
+		var empty := Label.new()
+		empty.text = "暂无武将，请先开始游戏"
+		empty.add_theme_font_size_override("font_size", 16)
+		empty.add_theme_color_override("font_color", UITheme.GRAY)
+		_owned_grid.add_child(empty)
+
+	for character_data in _owned:
+		var character_id := str(character_data.character_id)
+		var level := GameFlow.get_character_level(_profile, character_id)
+		var profession_name := character_data.profession.display_name if character_data.profession != null else "未知职业"
+		var button := Button.new()
+		button.text = "%s\n%s · Lv.%d" % [character_data.display_name, profession_name, level]
+		button.custom_minimum_size = Vector2(150, 54)
+		button.add_theme_font_size_override("font_size", 14)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.toggle_mode = true
+		button.pressed.connect(_on_character_pressed.bind(character_id))
+		UITheme.apply_selected_style(button)
+		_owned_grid.add_child(button)
+		_character_buttons[character_id] = button
+
+	if not _locked_ids.is_empty():
+		var hint := Label.new()
+		hint.text = "未解锁武将（首通对应关卡解锁）"
+		hint.add_theme_font_size_override("font_size", 13)
+		hint.add_theme_color_override("font_color", UITheme.GRAY)
+		_locked_box.add_child(hint)
+		var locked_grid := GridContainer.new()
+		locked_grid.columns = 2
+		locked_grid.add_theme_constant_override("h_separation", 8)
+		locked_grid.add_theme_constant_override("v_separation", 8)
+		locked_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_locked_box.add_child(locked_grid)
+		for character_id in _locked_ids:
+			var character_data := GameFlow.load_character_data(character_id)
+			if character_data == null:
+				continue
+			var locked_button := Button.new()
+			locked_button.text = "%s\n%s" % [character_data.display_name, GameFlow.get_acquisition_text(character_id)]
+			locked_button.custom_minimum_size = Vector2(150, 50)
+			locked_button.add_theme_font_size_override("font_size", 13)
+			locked_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			locked_button.add_theme_color_override("font_color", UITheme.DISABLED)
+			locked_button.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
+			locked_button.disabled = true
+			locked_grid.add_child(locked_button)
+
+
+func _character_data_by_id(character_id: String) -> CharacterData:
+	for character_data in _owned:
+		if str(character_data.character_id) == character_id:
+			return character_data
+	return null
+
+
+## 左侧已拥有卡片等级文本同步（等级可在本面板内变化，如使用练兵令直接升级）。
+func _sync_owned_button_labels() -> void:
+	for character_id in _character_buttons.keys():
+		var button := _character_buttons[character_id] as Button
+		var character_data := _character_data_by_id(character_id)
+		if button == null or not is_instance_valid(button) or character_data == null:
+			continue
+		var level := GameFlow.get_character_level(_profile, character_id)
+		var profession_name := character_data.profession.display_name if character_data.profession != null else "未知职业"
+		button.text = "%s\n%s · Lv.%d" % [character_data.display_name, profession_name, level]
+
+
 func _selected_character() -> CharacterData:
 	for character_data in _owned:
 		if str(character_data.character_id) == _selected_id:
@@ -345,6 +398,7 @@ func _refresh() -> void:
 	_refresh_run_relics()
 	_refresh_trait(character)
 	_refresh_exp_scroll(level)
+	_sync_owned_button_labels()
 
 
 ## 转职候选（阶段 6 图结构，v0.17.0）：未转职展示一转；已转职展示二转分支列表。
