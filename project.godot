@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="TowerDefense"
-config/version="0.8.8.4"
+config/version="0.8.8.5"
 run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -44,5 +44,6 @@ renderer/rendering_method.mobile="gl_compatibility"
 [gui]
 
 theme/custom="res://assets/ui/ui_theme.tres"
+
 
 
