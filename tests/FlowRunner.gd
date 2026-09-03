@@ -300,7 +300,7 @@ func _show_hub_panel(hub: Node, panel_id: StringName) -> void:
 	hub._show_panel(panel_id)
 
 
-## 游戏百科（ENCYCLOPEDIA.md，阶段 8·提交 9）：入口入列、武将/敌人两页签、
+## 游戏百科（ENCYCLOPEDIA.md，阶段 8·提交 9，布局修订 B-023 于 0.8.9.1）：入口入列、武将/敌人两页签、
 ## 模拟器只读不改档、敌人难度面板与出现关卡反查。
 func _test_encyclopedia(profile: PlayerProfile) -> void:
 	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
@@ -342,6 +342,18 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button:
 				character_cards += 1
 	_check(character_cards == 9, "武将图鉴应展示全部 9 名武将（当前版全量可见）")
+	await get_tree().process_frame
+	# B-023 回归：左列 2 列网格应横向铺满（原列宽塌陷至 8px，卡片不可见/不可点，
+	# 表现=“只有默认首位貂蝉数据”）。
+	var character_min_width := 100000.0
+	if grid_node != null:
+		for child in grid_node.get_children():
+			if child is Button:
+				character_min_width = minf(character_min_width, (child as Button).size.x)
+	_check(character_min_width >= 100.0, "武将卡应横向铺满左列 2 列网格（B-023 列宽塌陷回归）")
+	_check((encyclopedia.get("_header_name_label") as Label).text == "貂蝉", "武将图鉴默认应选中首位貂蝉")
+	var chapter_row := encyclopedia.get_node_or_null("Root/ChapterRow") as Node
+	_check(chapter_row != null and not chapter_row.visible, "武将图鉴视图顶部不应展示章节行")
 
 	# 数值模拟器：切换诸葛亮并调局内升阶 3 阶，属性实时刷新且无存档变化。
 	encyclopedia._select_character("zhuge_liang")
@@ -372,13 +384,19 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	if enemy_segment != null:
 		enemy_segment.pressed.emit()
 	await get_tree().process_frame
+	await get_tree().process_frame
+	_check(chapter_row != null and chapter_row.visible, "敌人图鉴视图顶部应展示章节选择行（B-023）")
+	var enemy_grid := encyclopedia.get_node_or_null("Root/Body/LeftScroll/LeftBox/EnemyGrid") as GridContainer
+	_check(enemy_grid != null and enemy_grid.columns == 2, "敌人图鉴左列应为 2 列网格（横排两个卡片，B-023）")
 	var enemy_cards := 0
-	var left_box := encyclopedia.get_node_or_null("Root/Body/LeftScroll/LeftBox") as VBoxContainer
-	if left_box != null:
-		for child in left_box.get_children():
+	var enemy_min_width := 100000.0
+	if enemy_grid != null:
+		for child in enemy_grid.get_children():
 			if child is Button:
 				enemy_cards += 1
+				enemy_min_width = minf(enemy_min_width, (child as Button).size.x)
 	_check(enemy_cards == 7, "敌人图鉴应展示第一章全部 7 种敌人")
+	_check(enemy_min_width >= 100.0, "敌人卡应横向铺满左列 2 列网格（B-023）")
 	var all_text := ""
 	var labels: Array[Label] = []
 	_collect_labels(encyclopedia, labels)

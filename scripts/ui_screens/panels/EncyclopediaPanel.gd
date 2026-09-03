@@ -2,10 +2,11 @@ extends Control
 
 ## 游戏百科（ENCYCLOPEDIA.md，阶段 8·提交 9）：只读信息中心——
 ## 武将图鉴（9 将全量 + 基础/技能/转职/信物/特性页签 + 数值模拟器）与
-## 敌人图鉴（7 敌 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
+## 敌人图鉴（章节选择 + 7 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
 ## 布局规范 UI_LAYOUT.md §12；文案字典集中维护，禁止面板间散落私有文案漂移。
 
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
+const MapPanelScript := preload("res://scripts/ui_screens/panels/MapPanel.gd")
 const TowerScript := preload("res://scripts/Tower.gd")
 
 ## 第一章敌人展示顺序（ENEMIES.md 5.5.2 表序）。
@@ -72,6 +73,9 @@ var _sim_battle_rank: int = 0
 
 var _character_button: Button
 var _enemy_button: Button
+var _chapter_flow: HFlowContainer
+var _character_buttons: Dictionary = {}
+var _enemy_buttons: Dictionary = {}
 var _left_box: VBoxContainer
 var _left_scroll: ScrollContainer
 var _detail_box: VBoxContainer
@@ -143,8 +147,36 @@ func _build_ui() -> void:
 	_enemy_button = _make_segment_button("敌人图鉴", &"enemy")
 	switch_row.add_child(_enemy_button)
 
+	# 章节选择行（敌人图鉴视图顶部，v0.34.1）：第一章可点，后续章节灰显「敬请期待」；
+	# 与地图选关共用预留章节清单（MapPanel.RESERVED_CHAPTERS），不散落第二份列表。
+	_chapter_flow = HFlowContainer.new()
+	_chapter_flow.name = "ChapterRow"
+	_chapter_flow.custom_minimum_size = Vector2(0, 48)
+	_chapter_flow.add_theme_constant_override("h_separation", 10)
+	_chapter_flow.add_theme_constant_override("v_separation", 6)
+	root.add_child(_chapter_flow)
+	var chapter := GameFlow.get_chapter()
+	var chapter_button := Button.new()
+	chapter_button.text = "第 %d 章 · %s" % [chapter.chapter_number, chapter.display_name]
+	chapter_button.custom_minimum_size = Vector2(0, 42)
+	chapter_button.add_theme_font_size_override("font_size", 17)
+	chapter_button.toggle_mode = true
+	chapter_button.set_pressed_no_signal(true)
+	chapter_button.pressed.connect(func() -> void: chapter_button.set_pressed_no_signal(true))
+	UITheme.apply_selected_style(chapter_button)
+	_chapter_flow.add_child(chapter_button)
+	for reserved_name in MapPanelScript.RESERVED_CHAPTERS:
+		var reserved := Button.new()
+		reserved.text = "敬请期待 · %s" % reserved_name
+		reserved.custom_minimum_size = Vector2(0, 42)
+		reserved.add_theme_font_size_override("font_size", 14)
+		reserved.add_theme_color_override("font_color", UITheme.DISABLED)
+		reserved.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
+		reserved.disabled = true
+		_chapter_flow.add_child(reserved)
+	_chapter_flow.visible = false  # 武将图鉴视图不展示章节行
+
 	var body := HBoxContainer.new()
-	body.name = "Body"
 	body.name = "Body"
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 12)
@@ -153,7 +185,8 @@ func _build_ui() -> void:
 	# 左侧列表区（滚动容器兜底，不撑爆页面）
 	_left_scroll = ScrollContainer.new()
 	_left_scroll.name = "LeftScroll"
-	_left_scroll.custom_minimum_size = Vector2(250, 0)
+	_left_scroll.custom_minimum_size = Vector2(300, 0)
+	_left_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_left_scroll.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_left_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(_left_scroll)
@@ -189,6 +222,8 @@ func _switch_mode(mode: StringName) -> void:
 		var selected: bool = button == (_character_button if mode == &"character" else _enemy_button)
 		if selected:
 			UITheme.apply_selected_style(button)
+	if _chapter_flow != null:
+		_chapter_flow.visible = mode == &"enemy"
 	_rebuild_left_list()
 	_rebuild_detail()
 	if mode == &"character":
@@ -203,17 +238,23 @@ func _switch_mode(mode: StringName) -> void:
 			_select_enemy(_selected_enemy_id)
 
 
-## 左侧列表：武将 = 2 列网格；敌人 = 竖排卡片。
+## 左侧列表：武将 / 敌人均为 2 列网格卡片（横向铺满左列，B-023 宽度塌陷修复）；
+## 敌人视图顶部另有章节选择行（ChapterRow），列表 = 当前章节敌人目录。
 func _rebuild_left_list() -> void:
+	# 先摘除再释放：避免当帧新旧网格并存（DevelopPanel 同款处理）。
 	for child in _left_box.get_children():
+		_left_box.remove_child(child)
 		child.queue_free()
+	_character_buttons.clear()
+	_enemy_buttons.clear()
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
+	_left_box.add_child(grid)
 	if _mode == &"character":
-		var grid := GridContainer.new()
 		grid.name = "CharacterGrid"
-		grid.columns = 2
-		grid.add_theme_constant_override("h_separation", 8)
-		grid.add_theme_constant_override("v_separation", 8)
-		_left_box.add_child(grid)
 		for character_id in _character_ids:
 			var character := GameFlow.load_character_data(character_id)
 			if character == null:
@@ -221,27 +262,37 @@ func _rebuild_left_list() -> void:
 			var button := Button.new()
 			button.text = _character_card_text(character)
 			button.custom_minimum_size = Vector2(0, 88)
-			button.add_theme_font_size_override("font_size", 16)
+			button.add_theme_font_size_override("font_size", 15)
 			button.add_theme_constant_override("h_separation", 4)
 			button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			button.toggle_mode = true
+			UITheme.apply_selected_style(button)
 			var accent := _profession_color(character)
 			button.add_theme_color_override("font_color", accent.lightened(0.35))
 			button.pressed.connect(_select_character.bind(str(character_id)))
 			grid.add_child(button)
+			_character_buttons[str(character_id)] = button
 	else:
+		grid.name = "EnemyGrid"
 		for enemy_id in _enemy_ids:
 			var enemy := GameFlow.load_enemy_data(enemy_id)
 			if enemy == null:
 				continue
 			var button := Button.new()
-			button.text = "%s\n%s" % [enemy.display_name, ENEMY_LOCATIONS.get(enemy_id, "")]
-			button.custom_minimum_size = Vector2(0, 58)
-			button.add_theme_font_size_override("font_size", 16)
+			button.text = "%s\n%s · 黄巾" % [enemy.display_name, ENEMY_LOCATIONS.get(enemy_id, "未知")]
+			button.custom_minimum_size = Vector2(0, 88)
+			button.add_theme_font_size_override("font_size", 15)
+			button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			button.toggle_mode = true
+			UITheme.apply_selected_style(button)
 			button.add_theme_color_override("font_color", enemy.body_color.lightened(0.4))
 			button.pressed.connect(_select_enemy.bind(str(enemy_id)))
-			_left_box.add_child(button)
+			grid.add_child(button)
+			_enemy_buttons[str(enemy_id)] = button
 
 
 func _character_card_text(character: CharacterData) -> String:
@@ -685,7 +736,14 @@ func _refresh_enemy_detail() -> void:
 ## ============ 通用 ============
 
 func _sync_selected_buttons() -> void:
-	pass
+	for character_id in _character_buttons.keys():
+		var button := _character_buttons[character_id] as Button
+		if is_instance_valid(button):
+			button.set_pressed_no_signal(str(character_id) == _selected_character_id)
+	for enemy_id in _enemy_buttons.keys():
+		var button := _enemy_buttons[enemy_id] as Button
+		if is_instance_valid(button):
+			button.set_pressed_no_signal(str(enemy_id) == _selected_enemy_id)
 
 
 func _profession_role_text(profession: ProfessionData) -> String:
