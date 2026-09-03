@@ -47,7 +47,36 @@ func setup_free_build(road_cells: Array[Vector2i], forbidden_cells: Array[Vector
 		_forbidden_cells[cell] = true
 
 
+## 可建格悬停预览（v0.33.2 UX，BUGS B-021）：选中武将后，鼠标扫过可建空地即显示
+## 半透明绿色方块，明确"这里能建"；道路/禁建/已占用格不显示（不可建）。
+## 与"两次点击确认"的待确认高亮互斥：存在待确认位时不随鼠标移动。
+func _update_hover_preview(viewport_pos: Vector2) -> void:
+	if _preview == null:
+		return
+	if selected_character == null or GameManager.lives <= 0 \
+			or GameManager.current_wave >= GameManager.total_waves:
+		_preview.visible = false
+		return
+	if pending_slot != null or _pending_cell != Vector2i(-1, -1):
+		return
+	var cell := Vector2i(
+		floori(viewport_pos.x / GridBackground.GRID_SIZE),
+		floori(viewport_pos.y / GridBackground.GRID_SIZE)
+	)
+	if cell.x < 0 or cell.x >= GridBackground.COLS or cell.y < 0 or cell.y >= GridBackground.ROWS:
+		_preview.visible = false
+		return
+	if _road_cells.has(cell) or _forbidden_cells.has(cell) or _is_cell_occupied(cell):
+		_preview.visible = false
+		return
+	_preview.global_position = cell_center(cell)
+	_preview.visible = true
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_update_hover_preview((event as InputEventMouseMotion).position)
+		return
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:

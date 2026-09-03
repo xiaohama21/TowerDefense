@@ -330,6 +330,10 @@ func _test_squad_select_screen() -> void:
 	_check(toggles.all(func(button: Button) -> bool: return not button.disabled),
 		"未达编队上限时所有武将可勾选")
 	_check(start_button != null and not start_button.disabled, "已选武将后「确认出战」应可用")
+	_check(toggles.all(func(button: Button) -> bool: return button.custom_minimum_size.x >= 232.0),
+		"武将卡片宽 232px（B-020 防选中态标签裁剪）")
+	_check(toggles.any(func(button: Button) -> bool: return button.text.contains("2/3")),
+		"选中刘/关后卡片羁绊标签应实时刷新为 2/3（B-020）")
 
 	# 编队记忆（v0.33.1）：发放遗物并把上次出战配置写入档案，重建界面应自动预填。
 	fresh_profile.add_item("wolf_tooth", 1)

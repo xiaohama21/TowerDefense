@@ -310,6 +310,36 @@ func _run() -> void:
 		_check(build_manager._pending_cell == Vector2i(-1, -1), "已有防御塔网格应拒绝建造")
 		build_manager.cancel_pending()
 
+	# 可建格悬停预览（v0.33.2，BUGS B-021）：选中武将后，扫过可建空地显示、
+	# 扫过道路/禁建/已占用格与地图外不显示。
+	build_manager.cancel_pending()
+	var hover_cell := Vector2i(-1, -1)
+	for col in range(GridBackground.COLS):
+		for row in range(GridBackground.ROWS):
+			var candidate := Vector2i(col, row)
+			if build_manager._road_cells.has(candidate) or build_manager._forbidden_cells.has(candidate):
+				continue
+			if build_manager._is_cell_occupied(candidate):
+				continue
+			hover_cell = candidate
+			break
+		if hover_cell.x >= 0:
+			break
+	_check(hover_cell.x >= 0, "冒烟地图应存在可建空地（B-021 用例前置）")
+	if hover_cell.x >= 0:
+		build_manager._update_hover_preview(build_manager.cell_center(hover_cell))
+		_check(build_manager._preview != null and build_manager._preview.visible,
+			"扫过可建空地应显示半透明绿色悬停预览（B-021）")
+	var hover_road := Vector2i(-1, -1)
+	for cell in build_manager._road_cells.keys():
+		hover_road = cell as Vector2i
+		break
+	if hover_road.x >= 0:
+		build_manager._update_hover_preview(build_manager.cell_center(hover_road))
+		_check(not build_manager._preview.visible, "扫过道路格不应显示悬停预览（B-021）")
+	build_manager._update_hover_preview(Vector2(10000, 10000))
+	_check(not build_manager._preview.visible, "扫出地图外不应显示悬停预览（B-021）")
+	build_manager.cancel_pending()
 	var enemy_manager := main.get_node("EnemyManager")
 	# 程序化构造 EnemyData，替代旧的硬编码 spawn_enemy("boss")。
 	var boss_data := EnemyData.new()

@@ -99,7 +99,7 @@ func _ready():
 	ui.update_gold(GameManager.gold)
 	ui.update_lives(GameManager.lives)
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
-	ui.show_status("选择武将后点击绿色 + 建造，再开始第 1 波", 3.0)
+	ui.show_status("选择武将后点击空地建造（绿色 + 为推荐位，任意空地均可建）", 4.0)
 
 	# 开场剧情（GDD modules/STAGES.md 5.1）：设置开启"剧情速进"时自动跳过。
 	if stage_data.dialogue != null and not stage_data.dialogue.lines.is_empty() 			and not GameFlow.is_gameplay_flag_enabled("skip_dialogue"):

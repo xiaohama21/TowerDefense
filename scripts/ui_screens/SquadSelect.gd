@@ -99,13 +99,9 @@ func _build_ui() -> void:
 		var character_id := str(character_data.character_id)
 		var button := Button.new()
 		button.toggle_mode = true
-		button.custom_minimum_size = Vector2(200, 84)
+		button.custom_minimum_size = Vector2(232, 84)
 		button.add_theme_font_size_override("font_size", 16)
-		var bond_tags := _bond_tag_text(character_id)
-		button.text = "%s\n%s · %d 金币%s" % [
-			character_data.display_name, _profession_name(character_data), character_data.build_cost,
-			("\n" + bond_tags) if bond_tags != "" else "",
-		]
+		button.text = _character_button_text(character_data)
 		button.toggled.connect(_on_character_toggled.bind(character_id))
 		_apply_selected_style(button)
 		grid.add_child(button)
@@ -195,6 +191,23 @@ func _bond_tag_text(character_id: String) -> String:
 			continue
 		tags.append("%s %d/%d" % [bond.display_name, int(progress["count"]), int(progress["total"])])
 	return "　".join(tags)
+
+
+## 武将卡片文本（v0.33.2，BUGS B-020）：统一构建入口，勾选后随羁绊预览计数刷新。
+func _character_button_text(character_data: CharacterData) -> String:
+	var bond_tags := _bond_tag_text(str(character_data.character_id))
+	return "%s\n%s · %d 金币%s" % [
+		character_data.display_name, _profession_name(character_data), character_data.build_cost,
+		("\n" + bond_tags) if bond_tags != "" else "",
+	]
+
+
+## 刷新全部武将卡片文本（v0.33.2，BUGS B-020）：羁绊 X/Y 预览随当前勾选实时更新。
+func _refresh_character_button_texts() -> void:
+	for character_data in _owned_characters:
+		var button := _buttons.get(str(character_data.character_id)) as Button
+		if is_instance_valid(button):
+			button.text = _character_button_text(character_data)
 
 
 ## 编队羁绊状态说明（v0.17.0，GDD modules/CHARACTERS.md 4.8）：激活/预览与效果描述。
@@ -316,3 +329,4 @@ func _refresh() -> void:
 	var summary := _bond_summary_text()
 	_bond_label.text = summary
 	_bond_label.visible = not summary.is_empty()
+	_refresh_character_button_texts()
