@@ -1163,6 +1163,79 @@ func _run() -> void:
 		sweep_tower.queue_free()
 		sweep_ally.queue_free()
 		sweep_far.queue_free()
+	await get_tree().process_frame
+	# ===== 阶段 8 提交 8（v0.33.0 / 0.8.8.0）：转职数值提升——18 节点对照 4.1 三张表 + 非链式 + 效果型大招倍率 =====
+	# 4.1 表口径：[伤害, 射程, 攻速, 大招]；一转 ult=1.0。
+	var c8_table := {
+		&"cavalry_iron_rider": [1.2, 1.0, 0.9, 1.0],
+		&"tiger_guard_army": [1.2, 1.0, 0.95, 1.0],
+		&"archer_strong_bow": [1.15, 1.1, 0.95, 1.0],
+		&"strategist_mage": [1.15, 1.1, 0.95, 1.0],
+		&"dancer_master": [1.1, 1.0, 0.85, 1.0],
+		&"catapult_thunder": [1.2, 1.1, 0.9, 1.0],
+		&"cavalry_heavy_armor": [1.35, 1.0, 0.85, 1.3],
+		&"tiger_guard_vanguard": [1.35, 1.0, 0.9, 1.25],
+		&"archer_piercing_cloud": [1.3, 1.15, 0.9, 1.25],
+		&"strategist_sage": [1.3, 1.1, 0.9, 1.25],
+		&"dancer_phoenix": [1.25, 1.0, 0.8, 1.2],
+		&"catapult_city_breaker": [1.35, 1.1, 0.9, 1.3],
+		&"cavalry_swift_raider": [1.3, 1.0, 0.9, 1.15],
+		&"tiger_guard_guard": [1.25, 1.0, 0.9, 1.15],
+		&"archer_crossbow": [1.25, 1.1, 0.9, 1.15],
+		&"strategist_heavenly_master": [1.25, 1.1, 0.9, 1.15],
+		&"dancer_echo": [1.2, 1.0, 0.85, 1.15],
+		&"catapult_earthquake": [1.3, 1.1, 0.9, 1.15],
+	}
+	for c8_id in c8_table.keys():
+		var c8_promo := load("res://resources/promotions/%s.tres" % c8_id) as PromotionData
+		var c8_row: Array = c8_table[c8_id]
+		_check(c8_promo != null
+			and is_equal_approx(c8_promo.damage_multiplier, c8_row[0])
+			and is_equal_approx(c8_promo.range_multiplier, c8_row[1])
+			and is_equal_approx(c8_promo.attack_interval_multiplier, c8_row[2])
+			and is_equal_approx(c8_promo.ultimate_multiplier, c8_row[3]),
+			"%s 三围/大招倍率应与 SKILLS.md 4.1 表一致（提交 8）" % c8_id)
+	# 非链式相乘：铁骑→玄甲路径末位直接以未转职为基准（攻速 0.85，而非 0.9×0.85）。
+	var c8_guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
+	if c8_guan_yu != null:
+		var c8_xuanjia := load("res://resources/promotions/cavalry_heavy_armor.tres") as PromotionData
+		var c8_stats := c8_guan_yu.compute_stats_at(20, c8_xuanjia)
+		_check(is_equal_approx(float(c8_stats["attack_interval"]), c8_guan_yu.attack_interval * 0.85),
+			"二转攻速应只应用末位倍率（×0.85，不与一转 0.9 链式相乘）")
+	# 效果型大招乘转职大招倍率（NUMBERS 10.5）：凤仪鼓舞 = 1+0.3×1.2 = 1.36。
+	var c8_diao_chan := load("res://resources/characters/diao_chan.tres") as CharacterData
+	var c8_fengyi := load("res://resources/promotions/dancer_phoenix.tres") as PromotionData
+	var c8_dancer: Tower = tower_manager.build_tower(Vector2(60, 300), c8_diao_chan, null, {"level": 20, "promotion": c8_fengyi})
+	var c8_dance_ally: Tower = tower_manager.build_tower(Vector2(140, 300), guan_yu, null, {"level": 1})
+	_check(c8_dancer != null and c8_dance_ally != null, "鼓舞倍率用例应能建造两座塔")
+	if c8_dancer and c8_dance_ally:
+		c8_dancer.set_process(false)
+		c8_dance_ally.set_process(false)
+		_check(BehaviorRegistry.execute_ultimate(&"ultimate_dancer_encourage", c8_dancer), "凤仪鼓舞应能释放")
+		_check(is_equal_approx(c8_dance_ally.attack_speed_buff, 1.36),
+			"凤仪鼓舞攻速应乘转职大招倍率（1+0.3×1.2=1.36）")
+		c8_dancer.queue_free()
+		c8_dance_ally.queue_free()
+	# 陷阵激励段 = 1+0.15×1.25 = 1.1875（提交 8 起 effect 型大招接入 ultimate_multiplier）。
+	var c8_xianzhen := load("res://resources/promotions/tiger_guard_vanguard.tres") as PromotionData
+	var c8_tiger: Tower = tower_manager.build_tower(Vector2(300, 300), zhang_fei, null, {"level": 20, "promotion": c8_xianzhen})
+	var c8_tiger_ally: Tower = tower_manager.build_tower(Vector2(380, 300), guan_yu, null, {"level": 1})
+	_check(c8_tiger != null and c8_tiger_ally != null, "陷阵激励段用例应能建造两座塔")
+	if c8_tiger and c8_tiger_ally:
+		c8_tiger.set_process(false)
+		c8_tiger_ally.set_process(false)
+		var c8_sweep_enemy := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		c8_sweep_enemy.set_process(false)
+		c8_sweep_enemy.progress = 300.0
+		c8_sweep_enemy.global_position = c8_tiger.global_position + Vector2(80, 0)
+		c8_tiger.target = c8_sweep_enemy
+		_check(BehaviorRegistry.execute_ultimate(&"ultimate_tiger_guard_sweep", c8_tiger), "陷阵破阵应能释放")
+		_check(is_equal_approx(c8_tiger_ally.attack_speed_buff, 1.1875),
+			"陷阵激励段应乘转职大招倍率（1+0.15×1.25=1.1875）")
+		c8_sweep_enemy.die(false)
+		c8_tiger.queue_free()
+		c8_tiger_ally.queue_free()
+	await get_tree().process_frame
 	# 角色技能（v0.28.0）：9 名武将全部配置 character_skill_id。
 	var char_skill_ids := {
 		"guan_yu": &"char_green_dragon", "zhang_fei": &"char_dangyang_roar",

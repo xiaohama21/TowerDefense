@@ -159,7 +159,8 @@ static func _ult_tiger_guard_sweep(tower: Tower) -> bool:
 	for enemy in enemies:
 		enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 1.5 * tower.ultimate_power())), enemy), tower.character_id)
 		enemy.progress = maxf(enemy.progress - 40.0, 0.0)
-	var power_mult := tower.get_battle_rank_buff_power_multiplier()
+	# 激励段强度乘转职大招倍率（NUMBERS 10.5：大招效果 × ultimate_multiplier，提交 8）。
+	var power_mult := tower.get_battle_rank_buff_power_multiplier() * tower.ultimate_effect_power()
 	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var ally := node as Tower
@@ -208,7 +209,8 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 
 static func _ult_dancer_encourage(tower: Tower) -> bool:
 	# 全队鼓舞：攻速 +30%、伤害 +15%，持续 8 秒；升阶增强 buff 效果/时长（阶段 8）。
-	var power_mult := tower.get_battle_rank_buff_power_multiplier()
+	# 强度乘转职大招倍率（NUMBERS 10.5：大招效果 × ultimate_multiplier，提交 8）。
+	var power_mult := tower.get_battle_rank_buff_power_multiplier() * tower.ultimate_effect_power()
 	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var ally := node as Tower

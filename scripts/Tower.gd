@@ -569,6 +569,12 @@ func ultimate_power() -> float:
 	return (1.0 + _battle_rank_damage_step * battle_rank) * _ultimate_multiplier
 
 
+## 效果型大招强度（NUMBERS 10.5）：转职 ultimate_multiplier 同样作用于大招效果段
+## （鼓舞/破阵激励段等 buff 强度；升阶效果步进仍走 get_battle_rank_buff_power_multiplier）。
+func ultimate_effect_power() -> float:
+	return _ultimate_multiplier
+
+
 ## 局内升阶 buff 增强（阶段 8）：施加方升阶后，其 buff 持续/效果按此放大（舞娘/刘备等辅助）。
 func get_battle_rank_buff_duration_multiplier() -> float:
 	return 1.0 + _battle_rank_buff_duration_step * battle_rank
