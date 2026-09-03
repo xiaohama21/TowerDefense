@@ -351,6 +351,12 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button:
 				character_min_width = minf(character_min_width, (child as Button).size.x)
 	_check(character_min_width >= 100.0, "武将卡应横向铺满左列 2 列网格（B-023 列宽塌陷回归）")
+	var card_texts_clean := true
+	if grid_node != null:
+		for child in grid_node.get_children():
+			if child is Button and (child as Button).text.contains("…"):
+				card_texts_clean = false
+	_check(card_texts_clean, "武将卡文本应精简放得下、不出现省略号（B-024）")
 	_check((encyclopedia.get("_header_name_label") as Label).text == "貂蝉", "武将图鉴默认应选中首位貂蝉")
 	var chapter_row := encyclopedia.get_node_or_null("Root/ChapterRow") as Node
 	_check(chapter_row != null and not chapter_row.visible, "武将图鉴视图顶部不应展示章节行")

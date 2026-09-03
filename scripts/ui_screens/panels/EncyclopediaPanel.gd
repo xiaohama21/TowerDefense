@@ -264,7 +264,7 @@ func _rebuild_left_list() -> void:
 			button.custom_minimum_size = Vector2(0, 88)
 			button.add_theme_font_size_override("font_size", 15)
 			button.add_theme_constant_override("h_separation", 4)
-			button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			# 卡片文本按宽度精简设计（B-024）：内容放得下才写，不靠省略号硬塞。
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
@@ -284,7 +284,6 @@ func _rebuild_left_list() -> void:
 			button.text = "%s\n%s · 黄巾" % [enemy.display_name, ENEMY_LOCATIONS.get(enemy_id, "未知")]
 			button.custom_minimum_size = Vector2(0, 88)
 			button.add_theme_font_size_override("font_size", 15)
-			button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
@@ -295,10 +294,12 @@ func _rebuild_left_list() -> void:
 			_enemy_buttons[str(enemy_id)] = button
 
 
+## 卡片第二行 = 职业名 · 战斗定位词（B-024 取舍：攻击方式/克制等长信息移入右侧
+## 「基础」页与头部位，卡片只承载放得下的精简内容，禁止省略号硬塞）。
 func _character_card_text(character: CharacterData) -> String:
 	var profession := character.profession
 	var prof_name := profession.display_name if profession != null else "未知职业"
-	var line2 := "%s · %s" % [prof_name, _profession_role_text(profession)]
+	var line2 := "%s · %s" % [prof_name, _profession_card_role_text(profession)]
 	return "%s\n%s" % [character.display_name, line2]
 
 
@@ -744,6 +745,22 @@ func _sync_selected_buttons() -> void:
 		var button := _enemy_buttons[enemy_id] as Button
 		if is_instance_valid(button):
 			button.set_pressed_no_signal(str(enemy_id) == _selected_enemy_id)
+
+
+## 战斗定位词（输出/控制/辅助/混合）：卡片短标签专用，单字词保证宽度内放下。
+func _profession_card_role_text(profession: ProfessionData) -> String:
+	if profession == null:
+		return "未知"
+	match profession.combat_role:
+		ProfessionData.CombatRole.DAMAGE:
+			return "输出"
+		ProfessionData.CombatRole.CONTROL:
+			return "控制"
+		ProfessionData.CombatRole.SUPPORT:
+			return "辅助"
+		ProfessionData.CombatRole.HYBRID:
+			return "混合"
+	return "未知"
 
 
 func _profession_role_text(profession: ProfessionData) -> String:
