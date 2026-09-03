@@ -208,11 +208,14 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	var relic: RelicData = loadout.get("relic", null)
 	character_id = character_data.character_id
 	display_name = character_data.display_name
+	# 特性 ID/参数先于属性计算就位（观星射程加成等静态特性在下方读取）。
+	_trait_id = character_data.trait_id
+	_trait_params = character_data.trait_params.duplicate(true)
 	var stats := character_data.compute_stats_at(level, promotion, stars, relic)
 	damage = stats.damage
 	_base_damage = damage
 	range_radius = stats.range
-	# 诸葛亮·观星：射程 +12%（特性静态加成）
+	# 诸葛亮·观星：射程 +12%（特性静态加成，trait_id 已先就位）
 	if _trait_id == &"trait_star_gazer":
 		range_radius *= 1.0 + get_trait_param("range_bonus", 0.12)
 	var relic_bonuses := GameFlow.get_battle_relic_bonuses()
@@ -253,8 +256,6 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_battle_rank_aoe_step = _resolve_rank_step(character_data.battle_rank_aoe_step_override, profession_data.battle_rank_aoe_step if profession_data != null else 0.0)
 	_battle_rank_buff_duration_step = _resolve_rank_step(character_data.battle_rank_buff_duration_step_override, profession_data.battle_rank_buff_duration_step if profession_data != null else 0.0)
 	_battle_rank_buff_power_step = _resolve_rank_step(character_data.battle_rank_buff_power_step_override, profession_data.battle_rank_buff_power_step if profession_data != null else 0.0)
-	_trait_id = character_data.trait_id
-	_trait_params = character_data.trait_params.duplicate(true)
 	_promotion = promotion
 	_granted_skills.assign(promotion.granted_skill_ids.duplicate()) if promotion != null else _granted_skills.clear()
 	_skill_params = promotion.skill_params.duplicate(true) if promotion != null else {}
@@ -377,7 +378,7 @@ func _swing_offset() -> float:
 
 func _rebuild_attack_timer() -> void:
 	# 角色技能常驻攻速加成（周仓·死战）与职业 buff 同区相乘。
-	var effective := attack_cooldown / (attack_speed_buff * (1.0 + 0.04 * kill_stacks) * (1.0 + _char_skill_speed_bonus) * (1.0 + _tech_attack_speed_pct))
+	var effective := attack_cooldown / (attack_speed_buff * (1.0 + get_trait_param("attack_speed_per_kill", 0.04) * kill_stacks) * (1.0 + _char_skill_speed_bonus) * (1.0 + _tech_attack_speed_pct))
 	attack_timer.wait_time = maxf(effective, attack_cooldown * ATTACK_SPEED_FLOOR)
 
 
@@ -885,7 +886,7 @@ func _on_enemy_killed(character_id: String) -> void:
 		return
 	# 赵云·龙魂：击杀叠攻速（可叠加；目标丢失时重置）
 	if _trait_id == &"trait_dragon_spirit":
-		kill_stacks = mini(kill_stacks + 1, 10)
+		kill_stacks = mini(kill_stacks + 1, int(get_trait_param("max_stacks", 10.0)))
 		_rebuild_attack_timer()
 		spawn_float_text("龙魂 ×%d" % kill_stacks, Color(0.75, 0.9, 1.0))
 	SkillRegistry.on_kill(self, null)

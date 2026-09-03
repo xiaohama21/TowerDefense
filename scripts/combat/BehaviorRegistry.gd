@@ -246,7 +246,7 @@ static func get_trait_damage_multiplier(tower: Tower, target: Enemy) -> float:
 			if target.tags.has(&"elite") or target.tags.has(&"boss"):
 				return 1.0 + tower.get_trait_param("elite_damage_bonus", 0.25)
 		&"trait_captain":
-			if target.max_hp > 0 and float(target.current_hp) / float(target.max_hp) > 0.7:
+			if target.max_hp > 0 and float(target.current_hp) / float(target.max_hp) > tower.get_trait_param("high_hp_threshold", 0.7):
 				return 1.0 + tower.get_trait_param("high_hp_damage_bonus", 0.3)
 		&"trait_hundred_step":
 			var stacks := minf(float(tower.get_consecutive_hits()), tower.get_trait_param("max_stacks", 3.0))

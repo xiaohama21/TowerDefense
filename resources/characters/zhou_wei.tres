@@ -23,4 +23,9 @@ character_skill_params = {
 "hp_threshold": 0.5,
 "speed_bonus": 0.3
 }
+trait_id = &"trait_captain"
+trait_params = {
+"high_hp_threshold": 0.7,
+"high_hp_damage_bonus": 0.3
+}
 unlock_stage_id = &"ch01_s05"

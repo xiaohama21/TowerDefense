@@ -25,4 +25,9 @@ character_skill_params = {
 "bullet_speed_bonus": 0.5,
 "duration": 8.0
 }
+trait_id = &"trait_star_gazer"
+trait_params = {
+"range_bonus": 0.12,
+"aura_slow": 0.92
+}
 unlock_stage_id = &"ch01_s07"

@@ -1537,6 +1537,32 @@ func _run() -> void:
 			map_issues.clear()
 	_check(map_issues.is_empty(), "地图校验器不应有遗留问题")
 
+	# 阶段 8 提交 8 延伸·修复 7（v0.33.7 / 0.8.8.7，BUGS B-022）：角色图鉴数据完整性——
+	# 初始武将获取方式（unlock_stage_id 空 =「初始解锁」）、9 名武将特性数据齐全、观星射程实算。
+	_check(GameFlow.get_acquisition_text("guan_yu") == "初始解锁"
+		and GameFlow.get_acquisition_text("liu_bei") == "初始解锁",
+		"刘备/关羽应显示「初始解锁」（unlock_stage_id 已清空，B-022）")
+	_check(GameFlow.get_acquisition_text("zhang_fei") == "通关「长社火攻」首通解锁",
+		"张飞获取方式应为首通 s02 解锁")
+	var c887_char_ids := ["liu_bei", "guan_yu", "zhang_fei", "huang_fu_song", "huang_zhong",
+		"diao_chan", "zhou_wei", "zhao_yun", "zhuge_liang"]
+	var c887_all_traits := true
+	for character_id in c887_char_ids:
+		var c887_data := load("res://resources/characters/%s.tres" % character_id) as CharacterData
+		if c887_data == null or c887_data.trait_id.is_empty():
+			c887_all_traits = false
+	_check(c887_all_traits, "9 名武将应全部配置 trait_id（B-022 补齐赵云/周仓/诸葛亮）")
+	var star_char := load("res://resources/characters/zhuge_liang.tres") as CharacterData
+	var saved_squad_relics := GameFlow.squad_relic_ids.duplicate()
+	GameFlow.squad_relic_ids = []
+	var star_tower: Tower = tower_manager.build_tower(Vector2(60, 640), star_char, null, {"level": 1})
+	GameFlow.squad_relic_ids = saved_squad_relics
+	if star_char != null and star_tower != null:
+		star_tower.set_process(false)
+		_check(is_equal_approx(star_tower.range_radius, 190.0 * 1.12),
+			"诸葛亮观星射程 +12% 应生效（trait_id 先于属性计算就位，B-022）")
+		star_tower.queue_free()
+
 	_finish()
 
 
