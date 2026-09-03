@@ -566,4 +566,3 @@ func _refresh_trait(character: CharacterData) -> void:
 		_trait_label.text = "特性：%s（详细说明随阶段 9 完善）" % str(character.trait_id)
 		return
 	_trait_label.text = "%s\n（常驻被动；阶段 9 升阶特性接入后新增特性分支选择）" % hint
-
