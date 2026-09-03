@@ -216,4 +216,4 @@ theme_override_colors/font_color = Color(0.78, 0.92, 0.8, 0.9)
 theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.05, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
-text = "点击绿色 + 建造武将；点击已建塔查看攻击范围"
+text = "拖出武将卡片到空地建造：松手放置 · 右键 / ESC 取消；点击已建塔查看属性"

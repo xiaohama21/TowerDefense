@@ -408,16 +408,22 @@ func _test_battle_entry() -> void:
 	await get_tree().create_timer(0.25).timeout
 	dialogue_ui._on_dialogue_input(click)
 	_check(int(dialogue_ui.get("_dialogue_index")) == 2, "防抖窗口过后单击应继续推进")
-	# 剧情展示期间地图应保持可交互（建造待确认照常工作）
+	# 剧情展示期间地图应保持可交互（拖拽建造照常可用，v0.33.3）。
 	var build_manager_flow := main.get_node("BuildManager")
-	build_manager_flow._on_build_requested(main.get_node("BuildSlots").get_child(0))
-	_check(build_manager_flow.pending_slot != null, "剧情展示期间应能点选建造位")
-	build_manager_flow.cancel_pending()
+	var battle_character_id_flow: String = str(GameFlow.squad_character_ids[0])
+	var battle_character_flow := GameFlow.load_character_data(battle_character_id_flow)
+	_check(battle_character_flow != null, "出战武将数据应可加载")
+	if battle_character_flow != null:
+		GameManager.gold = 9999
+		_check(build_manager_flow.begin_drag(battle_character_flow), "剧情展示期间应能开始拖拽建造")
+		build_manager_flow.cancel_drag()
+		_check(not build_manager_flow.is_dragging(), "剧情展示期间取消拖拽应生效")
 	dialogue_ui.skip_dialogue()
 	_check(not dialogue_layer.visible, "跳过后对话层应关闭")
 	var grid_bg := main.get_node("GridBackground") as GridBackground
 	_check(grid_bg.theme_name == &"fire", "s02 应应用火攻主题")
-	_check(get_tree().get_nodes_in_group("build_slots").size() == 10, "s02 应由布局数据生成 10 个建造位")
+	_check(main.get_node_or_null("BuildSlots") == null, "v0.33.3 起战场不应生成 BuildSlots 节点")
+	_check(get_tree().get_nodes_in_group("build_slots").is_empty(), "v0.33.3 起战场不应生成建造位")
 	_check(GameManager.total_waves == 6, "s02 应有 6 波敌人")
 
 	# 退出导航（v0.15.2）：顶栏退出弹确认框（确认后回游戏大厅，不直接退出）。
@@ -469,5 +475,4 @@ func _finish() -> void:
 		for failure in failures:
 			print(" - %s" % failure)
 		get_tree().quit(1)
-
 

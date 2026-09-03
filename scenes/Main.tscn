@@ -87,8 +87,6 @@ color = Color(0.145098, 0.203922, 0.180392, 1)
 [node name="Path2D" type="Path2D" parent="."]
 curve = SubResource("Curve2D_enemy_path")
 
-[node name="BuildSlots" type="Node2D" parent="."]
-
 [node name="EnemyManager" type="Node2D" parent="."]
 script = ExtResource("2_enemy_manager")
 
