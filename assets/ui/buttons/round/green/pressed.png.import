@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4kvmlvokibfd"
-path="res://.godot/imported/torch.png-1bc6301e63ac4c2b1e9facc32431cb90.ctex"
+uid="uid://blp15harv1hpi"
+path="res://.godot/imported/pressed.png-bde4459aa093dbf74ea6602c54fcea8e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/decor/torch.png"
-dest_files=["res://.godot/imported/torch.png-1bc6301e63ac4c2b1e9facc32431cb90.ctex"]
+source_file="res://assets/ui/buttons/round/green/pressed.png"
+dest_files=["res://.godot/imported/pressed.png-bde4459aa093dbf74ea6602c54fcea8e.ctex"]
 
 [params]
 

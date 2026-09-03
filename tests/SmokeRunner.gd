@@ -247,9 +247,9 @@ func _run() -> void:
 				s08_has_wolf = true
 	_check(s08_stage != null and s08_has_wolf, "s08 首通掉落应含狼牙符")
 
-	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor 纹理应齐全。
+	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/map/decor 纹理应齐全（v0.33.4 目录迁移）。
 	for decor_name in ["tree", "rock", "banner", "torch"]:
-		_check(ResourceLoader.exists("res://assets/decor/%s.png" % decor_name),
+		_check(ResourceLoader.exists("res://assets/map/decor/%s.png" % decor_name),
 			"装饰素材 %s.png 应存在" % decor_name)
 
 	# 音效库（v0.16.0）：全部音效已合成且播放不报错（headless 走哑音频）。
@@ -1655,3 +1655,4 @@ func _collect_resource_paths(dir_path: String) -> Array[String]:
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return result
+

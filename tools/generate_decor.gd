@@ -1,12 +1,12 @@
 extends SceneTree
 
 ## 装饰素材生成工具（v0.16.0，GDD 5.7 第三步）：把程序化装饰"素材化"——
-## 生成 assets/decor/ 下的 PNG 纹理（树/石头/旗帜/火把），GridBackground 直接
+## 生成 assets/map/decor/ 下的 PNG 纹理（树/石头/旗帜/火把），GridBackground 直接
 ## 加载纹理绘制（布局数据不变），后续可被手绘素材直接替换。
 ## 运行：godot --headless --path . --script res://tools/generate_decor.gd
 
 const SIZE := 64
-const OUT_DIR := "res://assets/decor"
+const OUT_DIR := "res://assets/map/decor"
 
 
 func _initialize() -> void:
