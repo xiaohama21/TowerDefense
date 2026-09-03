@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
-> 文档版本：v0.1（2026-09-03）
+> 文档版本：v0.2（2026-09-03）
+> v0.2 变更（阶段 8·提交 8 延伸·修复 6，v0.33.6，主菜单换肤落地）：①按钮素材投入运行时——`ui/buttons/rect/{yellow,red,grey}` 三态（normal/hover/pressed，原图 384×128、九宫格裁边 24）与 `ui/icons/star.png` / `star_outline.png` / `cross_blue.png` 由 `MainMenu` 首次使用，换肤封装 `UITheme.apply_kenney_rect_button`（后续面板复用同一入口）；②`ui/panels/` 预留说明更新——「新的征程」弹窗面板以程序化 StyleBox 自绘先行，九宫格底图素材仍预留。
 > v0.1 变更（阶段 8·提交 8 延伸·修复 4，v0.33.4）：①确立 `assets/` 分类目录规范——fonts / ui / map 三主干，禁止散放；②UI 素材入库：Kenney UI Pack 切片按按钮（rect/round × 五色 × 三态）/ 图标分类，弹窗面板与地图素材目录预留；③地图装饰迁移 `assets/decor` → `assets/map/decor`（代码常量同步，程序化回退保留）。
 
 ---
@@ -55,7 +56,7 @@ assets/
 
 **语义色映射**（对齐 UITheme 语义，见 UI_LAYOUT.md 第 2 节）：黄=主行动（金语义，视觉以黄替金）、红=警示、灰=中性/禁用、蓝=信息/选中、绿=成功。按钮四态效果见 `docs/ui_concept/ui_button_states.png`。
 
-**待入库（空目录 = 预留）**：`ui/panels/` 弹窗面板底图（九宫格，Godot StyleBox 用）；正式换肤代码（StyleBox 映射）排期待定——当前全局字体已接入，控件底色仍为程序化。
+**待入库（空目录 = 预留）**：`ui/panels/` 弹窗面板底图（九宫格，Godot StyleBox 用）。正式换肤进度：主菜单已落地（v0.33.6——`UITheme.apply_kenney_rect_button` 九宫格按钮 + 自绘白面弹窗），其余面板逐步接入；尚未换肤的面板控件底色仍为程序化。
 
 ## 4. 地图素材约定（后续章节/换肤）
 
@@ -74,3 +75,4 @@ assets/
 ## 6. 变更记录
 
 - v0.1（2026-09-03）：初始建档（目录规范 + UI 素材台账 + 地图预留约定 + 许可登记）。
+- v0.2（2026-09-03）：主菜单换肤落地——rect 三色按钮三态与 star / cross 图标投入运行时使用；换肤封装 `UITheme.apply_kenney_rect_button`；弹窗面板自绘先行说明。
