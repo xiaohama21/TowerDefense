@@ -21,6 +21,23 @@ const SELECT_TEXT := Color(0.12, 0.09, 0.02)
 const SIDEBAR_BORDER := Color(0.25, 0.43, 0.38, 0.8)
 const PANEL_BG := Color(0.11, 0.15, 0.13)
 
+## Kenney 亮色视觉令牌（UI_LAYOUT §3，v0.33.6 主菜单换肤首屏落地）：
+## 首页背景/文字/弹窗主色统一入口，其余面板换肤时复用。
+const SKY_TOP := Color("#46afe6")
+const SKY_MID := Color("#3399da")
+const SKY_BOTTOM := Color("#277fb9")
+const INK := Color("#22384a")      # 黄/灰按钮深蓝墨字
+const MIST := Color("#eaf6ff")     # 标题副标/底栏白蓝字
+const PALE := Color("#cfe7f7")     # 底栏素材署名
+const STROKE := Color("#14538a")   # 亮底白字深蓝投影
+const DIALOG_PANEL := Color("#f2faff")
+const DIALOG_BORDER := Color("#1c9fd7")
+const DIALOG_HEAD := Color("#38a8dd")
+const DIALOG_TEXT := Color("#1b4d78")
+const DIALOG_WARN := Color("#d71935")
+const DIALOG_HINT := Color("#7d9cb4")
+
+
 
 ## 选中态样式（金色底 + 金色边框 + 深色文字，v0.19.2 惯例统一封装）。
 static func apply_selected_style(button: Button) -> void:
@@ -67,3 +84,28 @@ static func apply_card_style(button: Button, state_color: Color, selected: bool 
 	button.add_theme_color_override("font_disabled_color", DISABLED)
 	if selected:
 		apply_selected_style(button)
+
+## Kenney 九宫格按钮换肤（UI_LAYOUT §3 / ART_ASSETS v0.2，v0.33.6 首页落地）：
+## 素材 assets/ui/buttons/rect/<color_key>/{normal,hover,pressed}.png（原图 384×128，裁边 24）。
+static func apply_kenney_rect_button(button: Button, color_key: String, font_color: Color) -> void:
+	var pressed_style: StyleBoxTexture = null
+	for state_name in ["normal", "hover", "pressed"]:
+		var style := StyleBoxTexture.new()
+		style.texture = load("res://assets/ui/buttons/rect/%s/%s.png" % [color_key, state_name])
+		style.texture_margin_left = 24.0
+		style.texture_margin_top = 24.0
+		style.texture_margin_right = 24.0
+		style.texture_margin_bottom = 24.0
+		style.set_content_margin_all(12.0)
+		button.add_theme_stylebox_override(state_name, style)
+		if state_name == "pressed":
+			pressed_style = style
+	button.add_theme_stylebox_override("hover_pressed", pressed_style)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	button.add_theme_color_override("font_color", font_color)
+	button.add_theme_color_override("font_hover_color", font_color)
+	button.add_theme_color_override("font_focus_color", font_color)
+	button.add_theme_color_override("font_pressed_color", font_color.darkened(0.15))
+	button.add_theme_color_override("font_hover_pressed_color", font_color.darkened(0.15))
+	button.add_theme_color_override("font_disabled_color", DISABLED)
+

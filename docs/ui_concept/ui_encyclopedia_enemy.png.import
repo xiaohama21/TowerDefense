@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4kvmlvokibfd"
-path="res://.godot/imported/torch.png-1bc6301e63ac4c2b1e9facc32431cb90.ctex"
+uid="uid://cyjlkrpev0xis"
+path="res://.godot/imported/ui_encyclopedia_enemy.png-1686e5cc80a3a92b4983c6765069f528.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/decor/torch.png"
-dest_files=["res://.godot/imported/torch.png-1bc6301e63ac4c2b1e9facc32431cb90.ctex"]
+source_file="res://docs/ui_concept/ui_encyclopedia_enemy.png"
+dest_files=["res://.godot/imported/ui_encyclopedia_enemy.png-1686e5cc80a3a92b4983c6765069f528.ctex"]
 
 [params]
 

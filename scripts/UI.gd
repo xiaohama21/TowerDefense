@@ -7,7 +7,9 @@ signal settings_pressed
 ## 局内军需（阶段 8 提交 1）：打开军需弹窗。
 signal battle_supply_pressed
 signal restart_pressed
-signal character_selected(character_id: String)
+## 拖拽建造（v0.33.3）：武将卡片按下/松手 → Main → BuildManager 开始/结束拖拽。
+signal card_drag_began(character_id: String)
+signal card_drag_released(character_id: String)
 signal debug_wave_jump_requested(wave_index: int)
 signal debug_clear_enemies_requested
 signal tower_upgrade_requested
@@ -45,8 +47,12 @@ const DEBUG_PANEL_SCRIPT := preload("res://scripts/DebugPanel.gd")
 
 var _status_request_id: int = 0
 var _previous_paused_state: bool = false
-var _character_buttons: Dictionary = {}
+## 建造栏卡片（v0.33.3 重设计）：character_id → {id, panel, name, profession, lv, cost}。
+var _character_cards: Dictionary = {}
 var _character_costs: Dictionary = {}
+## 当前按下（正在拖拽）的卡片 id：按下金色高亮，松手/取消复位。
+var _held_card_id: String = ""
+var _dialogue_panel: Control = null
 
 # 武将属性面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
 var _panel_tower: Tower = null
@@ -115,52 +121,177 @@ func _create_debug_panel() -> void:
 
 
 func setup_character_bar(characters: Array) -> void:
-	for button in _character_buttons.values():
-		if is_instance_valid(button):
-			button.queue_free()
-	_character_buttons.clear()
+	for entry in _character_cards.values():
+		var panel: Control = entry.get("panel") if entry is Dictionary else null
+		if is_instance_valid(panel):
+			panel.queue_free()
+	_character_cards.clear()
+	_character_costs.clear()
+	_held_card_id = ""
 
 	for character_data in characters:
 		if character_data == null:
 			continue
 		var character_id := str(character_data.character_id)
-		var profession_tag: String = character_data.profession.display_name.left(1) if character_data.profession != null else "?"
+		var profession_name := "未知职业"
+		if character_data.profession != null:
+			profession_name = character_data.profession.display_name
 		var level := GameFlow.get_character_level(ProfileStore.get_profile(), character_id)
-		var button := Button.new()
-		button.text = "%s【%s】\nLv.%d · %d 金币" % [character_data.display_name, profession_tag, level, character_data.build_cost]
-		button.custom_minimum_size = Vector2(120, 54)
-		button.toggle_mode = true
-		button.add_theme_font_size_override("font_size", 15)
-		button.pressed.connect(_on_character_button_pressed.bind(character_id))
-		character_bar.add_child(button)
-		_character_buttons[character_id] = button
+
+		# 卡片 = 拖拽手柄：武将名 / 职业全名 / Lv（蓝）/ 费用（金）。
+		var panel := PanelContainer.new()
+		panel.custom_minimum_size = Vector2(124, 0)
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		panel.gui_input.connect(_on_card_gui_input.bind(character_id))
+		character_bar.add_child(panel)
+
+		var content := VBoxContainer.new()
+		content.alignment = BoxContainer.ALIGNMENT_CENTER
+		content.add_theme_constant_override("separation", 0)
+		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(content)
+
+		var name_label := Label.new()
+		name_label.text = character_data.display_name
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.add_theme_font_size_override("font_size", 16)
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(name_label)
+
+		var profession_label := Label.new()
+		profession_label.text = profession_name
+		profession_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		profession_label.add_theme_font_size_override("font_size", 12)
+		profession_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(profession_label)
+
+		var stat_row := HBoxContainer.new()
+		stat_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		stat_row.add_theme_constant_override("separation", 6)
+		stat_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(stat_row)
+
+		var lv_label := Label.new()
+		lv_label.text = "Lv.%d" % level
+		lv_label.add_theme_font_size_override("font_size", 13)
+		lv_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stat_row.add_child(lv_label)
+
+		var cost_label := Label.new()
+		cost_label.text = "%d 金" % character_data.build_cost
+		cost_label.add_theme_font_size_override("font_size", 13)
+		cost_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stat_row.add_child(cost_label)
+
 		_character_costs[character_id] = character_data.build_cost
+		_character_cards[character_id] = {
+			"id": character_id,
+			"panel": panel,
+			"name": name_label,
+			"profession": profession_label,
+			"lv": lv_label,
+			"cost": cost_label,
+		}
+	_refresh_character_bar_affordance()
 
 
-## 建造栏负担标识（v0.12.2）：金币不足的武将按钮置灰。
+## 建造栏负担标识（v0.12.2 / v0.33.3 卡片重设计）：金币不足整卡置灰 + 费用红色。
 func _refresh_character_bar_affordance() -> void:
-	for key in _character_buttons.keys():
-		var button := _character_buttons[key] as Button
-		if not is_instance_valid(button):
-			continue
-		button.disabled = GameManager.gold < int(_character_costs.get(key, 0))
+	for key in _character_cards.keys():
+		_apply_card_style(_character_cards[key])
 
 
-func set_selected_character(character_id: String) -> void:
-	for key in _character_buttons.keys():
-		var button := _character_buttons[key] as Button
-		if is_instance_valid(button):
-			button.set_pressed_no_signal(str(key) == character_id)
+## 卡片按下 → 开始拖拽（金币不足不可拖；拖拽本身的金币校验由 BuildManager 兜底）。
+func _on_card_gui_input(event: InputEvent, character_id: String) -> void:
+	if not event is InputEventMouseButton:
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if mouse_event.pressed:
+		if GameManager.gold < int(_character_costs.get(character_id, 0)):
+			return
+		_held_card_id = character_id
+		_apply_card_style(_character_cards.get(character_id, {}))
+		card_drag_began.emit(character_id)
+	elif _held_card_id == character_id:
+		clear_card_hold()
+		card_drag_released.emit(character_id)
 
 
-func _on_character_button_pressed(character_id: String) -> void:
-	character_selected.emit(character_id)
-	# Keep at least one hero selected: clicking the active hero again must not
-	# leave the build bar without a selection.
-	for key in _character_buttons.keys():
-		var button := _character_buttons[key] as Button
-		if is_instance_valid(button):
-			button.set_pressed_no_signal(str(key) == character_id)
+## 松手/取消/开始失败（Main 回调）→ 复位卡片按下的金色高亮。
+func clear_card_hold() -> void:
+	if _held_card_id.is_empty():
+		return
+	_held_card_id = ""
+	for key in _character_cards.keys():
+		_apply_card_style(_character_cards[key])
+
+
+## 卡片样式刷新：按住=金色高亮；金币不足=灰字 + 红边框红费用；默认=面板边框。
+func _apply_card_style(card: Variant) -> void:
+	if not (card is Dictionary):
+		return
+	var panel: PanelContainer = card.get("panel")
+	var affordable: bool = GameManager.gold >= int(_character_costs.get(card.get("id", ""), 0))
+	var held: bool = _held_card_id == str(card.get("id", ""))
+	var border := PANEL_STYLE_BORDER
+	var bg := UITheme.PANEL_BG
+	if held:
+		border = UITheme.SELECT_BORDER
+		bg = UITheme.SELECT_BG.darkened(0.55)
+	elif not affordable:
+		border = UITheme.RED.darkened(0.5)
+	if is_instance_valid(panel):
+		panel.add_theme_stylebox_override("panel", _make_card_style(border, bg))
+	var name_label: Label = card.get("name")
+	var profession_label: Label = card.get("profession")
+	var lv_label: Label = card.get("lv")
+	var cost_label: Label = card.get("cost")
+	if is_instance_valid(name_label):
+		name_label.add_theme_color_override("font_color",
+			UITheme.DISABLED if not affordable else UITheme.TEXT)
+	if is_instance_valid(profession_label):
+		profession_label.add_theme_color_override("font_color",
+			UITheme.DISABLED if not affordable else UITheme.GRAY)
+	if is_instance_valid(lv_label):
+		lv_label.add_theme_color_override("font_color",
+			UITheme.DISABLED if not affordable else UITheme.BLUE)
+	if is_instance_valid(cost_label):
+		cost_label.add_theme_color_override("font_color",
+			UITheme.RED if not affordable else UITheme.GOLD)
+
+
+func _make_card_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.border_color = border_color
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 8.0
+	style.content_margin_right = 8.0
+	style.content_margin_top = 3.0
+	style.content_margin_bottom = 3.0
+	return style
+
+
+## 拖拽建造（v0.33.3）：屏幕坐标是否落在战斗 UI 区——顶栏/卡条整条横向区、
+## 对话底栏 / 塔面板 / 结算 / 消息。拖入则虚影隐藏、松手取消。
+## 调试面板为开发辅助浮层（不拦截点击），不计入，避免遮挡行 2 可建格。
+func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
+	if screen_pos.y <= 158.0:
+		return true
+	if _result_panel != null and _result_panel.visible:
+		return true
+	if _dialogue_layer != null and _dialogue_layer.visible and is_instance_valid(_dialogue_panel) \
+			and _dialogue_panel.get_global_rect().has_point(screen_pos):
+		return true
+	if is_instance_valid(_tower_panel) and _tower_panel.visible \
+			and _tower_panel.get_global_rect().has_point(screen_pos):
+		return true
+	if message_panel.visible and message_panel.get_global_rect().has_point(screen_pos):
+		return true
+	return false
 
 
 func _process(_delta: float) -> void:
@@ -174,7 +305,6 @@ func _process(_delta: float) -> void:
 func update_gold(new_amount: int) -> void:
 	gold_label.text = "金币：%d" % max(new_amount, 0)
 	_refresh_tower_panel()
-	_refresh_character_bar_affordance()
 	_refresh_character_bar_affordance()
 
 
@@ -488,6 +618,7 @@ func _create_dialogue_layer() -> void:
 	panel.gui_input.connect(_on_dialogue_input)
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
 	_dialogue_layer.add_child(panel)
+	_dialogue_panel = panel
 	panel.anchor_left = 0.0
 	panel.anchor_right = 1.0
 	panel.anchor_top = 1.0

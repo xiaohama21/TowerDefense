@@ -28,7 +28,6 @@ trait_params = {
 "aura_damage_bonus": 0.08
 }
 rage_gain_mode_override = &"support"
-unlock_stage_id = &"ch01_s01"
 battle_rank_damage_step_override = 0.05
 battle_rank_attack_speed_step_override = 0.1
 battle_rank_buff_duration_step_override = 0.1

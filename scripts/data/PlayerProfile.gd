@@ -4,9 +4,11 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 2
+const CURRENT_SCHEMA_VERSION: int = 3
 ## v2（阶段 8·提交 6，职业级转职树落地）：旧档角色绑定转职路径作废，
 ## 统一按职业级转职树重新转职——加载迁移时清空所有 promotion_path（v0.28 拍板）。
+## v3（阶段 8·提交 8 延伸·v0.33.1）：新增出战编队持久记忆 squad_character_ids / squad_relic_ids——
+## 「确认出战」写入玩家档案，再次出征自动预填（旧档迁移为空数组，不预填）。
 
 var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}
@@ -17,6 +19,8 @@ var gacha_state: Dictionary = {}
 var tech_points: int = 0
 var tech_unlocks: Array[String] = []
 var last_committed_run_id: String = ""
+var squad_character_ids: Array[String] = []
+var squad_relic_ids: Array[String] = []
 
 
 func _init(initial_data: Dictionary = {}) -> void:
@@ -46,6 +50,8 @@ func load_dict(data: Dictionary) -> void:
 	tech_unlocks = _normalize_string_array(source.get("tech_unlocks", []))
 	gacha_state = _normalize_dictionary(source.get("gacha_state", {}))
 	last_committed_run_id = str(source.get("last_committed_run_id", ""))
+	squad_character_ids = _normalize_string_array(source.get("squad_character_ids", []))
+	squad_relic_ids = _normalize_string_array(source.get("squad_relic_ids", []))
 
 
 func to_dict() -> Dictionary:
@@ -59,6 +65,8 @@ func to_dict() -> Dictionary:
 		"tech_unlocks": tech_unlocks.duplicate(),
 		"gacha_state": gacha_state.duplicate(true),
 		"last_committed_run_id": last_committed_run_id,
+		"squad_character_ids": squad_character_ids.duplicate(),
+		"squad_relic_ids": squad_relic_ids.duplicate(),
 	}
 
 
@@ -78,6 +86,8 @@ func copy_from(other: PlayerProfile) -> void:
 	tech_unlocks = other.tech_unlocks.duplicate()
 	gacha_state = other.gacha_state.duplicate(true)
 	last_committed_run_id = other.last_committed_run_id
+	squad_character_ids = other.squad_character_ids.duplicate()
+	squad_relic_ids = other.squad_relic_ids.duplicate()
 
 
 func has_character(character_id: String) -> bool:

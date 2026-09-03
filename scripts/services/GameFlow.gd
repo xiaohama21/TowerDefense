@@ -1,7 +1,9 @@
 extends Node
 
 ## GameFlow：阶段 1 界面流程控制器（主菜单 → 选关 → 编队 → 战斗）。
-## 持有"本次选择的关卡与出战编队"这类跨场景临时状态；持久化仍只走 ProfileStore。
+## 持有"本次选择的关卡与出战编队"这类跨场景临时状态；出战编队（武将+遗物）
+## 自 v0.33.1 起在「确认出战」时写入玩家档案（squad_character_ids / squad_relic_ids），
+## 再次出征自动预填；其余持久化仍只走 ProfileStore。
 
 const MAIN_MENU_SCENE := "res://scenes/MainMenu.tscn"
 const GAME_HUB_SCENE := "res://scenes/GameHub.tscn"
@@ -24,8 +26,10 @@ const INITIAL_CHARACTER_IDS: Array[String] = ["liu_bei", "guan_yu"]
 var selected_stage_id: StringName = &""
 var squad_character_ids: Array[String] = []
 
-## 本次出征选带的局内遗物（v0.19.0，CHARACTERS.md 4.8）：出征即消耗库存各 1 件，
-## 仅本局生效；重试保留，离场/进入下一关时清空（GameFlow.clear_squad_relics）。
+## 本次出征选带的局内遗物（v0.19.0，CHARACTERS.md 4.8）：遗物为**永久使用**
+## （v0.33.1 起选带不消耗库存，见 BUGS B-019）；仅本局生效、可反复携带；
+## 重试保留，离场/进入下一关时清空运行时状态（GameFlow.clear_squad_relics），
+## 持久记忆在玩家档案 squad_relic_ids（确认出战写入）。
 var squad_relic_ids: Array[String] = []
 ## 游戏大厅当前页签（map/develop/settings），战斗结算"返回大厅"时恢复。
 var hub_active_panel: StringName = &"map"
@@ -425,10 +429,30 @@ func get_battle_relic_bonuses() -> Dictionary:
 	return result
 
 
-## 出征消耗：扣除已选遗物库存各 1 件（胜/负均消耗；写档由调用方负责）。
-func consume_squad_relics(profile: PlayerProfile) -> void:
-	for relic_id in squad_relic_ids:
-		profile.spend_item(relic_id, 1)
+## 出战编队持久记忆（v0.33.1，UI_LAYOUT.md §6）：把运行时编队写入玩家档案，
+## 配合 ProfileStore.save_profile 落盘；「确认出战」时调用，再次出征自动预填。
+func save_squad_to_profile(profile: PlayerProfile) -> void:
+	if profile == null:
+		return
+	profile.squad_character_ids = squad_character_ids.duplicate()
+
+
+func load_saved_squad(profile: PlayerProfile) -> Array[String]:
+	if profile == null:
+		return []
+	return profile.squad_character_ids.duplicate()
+
+
+func save_squad_relics_to_profile(profile: PlayerProfile) -> void:
+	if profile == null:
+		return
+	profile.squad_relic_ids = squad_relic_ids.duplicate()
+
+
+func load_saved_squad_relics(profile: PlayerProfile) -> Array[String]:
+	if profile == null:
+		return []
+	return profile.squad_relic_ids.duplicate()
 
 
 func goto_menu() -> void:
@@ -450,6 +474,13 @@ func set_gameplay_flag(flag: String, value: bool) -> void:
 
 
 func goto_hub() -> void:
+	_change_scene(GAME_HUB_SCENE)
+
+
+## 返回选关（v0.33.1）：编队页「返回选关」回游戏大厅并定位到地图选择页签，
+## 关卡与难度保留在 GameFlow 运行时状态中。
+func goto_stage_select() -> void:
+	hub_active_panel = &"map"
 	_change_scene(GAME_HUB_SCENE)
 
 

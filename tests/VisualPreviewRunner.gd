@@ -21,16 +21,27 @@ func _run() -> void:
 	var build_manager := main.get_node("BuildManager")
 	var wave_manager := main.get_node("WaveManager")
 	var enemy_manager := main.get_node("EnemyManager")
-	var slots := get_tree().get_nodes_in_group("build_slots")
 
 	var guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
 	var liu_bei := load("res://resources/characters/liu_bei.tres") as CharacterData
-	if guan_yu != null and slots.size() >= 2:
-		build_manager.selected_character = guan_yu
-		build_manager._on_build_requested(slots[0])
-		GameManager.gold = 9999
-		build_manager.selected_character = liu_bei
-		build_manager._on_build_requested(slots[1])
+	GameManager.gold = 9999
+	var placed := 0
+	for row in range(3, GridBackground.ROWS):
+		for col in range(GridBackground.COLS):
+			var cell := Vector2i(col, row)
+			if build_manager._road_cells.has(cell) or build_manager._forbidden_cells.has(cell):
+				continue
+			if build_manager._is_cell_occupied(cell):
+				continue
+			var character := guan_yu if placed == 0 else liu_bei
+			if character != null and build_manager.begin_drag(character):
+				build_manager._update_drag_at(build_manager.cell_center(cell))
+				build_manager.release_drag()
+				placed += 1
+			if placed >= 2:
+				break
+		if placed >= 2:
+			break
 	await get_tree().process_frame
 
 	wave_manager.start_wave(0)

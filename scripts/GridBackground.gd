@@ -20,8 +20,8 @@ const ENTRANCE_COLOR := Color(0.78, 0.62, 0.36, 1.0)
 const BASE_COLOR := Color(0.68, 0.29, 0.24, 1.0)
 const DECOR_TRUNK_COLOR := Color(0.3, 0.22, 0.14, 1.0)
 const DECOR_LEAF_COLOR := Color(0.2, 0.42, 0.28, 1.0)
-## 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor/*.png，缺失时回退程序化绘制。
-const DECOR_TEXTURE_DIR := "res://assets/decor"
+## 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/map/decor/*.png，缺失时回退程序化绘制。
+const DECOR_TEXTURE_DIR := "res://assets/map/decor"
 const DECOR_TEXTURE_SIZE := 60.0
 const DECOR_TYPES: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
 
@@ -262,3 +262,4 @@ static func derive_road_cells(path_points: Array[Vector2]) -> Array[Vector2i]:
 			if not cells.has(cell):
 				cells.append(cell)
 	return cells
+

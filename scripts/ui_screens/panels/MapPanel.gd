@@ -2,7 +2,7 @@ extends VBoxContainer
 
 ## 地图选择面板（阶段 8 提交 4 重构，UI_LAYOUT.md 第 4 节）：
 ## 章节区横向一行胶囊按钮（不滚动，超出自动换行）；关卡区 2×4 网格卡片一屏展示（无滚动条）；
-## 底部操作条：关卡摘要 + 难度切换（标准/困难互斥单选，随 difficulty_presets 扩展）+ 出征（金色主按钮，确认弹窗）+ 一键通关（测试）。
+## 底部操作条：关卡摘要 + 难度切换（标准/困难互斥单选，随 difficulty_presets 扩展）+ 出征（金色主按钮，直达编队——v0.33.1 删除确认弹窗，防误触确认收敛到编队页）+ 一键通关（测试）。
 
 signal stage_selected(stage_id: StringName, difficulty: int)
 
@@ -20,13 +20,15 @@ var _selected_stage: StageData = null
 var _status_label: Label
 var _summary_label: Label
 var _deploy_button: Button
-var _deploy_confirm: ConfirmationDialog
 var _clear_button: Button
 var _difficulty_buttons: Array[Button] = []
 
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 10)
+	# 返回选关保留关卡/难度（v0.33.1，UI_LAYOUT.md §6）：重进地图页签时沿用
+	# GameFlow 当前所选难度（编队页「返回选关」回来不丢难度选择）。
+	_selected_difficulty = GameFlow.selected_difficulty
 	_build_ui()
 	_refresh_stages()
 
@@ -123,9 +125,6 @@ func _build_ui() -> void:
 	_clear_button.pressed.connect(_on_instant_clear)
 	action_bar.add_child(_clear_button)
 
-	_build_deploy_confirm()
-
-
 func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	var unlocked := GameFlow.is_stage_unlocked(profile, stage)
 	var completed := false
@@ -203,11 +202,19 @@ func _refresh_stages() -> void:
 		var card := _make_stage_card(profile, stage)
 		_stage_grid.add_child(card)
 		_stage_cards[str(stage.stage_id)] = card
+	# 关卡默认选中：优先 GameFlow.selected_stage_id（v0.33.1「返回选关」保留所选关卡），
+	# 不可玩/未解锁则回退首个已解锁关卡。
 	var default_stage: StageData = null
+	var last_stage_id := str(GameFlow.selected_stage_id)
 	for stage in stages:
-		if GameFlow.is_stage_unlocked(profile, stage):
+		if str(stage.stage_id) == last_stage_id and GameFlow.is_stage_unlocked(profile, stage):
 			default_stage = stage
 			break
+	if default_stage == null:
+		for stage in stages:
+			if GameFlow.is_stage_unlocked(profile, stage):
+				default_stage = stage
+				break
 	if default_stage == null and not stages.is_empty():
 		default_stage = stages[0]
 	_select_stage(default_stage)
@@ -266,30 +273,9 @@ func _on_difficulty_changed(pressed: bool, difficulty: int) -> void:
 		_selected_difficulty = difficulty
 
 
-## 出征（v0.31.2 补确认弹窗）：先确认关卡与难度，防止误触直接进编队。
+## 出征（v0.31.2 补确认弹窗；✅ v0.33.1 删除——防误触确认收敛到编队页「确认出战」）：
+## 点击直接进入编队界面（发 stage_selected，由 GameHub 跳转）。
 func _on_deploy_pressed() -> void:
-	if _selected_stage == null:
-		return
-	_deploy_confirm.dialog_text = "以「%s」难度出征「%s」？\n确认后将进入编队界面。" % [
-		Difficulty.name(_selected_difficulty), _selected_stage.display_name,
-	]
-	_deploy_confirm.popup_centered()
-
-
-func _build_deploy_confirm() -> void:
-	_deploy_confirm = ConfirmationDialog.new()
-	_deploy_confirm.title = "确认出征"
-	var ok_button := _deploy_confirm.get_ok_button()
-	if ok_button != null:
-		ok_button.text = "确认出征"
-	var cancel_button := _deploy_confirm.get_cancel_button()
-	if cancel_button != null:
-		cancel_button.text = "取消"
-	_deploy_confirm.confirmed.connect(_emit_deploy)
-	add_child(_deploy_confirm)
-
-
-func _emit_deploy() -> void:
 	if _selected_stage != null:
 		stage_selected.emit(_selected_stage.stage_id, _selected_difficulty)
 

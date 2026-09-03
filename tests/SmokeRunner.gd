@@ -23,6 +23,54 @@ func _check(condition: bool, message: String) -> void:
 		push_error("SMOKE_TEST: %s" % message)
 
 
+## 拖拽用例辅助（v0.33.3）：从 start_row 起找 count 个可建空地格
+## （非道路 / 非禁建 / 未占用；行 ≥3 避开顶栏与卡条 UI 区）。
+func _find_buildable_cells(build_manager: Node, count: int, start_row: int = 3) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for row in range(start_row, GridBackground.ROWS):
+		for col in range(GridBackground.COLS):
+			var cell := Vector2i(col, row)
+			if build_manager._road_cells.has(cell) or build_manager._forbidden_cells.has(cell):
+				continue
+			if build_manager._is_cell_occupied(cell):
+				continue
+			result.append(cell)
+			if result.size() >= count:
+				return result
+	return result
+
+
+func _tower_at_cell(tower_manager: Node, cell: Vector2i) -> Tower:
+	for child in tower_manager.get_children():
+		var tower := child as Tower
+		if tower == null or not is_instance_valid(tower):
+			continue
+		var tower_cell := Vector2i(
+			floori(tower.global_position.x / GridBackground.GRID_SIZE),
+			floori(tower.global_position.y / GridBackground.GRID_SIZE)
+		)
+		if tower_cell == cell:
+			return tower
+	return null
+
+
+## 遗留槽位坐标（v0.33.3 槽位视觉已移除，StageData.build_slots 数据废弃保留）：
+## 转成网格坐标供拖拽用例复用原槽位布局，保持后续用例的塔位几何不变。
+func _legacy_slot_cells(build_manager: Node, stage_data: StageData) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for entry in stage_data.get_build_slot_data():
+		var cell := Vector2i(
+			floori(entry.position.x / GridBackground.GRID_SIZE),
+			floori(entry.position.y / GridBackground.GRID_SIZE)
+		)
+		if result.has(cell):
+			continue
+		if build_manager._road_cells.has(cell) or build_manager._forbidden_cells.has(cell):
+			continue
+		result.append(cell)
+	return result
+
+
 func _run() -> void:
 	_check_resource_integrity()
 	# 测试消耗品（v0.15.1）：练兵令应为 CONSUMABLE 且可加载。
@@ -158,7 +206,7 @@ func _run() -> void:
 	_check(tech_profile.tech_unlocks.is_empty() and tech_profile.tech_points == 30,
 		"重置后应清空科技并返还累计消耗")
 
-	# 阶段 7（v0.19.0）：局内遗物——5 件可加载、汇总叠加、出征消耗、s08 掉落、fast_charger 配置。
+	# 阶段 7（v0.19.0）：局内遗物——5 件可加载、汇总叠加、永久使用（v0.33.1，选带不消耗库存）、s08 掉落、fast_charger 配置。
 	var battle_relic_ids: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 	var loaded_relics := 0
 	for relic_id in battle_relic_ids:
@@ -182,10 +230,11 @@ func _run() -> void:
 			"遗物汇总应叠加基地生命")
 		_check(is_equal_approx(float(relic_bonuses["attack_interval_factor"]), 0.95)
 			and int(relic_bonuses["range_bonus_pct"]) == 10, "遗物汇总应叠加攻速/射程")
-		GameFlow.consume_squad_relics(stage7_profile)
-		_check(int(stage7_profile.items.get("wolf_tooth", 0)) == 0
-			and int(stage7_profile.items.get("iron_shield", 0)) == 0, "出征应消耗已选遗物库存各 1 件")
-		_check(int(stage7_profile.items.get("provision_bag", 0)) == 1, "未选带遗物不应被消耗")
+		# ✅ v0.33.1：遗物改永久使用——选带不消耗库存（consume_squad_relics 已随 B-019 移除）。
+		_check(int(stage7_profile.items.get("wolf_tooth", 0)) == 1
+			and int(stage7_profile.items.get("iron_shield", 0)) == 1
+			and int(stage7_profile.items.get("provision_bag", 0)) == 1,
+			"遗物应永久使用——选带/结算均不消耗库存")
 		GameFlow.clear_squad_relics()
 	var stage7_cavalry := load("res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres") as EnemyData
 	_check(stage7_cavalry != null and stage7_cavalry.special_behavior_id == &"fast_charger",
@@ -198,9 +247,9 @@ func _run() -> void:
 				s08_has_wolf = true
 	_check(s08_stage != null and s08_has_wolf, "s08 首通掉落应含狼牙符")
 
-	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/decor 纹理应齐全。
+	# 装饰素材（v0.16.0，GDD 5.7 第三步）：assets/map/decor 纹理应齐全（v0.33.4 目录迁移）。
 	for decor_name in ["tree", "rock", "banner", "torch"]:
-		_check(ResourceLoader.exists("res://assets/decor/%s.png" % decor_name),
+		_check(ResourceLoader.exists("res://assets/map/decor/%s.png" % decor_name),
 			"装饰素材 %s.png 应存在" % decor_name)
 
 	# 音效库（v0.16.0）：全部音效已合成且播放不报错（headless 走哑音频）。
@@ -228,87 +277,95 @@ func _run() -> void:
 
 	_check(GameManager.gold == stage_data.starting_currency, "初始金币应来自关卡配置（starting_currency）")
 	_check(GameManager.lives == stage_data.starting_lives, "初始生命应来自关卡配置（starting_lives）")
-	_check(get_tree().get_nodes_in_group("build_slots").size() == stage_data.build_slot_count, "建造位数量应与关卡配置一致")
+	# v0.33.3：建造方式唯一化为拖拽——战场不再生成建造位 / 推荐位 / 预锁位。
+	_check(get_tree().get_nodes_in_group("build_slots").is_empty(), "v0.33.3 起战场不应再生成建造位")
+	_check(main.get_node_or_null("BuildSlots") == null, "v0.33.3 起 Main 不应再有 BuildSlots 节点")
 
-	var slots := get_tree().get_nodes_in_group("build_slots")
 	var build_manager := main.get_node("BuildManager")
 	var tower_manager := main.get_node("TowerManager")
 	var guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
 	var liu_bei := load("res://resources/characters/liu_bei.tres") as CharacterData
-	build_manager.selected_character = guan_yu
-	var enemy_path := main.get_node("Path2D") as Path2D
-	for slot in slots:
-		var closest_local: Vector2 = enemy_path.curve.get_closest_point(enemy_path.to_local(slot.global_position))
-		var distance_to_path: float = slot.global_position.distance_to(enemy_path.to_global(closest_local))
-		_check(distance_to_path >= 70.0 and distance_to_path <= 170.0, "建造位应贴着网格道路（80/160 像素）")
-	if slots.size() >= 3:
-		# 显式控制金币，用例不依赖关卡初始金币的具体数值。
-		build_manager.selected_character = guan_yu
-		GameManager.gold = guan_yu.build_cost
-		build_manager._on_build_requested(slots[0])
-		build_manager._on_build_requested(slots[0])
-		await get_tree().process_frame
-		_check(GameManager.gold == 0, "建造关羽后金币应扣除其造价")
-		build_manager.selected_character = liu_bei
-		build_manager._on_build_requested(slots[1])
-		build_manager._on_build_requested(slots[2])
-		build_manager._on_build_requested(slots[2])
-		await get_tree().process_frame
-		_check(tower_manager.get_child_count() == 1, "金币不足时不应生成第二座塔")
-		_check(slots[0].occupied and not slots[1].occupied and not slots[2].occupied, "建造位占用状态错误")
-		GameManager.gold = 9999
-		build_manager._on_build_requested(slots[1])
-		build_manager._on_build_requested(slots[1])
-		await get_tree().process_frame
-		_check(tower_manager.get_child_count() == 2 and slots[1].occupied, "金币充足时应能建造第二座塔")
-		# 两次点击确认（v0.12.3 简化）：第一次进入待确认，第二次确认建造。
-		build_manager._on_build_requested(slots[3])
-		_check(slots[3].get("pending") == true, "点选建造位后应进入待确认状态")
-		build_manager._on_build_requested(slots[3])
-		await get_tree().process_frame
-		_check(slots[3].occupied, "再次点击同一建造位应确认建造")
-		var extra_tower := tower_manager.get_child(tower_manager.get_child_count() - 1) as Tower
-		if extra_tower:
-			extra_tower.queue_free()
-			slots[3].reset_slot()
-			await get_tree().process_frame
-		# 预锁位解锁（v0.14.1，GDD 5.1）：消耗金币解锁后即可正常建造，且不重复扣费。
-		var locked_slot := slots[4] as BuildSlot
-		locked_slot.locked = true
-		locked_slot.unlock_cost = 50
-		locked_slot._unlocked_in_battle = false
-		GameManager.gold = 50
-		build_manager._on_unlock_requested(locked_slot)
-		await get_tree().process_frame
-		_check(GameManager.gold == 0 and not locked_slot.is_locked(), "预锁位应消耗金币解锁")
-		build_manager._on_unlock_requested(locked_slot)
-		await get_tree().process_frame
-		_check(GameManager.gold == 0, "已解锁位不应重复扣费")
-		locked_slot.locked = false
-		locked_slot._unlocked_in_battle = false
-		# 阶段 8 提交 3（v0.23.0 拍板）：空地自由建造——非道路/非禁建/未占用网格两次点击确认。
-		GameManager.gold = 9999
-		build_manager.selected_character = guan_yu
-		var free_cell := Vector2i(2, 6)
-		var free_pos: Vector2 = build_manager.cell_center(free_cell)
-		var before_free := tower_manager.get_child_count()
-		build_manager._on_map_clicked(free_pos)
-		_check(build_manager._pending_cell == free_cell, "点击空地应进入待确认网格")
-		build_manager._on_map_clicked(free_pos)
-		await get_tree().process_frame
-		_check(tower_manager.get_child_count() == before_free + 1, "空地自由建造应成功建塔")
-		build_manager.cancel_pending()
-		build_manager._on_map_clicked(build_manager.cell_center(Vector2i(4, 3)))
-		_check(build_manager._pending_cell == Vector2i(-1, -1), "道路格应拒绝建造")
-		build_manager.cancel_pending()
-		build_manager._on_map_clicked(build_manager.cell_center(Vector2i(0, 1)))
-		_check(build_manager._pending_cell == Vector2i(-1, -1), "禁建地形应拒绝建造")
-		build_manager.cancel_pending()
-		var occupied_pos: Vector2 = tower_manager.get_child(0).global_position
-		build_manager._on_map_clicked(occupied_pos)
-		_check(build_manager._pending_cell == Vector2i(-1, -1), "已有防御塔网格应拒绝建造")
-		build_manager.cancel_pending()
 
+	# —— 拖拽建造（v0.33.3，唯一建造方式）——
+	# 落点优先取遗留槽位坐标（保持后续用例的塔位几何），不足时回退自由空地扫描。
+	var slot_cells := _legacy_slot_cells(build_manager, stage_data)
+	# 顶栏/卡条覆盖行 0-1（y ≤ 158 视为 UI 区），优先选行 ≥2 的槽位格。
+	var preferred_cells: Array[Vector2i] = []
+	var rest_cells: Array[Vector2i] = []
+	for slot_cell in slot_cells:
+		if slot_cell.y >= 2:
+			preferred_cells.append(slot_cell)
+		else:
+			rest_cells.append(slot_cell)
+	preferred_cells.append_array(rest_cells)
+	var free_cells := preferred_cells if preferred_cells.size() >= 3 else _find_buildable_cells(build_manager, 3)
+	_check(free_cells.size() >= 3, "冒烟地图应存在至少 3 个可建空地（拖拽用例前置）")
+	if free_cells.size() >= 3:
+		var cell_a: Vector2i = free_cells[0]
+		var cell_b: Vector2i = free_cells[1]
+		var cell_c: Vector2i = free_cells[2]
+		# 金币恰好 = 造价：拖出松手直建，扣费成功。
+		GameManager.gold = guan_yu.build_cost
+		_check(build_manager.begin_drag(guan_yu), "金币充足时应能开始拖拽")
+		_check(build_manager.is_dragging(), "拖拽开始后应处于拖拽态")
+		build_manager._update_drag_at(build_manager.cell_center(cell_a))
+		_check(build_manager.can_build_at(cell_a), "可建空地应判定可建")
+		build_manager.release_drag()
+		await get_tree().process_frame
+		_check(GameManager.gold == 0, "松手直建应扣除造价")
+		_check(_tower_at_cell(tower_manager, cell_a) != null, "松手直建应在落点生成防御塔")
+		_check(not build_manager.is_dragging(), "释放后拖拽应结束")
+		# 金币不足：无法开始拖拽。
+		_check(not build_manager.begin_drag(liu_bei), "金币不足时应拒绝开始拖拽")
+		_check(not build_manager.is_dragging(), "被拒绝的开始拖拽不应进入拖拽态")
+		# 已占用格：可拖但落点不可建，松手不建造不扣费。
+		GameManager.gold = 9999
+		_check(build_manager.begin_drag(liu_bei), "金币充足时应能再次拖拽")
+		build_manager._update_drag_at(build_manager.cell_center(cell_a))
+		_check(not build_manager.can_build_at(cell_a), "已占用格应判定不可建")
+		_check(not build_manager._drag_valid, "落点不可建时虚影应标红")
+		build_manager.release_drag()
+		await get_tree().process_frame
+		_check(GameManager.gold == 9999, "落点不可建时松手不应扣费")
+		# 第二个可建格成功建塔。
+		build_manager.begin_drag(liu_bei)
+		build_manager._update_drag_at(build_manager.cell_center(cell_b))
+		_check(build_manager._drag_valid, "可建落点应判定有效（绿格）")
+		build_manager.release_drag()
+		await get_tree().process_frame
+		_check(_tower_at_cell(tower_manager, cell_b) != null, "金币充足时第二个落点应建塔成功")
+		# 道路 / 禁建 / 越界判定。
+		GameManager.gold = 9999
+		build_manager.begin_drag(guan_yu)
+		var road_cells_array: Array = build_manager._road_cells.keys()
+		if not road_cells_array.is_empty():
+			build_manager._update_drag_at(build_manager.cell_center(road_cells_array[0] as Vector2i))
+			_check(not build_manager._drag_valid, "道路格应判定不可建")
+		var forbidden_array: Array = build_manager._forbidden_cells.keys()
+		if not forbidden_array.is_empty():
+			build_manager._update_drag_at(build_manager.cell_center(forbidden_array[0] as Vector2i))
+			_check(not build_manager._drag_valid, "禁建地形应判定不可建")
+		_check(not build_manager.can_build_at(Vector2i(99, 99)), "越界格应判定不可建")
+		_check(not build_manager.can_build_at(Vector2i(-1, 0)), "负坐标格应判定不可建")
+		build_manager.cancel_drag()
+		_check(not build_manager.is_dragging(), "取消后拖拽应结束且不扣费")
+		# 拖入顶栏等 UI 区：虚影隐藏、松手取消不扣费。
+		var gold_before_ui_release := GameManager.gold
+		build_manager.begin_drag(guan_yu)
+		build_manager._update_drag_at(Vector2(640, 60))
+		_check(build_manager._drag_over_ui, "拖入顶栏区域应标记为 UI 区（虚影隐藏）")
+		build_manager.release_drag()
+		_check(not build_manager.is_dragging() and GameManager.gold == gold_before_ui_release,
+			"UI 区松手应取消且不扣费")
+		# 拖拽可视反馈：落点格 + 武将虚影（攻击范围圈随 is_selected 由塔自身绘制）。
+		build_manager.begin_drag(guan_yu)
+		build_manager._update_drag_at(build_manager.cell_center(cell_c))
+		_check(build_manager._cell_tint != null and build_manager._cell_tint.visible
+			and build_manager._drag_valid, "可建落点应显示绿色格提示")
+		_check(build_manager._ghost != null and is_instance_valid(build_manager._ghost)
+			and build_manager._ghost.visible and build_manager._ghost.is_selected,
+			"拖拽时应显示带范围圈的武将虚影")
+		build_manager.cancel_drag()
 	var enemy_manager := main.get_node("EnemyManager")
 	# 程序化构造 EnemyData，替代旧的硬编码 spawn_enemy("boss")。
 	var boss_data := EnemyData.new()
@@ -406,15 +463,31 @@ func _run() -> void:
 	# 局内升级/回收（GDD 5.4）：费用 = 造价×0.8×次数，返还 = 总投入×0.6（向上取整）。
 	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
 	_check(zhang_fei != null and stage_data != null, "张飞与关卡数据应可加载")
-	if zhang_fei != null and stage_data != null and slots.size() >= 3:
+	var zhang_cell := Vector2i(-1, -1)
+	for candidate in _legacy_slot_cells(build_manager, stage_data):
+		if not build_manager._is_cell_occupied(candidate):
+			zhang_cell = candidate
+			break
+	if zhang_cell.x < 0:
+		var zhang_fallback := _find_buildable_cells(build_manager, 1)
+		if zhang_fallback.size() >= 1:
+			zhang_cell = zhang_fallback[0]
+	if zhang_fei != null and stage_data != null and zhang_cell.x >= 0:
 		# 波次测试把 GameManager 推到了终局状态，先复位再验证局内建造/升级。
 		GameManager.reset(9999, 20, stage_data.waves.size())
-		build_manager.selected_character = zhang_fei
-		build_manager._on_build_requested(slots[2])
-		build_manager._on_build_requested(slots[2])
+		# 拖拽建造按设计在暂停态不可用，先恢复（暂停来自前面波次测试的暂停按钮用例）。
+		get_tree().paused = false
+		# 前面波次测试可能已触发结算/选中塔面板，关闭避免其全屏/面板区拦截拖拽落点。
+		var smoke_ui := main.get_node("UI")
+		smoke_ui.hide_result()
+		smoke_ui.hide_tower_panel()
+		_check(build_manager.begin_drag(zhang_fei), "复位后应能开始张飞拖拽")
+		build_manager._update_drag_at(build_manager.cell_center(zhang_cell))
+		_check(build_manager._drag_valid, "张飞落点应判定可建")
+		build_manager.release_drag()
 		await get_tree().process_frame
 		var spear_tower := tower_manager.get_child(tower_manager.get_child_count() - 1) as Tower
-		_check(spear_tower != null and slots[2].occupied, "张飞塔应建造成功")
+		_check(spear_tower != null and _tower_at_cell(tower_manager, zhang_cell) != null, "张飞塔应拖拽建造成功")
 		if spear_tower != null:
 			var upgrade_cost_1 := spear_tower.get_upgrade_cost(stage_data.upgrade_cost_factor)
 			_check(upgrade_cost_1 == ceili(zhang_fei.build_cost * 0.8), "第一次升阶费用应为造价×0.8")
@@ -457,7 +530,8 @@ func _run() -> void:
 			var gold_before_sell := GameManager.gold
 			_check(tower_manager.sell_tower(spear_tower, stage_data), "回收应成功")
 			_check(GameManager.gold == gold_before_sell + refund, "回收后应返还金币")
-			_check(not slots[2].occupied, "回收后建造槽应可复用")
+			await get_tree().process_frame
+			_check(_tower_at_cell(tower_manager, zhang_cell) == null, "回收后落点格应可复用")
 		# 待删除的张飞塔会跑完最后一帧 _process（角色技能就绪时自动释放当阳桥，
 		# 击退手动摆放的后续用例敌人）。先等一帧让 queue_free 生效，隔离后续用例。
 		await get_tree().process_frame
@@ -1463,6 +1537,32 @@ func _run() -> void:
 			map_issues.clear()
 	_check(map_issues.is_empty(), "地图校验器不应有遗留问题")
 
+	# 阶段 8 提交 8 延伸·修复 7（v0.33.7 / 0.8.8.7，BUGS B-022）：角色图鉴数据完整性——
+	# 初始武将获取方式（unlock_stage_id 空 =「初始解锁」）、9 名武将特性数据齐全、观星射程实算。
+	_check(GameFlow.get_acquisition_text("guan_yu") == "初始解锁"
+		and GameFlow.get_acquisition_text("liu_bei") == "初始解锁",
+		"刘备/关羽应显示「初始解锁」（unlock_stage_id 已清空，B-022）")
+	_check(GameFlow.get_acquisition_text("zhang_fei") == "通关「长社火攻」首通解锁",
+		"张飞获取方式应为首通 s02 解锁")
+	var c887_char_ids := ["liu_bei", "guan_yu", "zhang_fei", "huang_fu_song", "huang_zhong",
+		"diao_chan", "zhou_wei", "zhao_yun", "zhuge_liang"]
+	var c887_all_traits := true
+	for character_id in c887_char_ids:
+		var c887_data := load("res://resources/characters/%s.tres" % character_id) as CharacterData
+		if c887_data == null or c887_data.trait_id.is_empty():
+			c887_all_traits = false
+	_check(c887_all_traits, "9 名武将应全部配置 trait_id（B-022 补齐赵云/周仓/诸葛亮）")
+	var star_char := load("res://resources/characters/zhuge_liang.tres") as CharacterData
+	var saved_squad_relics := GameFlow.squad_relic_ids.duplicate()
+	GameFlow.squad_relic_ids = []
+	var star_tower: Tower = tower_manager.build_tower(Vector2(60, 640), star_char, null, {"level": 1})
+	GameFlow.squad_relic_ids = saved_squad_relics
+	if star_char != null and star_tower != null:
+		star_tower.set_process(false)
+		_check(is_equal_approx(star_tower.range_radius, 190.0 * 1.12),
+			"诸葛亮观星射程 +12% 应生效（trait_id 先于属性计算就位，B-022）")
+		star_tower.queue_free()
+
 	_finish()
 
 
@@ -1581,3 +1681,4 @@ func _collect_resource_paths(dir_path: String) -> Array[String]:
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return result
+

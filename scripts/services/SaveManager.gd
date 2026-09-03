@@ -352,6 +352,31 @@ func _migrate_v1_to_v2(old_data: Dictionary) -> Dictionary:
 	return data
 
 
+## v2 → v3（阶段 8·提交 8 延伸·v0.33.1）：新增出战编队持久记忆字段
+## squad_character_ids / squad_relic_ids——v2 旧档无此字段，迁移为空数组（不预填；
+## 玩家「确认出战」后写入，再次出征自动预填）。
+func _migrate_v2_to_v3(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var squad_characters: Array = []
+	var raw_characters = data.get("squad_character_ids", [])
+	if raw_characters is Array:
+		for value in raw_characters:
+			var text := str(value).strip_edges()
+			if not text.is_empty() and not squad_characters.has(text):
+				squad_characters.append(text)
+	var squad_relics: Array = []
+	var raw_relics = data.get("squad_relic_ids", [])
+	if raw_relics is Array:
+		for value in raw_relics:
+			var text := str(value).strip_edges()
+			if not text.is_empty() and not squad_relics.has(text):
+				squad_relics.append(text)
+	data["schema_version"] = 3
+	data["squad_character_ids"] = squad_characters
+	data["squad_relic_ids"] = squad_relics
+	return data
+
+
 ## Migration entry point. Add one version step at a time as schemas evolve.
 func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	var data := raw_data.duplicate(true)
@@ -370,6 +395,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			1:
 				data = _migrate_v1_to_v2(data)
 				version = 2
+				migrated = true
+			2:
+				data = _migrate_v2_to_v3(data)
+				version = 3
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

@@ -1,6 +1,5 @@
 extends Node2D
 
-const BUILD_SLOT_SCENE: PackedScene = preload("res://scenes/BuildSlot.tscn")
 const DEFAULT_STAGE_ID: StringName = &"ch01_s01"
 ## 局内军需（阶段 8 提交 1）：目录内 .tres 即道具配置（BattleSupplyData）。
 const BATTLE_SUPPLY_DIR := "res://resources/battle_supplies"
@@ -14,12 +13,9 @@ const BATTLE_SUPPLY_DIR := "res://resources/battle_supplies"
 @onready var path_2d: Path2D = $Path2D
 @onready var spawn_marker: Node2D = $SpawnMarker
 @onready var base_marker: Node2D = $BaseMarker
-@onready var build_slots_container: Node2D = $BuildSlots
-
 var battle_session: BattleSession
 var stage_data: StageData
 var _available_characters: Array[CharacterData] = []
-var _selected_character: CharacterData = null
 var _selected_tower: Tower = null
 ## 战斗内设置弹窗（v0.19.2）：打开时暂停，关闭后恢复。
 var _settings_popup: CanvasLayer = null
@@ -75,7 +71,8 @@ func _ready():
 	ui.pause_pressed.connect(_on_pause_pressed)
 	ui.settings_pressed.connect(_on_settings_pressed)
 	ui.restart_pressed.connect(_on_restart_pressed)
-	ui.character_selected.connect(_on_character_selected)
+	ui.card_drag_began.connect(_on_card_drag_began)
+	ui.card_drag_released.connect(_on_card_drag_released)
 	ui.debug_wave_jump_requested.connect(_on_debug_wave_jump)
 	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
 	ui.tower_upgrade_requested.connect(_on_tower_upgrade_requested)
@@ -89,17 +86,17 @@ func _ready():
 	ui.result_wheel_pressed.connect(_on_result_wheel_pressed)
 	ui.exit_pressed.connect(_on_exit_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
+	build_manager.drag_finished.connect(_on_drag_finished)
 	tower_manager.tower_created.connect(_on_tower_created)
 
 	ui.set_stage_name(stage_data.display_name)
 	ui.setup_character_bar(_available_characters)
 	_load_battle_supplies()
-	_select_character(str(_available_characters[0].character_id))
 
 	ui.update_gold(GameManager.gold)
 	ui.update_lives(GameManager.lives)
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
-	ui.show_status("选择武将后点击绿色 + 建造，再开始第 1 波", 3.0)
+	ui.show_status("按住顶部武将卡片拖到空地建造：松手放置 · 右键 / ESC 取消", 4.0)
 
 	# 开场剧情（GDD modules/STAGES.md 5.1）：设置开启"剧情速进"时自动跳过。
 	if stage_data.dialogue != null and not stage_data.dialogue.lines.is_empty() 			and not GameFlow.is_gameplay_flag_enabled("skip_dialogue"):
@@ -149,16 +146,6 @@ func _apply_stage_layout() -> void:
 	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
 	base_marker.position = _first_in_map_point(stage_data.path_points, false)
 
-	for existing_slot in build_slots_container.get_children():
-		existing_slot.queue_free()
-	var slot_data := stage_data.get_build_slot_data()
-	for index in range(slot_data.size()):
-		var slot := BUILD_SLOT_SCENE.instantiate() as BuildSlot
-		slot.slot_id = index + 1
-		slot.apply_slot_data(slot_data[index])
-		build_slots_container.add_child(slot)
-		slot.position = slot_data[index].position
-
 
 func _first_in_map_road_cell(cells: Array[Vector2i], from_start: bool) -> Vector2i:
 	var indices := range(cells.size())
@@ -207,25 +194,28 @@ func _load_available_characters(profile: PlayerProfile) -> Array[CharacterData]:
 	return result
 
 
-func _on_character_selected(character_id: String) -> void:
-	_select_character(character_id)
-
-
-func _select_character(character_id: String) -> void:
+## 拖拽建造（v0.33.3）：武将卡片按下 → 本方法 → BuildManager.begin_drag。
+func _on_card_drag_began(character_id: String) -> void:
 	for character_data in _available_characters:
 		if str(character_data.character_id) == character_id:
-			_selected_character = character_data
-			build_manager.selected_character = character_data
-			# 切换武将时取消待确认建造（预览的武将已变化）
-			build_manager.cancel_pending()
-			ui.set_selected_character(character_id)
+			if not build_manager.begin_drag(character_data):
+				ui.clear_card_hold()
 			return
 
 
-func _on_tower_built(_slot: Node) -> void:
-	if battle_session == null or _selected_character == null:
+## 拖拽建造：卡片松手 → BuildManager.release_drag（可建即直建，其余取消）。
+func _on_card_drag_released(_character_id: String) -> void:
+	build_manager.release_drag()
+
+
+## 拖拽结束（放置或取消）→ UI 复位卡片按下的金色高亮。
+func _on_drag_finished(_placed: bool) -> void:
+	ui.clear_card_hold()
+
+
+func _on_tower_built(character_id: String) -> void:
+	if battle_session == null or character_id.is_empty():
 		return
-	var character_id := str(_selected_character.character_id)
 	if not battle_session.deployed_character_ids.has(character_id):
 		battle_session.deployed_character_ids.append(character_id)
 
@@ -238,8 +228,8 @@ func _on_tower_created(tower: Tower) -> void:
 
 func _on_tower_selection_changed(tower: Tower) -> void:
 	if tower.is_selected:
-		# 选中已建塔时取消待确认建造（互斥）
-		build_manager.cancel_pending()
+		# 选中已建塔时取消拖拽（互斥，拖拽中理论上被覆盖层拦截）
+		build_manager.cancel_drag()
 		if _selected_tower != null and is_instance_valid(_selected_tower) and _selected_tower != tower:
 			_selected_tower.set_selected(false)
 		_selected_tower = tower
@@ -417,7 +407,7 @@ func _on_debug_clear_enemies() -> void:
 
 func _on_game_over():
 	SfxLibrary.play(&"defeat", -8.0)
-	build_manager.cancel_pending()
+	build_manager.cancel_drag()
 	if battle_session != null:
 		ProfileStore.finish_defeat(battle_session, {
 			"remaining_lives": GameManager.lives,
@@ -452,7 +442,7 @@ func _on_victory():
 			xp_by_character = battle_session.get_pending_xp_by_character()
 			loot = battle_session.get_pending_loot()
 			unlock_names = _resolve_character_names(battle_session.get_pending_unlocks())
-	build_manager.cancel_pending()
+	build_manager.cancel_drag()
 	ui.show_result({
 		"victory": true,
 		"xp_by_character": xp_by_character,
@@ -535,6 +525,7 @@ func _format_settlement_reward(result: Dictionary) -> String:
 ## 顶栏退出（GDD v0.9.3）：本局尚未出结果时弹确认——中途退出收益作废
 ## （核心规则），会话由 _exit_tree 的弃置逻辑兜底清理。
 func _on_exit_pressed() -> void:
+	build_manager.cancel_drag()
 	if battle_session != null and battle_session.is_in_progress():
 		var dialog := ConfirmationDialog.new()
 		dialog.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -551,6 +542,7 @@ func _on_exit_pressed() -> void:
 
 
 func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
+	build_manager.cancel_drag()
 	GameFlow.clear_squad_relics()
 	GameFlow.goto_hub()
 	dialog.queue_free()
@@ -562,6 +554,7 @@ func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
 func _on_settings_pressed() -> void:
 	if _settings_popup != null and is_instance_valid(_settings_popup):
 		return
+	build_manager.cancel_drag()
 	_was_paused_before_settings = get_tree().paused
 	get_tree().paused = true
 	ui.show_status("已打开设置")
@@ -615,6 +608,7 @@ func _on_settings_popup_closed() -> void:
 func _on_pause_pressed():
 	if GameManager.lives <= 0 or GameManager.current_wave >= GameManager.total_waves:
 		return
+	build_manager.cancel_drag()
 	get_tree().paused = not get_tree().paused
 	if get_tree().paused:
 		ui.show_status("游戏已暂停")
@@ -622,6 +616,7 @@ func _on_pause_pressed():
 		ui.show_status("游戏继续")
 
 func _on_restart_pressed():
+	build_manager.cancel_drag()
 	_discard_active_session()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

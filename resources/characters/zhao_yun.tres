@@ -24,4 +24,9 @@ character_skill_params = {
 "speed_bonus": 0.3,
 "duration": 3.0
 }
+trait_id = &"trait_dragon_spirit"
+trait_params = {
+"attack_speed_per_kill": 0.04,
+"max_stacks": 10.0
+}
 unlock_stage_id = &"ch01_s06"

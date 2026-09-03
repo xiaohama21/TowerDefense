@@ -28,4 +28,3 @@ trait_id = &"trait_wusheng"
 trait_params = {
 "elite_damage_bonus": 0.25
 }
-unlock_stage_id = &"ch01_s01"
