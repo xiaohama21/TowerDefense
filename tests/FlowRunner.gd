@@ -25,6 +25,7 @@ func _run() -> void:
 	var profile := _test_unlock_logic()
 	# 各测试函数含 await，必须逐个等待，否则 _finish 会在断言执行前提前退出。
 	await _test_hub(profile)
+	await _test_encyclopedia(profile)
 	await _test_squad_select_screen()
 	await _test_battle_entry()
 	_cleanup()
@@ -135,7 +136,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 
 	var sidebar_buttons := _collect_buttons(hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 6, "大厅侧栏应有 5 个功能入口 + 返回主菜单")
+	_check(sidebar_buttons.size() == 7, "大厅侧栏应有 6 个功能入口 + 返回主菜单（v0.34 百科入列）")
 	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
 	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 
@@ -297,6 +298,119 @@ func _test_hub(profile: PlayerProfile) -> void:
 
 func _show_hub_panel(hub: Node, panel_id: StringName) -> void:
 	hub._show_panel(panel_id)
+
+
+## 游戏百科（ENCYCLOPEDIA.md，阶段 8·提交 9）：入口入列、武将/敌人两页签、
+## 模拟器只读不改档、敌人难度面板与出现关卡反查。
+func _test_encyclopedia(profile: PlayerProfile) -> void:
+	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
+	add_child(hub)
+	await get_tree().process_frame
+
+	var encyclopedia := hub.get_node("Columns/Content/EncyclopediaPanel")
+	_check(encyclopedia != null and not encyclopedia.visible, "大厅默认不应显示百科面板")
+	var sidebar_box := hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox")
+	var encyclopedia_button: Button = null
+	for child in _collect_buttons(sidebar_box):
+		var button := child as Button
+		if button != null and button.text == "百科":
+			encyclopedia_button = button
+			break
+	_check(encyclopedia_button != null, "大厅侧栏应含百科入口")
+	if encyclopedia_button == null:
+		hub.queue_free()
+		await get_tree().process_frame
+		return
+	encyclopedia_button.pressed.emit()
+	await get_tree().process_frame
+	_check(encyclopedia.visible, "点击百科后应显示百科面板")
+
+	# 存档不变式：百科为只读，全程不触碰存档文件。
+	var before_save := ""
+	var save_path := _profile_file
+	if FileAccess.file_exists(save_path):
+		before_save = FileAccess.get_file_as_string(save_path)
+	else:
+		before_save = "<none>"
+
+	# 武将图鉴：左侧 9 将网格（全部角色可见），默认选中首位。
+	var grid_node := encyclopedia.get_node_or_null("Root/Body/LeftScroll/LeftBox/CharacterGrid") as Node
+	_check(grid_node != null, "百科应构建武将 2 列网格")
+	var character_cards := 0
+	if grid_node != null:
+		for child in grid_node.get_children():
+			if child is Button:
+				character_cards += 1
+	_check(character_cards == 9, "武将图鉴应展示全部 9 名武将（当前版全量可见）")
+
+	# 数值模拟器：切换诸葛亮并调局内升阶 3 阶，属性实时刷新且无存档变化。
+	encyclopedia._select_character("zhuge_liang")
+	var rank_slider := encyclopedia.get("_sim_rank_slider") as HSlider
+	_check(rank_slider != null, "百科应提供局内升阶滑杆")
+	if rank_slider != null:
+		rank_slider.value = 3
+	var sim_stats := (encyclopedia.get("_sim_stats_label") as Label).text
+	_check(sim_stats.contains("伤害") and sim_stats.contains("射程"), "模拟器应实时展示伤害/射程")
+	var zhuge := GameFlow.load_character_data("zhuge_liang")
+	var base := zhuge.compute_stats_at(20, null, 0, null)
+	var steps := zhuge.get_battle_rank_steps()
+	var expected_damage := int(round(base.damage * CharacterData.rank_scale(steps.damage, 3)))
+	var ranked := zhuge.compute_stats_at(20, null, 0, null, 3)
+	_check(ranked.damage == expected_damage, "模拟器升阶数值应与共享倍率公式一致（观星角色）")
+	_check(is_equal_approx(zhuge.get_static_range_multiplier(), 1.12), "诸葛亮观星应提供 +12% 静态射程加成")
+	_check(is_equal_approx(GameFlow.load_character_data("liu_bei").get_static_range_multiplier(), 1.0),
+		"非观星角色静态射程倍率应为 1.0")
+
+	# 敌人图鉴：切换到敌人页，7 敌列表 + 困难难度 HP 倍率 + 出现关卡反查。
+	var enemy_segment: Button = null
+	for child in _collect_buttons(encyclopedia):
+		var button := child as Button
+		if button != null and button.text == "敌人图鉴":
+			enemy_segment = button
+			break
+	_check(enemy_segment != null, "百科应含敌人图鉴切换按钮")
+	if enemy_segment != null:
+		enemy_segment.pressed.emit()
+	await get_tree().process_frame
+	var enemy_cards := 0
+	var left_box := encyclopedia.get_node_or_null("Root/Body/LeftScroll/LeftBox") as VBoxContainer
+	if left_box != null:
+		for child in left_box.get_children():
+			if child is Button:
+				enemy_cards += 1
+	_check(enemy_cards == 7, "敌人图鉴应展示第一章全部 7 种敌人")
+	var all_text := ""
+	var labels: Array[Label] = []
+	_collect_labels(encyclopedia, labels)
+	for label in labels:
+		all_text += label.text + "\n"
+	_check(all_text.contains("「困难」生命 140"), "敌人难度面板困难档生命应为基础 ×1.4（步卒 100→140）")
+	_check(all_text.contains("出现关卡"), "敌人详情应含出现关卡反查")
+	var soldier_entries := GameFlow.get_enemy_stage_entries("yellow_turban_soldier")
+	_check(not soldier_entries.is_empty(), "黄巾步卒应反查到出现关卡")
+	var general_stage_ids: Array[String] = []
+	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_general"):
+		general_stage_ids.append(str(entry.get("stage_id", "")))
+	_check(general_stage_ids.has("ch01_s08"), "黄巾渠帅·张梁应出现在 s08")
+
+	# 只读不变式：模拟器调参 + 全量浏览后存档文件不变。
+	var after_save := ""
+	if FileAccess.file_exists(save_path):
+		after_save = FileAccess.get_file_as_string(save_path)
+	else:
+		after_save = "<none>"
+	_check(before_save == after_save, "百科浏览与模拟器操作不应产生任何存档变化")
+
+	hub.queue_free()
+	await get_tree().process_frame
+
+
+func _collect_labels(node: Node, result: Array[Label]) -> void:
+	if node is Label:
+		result.append(node)
+	for child in node.get_children():
+		_collect_labels(child, result)
+
 
 
 func _test_squad_select_screen() -> void:

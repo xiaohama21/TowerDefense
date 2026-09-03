@@ -55,6 +55,45 @@ class_name CharacterData
 @export var unlock_stage_id: StringName
 
 
+## 局内升阶倍率来源（ENCYCLOPEDIA §4，NUMBERS.md 10.9）：倍率 = 1 + 步进 × 阶数。
+## Tower.apply_battle_rank 与百科预览共用本实现，禁止另写一套公式。
+static func rank_scale(step: float, rank: int) -> float:
+	return 1.0 + step * maxi(rank, 0)
+
+
+## 局内升阶步进解析（角色覆盖 -1 = 继承职业配置）。
+func _resolve_rank_step(override_value: float, profession_default: float) -> float:
+	return override_value if override_value >= 0.0 else profession_default
+
+
+## 解析后的升阶步进（Tower 与百科预览共用同一来源）。
+func get_battle_rank_steps() -> Dictionary:
+	var prof := profession
+	var defaults := {
+		"damage": prof.battle_rank_damage_step if prof != null else 0.25,
+		"attack_speed": prof.battle_rank_attack_speed_step if prof != null else 0.0,
+		"range": prof.battle_rank_range_step if prof != null else 0.0,
+		"aoe": prof.battle_rank_aoe_step if prof != null else 0.0,
+		"buff_duration": prof.battle_rank_buff_duration_step if prof != null else 0.0,
+		"buff_power": prof.battle_rank_buff_power_step if prof != null else 0.0,
+	}
+	return {
+		"damage": _resolve_rank_step(battle_rank_damage_step_override, defaults.damage),
+		"attack_speed": _resolve_rank_step(battle_rank_attack_speed_step_override, defaults.attack_speed),
+		"range": _resolve_rank_step(battle_rank_range_step_override, defaults.range),
+		"aoe": _resolve_rank_step(battle_rank_aoe_step_override, defaults.aoe),
+		"buff_duration": _resolve_rank_step(battle_rank_buff_duration_step_override, defaults.buff_duration),
+		"buff_power": _resolve_rank_step(battle_rank_buff_power_step_override, defaults.buff_power),
+	}
+
+
+## 静态特性射程加成倍率（Tower.apply_character 与百科预览共用；当前仅观星）。
+func get_static_range_multiplier() -> float:
+	if trait_id == &"trait_star_gazer":
+		return 1.0 + float(trait_params.get("range_bonus", 0.12))
+	return 1.0
+
+
 func is_valid() -> bool:
 	return not character_id.is_empty() and not display_name.is_empty() and profession != null
 
@@ -62,7 +101,7 @@ func is_valid() -> bool:
 ## 按等级与转职计算实战属性（GDD modules/NUMBERS.md 10.2）：
 ## 伤害/射程为加法成长后乘转职倍率，攻速为 interval 直接乘转职倍率（越小越快）。
 ## 战斗建造与养成界面共用此实现，保证两处所见一致。
-func compute_stats_at(level: int, promotion: PromotionData = null, stars: int = 0, relic: RelicData = null) -> Dictionary:
+func compute_stats_at(level: int, promotion: PromotionData = null, stars: int = 0, relic: RelicData = null, battle_rank: int = 0) -> Dictionary:
 	var effective_level := maxi(level, 1)
 	var promo_damage := promotion.damage_multiplier if promotion != null else 1.0
 	var promo_range := promotion.range_multiplier if promotion != null else 1.0
@@ -72,9 +111,18 @@ func compute_stats_at(level: int, promotion: PromotionData = null, stars: int = 
 	var star_growth := damage_growth_per_level * (1.0 + 0.05 * clampi(stars, 0, 5))
 	var relic_range := relic.range_bonus if relic != null else 0.0
 	var relic_interval := relic.attack_interval_factor if relic != null else 1.0
-	return {
+	var stats := {
 		"damage": int(round((base_damage + star_growth * level_steps) * promo_damage)),
 		"range": (base_range + range_growth_per_level * level_steps) * promo_range + relic_range,
 		"attack_interval": attack_interval * promo_interval * relic_interval,
 		"min_range": profession.min_range if profession != null else 0.0,
 	}
+	# 局内升阶预览（ENCYCLOPEDIA §2.2/§4，默认 0 不影响既有调用）：
+	# 伤害/射程乘 rank_scale、攻速 interval 取倒数同式，与 Tower.apply_battle_rank 共享实现。
+	if battle_rank > 0:
+		var steps := get_battle_rank_steps()
+		stats.damage = int(round(int(stats.damage) * rank_scale(steps.damage, battle_rank)))
+		stats.range = float(stats.range) * rank_scale(steps.range, battle_rank)
+		stats.attack_interval = float(stats.attack_interval) / rank_scale(steps.attack_speed, battle_rank)
+	return stats
+

@@ -13,11 +13,14 @@ const SETTINGS_PATH := "user://settings.cfg"
 const CHAPTER_SCENE_DIR := "res://resources/chapters"
 const STAGE_RESOURCE_DIR := "res://resources/stages"
 const CHARACTER_RESOURCE_DIR := "res://resources/characters"
+const ENEMY_RESOURCE_DIR := "res://resources/enemies"
 const PROMOTION_RESOURCE_DIR := "res://resources/promotions"
 const RELIC_RESOURCE_DIR := "res://resources/relics"
 const ITEM_RESOURCE_DIR := "res://resources/items"
 const BOND_RESOURCE_DIR := "res://resources/bonds"
 const BATTLE_RELIC_RESOURCE_DIR := "res://resources/battle_relics"
+## Boss 召唤类行为（EnemyManager._summon_guards）的召唤物列表，用于图鉴来源说明。
+const SUMMON_GUARD_SPAWNS: Array[String] = ["yellow_turban_soldier"]
 
 ## 新档初始武将（v0.30.6 回滚：恢复刘备、关羽；v0.30.2"仅刘备"调整作废，
 ## s01 首通奖励不再发放关羽，避免重复获取困惑）。
@@ -35,6 +38,8 @@ var squad_relic_ids: Array[String] = []
 var hub_active_panel: StringName = &"map"
 ## 当前难度（index 对应 difficulty_presets，默认标准=0）。
 var selected_difficulty: int = Difficulty.NORMAL
+## 敌人出现关卡索引（ENCYCLOPEDIA §3.1/§4）：首查惰性构建，enemy_id → 关卡条目数组。
+var _enemy_stage_index: Dictionary = {}
 
 
 ## 新的征程：清空现有档案并发放初始武将。
@@ -120,6 +125,87 @@ func get_all_character_ids() -> Array[String]:
 			result.append(entry.trim_suffix(".tres"))
 	result.sort()
 	return result
+
+
+## 敌人图鉴数据目录扫描（ENCYCLOPEDIA §4）：返回全部敌人 ID（含分组子目录，PCK 兼容）。
+func get_all_enemy_ids() -> Array[String]:
+	var result: Array[String] = []
+	for entry in ResourceLoader.list_directory(ENEMY_RESOURCE_DIR):
+		if entry.ends_with(".tres"):
+			result.append(entry.trim_suffix(".tres"))
+			continue
+		var dir_path: String = "%s/%s" % [ENEMY_RESOURCE_DIR, entry]
+		for file_name in ResourceLoader.list_directory(dir_path):
+			if file_name.ends_with(".tres"):
+				result.append(file_name.trim_suffix(".tres"))
+	result.sort()
+	return result
+
+
+## 按 ID 加载敌人数据（ENCYCLOPEDIA §4）；不存在返回 null。
+func load_enemy_data(enemy_id: String) -> EnemyData:
+	if enemy_id.is_empty():
+		return null
+	for entry in ResourceLoader.list_directory(ENEMY_RESOURCE_DIR):
+		if entry.ends_with(".tres"):
+			if entry.trim_suffix(".tres") == enemy_id:
+				return load("%s/%s" % [ENEMY_RESOURCE_DIR, entry]) as EnemyData
+			continue
+		var candidate: String = "%s/%s/%s.tres" % [ENEMY_RESOURCE_DIR, entry, enemy_id]
+		if ResourceLoader.exists(candidate):
+			return load(candidate) as EnemyData
+	return null
+
+
+## 敌人出现关卡条目（ENCYCLOPEDIA §3.1/§4）：stage_id + summoned 标记（仅 Boss 召唤登场）。
+## 召唤物来源说明与 EnemyManager._summon_guards 同源（如 s08 张梁召唤步卒）。
+func get_enemy_stage_entries(enemy_id: String) -> Array[Dictionary]:
+	if _enemy_stage_index.is_empty():
+		_build_enemy_stage_index()
+	var result: Array[Dictionary] = []
+	for entry in _enemy_stage_index.get(enemy_id, []):
+		result.append((entry as Dictionary).duplicate())
+	return result
+
+
+func _build_enemy_stage_index() -> void:
+	_enemy_stage_index.clear()
+	for chapter_dir in ResourceLoader.list_directory(STAGE_RESOURCE_DIR):
+		var dir_path: String = "%s/%s" % [STAGE_RESOURCE_DIR, chapter_dir]
+		for entry in ResourceLoader.list_directory(dir_path):
+			if not entry.ends_with(".tres"):
+				continue
+			var stage := load("%s/%s" % [dir_path, entry]) as StageData
+			if stage == null:
+				continue
+			for wave in stage.waves:
+				for spawn in wave.spawn_groups:
+					if spawn == null or spawn.enemy == null:
+						continue
+					_add_enemy_stage_entry(str(spawn.enemy.enemy_id), stage, false)
+			# Boss 召唤物来源补记（EnemyManager._summon_guards 召唤黄巾步卒）。
+			for wave in stage.waves:
+				for spawn in wave.spawn_groups:
+					if spawn == null or spawn.enemy == null:
+						continue
+					if spawn.enemy.special_behavior_id == &"summon_guard":
+						for summoned_id in SUMMON_GUARD_SPAWNS:
+							_add_enemy_stage_entry(summoned_id, stage, true)
+	for key in _enemy_stage_index.keys():
+		var entries: Array = _enemy_stage_index[key]
+		entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			return str(a.get("stage_id", "")) < str(b.get("stage_id", "")))
+
+
+func _add_enemy_stage_entry(enemy_id: String, stage: StageData, summoned: bool) -> void:
+	if not _enemy_stage_index.has(enemy_id):
+		_enemy_stage_index[enemy_id] = []
+	var entries: Array = _enemy_stage_index[enemy_id]
+	var stage_key := str(stage.stage_id)
+	for entry in entries:
+		if str(entry.get("stage_id", "")) == stage_key:
+			return  # 直出优先，召唤补记不覆盖
+	entries.append({"stage_id": stage_key, "summoned": summoned})
 
 
 ## 全部羁绊配置（v0.17.0，GDD modules/CHARACTERS.md 4.8）：扫描 `resources/bonds/`。
