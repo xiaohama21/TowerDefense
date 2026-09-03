@@ -3,7 +3,8 @@ extends VBoxContainer
 ## 武将养成面板（阶段 8 提交 4 重构，UI_LAYOUT.md 第 5 节）：
 ## 左侧武将网格（2 列卡片，未解锁灰卡显示获取方式）；右侧上半=基础信息卡
 ## （等级+经验条/职业/属性摘要，只展示基础信息）；右侧下半=页签区
-## （转职/信物/遗物/特性），进阶信息全部经页签承载；新增角色功能=新增页签。
+## （转职/信物/特性，遗物页签已随 v0.33.1 移除——遗物为队伍级：选带在编队页、
+## 库存与效果说明在背包页），进阶信息全部经页签承载；新增角色功能=新增页签。
 
 signal back_requested
 
@@ -40,7 +41,6 @@ var _promotion_buttons: Array[Button] = []
 var _promotion_buttons_box: VBoxContainer
 var _relic_label: Label
 var _relic_button: Button
-var _run_relics_label: Label
 var _trait_label: Label
 var _exp_scroll_label: Label
 var _exp_scroll_button: Button
@@ -199,14 +199,13 @@ func _build_ui() -> void:
 	_exp_scroll_hint.add_theme_color_override("font_color", UITheme.GRAY)
 	exp_scroll_row.add_child(_exp_scroll_hint)
 
-	# 页签区：转职 / 信物 / 遗物 / 特性（新增角色功能=新增页签）。
+	# 页签区：转职 / 信物 / 特性（遗物页签随 v0.33.1 移除；新增角色功能=新增页签）。
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_tab_container.add_theme_font_size_override("font_size", 15)
 	right_column.add_child(_tab_container)
 	_build_promotion_tab()
 	_build_relic_tab()
-	_build_run_relics_tab()
 	_build_trait_tab()
 
 
@@ -243,16 +242,6 @@ func _build_relic_tab() -> void:
 	_relic_button.add_theme_font_size_override("font_size", 16)
 	_relic_button.pressed.connect(_on_relic_pressed)
 	page.add_child(_relic_button)
-
-
-## 遗物页（只读）：局内遗物库存与效果说明；选带在编队页。
-func _build_run_relics_tab() -> void:
-	var page := _make_tab_page("遗物")
-	_run_relics_label = Label.new()
-	_run_relics_label.add_theme_font_size_override("font_size", 15)
-	_run_relics_label.add_theme_color_override("font_color", UITheme.BLUE)
-	_run_relics_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	page.add_child(_run_relics_label)
 
 
 ## 特性页（预留页签）：展示现有常驻特性；阶段 9 升阶特性接入时直接挂载，不改布局。
@@ -395,7 +384,6 @@ func _refresh() -> void:
 	]
 	_refresh_promotion(character, level)
 	_refresh_relic(character)
-	_refresh_run_relics()
 	_refresh_trait(character)
 	_refresh_exp_scroll(level)
 	_sync_owned_button_labels()
@@ -569,21 +557,6 @@ func _on_relic_pressed() -> void:
 		_profile.set_character_relic(_selected_id, str(relic.relic_id))
 	ProfileStore.save_profile(_profile)
 	_refresh()
-
-
-## 遗物页（只读）：局内遗物库存与效果说明。
-func _refresh_run_relics() -> void:
-	var relic_ids := GameFlow.get_owned_relic_ids(_profile)
-	if relic_ids.is_empty():
-		_run_relics_label.text = "暂无局内遗物。\n获取后可在编队页选带（每局最多 2 件，胜利结算后消耗）。"
-		return
-	var lines: Array[String] = ["已拥有局内遗物（只读；选带在编队页，胜利结算后消耗）："]
-	for relic_id in relic_ids:
-		var relic := GameFlow.load_battle_relic_data(relic_id)
-		if relic == null:
-			continue
-		lines.append("· %s：%s" % [relic.display_name, relic.description])
-	_run_relics_label.text = "\n".join(lines)
 
 
 ## 特性页（预留）：展示现有常驻特性，阶段 9 升阶特性接入后挂载分支选择。

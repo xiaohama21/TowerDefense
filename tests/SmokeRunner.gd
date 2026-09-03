@@ -158,7 +158,7 @@ func _run() -> void:
 	_check(tech_profile.tech_unlocks.is_empty() and tech_profile.tech_points == 30,
 		"重置后应清空科技并返还累计消耗")
 
-	# 阶段 7（v0.19.0）：局内遗物——5 件可加载、汇总叠加、出征消耗、s08 掉落、fast_charger 配置。
+	# 阶段 7（v0.19.0）：局内遗物——5 件可加载、汇总叠加、永久使用（v0.33.1，选带不消耗库存）、s08 掉落、fast_charger 配置。
 	var battle_relic_ids: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 	var loaded_relics := 0
 	for relic_id in battle_relic_ids:
@@ -182,10 +182,11 @@ func _run() -> void:
 			"遗物汇总应叠加基地生命")
 		_check(is_equal_approx(float(relic_bonuses["attack_interval_factor"]), 0.95)
 			and int(relic_bonuses["range_bonus_pct"]) == 10, "遗物汇总应叠加攻速/射程")
-		GameFlow.consume_squad_relics(stage7_profile)
-		_check(int(stage7_profile.items.get("wolf_tooth", 0)) == 0
-			and int(stage7_profile.items.get("iron_shield", 0)) == 0, "出征应消耗已选遗物库存各 1 件")
-		_check(int(stage7_profile.items.get("provision_bag", 0)) == 1, "未选带遗物不应被消耗")
+		# ✅ v0.33.1：遗物改永久使用——选带不消耗库存（consume_squad_relics 已随 B-019 移除）。
+		_check(int(stage7_profile.items.get("wolf_tooth", 0)) == 1
+			and int(stage7_profile.items.get("iron_shield", 0)) == 1
+			and int(stage7_profile.items.get("provision_bag", 0)) == 1,
+			"遗物应永久使用——选带/结算均不消耗库存")
 		GameFlow.clear_squad_relics()
 	var stage7_cavalry := load("res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres") as EnemyData
 	_check(stage7_cavalry != null and stage7_cavalry.special_behavior_id == &"fast_charger",

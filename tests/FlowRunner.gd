@@ -264,7 +264,8 @@ func _test_hub(profile: PlayerProfile) -> void:
 		_check(s01_diffs.has(Difficulty.key_name(Difficulty.HARD)),
 			"一键通关应按所选困难难度写档")
 
-	# 难度两档化 + 出征确认（v0.31.2）：难度切换仅标准/困难；出征先弹确认框、确认后才发信号。
+	# 难度两档化（v0.31.2）+ 出征直达编队（v0.33.1）：难度切换仅标准/困难；
+	# 出征点击直接发 stage_selected——v0.31.2 确认弹窗已删除，防误触确认收敛到编队页。
 	var diff_buttons: Array[Button] = []
 	for button in _collect_buttons(map_panel):
 		if button.text == "标准" or button.text == "困难":
@@ -276,26 +277,19 @@ func _test_hub(profile: PlayerProfile) -> void:
 		if button.text == "出 征":
 			deploy_button = button
 			break
-	var deploy_confirm: ConfirmationDialog = map_panel.get("_deploy_confirm")
-	_check(deploy_confirm != null, "地图面板应挂载出征确认框")
-	if deploy_button != null and deploy_confirm != null:
-		deploy_button.pressed.emit()
-		await get_tree().process_frame
-		_check(deploy_confirm.visible, "点击出征应弹出确认框（不直接进入编队）")
-		_check(deploy_confirm.dialog_text.contains(Difficulty.name(map_panel.get("_selected_difficulty"))),
-			"出征确认框应展示当前难度")
+	_check(map_panel.get("_deploy_confirm") == null, "地图面板不应再挂载出征确认框（v0.33.1 直达编队）")
+	if deploy_button != null:
 		var emitted: Array = []
 		var capture := func(stage_id: StringName, difficulty: int) -> void:
 			emitted.append([stage_id, difficulty])
 		for conn in map_panel.stage_selected.get_connections():
 			map_panel.stage_selected.disconnect(conn["callable"])
 		map_panel.stage_selected.connect(capture)
-		deploy_confirm.confirmed.emit()
+		deploy_button.pressed.emit()
 		await get_tree().process_frame
 		_check(emitted.size() == 1 and emitted[0][0] == &"ch01_s01"
 			and int(emitted[0][1]) == Difficulty.HARD,
-			"确认出征后应发出 stage_selected（当前所选关卡与难度）")
-		deploy_confirm.hide()
+			"点击出征应直接发出 stage_selected（当前所选关卡与难度，不弹确认框）")
 
 	hub.queue_free()
 	await get_tree().process_frame
@@ -312,6 +306,7 @@ func _test_squad_select_screen() -> void:
 	GameFlow.ensure_initial_characters(fresh_profile)
 	GameFlow.select_stage(&"ch01_s01")
 	GameFlow.set_squad([] as Array[String])
+	GameFlow.set_squad_relics([] as Array[String])
 	var scene := (load("res://scenes/SquadSelect.tscn") as PackedScene).instantiate()
 	add_child(scene)
 	await get_tree().process_frame
@@ -322,12 +317,52 @@ func _test_squad_select_screen() -> void:
 			toggles.append(button)
 	_check(toggles.size() == 2, "新档编队界面应展示 2 名初始武将（刘备/关羽）")
 	_check((scene.get_child(0) as Control).size == get_viewport().get_visible_rect().size, "编队界面背景应铺满视口")
+	var start_button := scene.get("_start_button") as Button
+	_check(start_button != null and start_button.disabled, "未选择武将时「确认出战」应禁用")
+	var has_back := false
+	for button in _collect_buttons(scene):
+		if button.text == "返回选关":
+			has_back = true
+	_check(has_back, "编队页应提供「返回选关」按钮")
 	for toggle in toggles:
 		toggle.set_pressed(true)
 	await get_tree().process_frame
 	_check(toggles.all(func(button: Button) -> bool: return not button.disabled),
 		"未达编队上限时所有武将可勾选")
+	_check(start_button != null and not start_button.disabled, "已选武将后「确认出战」应可用")
+
+	# 编队记忆（v0.33.1）：发放遗物并把上次出战配置写入档案，重建界面应自动预填。
+	fresh_profile.add_item("wolf_tooth", 1)
+	fresh_profile.add_item("iron_shield", 1)
+	GameFlow.set_squad(["liu_bei", "guan_yu"] as Array[String])
+	GameFlow.set_squad_relics(["wolf_tooth"] as Array[String])
+	GameFlow.save_squad_to_profile(fresh_profile)
+	GameFlow.save_squad_relics_to_profile(fresh_profile)
+	ProfileStore.save_profile(fresh_profile)
 	scene.queue_free()
+	await get_tree().process_frame
+
+	var scene2 := (load("res://scenes/SquadSelect.tscn") as PackedScene).instantiate()
+	add_child(scene2)
+	await get_tree().process_frame
+	var remembered_ids: Array = scene2.get("_selected_ids")
+	_check(remembered_ids.size() == 2 and remembered_ids.has("liu_bei") and remembered_ids.has("guan_yu"),
+		"再次进入编队应自动预填上次出战的武将（刘备/关羽）")
+	var remembered_relics: Array = scene2.get("_selected_relic_ids")
+	_check(remembered_relics.size() == 1 and remembered_relics.has("wolf_tooth"),
+		"再次进入编队应自动预填上次选带的遗物（狼牙符）")
+	var start_button2 := scene2.get("_start_button") as Button
+	_check(start_button2 != null and not start_button2.disabled, "预填编队后「确认出战」应可用")
+	start_button2.pressed.emit()
+	await get_tree().process_frame
+	var confirm_dialog: ConfirmationDialog = scene2.get("_confirm_dialog")
+	_check(confirm_dialog != null and confirm_dialog.visible, "点击「确认出战」应弹出二次确认弹窗")
+	_check(confirm_dialog.dialog_text.contains("刘备") and confirm_dialog.dialog_text.contains("关羽"),
+		"确认弹窗应展示出战武将名单")
+	_check(confirm_dialog.dialog_text.contains("狼牙符") and confirm_dialog.dialog_text.contains("永久使用"),
+		"确认弹窗应展示遗物清单与永久使用说明")
+	confirm_dialog.hide()
+	scene2.queue_free()
 	await get_tree().process_frame
 
 
