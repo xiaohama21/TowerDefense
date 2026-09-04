@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
 > 界面排版文字规范（权威）见 [UI_LAYOUT.md](UI_LAYOUT.md)，素材台账见 [ART_ASSETS.md](ART_ASSETS.md)。
-> 文档版本：v0.1（2026-09-04）
+> 文档版本：v0.2（2026-09-04）
+> v0.2 变更（2026-09-04，阶段 8·提交 10 延伸·修复 2，程序 0.8.10.2 / GDD v0.35.3 / UI_LAYOUT v0.17.4，武将养成「职业」页签收纳 +「转职详情」概念图定稿，用户拍板 2026-09-04）：①**新增两屏概念图** `ui_develop_job.png`（武将养成「职业」页签——原「转职」页签更名并只保留当前职业信息：身份/能力状态/转职进度 +「可转」徽标）与 `ui_develop_promo.png`（职业页签 →「转职详情 ▸」按钮打开的 1160px 叠层树状路线，转职操作迁入，详见 UI_LAYOUT §6）；②**养成页签内容区取宽**——左列武将列表 402→382px、卡片分行排版、按钮定宽，消除文字横向溢出；③源码 `src/ui_develop_job.html`·`src/ui_develop_promo.html` 与 PNG 同源入库（Chrome headless 1280×720 同参数重渲，DOM 溢出自检无裁剪）；④概念图共 **13 屏**（11 屏原基线 + 2 屏新存档），映射见 §4。
 > v0.1 变更（阶段 8·提交 9 延伸·修复 3，程序 0.8.9.3，概念图源码归档 + 工作流建档，纯文档/素材无逻辑改动）：①概念图**可复现源码**自包含归档 `docs/ui_concept/src/`（11 屏 HTML + 共享 CSS + 快乐体字体 + Kenney 17 图子集，含早期草稿 `archive/`）；②用 Chrome headless 按固定参数重渲 11 屏 PNG 与归档逐字节一致校验：10 屏一致；`ui_squad.png` 原存档图为更早稿——先按现行源码校准、再按 **BUGS B-025** 卡面费用样式改版重渲，11 屏 PNG 与源码保持同源；③本档建档：视觉语言 token、PNG↔源码映射、设计脉络与拍板记录、复现/维护工作流。
 
 ---
@@ -44,7 +45,7 @@
 | 滚动条 | 细蓝 `#7ec8ea` 圆角 thumb + 浅蓝轨道 | 内容超高兜底，防撑爆 |
 | 文字层级 | 屏标题 26~27px 深蓝、正文 14~16、辅助 11~12 灰蓝 | 修正"按钮过大字体过小"教训 |
 
-## 4. 概念图清单与映射（11 屏）
+## 4. 概念图清单与映射（13 屏）
 
 | PNG（docs/ui_concept/） | 源码（docs/ui_concept/src/） | 内容一句话 | 排版规范 |
 |---|---|---|---|
@@ -53,6 +54,8 @@
 | `ui_button_states.png` | `ui_button_states.html` | 按钮四态演示（normal/hover/pressed/disabled × 五色） | UI_LAYOUT §2 |
 | `ui_hub_map.png` | `ui_hub_map.html` | 大厅·地图选关：顶部章节下拉 + 2×4 关卡卡 + 底部关卡预告条 | UI_LAYOUT §4/§5 |
 | `ui_develop.png` | `ui_develop.html` | 武将养成：左武将网格 + 技能/转职/信物/特性页签 | UI_LAYOUT §6 |
+| `ui_develop_job.png` | `ui_develop_job.html` | 武将养成「职业」页签：当前职业信息 + 转职进度 +「转职详情」入口（v0.2） | UI_LAYOUT §6 |
+| `ui_develop_promo.png` | `ui_develop_promo.html` | 武将养成「转职详情」叠层：职业级转职树 + 转职操作（v0.2） | UI_LAYOUT §6 |
 | `ui_squad.png` | `ui_squad.html` | 出征·编队：武将选择 + 羁绊 + 遗物选带 + 返回/确认出战（卡面费用=底部内嵌通栏，B-025） | UI_LAYOUT §7 |
 | `ui_tech.png` | `ui_tech.html` | 科技树：三分支分类展示（滚动兜底） | UI_LAYOUT §8 |
 | `ui_inventory.png` | `ui_inventory.html` | 背包：道具分类页签 + 列表（滚动兜底） | UI_LAYOUT §9 |
@@ -66,6 +69,7 @@
 - **v0.33.5 地图选关改版 + 扩五屏**：章节选择改**顶部下拉框**（原顶部横向章节行方案见 `src/archive/ui_hub_map_v1.html`）；关卡卡满档填充空白（状态/星级/简介/敌人/波次/首通奖励），底部关卡预告条 + 通关统计上移；新增养成/科技/背包/设置/编队五屏；用户要求科技树/背包/编队**滚动条兜底**防撑爆；编队顶部费用移至武将卡并更名**建造费用**。
 - **v0.33.6 主菜单落地（换肤基建）**：首页按 `ui_home.png` 在 Godot 实现，Kenney 九宫格三态按钮封装 `UITheme.apply_kenney_rect_button`，「新的征程」弹窗自绘。
 - **v0.33.8 百科前置设计**：六张大厅屏侧栏统一加「百科」按钮（设置与返回主菜单之间，随提交 9 开发）；武将养成新增**技能页签**（职业大招 + 职业技能 + 角色专属技能 A/B）；百科两屏（武将图鉴/敌人图鉴）概念图定稿。编队为独立整屏、不含大厅侧栏。
+- **v0.35.3 职业页签收纳（2026-09-04 拍板）**：武将养成「转职」页签更名「职业」——只保留当前职业信息（身份/能力状态/转职进度），完整转职路线与操作收敛至新增「转职详情」叠层（树状 + 二次确认规则不变）；新增 ui_develop_job / ui_develop_promo 两屏，页签内容区取宽（武将列表 402→382px）。
 
 ## 6. 复现与维护
 
@@ -75,10 +79,11 @@
 "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --hide-scrollbars --window-size=1280,720 --force-device-scale-factor=1 --virtual-time-budget=4000 --screenshot=out.png file:///F:/godotProject/TowerDefense/docs/ui_concept/src/ui_home.html
 ```
 
-- 基线：2026-09-04 已重渲 11 屏并与 `docs/ui_concept/*.png` 逐字节一致（MD5 校验）；其中 `ui_squad.png` 原存档与现行源码不一致，已按现行源码校准覆盖；同日按 B-025 卡面费用样式改版再次重渲覆盖，PNG 与源码始终同源（历史稿在 git 中可回溯）。
+- 基线：2026-09-04 首档 11 屏逐字节校验一致（MD5）；v0.2（0.8.10.2）追加 `ui_develop_job` / `ui_develop_promo` 两屏（职业页签 / 转职详情叠层）并按同参数重渲入库，PNG 与源码同源（历史稿在 git 中可回溯）。
 - 改版步骤：改 HTML → 重渲 → 用户确认 → 覆盖 PNG → 同步本档与 UI_LAYOUT（版本 + changelog）→ 走版本分支提交。
 - 复现细节、素材清单与目录树见 `docs/ui_concept/src/README.md`（随源码自包含）。
 
 ## 7. 变更记录
 
+- v0.2（2026-09-04）：职业页签收纳 + 转职详情叠层两屏概念图定稿（同顶部 changelog）。
 - v0.1（2026-09-04）：建档（同顶部 changelog）。

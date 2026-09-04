@@ -9,7 +9,7 @@
 - 共享样式 `concept_ui.css`（v3 视觉语言：背景渐变 / 面板 / 按钮九宫格 / 滚动条 / 头像占位），旧首页两版自带内联样式。
 - 字体与 Kenney 素材均在包内相对引用，整个 `src/` 目录可整体拷走使用。
 
-## 2. PNG ↔ HTML 映射（11 屏）
+## 2. PNG ↔ HTML 映射（13 屏）
 
 | 归档 PNG（docs/ui_concept/） | 源码 HTML | 内容 |
 |---|---|---|
@@ -18,6 +18,8 @@
 | `ui_button_states.png` | `ui_button_states.html` | 按钮四态演示（normal / hover / pressed / disabled） |
 | `ui_hub_map.png` | `ui_hub_map.html` | 大厅 · 地图选关（顶部章节下拉 + 关卡预告条） |
 | `ui_develop.png` | `ui_develop.html` | 武将养成（技能 / 转职 / 信物 / 特性页签） |
+| `ui_develop_job.png` | `ui_develop_job.html` | 武将养成「职业」页签（当前职业信息 + 转职进度 + 转职详情入口，v0.35.3） |
+| `ui_develop_promo.png` | `ui_develop_promo.html` | 武将养成「转职详情」叠层（职业级转职树 + 转职操作，v0.35.3） |
 | `ui_squad.png` | `ui_squad.html` | 出征 · 编队 |
 | `ui_tech.png` | `ui_tech.html` | 科技树 |
 | `ui_inventory.png` | `ui_inventory.html` | 背包 |
@@ -36,7 +38,7 @@
 ```
 
 - 参数固定 1280×720；`--virtual-time-budget=4000` 保证快乐体字体加载完成后才截图。
-- 基线校验：2026-09-04 用本命令重渲 11 屏 PNG，与 `docs/ui_concept/*.png` **逐字节一致**（ui_squad.png 原存档为更早稿：已按现行源码校准、并按 B-025 卡面费用样式改版重渲，PNG 与源码同源）。
+- 基线校验：2026-09-04 用本命令重渲 11 屏 PNG，与 `docs/ui_concept/*.png` **逐字节一致**（ui_squad.png 原存档为更早稿：已按现行源码校准、并按 B-025 卡面费用样式改版重渲，PNG 与源码同源）；同日追加 `ui_develop_job.png` / `ui_develop_promo.png` 两屏（武将养成职业页签 / 转职详情叠层，v0.35.3）同参数重渲，与源码同源。
 - 验证脚本思路：重渲后比对 MD5；不一致即视为新版本，需人工确认后覆盖。
 
 ## 4. 素材清单与许可
