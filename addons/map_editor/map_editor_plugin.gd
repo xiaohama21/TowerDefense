@@ -1,3 +1,4 @@
+@tool
 extends EditorPlugin
 
 ## 地图编辑器插件入口（M1 骨架）：项目菜单 → 工具 → 地图编辑器。

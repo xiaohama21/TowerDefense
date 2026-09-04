@@ -1,3 +1,4 @@
+@tool
 extends Window
 
 ## 地图编辑器主窗口（M1 骨架）：章节关卡选择 → 载入 StageData →

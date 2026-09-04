@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="TowerDefense"
-config/version="0.8.10.3"
+config/version="0.8.10.4"
 run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -30,6 +30,10 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/map_editor/plugin.cfg")
+
 [gui]
 
 theme/custom="res://assets/ui/ui_theme.tres"
@@ -44,7 +48,3 @@ textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/map_editor/plugin.cfg")
