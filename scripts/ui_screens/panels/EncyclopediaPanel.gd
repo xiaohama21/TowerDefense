@@ -50,7 +50,7 @@ const ULTIMATE_HINTS := {
 ## 角色专属技能玩家向文案（CHARACTER_SKILLS.md §2 效果草案）。
 const CHARACTER_SKILL_HINTS := {
 	&"char_green_dragon": "对当前目标造成 2.5× 普攻伤害；击杀则冷却 -6s",
-	&"char_dangyang_roar": "范围内敌人击退 60px + 减速 60% 持续 3s",
+	&"char_dangyang_roar": "范围内敌人恐惧 1s（反向行军）→ 减速 60% 持续 2s",
 	&"char_carry_people": "全队攻速 +15% 持续 5s（每波一次）",
 	&"char_dingjun": "2.5× 单体伤害；未击杀则目标被「定军」标记 5s：受该塔普攻伤害 +15%",
 	&"char_moon_dance": "全队怒气 +10（自身 +15）",

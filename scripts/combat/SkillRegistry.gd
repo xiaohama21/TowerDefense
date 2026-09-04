@@ -244,7 +244,7 @@ static func _assault_gain_on_hit(tower: Tower, target: Enemy) -> void:
 
 
 ## 护卫（近战命中概率拖回拦截）：命中 chance×s 概率将目标沿路径拖回 pull px；
-## 内置冷却 cooldown s 防「钉死」（复用破阵/当阳桥 enemy.progress 位移）。
+## 内置冷却 cooldown s 防「钉死」（复用破阵 enemy.progress 位移）。
 static func _guard_proc(tower: Tower, target: Enemy) -> void:
 	if not has_skill(tower, &"guard"):
 		return
@@ -409,14 +409,18 @@ static func _cast_green_dragon(tower: Tower) -> bool:
 	return true
 
 
-## 张飞·当阳桥（A/CD22）：范围内敌人击退 60px + 减速 60% 3s。
+## 张飞·当阳桥（A/CD22）：范围内敌人恐惧 1s（反向行军、移速不变）→ 结束后
+## 减速 60% 2s（两段顺序控制，v0.35.2 / 0.8.10.1；CHARACTER_SKILLS / NUMBERS 10.10）。
 static func _cast_dangyang_roar(tower: Tower) -> bool:
 	var enemies := tower.enemies_in_range()
 	if enemies.is_empty():
 		return false
 	for enemy in enemies:
-		enemy.progress = maxf(enemy.progress - character_param(tower, &"char_dangyang_roar", "knockback", 60.0), 0.0)
-		enemy.apply_slow(character_param(tower, &"char_dangyang_roar", "slow_factor", 0.4), character_param(tower, &"char_dangyang_roar", "slow_duration", 3.0))
+		enemy.apply_fear(
+			character_param(tower, &"char_dangyang_roar", "fear_duration", 1.0),
+			character_param(tower, &"char_dangyang_roar", "slow_factor", 0.4),
+			character_param(tower, &"char_dangyang_roar", "slow_duration", 2.0)
+		)
 	tower.spawn_float_text(get_character_skill_name(&"char_dangyang_roar"), Color(0.95, 0.6, 0.35))
 	tower.play_skill_effect(Color(0.95, 0.6, 0.35))
 	SfxLibrary.play(&"skill", -7.0)

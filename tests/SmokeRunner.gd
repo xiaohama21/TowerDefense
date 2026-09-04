@@ -533,7 +533,8 @@ func _run() -> void:
 			await get_tree().process_frame
 			_check(_tower_at_cell(tower_manager, zhang_cell) == null, "回收后落点格应可复用")
 		# 待删除的张飞塔会跑完最后一帧 _process（角色技能就绪时自动释放当阳桥，
-		# 击退手动摆放的后续用例敌人）。先等一帧让 queue_free 生效，隔离后续用例。
+		# 对后续手动摆放的用例敌人施加恐惧/减速状态）。先等一帧让 queue_free
+		# 生效，隔离后续用例。
 		await get_tree().process_frame
 
 	# 局内军需（阶段 8 提交 1，NUMBERS.md 10.9）：四件资源齐全、效果数值已配置。
@@ -1346,18 +1347,39 @@ func _run() -> void:
 			"青龙偃月应造成 2.5× 普攻伤害")
 		green_tank.queue_free()
 		green_tower.queue_free()
-	# 张飞·当阳桥（A/CD22）：击退 60px + 减速 60% 3s。
+	# 张飞·当阳桥（A/CD22）：范围内敌人恐惧 1s（反向行军、移速不变）→ 结束后
+	# 减速 60% 2s（v0.35.2 / 0.8.10.1 两段顺序控制）。
 	var roar_tower: Tower = tower_manager.build_tower(Vector2(360, 640), zhang_fei, null, {"level": 10})
 	if roar_tower:
 		roar_tower.set_process(false)
-		var roar_enemy := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
+		var roar_dummy := EnemyData.new()
+		roar_dummy.enemy_id = &"smoke_roar_dummy"
+		roar_dummy.display_name = "恐惧木桩"
+		roar_dummy.max_hp = 10000
+		roar_dummy.move_speed = 100.0
+		roar_dummy.currency_reward = 0
+		roar_dummy.kill_xp = 0
+		roar_dummy.damage_to_base = 0
+		roar_dummy.body_color = Color.GRAY
+		roar_dummy.body_size = Vector2(40, 40)
+		var roar_enemy := enemy_manager.spawn_enemy_from_data(roar_dummy) as Enemy
 		roar_enemy.set_process(false)
 		roar_enemy.progress = 300.0
 		roar_enemy.global_position = roar_tower.global_position + Vector2(60, 0)
 		roar_tower.target = roar_enemy
 		_check(roar_tower.cast_character_skill(), "当阳桥应能释放")
-		_check(is_equal_approx(roar_enemy.progress, 240.0), "当阳桥应击退敌人 60px")
-		_check(is_equal_approx(roar_enemy.slow_factor, 0.4), "当阳桥应减速 60%")
+		_check(is_equal_approx(roar_enemy._fear_time_left, 1.0), "当阳桥应施加恐惧 1s")
+		_check(is_equal_approx(roar_enemy.slow_factor, 1.0), "恐惧施加瞬间不应提前减速")
+		_check(is_equal_approx(roar_enemy.progress, 300.0), "恐惧施加瞬间不应位移")
+		# 手动驱动 _process 模拟帧推进（set_process(false) 下引擎不调用）。
+		roar_enemy._process(0.4)
+		_check(is_equal_approx(roar_enemy._fear_time_left, 0.6), "恐惧时长应按帧衰减")
+		_check(is_equal_approx(roar_enemy.progress, 260.0), "恐惧期间应反向行军（基础移速 100、不受减速）")
+		_check(is_equal_approx(roar_enemy.slow_factor, 1.0), "恐惧结束前不应提前减速")
+		roar_enemy._process(0.6)
+		_check(roar_enemy._fear_time_left <= 0.0, "恐惧应在 1s 后结束")
+		_check(is_equal_approx(roar_enemy.slow_factor, 0.4), "恐惧结束应施加减速 60%")
+		_check(is_equal_approx(roar_enemy._slow_time_left, 2.0), "随附减速应持续 2s")
 		roar_enemy.die(false)
 		roar_tower.queue_free()
 	# 刘备·携民渡江（B·每波首次漏怪）：全队攻速 +15% 5s。
@@ -1681,4 +1703,3 @@ func _collect_resource_paths(dir_path: String) -> Array[String]:
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return result
-

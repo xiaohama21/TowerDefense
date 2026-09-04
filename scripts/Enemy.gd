@@ -43,6 +43,13 @@ var marks: Dictionary = {}
 ## 同一敌人叠晕由施法者塔内置冷却（2.5s）防抖，见 SkillRegistry.try_apply_tremor_stun。
 var _stun_time_left: float = 0.0
 var _stun_pulse: float = 0.0
+## 恐惧（张飞·当阳桥，v0.35.2 / 0.8.10.1）：时长类控制——剩余秒数内沿路径
+## 反向行军、速度取基础移速（不受减速影响）；可携带随附减速，恐惧结束时施加
+## （当阳桥两段顺序控制：恐惧 1s → 减速 60%/2s，NUMBERS 10.10 / STATS_PIPELINE §6）。
+var _fear_time_left: float = 0.0
+var _fear_pulse: float = 0.0
+var _fear_follow_slow_factor: float = 0.0
+var _fear_follow_slow_duration: float = 0.0
 ## 易伤（天师·奇门，提交 7）：剩余秒数内受所有来源伤害 +_vulnerability_bonus；
 ## 同类不叠加（取更强加成）、时长刷新（NUMBERS 10.10）。
 var _vulnerability_bonus: float = 0.0
@@ -112,6 +119,18 @@ func _process(delta: float) -> void:
 		if _vulnerability_time_left <= 0.0:
 			_vulnerability_bonus = 0.0
 
+	# 恐惧（当阳桥，v0.35.2 / 0.8.10.1）：时长衰减；到期瞬间施加随附减速
+	# （两段顺序控制——恐惧期间不提前挂减速，避免与「反向行军、移速不变」语义冲突）。
+	if _fear_time_left > 0.0:
+		_fear_time_left = maxf(_fear_time_left - delta, 0.0)
+		_fear_pulse += delta
+		if _fear_time_left <= 0.0:
+			if _fear_follow_slow_factor > 0.0 and _fear_follow_slow_duration > 0.0:
+				apply_slow(_fear_follow_slow_factor, _fear_follow_slow_duration)
+			_fear_follow_slow_factor = 0.0
+			_fear_follow_slow_duration = 0.0
+		queue_redraw()
+
 	# 眩晕（震地，提交 7）：期间停止移动、进度不推进；Boss 控制抗性折减随阶段 9 统一落地。
 	if _stun_time_left > 0.0:
 		_stun_time_left = maxf(_stun_time_left - delta, 0.0)
@@ -119,7 +138,11 @@ func _process(delta: float) -> void:
 		queue_redraw()
 	else:
 		var before := global_position
-		progress += speed * slow_factor * delta
+		if _fear_time_left > 0.0:
+			# 恐惧：沿路径反向行军，速度取基础移速（不受减速影响）。
+			progress = maxf(progress - speed * delta, 0.0)
+		else:
+			progress += speed * slow_factor * delta
 		var delta_pos := global_position - before
 		if delta_pos.length_squared() > 0.01:
 			velocity_dir = delta_pos.normalized()
@@ -159,6 +182,19 @@ func apply_stun(duration: float) -> void:
 	if is_dead or duration <= 0.0:
 		return
 	_stun_time_left = maxf(_stun_time_left, duration)
+	queue_redraw()
+
+
+## 施加恐惧（张飞·当阳桥，v0.35.2 / 0.8.10.1）：时长类控制——期间沿路径反向
+## 行军、移速不变（不受减速影响）；可携带随附减速（两段顺序控制，恐惧结束时施加）。
+## 同类不叠加只刷新时长（NUMBERS 10.10）；Boss 抗性折减随阶段 9 统一落地。
+func apply_fear(duration: float, follow_slow_factor: float = 0.0, follow_slow_duration: float = 0.0) -> void:
+	if is_dead or duration <= 0.0:
+		return
+	_fear_time_left = maxf(_fear_time_left, duration)
+	if follow_slow_factor > 0.0 and follow_slow_duration > 0.0:
+		_fear_follow_slow_factor = follow_slow_factor
+		_fear_follow_slow_duration = follow_slow_duration
 	queue_redraw()
 
 
@@ -284,3 +320,10 @@ func _draw() -> void:
 				Vector2(cos(angle) * 8.0, -half.y - 16.0 + sin(angle) * 3.0),
 				2.4, Color(1.0, 0.85, 0.35, 0.95)
 			)
+	# 恐惧表现（当阳桥，v0.35.2 / 0.8.10.1）：紫色呼吸圆环（与眩晕小星区分）。
+	if _fear_time_left > 0.0:
+		var pulse := 0.5 + 0.5 * sin(_fear_pulse * 7.0)
+		draw_arc(
+			Vector2.ZERO, half.length() + 7.0 + pulse * 2.5, 0.0, TAU, 28,
+			Color(0.62, 0.42, 0.95, 0.45 + 0.35 * pulse), 1.8
+		)

@@ -1,7 +1,8 @@
 # 角色技能（CHARACTER_SKILLS）
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，职业技能见 [SKILLS.md](SKILLS.md)，角色养成见 [CHARACTERS.md](CHARACTERS.md)，行为注册表见 [BEHAVIORS.md](BEHAVIORS.md)。
-> 文档版本：v0.3（2026-09-04）
+> 文档版本：v0.4（2026-09-04）
+> v0.4 变更（阶段 8·提交 10 延伸·落地，程序 0.8.10.1）：当阳桥 v0.3 拍板**实现落地**——技能参数 `knockback=60` 移除、改为 `fear_duration=1.0 / slow_factor=0.4 / slow_duration=2.0`（zhang_fei.tres）；`SkillRegistry._cast_dangyang_roar` 改调 `Enemy.apply_fear`（恐惧期间沿路径反向行军、基础移速、不受减速；到期瞬间施加减速 60%/2s，两段不重叠）；局内表现=紫色呼吸圆环；百科技能文案与 SmokeRunner 用例同步。同步总纲 v0.35.2 / STATS_PIPELINE v0.5 / NUMBERS 10.10 / README。程序版本号 0.8.10.0 → **0.8.10.1**。
 > v0.3 变更（用户拍板 2026-09-04，当阳桥效果重做，纯设计定稿）：**张飞·当阳桥** 由「范围内敌人击退 60px + 减速 60%/3s」改为**恐惧 1s → 减速 60%/2s 两段顺序控制**——恐惧=新控制类型（敌人沿路径反向行军、移速不变，登记 NUMBERS 10.10，受 10.11 Boss 抗性折减）；恐惧结束瞬间再施加减速 60%/2s（两段不重叠，规避「恐惧期间减速是否生效」歧义）；CD 22s、范围口径不变；数值待实测（恐惧 1s 后退距离=移速×1s，对快敌（轻骑≈145px）强于原 60px 击退、对慢速 Boss（张梁≈30px）弱于原 60px——快慢敌画像反转，靠实测校准）。实现待排期（技能参数改 fear_duration=1.0 / slow_factor=0.4 / slow_duration=2.0，原 knockback=60 移除）。同步总纲 v0.35.1 / CHARACTERS 4.5.1 / SKILLS v0.10 / NUMBERS / STATS_PIPELINE v0.4 / README。程序版本号不变（0.8.10.0）。
 > v0.2 变更（阶段 8·提交 5 落地）：9 名武将角色技能全部实现——A 主动冷却制（青龙偃月/当阳桥/定军山/月下舞/焚营/借东风，自动释放可选手动、冷却盘 UI、击杀返冷却）+ B 条件触发被动（携民渡江/七进七出=每波首次漏怪，死战=基地低血常驻）；数值参数经 `character_skill_params` 配置，全部待实测；同步总纲 v0.29.0 / CHARACTERS.md 4.1。
 > 文档版本：v0.1（2026-09-01，用户拍板 A+B 方案；名称定稿、**数值全部待实测**）
