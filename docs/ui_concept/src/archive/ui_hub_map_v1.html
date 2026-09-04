@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face { font-family:"ZCOOL-Kuaile"; src:url("../fonts/ZCOOL-Kuaile.ttf") format("truetype"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:720px; overflow:hidden; }
+  body { font-family:"ZCOOL-Kuaile",sans-serif;
+    background:linear-gradient(180deg,#46afe6 0%,#3399da 48%,#277fb9 100%); }
+  .bg { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse 700px 360px at 50% -6%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%); }
+  .hub { position:relative; width:1232px; height:640px; margin:40px auto 0; display:flex;
+    background:#f2faff; border:3px solid #1c9fd7; border-bottom:7px solid #167da8;
+    border-radius:18px; box-shadow:0 14px 40px rgba(6,28,50,.45), inset 0 1px 0 rgba(255,255,255,.6); overflow:hidden; }
+  /* ===== 左侧导航 ===== */
+  .side { width:216px; background:linear-gradient(180deg,#e9f6fd,#dcedf8); border-right:3px solid #bfe2f4;
+    display:flex; flex-direction:column; padding:18px 12px 14px; }
+  .logo { text-align:center; padding-bottom:14px; border-bottom:2px dashed #9fd0ea; margin-bottom:14px; }
+  .logo .cn { font-size:26px; color:#14538a; letter-spacing:2px; }
+  .logo .en { font-size:11px; color:#7d9cb4; letter-spacing:1px; margin-top:2px; font-family:Arial; }
+  .nav { display:flex; flex-direction:column; gap:10px; flex:1; }
+  .navbtn {
+    height:52px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:22px; letter-spacing:4px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
+  }
+  .navbtn.idle { border-image-source:url("../kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .navbtn.active { border-image-source:url("../kenney_ui_pack/PNG/Blue/Double/button_rectangle_gloss.png"); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.2); }
+  .navbtn.back { border-image-source:url("../kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); color:#fff; font-size:19px; margin-top:auto; }
+  /* ===== 右侧内容 ===== */
+  .main { flex:1; display:flex; flex-direction:column; padding:16px 22px 14px; }
+  .topbar { display:flex; align-items:center; gap:14px; }
+  .topbar h2 { font-size:28px; color:#1b4d78; letter-spacing:3px; font-weight:normal; }
+  .chapter-chip { font-size:16px; color:#14538a; background:#e1f1fb; border:2px solid #9fd0ea;
+    border-radius:10px; padding:4px 14px; letter-spacing:2px; }
+  .spacer { flex:1; }
+  .seg { display:flex; }
+  .segbtn { width:96px; height:44px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:18px; letter-spacing:4px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+  .segbtn.on  { border-image-source:url("../kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); color:#fff; }
+  .segbtn.off { border-image-source:url("../kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .diff-label { font-size:16px; color:#7d9cb4; }
+  /* 关卡网格 */
+  .grid { flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:14px 0 12px; }
+  .card { background:#ffffff; border:3px solid #d7e9f5; border-radius:14px; padding:10px 12px 8px;
+    display:flex; flex-direction:column; box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .card .head { display:flex; justify-content:space-between; align-items:center; }
+  .card .stars img { width:19px; height:18px; margin-right:1px; }
+  .card .name { font-size:20px; color:#1b4d78; letter-spacing:1px; margin-top:6px; line-height:1.3; }
+  .card .name small { display:block; font-size:13px; color:#7d9cb4; margin-top:2px; }
+  .card .theme { font-size:14px; color:#5f8aa6; margin-top:auto; padding-top:8px; }
+  .card.done { border-color:#9ad8b4; }
+  .card.ready { border-color:#ffcc00; box-shadow:0 0 0 3px rgba(255,204,0,.35), 0 6px 14px rgba(20,83,138,.15); }
+  .card.locked { background:#e6eef5; border-color:#cddbe6; }
+  .card.locked .name, .card.locked .theme { color:#9fb3c4; }
+  .tag { font-size:13px; letter-spacing:1px; padding:2px 10px; border-radius:8px; }
+  .tag.ok { color:#11804a; background:#d8f2e3; }
+  .tag.open { color:#8a6d00; background:#fff3c4; }
+  .tag.lock { color:#7d8fa0; background:#d9e4ec; }
+  .lockicon { width:20px; height:20px; }
+  /* 底部操作条 */
+  .actionbar { display:flex; align-items:center; gap:12px; }
+  .hint { font-size:15px; color:#7d9cb4; letter-spacing:1px; }
+  .btn {
+    height:58px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:21px; letter-spacing:4px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
+  }
+  .btn.test { width:150px; font-size:17px; border-image-source:url("../kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .btn.go   { width:190px; border-image-source:url("../kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <!-- 左侧导航 -->
+    <div class="side">
+      <div class="logo">
+        <div class="cn">烽火连营</div>
+        <div class="en">TOWER DEFENSE · HUB</div>
+      </div>
+      <div class="nav">
+        <button class="navbtn active">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+    </div>
+    <!-- 右侧内容：地图选择 -->
+    <div class="main">
+      <div class="topbar">
+        <h2>地图选择</h2>
+        <span class="chapter-chip">第一章 · 黄巾之乱</span>
+        <div class="spacer"></div>
+        <span class="diff-label">难度</span>
+        <div class="seg">
+          <button class="segbtn on">标准</button>
+          <button class="segbtn off" style="margin-left:-2px;">困难</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card done">
+          <div class="head"><span class="tag ok">已通关</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="../kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="../kenney_ui_pack/PNG/Yellow/Double/star.png"></span></div>
+          <div class="name">s01 · 桃园起兵<small>涿郡 · 教学关</small></div>
+          <div class="theme">步卒 · 轻骑</div>
+        </div>
+        <div class="card done">
+          <div class="head"><span class="tag ok">已通关</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="../kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="../kenney_ui_pack/PNG/Yellow/Double/star_outline.png"></span></div>
+          <div class="name">s02 · 长社火攻<small>人海教学</small></div>
+          <div class="theme">火攻 · 人海</div>
+        </div>
+        <div class="card done">
+          <div class="head"><span class="tag ok">已通关</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="../kenney_ui_pack/PNG/Yellow/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Yellow/Double/star_outline.png"></span></div>
+          <div class="name">s03 · 颖川之战<small>远程新兵</small></div>
+          <div class="theme">弓手 · 新兵</div>
+        </div>
+        <div class="card ready">
+          <div class="head"><span class="tag open">可挑战</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s04 · 东郡驰援<small>精英战</small></div>
+          <div class="theme">伍长 · 精英</div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s05 · 宛城之围<small>高血战</small></div>
+          <div class="theme">力士 · 高血</div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s06 · 下曲阳之战<small>混编压力</small></div>
+          <div class="theme">混编 · 压力</div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s07 · 广宗前哨<small>机制战</small></div>
+          <div class="theme">祭酒 · 光环</div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="../kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s08 · 广宗决战<small>Boss 关</small></div>
+          <div class="theme">张梁 · Boss</div>
+        </div>
+      </div>
+
+      <div class="actionbar">
+        <span class="hint">点击关卡选择，绿色 = 已通关 · 黄色高亮 = 当前选中</span>
+        <div class="spacer"></div>
+        <button class="btn test">一键通关(测试)</button>
+        <button class="btn go">出征 · 编队</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

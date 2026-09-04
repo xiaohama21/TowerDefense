@@ -215,9 +215,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	damage = stats.damage
 	_base_damage = damage
 	range_radius = stats.range
-	# 诸葛亮·观星：射程 +12%（特性静态加成，trait_id 已先就位）
-	if _trait_id == &"trait_star_gazer":
-		range_radius *= 1.0 + get_trait_param("range_bonus", 0.12)
+	# 诸葛亮·观星：射程 +12%（特性静态加成，与百科预览共用 CharacterData 实现）
+	range_radius *= character_data.get_static_range_multiplier()
 	var relic_bonuses := GameFlow.get_battle_relic_bonuses()
 	# 局内遗物射程加成（v0.19.0，与特性乘算）
 	range_radius *= 1.0 + float(relic_bonuses.get("range_bonus_pct", 0)) / 100.0
@@ -330,9 +329,9 @@ func get_sell_refund(sell_refund_ratio: float) -> int:
 func apply_battle_rank(spent_cost: int) -> void:
 	battle_rank += 1
 	total_invested += spent_cost
-	damage = int(round(_base_damage * (1.0 + _battle_rank_damage_step * battle_rank)))
-	attack_cooldown = _base_attack_cooldown / (1.0 + _battle_rank_attack_speed_step * battle_rank)
-	range_radius = _base_range * (1.0 + _battle_rank_range_step * battle_rank)
+	damage = int(round(_base_damage * CharacterData.rank_scale(_battle_rank_damage_step, battle_rank)))
+	attack_cooldown = _base_attack_cooldown / CharacterData.rank_scale(_battle_rank_attack_speed_step, battle_rank)
+	range_radius = _base_range * CharacterData.rank_scale(_battle_rank_range_step, battle_rank)
 	_rebuild_attack_timer()
 	_rebuild_range_area()
 	queue_redraw()
@@ -578,16 +577,16 @@ func ultimate_effect_power() -> float:
 
 ## 局内升阶 buff 增强（阶段 8）：施加方升阶后，其 buff 持续/效果按此放大（舞娘/刘备等辅助）。
 func get_battle_rank_buff_duration_multiplier() -> float:
-	return 1.0 + _battle_rank_buff_duration_step * battle_rank
+	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank)
 
 
 func get_battle_rank_buff_power_multiplier() -> float:
-	return (1.0 + _battle_rank_buff_power_step * battle_rank) * (1.0 + _tech_buff_power_pct)
+	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct)
 
 
 ## 局内升阶 AOE 半径倍率（阶段 8）：投石车普攻爆散 / 术士大招范围。
 func get_battle_rank_aoe_multiplier() -> float:
-	return 1.0 + _battle_rank_aoe_step * battle_rank
+	return CharacterData.rank_scale(_battle_rank_aoe_step, battle_rank)
 
 
 ## charge 技能（突击骑）：大招击杀返怒 50% × 档位系数（每 5 级 +10%）。

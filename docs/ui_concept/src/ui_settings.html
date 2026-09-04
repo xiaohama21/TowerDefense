@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  .cols { display:flex; gap:14px; flex:1; min-height:0; margin-top:12px; }
+  .col { flex:1; display:flex; flex-direction:column; gap:14px; min-width:0; }
+  .col.wide2 { flex:1.35; }
+  .gcard { background:#fff; border:3px solid #d7e9f5; border-radius:14px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); overflow:hidden; }
+  .gcard .gtitle { display:flex; align-items:center; gap:8px; font-size:16px; color:#14538a; letter-spacing:3px; padding:11px 16px 9px;
+    border-bottom:2px dashed #d7e9f5; }
+  .gcard .gtitle .ico { font-size:20px; }
+  .gcard .gtitle .hint { font-size:12px; color:#a8bccb; letter-spacing:1px; margin-left:auto; }
+  .rows { padding:2px 16px 4px; }
+  .set-row { display:flex; align-items:center; gap:12px; min-height:46px; border-bottom:1px dashed #edf4f9; }
+  .set-row:last-child { border-bottom:0; }
+  .set-row .lbl { width:96px; flex:none; font-size:15px; color:#33566f; letter-spacing:2px; }
+  .set-row .ctl { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+  .set-row .val { font-size:13px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+  .segbtn { width:80px; height:34px; font-size:14px; letter-spacing:2px; }
+  /* 开关 */
+  .sw { width:50px; height:26px; border-radius:14px; background:#d5e1ea; border:2px solid #c2d2dd; position:relative; flex:none; }
+  .sw::after { content:""; position:absolute; top:2px; left:3px; width:18px; height:18px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:left .12s; }
+  .sw.on { background:#4cbf8a; border-color:#39a974; }
+  .sw.on::after { left:25px; }
+  /* 滑块 */
+  .sl { flex:1; height:10px; background:#e3eef6; border-radius:6px; position:relative; }
+  .sl i { position:absolute; top:0; left:0; height:100%; border-radius:6px; background:linear-gradient(180deg,#7ec8ea,#2eaadc); }
+  .sl i.gold { background:linear-gradient(180deg,#ffd75e,#f0a92f); }
+  .sl b { position:absolute; top:-5px; width:20px; height:20px; border-radius:50%; background:#fff; border:2px solid #2eaadc;
+    box-shadow:0 1px 4px rgba(0,0,0,.2); transform:translateX(-10px); }
+  .sl b.goldb { border-color:#e6a324; }
+  .pct { width:44px; flex:none; text-align:right; font-size:14px; color:#14538a; }
+  .hintline { font-size:12px; color:#a8bccb; padding:8px 16px 10px; line-height:1.7; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn active">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>设置</h2>
+        <div class="spacer"></div>
+        <span class="prog">改动即时生效 · 自动保存</span>
+        <button class="btn grey small" style="width:120px;">恢复默认</button>
+      </div>
+      <div class="cols">
+        <div class="col wide2">
+          <div class="gcard" style="flex:1;">
+            <div class="gtitle"><span class="ico">🖥</span>画面<span class="hint">GRAPHICS</span></div>
+            <div class="rows">
+              <div class="set-row"><span class="lbl">窗口模式</span><div class="ctl"><div class="seg"><button class="segbtn on">窗口化</button><button class="segbtn off" style="margin-left:-2px;">全屏</button></div><span class="val">建议窗口化调试</span></div></div>
+              <div class="set-row"><span class="lbl">分辨率</span><div class="ctl"><span style="font-size:15px; color:#14538a; letter-spacing:1px; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:8px; padding:5px 12px;">1920 × 1080</span><span class="val">随窗口缩放</span></div></div>
+              <div class="set-row"><span class="lbl">画质</span><div class="ctl"><div class="seg"><button class="segbtn off">流畅</button><button class="segbtn on" style="margin-left:-2px;">均衡</button><button class="segbtn off" style="margin-left:-2px;">高清</button></div><span class="val">推荐均衡（当前机型）</span></div></div>
+              <div class="set-row"><span class="lbl">垂直同步</span><div class="ctl"><span class="sw on"></span><span class="val">避免画面撕裂</span></div></div>
+            </div>
+          </div>
+          <div class="gcard" style="flex:1;">
+            <div class="gtitle"><span class="ico">🔊</span>音频<span class="hint">AUDIO</span></div>
+            <div class="rows">
+              <div class="set-row"><span class="lbl">音乐</span><div class="ctl"><div class="sl"><i style="width:70%;"></i><b style="left:70%;" class="goldb"></b></div><span class="pct">70</span></div></div>
+              <div class="set-row"><span class="lbl">音效</span><div class="ctl"><div class="sl"><i style="width:85%;"></i><b style="left:85%;"></b></div><span class="pct">85</span></div></div>
+              <div class="set-row"><span class="lbl">语音</span><div class="ctl"><div class="sl"><i style="width:40%;"></i><b style="left:40%;"></b></div><span class="pct">40</span></div></div>
+              <div class="set-row"><span class="lbl">静音</span><div class="ctl"><span class="sw"></span><span class="val">一键静音所有声音</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gcard" style="flex:1.2;">
+            <div class="gtitle"><span class="ico">⚔</span>玩法<span class="hint">GAMEPLAY</span></div>
+            <div class="rows">
+              <div class="set-row"><span class="lbl">自动开波</span><div class="ctl"><span class="sw on"></span><span class="val">倒计时自动开波</span></div></div>
+              <div class="set-row"><span class="lbl">伤害数字</span><div class="ctl"><span class="sw on"></span><span class="val">战斗飘字</span></div></div>
+              <div class="set-row"><span class="lbl">范围预览</span><div class="ctl"><span class="sw on"></span><span class="val">拖拽时显示攻击圈</span></div></div>
+              <div class="set-row"><span class="lbl">新手指引</span><div class="ctl"><span class="sw on"></span><span class="val">首通教学提示</span></div></div>
+            </div>
+          </div>
+          <div class="gcard" style="flex:1;">
+            <div class="gtitle"><span class="ico">🛠</span>数据与关于<span class="hint">DATA · ABOUT</span></div>
+            <div class="rows">
+              <div class="set-row"><span class="lbl">新手引导</span><div class="ctl"><button class="btn grey small" style="width:132px;">重置引导</button><span class="val">重新播放提示</span></div></div>
+              <div class="set-row"><span class="lbl">存档（测试）</span><div class="ctl"><button class="btn red small" style="width:132px;">清空存档</button><span class="val">仅测试用</span></div></div>
+              <div class="set-row"><span class="lbl">版本</span><div class="ctl"><span class="val" style="font-size:14px; color:#14538a;">v0.8.8.4 · 烽火连营 alpha</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

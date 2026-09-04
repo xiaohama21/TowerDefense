@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:720px; overflow:hidden; }
+  body {
+    font-family: "KaiTi","楷体","simkai",serif;
+    background:
+      radial-gradient(ellipse 900px 480px at 50% 26%, rgba(255,204,0,0.10), rgba(255,204,0,0) 70%),
+      radial-gradient(ellipse 1200px 700px at 50% 50%, #101a2e 0%, #0a1120 55%, #05080f 100%);
+    position: relative;
+  }
+  /* 战纹式暗纹：低透明度五角星网点 */
+  .bg-stars {
+    position:absolute; inset:0; pointer-events:none; opacity:.10;
+    background-image:
+      url("../kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("../kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("../kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("../kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("../kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("../kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png");
+    background-repeat:no-repeat;
+    background-size: 120px auto, 72px auto, 96px auto, 56px auto, 140px auto, 84px auto;
+    background-position: 8% 12%, 88% 16%, 92% 68%, 6% 62%, 84% 88%, 14% 88%;
+    filter: drop-shadow(0 0 6px rgba(255,204,0,.35));
+  }
+  /* 顶部与底部柔和渐变收边（模拟卷轴暗角） */
+  .vignette {
+    position:absolute; inset:0; pointer-events:none;
+    box-shadow: inset 0 0 140px rgba(0,0,0,.85);
+  }
+  .corner-glow {
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 320px 160px at 4% 6%, rgba(28,159,215,.14), transparent 70%),
+      radial-gradient(ellipse 320px 160px at 96% 94%, rgba(28,159,215,.10), transparent 70%);
+  }
+  .stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; }
+  /* 标题区 */
+  .head { margin-top:74px; text-align:center; }
+  .game-title {
+    font-size:92px; letter-spacing:16px; color:#ffe9ad;
+    text-shadow: 0 0 18px rgba(255,204,0,.45), 0 3px 0 #6b4a00, 0 6px 14px rgba(0,0,0,.8);
+    line-height:1.1;
+  }
+  .sub-title {
+    margin-top:14px; font-size:26px; letter-spacing:30px; color:#bfe0f5;
+    text-shadow: 0 2px 6px rgba(0,0,0,.9); padding-left:30px;
+  }
+  .ornament {
+    margin-top:26px; display:flex; align-items:center; gap:0;
+  }
+  .ornament .edge { width:76px; height:auto; opacity:.85; }
+  .ornament .mid { width:150px; height:4px; background:linear-gradient(90deg, rgba(255,204,0,.25), rgba(255,204,0,.75), rgba(255,204,0,.25)); }
+  .ornament .star { width:26px; height:24px; margin:0 10px; }
+  .chapter-line { margin-top:16px; font-size:17px; letter-spacing:6px; color:#8fb3cc; text-shadow:0 1px 4px #000; }
+  /* 按钮组 */
+  .menu { margin-top:52px; display:flex; flex-direction:column; align-items:center; gap:22px; }
+  .btn {
+    position:relative; width:340px; height:96px; border:0; padding:0; cursor:pointer;
+    font-family:"KaiTi","楷体",serif; font-size:30px; letter-spacing:12px; color:#fff;
+    text-shadow:0 2px 4px rgba(0,0,0,.55); padding-left:12px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
+  }
+  .btn.primary  { border-image-source:url("../kenney_ui_pack/PNG/Yellow/Double/button_rectangle_depth_gloss.png"); color:#5a3d00; text-shadow:0 1px 0 rgba(255,255,255,.35); box-shadow:0 8px 22px rgba(255,204,0,.25), 0 3px 0 #a67f00; }
+  .btn.warn     { border-image-source:url("../kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png");   box-shadow:0 6px 16px rgba(238,39,71,.18), 0 3px 0 #8f1028; }
+  .btn.neutral  { border-image-source:url("../kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png");  color:#23262e; text-shadow:0 1px 0 rgba(255,255,255,.35); box-shadow:0 6px 16px rgba(0,0,0,.4); }
+  .btn:hover { filter:brightness(1.08); }
+  .hint-key { position:absolute; right:22px; top:50%; transform:translateY(-50%); font-size:15px; letter-spacing:0; opacity:.55; font-family:Arial; }
+  /* 底部信息 */
+  .footer { position:absolute; bottom:18px; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-end; padding:0 30px; }
+  .version { font-size:15px; color:#5f7d94; letter-spacing:2px; }
+  .foot-center { font-size:14px; color:#3d5668; letter-spacing:3px; }
+  .tag {
+    position:absolute; top:22px; right:24px; display:flex; align-items:center; gap:10px;
+    background:rgba(9,16,32,.72); border:1px solid rgba(28,159,215,.35); border-radius:14px;
+    padding:8px 16px 8px 12px;
+  }
+  .tag .dot { width:10px; height:10px; border-radius:50%; background:#16BB77; box-shadow:0 0 8px #16BB77; }
+  .tag span { font-family:Arial; font-size:13px; letter-spacing:1px; color:#9fd8f5; }
+</style>
+</head>
+<body>
+  <div class="bg-stars"></div>
+  <div class="corner-glow"></div>
+  <div class="vignette"></div>
+
+  <div class="tag"><span class="dot"></span><span>ALPHA · BUILD 0.8.8.3</span></div>
+
+  <div class="stage">
+    <div class="head">
+      <div class="game-title">烽火连营</div>
+      <div class="sub-title">三国塔防</div>
+      <div class="ornament">
+        <img class="edge" src="../kenney_ui_pack/PNG/Yellow/Double/arrow_decorative_e.png">
+        <div class="mid"></div>
+        <img class="star" src="../kenney_ui_pack/PNG/Yellow/Double/star.png">
+        <div class="mid"></div>
+        <img class="edge" src="../kenney_ui_pack/PNG/Yellow/Double/arrow_decorative_w.png">
+      </div>
+      <div class="chapter-line">第一章 · 黄巾之乱</div>
+    </div>
+
+    <div class="menu">
+      <button class="btn primary" style="height:104px;">开始游戏</button>
+      <button class="btn warn">新的征程</button>
+      <button class="btn neutral">退出游戏</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="version">FengHuoLianYing v0.8.8.3</div>
+    <div class="foot-center">仅供开发预览 · 素材：Kenney UI Pack</div>
+  </div>
+</body>
+</html>

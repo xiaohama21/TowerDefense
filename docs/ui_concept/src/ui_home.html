@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: "ZCOOL-Kuaile";
+    src: url("fonts/ZCOOL-Kuaile.ttf") format("truetype");
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:720px; overflow:hidden; }
+  body {
+    font-family: "ZCOOL-Kuaile", sans-serif;
+    background: linear-gradient(180deg, #46afe6 0%, #3399da 48%, #277fb9 100%);
+    position: relative;
+  }
+  .bg {
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 700px 380px at 50% -6%, rgba(255,255,255,.28), rgba(255,255,255,0) 70%),
+      radial-gradient(ellipse 520px 300px at 90% 108%, rgba(255,255,255,.12), rgba(255,255,255,0) 70%),
+      radial-gradient(ellipse 440px 260px at 8% 110%, rgba(255,255,255,.10), rgba(255,255,255,0) 70%);
+  }
+  .bg-stars {
+    position:absolute; inset:0; pointer-events:none; opacity:.13;
+    background-image:
+      url("kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png"),
+      url("kenney_ui_pack/PNG/Yellow/Double/star_outline_depth.png");
+    background-repeat:no-repeat;
+    background-size: 90px auto, 60px auto, 70px auto, 110px auto, 50px auto;
+    background-position: 7% 14%, 90% 12%, 93% 70%, 10% 78%, 88% 90%;
+    filter: brightness(1.7);
+  }
+  .stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; }
+  .head { margin-top:44px; text-align:center; }
+  .game-title {
+    font-size:78px; letter-spacing:14px; color:#ffffff;
+    text-shadow: 0 3px 0 #14538a, 0 6px 16px rgba(8,45,80,.35);
+    line-height:1.15;
+  }
+  .sub-title {
+    margin-top:2px; font-size:25px; letter-spacing:24px; color:#eaf6ff;
+    text-shadow: 0 2px 0 #14538a; padding-left:24px;
+  }
+  .ornament { margin-top:14px; display:flex; align-items:center; }
+  .ornament .bar { width:120px; height:5px; border-radius:3px; background:rgba(255,255,255,.5); }
+  .ornament .star { width:28px; height:26px; margin:0 12px; filter:drop-shadow(0 1px 0 rgba(20,83,138,.5)); }
+  .chapter-line { margin-top:10px; font-size:19px; letter-spacing:6px; color:#eaf6ff; text-shadow:0 1px 0 #14538a; }
+  /* 主菜单按钮组 */
+  .menu { margin-top:24px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .btn {
+    position:relative; width:296px; height:84px; border:0; padding:0; cursor:pointer;
+    font-family:"ZCOOL-Kuaile", sans-serif; font-size:38px; letter-spacing:8px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
+  }
+  .btn.primary { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_depth_flat.png"); color:#22384a; text-shadow:none; }
+  .btn.warn    { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png");  color:#ffffff; text-shadow:0 1px 0 rgba(0,0,0,.25); }
+  .btn.neutral { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png");  color:#22384a; text-shadow:none; }
+  .footer { position:absolute; bottom:16px; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-end; padding:0 28px; }
+  .version { font-size:17px; color:#eaf6ff; letter-spacing:2px; text-shadow:0 1px 0 #14538a; }
+  .foot-center { font-size:15px; color:#cfe7f7; letter-spacing:2px; }
+  /* 弹窗遮罩（叠加演示：弹出时主菜单保留在底层） */
+  .overlay {
+    position:absolute; inset:0; display:flex; justify-content:center; align-items:flex-start;
+    padding-top:140px;
+    background:rgba(10,38,64,.55);
+  }
+  .dialog {
+    width:560px; background:#f2faff; border:3px solid #1c9fd7;
+    border-bottom:7px solid #167da8; border-radius:18px;
+    box-shadow: 0 14px 40px rgba(6,28,50,.5), inset 0 1px 0 rgba(255,255,255,.6);
+    overflow:hidden;
+  }
+  .dialog-title {
+    display:flex; align-items:center; justify-content:space-between;
+    background:linear-gradient(180deg,#46b7ea,#1c9fd7); padding:0 16px 0 24px; height:56px;
+  }
+  .dialog-title h2 { font-size:26px; color:#fff; letter-spacing:6px; text-shadow:0 1px 0 #0e5f92; font-weight:normal; }
+  .close {
+    width:32px; height:32px; border:0; border-radius:50%; cursor:pointer;
+    background:rgba(255,255,255,.28); display:flex; align-items:center; justify-content:center;
+  }
+  .close img { width:15px; height:15px; }
+  .dialog-body { padding:20px 26px 0; }
+  .dialog-body .main { font-size:24px; color:#1b4d78; letter-spacing:1px; line-height:1.5; }
+  .dialog-body .warn { margin-top:8px; font-size:20px; color:#d71935; line-height:1.5; }
+  .dialog-body .hint { margin-top:10px; font-size:15px; color:#7d9cb4; letter-spacing:1px; }
+  .dialog-actions { display:flex; justify-content:flex-end; gap:14px; padding:14px 22px 18px 0; }
+  .dbtn {
+    width:160px; height:68px; border:0; cursor:pointer; font-family:"ZCOOL-Kuaile", sans-serif;
+    font-size:28px; letter-spacing:4px; border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
+  }
+  .dbtn.cancel   { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#22384a; }
+  .dbtn.confirm  { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png");  color:#fff; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="bg-stars"></div>
+
+  <div class="stage">
+    <div class="head">
+      <div class="game-title">烽火连营</div>
+      <div class="sub-title">三国塔防</div>
+      <div class="ornament">
+        <div class="bar"></div>
+        <img class="star" src="kenney_ui_pack/PNG/Yellow/Double/star.png">
+        <div class="bar"></div>
+      </div>
+      <div class="chapter-line">第一章 · 黄巾之乱</div>
+    </div>
+
+    <div class="menu">
+      <button class="btn primary">开始游戏</button>
+      <button class="btn warn">新的征程</button>
+      <button class="btn neutral">退出游戏</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="version">FengHuoLianYing · ALPHA 0.8.8.3</div>
+    <div class="foot-center">素材 Kenney UI Pack · 字体 站酷快乐体</div>
+  </div>
+
+  </body>
+</html>
+

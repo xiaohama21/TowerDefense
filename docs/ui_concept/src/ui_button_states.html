@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face { font-family:"ZCOOL-Kuaile"; src:url("fonts/ZCOOL-Kuaile.ttf") format("truetype"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:720px; overflow:hidden; }
+  body { font-family:"ZCOOL-Kuaile",sans-serif;
+    background:linear-gradient(180deg,#46afe6 0%,#3399da 48%,#277fb9 100%); position:relative; }
+  .glow { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse 700px 360px at 50% -6%,rgba(255,255,255,.30),rgba(255,255,255,0) 70%); }
+  .sheet-title { position:relative; text-align:center; margin-top:34px; }
+  .sheet-title h1 { font-size:44px; color:#fff; letter-spacing:10px; text-shadow:0 3px 0 #14538a,0 6px 14px rgba(8,45,80,.3); font-weight:normal; }
+  .sheet-title .sub { margin-top:4px; font-size:19px; color:#eaf6ff; letter-spacing:6px; text-shadow:0 1px 0 #14538a; }
+  .panel { position:relative; width:1180px; margin:26px auto 0; background:#f2faff; border:3px solid #1c9fd7;
+    border-bottom:7px solid #167da8; border-radius:18px; box-shadow:0 14px 40px rgba(6,28,50,.4), inset 0 1px 0 rgba(255,255,255,.6); padding:14px 22px 20px; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:20px; color:#1b4d78; font-weight:normal; letter-spacing:2px; padding:6px 4px 14px; text-align:center; }
+  th.role { text-align:left; padding-left:6px; }
+  td { text-align:center; padding:12px 6px; vertical-align:middle; }
+  td.role { text-align:left; }
+  .role-chip { display:inline-block; min-width:118px; font-size:19px; color:#1b4d78; letter-spacing:2px; }
+  .role-chip small { display:block; font-size:13px; color:#7d9cb4; letter-spacing:0; margin-top:2px; }
+  .state-caption { display:block; margin-top:8px; font-size:14px; color:#7d9cb4; letter-spacing:1px; }
+  .b {
+    width:206px; height:70px; border:0; display:inline-flex; align-items:center; justify-content:center;
+    font-family:"ZCOOL-Kuaile",sans-serif; font-size:27px; letter-spacing:4px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
+  }
+  .b.normal  { }
+  .b.hover   { filter:brightness(1.06); }
+  .b.pressed { transform:translateY(3px); filter:brightness(.78) saturate(1.15); }
+  .b.disabled{ opacity:.5; filter:saturate(.2); }
+  .y .b.normal,.y .b.hover,.y .b.pressed { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_depth_flat.png"); color:#22384a; }
+  .y .b.hover { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); }
+  .r .b.normal,.r .b.hover,.r .b.pressed { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); color:#fff; }
+  .r .b.hover { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_gloss.png"); }
+  .g .b.normal,.g .b.hover,.g .b.pressed { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#22384a; }
+  .g .b.hover { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_gloss.png"); }
+  .bl .b.normal,.bl .b.hover,.bl .b.pressed { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); color:#fff; }
+  .bl .b.hover { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_gloss.png"); }
+  .y .b.disabled,.r .b.disabled,.g .b.disabled,.bl .b.disabled { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#7d8894; }
+  .note { position:absolute; bottom:18px; left:0; right:0; text-align:center; font-size:15px; color:#cfe7f7; letter-spacing:2px; }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="sheet-title">
+    <h1>组件状态规范</h1>
+    <div class="sub">按钮四态 · 颜色语义对齐 UITheme（黄=主行动 / 红=警示 / 灰=中性 / 蓝=信息）</div>
+  </div>
+  <div class="panel">
+    <table>
+      <tr>
+        <th class="role">用途</th><th>普通 Normal</th><th>悬停 Hover</th><th>按下 Pressed</th><th>禁用 Disabled</th>
+      </tr>
+      <tr class="y">
+        <td class="role"><span class="role-chip">主行动 · 黄<small>开始游戏 / 出征</small></span></td>
+        <td><span class="b normal">开始游戏</span></td>
+        <td><span class="b hover">开始游戏</span></td>
+        <td><span class="b pressed">开始游戏</span></td>
+        <td><span class="b disabled">开始游戏</span></td>
+      </tr>
+      <tr class="r">
+        <td class="role"><span class="role-chip">警示 · 红<small>覆盖存档 / 删除</small></span></td>
+        <td><span class="b normal">继续</span></td>
+        <td><span class="b hover">继续</span></td>
+        <td><span class="b pressed">继续</span></td>
+        <td><span class="b disabled">继续</span></td>
+      </tr>
+      <tr class="g">
+        <td class="role"><span class="role-chip">中性 · 灰<small>取消 / 返回</small></span></td>
+        <td><span class="b normal">取消</span></td>
+        <td><span class="b hover">取消</span></td>
+        <td><span class="b pressed">取消</span></td>
+        <td><span class="b disabled">取消</span></td>
+      </tr>
+      <tr class="bl">
+        <td class="role"><span class="role-chip">信息 · 蓝<small>确认 / 装备</small></span></td>
+        <td><span class="b normal">确认</span></td>
+        <td><span class="b hover">确认</span></td>
+        <td><span class="b pressed">确认</span></td>
+        <td><span class="b disabled">确认</span></td>
+      </tr>
+    </table>
+  </div>
+  <div class="note">Godot 接入：Button 四套 StyleBox → normal / hover / pressed / disabled；字体 站酷快乐体</div>
+</body>
+</html>

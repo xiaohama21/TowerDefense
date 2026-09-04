@@ -9,6 +9,7 @@ const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPane
 const SettingsPanelScript := preload("res://scripts/ui_screens/panels/SettingsPanel.gd")
 const TechPanelScript := preload("res://scripts/ui_screens/panels/TechPanel.gd")
 const InventoryPanelScript := preload("res://scripts/ui_screens/panels/InventoryPanel.gd")
+const EncyclopediaPanelScript := preload("res://scripts/ui_screens/panels/EncyclopediaPanel.gd")
 
 var _buttons: Dictionary = {}
 var _panels: Dictionary = {}
@@ -75,6 +76,7 @@ func _build_ui() -> void:
 	_add_function_button(sidebar_box, &"tech", "科技树")
 	_add_function_button(sidebar_box, &"inventory", "背包")
 	_add_function_button(sidebar_box, &"settings", "设置")
+	_add_function_button(sidebar_box, &"encyclopedia", "百科")
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -111,6 +113,7 @@ func _build_ui() -> void:
 	_panels[&"tech"] = _make_panel("TechPanel", TechPanelScript)
 	_panels[&"inventory"] = _make_panel("InventoryPanel", InventoryPanelScript)
 	_panels[&"settings"] = _make_panel("SettingsPanel", SettingsPanelScript)
+	_panels[&"encyclopedia"] = _make_panel("EncyclopediaPanel", EncyclopediaPanelScript)
 
 
 func _make_panel(panel_name: String, script: GDScript) -> Control:
