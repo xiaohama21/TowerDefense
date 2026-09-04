@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face { font-family:"ZCOOL-Kuaile"; src:url("fonts/ZCOOL-Kuaile.ttf") format("truetype"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:720px; overflow:hidden; }
+  body { font-family:"ZCOOL-Kuaile",sans-serif;
+    background:linear-gradient(180deg,#46afe6 0%,#3399da 48%,#277fb9 100%); }
+  .bg { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse 700px 360px at 50% -6%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%); }
+  .hub { position:relative; width:1232px; height:648px; margin:36px auto 0; display:flex;
+    background:#f2faff; border:3px solid #1c9fd7; border-bottom:7px solid #167da8;
+    border-radius:18px; box-shadow:0 14px 40px rgba(6,28,50,.45), inset 0 1px 0 rgba(255,255,255,.6); overflow:hidden; }
+  /* ===== 左侧导航 ===== */
+  .side { width:204px; background:linear-gradient(180deg,#e9f6fd,#dcedf8); border-right:3px solid #bfe2f4;
+    display:flex; flex-direction:column; padding:18px 12px 14px; }
+  .logo { text-align:center; padding-bottom:12px; border-bottom:2px dashed #9fd0ea; margin-bottom:12px; }
+  .logo .cn { font-size:25px; color:#14538a; letter-spacing:2px; }
+  .logo .en { font-size:10px; color:#7d9cb4; letter-spacing:1px; margin-top:2px; font-family:Arial; }
+  .nav { display:flex; flex-direction:column; gap:9px; flex:1; }
+  .navbtn { height:50px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:21px; letter-spacing:3px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+  .navbtn.idle { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .navbtn.active { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_gloss.png"); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.2); }
+  .navbtn.back { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); color:#fff; font-size:18px; margin-top:auto; }
+  .side-note { margin-top:10px; font-size:12px; color:#7d9cb4; text-align:center; letter-spacing:1px; }
+  /* ===== 右侧内容 ===== */
+  .main { flex:1; display:flex; flex-direction:column; padding:14px 20px 12px; min-width:0; }
+  .topbar { display:flex; align-items:center; gap:10px; }
+  .topbar h2 { font-size:27px; color:#1b4d78; letter-spacing:3px; font-weight:normal; white-space:nowrap; }
+  /* 章节下拉（顶部） */
+  .dropdown { position:relative; margin-left:10px; }
+  .dropdown .box { display:flex; align-items:center; gap:8px; background:#ffffff; border:2px solid #9fd0ea;
+    border-bottom:4px solid #9fd0ea; border-radius:10px; padding:7px 12px 5px; min-width:250px; cursor:pointer; }
+  .dropdown .box .txt { font-size:18px; color:#14538a; letter-spacing:2px; white-space:nowrap; }
+  .dropdown .box img { width:17px; height:11px; }
+  .dropdown .list { position:absolute; top:46px; left:0; width:250px; background:#fff; border:2px solid #9fd0ea;
+    border-radius:10px; overflow:hidden; box-shadow:0 8px 22px rgba(20,83,138,.22); z-index:5; }
+  .dropdown .item { padding:9px 12px; font-size:16px; letter-spacing:1px; display:flex; justify-content:space-between; align-items:center; }
+  .dropdown .item.now { color:#14538a; background:#e6f4fd; }
+  .dropdown .item.later { color:#a4b8c8; }
+  .dropdown .item + .item { border-top:1px solid #e8f2f9; }
+  .dropdown .item .chk { color:#16bb77; font-size:15px; }
+  .spacer { flex:1; }
+  .prog { font-size:14px; color:#33566f; background:#e1f1fb; border-radius:8px; padding:4px 11px; letter-spacing:1px; white-space:nowrap; }
+  .prog b { color:#14538a; }
+  .diff-label { font-size:15px; color:#7d9cb4; white-space:nowrap; margin-left:6px; }
+  .seg { display:flex; }
+  .segbtn { width:92px; height:42px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:17px; letter-spacing:3px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+  .segbtn.on  { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); color:#fff; }
+  .segbtn.off { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  /* ===== 关卡网格（两行紧凑） ===== */
+  .grid { flex:1; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:1fr 1fr;
+    gap:12px; margin:12px 0 10px; min-height:0; }
+  .card { background:#ffffff; border:3px solid #d7e9f5; border-radius:14px; padding:9px 12px 8px;
+    display:flex; flex-direction:column; box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); overflow:hidden; }
+  .card .head { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+  .card .stars img { width:16px; height:15px; margin-left:1px; }
+  .card .name { font-size:19px; color:#1b4d78; letter-spacing:1px; margin-top:6px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card .desc { font-size:13px; color:#6b93ad; margin-top:3px; line-height:1.42;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .kv { display:flex; align-items:baseline; gap:7px; margin-top:5px; font-size:13px; line-height:1.35; color:#5f8aa6; white-space:nowrap; }
+  .kv .k { color:#33566f; letter-spacing:1px; flex:none; }
+  .kv .v { overflow:hidden; text-overflow:ellipsis; }
+  .card .reward-line { margin-top:auto; padding-top:7px; border-top:1px dashed #d7e9f5; display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:13px; color:#7d9cb4; white-space:nowrap; }
+  .card .reward-line .v { color:#33566f; overflow:hidden; text-overflow:ellipsis; }
+  .card.done { border-color:#9ad8b4; }
+  .card.ready { border-color:#ffcc00; box-shadow:0 0 0 3px rgba(255,204,0,.35), 0 6px 14px rgba(20,83,138,.15); }
+  .card.locked { background:#e6eef5; border-color:#cddbe6; }
+  .card.locked .name, .card.locked .desc, .card.locked .kv, .card.locked .reward-line { color:#9fb3c4; }
+  .card.locked .kv .k, .card.locked .reward-line .v { color:#9fb3c4; }
+  .tag { font-size:12px; letter-spacing:1px; padding:2px 9px; border-radius:8px; white-space:nowrap; }
+  .tag.ok { color:#11804a; background:#d8f2e3; }
+  .tag.open { color:#8a6d00; background:#fff3c4; }
+  .tag.lock { color:#7d8fa0; background:#d9e4ec; }
+  /* ===== 底部：选中关卡预告条 ===== */
+  .detail { min-height:152px; background:#fff; border:3px solid #ffcc00; border-radius:14px;
+    box-shadow:0 6px 14px rgba(20,83,138,.14), inset 0 1px 0 #fff; padding:10px 14px 10px 16px;
+    display:flex; align-items:center; gap:14px; }
+  .d-left { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .d-head { display:flex; align-items:center; gap:10px; }
+  .d-head .lbl { font-size:14px; color:#8a6d00; background:#fff3c4; padding:2px 10px; border-radius:8px; letter-spacing:2px; white-space:nowrap; }
+  .d-head .nm { font-size:24px; color:#1b4d78; letter-spacing:2px; white-space:nowrap; }
+  .d-head .chips { display:flex; gap:6px; margin-left:auto; }
+  .chip { font-size:13px; padding:2px 10px; border-radius:8px; white-space:nowrap; }
+  .chip.blue  { color:#14538a; background:#e1f1fb; }
+  .chip.green { color:#11804a; background:#d8f2e3; }
+  .chip.orange{ color:#8a6d00; background:#fff3c4; }
+  .d-desc { font-size:14px; color:#5f8aa6; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .d-stats { display:flex; gap:8px; margin-top:9px; flex-wrap:nowrap; }
+  .d-stat { flex:1; justify-content:center; display:flex; align-items:baseline; gap:5px; font-size:13px; color:#7d9cb4; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:9px; padding:4px 9px; white-space:nowrap; }
+  .d-stat .k { color:#33566f; letter-spacing:1px; }
+  .d-stat .v { color:#14538a; }
+  .d-right { flex:none; display:flex; flex-direction:column; align-items:center; gap:9px; }
+  .d-reward { display:flex; align-items:center; gap:8px; font-size:14px; color:#33566f; }
+  .d-reward .lbl { font-size:13px; color:#7d9cb4; }
+  .rchip { display:inline-block; font-size:14px; letter-spacing:1px; color:#fff; background:#2eaadc;
+    border-bottom:3px solid #1c8fc0; border-radius:9px; padding:4px 12px; }
+  .rchip.char { background:#16bb77; border-bottom-color:#0f9d61; }
+  .rchip.item { background:#2eaadc; border-bottom-color:#1c8fc0; }
+  .btn { height:52px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:20px; letter-spacing:3px;
+    border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+  .btn.test { width:136px; font-size:15px; border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .btn.go   { width:176px; border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <!-- 左侧导航 -->
+    <div class="side">
+      <div class="logo">
+        <div class="cn">烽火连营</div>
+        <div class="en">TOWER DEFENSE · HUB</div>
+      </div>
+      <div class="nav">
+        <button class="navbtn active">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+
+    </div>
+    <!-- 右侧：地图选择 -->
+    <div class="main">
+      <div class="topbar">
+        <h2>地图选择</h2>
+        <!-- 章节下拉（展开态演示：后续章节灰显锁定） -->
+        <div class="dropdown">
+          <div class="box">
+            <span class="txt">第一章 · 黄巾之乱</span>
+            <img src="kenney_ui_pack/PNG/Extra/Double/icon_arrow_down_dark.png">
+          </div>
+          <div class="list">
+            <div class="item now"><span>第一章 · 黄巾之乱</span><span class="chk">✔</span></div>
+            <div class="item later"><span>第二章 · 群雄逐鹿</span><span>敬请期待</span></div>
+            <div class="item later"><span>第三章 · 官渡之战</span><span>敬请期待</span></div>
+            <div class="item later"><span>第四章 · 赤壁之战</span><span>敬请期待</span></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <span class="prog">已通关 <b>3/8</b></span>
+        <span class="prog">总星 <b>6/24</b></span>
+        <span class="diff-label">难度</span>
+        <div class="seg">
+          <button class="segbtn on">标准</button>
+          <button class="segbtn off" style="margin-left:-2px;">困难</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card done">
+          <div class="head"><span class="tag ok">已通关</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="kenney_ui_pack/PNG/Yellow/Double/star.png"></span></div>
+          <div class="name">s01 桃园起兵 · 涿郡</div>
+          <div class="desc">黄巾军逼近涿郡，完成第一次守城演练。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">步卒 · 轻骑</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">5 波 · 经验 50</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">黄巾布 ×2</span></div>
+        </div>
+        <div class="card done">
+          <div class="head"><span class="tag ok">已通关</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="kenney_ui_pack/PNG/Yellow/Double/star_outline.png"></span></div>
+          <div class="name">s02 长社火攻</div>
+          <div class="desc">黄巾军围城，人海战术考验范围杀伤与漏怪惩罚。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">步卒海 · 轻骑</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">6 波 · 经验 50</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">解锁 张飞 · 黄巾布 ×2</span></div>
+        </div>
+        <div class="card done">
+          <div class="head"><span class="tag ok">已通关</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Yellow/Double/star.png"><img src="kenney_ui_pack/PNG/Yellow/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Yellow/Double/star_outline.png"></span></div>
+          <div class="name">s03 颖川之战</div>
+          <div class="desc">黄巾弓手登场，远程压制考验防线纵深。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">步卒 · 弓手</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">6 波 · 经验 50</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">解锁 黄忠 · 皇甫嵩</span></div>
+        </div>
+        <div class="card ready">
+          <div class="head"><span class="tag open">可挑战</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s04 东郡驰援</div>
+          <div class="desc">黄巾精英部队来袭，驰援东郡守军。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">伍长 · 轻骑 · 步卒</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">6 波 · 经验 60</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">解锁 貂蝉 · 黄巾布 ×2</span></div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s05 宛城之围</div>
+          <div class="desc">黄巾力士攻城，考验持续输出与集火。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">力士 · 步卒</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">6 波 · 经验 60</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">解锁 周仓 · 黄巾布 ×2</span></div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s06 下曲阳之战</div>
+          <div class="desc">全兵种混编推进，综合考验防线分配。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">全兵种混合</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">7 波 · 经验 60</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">解锁 赵云 · 黄巾布 ×2</span></div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s07 广宗前哨</div>
+          <div class="desc">妖道祭酒以符水治疗黄巾军，先斩祭酒再破人海。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">祭酒光环 · 混编</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">6 波 · 经验 60</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">解锁 诸葛亮 · 黄巾布 ×2</span></div>
+        </div>
+        <div class="card locked">
+          <div class="head"><span class="tag lock">未解锁</span>
+            <span class="stars"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"><img src="kenney_ui_pack/PNG/Grey/Double/star_outline.png"></span></div>
+          <div class="name">s08 广宗决战</div>
+          <div class="desc">人公将军张梁亲镇广宗，召唤护卫负隅顽抗。</div>
+          <div class="kv"><span class="k">敌人</span><span class="v">渠帅张梁 · 护卫</span></div>
+          <div class="kv"><span class="k">波次</span><span class="v">7 波 · 经验 60</span></div>
+          <div class="reward-line"><span>首通</span><span class="v">求贤令 ×3</span></div>
+        </div>
+      </div>
+
+      <!-- 底部：选中关卡预告条 -->
+      <div class="detail">
+        <div class="d-left">
+          <div class="d-head">
+            <span class="lbl">关卡预告</span>
+            <span class="nm">s04 东郡驰援</span>
+            <span class="chips"><span class="chip orange">精英战</span><span class="chip green">难度 · 标准</span></span>
+          </div>
+          <div class="d-desc">黄巾精英部队来袭，驰援东郡守军。伍长带队压阵，注意集火精英、兼顾漏怪。</div>
+          <div class="d-stats">
+            <span class="d-stat"><span class="k">敌人</span><span class="v">伍长·轻骑·步卒</span></span>
+            <span class="d-stat"><span class="k">波次</span><span class="v">6 波</span></span>
+            <span class="d-stat"><span class="k">经验</span><span class="v">60</span></span>
+            <span class="d-stat"><span class="k">推荐</span><span class="v">塔×6 · 升阶×2</span></span>
+          </div>
+        </div>
+        <div class="d-right">
+          <div class="d-reward"><span class="lbl">首通奖励</span><span class="rchip char">武将 · 貂蝉</span><span class="rchip item">黄巾布 ×2</span></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn test">一键通关(测试)</button>
+            <button class="btn go">出征 · 编队</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

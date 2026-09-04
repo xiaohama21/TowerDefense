@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  /* ===== 百科 · 武将图鉴概念稿 ===== */
+  .kindbar { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .kindnote { font-size:13px; color:#7d9cb4; letter-spacing:1px; }
+  .work { display:flex; gap:14px; flex:1; min-height:0; margin-top:12px; }
+  /* 左侧列表 */
+  .list { width:396px; background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:10px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .list .hd { display:flex; align-items:baseline; gap:8px; font-size:15px; color:#33566f; letter-spacing:2px; padding:2px 4px 8px; }
+  .list .hd .cnt { font-size:12px; color:#7d9cb4; letter-spacing:1px; }
+  .list .grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5,1fr); gap:8px; min-height:0; }
+  .lcard { background:#f7fbfe; border:2px solid #d7e9f5; border-radius:10px; padding:6px 9px; display:flex; gap:9px; align-items:center; min-width:0; }
+  .lcard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.35); }
+  .lcard .ava { width:36px; height:36px; font-size:16px; }
+  .lcard .info { min-width:0; }
+  .lcard .nm { font-size:14.5px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lcard .sub { font-size:11px; color:#6b93ad; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lcard .sub b { color:#2eaadc; font-weight:normal; }
+  /* 右侧详情 */
+  .dp { flex:1; min-width:0; background:#fff; border:3px solid #d7e9f5; border-radius:14px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .dhead { display:flex; align-items:center; gap:12px; padding:10px 14px 9px; border-bottom:2px dashed #d7e9f5; }
+  .dhead .ava { width:52px; height:52px; font-size:22px; }
+  .dhead .nm { font-size:21px; color:#1b4d78; letter-spacing:2px; }
+  .dhead .chips { display:flex; gap:6px; margin-top:4px; }
+  .dhead .acqu { margin-left:auto; text-align:right; }
+  .dhead .acqu .t { font-size:11px; color:#7d9cb4; letter-spacing:1px; }
+  .dhead .acqu .v { font-size:13px; color:#14538a; margin-top:2px; }
+  /* 页签 */
+  .tabs { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .tabbar { display:flex; gap:6px; padding:10px 14px 0; }
+  .tab { font-size:15px; letter-spacing:3px; padding:5px 16px 6px; border-radius:10px 10px 0 0; cursor:pointer; white-space:nowrap; }
+  .tab.on { background:#e6f4fd; color:#14538a; border:2px solid #9fd0ea; border-bottom:0; }
+  .tab.off { color:#9fb3c4; }
+  .tabbody { flex:1; border:2px solid #9fd0ea; border-radius:0 12px 12px 12px; background:#fff; padding:10px 14px; min-height:0; overflow:hidden; }
+  .rows { display:flex; flex-direction:column; gap:9px; }
+  .irow { font-size:13.5px; color:#33566f; line-height:1.6; }
+  .irow .k { color:#7d9cb4; letter-spacing:1px; font-size:12px; }
+  .irow .k b { color:#14538a; font-weight:normal; }
+  .statrow { display:flex; gap:8px; }
+  .stat { flex:1; text-align:center; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:9px; padding:5px 4px 4px; }
+  .stat .k { font-size:11px; color:#7d9cb4; letter-spacing:1px; }
+  .stat .v { font-size:16px; color:#14538a; margin-top:1px; }
+  .stat .v b { font-weight:normal; color:#b8860b; }
+  /* 数值模拟器 */
+  .sim { margin-top:12px; background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:9px 16px; display:flex; flex-direction:column; gap:7px;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .simr1, .simr2 { display:flex; align-items:center; gap:14px; }
+  .sim .t { font-size:15px; color:#14538a; letter-spacing:2px; white-space:nowrap; }
+  .sim .grp { display:flex; align-items:center; gap:7px; }
+  .sim .gl { font-size:13px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+  .step { width:30px; height:30px; border:0; border-radius:9px; font-family:"ZCOOL-Kuaile",sans-serif; font-size:17px; color:#14538a; background:#e1f1fb; cursor:pointer; }
+  .step.no { color:#a4b8c8; background:#eef3f7; }
+  .num { min-width:42px; text-align:center; font-size:18px; color:#1b4d78; }
+  .pick { font-size:14px; color:#14538a; letter-spacing:1px; background:#f3f9fd; border:2px solid #9fd0ea; border-radius:9px; padding:5px 12px; white-space:nowrap; }
+  .rk { width:38px; height:30px; border:0; border-radius:9px; font-family:"ZCOOL-Kuaile",sans-serif; font-size:15px; cursor:pointer; }
+  .rk.on { background:#1c9fd7; color:#fff; }
+  .rk.off { background:#e1f1fb; color:#33566f; }
+  .eq { color:#9fd0ea; font-size:20px; }
+  .res { min-width:64px; text-align:center; background:#fff6d8; border:1px solid #f0d98a; border-radius:9px; padding:5px 8px 4px; }
+  .res .k { font-size:10.5px; color:#8a6d00; letter-spacing:1px; }
+  .res .v { font-size:16px; color:#b8860b; margin-top:1px; }
+  .sim .note { margin-left:auto; text-align:right; }
+
+  .ava.brown { background:linear-gradient(180deg,#c8a06a,#9c6f3e); }
+  .ava.pink  { background:linear-gradient(180deg,#ff9ec2,#e0558c); }
+  .ava.teal  { background:linear-gradient(180deg,#63d8c8,#1f9d92); }</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn active">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>游戏百科</h2>
+        <span class="tag ok">全量图鉴</span>
+        <div class="spacer"></div>
+        <span class="prog">武将 <b>9</b> 名 · 全量可见</span>
+        <span class="tag blue">只读信息 · 不写存档</span>
+      </div>
+      <div class="kindbar">
+        <button class="segbtn on" style="width:186px;height:46px;font-size:20px;letter-spacing:4px;">武将图鉴</button>
+        <button class="segbtn off" style="width:186px;height:46px;font-size:20px;letter-spacing:4px;">敌人图鉴</button>
+        <div class="spacer"></div>
+        <span class="kindnote">解锁规则：当前版本全量可见 · 「发现解锁」随阶段 10 接入</span>
+      </div>
+      <div class="work">
+        <div class="list">
+          <div class="hd"><span>武将列表</span><span class="cnt">9 名 · 含未拥有</span></div>
+          <div class="grid">
+            <div class="lcard"><span class="ava gold">刘</span><div class="info"><div class="nm">刘备</div><div class="sub">虎贲 · 辅助</div></div></div>
+            <div class="lcard"><span class="ava red">关</span><div class="info"><div class="nm">关羽</div><div class="sub">骑兵 · 斩将</div></div></div>
+            <div class="lcard sel"><span class="ava">张</span><div class="info"><div class="nm">张飞</div><div class="sub">虎贲 · 士气</div></div></div>
+            <div class="lcard"><span class="ava green">黄</span><div class="info"><div class="nm">黄忠</div><div class="sub">弓箭手 · 稳定</div></div></div>
+            <div class="lcard"><span class="ava purple">皇</span><div class="info"><div class="nm">皇甫嵩</div><div class="sub">投石车 · 压制</div></div></div>
+            <div class="lcard"><span class="ava orange">貂</span><div class="info"><div class="nm">貂蝉</div><div class="sub">舞娘 · 鼓舞</div></div></div>
+            <div class="lcard"><span class="ava brown">周</span><div class="info"><div class="nm">周仓</div><div class="sub">虎贲 · 抗线</div></div></div>
+            <div class="lcard"><span class="ava pink">赵</span><div class="info"><div class="nm">赵云</div><div class="sub">骑兵 · 越战越勇</div></div></div>
+            <div class="lcard"><span class="ava teal">诸</span><div class="info"><div class="nm">诸葛亮</div><div class="sub">术士 · 控场</div></div></div>
+          </div>
+        </div>
+        <div class="dp">
+          <div class="dhead">
+            <span class="ava">张</span>
+            <div>
+              <div class="nm">张飞</div>
+              <div class="chips"><span class="tag blue">虎贲 · 近战 buff</span><span class="tag open">称号 · 蛇矛先锋</span></div>
+            </div>
+            <div class="acqu"><div class="t">获取方式</div><div class="v">通关 s02 · 长社火攻</div></div>
+          </div>
+          <div class="tabs">
+            <div class="tabbar">
+              <div class="tab on">基础</div>
+              <div class="tab off">技能</div>
+              <div class="tab off">转职</div>
+              <div class="tab off">信物</div>
+              <div class="tab off">特性</div>
+            </div>
+            <div class="tabbody">
+              <div class="rows">
+                <div class="irow"><span class="k">职业定位 · </span>近战 buff 类——前线光环与士气增益，半输出半辅助；技能 / 转职 / 信物 / 特性见其余页签。</div>
+                <div class="irow"><span class="k">等级上限 · </span><b>1 ~ 30</b>（随章节推进逐步开放；经验由通关与击杀获得）</div>
+                <div class="statrow">
+                  <div class="stat"><div class="k">伤害（Lv12）</div><div class="v">115</div></div>
+                  <div class="stat"><div class="k">攻速</div><div class="v">0.67s</div></div>
+                  <div class="stat"><div class="k">射程</div><div class="v">120</div></div>
+                  <div class="stat"><div class="k">建造费用</div><div class="v"><b>60</b></div></div>
+                </div>
+                <div class="irow"><span class="k">角色简介 · </span>燕人张飞，长矛连刺稳定输出，专克轻骑。</div>
+                <div class="irow"><span class="k">获取方式 · </span>通关「s02 · 长社火攻」首通解锁（刘备 / 关羽为初始武将）。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+            <div class="sim">
+        <div class="simr1">
+          <div class="t">数值模拟器</div>
+          <div class="grp"><span class="gl">等级</span><button class="step no">−</button><span class="num">12</span><button class="step">＋</button></div>
+          <div class="grp"><span class="gl">转职</span><span class="pick">虎贲军（一转） ▼</span></div>
+          <div class="grp"><span class="gl">局内升阶</span><button class="rk on">0</button><button class="rk off">1</button><button class="rk off">2</button><button class="rk off">3</button></div>
+        </div>
+        <div class="simr2">
+          <span class="eq">=</span>
+          <div class="res"><div class="k">伤害</div><div class="v">115</div></div>
+          <div class="res"><div class="k">攻速</div><div class="v">0.67s</div></div>
+          <div class="res"><div class="k">射程</div><div class="v">120</div></div>
+          <div class="spacer"></div>
+          <div class="note"><span class="tag ok">预览不影响存档</span><div style="font-size:11px;color:#a4b8c8;margin-top:4px;letter-spacing:.5px;text-align:right;">数值与战斗实算一致（含特性与升阶乘区）</div></div>
+        </div>
+      </div>
+</div>
+    </div>
+  </div>
+</body>
+</html>

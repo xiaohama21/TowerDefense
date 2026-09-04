@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  .filters { display:flex; gap:8px; margin-top:12px; align-items:center; }
+  .fchip { font-size:15px; letter-spacing:2px; padding:6px 20px; border-radius:10px; border:2px solid #d7e9f5; background:#fff; color:#33566f; cursor:pointer; white-space:nowrap; }
+  .fchip.on { background:#e6f4fd; border-color:#2eaadc; color:#14538a; }
+  .fchip.off { background:#fff; color:#7d9cb4; }
+  .grid-scroll { flex:1; min-height:0; margin-top:12px; }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,116px); gap:10px; padding-bottom:40px; }
+  .icard { background:#fff; border:2px solid #d7e9f5; border-radius:13px; padding:8px 10px; display:flex; gap:10px; align-items:center;
+    box-shadow:inset 0 1px 0 #fff, 0 2px 5px rgba(30,90,130,.07); min-width:0; }
+  .icard.sel { border-color:#ffcc00; box-shadow:0 0 0 2px rgba(255,204,0,.45); }
+  .tile { width:52px; height:52px; border-radius:12px; flex:none; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:24px; text-shadow:0 1px 0 rgba(0,0,0,.15); border:2px solid rgba(255,255,255,.65); }
+  .tile.material { background:linear-gradient(180deg,#8ed4f2,#3aa4d8); }
+  .tile.tool     { background:linear-gradient(180deg,#ffc46b,#f0942f); }
+  .tile.relic    { background:linear-gradient(180deg,#c0a1ef,#8a66cf); }
+  .tile.heirloom { background:linear-gradient(180deg,#ffd75e,#f0a92f); }
+  .tile.locked   { background:linear-gradient(180deg,#ccd9e2,#9db4c4); }
+  .iinfo { flex:1; min-width:0; }
+  .iinfo .row1 { display:flex; align-items:baseline; gap:6px; }
+  .iinfo .nm { font-size:16px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .iinfo .ty { font-size:11px; padding:1px 7px; border-radius:7px; white-space:nowrap; flex:none; }
+  .ty.material { color:#14538a; background:#e1f1fb; }
+  .ty.tool     { color:#8a5a00; background:#fff0d2; }
+  .ty.relic    { color:#5a3d9e; background:#efe7fb; }
+  .ty.heirloom { color:#8a6d00; background:#fff3c4; }
+  .iinfo .sub { font-size:12.5px; color:#6b93ad; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .iinfo .cnt { font-size:14px; color:#b8860b; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .iinfo .cnt em { font-style:normal; color:#9fb3c4; }
+  .icard.locked { background:#eef3f7; }
+  .icard.locked .nm { color:#9fb3c4; }
+  .icard.locked .sub { color:#a8bccb; }
+  .slot { border:2px dashed #d0e0ea; border-radius:13px; background:#f6fafd; display:flex; align-items:center; justify-content:center;
+    color:#a8bccb; font-size:13px; letter-spacing:1px; text-align:center; line-height:1.8; }
+  .detail { min-height:132px; margin-top:12px; background:#fff; border:3px solid #ffcc00; border-radius:14px;
+    box-shadow:0 6px 14px rgba(20,83,138,.14); padding:10px 16px; display:flex; align-items:center; gap:14px; }
+  .detail .tile { width:60px; height:60px; font-size:26px; }
+  .d-info { flex:1; min-width:0; }
+  .d-info .nm { font-size:20px; color:#1b4d78; letter-spacing:1px; display:flex; align-items:center; gap:8px; }
+  .d-info .desc { font-size:13.5px; color:#5f8aa6; margin-top:5px; line-height:1.5; }
+  .d-info .note { font-size:12px; color:#b8860b; margin-top:5px; letter-spacing:.5px; }
+  .d-count { flex:none; text-align:center; padding:0 8px; }
+  .d-count .n { font-size:24px; color:#b8860b; }
+  .d-count .t { font-size:12px; color:#7d9cb4; letter-spacing:2px; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn active">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>背包</h2>
+        <span class="prog gold">黄巾布 <b>×128</b></span>
+        <span class="prog">练兵令 <b>×6</b></span>
+        <span class="prog">求贤令 <b>×3</b></span>
+        <div class="spacer"></div>
+        <span class="prog">容量 <b>11/60</b></span>
+      </div>
+      <div class="filters">
+        <span class="fchip on">全部</span>
+        <span class="fchip off">材料</span>
+        <span class="fchip off">道具</span>
+        <span class="fchip off">遗物</span>
+        <span class="fchip off">信物</span>
+        <div class="spacer"></div>
+        <span style="font-size:13px; color:#7d9cb4; letter-spacing:1px;">点击卡片查看说明 · 遗物与信物为永久持有，不消耗</span>
+      </div>
+      <div class="grid-scroll scroll">
+      <div class="grid">
+        <div class="icard"><span class="tile material">布</span><div class="iinfo"><div class="row1"><span class="nm">黄巾布</span><span class="ty material">材料</span></div><div class="sub">早期养成材料</div><div class="cnt">×128</div></div></div>
+        <div class="icard"><span class="tile tool">练</span><div class="iinfo"><div class="row1"><span class="nm">练兵令</span><span class="ty tool">道具</span></div><div class="sub">使用后武将直升 1 级</div><div class="cnt">×6</div></div></div>
+        <div class="icard"><span class="tile tool">求</span><div class="iinfo"><div class="row1"><span class="nm">求贤令</span><span class="ty tool">道具</span></div><div class="sub">求贤抽取令牌</div><div class="cnt">×3</div></div></div>
+        <div class="icard sel"><span class="tile relic">鼓</span><div class="iinfo"><div class="row1"><span class="nm">战鼓</span><span class="ty relic">遗物</span></div><div class="sub">攻速 ×0.95 · 队伍级</div><div class="cnt">×2</div></div></div>
+        <div class="icard"><span class="tile relic">狼</span><div class="iinfo"><div class="row1"><span class="nm">狼牙符</span><span class="ty relic">遗物</span></div><div class="sub">全伤害 +5% · 队伍级</div><div class="cnt">×1</div></div></div>
+        <div class="icard"><span class="tile relic">鹰</span><div class="iinfo"><div class="row1"><span class="nm">鹰眼符</span><span class="ty relic">遗物</span></div><div class="sub">射程 +10% · 队伍级</div><div class="cnt">×1</div></div></div>
+        <div class="icard"><span class="tile relic">粮</span><div class="iinfo"><div class="row1"><span class="nm">军粮袋</span><span class="ty relic">遗物</span></div><div class="sub">初始金币 +50 · 队伍级</div><div class="cnt">×1</div></div></div>
+        <div class="icard"><span class="tile relic">盾</span><div class="iinfo"><div class="row1"><span class="nm">铁盾徽记</span><span class="ty relic">遗物</span></div><div class="sub">基地生命 +10 · 队伍级</div><div class="cnt">×1</div></div></div>
+        <div class="icard locked"><span class="tile heirloom locked">青</span><div class="iinfo"><div class="row1"><span class="nm">青龙偃月断刃</span><span class="ty heirloom">信物</span></div><div class="sub">关羽专属 · 伤害 +12%</div><div class="cnt"><em>未获得 · s08 首通掉落</em></div></div></div>
+        <div class="icard locked"><span class="tile heirloom locked">蛇</span><div class="iinfo"><div class="row1"><span class="nm">蛇矛精锻</span><span class="ty heirloom">信物</span></div><div class="sub">张飞专属 · 攻速 ×0.92</div><div class="cnt"><em>未获得 · s08 首通掉落</em></div></div></div>
+        <div class="icard locked"><span class="tile heirloom locked">火</span><div class="iinfo"><div class="row1"><span class="nm">火攻图卷</span><span class="ty heirloom">信物</span></div><div class="sub">皇甫嵩专属 · 射程 +15%</div><div class="cnt"><em>未获得 · s08 首通掉落</em></div></div></div>
+        <div class="slot">后续类目 / 掉落<br>新增自动入格</div>
+      </div>
+      </div>
+      <div class="detail">
+        <span class="tile relic">鼓</span>
+        <div class="d-info">
+          <div class="nm">战鼓 <span class="ty relic">队伍遗物</span><span class="tag ok">永久使用</span></div>
+          <div class="desc">擂动进军的牛皮战鼓，士气高昂。效果：全军攻速 ×0.95。战前选带生效，编队时拖入遗物槽即可（最多 2 件，不消耗库存）。</div>
+          <div class="note">遗物 = 队伍级 · 永久持有；信物 = 武将专属，在「武将养成 → 信物」页签装备。</div>
+        </div>
+        <div class="d-count"><div class="n">×2</div><div class="t">持有</div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  /* ===== 百科 · 敌人图鉴概念稿 ===== */
+  .ava.brown { background:linear-gradient(180deg,#c8a06a,#9c6f3e); }
+  .ava.pink  { background:linear-gradient(180deg,#ff9ec2,#e0558c); }
+  .ava.teal  { background:linear-gradient(180deg,#63d8c8,#1f9d92); }
+  .kindbar { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .kindnote { font-size:13px; color:#7d9cb4; letter-spacing:1px; }
+  .work { display:flex; gap:14px; flex:1; min-height:0; margin-top:12px; }
+  /* 左侧敌人列表 */
+  .list { width:396px; background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:10px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .list .hd { display:flex; align-items:baseline; gap:8px; font-size:15px; color:#33566f; letter-spacing:2px; padding:2px 4px 8px; }
+  .list .hd .cnt { font-size:12px; color:#7d9cb4; letter-spacing:1px; }
+  .list .grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(4,1fr); gap:8px; min-height:0; }
+  .lcard { background:#f7fbfe; border:2px solid #d7e9f5; border-radius:10px; padding:6px 9px; display:flex; gap:9px; align-items:center; min-width:0; }
+  .lcard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.35); }
+  .eava { width:36px; height:36px; border-radius:10px; border:2px solid #fff; box-shadow:0 2px 5px rgba(20,83,138,.2); flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:15px; color:#fff; }
+  .eava.soldier { background:linear-gradient(135deg,#e7c34f,#c08a16); }
+  .eava.cavalry  { background:linear-gradient(135deg,#e08d4f,#b45a17); }
+  .eava.sergeant { background:linear-gradient(135deg,#d75f4f,#a62e20); }
+  .eava.archer   { background:linear-gradient(135deg,#7fbf6a,#3f8f34); }
+  .eava.berserker{ background:linear-gradient(135deg,#8f7fbf,#5c46a6); }
+  .eava.sorcerer { background:linear-gradient(135deg,#5fb8d9,#2b80a8); }
+  .eava.boss     { background:linear-gradient(135deg,#7a6a9e,#44366b); }
+  .lcard .info { min-width:0; }
+  .lcard .nm { font-size:14.5px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lcard .sub { font-size:11px; color:#6b93ad; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* 右侧详情 */
+  .dp { flex:1; min-width:0; background:#fff; border:3px solid #d7e9f5; border-radius:14px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .dhead { display:flex; align-items:center; gap:12px; padding:10px 14px 9px; border-bottom:2px dashed #d7e9f5; }
+  .dhead .eava { width:52px; height:52px; font-size:20px; }
+  .dhead .nm { font-size:21px; color:#1b4d78; letter-spacing:2px; }
+  .dhead .chips { display:flex; gap:6px; margin-top:4px; }
+  .dhead .appear { margin-left:auto; text-align:right; }
+  .dhead .appear .t { font-size:11px; color:#7d9cb4; letter-spacing:1px; }
+  .dhead .appear .v { font-size:13px; color:#14538a; margin-top:2px; }
+  .body2 { flex:1; padding:10px 14px; display:flex; flex-direction:column; gap:9px; min-height:0; }
+  .statrow { display:flex; gap:8px; }
+  .stat { flex:1; text-align:center; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:9px; padding:5px 4px 4px; }
+  .stat .k { font-size:11px; color:#7d9cb4; letter-spacing:1px; }
+  .stat .v { font-size:16px; color:#14538a; margin-top:1px; }
+  .stat .v b { font-weight:normal; color:#b8860b; }
+  .bcard { background:#f7fbfe; border:1px solid #d7e9f5; border-radius:10px; padding:7px 10px; display:flex; align-items:center; gap:12px; }
+  .bcard .t { font-size:13px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+  .bcard .d { font-size:13.5px; color:#33566f; line-height:1.55; }
+  .bcard .d b { color:#14538a; font-weight:normal; }
+  .diffrow { display:flex; gap:10px; }
+  .diff { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#fff; padding:8px 12px; }
+  .diff.easy .hdv { color:#11804a; }
+  .diff.hard .hdv { color:#d71935; }
+  .diff .hdt { font-size:12px; color:#7d9cb4; letter-spacing:1px; display:flex; justify-content:space-between; align-items:baseline; }
+  .diff .hdv { font-size:19px; margin-top:2px; }
+  .diff .hds { font-size:11px; color:#a4b8c8; margin-top:3px; line-height:1.5; }
+  .foot { font-size:11.5px; color:#7d9cb4; line-height:1.5; }
+  .foot b { color:#14538a; font-weight:normal; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn active">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>游戏百科</h2>
+        <span class="tag ok">全量图鉴</span>
+        <div class="spacer"></div>
+        <span class="prog">敌人 <b>7</b> 种 · 第一章 · 黄巾军</span>
+        <span class="tag blue">只读信息 · 不写存档</span>
+      </div>
+      <div class="kindbar">
+        <button class="segbtn off" style="width:186px;height:46px;font-size:20px;letter-spacing:4px;">武将图鉴</button>
+        <button class="segbtn on" style="width:186px;height:46px;font-size:20px;letter-spacing:4px;">敌人图鉴</button>
+        <div class="spacer"></div>
+        <span class="kindnote">解锁规则：当前版本全量可见 · 「难度面板 / 关卡信息解锁」随阶段 10 接入</span>
+      </div>
+      <div class="work">
+        <div class="list">
+          <div class="hd"><span>敌人列表</span><span class="cnt">7 种 · 第一章全部敌人</span></div>
+          <div class="grid">
+            <div class="lcard"><span class="eava soldier">步</span><div class="info"><div class="nm">黄巾步卒</div><div class="sub">炮灰 · 近战</div></div></div>
+            <div class="lcard"><span class="eava cavalry">骑</span><div class="info"><div class="nm">黄巾轻骑</div><div class="sub">快速 · 机动</div></div></div>
+            <div class="lcard"><span class="eava sergeant">伍</span><div class="info"><div class="nm">黄巾伍长</div><div class="sub">精英 · 头目</div></div></div>
+            <div class="lcard"><span class="eava archer">弓</span><div class="info"><div class="nm">黄巾弓手</div><div class="sub">远程 · 高漏伤</div></div></div>
+            <div class="lcard"><span class="eava berserker">力</span><div class="info"><div class="nm">黄巾力士</div><div class="sub">坦克 · 高血量</div></div></div>
+            <div class="lcard"><span class="eava sorcerer">祭</span><div class="info"><div class="nm">黄巾祭酒</div><div class="sub">支援 · 治疗光环</div></div></div>
+            <div class="lcard sel"><span class="eava boss">渠</span><div class="info"><div class="nm">黄巾渠帅 · 张梁</div><div class="sub">Boss · 召唤</div></div></div>
+          </div>
+        </div>
+        <div class="dp">
+          <div class="dhead">
+            <span class="eava boss" style="width:52px;height:52px;font-size:20px;">渠</span>
+            <div>
+              <div class="nm">黄巾渠帅 · 张梁</div>
+              <div class="chips"><span class="tag fire">Boss</span><span class="tag blue">黄巾军 · 广宗决战</span></div>
+            </div>
+            <div class="appear"><div class="t">出现关卡</div><div class="v">s08 · 广宗决战（Boss 战）</div></div>
+          </div>
+          <div class="body2">
+            <div class="statrow">
+              <div class="stat"><div class="k">生命（基准）</div><div class="v">3000</div></div>
+              <div class="stat"><div class="k">速度</div><div class="v">30</div></div>
+              <div class="stat"><div class="k">护甲</div><div class="v">5</div></div>
+              <div class="stat"><div class="k">漏怪伤害</div><div class="v"><b>10</b></div></div>
+              <div class="stat"><div class="k">击杀奖励</div><div class="v">金 100 · 150 经</div></div>
+            </div>
+            <div class="bcard">
+              <span class="t">特殊行为</span>
+              <div class="d"><b>召唤护卫：</b>每隔 8 秒召唤 2 名黄巾步卒，自战场岔路来袭（召唤物不计入图鉴进度）</div>
+            </div>
+            <div class="diffrow">
+              <div class="diff easy">
+                <div class="hdt"><span>标准难度</span><span>生命 ×1.0</span></div>
+                <div class="hdv">3000</div>
+                <div class="hds">速度 30 · 护甲 5 · 漏怪伤害 10（同基准，不变）</div>
+              </div>
+              <div class="diff hard">
+                <div class="hdt"><span>困难难度</span><span>生命 ×1.4</span></div>
+                <div class="hdv">4200</div>
+                <div class="hds">速度 30 · 护甲 5 · 漏怪伤害 10（同基准，不变）</div>
+              </div>
+            </div>
+            <div class="foot">难度口径：<b>仅生命随难度倍率缩放</b>（当前 2 档 = 标准 / 困难，随难度档位自动扩展）；速度 / 护甲 / 漏怪伤害不随难度变化。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

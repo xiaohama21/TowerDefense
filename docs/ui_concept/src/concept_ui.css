@@ -1,0 +1,76 @@
+/* ===== 烽火连营 · Kenney 亮蓝 UI 概念图共享样式 ===== */
+@font-face { font-family:"ZCOOL-Kuaile"; src:url("fonts/ZCOOL-Kuaile.ttf") format("truetype"); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1280px; height:720px; overflow:hidden; }
+body { font-family:"ZCOOL-Kuaile",sans-serif;
+  background:linear-gradient(180deg,#46afe6 0%,#3399da 48%,#277fb9 100%); }
+.bg { position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 700px 360px at 50% -6%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%); }
+.hub { position:relative; width:1232px; height:648px; margin:36px auto 0; display:flex;
+  background:#f2faff; border:3px solid #1c9fd7; border-bottom:7px solid #167da8;
+  border-radius:18px; box-shadow:0 14px 40px rgba(6,28,50,.45), inset 0 1px 0 rgba(255,255,255,.6); overflow:hidden; }
+/* 侧栏 */
+.side { width:204px; background:linear-gradient(180deg,#e9f6fd,#dcedf8); border-right:3px solid #bfe2f4;
+  display:flex; flex-direction:column; padding:18px 12px 14px; }
+.logo { text-align:center; padding-bottom:12px; border-bottom:2px dashed #9fd0ea; margin-bottom:12px; }
+.logo .cn { font-size:25px; color:#14538a; letter-spacing:2px; }
+.logo .en { font-size:10px; color:#7d9cb4; letter-spacing:1px; margin-top:2px; font-family:Arial; }
+.nav { display:flex; flex-direction:column; gap:9px; flex:1; }
+.navbtn { height:50px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:21px; letter-spacing:3px;
+  border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+.navbtn.idle { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+.navbtn.active { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_gloss.png"); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.2); }
+.navbtn.back { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); color:#fff; font-size:18px; margin-top:auto; }
+.side-note { margin-top:10px; font-size:12px; color:#7d9cb4; text-align:center; letter-spacing:1px; }
+/* 内容区 */
+.main { flex:1; display:flex; flex-direction:column; padding:14px 20px 12px; min-width:0; }
+.topbar { display:flex; align-items:center; gap:10px; }
+.topbar h2 { font-size:27px; color:#1b4d78; letter-spacing:3px; font-weight:normal; white-space:nowrap; }
+.spacer { flex:1; }
+.prog { font-size:14px; color:#33566f; background:#e1f1fb; border-radius:8px; padding:4px 11px; letter-spacing:1px; white-space:nowrap; }
+.prog b { color:#14538a; }
+.prog.gold { background:#fff3c4; color:#8a6d00; }
+.prog.gold b { color:#b8860b; }
+/* 标签/徽章 */
+.tag { font-size:12px; letter-spacing:1px; padding:2px 9px; border-radius:8px; white-space:nowrap; }
+.tag.ok { color:#11804a; background:#d8f2e3; }
+.tag.open { color:#8a6d00; background:#fff3c4; }
+.tag.lock { color:#7d8fa0; background:#d9e4ec; }
+.tag.blue { color:#14538a; background:#e1f1fb; }
+/* 分段按钮 */
+.seg { display:flex; }
+.segbtn { height:40px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:16px; letter-spacing:2px;
+  border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+.segbtn.on  { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); color:#fff; }
+.segbtn.off { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+.tag.fire { color:#c0392b; background:#ffe6e1; }
+/* 通用按钮 */
+.btn { height:52px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:20px; letter-spacing:3px;
+  border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round; }
+.btn.go    { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+.btn.grey  { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+.btn.blue  { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); color:#fff; }
+.btn.red   { border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); color:#fff; }
+.btn.small { height:42px; font-size:16px; letter-spacing:2px; }
+/* 白底面板 */
+.panel { background:#fff; border:3px solid #d7e9f5; border-radius:14px;
+  box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+.panel .ptitle { font-size:14px; color:#14538a; letter-spacing:2px; padding:10px 14px 8px;
+  border-bottom:2px dashed #d7e9f5; display:flex; align-items:center; gap:8px; }
+/* 灰色头像占位 */
+.ava { display:inline-flex; align-items:center; justify-content:center; border-radius:50%;
+  background:linear-gradient(180deg,#7ec8ea,#2eaadc); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.15);
+  border:2px solid #fff; box-shadow:0 2px 6px rgba(20,83,138,.25); flex:none; }
+.ava.grey { background:linear-gradient(180deg,#c3d3de,#9db4c4); }
+.ava.gold  { background:linear-gradient(180deg,#ffd75e,#f0a92f); }
+.ava.green { background:linear-gradient(180deg,#5fd6a2,#26a86f); }
+.ava.purple{ background:linear-gradient(180deg,#b393e8,#7e5fc4); }
+.ava.orange{ background:linear-gradient(180deg,#ffb066,#f0802f); }
+.ava.red   { background:linear-gradient(180deg,#ff8d7a,#e85b43); }
+
+/* ===== 可滚动区域（防撑爆兜底） ===== */
+.scroll { overflow-y:auto; scrollbar-width:thin; scrollbar-color:#7ec8ea #e8f2f9; }
+.scroll::-webkit-scrollbar { width:12px; }
+.scroll::-webkit-scrollbar-track { background:#e8f2f9; border-radius:8px; }
+.scroll::-webkit-scrollbar-thumb { background:#7ec8ea; border:2px solid #e8f2f9; border-radius:8px; min-height:36px; }
+.scroll::-webkit-scrollbar-thumb:hover { background:#2eaadc; }
