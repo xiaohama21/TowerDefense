@@ -66,6 +66,9 @@ const ATTACK_SPEED_FLOOR: float = 0.55
 ## 常驻光环伤害桶上限（STATS_PIPELINE 增益档次 1，v0.31.6 拍板 +50% 初稿）：
 ## 刘备仁德 + 虎贲军旗同类加法求和后 clamp 至此，finalize_damage 只乘一次。
 const AURA_DAMAGE_CAP: float = 0.5
+## 编队加成伤害桶上限（STATS_PIPELINE 增益档次 2，v0.31.6 拍板，提交 10 收敛）：
+## 科技全局 + 科技职业分支 + 羁绊为 L2 同层来源，层内加法求和后 clamp 至此（合计 ≤+30%）。
+const FORMATION_DAMAGE_CAP: float = 0.3
 ## 常驻光环低频兜底扫描周期（提交 7）：塔静止、光环成员仅随建/拆塔变化，0.25s 足够。
 const AURA_SCAN_INTERVAL: float = 0.25
 # 增益（鼓舞/军需/连击）：按来源加法叠加、设总上限，到期逐来源回落（3.2/3.4）。
@@ -88,14 +91,17 @@ var _min_range: float = 0.0
 var _trait_id: StringName = StringName()
 var _trait_params: Dictionary = {}
 var _relic_damage_bonus: float = 0.0
-## 科技树军事分支加成（GDD 10.7，v0.14.1）：全武将伤害 +%，经 finalize_damage 应用。
+## 科技树军事分支加成（GDD 10.7，v0.14.1）：全武将伤害 +%，入编队加成伤害桶
+## （档次 2，提交 10）与职业分支/羁绊层内加法，不再独立乘算。
 var _tech_damage_bonus: float = 0.0
 ## 科技树职业分支加成（阶段 8 提交 3）：按职业伤害/攻速/buff 效果；积怒为全职业。
+## 伤害部分入编队加成伤害桶（档次 2，提交 10）。
 var _tech_profession_damage_bonus: float = 0.0
 var _tech_attack_speed_pct: float = 0.0
 var _tech_buff_power_pct: float = 0.0
 var _tech_rage_gain_pct: float = 0.0
-## 编队羁绊同队攻击加成（GDD modules/CHARACTERS.md 4.8，v0.17.0）：finalize_damage 乘法区。
+## 编队羁绊同队攻击加成（GDD modules/CHARACTERS.md 4.8，v0.17.0）：入编队加成伤害桶
+## （档次 2，提交 10）与科技伤害层内加法。
 var _bond_damage_bonus: float = 0.0
 ## 局内遗物伤害加成（CHARACTERS.md 4.8，v0.19.0）：finalize_damage 乘法区。
 var _battle_relic_damage_bonus: float = 0.0
@@ -797,11 +803,18 @@ func get_consecutive_hits() -> int:
 
 
 ## 伤害结算管线：基础值 × 增益 × 常驻光环桶 × 职业克制 × 特性（提交 7：刘备仁德与
-## 虎贲军旗收敛进 _aura_damage_bonus 加法桶，只乘一次 (1+clamp(Σ,0,+50%))）。
+## 虎贲军旗收敛进 _aura_damage_bonus 加法桶，只乘一次 (1+clamp(Σ,0,+50%))。
+## 提交 10（档次 2）：科技全局/科技职业分支/羁绊由首行三连乘收敛为编队加成伤害桶
+## 层内加法，只乘一次 (1+clamp(Σ,0,+30%))；信物（L1）与局内遗物（L3）仍跨层乘算。
 func finalize_damage(base: int, target: Enemy) -> int:
 	# 常驻光环桶惰性刷新（提交 7）：拆塔/建塔后结算前自愈，避免缓存过期。
 	_ensure_aura_fresh()
-	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + _tech_damage_bonus) * (1.0 + _tech_profession_damage_bonus) * (1.0 + _bond_damage_bonus) * (1.0 + _battle_relic_damage_bonus)
+	var formation_bonus := clampf(
+		_tech_damage_bonus + _tech_profession_damage_bonus + _bond_damage_bonus,
+		0.0,
+		FORMATION_DAMAGE_CAP
+	)
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + formation_bonus) * (1.0 + _battle_relic_damage_bonus)
 	value *= 1.0 + _aura_damage_bonus
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	value *= BehaviorRegistry.get_trait_damage_multiplier(self, target)

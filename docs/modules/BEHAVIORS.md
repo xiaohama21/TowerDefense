@@ -68,7 +68,7 @@
 | ID | 职业 | 效果概要（完整规格见 CHARACTERS.md 4.6，数值见 NUMBERS.md 10.5） | 状态 |
 |---|---|---|---|
 | `ultimate_cavalry_breaker` | 骑兵 | 3×普攻单体伤害；击杀返还 50% 怒气（受 charge 技能强化） | ✅ |
-| `ultimate_tiger_guard_sweep` | 虎贲 | 范围内敌人 1.5×普攻伤害 + 击退 40px + 附近 200px 友方攻速 +15%/5s（v0.27.2 破阵重构，数值待实测） | ✅ 已实现（v0.29.0） |
+| `ultimate_tiger_guard_sweep` | 虎贲 | 范围内敌人 1.5×普攻伤害 + 击退 40px + 附近 200px 友方攻速 +15%/5s（v0.27.2 破阵重构，数值经提交 10 基准 1/2 覆盖，✅ v0.35.0 / 0.8.10.0） | ✅ 已实现（v0.29.0） |
 | `ultimate_archer_volley` | 弓箭手 | 4 箭连射（0.8×普攻），优先低血量 | ✅ |
 | `ultimate_strategist_blaze` | 术士 | 目标区域 2×普攻范围伤害 + 减速 40%/2s | ✅ |
 | `ultimate_dancer_encourage` | 舞娘 | 全队攻速 +30%、伤害 +15%，持续 8s | ✅ |
