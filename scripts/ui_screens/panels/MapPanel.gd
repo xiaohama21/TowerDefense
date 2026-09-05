@@ -37,7 +37,12 @@ const CHIP_BLUE := Color("#2eaadc")
 const REWARD_LINE := Color("#d7e9f5")
 
 var _selected_chapter: ChapterData = null
-var _chapter_option: OptionButton
+var _chapter_button: Button
+var _chapter_popup: Control
+var _chapter_rows: Array[Button] = []
+
+## 章节号中文数字（概念图文案「第一章」）。
+const CN_NUMERALS := ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
 var _stage_cards: Dictionary = {}
 var _stage_grid: GridContainer
 var _selected_difficulty: int = Difficulty.NORMAL
@@ -51,6 +56,7 @@ var _detail_name: Label
 var _detail_difficulty_chip: Label
 var _detail_desc: Label
 var _detail_stats: Array[Label] = []
+var _stat_key_labels: Array[Label] = []
 var _detail_rewards: HBoxContainer
 var _deploy_button: Button
 var _clear_button: Button
@@ -79,13 +85,16 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", INK)
 	topbar.add_child(title)
 
-	_chapter_option = OptionButton.new()
-	_chapter_option.custom_minimum_size = Vector2(250, 42)
-	_chapter_option.focus_mode = Control.FOCUS_NONE
-	_chapter_option.add_theme_font_override("font", UITheme.spaced_font(2))
-	_chapter_option.add_theme_font_size_override("font_size", 18)
-	_chapter_option.add_theme_color_override("font_color", LOGO_TEXT)
-	_chapter_option.add_theme_icon_override("arrow", _small_arrow_icon())
+	# 章节下拉（自绘，v0.20.3 对齐概念图 .dropdown：行左名称 + 右侧 ✅/敬请期待）
+	var chapter := GameFlow.get_chapter()
+	_selected_chapter = chapter
+	_chapter_button = Button.new()
+	_chapter_button.custom_minimum_size = Vector2(250, 42)
+	_chapter_button.focus_mode = Control.FOCUS_NONE
+	_chapter_button.text = "第%s章 · %s" % [_chapter_cn_numeral(chapter.chapter_number), chapter.display_name]
+	_chapter_button.add_theme_font_override("font", UITheme.spaced_font(2))
+	_chapter_button.add_theme_font_size_override("font_size", 18)
+	_chapter_button.add_theme_icon_override("arrow", _small_arrow_icon())
 	var box_style := StyleBoxFlat.new()
 	box_style.bg_color = Color.WHITE
 	box_style.border_color = Color("#9fd0ea")
@@ -97,16 +106,13 @@ func _build_ui() -> void:
 	box_style.content_margin_top = 6.0
 	box_style.content_margin_bottom = 4.0
 	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
-		_chapter_option.add_theme_stylebox_override(state, box_style)
-	var chapter := GameFlow.get_chapter()
-	_selected_chapter = chapter
-	_chapter_option.add_item("第 %d 章 · %s" % [chapter.chapter_number, chapter.display_name])
-	for reserved_name in RESERVED_CHAPTERS:
-		var index := _chapter_option.item_count
-		_chapter_option.add_item("敬请期待 · %s" % reserved_name)
-		_chapter_option.set_item_disabled(index, true)
-	_style_chapter_popup()
-	topbar.add_child(_chapter_option)
+		_chapter_button.add_theme_stylebox_override(state, box_style)
+	# 按下/悬停态文字同样墨蓝（v0.20.3 修复：默认按压白字落在白底上「文字消失」）
+	for color_state in ["font_color", "font_hover_color", "font_pressed_color",
+			"font_hover_pressed_color", "font_focus_color"]:
+		_chapter_button.add_theme_color_override(color_state, LOGO_TEXT)
+	_chapter_button.pressed.connect(_toggle_chapter_popup)
+	topbar.add_child(_chapter_button)
 
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -160,25 +166,137 @@ func _build_ui() -> void:
 	_build_detail_bar()
 
 
-## 章节下拉弹出列表浅色样式（概念图 .dropdown .list）。
-func _style_chapter_popup() -> void:
-	var popup := _chapter_option.get_popup()
-	if popup == null:
+## 章节下拉弹层（概念图 .dropdown .list）：整屏点击遮罩 + 白色圆角列表，
+## 行 = 名称（左） + 状态（右：当前章 ✅ 绿勾 / 预留章 敬请期待 灰字）。
+func _toggle_chapter_popup() -> void:
+	if _chapter_popup != null and is_instance_valid(_chapter_popup):
+		_close_chapter_popup()
 		return
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color.WHITE
-	panel_style.border_color = Color("#9fd0ea")
-	panel_style.set_border_width_all(2)
-	panel_style.set_corner_radius_all(10)
-	panel_style.shadow_color = Color(0.078, 0.325, 0.541, 0.22)
-	panel_style.shadow_size = 10
-	popup.add_theme_stylebox_override("panel", panel_style)
-	popup.add_theme_color_override("font_color", LOGO_TEXT)
-	popup.add_theme_color_override("font_hover_color", LOGO_TEXT)
-	popup.add_theme_color_override("font_disabled_color", Color("#a4b8c8"))
-	var hover_style := StyleBoxFlat.new()
-	hover_style.bg_color = Color("#e6f4fd")
-	popup.add_theme_stylebox_override("hover", hover_style)
+	var overlay := Control.new()
+	overlay.top_level = true
+	overlay.name = "ChapterPopup"
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var catcher := Button.new()
+	catcher.flat = true
+	catcher.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var catcher_style := StyleBoxEmpty.new()
+	catcher.add_theme_stylebox_override("normal", catcher_style)
+	catcher.add_theme_stylebox_override("hover", catcher_style)
+	catcher.add_theme_stylebox_override("pressed", catcher_style)
+	catcher.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	catcher.pressed.connect(_close_chapter_popup)
+	overlay.add_child(catcher)
+	var list_panel := Panel.new()
+	list_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var list_style := UITheme.light_panel_style()
+	list_style.set_border_width_all(2)
+	list_style.border_color = UITheme.LIGHT_BORDER_SOFT
+	list_style.set_corner_radius_all(10)
+	list_style.shadow_color = Color(0.078, 0.325, 0.541, 0.22)
+	list_style.shadow_size = 10
+	list_panel.add_theme_stylebox_override("panel", list_style)
+	overlay.add_child(list_panel)
+	var list_box := VBoxContainer.new()
+	list_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	list_box.offset_left = 6.0
+	list_box.offset_right = -6.0
+	list_box.offset_top = 6.0
+	list_box.offset_bottom = -6.0
+	list_panel.add_child(list_box)
+
+	var chapter := GameFlow.get_chapter()
+	_chapter_rows.clear()
+	_append_chapter_row(list_box, "第%s章 · %s" % [_chapter_cn_numeral(chapter.chapter_number), chapter.display_name],
+		true, true)
+	for reserved_name in RESERVED_CHAPTERS:
+		_append_chapter_row(list_box, reserved_name, false, false)
+
+	add_child(overlay)
+	_chapter_popup = overlay
+	# 弹层定位：框按钮正下方（top_level 坐标 = 画布坐标，与 get_global_rect 同空间）
+	var box_rect := _chapter_button.get_global_rect()
+	list_panel.position = box_rect.position + Vector2(0, box_rect.size.y + 4)
+	# 显式尺寸（行高 42 × 行数 + 内边距）：Panel 锚定子盒不传导最小尺寸，不能 reset_size
+	var row_count := 1 + RESERVED_CHAPTERS.size()
+	list_panel.size = Vector2(maxf(box_rect.size.x, 260.0), row_count * 42.0 + 14.0)
+
+
+func _append_chapter_row(list_box: VBoxContainer, name_text: String, is_current: bool, enabled: bool) -> void:
+	var row := Button.new()
+	row.custom_minimum_size = Vector2(0, 42)
+	row.focus_mode = Control.FOCUS_NONE
+	row.disabled = not enabled
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = UITheme.LIGHT_BLUE_SELECT if (is_current and enabled) else Color.TRANSPARENT
+	normal.set_corner_radius_all(8)
+	normal.content_margin_left = 12.0
+	normal.content_margin_right = 12.0
+	normal.content_margin_top = 8.0
+	normal.content_margin_bottom = 8.0
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = UITheme.LIGHT_PANEL_SPLIT if not (is_current and enabled) else UITheme.LIGHT_BLUE_SELECT
+	hover.set_corner_radius_all(8)
+	hover.content_margin_left = 12.0
+	hover.content_margin_right = 12.0
+	hover.content_margin_top = 8.0
+	hover.content_margin_bottom = 8.0
+	row.add_theme_stylebox_override("normal", normal)
+	row.add_theme_stylebox_override("hover", hover)
+	row.add_theme_stylebox_override("disabled", normal)
+	row.add_theme_stylebox_override("pressed", normal)
+	row.add_theme_stylebox_override("hover_pressed", normal)
+	row.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	row.add_theme_color_override("font_color", Color(0, 0, 0, 0))
+	row.add_theme_color_override("font_hover_color", Color(0, 0, 0, 0))
+	row.add_theme_color_override("font_pressed_color", Color(0, 0, 0, 0))
+	row.add_theme_color_override("font_disabled_color", Color(0, 0, 0, 0))
+	if enabled:
+		row.pressed.connect(_close_chapter_popup)
+	list_box.add_child(row)
+	var row_content := HBoxContainer.new()
+	row_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row_content.offset_left = 12.0
+	row_content.offset_right = -12.0
+	row_content.offset_top = 8.0
+	row_content.offset_bottom = -8.0
+	row_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(row_content)
+	var name_label := Label.new()
+	name_label.text = name_text
+	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_color_override("font_color",
+		LOGO_TEXT if enabled else UITheme.LIGHT_LOCK)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row_content.add_child(name_label)
+	if is_current and enabled:
+		var check := Label.new()
+		check.text = "✔"
+		check.add_theme_font_size_override("font_size", 15)
+		check.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
+		check.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row_content.add_child(check)
+	elif not enabled:
+		var later := Label.new()
+		later.text = "敬请期待"
+		later.add_theme_font_size_override("font_size", 14)
+		later.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
+		later.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row_content.add_child(later)
+
+
+func _close_chapter_popup() -> void:
+	if _chapter_popup != null and is_instance_valid(_chapter_popup):
+		_chapter_popup.queue_free()
+	_chapter_popup = null
+
+
+## 章节号中文数字（1 → 一）。
+func _chapter_cn_numeral(number: int) -> String:
+	if number >= 1 and number <= CN_NUMERALS.size():
+		return CN_NUMERALS[number - 1]
+	return str(number)
 
 
 # ============ 关卡卡片（4×2 白卡） ============
@@ -486,10 +604,9 @@ func _build_detail_bar() -> void:
 	var stats := HBoxContainer.new()
 	stats.add_theme_constant_override("separation", 8)
 	left.add_child(stats)
-	for stat_def in [["敌人", ""], ["波次", ""], ["经验", ""], ["推荐", ""]]:
-		var pill := Label.new()
+	for stat_def in ["敌人", "波次", "经验", "推荐"]:
+		var pill := PanelContainer.new()
 		pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		pill.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var pill_style := StyleBoxFlat.new()
 		pill_style.bg_color = Color("#f3f9fd")
 		pill_style.border_color = REWARD_LINE
@@ -499,11 +616,23 @@ func _build_detail_bar() -> void:
 		pill_style.content_margin_right = 9.0
 		pill_style.content_margin_top = 4.0
 		pill_style.content_margin_bottom = 4.0
-		pill.add_theme_stylebox_override("normal", pill_style)
-		pill.add_theme_font_size_override("font_size", 13)
-		pill.add_theme_color_override("font_color", INK)
-		stats.add_child(pill)
-		_detail_stats.append(pill)
+		pill.add_theme_stylebox_override("panel", pill_style)
+		var pill_row := HBoxContainer.new()
+		pill_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		pill_row.add_theme_constant_override("separation", 5)
+		pill.add_child(pill_row)
+		# 键（弱色）+ 值（墨蓝）——v0.20.3 修复：原胶囊只有值没有键名，含义不明
+		var key_label := Label.new()
+		key_label.text = stat_def
+		key_label.add_theme_font_size_override("font_size", 13)
+		key_label.add_theme_color_override("font_color", MUTED)
+		pill_row.add_child(key_label)
+		_stat_key_labels.append(key_label)
+		var value_label := Label.new()
+		value_label.add_theme_font_size_override("font_size", 13)
+		value_label.add_theme_color_override("font_color", INK)
+		pill_row.add_child(value_label)
+		_detail_stats.append(value_label)
 
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 9)
@@ -601,6 +730,8 @@ func _refresh_action_bar() -> void:
 		_detail_name.text = "请选择关卡"
 		_detail_desc.text = ""
 		_detail_difficulty_chip.text = ""
+		for key_label in _stat_key_labels:
+			key_label.visible = false
 		for pill in _detail_stats:
 			pill.text = "—"
 		for reward_child in _detail_rewards.get_children():
@@ -625,6 +756,7 @@ func _refresh_action_bar() -> void:
 		"塔×%d · 升阶×%d" % [stage.recommended_tower_count, stage.recommended_rank_count],
 	]
 	for i in _detail_stats.size():
+		_stat_key_labels[i].visible = true
 		_detail_stats[i].text = stat_values[i]
 	_refresh_reward_chips(stage)
 	_deploy_button.disabled = not unlocked
