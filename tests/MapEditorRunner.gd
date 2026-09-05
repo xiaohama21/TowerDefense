@@ -20,6 +20,14 @@ func _check(condition: bool, message: String) -> void:
 		push_error("MAP_EDITOR_TEST: %s" % message)
 
 
+## 构造按键事件（快捷键用例）。
+func _make_key(keycode: Key) -> InputEventKey:
+	var ev := InputEventKey.new()
+	ev.keycode = keycode
+	ev.pressed = true
+	return ev
+
+
 ## 找一个非道路 / 非装饰 / 非禁建 / 非建造位的格（M2 笔刷用例）。
 func _find_free_cell(editor) -> Vector2i:
 	var road := {}
@@ -275,6 +283,43 @@ func _run() -> void:
 	if FileAccess.file_exists(roundtrip_path):
 		DirAccess.remove_absolute(tmp_abs)
 	_check(not FileAccess.file_exists(roundtrip_path), "往返临时文件应清理")
+
+	# ===== v0.9（M4）：快捷键切笔刷 / 缩放 / 平移 / 钳制 / 坐标映射 =====
+	editor.show()  # B-029 关闭测试隐藏了窗口；快捷键仅在可见时生效
+	editor._unhandled_key_input(_make_key(KEY_3))
+	_check(editor._brush == editor.Brush.FORBIDDEN, "快捷键 3 应切到禁建刷")
+	_check(editor._brush_buttons[editor.Brush.FORBIDDEN].button_pressed, "快捷键切刷应同步页签按钮高亮")
+	editor._unhandled_key_input(_make_key(KEY_Q))
+	_check(editor._brush == editor.Brush.ERASE, "快捷键 Q 应切到擦除刷")
+	editor._unhandled_key_input(_make_key(KEY_1))
+	_check(editor._brush == editor.Brush.PATH, "快捷键 1 应回路径刷")
+
+	_check(is_equal_approx(editor._view_zoom, 1.0), "初始缩放应为 1x")
+	editor._unhandled_key_input(_make_key(KEY_EQUAL))
+	_check(is_equal_approx(editor._view_zoom, 1.25), "+ 键应放大到 1.25x，实测 %f" % editor._view_zoom)
+	for i in range(10):
+		editor._unhandled_key_input(_make_key(KEY_EQUAL))
+	_check(editor._view_zoom <= editor.ZOOM_MAX + 0.001, "缩放不应超过 4x 上限")
+	editor._unhandled_key_input(_make_key(KEY_RIGHT))
+	_check(editor._view_pan.x > 0.0, "方向键应向右平移")
+	var pan_before: Vector2 = editor._view_pan
+	for i in range(30):
+		editor._unhandled_key_input(_make_key(KEY_RIGHT))
+	var max_pan_x: float = 1280.0 * (1.0 - 1.0 / editor._view_zoom)
+	_check(editor._view_pan.x <= max_pan_x + 0.001, "平移不应越过内容边界（最大 %f）" % max_pan_x)
+	_check(is_equal_approx(editor._view_pan.x, max_pan_x), "连发右移应钳制在内容边界")
+	_check(editor._view_pan.y == pan_before.y, "左右平移不应改变 y")
+	editor._unhandled_key_input(_make_key(KEY_MINUS))
+	_check(editor._view_zoom < editor.ZOOM_MAX, "- 键应缩小")
+	editor._reset_view()
+	_check(is_equal_approx(editor._view_zoom, 1.0) and editor._view_pan == Vector2.ZERO, "复位视图应回到 1x 与零平移")
+
+	# 坐标映射纯函数：容器 1280×720、缩放 2x、平移 (320,180) 时
+	# 局部 (640,360) → 内容 (640,360) → 格 (8,4)
+	var mapped: Vector2 = editor._content_coords(Vector2(640, 360), Vector2(1280, 720), 2.0, Vector2(320, 180))
+	_check(mapped.distance_to(Vector2(640, 360)) < 0.01, "缩放平移映射应为 local×1/zoom+pan，实测 %s" % str(mapped))
+	_check(editor._content_coords(Vector2(0, 0), Vector2.ZERO, 1.0, Vector2.ZERO).x < 0,
+		"容器尺寸为零时映射应返回无效值（防除零）")
 
 	# 注：画布铺满与鼠标映射的实际行为已在真实渲染下截图核验（headless dummy
 	# 显示服务不布局 Window 子控件，无法在此断言容器尺寸）。

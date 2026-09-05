@@ -13,6 +13,12 @@ const MAP_W := 1280
 const MAP_H := 720
 const GREEN_HISTORY_MAX := 100
 
+## 视图缩放/平移（M4）：缩放 1x~4x（视口中心锚定），平移钳制在内容边界内。
+const ZOOM_MIN := 1.0
+const ZOOM_MAX := 4.0
+const ZOOM_STEP := 1.25
+const PAN_STEP := 80.0
+
 enum Brush { PATH, DECOR, FORBIDDEN, SLOT, ERASE }
 
 ## 装饰类型键（与 GridBackground.DECOR_TYPES 一致）。
@@ -40,6 +46,12 @@ var _grid: GridBackground
 var _overlay
 var _viewport: SubViewport
 var _canvas_container: SubViewportContainer
+## 画布内容容器（M4 缩放/平移统一变换 GridBackground 与覆盖层）。
+var _world: Node2D
+var _view_zoom := 1.0
+var _view_pan := Vector2.ZERO
+## 笔刷页签按钮引用（快捷键切换时同步高亮）。
+var _brush_buttons := {}
 
 ## 主路径格链（编辑态事实源）：[0] = 入口端，末位 = 基地端；据此生成 path_points。
 var _path_cells: Array[Vector2i] = []
@@ -116,6 +128,7 @@ func _build_ui() -> void:
 
 	var new_button := Button.new()
 	new_button.text = "新建"
+	new_button.focus_mode = Control.FOCUS_NONE
 	new_button.pressed.connect(_on_new_pressed)
 	top_bar.add_child(new_button)
 
@@ -125,26 +138,31 @@ func _build_ui() -> void:
 
 	_stage_option = OptionButton.new()
 	_stage_option.custom_minimum_size = Vector2(260, 0)
+	_stage_option.focus_mode = Control.FOCUS_NONE
 	_stage_option.item_selected.connect(_on_stage_selected)
 	top_bar.add_child(_stage_option)
 
 	_load_button = Button.new()
 	_load_button.text = "载入"
+	_load_button.focus_mode = Control.FOCUS_NONE
 	_load_button.pressed.connect(_on_load_pressed)
 	top_bar.add_child(_load_button)
 
 	var save_button := Button.new()
 	save_button.text = "保存"
+	save_button.focus_mode = Control.FOCUS_NONE
 	save_button.pressed.connect(_on_save_pressed)
 	top_bar.add_child(save_button)
 
 	var export_png_button := Button.new()
 	export_png_button.text = "导出底图"
+	export_png_button.focus_mode = Control.FOCUS_NONE
 	export_png_button.pressed.connect(_on_export_png_pressed)
 	top_bar.add_child(export_png_button)
 
 	_undo_button = Button.new()
 	_undo_button.text = "撤销"
+	_undo_button.focus_mode = Control.FOCUS_NONE
 	_undo_button.pressed.connect(_on_undo_pressed)
 	top_bar.add_child(_undo_button)
 
@@ -155,11 +173,13 @@ func _build_ui() -> void:
 	_theme_option = OptionButton.new()
 	for theme_name in ["grass", "fire", "night"]:
 		_theme_option.add_item(theme_name)
+	_theme_option.focus_mode = Control.FOCUS_NONE
 	_theme_option.item_selected.connect(_on_theme_selected)
 	top_bar.add_child(_theme_option)
 
 	_force_save = CheckButton.new()
 	_force_save.text = "强制保存"
+	_force_save.focus_mode = Control.FOCUS_NONE
 	_force_save.tooltip_text = "校验有错误（✖）时默认阻止保存；确认无误可勾选强制"
 	top_bar.add_child(_force_save)
 
@@ -196,10 +216,13 @@ func _build_ui() -> void:
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_canvas_container.add_child(_viewport)
 
+	_world = Node2D.new()
+	_viewport.add_child(_world)
+
 	_grid = GridBackground.new()
-	_viewport.add_child(_grid)
+	_world.add_child(_grid)
 	_overlay = OVERLAY_SCRIPT.new()
-	_viewport.add_child(_overlay)
+	_world.add_child(_overlay)
 
 	var side := VBoxContainer.new()
 	side.custom_minimum_size = Vector2(300, 0)
@@ -230,7 +253,7 @@ func _build_ui() -> void:
 
 	var hint_label := Label.new()
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint_label.text = "笔刷：路径（端点 4 邻延伸 / 端点退格）· 装饰（选类型）/ 禁建 / 建造位点涂再点擦除 · 擦除清空格。\n新建=空白画布；保存=覆盖 .tres（校验 ✖ 默认阻止，可强制）；导出底图=纯 GridBackground PNG。\n撤销仅回退到上次校验通过态；未保存改动在新建/载入前会弹确认。"
+	hint_label.text = "笔刷：路径（端点 4 邻延伸 / 端点退格）· 装饰（地形栏选类型）/ 禁建 / 建造位点涂再点擦除 · 擦除清空格。\n快捷键：1/2/3/4/Q 切笔刷 · 方向键平移 · +/- 缩放（1x~4x）。\n新建=空白画布；保存=覆盖 .tres（校验 ✖ 默认阻止，可强制）；导出底图=纯 GridBackground PNG。\n撤销仅回退到上次校验通过态；未保存改动在新建/载入前会弹确认。"
 	hint_label.add_theme_font_size_override("font_size", 14)
 	hint_panel.add_child(hint_label)
 
@@ -246,22 +269,32 @@ func _build_ui() -> void:
 
 	var brush_group := ButtonGroup.new()
 	var brush_defs := [
-		["路径", Brush.PATH], ["装饰", Brush.DECOR], ["禁建", Brush.FORBIDDEN],
-		["建造位", Brush.SLOT], ["擦除", Brush.ERASE],
+		["1 路径", Brush.PATH], ["2 装饰", Brush.DECOR], ["3 禁建", Brush.FORBIDDEN],
+		["4 建造位", Brush.SLOT], ["Q 擦除", Brush.ERASE],
 	]
 	for def in brush_defs:
 		var brush_button := Button.new()
 		brush_button.text = def[0]
 		brush_button.toggle_mode = true
 		brush_button.button_group = brush_group
+		brush_button.focus_mode = Control.FOCUS_NONE
 		brush_button.pressed.connect(_on_brush_pressed.bind(def[1]))
 		brush_bar.add_child(brush_button)
+		_brush_buttons[def[1]] = brush_button
 		if def[1] == Brush.PATH:
 			brush_button.button_pressed = true
 	brush_bar.add_child(_spacer())
 
+	var reset_view_button := Button.new()
+	reset_view_button.text = "复位视图"
+	reset_view_button.focus_mode = Control.FOCUS_NONE
+	reset_view_button.tooltip_text = "缩放复位 1x 并回到左上角（快捷键与方向键/+/- 见提示面板）"
+	reset_view_button.pressed.connect(_reset_view)
+	brush_bar.add_child(reset_view_button)
+
 	var reverse_button := Button.new()
 	reverse_button.text = "出入口端反转"
+	reverse_button.focus_mode = Control.FOCUS_NONE
 	reverse_button.pressed.connect(_on_reverse_pressed)
 	brush_bar.add_child(reverse_button)
 
@@ -524,9 +557,105 @@ func _export_base_map(path: String) -> int:
 
 func _on_brush_pressed(brush: int) -> void:
 	_brush = brush
+	var button: Button = _brush_buttons.get(brush)
+	if button != null and not button.button_pressed:
+		button.button_pressed = true
 	_rebuild_terrain_palette()
 	_refresh_from_stage()
 	_set_status(_brush_hint(brush), false)
+
+
+# ============ M4 快捷键与视图缩放平移 ============
+
+## 键盘快捷键：1/2/3/4/Q 切笔刷（不响应长按连发）；+/- 缩放、方向键平移（可连发）。
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or not visible:
+		return
+	match key.keycode:
+		KEY_1:
+			if not key.echo: _on_brush_pressed(Brush.PATH)
+		KEY_2:
+			if not key.echo: _on_brush_pressed(Brush.DECOR)
+		KEY_3:
+			if not key.echo: _on_brush_pressed(Brush.FORBIDDEN)
+		KEY_4:
+			if not key.echo: _on_brush_pressed(Brush.SLOT)
+		KEY_Q:
+			if not key.echo: _on_brush_pressed(Brush.ERASE)
+		KEY_EQUAL, KEY_KP_ADD:
+			_set_zoom(_view_zoom * ZOOM_STEP)
+		KEY_MINUS, KEY_KP_SUBTRACT:
+			_set_zoom(_view_zoom / ZOOM_STEP)
+		KEY_LEFT:
+			_pan_view(Vector2(-PAN_STEP, 0))
+		KEY_RIGHT:
+			_pan_view(Vector2(PAN_STEP, 0))
+		KEY_UP:
+			_pan_view(Vector2(0, -PAN_STEP))
+		KEY_DOWN:
+			_pan_view(Vector2(0, PAN_STEP))
+
+
+## 设置缩放（视口中心锚定，范围 1x~4x），1x 时平移自动归零。
+func _set_zoom(new_zoom: float) -> void:
+	new_zoom = clampf(new_zoom, ZOOM_MIN, ZOOM_MAX)
+	if is_equal_approx(new_zoom, _view_zoom):
+		return
+	var center := _view_pan + Vector2(MAP_W, MAP_H) / _view_zoom * 0.5
+	_view_zoom = new_zoom
+	_view_pan = center - Vector2(MAP_W, MAP_H) / _view_zoom * 0.5
+	_clamp_pan()
+	_apply_view_transform()
+
+
+## 平移视图（delta 为内容坐标增量，钳制在可见内容范围内）。
+func _pan_view(delta: Vector2) -> void:
+	_view_pan += delta
+	_clamp_pan()
+	_apply_view_transform()
+
+
+## 缩放复位 1x、回到左上角。
+func _reset_view() -> void:
+	_view_zoom = 1.0
+	_view_pan = Vector2.ZERO
+	_apply_view_transform()
+
+
+func _clamp_pan() -> void:
+	var max_pan := Vector2(MAP_W, MAP_H) * (1.0 - 1.0 / _view_zoom)
+	_view_pan.x = clampf(_view_pan.x, 0.0, max_pan.x)
+	_view_pan.y = clampf(_view_pan.y, 0.0, max_pan.y)
+
+
+## 把缩放/平移应用到画布内容容器：content 坐标 x' = (x - pan) × zoom。
+func _apply_view_transform() -> void:
+	if _world != null:
+		_world.scale = Vector2(_view_zoom, _view_zoom)
+		_world.position = -_view_pan * _view_zoom
+
+
+## 容器局部坐标 → 画布内容坐标的纯函数（可测）：先按逻辑分辨率逆映射，
+## 再除缩放、加平移。
+static func _content_coords(local: Vector2, container_size: Vector2, zoom: float, pan: Vector2) -> Vector2:
+	if container_size.x <= 0.0 or container_size.y <= 0.0:
+		return Vector2(-1, -1)
+	return local * (Vector2(MAP_W, MAP_H) / container_size) / zoom + pan
+
+
+## 容器局部坐标 → 网格；出界返回 (-1,-1)。
+func _cell_from_local(local: Vector2) -> Vector2i:
+	var content := _content_coords(local, _canvas_container.size, _view_zoom, _view_pan)
+	if content.x < 0.0:
+		return Vector2i(-1, -1)
+	var cell := Vector2i(
+		floori(content.x / GridBackground.GRID_SIZE),
+		floori(content.y / GridBackground.GRID_SIZE)
+	)
+	if cell.x < 0 or cell.x >= GridBackground.COLS or cell.y < 0 or cell.y >= GridBackground.ROWS:
+		return Vector2i(-1, -1)
+	return cell
 
 
 ## 重建地形栏样块（v0.8）：按当前笔刷页签显示对应地形，装饰保留已选类型，
@@ -607,21 +736,6 @@ func _on_canvas_mouse_exited() -> void:
 	_hover_cell = Vector2i(-1, -1)
 	_overlay.hover_cell = _hover_cell
 	_overlay.queue_redraw()
-
-
-## 容器局部坐标 → 画布逻辑坐标 → 网格；出界返回 (-1,-1)。
-func _cell_from_local(local: Vector2) -> Vector2i:
-	var container_size := _canvas_container.size
-	if container_size.x <= 0.0 or container_size.y <= 0.0:
-		return Vector2i(-1, -1)
-	var content := local * (Vector2(MAP_W, MAP_H) / container_size)
-	var cell := Vector2i(
-		floori(content.x / GridBackground.GRID_SIZE),
-		floori(content.y / GridBackground.GRID_SIZE)
-	)
-	if cell.x < 0 or cell.x >= GridBackground.COLS or cell.y < 0 or cell.y >= GridBackground.ROWS:
-		return Vector2i(-1, -1)
-	return cell
 
 
 func _apply_brush_at(cell: Vector2i) -> void:
