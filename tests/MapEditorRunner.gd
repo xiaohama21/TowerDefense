@@ -192,6 +192,76 @@ func _run() -> void:
 	_check(not editor._stage.decor_cells.has(free_cell), "再次撤销应回上一绿态（装饰移除）")
 	_check((editor._data_label.text as String).contains("装饰格：12"), "撤销后面板装饰计数回 12")
 
+	# ===== v0.7：装饰类型选择（decor_types 显式映射 + 哈希回退） =====
+	var decor_free := _find_free_cell(editor)
+	editor._brush = editor.Brush.DECOR
+	editor._decor_type_option.selected = 1  # 石
+	editor._apply_brush_at(decor_free)
+	_check(editor._stage.decor_types.get(decor_free, &"") == &"rock", "装饰刷应写入选定类型 rock")
+	_check(editor._grid._decor_type_for_cell(decor_free) == &"rock", "预览应按显式类型渲染（石）")
+	editor._apply_brush_at(decor_free)
+	_check(not editor._stage.decor_types.has(decor_free), "装饰擦除应同步清理类型映射")
+	var grid_probe := GridBackground.new()
+	var hash_cell := Vector2i(-1, -1)
+	grid_probe.configure([], [], Vector2i(-1, -1), Vector2i(-1, -1), &"grass", [])
+	for col in range(GridBackground.COLS):
+		var candidate := Vector2i(col, 0)
+		if grid_probe._decor_type_for_cell(candidate) != &"banner":
+			hash_cell = candidate
+			break
+	_check(hash_cell.x >= 0, "应存在哈希选型非 banner 的格（优先级用例）")
+	grid_probe.configure([], [], Vector2i(-1, -1), Vector2i(-1, -1), &"grass", [], {hash_cell: &"banner"})
+	_check(grid_probe._decor_type_for_cell(hash_cell) == &"banner", "显式类型应优先于哈希回退")
+	_check(grid_probe._decor_type_for_cell(Vector2i(15, 8)) == grid_probe._decor_type_for_cell(Vector2i(15, 8)),
+		"哈希回退应保持确定性")
+
+	# ===== v0.7：新建空白画布 + 保存阻断/强制 + .tres 往返 =====
+	editor._create_new_stage("map_editor_roundtrip", "往返测试关")
+	_check(editor._stage != null and String(editor._stage.stage_id) == "map_editor_roundtrip", "新建关卡 stage_id 应生效")
+	_check(editor._stage.display_name == "往返测试关", "新建关卡显示名应生效")
+	_check(editor._path_cells.is_empty(), "新建画布路径应为空")
+	_check(not editor._dirty, "新建后初始为未脏状态")
+	editor._brush = editor.Brush.PATH
+	editor._apply_brush_at(Vector2i(5, 4))
+	_check(editor._path_cells.size() == 1, "空画布路径刷首格应落链（1 格）")
+	editor._apply_brush_at(Vector2i(6, 4))
+	_check(editor._path_cells.size() == 2, "邻格点击应延伸（2 格）")
+	_check(editor._stage.path_points.size() == 4, "2 格链应生成 4 点（2 中心 + 2 图外延长）")
+	_check(editor._dirty, "编辑后应置脏标记")
+	editor._brush = editor.Brush.DECOR
+	editor._decor_type_option.selected = 3  # 火把
+	var roundtrip_decor := Vector2i(2, 2)
+	editor._apply_brush_at(roundtrip_decor)
+
+	var roundtrip_path := "user://_map_editor_roundtrip.tres"
+	editor._stage_path = roundtrip_path
+	# 阻断用例（编辑器级错误）：建造位压在道路格上，未强制时保存被阻止
+	editor._brush = editor.Brush.SLOT
+	var road_in_new: Vector2i = editor._path_cells[0]
+	editor._apply_brush_at(road_in_new)
+	_check(not editor._editor_errors().is_empty(), "阻断用例前置：建造位与道路重叠记错误")
+	editor._force_save.button_pressed = false
+	var blocked: int = editor._save_stage(roundtrip_path)
+	_check(blocked == 1, "校验有错误且未强制时应被阻止（返回 1），实测 %d" % blocked)
+	_check(not FileAccess.file_exists(roundtrip_path), "被阻止的保存不应写盘")
+	editor._brush = editor.Brush.ERASE
+	editor._apply_brush_at(road_in_new)
+	_check(editor._editor_errors().is_empty(), "擦除后错误应消除")
+	editor._force_save.button_pressed = true
+	var saved: int = editor._save_stage(roundtrip_path)
+	_check(saved == 0, "错误消除后保存应成功写盘（返回 0），实测 %d" % saved)
+	_check(not editor._dirty, "保存成功后脏标记应清除")
+	var reloaded := load(roundtrip_path) as StageData
+	_check(reloaded != null, "往返：保存的 .tres 应可载入")
+	if reloaded != null:
+		_check(reloaded.stage_id == editor._stage.stage_id, "往返 stage_id 一致")
+		_check(reloaded.path_points.size() == 4, "往返 path_points 应一致（4 点）")
+		_check(reloaded.decor_types.get(roundtrip_decor, &"") == &"torch", "往返 decor_types 应保留（火把）")
+	var tmp_abs := ProjectSettings.globalize_path(roundtrip_path)
+	if FileAccess.file_exists(roundtrip_path):
+		DirAccess.remove_absolute(tmp_abs)
+	_check(not FileAccess.file_exists(roundtrip_path), "往返临时文件应清理")
+
 	# 注：画布铺满与鼠标映射的实际行为已在真实渲染下截图核验（headless dummy
 	# 显示服务不布局 Window 子控件，无法在此断言容器尺寸）。
 

@@ -14,8 +14,16 @@ const GREEN_HISTORY_MAX := 100
 
 enum Brush { PATH, DECOR, FORBIDDEN, SLOT, ERASE }
 
+## 装饰类型选项（与 GridBackground.DECOR_TYPES 一致）。
+const DECOR_TYPE_KEYS: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
+const DECOR_TYPE_LABELS: Array[String] = ["树", "石", "旗", "火把"]
+
 var _stage: StageData
 var _stage_paths: Array[String] = []
+## 当前编辑资源对应的 .tres 路径（新建关卡在建档对话框时预设）。
+var _stage_path := ""
+## 脏标记：上次保存/载入/新建后有布局改动（新建/载入前据此弹确认）。
+var _dirty := false
 var _grid: GridBackground
 var _overlay
 var _viewport: SubViewport
@@ -32,12 +40,14 @@ var _stage_option: OptionButton
 var _theme_option: OptionButton
 var _load_button: Button
 var _undo_button: Button
+var _force_save: CheckButton
+var _decor_type_option: OptionButton
 var _data_label: Label
 var _status_label: Label
 
 
 func _ready() -> void:
-	title = "地图编辑器（M2 · 布局编辑）"
+	title = "地图编辑器（v1 · 布局编辑与导出）"
 	initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
 	# 默认尺寸 = 1280×720 画布（1:1 零留白）+ 右侧 300px 数据面板 + 顶栏/状态条；
 	# 编辑器内 popup_centered_ratio 会按主窗口 92% 重设，画布 16:9 等比缩放跟随。
@@ -90,6 +100,11 @@ func _build_ui() -> void:
 	top_bar.add_child(title_label)
 	top_bar.add_child(_spacer())
 
+	var new_button := Button.new()
+	new_button.text = "新建"
+	new_button.pressed.connect(_on_new_pressed)
+	top_bar.add_child(new_button)
+
 	var stage_caption := Label.new()
 	stage_caption.text = "关卡"
 	top_bar.add_child(stage_caption)
@@ -103,6 +118,16 @@ func _build_ui() -> void:
 	_load_button.text = "载入"
 	_load_button.pressed.connect(_on_load_pressed)
 	top_bar.add_child(_load_button)
+
+	var save_button := Button.new()
+	save_button.text = "保存"
+	save_button.pressed.connect(_on_save_pressed)
+	top_bar.add_child(save_button)
+
+	var export_png_button := Button.new()
+	export_png_button.text = "导出底图"
+	export_png_button.pressed.connect(_on_export_png_pressed)
+	top_bar.add_child(export_png_button)
 
 	_undo_button = Button.new()
 	_undo_button.text = "撤销"
@@ -118,6 +143,11 @@ func _build_ui() -> void:
 		_theme_option.add_item(theme_name)
 	_theme_option.item_selected.connect(_on_theme_selected)
 	top_bar.add_child(_theme_option)
+
+	_force_save = CheckButton.new()
+	_force_save.text = "强制保存"
+	_force_save.tooltip_text = "校验有错误（✖）时默认阻止保存；确认无误可勾选强制"
+	top_bar.add_child(_force_save)
 
 	# 中部：画布 + 数据面板
 	var middle := HBoxContainer.new()
@@ -186,7 +216,7 @@ func _build_ui() -> void:
 
 	var hint_label := Label.new()
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint_label.text = "M2 笔刷：路径（点击端点 4 邻空格延伸 / 点击端点退格）· 装饰 / 禁建 / 建造位点涂再点擦除 · 擦除清空格。\n撤销仅回退到上次校验通过态。\nM3：导出 .tres / 底图 PNG。"
+	hint_label.text = "笔刷：路径（端点 4 邻延伸 / 端点退格）· 装饰（选类型）/ 禁建 / 建造位点涂再点擦除 · 擦除清空格。\n新建=空白画布；保存=覆盖 .tres（校验 ✖ 默认阻止，可强制）；导出底图=纯 GridBackground PNG。\n撤销仅回退到上次校验通过态；未保存改动在新建/载入前会弹确认。"
 	hint_label.add_theme_font_size_override("font_size", 14)
 	hint_panel.add_child(hint_label)
 
@@ -215,6 +245,17 @@ func _build_ui() -> void:
 		if def[1] == Brush.PATH:
 			brush_button.button_pressed = true
 	brush_bar.add_child(_spacer())
+
+	var decor_caption := Label.new()
+	decor_caption.text = "装饰类型"
+	decor_caption.add_theme_font_size_override("font_size", 15)
+	brush_bar.add_child(decor_caption)
+
+	_decor_type_option = OptionButton.new()
+	for type_label in DECOR_TYPE_LABELS:
+		_decor_type_option.add_item(type_label)
+	_decor_type_option.selected = 0
+	brush_bar.add_child(_decor_type_option)
 
 	var reverse_button := Button.new()
 	reverse_button.text = "出入口端反转"
@@ -279,13 +320,93 @@ func _scan_stages() -> void:
 
 func _on_stage_selected(index: int) -> void:
 	if index >= 0 and index < _stage_paths.size():
-		_load_stage(_stage_paths[index])
+		_confirm_discard_then(_load_stage.bind(_stage_paths[index]))
 
 
 func _on_load_pressed() -> void:
 	var index := _stage_option.get_selected_id()
 	if index >= 0 and index < _stage_paths.size():
-		_load_stage(_stage_paths[index])
+		_confirm_discard_then(_load_stage.bind(_stage_paths[index]))
+
+
+## 有未保存改动时先弹确认，确认后才执行 action（防误丢改动）。
+func _confirm_discard_then(action: Callable) -> void:
+	if not _dirty:
+		action.call()
+		return
+	var dialog := ConfirmationDialog.new()
+	dialog.dialog_text = "当前关卡有未保存的改动，继续将丢弃这些改动，确定？"
+	dialog.ok_button_text = "丢弃并继续"
+	dialog.cancel_button_text = "取消"
+	dialog.confirmed.connect(func() -> void:
+		action.call()
+		dialog.queue_free()
+	)
+	dialog.canceled.connect(dialog.queue_free)
+	add_child(dialog)
+	dialog.popup_centered()
+
+
+## 新建画布：弹窗输入文件名与显示名，创建空白 StageData 进入编辑。
+func _on_new_pressed() -> void:
+	_confirm_discard_then(_open_new_stage_dialog)
+
+
+func _open_new_stage_dialog() -> void:
+	var dialog := ConfirmationDialog.new()
+	dialog.title = "新建关卡"
+	dialog.ok_button_text = "创建"
+	dialog.cancel_button_text = "取消"
+	var box := VBoxContainer.new()
+	var chapter_hint := Label.new()
+	chapter_hint.text = "章节固定 chapter_01，文件名形如 ch01_s09（不含 .tres）"
+	box.add_child(chapter_hint)
+	var name_field := LineEdit.new()
+	name_field.placeholder_text = "ch01_s09"
+	name_field.custom_minimum_size = Vector2(320, 0)
+	box.add_child(name_field)
+	var display_field := LineEdit.new()
+	display_field.placeholder_text = "显示名（选填，默认同文件名）"
+	display_field.custom_minimum_size = Vector2(320, 0)
+	box.add_child(display_field)
+	dialog.add_child(box)
+	dialog.confirmed.connect(func() -> void:
+		_create_new_stage(name_field.text, display_field.text)
+		dialog.queue_free()
+	)
+	dialog.canceled.connect(dialog.queue_free)
+	add_child(dialog)
+	dialog.popup_centered()
+
+
+## 创建空白关卡（布局全空、规则字段取默认值）：编辑布局后用「保存」落盘，
+## 波次/剧情/经济骨架与 STAGES.md 登记仍按现有规范补齐（保存提示输出 checklist）。
+func _create_new_stage(file_name: String, display_name: String) -> void:
+	var clean := file_name.strip_edges()
+	if clean.is_empty() or clean.contains(" ") or clean.contains("..") or clean.ends_with(".tres"):
+		_set_status("新建失败：文件名不合法（形如 ch01_s09，不含 .tres）", true)
+		return
+	if not clean.contains("/"):
+		clean = "chapter_01/" + clean
+	var path := "%s/%s.tres" % [STAGES_ROOT, clean]
+	if FileAccess.file_exists(path):
+		_set_status("新建失败：%s 已存在，请直接载入修改" % path.trim_prefix("res://"), true)
+		return
+	var stage := StageData.new()
+	var file_part := clean.get_file()
+	stage.stage_id = StringName(file_part)
+	stage.chapter_id = StringName(clean.get_base_dir().get_file())
+	stage.display_name = display_name.strip_edges() if not display_name.strip_edges().is_empty() else file_part
+	stage.theme = &"grass"
+	_stage = stage
+	_stage_path = path
+	_path_cells.clear()
+	_green_history.clear()
+	_hover_cell = Vector2i(-1, -1)
+	_dirty = false
+	_theme_option.select(0)
+	_refresh_from_stage()
+	_set_status("已新建空白关卡 %s：先用路径刷画主路径，再摆装饰/禁建/建造位；校验通过后「保存」落盘" % file_part, false)
 
 
 func _on_theme_selected(index: int) -> void:
@@ -301,9 +422,11 @@ func _load_stage(path: String) -> void:
 		_set_status("载入失败：%s（非 StageData 资源）" % path, true)
 		return
 	_stage = stage
+	_stage_path = path
 	_path_cells = GridBackground.derive_road_cells(_stage.path_points)
 	_hover_cell = Vector2i(-1, -1)
 	_green_history.clear()
+	_dirty = false
 	var theme_index := 0
 	for i in range(_theme_option.item_count):
 		if _theme_option.get_item_text(i) == String(_stage.theme):
@@ -315,10 +438,74 @@ func _load_stage(path: String) -> void:
 	_set_status("已载入 %s" % path.trim_prefix("res://resources/stages/"), false)
 
 
+# ============ M3 保存与导出 ============
+
+## 保存结果码：0 = 成功，1 = 被校验阻止，2 = 写盘失败。
+func _on_save_pressed() -> void:
+	if _stage == null:
+		return
+	if _stage_path.is_empty():
+		_set_status("无保存目标：新建关卡需在「新建」对话框指定文件名", true)
+		return
+	_save_stage(_stage_path)
+
+
+func _save_stage(path: String) -> int:
+	if _stage == null or path.is_empty():
+		return 2
+	var validator_issues: Array[String] = []
+	var validator_ok := MapValidator.validate_stage(_stage, validator_issues)
+	var editor_errors := _editor_errors()
+	var issue_count := validator_issues.size() + editor_errors.size()
+	var is_new_file := not FileAccess.file_exists(path)
+	if not validator_ok or not editor_errors.is_empty():
+		if not _force_save.button_pressed:
+			_set_status("保存被阻止：校验存在 %d 项问题（见数据面板），确认无误可勾选「强制保存」" % issue_count, true)
+			return 1
+	var err := ResourceSaver.save(_stage, path)
+	if err != OK:
+		_set_status("保存失败（错误码 %d）：%s" % [err, path], true)
+		return 2
+	_dirty = false
+	var status_text := "已保存 %s" % path.trim_prefix("res://")
+	if is_new_file:
+		status_text += "\n新增关卡 checklist：补齐波次/剧情/经济等骨架字段，并在 STAGES.md 第一章规划登记（编辑器不自动改文档）"
+	_set_status(status_text, false)
+	return 0
+
+
+## 导出底图 PNG（剔除编辑态覆盖层，纯 GridBackground 渲染）；
+## 默认存 assets/map/themes/<theme>/layout_<stage_id>.png，path 非空时用指定路径。
+func _on_export_png_pressed() -> void:
+	if _stage == null:
+		return
+	_export_base_map("")
+
+
+func _export_base_map(path: String) -> int:
+	if _stage == null or _viewport == null:
+		return 2
+	if path.is_empty():
+		var dir := "res://assets/map/themes/%s" % String(_stage.theme)
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
+		path = "%s/layout_%s.png" % [dir, _stage.stage_id]
+	_overlay.visible = false
+	await RenderingServer.frame_post_draw
+	var img: Image = _viewport.get_texture().get_image()
+	_overlay.visible = true
+	var err := img.save_png(ProjectSettings.globalize_path(path))
+	if err != OK:
+		_set_status("底图导出失败（错误码 %d）" % err, true)
+		return err
+	_set_status("已导出底图 %s（纯底图，供美术手绘重绘打底）" % path.trim_prefix("res://"), false)
+	return OK
+
+
 # ============ M2 笔刷编辑 ============
 
 func _on_brush_pressed(brush: int) -> void:
 	_brush = brush
+	_decor_type_option.disabled = brush != Brush.DECOR
 	_refresh_from_stage()
 	_set_status(_brush_hint(brush), false)
 
@@ -328,13 +515,13 @@ func _brush_hint(brush: int) -> String:
 		Brush.PATH:
 			return "路径刷：点击端点 4 邻空格延伸链；点击端点格退格（至少保留 2 格）。链首=入口、链尾=基地。"
 		Brush.DECOR:
-			return "装饰刷：点击空格点涂装饰，再点同格擦除。"
+			return "装饰刷：在「装饰类型」下拉选定 树/石/旗/火把 后点涂，再点同格擦除。"
 		Brush.FORBIDDEN:
 			return "禁建刷：点击空格点涂禁建地形，再点同格擦除（与道路重叠会被校验拦截）。"
 		Brush.SLOT:
 			return "建造位刷：点击空格点涂软引导推荐位，再点同格擦除（与道路/禁建重叠记错误）。"
 		Brush.ERASE:
-			return "擦除：点击格清除该格装饰 / 禁建 / 建造位（道路用路径刷退格）。"
+			return "擦除：点击格清除该格装饰（含类型）/ 禁建 / 建造位（道路用路径刷退格）。"
 	return ""
 
 
@@ -399,7 +586,7 @@ func _apply_brush_at(cell: Vector2i) -> void:
 		Brush.PATH:
 			_path_edit_at(cell)
 		Brush.DECOR:
-			_toggle_in_cell_array(_stage.decor_cells, cell)
+			_toggle_decor_at(cell)
 		Brush.FORBIDDEN:
 			_toggle_in_cell_array(_stage.forbidden_cells, cell)
 		Brush.SLOT:
@@ -409,8 +596,23 @@ func _apply_brush_at(cell: Vector2i) -> void:
 	_after_edit()
 
 
-## 路径刷：点击链端点的 4 邻空格 → 延伸；点击端点格 → 退格（链至少保留 2 格）。
+## 装饰刷（v0.7 按类型）：点涂写入 decor_cells + decor_types（选定类型），
+## 再点同格擦除并同步清理类型映射。
+func _toggle_decor_at(cell: Vector2i) -> void:
+	if _stage.decor_cells.has(cell):
+		_stage.decor_cells.erase(cell)
+		_stage.decor_types.erase(cell)
+	else:
+		_stage.decor_cells.append(cell)
+		_stage.decor_types[cell] = DECOR_TYPE_KEYS[_decor_type_option.selected]
+
+
+## 路径刷：空链时点击任意格落首格；点击链端点的 4 邻空格 → 延伸；点击端点格 → 退格（链至少保留 2 格）。
 func _path_edit_at(cell: Vector2i) -> void:
+	if _path_cells.is_empty():
+		_path_cells.append(cell)
+		_regenerate_path_points()
+		return
 	if _path_cells.has(cell):
 		if _path_cells.size() <= 2:
 			_set_status("路径链至少保留 2 格（入口 + 基地）", true)
@@ -458,6 +660,7 @@ func _toggle_slot_at(cell: Vector2i) -> void:
 
 func _erase_cell(cell: Vector2i) -> void:
 	_stage.decor_cells.erase(cell)
+	_stage.decor_types.erase(cell)
 	_stage.forbidden_cells.erase(cell)
 	var center := Vector2(cell * GridBackground.GRID_SIZE) + Vector2(GridBackground.GRID_SIZE, GridBackground.GRID_SIZE) * 0.5
 	var slots: Array[Vector2] = []
@@ -496,6 +699,7 @@ func _cell_center(cell: Vector2i) -> Vector2:
 
 ## 每次编辑后：刷新预览与面板（含实时校验）；校验全绿则记录快照供撤销。
 func _after_edit() -> void:
+	_dirty = true
 	_refresh_from_stage()
 	var validator_issues: Array[String] = []
 	if MapValidator.validate_stage(_stage, validator_issues) and _editor_errors().is_empty():
@@ -515,6 +719,7 @@ func _snapshot() -> Dictionary:
 	return {
 		"path": _path_cells.duplicate(),
 		"decor": _stage.decor_cells.duplicate(),
+		"decor_types": _stage.decor_types.duplicate(),
 		"forbidden": _stage.forbidden_cells.duplicate(),
 		"slots": _stage.build_slot_positions.duplicate(),
 		"theme": String(_stage.theme),
@@ -528,6 +733,7 @@ func _restore_snapshot(snap: Dictionary) -> void:
 	var decor: Array[Vector2i] = []
 	decor.assign(snap["decor"])
 	_stage.decor_cells = decor
+	_stage.decor_types = snap["decor_types"].duplicate()
 	var forbidden: Array[Vector2i] = []
 	forbidden.assign(snap["forbidden"])
 	_stage.forbidden_cells = forbidden
@@ -587,7 +793,7 @@ func _refresh_from_stage() -> void:
 	if not _path_cells.is_empty():
 		entry_cell = _path_cells[0]
 		base_cell = _path_cells[_path_cells.size() - 1]
-	_grid.configure(road_cells, _stage.decor_cells, entry_cell, base_cell, String(_stage.theme), _stage.forbidden_cells)
+	_grid.configure(road_cells, _stage.decor_cells, entry_cell, base_cell, String(_stage.theme), _stage.forbidden_cells, _stage.decor_types)
 	_overlay.stage = _stage
 	_overlay.entry_cell = entry_cell
 	_overlay.base_cell = base_cell

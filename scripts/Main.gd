@@ -140,7 +140,7 @@ func _apply_stage_layout() -> void:
 		road_cells.append_array(GridBackground.derive_road_cells(stage_data.fork_path_points))
 	var entry_cell := _first_in_map_road_cell(road_cells, true)
 	var base_cell := _first_in_map_road_cell(road_cells, false)
-	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme, stage_data.forbidden_cells)
+	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme, stage_data.forbidden_cells, stage_data.decor_types)
 	build_manager.setup_free_build(road_cells, stage_data.forbidden_cells)
 
 	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)

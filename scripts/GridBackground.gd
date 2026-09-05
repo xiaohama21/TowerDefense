@@ -28,6 +28,9 @@ const DECOR_TYPES: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
 var road_cells: Array[Vector2i] = []
 var decor_cells: Array[Vector2i] = []
 var forbidden_cells: Array[Vector2i] = []
+## 显式装饰类型（v0.36.0，StageData.decor_types）：格子 → tree/rock/banner/torch；
+## 缺省格回退格子哈希选型，旧关卡行为不变。
+var _decor_types: Dictionary = {}
 var entry_cell := Vector2i(-1, -1)
 var base_cell := Vector2i(-1, -1)
 var theme_name: StringName = &"grass"
@@ -78,11 +81,13 @@ func configure(
 	stage_entry_cell: Vector2i,
 	stage_base_cell: Vector2i,
 	stage_theme: StringName = &"grass",
-	stage_forbidden_cells: Array[Vector2i] = []
+	stage_forbidden_cells: Array[Vector2i] = [],
+	stage_decor_types: Dictionary = {}
 ) -> void:
 	road_cells = stage_road_cells
 	decor_cells = stage_decor_cells
 	forbidden_cells = stage_forbidden_cells
+	_decor_types = stage_decor_types
 	entry_cell = stage_entry_cell
 	base_cell = stage_base_cell
 	theme_name = stage_theme
@@ -192,9 +197,13 @@ func _draw_decorations() -> void:
 		draw_circle(center + Vector2(0, 2), 14.0, _palette["leaf"])
 
 
-## 装饰类型（确定性哈希，不依赖布局数据改动）：
-## 夜战主题火把比例更高（营造火光氛围），其余主题以树为主。
+## 装饰类型：显式映射（编辑器按类型绘制）优先，缺省回退确定性哈希（不依赖布局
+## 数据改动）。夜战主题火把比例更高（营造火光氛围），其余主题以树为主。
 func _decor_type_for_cell(cell: Vector2i) -> StringName:
+	if _decor_types.has(cell):
+		var explicit_type: StringName = _decor_types[cell]
+		if DECOR_TYPES.has(explicit_type):
+			return explicit_type
 	var roll: int = abs(hash(cell)) % 100
 	if theme_name == &"night":
 		if roll < 40:

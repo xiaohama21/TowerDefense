@@ -44,6 +44,10 @@ class_name StageData
 ## 结构化建造位（v0.14.1，GDD 5.1）：位置/类型/预锁位；非空时优先于 build_slot_positions。
 @export var build_slots: Array[BuildSlotData] = []
 @export var decor_cells: Array[Vector2i] = []
+## 装饰类型映射（v0.36.0，地图编辑器装饰刷）：格子 → tree/rock/banner/torch。
+## 缺省格沿用格子哈希确定式选型（GridBackground._decor_type_for_cell），
+## 旧关卡无此字段时行为不变。
+@export var decor_types: Dictionary[Vector2i, StringName] = {}
 ## 禁建地形格（v0.23.0 拍板，阶段 8 提交 3）：山地/河流/城池等不可建造格，
 ## GridBackground 以明显覆盖样式绘制；BuildManager 自由建造时排除。
 @export var forbidden_cells: Array[Vector2i] = []
