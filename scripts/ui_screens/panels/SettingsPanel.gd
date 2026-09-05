@@ -32,14 +32,16 @@ func _build_ui() -> void:
 
 	var note := Label.new()
 	note.text = "更多设置（画质、按键等）将随后续版本加入。"
-	note.add_theme_font_size_override("font_size", 14)
+	note.add_theme_font_size_override("font_size", 13)
 	note.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	add_child(note)
 
 
-## 白底分组面板：小节标题（虚线下承）+ 内容行。
-func _make_group(group_title: String, content: Control) -> Panel:
-	var panel := Panel.new()
+## 白底分组面板（PanelContainer 撑开：小节标题 + 虚线分隔 + 内容行）。
+## v0.19.2 修复（B-033）：原 Panel + 全矩形锚定内容盒不向父级传导最小尺寸，
+## 三个分组塌缩为 0 高互相重叠（设置页文字全部叠在一起的根因）。
+func _make_group(group_title: String, content: Control) -> PanelContainer:
+	var panel := PanelContainer.new()
 	var style := UITheme.light_panel_style()
 	style.content_margin_left = 16.0
 	style.content_margin_right = 16.0
@@ -47,17 +49,12 @@ func _make_group(group_title: String, content: Control) -> Panel:
 	style.content_margin_bottom = 14.0
 	panel.add_theme_stylebox_override("panel", style)
 	var box := VBoxContainer.new()
-	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	box.offset_left = 16.0
-	box.offset_right = -16.0
-	box.offset_top = 10.0
-	box.offset_bottom = -14.0
 	box.add_theme_constant_override("separation", 10)
 	panel.add_child(box)
 	var head := Label.new()
 	head.text = group_title
 	head.add_theme_font_override("font", UITheme.spaced_font(2))
-	head.add_theme_font_size_override("font_size", 15)
+	head.add_theme_font_size_override("font_size", 16)
 	head.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	box.add_child(head)
 	var divider := Panel.new()
@@ -76,14 +73,15 @@ func _make_fullscreen_row() -> Control:
 	row.add_theme_constant_override("separation", 12)
 	var hint := Label.new()
 	hint.text = "切换游戏窗口 / 全屏显示模式"
-	hint.add_theme_font_size_override("font_size", 16)
+	hint.add_theme_font_size_override("font_size", 15)
+	hint.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	hint.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(hint)
 	_fullscreen_button = Button.new()
 	_fullscreen_button.custom_minimum_size = Vector2(280, 44)
 	_fullscreen_button.focus_mode = Control.FOCUS_NONE
-	_fullscreen_button.add_theme_font_size_override("font_size", 15)
+	_fullscreen_button.add_theme_font_size_override("font_size", 14)
 	UITheme.apply_kenney_rect_button(_fullscreen_button, "blue", Color.WHITE)
 	_fullscreen_button.pressed.connect(_on_fullscreen_pressed)
 	row.add_child(_fullscreen_button)
@@ -95,7 +93,7 @@ func _make_volume_row() -> Control:
 	row.add_theme_constant_override("separation", 12)
 	var volume_label := Label.new()
 	volume_label.text = "主音量"
-	volume_label.add_theme_font_size_override("font_size", 16)
+	volume_label.add_theme_font_size_override("font_size", 15)
 	volume_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	row.add_child(volume_label)
 	_volume_slider = HSlider.new()
@@ -107,7 +105,7 @@ func _make_volume_row() -> Control:
 	_volume_slider.value_changed.connect(_on_volume_changed)
 	row.add_child(_volume_slider)
 	_volume_value_label = Label.new()
-	_volume_value_label.add_theme_font_size_override("font_size", 16)
+	_volume_value_label.add_theme_font_size_override("font_size", 15)
 	_volume_value_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	row.add_child(_volume_value_label)
 	return row
@@ -128,8 +126,11 @@ func _make_gameplay_rows() -> Control:
 func _make_check(text: String, handler: Callable) -> CheckButton:
 	var check := CheckButton.new()
 	check.text = text
-	check.add_theme_font_size_override("font_size", 16)
+	check.add_theme_font_size_override("font_size", 15)
 	check.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	check.add_theme_color_override("font_hover_color", UITheme.LIGHT_INK)
+	check.add_theme_color_override("font_pressed_color", UITheme.LIGHT_INK)
+	check.add_theme_color_override("font_hover_pressed_color", UITheme.LIGHT_INK)
 	check.toggled.connect(handler)
 	return check
 

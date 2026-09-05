@@ -11,6 +11,7 @@ const NODE_HEIGHT := 62
 const DEBUG_POINTS_AMOUNT: int = 50
 
 var _points_label: Label
+var _unlocked_count_label: Label
 var _tab_container: TabContainer
 var _detail_panel: PanelContainer
 var _detail_title: Label
@@ -49,6 +50,11 @@ func _build_ui() -> void:
 	_points_label.add_theme_font_size_override("font_size", 16)
 	_points_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
 	top_row.add_child(_points_label)
+	_unlocked_count_label = Label.new()
+	_unlocked_count_label.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_BLUE_SOFT, 11, 4))
+	_unlocked_count_label.add_theme_font_size_override("font_size", 16)
+	_unlocked_count_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+	top_row.add_child(_unlocked_count_label)
 	var reset_button := Button.new()
 	reset_button.text = "重置科技（全额返还）"
 	reset_button.custom_minimum_size = Vector2(200, 40)
@@ -86,8 +92,13 @@ func _build_ui() -> void:
 	_build_confirm_dialog()
 
 
+## 层级行标签（概念图：基础强化 / 进阶强化 / 终极强化）。
+const TIER_LABELS := {1: "基础强化", 2: "进阶强化", 3: "终极强化"}
+
+
 ## 树状布局：GridContainer 按「行 = tier 层级、列 = 前置链」排布，
-## 同一 tier 的节点并排展示；链内父→子之间插入竖线连接行；无节点的格子以占位保持列对齐。
+## 同一 tier 的节点并排展示；链内父→子之间插入竖线连接行；无节点的格子以占位保持列对齐；
+## 每行首列为层级行标签（v0.19.2 对齐概念图 ui_tech.png）。
 func _build_tree(category: String) -> Control:
 	var scroll := ScrollContainer.new()
 	scroll.name = category
@@ -95,7 +106,7 @@ func _build_tree(category: String) -> Control:
 	var chains := _get_chains(category)
 	var grid := GridContainer.new()
 	grid.name = "TreeGrid"
-	grid.columns = chains.size()
+	grid.columns = chains.size() + 1
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 2)
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -105,8 +116,10 @@ func _build_tree(category: String) -> Control:
 		var last: TechItemData = chain[chain.size() - 1]
 		max_tier = maxi(max_tier, last.tier)
 	for tier in range(1, max_tier + 1):
+		grid.add_child(_make_tier_label(tier))
 		if tier > 1:
 			# 连接行：链在该层有节点才显示竖线，其余格子占位保持列对齐。
+			grid.add_child(Control.new())
 			for chain in chains:
 				grid.add_child(_make_connector(_chain_item_at_tier(chain, tier) != null))
 		for chain in chains:
@@ -116,6 +129,16 @@ func _build_tree(category: String) -> Control:
 			else:
 				grid.add_child(Control.new())
 	return scroll
+
+
+func _make_tier_label(tier: int) -> Control:
+	var cell := CenterContainer.new()
+	var label := Label.new()
+	label.text = TIER_LABELS.get(tier, "第 %d 层" % tier)
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	cell.add_child(label)
+	return cell
 
 
 ## 按前置链分组：无前置的条目为链根，沿 requires 将后续条目归入同链。
@@ -161,10 +184,10 @@ func _is_chain_leaf(chain: Array, item: TechItemData) -> bool:
 
 func _make_node_button(item: TechItemData, is_root: bool, is_leaf: bool) -> Button:
 	var button := Button.new()
-	button.custom_minimum_size = Vector2(NODE_MIN_WIDTH, NODE_HEIGHT)
+	button.custom_minimum_size = Vector2(NODE_MIN_WIDTH, NODE_HEIGHT + 22)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	button.add_theme_font_size_override("font_size", 15)
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.add_theme_font_size_override("font_size", 13)
 	button.toggle_mode = true
 	button.pressed.connect(_on_node_pressed.bind(item))
 	button.set_meta("tech_id", item.id)
@@ -249,7 +272,8 @@ func _build_confirm_dialog() -> void:
 
 func _refresh() -> void:
 	var profile := ProfileStore.get_profile()
-	_points_label.text = "科技点：%d" % profile.tech_points
+	_points_label.text = "科技点 ×%d" % profile.tech_points
+	_unlocked_count_label.text = "已解锁 %d 项" % profile.tech_unlocks.size()
 	for tech_id in _node_buttons.keys():
 		var item := TechTree.get_item(tech_id)
 		if item == null:
@@ -268,13 +292,13 @@ func _refresh_node(button: Button, item: TechItemData) -> void:
 	var marker := _node_marker(button)
 	var state_color := UITheme.LIGHT_BODY
 	if unlocked:
-		button.text = "%s%s\n已解锁 ✓" % [marker, item.name]
+		button.text = "%s%s\n%s\n✓ 已解锁" % [marker, item.name, item.summary]
 		state_color = UITheme.TAG_OK_FG
 	elif prereq_ok:
-		button.text = "%s%s\n解锁（%d 点）" % [marker, item.name, item.cost]
+		button.text = "%s%s\n%s\n科技点 ×%d" % [marker, item.name, item.summary, item.cost]
 		state_color = UITheme.LIGHT_GOLD_TEXT if profile.tech_points >= item.cost else UITheme.LIGHT_BODY
 	else:
-		button.text = "%s%s\n需前置科技" % [marker, item.name]
+		button.text = "%s\n%s\n需前置科技" % [item.name, item.summary]
 		state_color = UITheme.LIGHT_LOCK
 	button.add_theme_color_override("font_color", state_color)
 	button.add_theme_stylebox_override("normal", _make_node_style(state_color, false))
