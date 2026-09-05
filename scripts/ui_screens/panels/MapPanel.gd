@@ -208,13 +208,35 @@ func _toggle_chapter_popup() -> void:
 	list_style.shadow_size = 10
 	list_panel.add_theme_stylebox_override("panel", list_style)
 	overlay.add_child(list_panel)
+	# 列表滚动容器（v0.20.5：章节行多时弹层限高滚动，不遮挡不截断）
+	var list_scroll := ScrollContainer.new()
+	list_scroll.name = "ChapterScroll"
+	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	list_scroll.offset_left = 6.0
+	list_scroll.offset_right = -8.0
+	list_scroll.offset_top = 6.0
+	list_scroll.offset_bottom = -6.0
+	list_panel.add_child(list_scroll)
 	var list_box := VBoxContainer.new()
-	list_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	list_box.offset_left = 6.0
-	list_box.offset_right = -6.0
-	list_box.offset_top = 6.0
-	list_box.offset_bottom = -6.0
-	list_panel.add_child(list_box)
+	list_box.add_theme_constant_override("separation", 4)
+	list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list_scroll.add_child(list_box)
+	var vbar := list_scroll.get_v_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
+	track.set_corner_radius_all(5)
+	var grabber := StyleBoxFlat.new()
+	grabber.bg_color = Color("#7ec8ea")
+	grabber.set_corner_radius_all(5)
+	var grabber_hot := StyleBoxFlat.new()
+	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
+	grabber_hot.set_corner_radius_all(5)
+	vbar.add_theme_stylebox_override("scroll", track)
+	vbar.add_theme_stylebox_override("grabber", grabber)
+	vbar.add_theme_stylebox_override("grabber_highlight", grabber_hot)
+	vbar.add_theme_stylebox_override("grabber_pressed", grabber_hot)
+	vbar.custom_minimum_size = Vector2(10, 0)
 
 	var chapter := GameFlow.get_chapter()
 	_chapter_rows.clear()
@@ -229,9 +251,12 @@ func _toggle_chapter_popup() -> void:
 	# 弹层定位：框按钮正下方（top_level 坐标 = 画布坐标，与 get_global_rect 同空间）
 	var box_rect := _chapter_button.get_global_rect()
 	list_panel.position = box_rect.position + Vector2(0, box_rect.size.y + 4)
-	# 显式尺寸（行高 42 × 行数 + 内边距）：Panel 锚定子盒不传导最小尺寸，不能 reset_size
+	# 显式尺寸（Panel 锚定子盒不传导最小尺寸）：行高 46（42+间距），限高约 5 行，超出滚动
 	var row_count := 1 + RESERVED_CHAPTERS.size()
-	list_panel.size = Vector2(maxf(box_rect.size.x, 260.0), row_count * 42.0 + 14.0)
+	var list_width := maxf(box_rect.size.x, 260.0)
+	var list_height := minf(row_count * 46.0 + 12.0, 262.0)
+	list_panel.size = Vector2(list_width, list_height)
+	list_box.custom_minimum_size = Vector2(list_width - 34.0, 0)
 
 
 func _append_chapter_row(list_box: VBoxContainer, name_text: String, is_current: bool, enabled: bool) -> void:
