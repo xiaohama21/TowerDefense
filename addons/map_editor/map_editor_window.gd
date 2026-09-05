@@ -28,12 +28,19 @@ func _ready() -> void:
 	initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
 	min_size = Vector2i(1180, 760)
 	size = Vector2i(1340, 860)
+	# B-029：Godot 4 Window 点右上角 X 只发 close_requested 不自动关闭。
+	close_requested.connect(_on_close_requested)
 	_build_ui()
 	_scan_stages()
 	if _stage_paths.is_empty():
 		_set_status("未找到任何关卡资源（%s）" % STAGES_ROOT, true)
 	else:
 		_load_stage(_stage_paths[_stage_option.selected])
+
+
+## 关闭窗口仅隐藏（实例与已载入状态保留，工具菜单重开时复用原实例）。
+func _on_close_requested() -> void:
+	hide()
 
 
 func _build_ui() -> void:
@@ -95,14 +102,26 @@ func _build_ui() -> void:
 	middle.add_theme_constant_override("separation", 8)
 	root_box.add_child(middle)
 
+	# B-030：画布恒按 1280×720 逻辑分辨率布局（size_2d_override + stretch），
+	# 外层 AspectRatioContainer 16:9 等比缩放居中——窗口缩放不裁切、不变形，
+	# 网格数量与运行时 16×9 恒一致。
+	var canvas_fit := AspectRatioContainer.new()
+	canvas_fit.ratio = float(MAP_W) / float(MAP_H)
+	canvas_fit.stretch_mode = AspectRatioContainer.STRETCH_FIT
+	canvas_fit.alignment_horizontal = AspectRatioContainer.ALIGNMENT_CENTER
+	canvas_fit.alignment_vertical = AspectRatioContainer.ALIGNMENT_CENTER
+	canvas_fit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	canvas_fit.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	middle.add_child(canvas_fit)
+
 	var canvas_container := SubViewportContainer.new()
 	canvas_container.stretch = true
-	canvas_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	canvas_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	middle.add_child(canvas_container)
+	canvas_fit.add_child(canvas_container)
 
 	_viewport = SubViewport.new()
 	_viewport.size = Vector2i(MAP_W, MAP_H)
+	_viewport.size_2d_override = Vector2i(MAP_W, MAP_H)
+	_viewport.size_2d_override_stretch = true
 	_viewport.disable_3d = true
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	canvas_container.add_child(_viewport)
@@ -259,6 +278,11 @@ func _update_data_panel(road_cells: Array, entry_cell: Vector2i, base_cell: Vect
 	if not String(_stage.display_name).is_empty():
 		lines.append("关卡：%s" % _stage.display_name)
 	lines.append("主题：%s" % _stage.theme)
+	lines.append("网格：%d×%d（%dpx/格 · %d×%d）" % [
+		GridBackground.COLS, GridBackground.ROWS, GridBackground.GRID_SIZE,
+		GridBackground.COLS * GridBackground.GRID_SIZE,
+		GridBackground.ROWS * GridBackground.GRID_SIZE,
+	])
 	lines.append("")
 	lines.append("路格：%d" % road_cells.size())
 	lines.append("入口：(%d,%d)　基地：(%d,%d)" % [entry_cell.x, entry_cell.y, base_cell.x, base_cell.y])
