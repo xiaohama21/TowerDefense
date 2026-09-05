@@ -111,6 +111,17 @@ func _build_ui() -> void:
 	for color_state in ["font_color", "font_hover_color", "font_pressed_color",
 			"font_hover_pressed_color", "font_focus_color"]:
 		_chapter_button.add_theme_color_override(color_state, LOGO_TEXT)
+	var arrow := TextureRect.new()
+	arrow.texture = _small_arrow_icon()
+	arrow.custom_minimum_size = Vector2(18, 12)
+	arrow.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chapter_button.add_child(arrow)
+	arrow.position = Vector2(_chapter_button.size.x - 30.0, (_chapter_button.custom_minimum_size.y - 12.0) * 0.5)
+	_chapter_button.resized.connect(func() -> void:
+		arrow.position = Vector2(_chapter_button.size.x - 30.0, (_chapter_button.size.y - 12.0) * 0.5)
+	)
 	_chapter_button.pressed.connect(_toggle_chapter_popup)
 	topbar.add_child(_chapter_button)
 
@@ -209,8 +220,9 @@ func _toggle_chapter_popup() -> void:
 	_chapter_rows.clear()
 	_append_chapter_row(list_box, "第%s章 · %s" % [_chapter_cn_numeral(chapter.chapter_number), chapter.display_name],
 		true, true)
-	for reserved_name in RESERVED_CHAPTERS:
-		_append_chapter_row(list_box, reserved_name, false, false)
+	for reserved_index in range(RESERVED_CHAPTERS.size()):
+		_append_chapter_row(list_box, "第%s章 · %s" % [_chapter_cn_numeral(reserved_index + 2),
+			RESERVED_CHAPTERS[reserved_index]], false, false)
 
 	add_child(overlay)
 	_chapter_popup = overlay
@@ -621,6 +633,7 @@ func _build_detail_bar() -> void:
 		pill_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		pill_row.add_theme_constant_override("separation", 5)
 		pill.add_child(pill_row)
+		stats.add_child(pill)
 		# 键（弱色）+ 值（墨蓝）——v0.20.3 修复：原胶囊只有值没有键名，含义不明
 		var key_label := Label.new()
 		key_label.text = stat_def
