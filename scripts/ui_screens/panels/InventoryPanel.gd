@@ -83,6 +83,8 @@ func _build_ui() -> void:
 		button.pressed.connect(_on_category_pressed.bind(category_index))
 		filter_row.add_child(button)
 		_category_buttons.append(button)
+		# 未选中项同样应用灰 Kenney（v0.19.1 修复：缺样式回落默认深色主题）
+		UITheme.apply_kenney_rect_button(button, "grey", UITheme.LIGHT_BODY)
 		if category_index == -1:
 			button.button_pressed = true
 			UITheme.apply_kenney_rect_button(button, "blue", Color.WHITE)

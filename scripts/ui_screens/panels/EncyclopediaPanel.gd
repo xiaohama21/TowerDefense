@@ -210,8 +210,10 @@ func _make_segment_button(label_text: String, mode: StringName) -> Button:
 	var button := Button.new()
 	button.text = label_text
 	button.custom_minimum_size = Vector2(140, 42)
+	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", 18)
 	button.toggle_mode = true
+	UITheme.apply_light_selectable(button)
 	button.pressed.connect(_switch_mode.bind(mode))
 	return button
 
@@ -221,9 +223,8 @@ func _switch_mode(mode: StringName) -> void:
 	_character_button.set_pressed_no_signal(mode == &"character")
 	_enemy_button.set_pressed_no_signal(mode == &"enemy")
 	for button in [_character_button, _enemy_button]:
-		var selected: bool = button == (_character_button if mode == &"character" else _enemy_button)
-		if selected:
-			UITheme.apply_light_selectable(button)
+		# 未选中按钮同样要有样式（v0.19.1 修复：只在选中时应用导致未选侧回落默认深色主题）
+		UITheme.apply_light_selectable(button)
 	if _chapter_flow != null:
 		_chapter_flow.visible = mode == &"enemy"
 	_rebuild_left_list()

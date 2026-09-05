@@ -101,6 +101,9 @@ static func apply_kenney_rect_button(button: Button, color_key: String, font_col
 		if state_name == "pressed":
 			pressed_style = style
 	button.add_theme_stylebox_override("hover_pressed", pressed_style)
+	var disabled_style: StyleBoxTexture = pressed_style.duplicate()
+	disabled_style.texture = load("res://assets/ui/buttons/rect/grey/normal.png")
+	button.add_theme_stylebox_override("disabled", disabled_style)
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.add_theme_color_override("font_color", font_color)
 	button.add_theme_color_override("font_hover_color", font_color)
