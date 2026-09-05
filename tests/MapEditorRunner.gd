@@ -192,10 +192,24 @@ func _run() -> void:
 	_check(not editor._stage.decor_cells.has(free_cell), "再次撤销应回上一绿态（装饰移除）")
 	_check((editor._data_label.text as String).contains("装饰格：12"), "撤销后面板装饰计数回 12")
 
-	# ===== v0.7：装饰类型选择（decor_types 显式映射 + 哈希回退） =====
+	# ===== v0.7/v0.8：装饰类型选择（地形栏样块 + decor_types 显式映射 + 哈希回退） =====
+	# 地形栏：页签 ↔ 样块数量，素材可加载
+	_check(editor._palette_swatches.get_child_count() == 1, "路径页签地形栏应 1 个样块（道路）")
+	editor._on_brush_pressed(editor.Brush.DECOR)
+	_check(editor._palette_swatches.get_child_count() == 4, "装饰页签地形栏应 4 个样块（树/石/旗/火把）")
+	for decor_id in [&"tree", &"rock", &"banner", &"torch"]:
+		_check(ResourceLoader.exists("res://assets/map/decor/%s.png" % decor_id),
+			"装饰素材应存在：%s.png" % decor_id)
+	editor._on_brush_pressed(editor.Brush.FORBIDDEN)
+	_check(editor._palette_swatches.get_child_count() == 1, "禁建页签地形栏应 1 个样块（禁建山）")
+	editor._on_brush_pressed(editor.Brush.SLOT)
+	_check(editor._palette_swatches.get_child_count() == 1, "建造位页签地形栏应 1 个样块")
+	editor._on_brush_pressed(editor.Brush.ERASE)
+	_check(editor._palette_swatches.get_child_count() == 1, "擦除页签地形栏应 1 个样块")
+
 	var decor_free := _find_free_cell(editor)
-	editor._brush = editor.Brush.DECOR
-	editor._decor_type_option.selected = 1  # 石
+	editor._on_brush_pressed(editor.Brush.DECOR)
+	editor._selected_decor_type = &"rock"
 	editor._apply_brush_at(decor_free)
 	_check(editor._stage.decor_types.get(decor_free, &"") == &"rock", "装饰刷应写入选定类型 rock")
 	_check(editor._grid._decor_type_for_cell(decor_free) == &"rock", "预览应按显式类型渲染（石）")
@@ -228,8 +242,8 @@ func _run() -> void:
 	_check(editor._path_cells.size() == 2, "邻格点击应延伸（2 格）")
 	_check(editor._stage.path_points.size() == 4, "2 格链应生成 4 点（2 中心 + 2 图外延长）")
 	_check(editor._dirty, "编辑后应置脏标记")
-	editor._brush = editor.Brush.DECOR
-	editor._decor_type_option.selected = 3  # 火把
+	editor._on_brush_pressed(editor.Brush.DECOR)
+	editor._selected_decor_type = &"torch"
 	var roundtrip_decor := Vector2i(2, 2)
 	editor._apply_brush_at(roundtrip_decor)
 

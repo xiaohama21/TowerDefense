@@ -7,6 +7,7 @@ extends Window
 ## 撤销回退到上次校验通过态。M3 将在此骨架上加 .tres / 底图 PNG 导出。
 
 const OVERLAY_SCRIPT := preload("res://addons/map_editor/map_editor_overlay.gd")
+const SWATCH_SCRIPT := preload("res://addons/map_editor/terrain_swatch.gd")
 const STAGES_ROOT := "res://resources/stages"
 const MAP_W := 1280
 const MAP_H := 720
@@ -14,9 +15,20 @@ const GREEN_HISTORY_MAX := 100
 
 enum Brush { PATH, DECOR, FORBIDDEN, SLOT, ERASE }
 
-## 装饰类型选项（与 GridBackground.DECOR_TYPES 一致）。
+## 装饰类型键（与 GridBackground.DECOR_TYPES 一致）。
 const DECOR_TYPE_KEYS: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
-const DECOR_TYPE_LABELS: Array[String] = ["树", "石", "旗", "火把"]
+
+## 笔刷页签对应的地形样块定义（v0.8 地形栏：样块带图片/同源预览）。
+const BRUSH_TERRAINS := {
+	Brush.PATH: [{"id": &"road", "name": "道路"}],
+	Brush.DECOR: [
+		{"id": &"tree", "name": "树"}, {"id": &"rock", "name": "石"},
+		{"id": &"banner", "name": "旗"}, {"id": &"torch", "name": "火把"},
+	],
+	Brush.FORBIDDEN: [{"id": &"mountain", "name": "禁建山"}],
+	Brush.SLOT: [{"id": &"slot", "name": "建造位"}],
+	Brush.ERASE: [{"id": &"erase", "name": "擦除"}],
+}
 
 var _stage: StageData
 var _stage_paths: Array[String] = []
@@ -34,6 +46,8 @@ var _path_cells: Array[Vector2i] = []
 ## 校验通过态快照栈（撤销目标）；编辑后通过才入栈。
 var _green_history: Array[Dictionary] = []
 var _brush: int = Brush.PATH
+## 装饰刷当前选中的地形类型（地形栏样块点选，v0.8 替代文字下拉）。
+var _selected_decor_type: StringName = &"tree"
 var _hover_cell := Vector2i(-1, -1)
 
 var _stage_option: OptionButton
@@ -41,7 +55,7 @@ var _theme_option: OptionButton
 var _load_button: Button
 var _undo_button: Button
 var _force_save: CheckButton
-var _decor_type_option: OptionButton
+var _palette_swatches: HBoxContainer
 var _data_label: Label
 var _status_label: Label
 
@@ -220,7 +234,7 @@ func _build_ui() -> void:
 	hint_label.add_theme_font_size_override("font_size", 14)
 	hint_panel.add_child(hint_label)
 
-	# 笔刷条
+	# 笔刷条（页签）
 	var brush_bar := HBoxContainer.new()
 	brush_bar.add_theme_constant_override("separation", 6)
 	root_box.add_child(brush_bar)
@@ -246,21 +260,26 @@ func _build_ui() -> void:
 			brush_button.button_pressed = true
 	brush_bar.add_child(_spacer())
 
-	var decor_caption := Label.new()
-	decor_caption.text = "装饰类型"
-	decor_caption.add_theme_font_size_override("font_size", 15)
-	brush_bar.add_child(decor_caption)
-
-	_decor_type_option = OptionButton.new()
-	for type_label in DECOR_TYPE_LABELS:
-		_decor_type_option.add_item(type_label)
-	_decor_type_option.selected = 0
-	brush_bar.add_child(_decor_type_option)
-
 	var reverse_button := Button.new()
 	reverse_button.text = "出入口端反转"
 	reverse_button.pressed.connect(_on_reverse_pressed)
 	brush_bar.add_child(reverse_button)
+
+	# 地形栏（v0.8）：随笔刷页签切换的图形样块（素材图/同源预览，选中金框）
+	var palette_bar := HBoxContainer.new()
+	palette_bar.add_theme_constant_override("separation", 6)
+	root_box.add_child(palette_bar)
+
+	var terrain_caption := Label.new()
+	terrain_caption.text = "地形"
+	terrain_caption.add_theme_font_size_override("font_size", 15)
+	palette_bar.add_child(terrain_caption)
+
+	_palette_swatches = HBoxContainer.new()
+	_palette_swatches.add_theme_constant_override("separation", 6)
+	palette_bar.add_child(_palette_swatches)
+	palette_bar.add_child(_spacer())
+	_rebuild_terrain_palette()
 
 	# 底部状态
 	_status_label = Label.new()
@@ -505,9 +524,35 @@ func _export_base_map(path: String) -> int:
 
 func _on_brush_pressed(brush: int) -> void:
 	_brush = brush
-	_decor_type_option.disabled = brush != Brush.DECOR
+	_rebuild_terrain_palette()
 	_refresh_from_stage()
 	_set_status(_brush_hint(brush), false)
+
+
+## 重建地形栏样块（v0.8）：按当前笔刷页签显示对应地形，装饰保留已选类型，
+## 单形态笔刷默认选中唯一样块。
+func _rebuild_terrain_palette() -> void:
+	if _palette_swatches == null:
+		return
+	for child in _palette_swatches.get_children():
+		_palette_swatches.remove_child(child)
+		child.queue_free()
+	var swatch_group := ButtonGroup.new()
+	var default_id := _selected_decor_type if _brush == Brush.DECOR else &""
+	for def: Dictionary in BRUSH_TERRAINS.get(_brush, []):
+		var swatch := SWATCH_SCRIPT.new()
+		swatch.terrain_id = def["id"]
+		swatch.display_name = def["name"]
+		swatch.button_group = swatch_group
+		swatch.pressed.connect(_on_terrain_selected.bind(def["id"]))
+		_palette_swatches.add_child(swatch)
+		if def["id"] == default_id or (default_id == &"" and swatch.get_index() == 0):
+			swatch.button_pressed = true
+
+
+func _on_terrain_selected(terrain_id: StringName) -> void:
+	if _brush == Brush.DECOR and DECOR_TYPE_KEYS.has(terrain_id):
+		_selected_decor_type = terrain_id
 
 
 func _brush_hint(brush: int) -> String:
@@ -515,9 +560,9 @@ func _brush_hint(brush: int) -> String:
 		Brush.PATH:
 			return "路径刷：点击端点 4 邻空格延伸链；点击端点格退格（至少保留 2 格）。链首=入口、链尾=基地。"
 		Brush.DECOR:
-			return "装饰刷：在「装饰类型」下拉选定 树/石/旗/火把 后点涂，再点同格擦除。"
+			return "装饰刷：在地形栏点选 树/石/旗/火把 样块（图片预览）后点涂，再点同格擦除。"
 		Brush.FORBIDDEN:
-			return "禁建刷：点击空格点涂禁建地形，再点同格擦除（与道路重叠会被校验拦截）。"
+			return "禁建刷：点击空格点涂禁建山，再点同格擦除（与道路重叠会被校验拦截）。"
 		Brush.SLOT:
 			return "建造位刷：点击空格点涂软引导推荐位，再点同格擦除（与道路/禁建重叠记错误）。"
 		Brush.ERASE:
@@ -596,15 +641,15 @@ func _apply_brush_at(cell: Vector2i) -> void:
 	_after_edit()
 
 
-## 装饰刷（v0.7 按类型）：点涂写入 decor_cells + decor_types（选定类型），
-## 再点同格擦除并同步清理类型映射。
+## 装饰刷（v0.7 按类型 / v0.8 地形栏选型）：点涂写入 decor_cells + decor_types
+## （地形栏选中的类型），再点同格擦除并同步清理类型映射。
 func _toggle_decor_at(cell: Vector2i) -> void:
 	if _stage.decor_cells.has(cell):
 		_stage.decor_cells.erase(cell)
 		_stage.decor_types.erase(cell)
 	else:
 		_stage.decor_cells.append(cell)
-		_stage.decor_types[cell] = DECOR_TYPE_KEYS[_decor_type_option.selected]
+		_stage.decor_types[cell] = _selected_decor_type
 
 
 ## 路径刷：空链时点击任意格落首格；点击链端点的 4 邻空格 → 延伸；点击端点格 → 退格（链至少保留 2 格）。
