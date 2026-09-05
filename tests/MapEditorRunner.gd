@@ -24,6 +24,16 @@ func _run() -> void:
 	var editor = WINDOW_SCRIPT.new()
 	add_child(editor)
 
+	# ===== B-031：根容器全矩形锚点（Window 不自动拉伸直接 Control 子节点，
+	# 缺锚点时整个 UI 按最小尺寸挤在窗口左上角、画布只占一角） =====
+	var margin := editor.get_child(0) as MarginContainer
+	_check(margin != null, "根 MarginContainer 存在")
+	if margin != null:
+		_check(
+			margin.anchor_right == 1.0 and margin.anchor_bottom == 1.0,
+			"根容器应全矩形锚点（anchor_right/bottom=1），实测 (%s, %s)" % [margin.anchor_right, margin.anchor_bottom]
+		)
+
 	# ===== B-030：画布恒按 1280×720 逻辑分辨率布局 + 16:9 等比容器 =====
 	var viewport: SubViewport = editor._viewport
 	_check(viewport != null, "SubViewport 未创建")
@@ -71,6 +81,9 @@ func _run() -> void:
 	_check(editor.visible, "窗口实例化后应可见")
 	editor.close_requested.emit()
 	_check(not editor.visible, "close_requested 后窗口应隐藏（X 关闭）")
+
+	# 注：画布铺满的实际布局已在真实渲染下人工/截图核验（headless dummy 显示
+	# 服务不布局 Window 子控件，无法在此断言容器尺寸）。
 
 	if failures.is_empty():
 		print("MAP_EDITOR_TEST_OK")

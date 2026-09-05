@@ -26,8 +26,10 @@ var _status_label: Label
 func _ready() -> void:
 	title = "地图编辑器（M1 · 布局预览）"
 	initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
-	min_size = Vector2i(1180, 760)
-	size = Vector2i(1340, 860)
+	# 默认尺寸 = 1280×720 画布（1:1 零留白）+ 右侧 300px 数据面板 + 顶栏/状态条；
+	# 编辑器内 popup_centered_ratio 会按主窗口 92% 重设，画布 16:9 等比缩放跟随。
+	min_size = Vector2i(1024, 640)
+	size = Vector2i(1604, 822)
 	# B-029：Godot 4 Window 点右上角 X 只发 close_requested 不自动关闭。
 	close_requested.connect(_on_close_requested)
 	_build_ui()
@@ -46,6 +48,9 @@ func _on_close_requested() -> void:
 func _build_ui() -> void:
 	var font := load("res://assets/fonts/ZCOOL-Kuaile.ttf") as Font
 	var margin := MarginContainer.new()
+	# B-031：Window 不会自动拉伸直接 Control 子节点，必须显式全矩形锚点，
+	# 否则根容器按最小尺寸挤在左上角、画布只占窗口一角。
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_right", 8)
 	margin.add_theme_constant_override("margin_top", 8)
