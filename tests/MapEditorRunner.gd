@@ -20,6 +20,27 @@ func _check(condition: bool, message: String) -> void:
 		push_error("MAP_EDITOR_TEST: %s" % message)
 
 
+## 找一个非道路 / 非装饰 / 非禁建 / 非建造位的格（M2 笔刷用例）。
+func _find_free_cell(editor) -> Vector2i:
+	var road := {}
+	for cell in editor._path_cells:
+		road[cell] = true
+	for col in range(GridBackground.COLS):
+		for row in range(GridBackground.ROWS):
+			var cell := Vector2i(col, row)
+			if road.has(cell):
+				continue
+			if editor._stage.decor_cells.has(cell):
+				continue
+			if editor._stage.forbidden_cells.has(cell):
+				continue
+			var center := Vector2(cell * GridBackground.GRID_SIZE) + Vector2(40, 40)
+			if editor._stage.build_slot_positions.has(center):
+				continue
+			return cell
+	return Vector2i(-1, -1)
+
+
 func _run() -> void:
 	var editor = WINDOW_SCRIPT.new()
 	add_child(editor)
@@ -82,8 +103,97 @@ func _run() -> void:
 	editor.close_requested.emit()
 	_check(not editor.visible, "close_requested 后窗口应隐藏（X 关闭）")
 
-	# 注：画布铺满的实际布局已在真实渲染下人工/截图核验（headless dummy 显示
-	# 服务不布局 Window 子控件，无法在此断言容器尺寸）。
+	# ===== M2：笔刷编辑（路径链 / 装饰 / 禁建 / 建造位 / 主题 / 反转 / 撤销） =====
+	_check(editor._path_cells.size() == 21, "s01 路径链应 21 格，实测 %d" % editor._path_cells.size())
+	_check(editor._green_history.size() >= 1, "载入校验通过后应有绿色快照")
+
+	# 主题切换写入 stage.theme
+	var fire_index := -1
+	for i in range(editor._theme_option.item_count):
+		if editor._theme_option.get_item_text(i) == "fire":
+			fire_index = i
+	editor._on_theme_selected(fire_index)
+	_check(String(editor._stage.theme) == "fire", "主题切换应写入 stage.theme")
+	_check((editor._data_label.text as String).contains("主题：fire"), "数据面板主题应刷新")
+	editor._on_theme_selected(0)
+	_check(String(editor._stage.theme) == "grass", "主题切回 grass")
+
+	# 装饰刷点涂 / 再点擦除
+	var free_cell := _find_free_cell(editor)
+	_check(free_cell.x >= 0, "应存在非路非装饰空格")
+	editor._brush = editor.Brush.DECOR
+	editor._apply_brush_at(free_cell)
+	_check(editor._stage.decor_cells.has(free_cell), "装饰刷点涂应写入 decor_cells")
+	_check((editor._data_label.text as String).contains("装饰格：13"), "面板装饰计数应刷新为 13")
+	editor._apply_brush_at(free_cell)
+	_check(not editor._stage.decor_cells.has(free_cell), "装饰刷再点同格应擦除")
+	_check((editor._data_label.text as String).contains("装饰格：12"), "面板装饰计数应回到 12")
+
+	# 建造位刷：空格添加 / 再点擦除；画上道路格记编辑器错误
+	var slot_cell := _find_free_cell(editor)
+	editor._brush = editor.Brush.SLOT
+	editor._apply_brush_at(slot_cell)
+	_check(editor._stage.build_slot_positions.size() == 11, "建造位刷应 +1（11），实测 %d" % editor._stage.build_slot_positions.size())
+	editor._apply_brush_at(slot_cell)
+	_check(editor._stage.build_slot_positions.size() == 10, "建造位刷再点应擦除（10）")
+	var road_cell: Vector2i = editor._path_cells[0]
+	editor._apply_brush_at(road_cell)
+	_check(not editor._editor_errors().is_empty(), "建造位与道路重叠应记编辑器错误")
+	_check((editor._data_label.text as String).contains("✖"), "面板应显示编辑器错误 ✖")
+	var errors_before_undo: int = editor._green_history.size()
+	editor._on_undo_pressed()
+	_check(editor._editor_errors().is_empty(), "撤销应回到上次校验通过态（错误消除）")
+	_check(editor._green_history.size() == errors_before_undo - 1, "撤销应弹出绿色快照")
+
+	# 路径刷：基地端 4 邻延伸 / 点击新端点退格；path_points 自动生成含图外延长段
+	var tail: Vector2i = editor._path_cells[editor._path_cells.size() - 1]
+	var extend_cell := Vector2i(-1, -1)
+	for offset in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+		var candidate: Vector2i = tail + offset
+		if candidate.x >= 0 and candidate.x < GridBackground.COLS \
+				and candidate.y >= 0 and candidate.y < GridBackground.ROWS \
+				and not editor._path_cells.has(candidate):
+			extend_cell = candidate
+			break
+	_check(extend_cell.x >= 0, "基地端应存在可延伸邻格")
+	editor._brush = editor.Brush.PATH
+	var points_before: int = editor._stage.path_points.size()
+	editor._apply_brush_at(extend_cell)
+	_check(editor._path_cells.size() == 22, "路径延伸后链长应 22，实测 %d" % editor._path_cells.size())
+	_check((editor._data_label.text as String).contains("路格：22"), "面板路格数应刷新为 22")
+	_check(editor._stage.path_points.size() == points_before + 1, "延伸应新增 path_points 点（含延长段）")
+	var expected_tail_center: Vector2 = Vector2(extend_cell * GridBackground.GRID_SIZE) + Vector2(40, 40)
+	_check(editor._stage.path_points.back().distance_to(expected_tail_center) <= 80.01,
+		"末点应在新端点中心 ±80px 外延段，实测 %s" % str(editor._stage.path_points.back()))
+	editor._apply_brush_at(extend_cell)
+	_check(editor._path_cells.size() == 21, "点击新端点应退格回 21")
+	_check((editor._data_label.text as String).contains("路格：21"), "退格后面板路格数应回 21")
+
+	# 出入口端反转
+	var entry_before: Vector2i = editor._overlay.entry_cell
+	var base_before: Vector2i = editor._overlay.base_cell
+	editor._on_reverse_pressed()
+	_check(editor._overlay.entry_cell == base_before and editor._overlay.base_cell == entry_before,
+		"反转后入口/基地应对调")
+	editor._on_reverse_pressed()
+	_check(editor._overlay.entry_cell == entry_before, "再次反转应复原")
+
+	# 撤销语义：绿编辑 → 红编辑 → 撤销恢复绿态
+	editor._brush = editor.Brush.DECOR
+	editor._apply_brush_at(free_cell)
+	_check(editor._stage.decor_cells.has(free_cell), "撤销语义前置：装饰已点涂")
+	editor._brush = editor.Brush.FORBIDDEN
+	editor._apply_brush_at(road_cell)
+	_check(not editor._editor_errors().is_empty() or not (editor._data_label.text as String).contains("MapValidator 通过"),
+		"禁建画上道路应进入不通过态（不记录绿色快照）")
+	editor._on_undo_pressed()
+	_check(editor._stage.decor_cells.has(free_cell), "撤销应恢复最近绿态（装饰保留）")
+	editor._on_undo_pressed()
+	_check(not editor._stage.decor_cells.has(free_cell), "再次撤销应回上一绿态（装饰移除）")
+	_check((editor._data_label.text as String).contains("装饰格：12"), "撤销后面板装饰计数回 12")
+
+	# 注：画布铺满与鼠标映射的实际行为已在真实渲染下截图核验（headless dummy
+	# 显示服务不布局 Window 子控件，无法在此断言容器尺寸）。
 
 	if failures.is_empty():
 		print("MAP_EDITOR_TEST_OK")
