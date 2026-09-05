@@ -36,41 +36,48 @@ func _on_shown() -> void:
 func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "科技树"
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", UITheme.GOLD)
+	title.add_theme_font_override("font", UITheme.spaced_font(3))
+	title.add_theme_font_size_override("font_size", 27)
+	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	add_child(title)
 
 	var top_row := HBoxContainer.new()
 	top_row.add_theme_constant_override("separation", 16)
 	add_child(top_row)
 	_points_label = Label.new()
-	_points_label.add_theme_font_size_override("font_size", 24)
-	_points_label.add_theme_color_override("font_color", UITheme.GOLD)
+	_points_label.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OPEN_BG, 11, 4))
+	_points_label.add_theme_font_size_override("font_size", 16)
+	_points_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
 	top_row.add_child(_points_label)
 	var reset_button := Button.new()
 	reset_button.text = "重置科技（全额返还）"
-	reset_button.custom_minimum_size = Vector2(200, 38)
-	reset_button.add_theme_font_size_override("font_size", 15)
+	reset_button.custom_minimum_size = Vector2(200, 40)
+	reset_button.focus_mode = Control.FOCUS_NONE
+	reset_button.add_theme_font_size_override("font_size", 14)
+	UITheme.apply_kenney_rect_button(reset_button, "grey", UITheme.LIGHT_BODY)
 	reset_button.pressed.connect(_on_reset_pressed)
 	top_row.add_child(reset_button)
 
 	var debug_button := Button.new()
 	debug_button.text = "科技点+%d（测试）" % DEBUG_POINTS_AMOUNT
-	debug_button.custom_minimum_size = Vector2(140, 38)
+	debug_button.custom_minimum_size = Vector2(150, 40)
+	debug_button.focus_mode = Control.FOCUS_NONE
 	debug_button.add_theme_font_size_override("font_size", 13)
-	debug_button.add_theme_color_override("font_color", UITheme.GRAY)
+	UITheme.apply_kenney_rect_button(debug_button, "grey", UITheme.LIGHT_BODY)
 	debug_button.pressed.connect(_on_debug_add_points)
 	top_row.add_child(debug_button)
 
 	var legend := Label.new()
 	legend.text = "图例：◆ 根节点（起点） · ○ 叶子节点（终点） · 边框色=状态（金=可解锁/绿=已解锁/灰=需前置） · 竖线=前置关系"
 	legend.add_theme_font_size_override("font_size", 12)
-	legend.add_theme_color_override("font_color", UITheme.GRAY)
+	legend.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	add_child(legend)
 
 	_tab_container = TabContainer.new()
 	_tab_container.name = "Tabs"
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_tab_container.tab_alignment = TabBar.ALIGNMENT_LEFT
+	UITheme.apply_light_tab_container(_tab_container)
 	add_child(_tab_container)
 	for category in TechTree.get_categories():
 		_tab_container.add_child(_build_tree(category))
@@ -171,7 +178,7 @@ func _make_connector(has_child: bool) -> Control:
 	var cell := CenterContainer.new()
 	if has_child:
 		var line := ColorRect.new()
-		line.color = UITheme.DISABLED
+		line.color = UITheme.LIGHT_BORDER_SOFT
 		line.custom_minimum_size = Vector2(2, 16)
 		cell.add_child(line)
 	return cell
@@ -179,11 +186,8 @@ func _make_connector(has_child: bool) -> Control:
 
 func _build_detail_panel() -> void:
 	_detail_panel = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = UITheme.PANEL_BG
-	style.border_color = UITheme.SIDEBAR_BORDER
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
+	var style := UITheme.light_panel_style()
+	style.set_border_width_all(2)
 	style.content_margin_left = 14
 	style.content_margin_right = 14
 	style.content_margin_top = 10
@@ -200,7 +204,9 @@ func _build_detail_panel() -> void:
 	top.add_theme_constant_override("separation", 10)
 	box.add_child(top)
 	_detail_title = Label.new()
-	_detail_title.add_theme_font_size_override("font_size", 17)
+	_detail_title.add_theme_font_override("font", UITheme.spaced_font(2))
+	_detail_title.add_theme_font_size_override("font_size", 18)
+	_detail_title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	top.add_child(_detail_title)
 	_detail_state = Label.new()
 	_detail_state.add_theme_font_size_override("font_size", 13)
@@ -209,18 +215,20 @@ func _build_detail_panel() -> void:
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(spacer)
 	_unlock_button = Button.new()
-	_unlock_button.custom_minimum_size = Vector2(170, 34)
+	_unlock_button.custom_minimum_size = Vector2(170, 40)
+	_unlock_button.focus_mode = Control.FOCUS_NONE
 	_unlock_button.add_theme_font_size_override("font_size", 14)
 	_unlock_button.pressed.connect(_on_unlock_pressed)
 	top.add_child(_unlock_button)
 
 	_detail_summary = Label.new()
 	_detail_summary.add_theme_font_size_override("font_size", 13)
-	_detail_summary.add_theme_color_override("font_color", UITheme.GRAY)
+	_detail_summary.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	box.add_child(_detail_summary)
 	_detail_desc = Label.new()
 	_detail_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail_desc.add_theme_font_size_override("font_size", 14)
+	_detail_desc.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	box.add_child(_detail_desc)
 
 	_show_default_detail()
@@ -258,16 +266,16 @@ func _refresh_node(button: Button, item: TechItemData) -> void:
 	var unlocked := TechTree.is_unlocked(profile, item.id)
 	var prereq_ok := TechTree.prerequisites_met(profile, item)
 	var marker := _node_marker(button)
-	var state_color := UITheme.TEXT
+	var state_color := UITheme.LIGHT_BODY
 	if unlocked:
 		button.text = "%s%s\n已解锁 ✓" % [marker, item.name]
-		state_color = UITheme.GREEN
+		state_color = UITheme.TAG_OK_FG
 	elif prereq_ok:
 		button.text = "%s%s\n解锁（%d 点）" % [marker, item.name, item.cost]
-		state_color = UITheme.GOLD if profile.tech_points >= item.cost else UITheme.TEXT
+		state_color = UITheme.LIGHT_GOLD_TEXT if profile.tech_points >= item.cost else UITheme.LIGHT_BODY
 	else:
 		button.text = "%s%s\n需前置科技" % [marker, item.name]
-		state_color = UITheme.DISABLED
+		state_color = UITheme.LIGHT_LOCK
 	button.add_theme_color_override("font_color", state_color)
 	button.add_theme_stylebox_override("normal", _make_node_style(state_color, false))
 	button.add_theme_stylebox_override("hover", _make_node_style(state_color, true))
@@ -287,8 +295,8 @@ func _node_marker(button: Button) -> String:
 ## 节点样式：边框色 = 状态色（绿/金/灰）；hover 底色加深。
 func _make_node_style(state_color: Color, hover: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = UITheme.PANEL_BG.darkened(0.12 if hover else 0.0)
-	style.set_corner_radius_all(8)
+	style.bg_color = UITheme.LIGHT_CARD_BG.darkened(0.05 if hover else 0.0)
+	style.set_corner_radius_all(10)
 	style.set_border_width_all(2)
 	style.border_color = state_color
 	style.content_margin_left = 6
@@ -303,10 +311,10 @@ func _make_node_style(state_color: Color, hover: bool) -> StyleBoxFlat:
 func _apply_node_selected_style(button: Button, selected: bool) -> void:
 	if selected:
 		var style := StyleBoxFlat.new()
-		style.bg_color = UITheme.SELECT_BG
-		style.border_color = UITheme.SELECT_BORDER
-		style.set_border_width_all(2)
-		style.set_corner_radius_all(6)
+		style.bg_color = Color("#fffdf2")
+		style.border_color = UITheme.LIGHT_GOLD_SELECT
+		style.set_border_width_all(3)
+		style.set_corner_radius_all(10)
 		style.content_margin_left = 6
 		style.content_margin_right = 6
 		style.content_margin_top = 4
@@ -315,10 +323,10 @@ func _apply_node_selected_style(button: Button, selected: bool) -> void:
 		button.add_theme_stylebox_override("hover", style)
 		button.add_theme_stylebox_override("pressed", style)
 		button.add_theme_stylebox_override("hover_pressed", style)
-		button.add_theme_color_override("font_color", UITheme.SELECT_TEXT)
-		button.add_theme_color_override("font_hover_color", UITheme.SELECT_TEXT)
-		button.add_theme_color_override("font_pressed_color", UITheme.SELECT_TEXT)
-		button.add_theme_color_override("font_hover_pressed_color", UITheme.SELECT_TEXT)
+		button.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+		button.add_theme_color_override("font_hover_color", UITheme.LIGHT_INK)
+		button.add_theme_color_override("font_pressed_color", UITheme.LIGHT_INK)
+		button.add_theme_color_override("font_hover_pressed_color", UITheme.LIGHT_INK)
 		button.set_pressed_no_signal(true)
 	else:
 		button.remove_theme_stylebox_override("pressed")
@@ -343,23 +351,26 @@ func _show_detail(item: TechItemData) -> void:
 	var prereq_ok := TechTree.prerequisites_met(profile, item)
 	var can_unlock := prereq_ok and not unlocked and profile.tech_points >= item.cost
 	_detail_title.text = item.name
-	_detail_title.add_theme_color_override("font_color", UITheme.GOLD)
+	_detail_title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	if unlocked:
 		_detail_state.text = "已解锁"
-		_detail_state.add_theme_color_override("font_color", UITheme.GREEN)
+		_detail_state.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
 		_unlock_button.text = "已解锁 ✓"
 		_unlock_button.disabled = true
+		_unlock_button.visible = true
 	elif prereq_ok:
 		_detail_state.text = "可解锁"
-		_detail_state.add_theme_color_override("font_color", UITheme.GOLD)
+		_detail_state.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
 		_unlock_button.text = "解锁（%d 点）" % item.cost
 		_unlock_button.disabled = profile.tech_points < item.cost
+		_unlock_button.visible = true
 	else:
 		_detail_state.text = "前置未解锁"
-		_detail_state.add_theme_color_override("font_color", UITheme.DISABLED)
+		_detail_state.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 		var req := TechTree.get_item(item.requires)
 		_unlock_button.text = "需前置：%s" % (req.name if req != null else item.requires)
 		_unlock_button.disabled = true
+		_unlock_button.visible = true
 	_apply_unlock_button_style(can_unlock)
 	_detail_summary.text = item.summary
 	_detail_desc.text = item.description
@@ -367,27 +378,18 @@ func _show_detail(item: TechItemData) -> void:
 
 ## 解锁按钮样式：可解锁=金色描边+金字（醒目），不可解锁=灰。
 func _apply_unlock_button_style(enabled: bool) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = UITheme.PANEL_BG
-	style.set_corner_radius_all(6)
-	style.set_border_width_all(2)
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 4
-	style.content_margin_bottom = 4
-	style.border_color = UITheme.GOLD if enabled else UITheme.SIDEBAR_BORDER
-	_unlock_button.add_theme_stylebox_override("normal", style)
-	_unlock_button.add_theme_stylebox_override("hover", style)
-	_unlock_button.add_theme_color_override("font_color", UITheme.GOLD if enabled else UITheme.DISABLED)
-	_unlock_button.add_theme_color_override("font_hover_color", UITheme.GOLD if enabled else UITheme.DISABLED)
+	# 解锁按钮（v0.19.0 换肤）：可解锁=黄 Kenney 主行动，不可=灰。
+	UITheme.apply_kenney_rect_button(_unlock_button, "yellow" if enabled else "grey",
+		UITheme.INK if enabled else UITheme.LIGHT_BODY)
 
 
 func _show_default_detail() -> void:
 	_detail_title.text = "科技树"
-	_detail_title.add_theme_color_override("font_color", UITheme.GOLD)
+	_detail_title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	_detail_state.text = ""
 	_unlock_button.text = ""
 	_unlock_button.disabled = true
+	_unlock_button.visible = false
 	_detail_summary.text = "点击科技节点查看详细说明；同一链（同列）节点需逐级解锁。"
 	_detail_desc.text = ""
 
@@ -417,10 +419,11 @@ func _on_reset_pressed() -> void:
 	var profile := ProfileStore.get_profile()
 	if profile.tech_unlocks.is_empty():
 		_detail_title.text = "无需重置"
-		_detail_title.add_theme_color_override("font_color", UITheme.GRAY)
+		_detail_title.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 		_detail_state.text = ""
 		_unlock_button.text = ""
 		_unlock_button.disabled = true
+		_unlock_button.visible = false
 		_detail_summary.text = ""
 		_detail_desc.text = "当前没有已解锁科技，无需重置。"
 		return
@@ -442,9 +445,10 @@ func _do_reset() -> void:
 	_selected_item = null
 	_refresh()
 	_detail_title.text = "重置完成"
-	_detail_title.add_theme_color_override("font_color", UITheme.GREEN)
+	_detail_title.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
 	_detail_state.text = ""
 	_unlock_button.text = ""
 	_unlock_button.disabled = true
+	_unlock_button.visible = false
 	_detail_summary.text = ""
 	_detail_desc.text = "已清空全部科技，返还 %d 科技点。" % refund

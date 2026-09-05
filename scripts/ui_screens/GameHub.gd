@@ -4,8 +4,6 @@ extends Control
 ## 换肤落地（v0.18.0 / 程序 0.8.10.11，参照首页 ui_home 同套视觉令牌）：
 ## 天空三档渐变 + 顶部柔光 → 居中圆角大面板 → 左侧 204px 亮蓝侧栏（Kenney 导航：
 ## 选中蓝 gloss 白字 / 未选灰 flat 深蓝字、底部红「返回主菜单」）→ 右侧内容区。
-## 过渡兼容：养成/科技/背包/设置/百科五屏未换肤，激活时垫深色圆角底板保证可读，
-## 随五屏按各自概念图换肤逐屏移除。
 
 const NAV_DEFS := [
 	[&"map", "地图选择"], [&"develop", "武将养成"], [&"tech", "科技树"],
@@ -33,7 +31,6 @@ const SUB_TEXT := Color("#7d9cb4")
 var _buttons: Dictionary = {}
 var _panels: Dictionary = {}
 var _content: MarginContainer
-var _legacy_backing: Panel
 
 
 func _ready() -> void:
@@ -124,20 +121,6 @@ func _build_hub() -> void:
 	_content.add_theme_constant_override("margin_top", 14)
 	_content.add_theme_constant_override("margin_bottom", 12)
 	columns.add_child(_content)
-
-	# 过渡兼容：未换肤五屏的深色圆角底板（地图页不显示）
-	_legacy_backing = Panel.new()
-	_legacy_backing.name = "LegacyBacking"
-	_legacy_backing.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_legacy_backing.offset_top = 4.0
-	_legacy_backing.offset_bottom = -4.0
-	var backing_style := StyleBoxFlat.new()
-	backing_style.bg_color = UITheme.BG
-	backing_style.set_corner_radius_all(12)
-	_legacy_backing.add_theme_stylebox_override("panel", backing_style)
-	_legacy_backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_legacy_backing.visible = false
-	_content.add_child(_legacy_backing)
 
 	_panels[&"map"] = _make_panel("MapPanel", MapPanelScript)
 	_panels[&"develop"] = _make_panel("DevelopPanel", DevelopPanelScript)
@@ -274,8 +257,6 @@ func _show_panel(panel_id: StringName) -> void:
 			# Kenney 换肤（v0.18.0）：选中=蓝 gloss 白字，未选=灰 flat 深蓝字。
 			UITheme.apply_kenney_rect_button(button, "blue" if active else "grey",
 				Color.WHITE if active else NAV_IDLE_TEXT)
-	if _legacy_backing != null:
-		_legacy_backing.visible = panel_id != &"map"
 	var panel: Control = _panels.get(panel_id)
 	if panel != null and panel.has_method("_on_shown"):
 		panel._on_shown()

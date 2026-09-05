@@ -128,12 +128,14 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "游戏百科"
 	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", UITheme.GOLD)
+	title.add_theme_font_override("font", UITheme.spaced_font(3))
+	title.add_theme_font_size_override("font_size", 27)
+	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	header.add_child(title)
 	var tag := Label.new()
 	tag.text = "全量图鉴 · 只读不写档"
 	tag.add_theme_font_size_override("font_size", 15)
-	tag.add_theme_color_override("font_color", UITheme.DISABLED)
+	tag.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 	tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(tag)
 
@@ -163,15 +165,15 @@ func _build_ui() -> void:
 	chapter_button.toggle_mode = true
 	chapter_button.set_pressed_no_signal(true)
 	chapter_button.pressed.connect(func() -> void: chapter_button.set_pressed_no_signal(true))
-	UITheme.apply_selected_style(chapter_button)
+	UITheme.apply_light_selectable(chapter_button)
 	_chapter_flow.add_child(chapter_button)
 	for reserved_name in MapPanelScript.RESERVED_CHAPTERS:
 		var reserved := Button.new()
 		reserved.text = "敬请期待 · %s" % reserved_name
 		reserved.custom_minimum_size = Vector2(0, 42)
 		reserved.add_theme_font_size_override("font_size", 14)
-		reserved.add_theme_color_override("font_color", UITheme.DISABLED)
-		reserved.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
+		reserved.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
+		reserved.add_theme_color_override("font_disabled_color", UITheme.LIGHT_LOCK)
 		reserved.disabled = true
 		_chapter_flow.add_child(reserved)
 	_chapter_flow.visible = false  # 武将图鉴视图不展示章节行
@@ -221,7 +223,7 @@ func _switch_mode(mode: StringName) -> void:
 	for button in [_character_button, _enemy_button]:
 		var selected: bool = button == (_character_button if mode == &"character" else _enemy_button)
 		if selected:
-			UITheme.apply_selected_style(button)
+			UITheme.apply_light_selectable(button)
 	if _chapter_flow != null:
 		_chapter_flow.visible = mode == &"enemy"
 	_rebuild_left_list()
@@ -268,7 +270,7 @@ func _rebuild_left_list() -> void:
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
-			UITheme.apply_selected_style(button)
+			UITheme.apply_light_selectable(button)
 			var accent := _profession_color(character)
 			button.add_theme_color_override("font_color", accent.lightened(0.35))
 			button.pressed.connect(_select_character.bind(str(character_id)))
@@ -287,7 +289,7 @@ func _rebuild_left_list() -> void:
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
-			UITheme.apply_selected_style(button)
+			UITheme.apply_light_selectable(button)
 			button.add_theme_color_override("font_color", enemy.body_color.lightened(0.4))
 			button.pressed.connect(_select_enemy.bind(str(enemy_id)))
 			grid.add_child(button)
@@ -317,16 +319,17 @@ func _rebuild_detail() -> void:
 func _build_character_detail() -> void:
 	_header_name_label = Label.new()
 	_header_name_label.add_theme_font_size_override("font_size", 24)
-	_header_name_label.add_theme_color_override("font_color", UITheme.GOLD)
+	_header_name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	_detail_box.add_child(_header_name_label)
 	_header_meta_label = Label.new()
 	_header_meta_label.add_theme_font_size_override("font_size", 15)
-	_header_meta_label.add_theme_color_override("font_color", UITheme.GRAY)
+	_header_meta_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	_detail_box.add_child(_header_meta_label)
 
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tab_container.add_theme_font_size_override("font_size", 16)
+	_tab_container.tab_alignment = TabBar.ALIGNMENT_LEFT
+	UITheme.apply_light_tab_container(_tab_container)
 	_detail_box.add_child(_tab_container)
 
 	_base_tab = _make_tab("基础")
@@ -338,9 +341,8 @@ func _build_character_detail() -> void:
 	# 底部模拟器条（只读假设视图）
 	var sim_panel := PanelContainer.new()
 	sim_panel.custom_minimum_size = Vector2(0, 168)
-	var sim_style := StyleBoxFlat.new()
-	sim_style.bg_color = UITheme.PANEL_BG
-	sim_style.border_color = UITheme.GOLD.darkened(0.4)
+	var sim_style := UITheme.light_panel_style()
+	sim_style.border_color = UITheme.LIGHT_GOLD_SELECT
 	sim_style.set_border_width_all(1)
 	sim_style.set_corner_radius_all(8)
 	sim_style.content_margin_left = 12.0
@@ -370,12 +372,12 @@ func _build_simulator(parent: PanelContainer) -> void:
 	var hint := Label.new()
 	hint.text = "数值模拟器"
 	hint.add_theme_font_size_override("font_size", 16)
-	hint.add_theme_color_override("font_color", UITheme.GOLD)
+	hint.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
 	hint_row.add_child(hint)
 	var note := Label.new()
 	note.text = "预览不影响存档 · 转职任选不校验条件"
 	note.add_theme_font_size_override("font_size", 13)
-	note.add_theme_color_override("font_color", UITheme.DISABLED)
+	note.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 	note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hint_row.add_child(note)
 
@@ -398,7 +400,7 @@ func _build_simulator(parent: PanelContainer) -> void:
 	_sim_level_label = Label.new()
 	_sim_level_label.custom_minimum_size = Vector2(64, 0)
 	_sim_level_label.add_theme_font_size_override("font_size", 14)
-	_sim_level_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_sim_level_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	level_row.add_child(_sim_level_label)
 
 	var promo_row := HBoxContainer.new()
@@ -430,12 +432,12 @@ func _build_simulator(parent: PanelContainer) -> void:
 	_sim_rank_label = Label.new()
 	_sim_rank_label.custom_minimum_size = Vector2(32, 0)
 	_sim_rank_label.add_theme_font_size_override("font_size", 14)
-	_sim_rank_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_sim_rank_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	promo_row.add_child(_sim_rank_label)
 
 	_sim_stats_label = Label.new()
 	_sim_stats_label.add_theme_font_size_override("font_size", 16)
-	_sim_stats_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_sim_stats_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	sim_box.add_child(_sim_stats_label)
 
 
@@ -501,7 +503,7 @@ func _clear_tab(tab: VBoxContainer) -> void:
 		child.queue_free()
 
 
-func _make_body_label(text_value: String, color: Color = UITheme.TEXT, font_size: int = 15) -> Label:
+func _make_body_label(text_value: String, color: Color = UITheme.LIGHT_BODY, font_size: int = 15) -> Label:
 	var label := Label.new()
 	label.text = text_value
 	label.add_theme_font_size_override("font_size", font_size)
@@ -513,7 +515,7 @@ func _make_body_label(text_value: String, color: Color = UITheme.TEXT, font_size
 func _refresh_base_tab(character: CharacterData) -> void:
 	_clear_tab(_base_tab)
 	var baseline := character.compute_stats_at(1, null, 0, null)
-	_base_tab.add_child(_make_body_label("等级上限：%d（经验条见武将养成）" % LevelCurve.max_level(), UITheme.GOLD))
+	_base_tab.add_child(_make_body_label("等级上限：%d（经验条见武将养成）" % LevelCurve.max_level(), UITheme.LIGHT_GOLD_TEXT))
 	var role_text := _profession_role_text(character.profession)
 	_base_tab.add_child(_make_body_label("职业：%s · %s" % [
 		character.profession.display_name if character.profession != null else "未知职业",
@@ -521,12 +523,12 @@ func _refresh_base_tab(character: CharacterData) -> void:
 	]))
 	var counter := _profession_counter_text(character.profession)
 	if not counter.is_empty():
-		_base_tab.add_child(_make_body_label("克制：%s" % counter, UITheme.GRAY))
+		_base_tab.add_child(_make_body_label("克制：%s" % counter, UITheme.LIGHT_MUTED))
 	_base_tab.add_child(_make_body_label("属性摘要（1 级）：伤害 %d　　攻速 %.2f 次/秒　　射程 %d" % [
 		baseline.damage, 1.0 / maxf(baseline.attack_interval, 0.01), int(baseline.range),
-	], UITheme.BLUE))
+	], UITheme.LIGHT_ACCENT))
 	_base_tab.add_child(_make_body_label("角色简介：%s" % character.description))
-	_base_tab.add_child(_make_body_label("获取方式：%s" % GameFlow.get_acquisition_text(str(character.character_id)), UITheme.GREEN))
+	_base_tab.add_child(_make_body_label("获取方式：%s" % GameFlow.get_acquisition_text(str(character.character_id)), UITheme.TAG_OK_FG))
 
 
 func _refresh_skill_tab(character: CharacterData) -> void:
@@ -537,19 +539,19 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 		var type_text := "条件触发（被动）" if is_b else "主动（冷却制）"
 		_skill_tab.add_child(_make_body_label("角色专属技能：%s（%s）" % [
 			SkillRegistry.get_character_skill_name(skill_id), type_text,
-		], UITheme.GOLD))
-		_skill_tab.add_child(_make_body_label("效果：%s" % CHARACTER_SKILL_HINTS.get(skill_id, "说明随版本完善"), UITheme.TEXT))
+		], UITheme.LIGHT_GOLD_TEXT))
+		_skill_tab.add_child(_make_body_label("效果：%s" % CHARACTER_SKILL_HINTS.get(skill_id, "说明随版本完善"), UITheme.LIGHT_BODY))
 	else:
-		_skill_tab.add_child(_make_body_label("角色专属技能：无", UITheme.DISABLED))
-	_skill_tab.add_child(_make_body_label("——", UITheme.DISABLED))
+		_skill_tab.add_child(_make_body_label("角色专属技能：无", UITheme.LIGHT_LOCK))
+	_skill_tab.add_child(_make_body_label("——", UITheme.LIGHT_LOCK))
 	var ultimate_id := character.ultimate_override_id
 	if ultimate_id.is_empty() and character.profession != null:
 		ultimate_id = character.profession.ultimate_id
 	if not ultimate_id.is_empty():
-		_skill_tab.add_child(_make_body_label("职业大招：%s（怒气满 100 释放）" % BehaviorRegistry.ultimate_display_name(ultimate_id), UITheme.GOLD))
-		_skill_tab.add_child(_make_body_label("效果：%s" % ULTIMATE_HINTS.get(ultimate_id, "说明随版本完善"), UITheme.TEXT))
+		_skill_tab.add_child(_make_body_label("职业大招：%s（怒气满 100 释放）" % BehaviorRegistry.ultimate_display_name(ultimate_id), UITheme.LIGHT_GOLD_TEXT))
+		_skill_tab.add_child(_make_body_label("效果：%s" % ULTIMATE_HINTS.get(ultimate_id, "说明随版本完善"), UITheme.LIGHT_BODY))
 	else:
-		_skill_tab.add_child(_make_body_label("职业大招：无", UITheme.DISABLED))
+		_skill_tab.add_child(_make_body_label("职业大招：无", UITheme.LIGHT_LOCK))
 
 
 func _refresh_promotion_tab(character: CharacterData) -> void:
@@ -571,9 +573,9 @@ func _refresh_promotion_tab(character: CharacterData) -> void:
 		for next_id in promotion.next_promotion_ids:
 			queue.append(str(next_id))
 	if nodes.is_empty():
-		_promotion_tab.add_child(_make_body_label("该武将暂无转职路线", UITheme.DISABLED))
+		_promotion_tab.add_child(_make_body_label("该武将暂无转职路线", UITheme.LIGHT_LOCK))
 		return
-	_promotion_tab.add_child(_make_body_label("职业级转职树（同职业角色共享；预览任选不校验材料/等级）", UITheme.GOLD))
+	_promotion_tab.add_child(_make_body_label("职业级转职树（同职业角色共享；预览任选不校验材料/等级）", UITheme.LIGHT_GOLD_TEXT))
 	for node in nodes:
 		var requirement := "等级 ≥ %d" % node.required_level
 		var skills_text := _promotion_skill_text(node)
@@ -581,7 +583,7 @@ func _refresh_promotion_tab(character: CharacterData) -> void:
 			node.display_name, requirement, node.description, skills_text, requirement,
 		])
 		_promotion_tab.add_child(block)
-	_promotion_tab.add_child(_make_body_label("档位口径：职业技能档位系数 s = 1 + 0.1 × min(局内升阶/5, 4)（仅职业技能适用，上限 +40%）", UITheme.GRAY, 13))
+	_promotion_tab.add_child(_make_body_label("档位口径：职业技能档位系数 s = 1 + 0.1 × min(局内升阶/5, 4)（仅职业技能适用，上限 +40%）", UITheme.LIGHT_MUTED, 13))
 
 
 func _promotion_skill_text(promotion: PromotionData) -> String:
@@ -595,9 +597,9 @@ func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
 	var relic := GameFlow.get_relic_for_character(str(character.character_id))
 	if relic == null:
-		_relic_tab.add_child(_make_body_label("该武将暂无专属信物", UITheme.DISABLED))
+		_relic_tab.add_child(_make_body_label("该武将暂无专属信物", UITheme.LIGHT_LOCK))
 		return
-	_relic_tab.add_child(_make_body_label("%s（%d 碎片兑换）" % [relic.display_name, relic.shard_cost], UITheme.GOLD))
+	_relic_tab.add_child(_make_body_label("%s（%d 碎片兑换）" % [relic.display_name, relic.shard_cost], UITheme.LIGHT_GOLD_TEXT))
 	_relic_tab.add_child(_make_body_label("效果：%s" % relic.description))
 	var effects: Array[String] = []
 	if relic.damage_bonus > 0.0:
@@ -606,7 +608,7 @@ func _refresh_relic_tab(character: CharacterData) -> void:
 		effects.append("射程 +%d%%" % int(round(relic.range_bonus * 100)))
 	if relic.attack_interval_factor != 1.0:
 		effects.append("攻速 %s%d%%" % ["+" if relic.attack_interval_factor < 1.0 else "-", int(abs((1.0 - relic.attack_interval_factor) * 100))])
-	_relic_tab.add_child(_make_body_label("数值：%s" % ("；".join(effects) if not effects.is_empty() else "无"), UITheme.BLUE))
+	_relic_tab.add_child(_make_body_label("数值：%s" % ("；".join(effects) if not effects.is_empty() else "无"), UITheme.LIGHT_ACCENT))
 
 
 func _refresh_trait_tab(character: CharacterData) -> void:
@@ -614,11 +616,11 @@ func _refresh_trait_tab(character: CharacterData) -> void:
 	var hints := DevelopPanelScript.TRAIT_HINTS
 	var trait_id := character.trait_id
 	if trait_id.is_empty():
-		_trait_tab.add_child(_make_body_label("该武将暂无特性", UITheme.DISABLED))
+		_trait_tab.add_child(_make_body_label("该武将暂无特性", UITheme.LIGHT_LOCK))
 		return
 	var hint_text: String = str(hints.get(trait_id, "说明随版本完善"))
-	_trait_tab.add_child(_make_body_label("特性（常驻被动）：%s" % hint_text, UITheme.GOLD))
-	_trait_tab.add_child(_make_body_label("数据同源：与武将养成页签/局内表现共用字典，不在此另存文案。", UITheme.GRAY, 13))
+	_trait_tab.add_child(_make_body_label("特性（常驻被动）：%s" % hint_text, UITheme.LIGHT_GOLD_TEXT))
+	_trait_tab.add_child(_make_body_label("数据同源：与武将养成页签/局内表现共用字典，不在此另存文案。", UITheme.LIGHT_MUTED, 13))
 
 
 ## ============ 模拟器 ============
@@ -663,11 +665,11 @@ func _refresh_simulator(character: CharacterData) -> void:
 func _build_enemy_detail() -> void:
 	_header_name_label = Label.new()
 	_header_name_label.add_theme_font_size_override("font_size", 24)
-	_header_name_label.add_theme_color_override("font_color", UITheme.GOLD)
+	_header_name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	_detail_box.add_child(_header_name_label)
 	_header_meta_label = Label.new()
 	_header_meta_label.add_theme_font_size_override("font_size", 15)
-	_header_meta_label.add_theme_color_override("font_color", UITheme.GRAY)
+	_header_meta_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	_detail_box.add_child(_header_meta_label)
 
 	var scroll := ScrollContainer.new()
@@ -706,24 +708,24 @@ func _refresh_enemy_detail() -> void:
 	var behavior_text := "无"
 	if not enemy.special_behavior_id.is_empty():
 		behavior_text = str(ENEMY_BEHAVIOR_HINTS.get(enemy.special_behavior_id, "说明随版本完善"))
-	body.add_child(_make_body_label("基础面板", UITheme.GOLD, 18))
+	body.add_child(_make_body_label("基础面板", UITheme.LIGHT_GOLD_TEXT, 18))
 	body.add_child(_make_body_label("生命 %d　　速度 %.0f　　护甲 %d　　漏怪伤害 %d" % [
 		enemy.max_hp, enemy.move_speed, enemy.armor, enemy.damage_to_base,
-	], UITheme.BLUE))
+	], UITheme.LIGHT_ACCENT))
 	body.add_child(_make_body_label("特殊行为：%s" % behavior_text))
 
-	body.add_child(_make_body_label("各档难度面板", UITheme.GOLD, 18))
+	body.add_child(_make_body_label("各档难度面板", UITheme.LIGHT_GOLD_TEXT, 18))
 	for difficulty in range(Difficulty.count()):
 		var hp := int(round(enemy.max_hp * Difficulty.enemy_hp_mult(difficulty)))
 		body.add_child(_make_body_label("「%s」生命 %d（×%.1f）" % [
 			Difficulty.name(difficulty), hp, Difficulty.enemy_hp_mult(difficulty),
-		], UITheme.TEXT))
-	body.add_child(_make_body_label("口径：生命随难度缩放（读 BalanceData.enemy_hp_mult）；漏怪伤害 / 速度 / 护甲不随难度变化。", UITheme.GRAY, 13))
+		], UITheme.LIGHT_BODY))
+	body.add_child(_make_body_label("口径：生命随难度缩放（读 BalanceData.enemy_hp_mult）；漏怪伤害 / 速度 / 护甲不随难度变化。", UITheme.LIGHT_MUTED, 13))
 
-	body.add_child(_make_body_label("出现关卡", UITheme.GOLD, 18))
+	body.add_child(_make_body_label("出现关卡", UITheme.LIGHT_GOLD_TEXT, 18))
 	var entries := GameFlow.get_enemy_stage_entries(_selected_enemy_id)
 	if entries.is_empty():
-		body.add_child(_make_body_label("未配置出现关卡", UITheme.DISABLED))
+		body.add_child(_make_body_label("未配置出现关卡", UITheme.LIGHT_LOCK))
 	for entry in entries:
 		var stage_id: String = str(entry.get("stage_id", ""))
 		var stage := GameFlow.load_stage_data(StringName(stage_id))

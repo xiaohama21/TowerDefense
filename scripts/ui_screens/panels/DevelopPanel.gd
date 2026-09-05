@@ -95,8 +95,9 @@ func _build_ui() -> void:
 	add_child(title_row)
 	var title := Label.new()
 	title.text = "武将养成"
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", UITheme.GOLD)
+	title.add_theme_font_override("font", UITheme.spaced_font(3))
+	title.add_theme_font_size_override("font_size", 27)
+	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 
@@ -139,11 +140,7 @@ func _build_ui() -> void:
 	columns.add_child(right_column)
 
 	var info_panel := PanelContainer.new()
-	var info_style := StyleBoxFlat.new()
-	info_style.bg_color = UITheme.PANEL_BG
-	info_style.border_color = UITheme.GOLD
-	info_style.set_border_width_all(1)
-	info_style.set_corner_radius_all(8)
+	var info_style := UITheme.light_panel_style()
 	info_style.content_margin_left = 14.0
 	info_style.content_margin_right = 14.0
 	info_style.content_margin_top = 10.0
@@ -155,30 +152,32 @@ func _build_ui() -> void:
 	info_panel.add_child(info_box)
 
 	_detail_name_label = Label.new()
+	_detail_name_label.add_theme_font_override("font", UITheme.spaced_font(2))
 	_detail_name_label.add_theme_font_size_override("font_size", 22)
-	_detail_name_label.add_theme_color_override("font_color", UITheme.TEXT)
+	_detail_name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	info_box.add_child(_detail_name_label)
 
 	var exp_row := HBoxContainer.new()
 	exp_row.add_theme_constant_override("separation", 12)
 	info_box.add_child(exp_row)
 	_exp_bar = ProgressBar.new()
-	_exp_bar.custom_minimum_size = Vector2(0, 20)
+	_exp_bar.custom_minimum_size = Vector2(0, 18)
 	_exp_bar.show_percentage = false
+	UITheme.style_exp_bar(_exp_bar)
 	_exp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	exp_row.add_child(_exp_bar)
 	_exp_label = Label.new()
 	_exp_label.add_theme_font_size_override("font_size", 14)
-	_exp_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_exp_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	exp_row.add_child(_exp_label)
 
 	_stats_label = Label.new()
 	_stats_label.add_theme_font_size_override("font_size", 16)
-	_stats_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_stats_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	info_box.add_child(_stats_label)
 	_title_label = Label.new()
 	_title_label.add_theme_font_size_override("font_size", 14)
-	_title_label.add_theme_color_override("font_color", UITheme.GOLD)
+	_title_label.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
 	info_box.add_child(_title_label)
 
 	var exp_scroll_row := HBoxContainer.new()
@@ -186,23 +185,26 @@ func _build_ui() -> void:
 	info_box.add_child(exp_scroll_row)
 	_exp_scroll_label = Label.new()
 	_exp_scroll_label.add_theme_font_size_override("font_size", 14)
-	_exp_scroll_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_exp_scroll_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	exp_scroll_row.add_child(_exp_scroll_label)
 	_exp_scroll_button = Button.new()
 	_exp_scroll_button.text = "使用练兵令（测试：直接升 1 级）"
-	_exp_scroll_button.custom_minimum_size = Vector2(240, 34)
+	_exp_scroll_button.custom_minimum_size = Vector2(240, 38)
+	_exp_scroll_button.focus_mode = Control.FOCUS_NONE
 	_exp_scroll_button.add_theme_font_size_override("font_size", 13)
+	UITheme.apply_kenney_rect_button(_exp_scroll_button, "grey", UITheme.LIGHT_BODY)
 	_exp_scroll_button.pressed.connect(_on_exp_scroll_pressed)
 	exp_scroll_row.add_child(_exp_scroll_button)
 	_exp_scroll_hint = Label.new()
 	_exp_scroll_hint.add_theme_font_size_override("font_size", 13)
-	_exp_scroll_hint.add_theme_color_override("font_color", UITheme.GRAY)
+	_exp_scroll_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	exp_scroll_row.add_child(_exp_scroll_hint)
 
 	# 页签区：转职 / 信物 / 特性（遗物页签随 v0.33.1 移除；新增角色功能=新增页签）。
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tab_container.add_theme_font_size_override("font_size", 15)
+	_tab_container.tab_alignment = TabBar.ALIGNMENT_LEFT
+	UITheme.apply_light_tab_container(_tab_container)
 	right_column.add_child(_tab_container)
 	_build_promotion_tab()
 	_build_relic_tab()
@@ -221,7 +223,7 @@ func _build_promotion_tab() -> void:
 	var page := _make_tab_page("转职")
 	_promotion_label = Label.new()
 	_promotion_label.add_theme_font_size_override("font_size", 16)
-	_promotion_label.add_theme_color_override("font_color", UITheme.TEXT)
+	_promotion_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_promotion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_promotion_label)
 	_promotion_buttons_box = VBoxContainer.new()
@@ -234,12 +236,14 @@ func _build_relic_tab() -> void:
 	var page := _make_tab_page("信物")
 	_relic_label = Label.new()
 	_relic_label.add_theme_font_size_override("font_size", 16)
-	_relic_label.add_theme_color_override("font_color", UITheme.TEXT)
+	_relic_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_relic_label)
 	_relic_button = Button.new()
 	_relic_button.custom_minimum_size = Vector2(220, 44)
+	_relic_button.focus_mode = Control.FOCUS_NONE
 	_relic_button.add_theme_font_size_override("font_size", 16)
+	UITheme.apply_kenney_rect_button(_relic_button, "blue", Color.WHITE)
 	_relic_button.pressed.connect(_on_relic_pressed)
 	page.add_child(_relic_button)
 
@@ -249,7 +253,7 @@ func _build_trait_tab() -> void:
 	var page := _make_tab_page("特性")
 	_trait_label = Label.new()
 	_trait_label.add_theme_font_size_override("font_size", 15)
-	_trait_label.add_theme_color_override("font_color", UITheme.BLUE)
+	_trait_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	_trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_trait_label)
 
@@ -283,7 +287,7 @@ func _rebuild_left_list() -> void:
 		var empty := Label.new()
 		empty.text = "暂无武将，请先开始游戏"
 		empty.add_theme_font_size_override("font_size", 16)
-		empty.add_theme_color_override("font_color", UITheme.GRAY)
+		empty.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 		_owned_grid.add_child(empty)
 
 	for character_data in _owned:
@@ -297,7 +301,7 @@ func _rebuild_left_list() -> void:
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.toggle_mode = true
 		button.pressed.connect(_on_character_pressed.bind(character_id))
-		UITheme.apply_selected_style(button)
+		UITheme.apply_light_selectable(button)
 		_owned_grid.add_child(button)
 		_character_buttons[character_id] = button
 
@@ -305,7 +309,7 @@ func _rebuild_left_list() -> void:
 		var hint := Label.new()
 		hint.text = "未解锁武将（首通对应关卡解锁）"
 		hint.add_theme_font_size_override("font_size", 13)
-		hint.add_theme_color_override("font_color", UITheme.GRAY)
+		hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 		_locked_box.add_child(hint)
 		var locked_grid := GridContainer.new()
 		locked_grid.columns = 2
@@ -322,9 +326,8 @@ func _rebuild_left_list() -> void:
 			locked_button.custom_minimum_size = Vector2(150, 50)
 			locked_button.add_theme_font_size_override("font_size", 13)
 			locked_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			locked_button.add_theme_color_override("font_color", UITheme.DISABLED)
-			locked_button.add_theme_color_override("font_disabled_color", UITheme.DISABLED)
 			locked_button.disabled = true
+			UITheme.apply_light_selectable(locked_button, true)
 			locked_grid.add_child(locked_button)
 
 
@@ -431,13 +434,16 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 		label.text = "\n".join(lines)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.add_theme_font_size_override("font_size", 15)
-		label.add_theme_color_override("font_color", UITheme.GREEN if (level_ok and materials_ok) else UITheme.RED)
+		label.add_theme_color_override("font_color", UITheme.TAG_OK_FG if (level_ok and materials_ok) else UITheme.TAG_FIRE_FG)
 		_promotion_buttons_box.add_child(label)
 
 		var button := Button.new()
 		button.text = "转职为「%s」" % promotion.display_name
-		button.custom_minimum_size = Vector2(240, 40)
+		button.custom_minimum_size = Vector2(240, 44)
+		button.focus_mode = Control.FOCUS_NONE
 		button.add_theme_font_size_override("font_size", 16)
+		UITheme.apply_kenney_rect_button(button, "yellow" if (level_ok and materials_ok) else "grey",
+			UITheme.INK if (level_ok and materials_ok) else UITheme.LIGHT_BODY)
 		button.disabled = not (level_ok and materials_ok)
 		button.pressed.connect(_on_promote_pressed.bind(promotion))
 		_promotion_buttons_box.add_child(button)
