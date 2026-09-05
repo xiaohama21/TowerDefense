@@ -1105,8 +1105,9 @@ func _make_kv_label(text_value: String, color: Color, font_size: int) -> Label:
 	return label
 
 
-## 转职树渲染（概念图 ui_develop_promo.png）：节点 PanelContainer 随内容长高，
-## 左侧状态点标级（绿=当前/已转，金=可转职，灰=未解锁），行内右列放按钮/注记。
+## 转职树渲染（概念图 ui_develop_promo.png）：节点卡 = 顶部一行（头像+名称+状态
+## tag+右侧按钮/注记），文字行（描述/习得技能/数值/条件胶囊）统一放卡片底部通栏
+## （v0.20.7 用户拍板：左列排版对不齐就直接放底部）。
 func _refresh_promotion(character: CharacterData, level: int) -> void:
 	if _promotion_tree_box == null or not is_instance_valid(_promotion_tree_box):
 		return
@@ -1131,17 +1132,17 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 	if active == null:
 		var job_skill: StringName = PROFESSION_JOB_SKILLS.get(
 			character.profession.profession_id if character.profession != null else &"", &"")
-		base_note = "近战抗线职业；职业技能「%s」需一转后习得。" % (
+		base_note = "职业技能「%s」需一转后习得。" % (
 			SkillRegistry.get_skill_name(job_skill) if not job_skill.is_empty() else "—")
 	_promotion_tree_box.add_child(_make_promo_node(
 		character.profession.display_name.left(1), "green",
 		character.profession.display_name,
 		[[base_tag, UITheme.TAG_OK_FG, UITheme.TAG_OK_BG]],
 		character.profession.description,
-		[[_make_note_label("职业包括大招「%s」" % (BehaviorRegistry.ultimate_display_name(
+		[_make_note_label("职业包括大招「%s」" % (BehaviorRegistry.ultimate_display_name(
 			character.ultimate_override_id if not character.ultimate_override_id.is_empty()
 			else (character.profession.ultimate_id if character.profession != null else &""))
-			if character.profession != null else "—"), UITheme.LIGHT_LOCK)]],
+			if character.profession != null else "—"), UITheme.LIGHT_LOCK)],
 		null))
 	_promotion_tree_box.add_child(_make_tree_arrow())
 
@@ -1196,14 +1197,20 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 		promote_button.disabled = not (level_ok and materials_ok)
 		promote_button.pressed.connect(_on_promote_pressed.bind(promotion))
 		_promotion_buttons.append(promote_button)
+		var extras: Array[Control] = []
+		if not skill_line.is_empty():
+			extras.append(_make_note_label(skill_line, UITheme.LIGHT_BODY))
+		if not numeric_text.is_empty():
+			extras.append(_make_note_label(numeric_text, UITheme.LIGHT_BODY))
+		var pill_row := HBoxContainer.new()
+		pill_row.add_theme_constant_override("separation", 8)
+		for pill in material_pills:
+			pill_row.add_child(pill)
+		extras.append(pill_row)
 		_promotion_tree_box.add_child(_make_promo_node(
 			promotion.display_name.left(1), "gold", promotion.display_name,
 			[[depth_text, UITheme.LIGHT_GOLD_TEXT, UITheme.TAG_OPEN_BG]],
-			promotion.description,
-			[[_make_kv_label(skill_line, UITheme.LIGHT_BODY, 12)] if not skill_line.is_empty() else [],
-			[_make_note_label(numeric_text, UITheme.LIGHT_BODY)] if not numeric_text.is_empty() else [],
-			material_pills],
-			promote_button))
+			promotion.description, extras, promote_button))
 		_promotion_tree_box.add_child(_make_tree_arrow())
 
 	# 二转分支预览（未完成一转时灰显）
@@ -1241,14 +1248,15 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 				branch.display_name.left(1), "grey", branch.display_name,
 				[["二转 · 需先完成一转", UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG]],
 				branch.description,
-				[[_make_kv_label("Lv %d / %d 未达标" % [level, branch.required_level],
-					UITheme.TAG_FIRE_FG, 12)]],
+				[_make_note_label("Lv %d / %d 未达标" % [level, branch.required_level],
+					UITheme.TAG_FIRE_FG)],
 				locked_button))
 
 
-## 节点卡（概念图 .pnode/.bopt）：PanelContainer 随内容长高；右列放按钮或注记。
+## 节点卡（概念图 .pnode/.bopt）：顶行 = 头像圆 + 名称 + 状态 tag + 右侧按钮/注记；
+## 描述与附加行统一放卡片底部通栏（v0.20.7 用户拍板）。
 func _make_promo_node(avatar_char: String, color_key: String, title: String,
-		tags: Array, desc: String, extra_rows: Array, right: Control = null) -> PanelContainer:
+		tags: Array, desc: String, extras: Array, right: Control = null) -> PanelContainer:
 	var border_color := UITheme.LIGHT_GOLD_SELECT
 	var bg_color := Color("#fffdf2")
 	for tag_def in tags:
@@ -1267,46 +1275,46 @@ func _make_promo_node(avatar_char: String, color_key: String, title: String,
 	style.content_margin_bottom = 9.0
 	node.add_theme_stylebox_override("panel", style)
 	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	node.add_child(row)
-	row.add_child(UITheme.avatar_label(avatar_char, color_key, 40.0, 18))
-	var info := VBoxContainer.new()
-	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info.add_theme_constant_override("separation", 3)
-	row.add_child(info)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	node.add_child(box)
 	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 8)
-	info.add_child(head)
+	head.add_theme_constant_override("separation", 10)
+	box.add_child(head)
+	head.add_child(UITheme.avatar_label(avatar_char, color_key, 40.0, 18))
 	var title_label := Label.new()
 	title_label.text = title
 	title_label.add_theme_font_override("font", UITheme.spaced_font(2))
 	title_label.add_theme_font_size_override("font_size", 16)
 	title_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	title_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	head.add_child(title_label)
 	for tag_def in tags:
-		head.add_child(UITheme.tag_label(tag_def[0], tag_def[1], tag_def[2], 11))
+		var tag := UITheme.tag_label(tag_def[0], tag_def[1], tag_def[2], 11)
+		tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		head.add_child(tag)
+	var head_spacer := Control.new()
+	head_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(head_spacer)
+	if right != null:
+		right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		head.add_child(right)
 	if not desc.is_empty():
 		var desc_label := Label.new()
 		desc_label.text = desc
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc_label.add_theme_font_size_override("font_size", 12)
 		desc_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
-		info.add_child(desc_label)
-	for extra_row in extra_rows:
-		for control in extra_row:
-			info.add_child(control)
-	if right != null:
-		var right_slot := VBoxContainer.new()
-		right_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		right_slot.add_child(right)
-		row.add_child(right_slot)
+		box.add_child(desc_label)
+	for control in extras:
+		box.add_child(control)
 	return node
 
 
 func _make_note_label(text_value: String, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text_value
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", 12)
 	label.add_theme_color_override("font_color", color)
 	return label
@@ -1316,17 +1324,6 @@ func _promo_pill(text_value: String, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text_value
 	label.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_STAT_BG, 10, 3))
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", color)
-	return label
-
-
-func _make_kv_pill(text_value: String, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text_value
-	var style := UITheme.tag_style(UITheme.LIGHT_STAT_BG, 10, 3)
-	style.set_corner_radius_all(8)
-	label.add_theme_stylebox_override("normal", style)
 	label.add_theme_font_size_override("font_size", 12)
 	label.add_theme_color_override("font_color", color)
 	return label
