@@ -109,3 +109,13 @@ static func apply_kenney_rect_button(button: Button, color_key: String, font_col
 	button.add_theme_color_override("font_hover_pressed_color", font_color.darkened(0.15))
 	button.add_theme_color_override("font_disabled_color", DISABLED)
 
+
+## 共享字距字体（v0.18.0，首页私有实现收敛）：在全局主题字体（站酷快乐体 +
+## 系统回退）上叠加字距，标题/按钮共用。
+static func spaced_font(spacing: int) -> Font:
+	var theme := load("res://assets/ui/ui_theme.tres") as Theme
+	var variation := FontVariation.new()
+	variation.base_font = theme.default_font
+	variation.set_spacing(TextServer.SPACING_GLYPH, spacing)
+	return variation
+

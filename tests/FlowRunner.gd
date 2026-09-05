@@ -135,14 +135,14 @@ func _test_hub(profile: PlayerProfile) -> void:
 	add_child(hub)
 	await get_tree().process_frame
 
-	var sidebar_buttons := _collect_buttons(hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox"))
+	var sidebar_buttons := _collect_buttons(hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox"))
 	_check(sidebar_buttons.size() == 7, "大厅侧栏应有 6 个功能入口 + 返回主菜单（v0.34 百科入列）")
 	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
 	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 
-	var map_panel := hub.get_node("Columns/Content/MapPanel")
-	var develop_panel := hub.get_node("Columns/Content/DevelopPanel")
-	var settings_panel := hub.get_node("Columns/Content/SettingsPanel")
+	var map_panel := hub.get_node("HubPanel/Columns/Content/MapPanel")
+	var develop_panel := hub.get_node("HubPanel/Columns/Content/DevelopPanel")
+	var settings_panel := hub.get_node("HubPanel/Columns/Content/SettingsPanel")
 	_check(map_panel.visible and not develop_panel.visible and not settings_panel.visible,
 		"大厅默认应显示地图选择面板")
 	# 布局回归（v0.10.2）：set_anchors_preset 曾导致容器 0×0 钉在原点。
@@ -226,7 +226,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		_check(not GameFlow.is_gameplay_flag_enabled("auto_next_wave"),
 			"取消勾选应清除自动下一波标志")
 	# 背包页签（v0.15.1）：查看道具 + 测试发放练兵令。
-	var inventory_panel := hub.get_node("Columns/Content/InventoryPanel")
+	var inventory_panel := hub.get_node("HubPanel/Columns/Content/InventoryPanel")
 	_show_hub_panel(hub, &"inventory")
 	_check(inventory_panel.visible and not settings_panel.visible, "点击背包应切换内容区")
 	var grant_button: Button = null
@@ -307,9 +307,9 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	add_child(hub)
 	await get_tree().process_frame
 
-	var encyclopedia := hub.get_node("Columns/Content/EncyclopediaPanel")
+	var encyclopedia := hub.get_node("HubPanel/Columns/Content/EncyclopediaPanel")
 	_check(encyclopedia != null and not encyclopedia.visible, "大厅默认不应显示百科面板")
-	var sidebar_box := hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox")
+	var sidebar_box := hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox")
 	var encyclopedia_button: Button = null
 	for child in _collect_buttons(sidebar_box):
 		var button := child as Button
