@@ -195,7 +195,7 @@ static func tag_style(bg: Color, margin_h: float = 9.0, margin_v: float = 2.0) -
 
 
 ## 圆形头像占位（概念图 .ava：渐变圆 + 姓氏首字白字）。
-static func avatar_label(text: String, color_key: String = "blue", diameter: float = 44.0, font_size: int = 21) -> Label:
+static func avatar_label(text: String, color_key: String = "blue", diameter: float = 44.0, font_size: int = 21, base: Color = Color(0, 0, 0, 0)) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -206,6 +206,9 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 	var style := StyleBoxFlat.new()
 	var top: Color = LIGHT_ACCENT
 	var bottom: Color = Color("#1c8fc0")
+	if base != Color(0, 0, 0, 0):
+		top = base.lightened(0.15)
+		bottom = base.darkened(0.15)
 	match color_key:
 		"grey": top = Color("#c3d3de"); bottom = Color("#9db4c4")
 		"gold": top = Color("#ffd75e"); bottom = Color("#f0a92f")

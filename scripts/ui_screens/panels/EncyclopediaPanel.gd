@@ -73,7 +73,7 @@ var _sim_battle_rank: int = 0
 
 var _character_button: Button
 var _enemy_button: Button
-var _chapter_flow: HFlowContainer
+var _chapter_flow: HBoxContainer
 var _character_buttons: Dictionary = {}
 var _enemy_buttons: Dictionary = {}
 var _left_box: VBoxContainer
@@ -81,6 +81,7 @@ var _left_scroll: ScrollContainer
 var _detail_box: VBoxContainer
 var _header_name_label: Label
 var _header_meta_label: Label
+var _count_chip: Label
 var _tab_container: TabContainer
 var _base_tab: VBoxContainer
 var _skill_tab: VBoxContainer
@@ -133,11 +134,28 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	header.add_child(title)
 	var tag := Label.new()
-	tag.text = "全量图鉴 · 只读不写档"
-	tag.add_theme_font_size_override("font_size", 15)
-	tag.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
+	tag.text = "全量图鉴"
+	tag.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OK_BG, 9, 2))
+	tag.add_theme_font_size_override("font_size", 13)
+	tag.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
 	tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(tag)
+	var header_spacer := Control.new()
+	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(header_spacer)
+	_count_chip = Label.new()
+	_count_chip.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_BLUE_SOFT, 11, 4))
+	_count_chip.add_theme_font_size_override("font_size", 14)
+	_count_chip.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+	_count_chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_child(_count_chip)
+	var readonly_chip := Label.new()
+	readonly_chip.text = "只读信息 · 不写存档"
+	readonly_chip.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_PANEL_SPLIT, 11, 4))
+	readonly_chip.add_theme_font_size_override("font_size", 14)
+	readonly_chip.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	readonly_chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_child(readonly_chip)
 
 	# 武将 / 敌人互斥切换
 	var switch_row := HBoxContainer.new()
@@ -151,31 +169,54 @@ func _build_ui() -> void:
 
 	# 章节选择行（敌人图鉴视图顶部，v0.34.1）：第一章可点，后续章节灰显「敬请期待」；
 	# 与地图选关共用预留章节清单（MapPanel.RESERVED_CHAPTERS），不散落第二份列表。
-	_chapter_flow = HFlowContainer.new()
+	# 章节选择（敌人图鉴视图顶部）：改下拉框（v0.20.1 用户拍板，对齐地图选关样式）
+	_chapter_flow = HBoxContainer.new()
 	_chapter_flow.name = "ChapterRow"
-	_chapter_flow.custom_minimum_size = Vector2(0, 48)
-	_chapter_flow.add_theme_constant_override("h_separation", 10)
-	_chapter_flow.add_theme_constant_override("v_separation", 6)
+	_chapter_flow.add_theme_constant_override("separation", 10)
 	root.add_child(_chapter_flow)
+	var chapter_caption := Label.new()
+	chapter_caption.text = "章节"
+	chapter_caption.add_theme_font_size_override("font_size", 15)
+	chapter_caption.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	chapter_caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_chapter_flow.add_child(chapter_caption)
+	var chapter_option := OptionButton.new()
+	chapter_option.name = "ChapterOption"
+	chapter_option.custom_minimum_size = Vector2(250, 42)
+	chapter_option.focus_mode = Control.FOCUS_NONE
+	chapter_option.add_theme_font_override("font", UITheme.spaced_font(2))
+	chapter_option.add_theme_font_size_override("font_size", 18)
+	chapter_option.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	chapter_option.add_theme_icon_override("arrow", _chapter_arrow_icon())
+	var box_style := UITheme.light_card_style(Color.WHITE, UITheme.LIGHT_BORDER_SOFT)
+	box_style.border_width_bottom = 4
+	box_style.set_corner_radius_all(10)
+	box_style.content_margin_left = 12.0
+	box_style.content_margin_right = 10.0
+	box_style.content_margin_top = 6.0
+	box_style.content_margin_bottom = 4.0
+	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+		chapter_option.add_theme_stylebox_override(state, box_style)
 	var chapter := GameFlow.get_chapter()
-	var chapter_button := Button.new()
-	chapter_button.text = "第 %d 章 · %s" % [chapter.chapter_number, chapter.display_name]
-	chapter_button.custom_minimum_size = Vector2(0, 42)
-	chapter_button.add_theme_font_size_override("font_size", 17)
-	chapter_button.toggle_mode = true
-	chapter_button.set_pressed_no_signal(true)
-	chapter_button.pressed.connect(func() -> void: chapter_button.set_pressed_no_signal(true))
-	UITheme.apply_light_selectable(chapter_button)
-	_chapter_flow.add_child(chapter_button)
+	chapter_option.add_item("第 %d 章 · %s" % [chapter.chapter_number, chapter.display_name])
 	for reserved_name in MapPanelScript.RESERVED_CHAPTERS:
-		var reserved := Button.new()
-		reserved.text = "敬请期待 · %s" % reserved_name
-		reserved.custom_minimum_size = Vector2(0, 42)
-		reserved.add_theme_font_size_override("font_size", 14)
-		reserved.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
-		reserved.add_theme_color_override("font_disabled_color", UITheme.LIGHT_LOCK)
-		reserved.disabled = true
-		_chapter_flow.add_child(reserved)
+		var item_index := chapter_option.item_count
+		chapter_option.add_item("敬请期待 · %s" % reserved_name)
+		chapter_option.set_item_disabled(item_index, true)
+	var popup := chapter_option.get_popup()
+	if popup != null:
+		var popup_style := UITheme.light_panel_style()
+		popup_style.set_border_width_all(2)
+		popup_style.border_color = UITheme.LIGHT_BORDER_SOFT
+		popup_style.set_corner_radius_all(10)
+		popup.add_theme_stylebox_override("panel", popup_style)
+		popup.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+		popup.add_theme_color_override("font_hover_color", UITheme.LIGHT_INK)
+		popup.add_theme_color_override("font_disabled_color", UITheme.LIGHT_LOCK)
+		var hover_style := StyleBoxFlat.new()
+		hover_style.bg_color = UITheme.LIGHT_BLUE_SELECT
+		popup.add_theme_stylebox_override("hover", hover_style)
+	_chapter_flow.add_child(chapter_option)
 	_chapter_flow.visible = false  # 武将图鉴视图不展示章节行
 
 	var body := HBoxContainer.new()
@@ -206,6 +247,40 @@ func _build_ui() -> void:
 	body.add_child(_detail_box)
 
 
+func _chapter_arrow_icon() -> ImageTexture:
+	var texture := load("res://assets/ui/icons/arrow_basic_s_blue.png") as Texture2D
+	var image := texture.get_image()
+	image.resize(18, 12, Image.INTERPOLATE_LANCZOS)
+	return ImageTexture.create_from_image(image)
+
+
+## 左列卡片内容层（头像圆 + 姓名 + 副行；鼠标穿透，点击落到底层按钮）。
+func _make_left_card_content(avatar_char: String, base_color: Color, card_text: String) -> Control:
+	var content := HBoxContainer.new()
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 10.0
+	content.offset_right = -10.0
+	content.offset_top = 10.0
+	content.offset_bottom = -10.0
+	content.add_theme_constant_override("separation", 9)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(UITheme.avatar_label(avatar_char, "blue", 44.0, 20, base_color))
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_theme_constant_override("separation", 2)
+	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(info)
+	var lines := card_text.split("\n")
+	for i in range(lines.size()):
+		var line_label := Label.new()
+		line_label.text = lines[i]
+		line_label.add_theme_font_size_override("font_size", 15 if i == 0 else 12)
+		line_label.add_theme_color_override("font_color", UITheme.LIGHT_INK if i == 0 else UITheme.LIGHT_DESC)
+		line_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		info.add_child(line_label)
+	return content
+
+
 func _make_segment_button(label_text: String, mode: StringName) -> Button:
 	var button := Button.new()
 	button.text = label_text
@@ -227,6 +302,9 @@ func _switch_mode(mode: StringName) -> void:
 		UITheme.apply_light_selectable(button)
 	if _chapter_flow != null:
 		_chapter_flow.visible = mode == &"enemy"
+	if _count_chip != null:
+		_count_chip.text = "武将 %d 名 · 全量可见" % _character_ids.size() if mode == &"character" \
+			else "敌人 %d 种 · 第一章 · 黄巾军" % _enemy_ids.size()
 	_rebuild_left_list()
 	_rebuild_detail()
 	if mode == &"character":
@@ -263,18 +341,15 @@ func _rebuild_left_list() -> void:
 			if character == null:
 				continue
 			var button := Button.new()
-			button.text = _character_card_text(character)
-			button.custom_minimum_size = Vector2(0, 88)
-			button.add_theme_font_size_override("font_size", 15)
-			button.add_theme_constant_override("h_separation", 4)
-			# 卡片文本按宽度精简设计（B-024）：内容放得下才写，不靠省略号硬塞。
-			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			button.custom_minimum_size = Vector2(0, 72)
+			button.focus_mode = Control.FOCUS_NONE
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
 			UITheme.apply_light_selectable(button)
-			var accent := _profession_color(character)
-			button.add_theme_color_override("font_color", accent.lightened(0.35))
 			button.pressed.connect(_select_character.bind(str(character_id)))
+			button.add_child(_make_left_card_content(
+				character.display_name.left(1), _profession_color(character),
+				_character_card_text(character)))
 			grid.add_child(button)
 			_character_buttons[str(character_id)] = button
 	else:
@@ -284,15 +359,14 @@ func _rebuild_left_list() -> void:
 			if enemy == null:
 				continue
 			var button := Button.new()
-			button.text = "%s\n%s · 黄巾" % [enemy.display_name, ENEMY_LOCATIONS.get(enemy_id, "未知")]
-			button.custom_minimum_size = Vector2(0, 88)
-			button.add_theme_font_size_override("font_size", 15)
-			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			button.custom_minimum_size = Vector2(0, 72)
+			button.focus_mode = Control.FOCUS_NONE
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
 			UITheme.apply_light_selectable(button)
-			button.add_theme_color_override("font_color", enemy.body_color.lightened(0.4))
 			button.pressed.connect(_select_enemy.bind(str(enemy_id)))
+			button.add_child(_make_left_card_content(enemy.display_name.left(1), enemy.body_color,
+				"%s\n%s · 黄巾" % [enemy.display_name, ENEMY_LOCATIONS.get(enemy_id, "未知")]))
 			grid.add_child(button)
 			_enemy_buttons[str(enemy_id)] = button
 
@@ -318,14 +392,44 @@ func _rebuild_detail() -> void:
 ## ============ 武将图鉴 ============
 
 func _build_character_detail() -> void:
+	var header_row := HBoxContainer.new()
+	header_row.name = "CharacterHeaderRow"
+	header_row.add_theme_constant_override("separation", 12)
+	_detail_box.add_child(header_row)
+	var avatar_slot := CenterContainer.new()
+	avatar_slot.name = "DetailAvatarSlot"
+	avatar_slot.custom_minimum_size = Vector2(64, 64)
+	header_row.add_child(avatar_slot)
+	var who := VBoxContainer.new()
+	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	who.add_theme_constant_override("separation", 2)
+	header_row.add_child(who)
 	_header_name_label = Label.new()
+	_header_name_label.add_theme_font_override("font", UITheme.spaced_font(2))
 	_header_name_label.add_theme_font_size_override("font_size", 24)
 	_header_name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-	_detail_box.add_child(_header_name_label)
+	who.add_child(_header_name_label)
 	_header_meta_label = Label.new()
-	_header_meta_label.add_theme_font_size_override("font_size", 15)
+	_header_meta_label.add_theme_font_size_override("font_size", 14)
 	_header_meta_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	_detail_box.add_child(_header_meta_label)
+	who.add_child(_header_meta_label)
+	var acquisition_box := VBoxContainer.new()
+	acquisition_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	acquisition_box.add_theme_constant_override("separation", 2)
+	header_row.add_child(acquisition_box)
+	var acquisition_caption := Label.new()
+	acquisition_caption.text = "获取方式"
+	acquisition_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	acquisition_caption.add_theme_font_size_override("font_size", 12)
+	acquisition_caption.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	acquisition_box.add_child(acquisition_caption)
+	var acquisition_value := Label.new()
+	acquisition_value.name = "AcquisitionValue"
+	acquisition_value.text = GameFlow.get_acquisition_text(_selected_character_id)
+	acquisition_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	acquisition_value.add_theme_font_size_override("font_size", 14)
+	acquisition_value.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
+	acquisition_box.add_child(acquisition_value)
 
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -482,6 +586,10 @@ func _select_character(character_id: String) -> void:
 	_refresh_character_detail()
 
 
+func acquisition_box_lookup() -> Label:
+	return _detail_box.find_child("AcquisitionValue", true, false) as Label
+
+
 func _refresh_character_detail() -> void:
 	var character := GameFlow.load_character_data(_selected_character_id)
 	if character == null:
@@ -491,6 +599,17 @@ func _refresh_character_detail() -> void:
 		character.profession.display_name if character.profession != null else "未知职业",
 		" / ".join(character.titles) if not character.titles.is_empty() else "无",
 	]
+	var avatar_slot := _detail_box.get_node("CharacterHeaderRow/DetailAvatarSlot") as CenterContainer
+	for child in avatar_slot.get_children():
+		avatar_slot.remove_child(child)
+		child.queue_free()
+	avatar_slot.add_child(UITheme.avatar_label(character.display_name.left(1),
+		"blue", 64.0, 28, _profession_color(character)))
+	var acquisition_value := _detail_box.get_node("DetailAvatarSlot").get_parent().get_node(
+		"AcquisitionValue") if _detail_box.has_node("DetailAvatarSlot") else null
+	var acquisition_label := acquisition_box_lookup()
+	if acquisition_label != null:
+		acquisition_label.text = GameFlow.get_acquisition_text(_selected_character_id)
 	_refresh_base_tab(character)
 	_refresh_skill_tab(character)
 	_refresh_promotion_tab(character)
@@ -513,6 +632,15 @@ func _make_body_label(text_value: String, color: Color = UITheme.LIGHT_BODY, fon
 	return label
 
 
+func _stat_pill() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = UITheme.LIGHT_STAT_BG
+	style.border_color = UITheme.LIGHT_PANEL_BORDER
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(9)
+	return style
+
+
 func _refresh_base_tab(character: CharacterData) -> void:
 	_clear_tab(_base_tab)
 	var baseline := character.compute_stats_at(1, null, 0, null)
@@ -525,6 +653,28 @@ func _refresh_base_tab(character: CharacterData) -> void:
 	var counter := _profession_counter_text(character.profession)
 	if not counter.is_empty():
 		_base_tab.add_child(_make_body_label("克制：%s" % counter, UITheme.LIGHT_MUTED))
+	var stat_row := HBoxContainer.new()
+	stat_row.add_theme_constant_override("separation", 8)
+	_base_tab.add_child(stat_row)
+	var baseline_stats := [["伤害", str(int(baseline.damage))], ["攻速", "%.2f 次/秒" % (1.0 / maxf(baseline.attack_interval, 0.01))], ["射程", str(int(baseline.range))], ["建造费用", str(character.build_cost)]]
+	for stat_def in baseline_stats:
+		var pill := VBoxContainer.new()
+		pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pill.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_STAT_BG, 9, 5))
+		pill.add_theme_stylebox_override("normal", _stat_pill())
+		var key := Label.new()
+		key.text = stat_def[0]
+		key.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		key.add_theme_font_size_override("font_size", 12)
+		key.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		pill.add_child(key)
+		var value := Label.new()
+		value.text = stat_def[1]
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		value.add_theme_font_size_override("font_size", 16)
+		value.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+		pill.add_child(value)
+		stat_row.add_child(pill)
 	_base_tab.add_child(_make_body_label("属性摘要（1 级）：伤害 %d　　攻速 %.2f 次/秒　　射程 %d" % [
 		baseline.damage, 1.0 / maxf(baseline.attack_interval, 0.01), int(baseline.range),
 	], UITheme.LIGHT_ACCENT))
@@ -664,14 +814,27 @@ func _refresh_simulator(character: CharacterData) -> void:
 ## ============ 敌人图鉴 ============
 
 func _build_enemy_detail() -> void:
+	var header_row := HBoxContainer.new()
+	header_row.name = "EnemyHeaderRow"
+	header_row.add_theme_constant_override("separation", 12)
+	_detail_box.add_child(header_row)
+	var avatar_slot := CenterContainer.new()
+	avatar_slot.name = "EnemyAvatarSlot"
+	avatar_slot.custom_minimum_size = Vector2(56, 56)
+	header_row.add_child(avatar_slot)
+	var who := VBoxContainer.new()
+	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	who.add_theme_constant_override("separation", 2)
+	header_row.add_child(who)
 	_header_name_label = Label.new()
+	_header_name_label.add_theme_font_override("font", UITheme.spaced_font(2))
 	_header_name_label.add_theme_font_size_override("font_size", 24)
 	_header_name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-	_detail_box.add_child(_header_name_label)
+	who.add_child(_header_name_label)
 	_header_meta_label = Label.new()
-	_header_meta_label.add_theme_font_size_override("font_size", 15)
+	_header_meta_label.add_theme_font_size_override("font_size", 14)
 	_header_meta_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	_detail_box.add_child(_header_meta_label)
+	who.add_child(_header_meta_label)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -701,6 +864,12 @@ func _refresh_enemy_detail() -> void:
 	if enemy == null or _header_name_label == null:
 		return
 	_header_name_label.text = enemy.display_name
+	var enemy_avatar_slot := _detail_box.get_node("EnemyHeaderRow/EnemyAvatarSlot") as CenterContainer
+	for child in enemy_avatar_slot.get_children():
+		enemy_avatar_slot.remove_child(child)
+		child.queue_free()
+	enemy_avatar_slot.add_child(UITheme.avatar_label(enemy.display_name.left(1),
+		"blue", 56.0, 24, enemy.body_color))
 	_header_meta_label.text = "%s · 阵营 黄巾" % ENEMY_LOCATIONS.get(_selected_enemy_id, "未知")
 	_clear_tab(_detail_scroll_content)
 	var body := _detail_scroll_content
