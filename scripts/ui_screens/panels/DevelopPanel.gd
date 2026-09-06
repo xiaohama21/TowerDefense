@@ -836,9 +836,16 @@ func _make_rage_bar() -> Control:
 
 func _build_job_tab() -> void:
 	var page := _make_tab_page("职业")
+	# 与技能页签一致：职业页签内容套纵向滚动容器（内容超高时滚动兜底，防顶出面板）。
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_child(scroll)
 	_job_content_box = VBoxContainer.new()
+	_job_content_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_job_content_box.add_theme_constant_override("separation", 10)
-	page.add_child(_job_content_box)
+	scroll.add_child(_job_content_box)
 
 
 ## 转职详情整屏叠层（概念图 ui_develop_promo.png，v0.17.4）：蓝头 + 转职树
@@ -1116,8 +1123,11 @@ func _refresh_job_tab(character: CharacterData, level: int) -> void:
 			"已至当前路线终点；后续内容见「转职详情」。", UITheme.LIGHT_BODY, 12))
 	else:
 		var next_promotion: PromotionData = candidates[0]
-		var chips := HBoxContainer.new()
-		chips.add_theme_constant_override("separation", 6)
+		# 概念 .jchips 为 flex-wrap:wrap——chips 用流式容器，窄时自动换行，
+		# 避免单行不可收缩把进度卡/职业页签整体撑宽溢出（B-042）。
+		var chips := HFlowContainer.new()
+		chips.add_theme_constant_override("h_separation", 6)
+		chips.add_theme_constant_override("v_separation", 4)
 		progress_mid.add_child(chips)
 		chips.add_child(UITheme.tag_label(
 			"下一转 · %s（%s）" % [next_promotion.display_name,
