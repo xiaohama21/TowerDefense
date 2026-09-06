@@ -889,6 +889,7 @@ func _open_promotion_overlay() -> void:
 	close_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	close_button.pressed.connect(_close_promotion_overlay)
 	head_row.add_child(close_button)
+	box.add_child(header)
 
 	# 树主体（滚动）
 	var body_scroll := ScrollContainer.new()
