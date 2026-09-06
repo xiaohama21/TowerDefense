@@ -217,6 +217,9 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 		"orange": top = Color("#ffb066"); bottom = Color("#f0802f")
 		"red": top = Color("#ff8d7a"); bottom = Color("#e85b43")
 		"blue": top = Color("#7ec8ea"); bottom = Color("#2eaadc")
+		"brown": top = Color("#c8a06a"); bottom = Color("#9c6f3e")
+		"pink": top = Color("#ff9ec2"); bottom = Color("#e0558c")
+		"teal": top = Color("#63d8c8"); bottom = Color("#1f9d92")
 	style.bg_color = top.lerp(bottom, 0.5)
 	style.set_corner_radius_all(diameter * 0.5)
 	style.border_color = Color.WHITE
