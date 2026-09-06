@@ -32,6 +32,15 @@ func _collect_buttons(root: Node) -> Array[Button]:
 	return buttons
 
 
+func _has_text(root: Node, needle: String) -> bool:
+	if root is Label and (root as Label).text.contains(needle):
+		return true
+	for child in root.get_children():
+		if _has_text(child, needle):
+			return true
+	return false
+
+
 func _run() -> void:
 	var profile := ProfileStore.create_new_profile(false)
 	GameFlow.ensure_initial_characters(profile)
@@ -58,23 +67,44 @@ func _run() -> void:
 	hub._show_panel(&"develop")
 	await get_tree().process_frame
 
-	var detail_text: String = develop_panel.get("_detail_name_label").text
-	_check(detail_text.contains("等级 6"), "右侧详情应显示当前等级 6（实际：%s）" % detail_text)
+	var detail_level_text: String = develop_panel.get("_detail_level_label").text
+	_check(detail_level_text == "Lv.6", "右侧详情应显示当前等级 6（实际：%s）" % detail_level_text)
 
-	var toggle_texts: Array[String] = []
 	var locked_count := 0
 	for button in _collect_buttons(develop_panel):
-		if button.toggle_mode:
-			toggle_texts.append(button.text)
-		elif button.disabled and not button.toggle_mode and button.text.contains("首通解锁"):
+		if button.disabled and not button.toggle_mode and _has_text(button, "首通解锁"):
 			locked_count += 1
-	_check(toggle_texts.size() == 7, "左侧应列出 7 名已拥有武将（实际 %d：%s）" % [toggle_texts.size(), str(toggle_texts)])
+	var char_buttons: Dictionary = develop_panel.get("_character_buttons")
+	_check(char_buttons.size() == 7, "左侧应列出 7 名已拥有武将（实际 %d）" % char_buttons.size())
 	_check(locked_count == 2, "未解锁区应只剩 2 名（实际 %d）" % locked_count)
+	# B-038：左卡按命名节点同步——旧实现按 find_children 顺序覆盖，把头像写成全名、
+	# 职业行写错、等级不更新；此处逐卡校验 姓名/职业/等级 标签与头像字是否被污染。
 	var level_six_count := 0
-	for text in toggle_texts:
-		if text.contains("Lv.6"):
+	for character_id in char_buttons.keys():
+		var button := char_buttons[character_id] as Button
+		if button == null or button.get_child_count() == 0:
+			continue
+		var content := button.get_child(0)
+		var name_label := content.find_child("CardName", true, false) as Label
+		var sub_label := content.find_child("CardSub", true, false) as Label
+		var lv_label := content.find_child("CardLv", true, false) as Label
+		var avatar := content.get_child(0) as Label
+		if name_label == null or sub_label == null or lv_label == null:
+			continue
+		var character_data := GameFlow.load_character_data(str(character_id))
+		var level := GameFlow.get_character_level(profile, str(character_id))
+		if level == 6:
 			level_six_count += 1
-	_check(level_six_count == 2, "左侧已拥有武将应显示当前 Lv.6（实际 %d 张卡片：%s）" % [level_six_count, str(toggle_texts)])
+		_check(name_label.text == character_data.display_name,
+			"卡片姓名应为 %s（实际 %s）" % [character_data.display_name, name_label.text])
+		_check(sub_label.text == (character_data.profession.display_name
+			if character_data.profession != null else "未知职业"),
+			"卡片职业行应显示职业名（实际 %s）" % sub_label.text)
+		_check(lv_label.text == "Lv%d" % level,
+			"卡片等级应随档案刷新为 Lv%d（实际 %s）" % [level, lv_label.text])
+		_check(avatar != null and avatar.text == character_data.display_name.left(1),
+			"头像字不应被同步覆盖成全名（实际 %s）" % (avatar.text if avatar != null else "null"))
+	_check(level_six_count == 2, "左侧已拥有武将应含 2 张 Lv.6 卡片（实际 %d）" % level_six_count)
 
 	hub.queue_free()
 	_cleanup()
