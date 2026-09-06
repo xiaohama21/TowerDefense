@@ -1,9 +1,9 @@
 extends Control
 
-## 游戏百科（ENCYCLOPEDIA.md v0.1.8 概念终版对齐）：只读信息中心——
+## 游戏百科（ENCYCLOPEDIA.md v0.1.9 概念终版对齐）：只读信息中心——
 ## 武将图鉴（9 将全量 + 基础/技能/转职/信物/特性页签 + 数值模拟器）与
 ## 敌人图鉴（章节选择 + 7 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
-## 布局规范 UI_LAYOUT.md §12（v0.20.18）；卡片副行口径 = 职业名/定位 · 打法词（概念字典）。禁止面板间散落私有文案漂移。
+## 布局规范 UI_LAYOUT.md §12（v0.20.19）；卡片副行口径 = 职业名/定位 · 打法词（概念字典）。禁止面板间散落私有文案漂移。
 
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
 const MapPanelScript := preload("res://scripts/ui_screens/panels/MapPanel.gd")
@@ -769,11 +769,24 @@ func _make_tab(tab_name: String) -> VBoxContainer:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_tab_container.add_child(scroll)
+	# 页签标题 = 概念页签文字（TabContainer 默认取子节点名，原为「基础Scroll…」，
+	# v0.20.19 起显式 set_tab_title，去除内部滚动节点名后缀）。
+	_tab_container.set_tab_title(_tab_container.get_tab_count() - 1, tab_name)
+	# 页签体内容内边距（概念 .tabbody padding: 10px 14px）：文字/卡片与浅蓝描边留白，
+	# 不再紧贴边框（v0.20.19）。
+	var body_margin := MarginContainer.new()
+	body_margin.name = "%sMargin" % tab_name
+	body_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_margin.add_theme_constant_override("margin_left", 14)
+	body_margin.add_theme_constant_override("margin_right", 14)
+	body_margin.add_theme_constant_override("margin_top", 10)
+	body_margin.add_theme_constant_override("margin_bottom", 10)
+	scroll.add_child(body_margin)
 	var tab := VBoxContainer.new()
 	tab.name = tab_name
 	tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tab.add_theme_constant_override("separation", 8)
-	scroll.add_child(tab)
+	body_margin.add_child(tab)
 	return tab
 
 
