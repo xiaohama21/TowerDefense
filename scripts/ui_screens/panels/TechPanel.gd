@@ -564,6 +564,7 @@ func _build_detail_panel() -> void:
 	_unlock_button.focus_mode = Control.FOCUS_NONE
 	_unlock_button.add_theme_font_size_override("font_size", 15)
 	right.add_child(_unlock_button)
+	_unlock_button.pressed.connect(_on_unlock_pressed)
 
 	_show_default_detail()
 
@@ -709,8 +710,8 @@ func _apply_node_selected_style(button: Button, selected: bool) -> void:
 		button.add_theme_stylebox_override("hover_pressed", style)
 		button.set_pressed_no_signal(true)
 	else:
-		button.remove_theme_stylebox_override("pressed")
-		button.remove_theme_stylebox_override("hover_pressed")
+		# 非选中分支保持 pressed/hover_pressed 覆盖为状态底色：
+		# 移除覆盖会回落主题默认深色 pressed 样式，点击未选中节点瞬间黑闪（B-034 同款回归）。
 		button.set_pressed_no_signal(false)
 
 
