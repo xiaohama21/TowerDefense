@@ -65,6 +65,44 @@ const TRAIT_HINTS := {
 	&"trait_moon_veil": "月纱：自身大招怒气获取 +20%，友方大招怒气获取 +10%",
 }
 
+## 二转新技能线玩家向文案（6 个新技能，口径与 SKILLS.md 3.x / resources/promotions skill_params 同步）。
+const SECOND_SKILL_HINTS := {
+	&"assault": "击杀 +1 层；对精英/Boss 每 4 次命中 +1 层（上限 3）；普攻消耗 1 层，该次伤害 +25%",
+	&"guard": "近战命中 25% 概率将目标拖回拦截 20px（内置冷却 2.5s）",
+	&"chain_arrow": "命中 20% 概率追加 0.5× 箭矢",
+	&"mystic_gate": "大招落点敌人获得易伤：受所有来源伤害 +10%（持续 4s）",
+	&"echo": "大招释放后，全队伤害 +8%（持续 5s）",
+	&"tremor": "大招每发落点眩晕 0.5s（同一敌人内置冷却 2.5s）",
+}
+
+## 二转强化线参数展示顺序（技能核心参数 → 玩家向数值，与 SKILLS.md 4.1 同源）。
+const PROMO_PARAM_KEYS: Array[String] = [
+	"radius", "ally_damage_bonus", "team_speed_bonus", "team_damage_bonus",
+	"duration", "elite_damage_bonus", "aoe_radius_bonus", "base_refund",
+	"every", "mult", "bonus",
+]
+
+## 参数 key → 玩家向标签（强化线 .fx 用；各 key 目前只在单一技能线出现，见 SKILLS.md 3.x）。
+const PROMO_PARAM_LABELS := {
+	"radius": "光环半径",
+	"ally_damage_bonus": "友军伤害",
+	"team_speed_bonus": "全队攻速",
+	"team_damage_bonus": "全队伤害",
+	"duration": "持续",
+	"elite_damage_bonus": "对精英/Boss 伤害",
+	"aoe_radius_bonus": "大招范围",
+	"base_refund": "击杀返怒",
+	"every": "每",
+	"mult": "追加伤害",
+	"bonus": "伤害提升",
+}
+
+## 上述以小数存储、展示需 +% 的 key（0.06 → +6%）。
+const PROMO_PARAM_PERCENT: Array[String] = [
+	"ally_damage_bonus", "team_speed_bonus", "team_damage_bonus",
+	"elite_damage_bonus", "aoe_radius_bonus", "bonus",
+]
+
 const AVATAR_COLORS := ["blue", "red", "gold", "green", "purple", "orange"]
 
 ## 职业 tags → 中文定位词（概念图 .rcard/.jcard 职业 tag 文案；tags 为英文机器标签，
@@ -859,8 +897,14 @@ func _open_promotion_overlay() -> void:
 	panel.offset_top = -330.0
 	panel.offset_bottom = 330.0
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = UITheme.LIGHT_PAGE_BG
-	panel_style.set_corner_radius_all(16)
+	panel_style.bg_color = Color("#f2faff")
+	panel_style.set_corner_radius_all(18)
+	# 概念 .promo-panel：3px #1c9fd7 蓝描边 + 7px 粗下边（Godot 单色边，粗下边同色近似 #167da8）。
+	panel_style.border_width_left = 3
+	panel_style.border_width_right = 3
+	panel_style.border_width_top = 3
+	panel_style.border_width_bottom = 7
+	panel_style.border_color = Color("#1c9fd7")
 	panel_style.shadow_color = Color(0.024, 0.11, 0.196, 0.5)
 	panel_style.shadow_size = 24
 	panel.add_theme_stylebox_override("panel", panel_style)
@@ -870,15 +914,15 @@ func _open_promotion_overlay() -> void:
 	box.offset_left = 3.0
 	box.offset_right = -3.0
 	box.offset_top = 3.0
-	box.offset_bottom = -3.0
+	box.offset_bottom = -8.0
 	panel.add_child(box)
 	# 蓝色标题条（概念图头部：亮蓝底白字；Panel+MarginContainer 确保绘制与最小尺寸传导）
 	var header := Panel.new()
 	header.custom_minimum_size = Vector2(0, 56)
 	var header_style := StyleBoxFlat.new()
 	header_style.bg_color = Color("#38a8dd")
-	header_style.corner_radius_top_left = 13
-	header_style.corner_radius_top_right = 13
+	header_style.corner_radius_top_left = 15
+	header_style.corner_radius_top_right = 15
 	header.add_theme_stylebox_override("panel", header_style)
 	var header_margin := MarginContainer.new()
 	header_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -893,7 +937,7 @@ func _open_promotion_overlay() -> void:
 	var head_label := Label.new()
 	head_label.text = "转职详情"
 	head_label.add_theme_font_override("font", UITheme.spaced_font(2))
-	head_label.add_theme_font_size_override("font_size", 24)
+	head_label.add_theme_font_size_override("font_size", 26)
 	head_label.add_theme_color_override("font_color", Color.WHITE)
 	head_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -911,15 +955,15 @@ func _open_promotion_overlay() -> void:
 		head_row.add_child(who_chip)
 	var close_button := Button.new()
 	close_button.text = "✕"
-	close_button.custom_minimum_size = Vector2(40, 40)
+	close_button.custom_minimum_size = Vector2(36, 36)
 	close_button.focus_mode = Control.FOCUS_NONE
-	close_button.add_theme_font_size_override("font_size", 18)
+	close_button.add_theme_font_size_override("font_size", 16)
 	close_button.add_theme_color_override("font_color", Color.WHITE)
 	close_button.add_theme_color_override("font_pressed_color", Color.WHITE)
 	close_button.add_theme_color_override("font_hover_color", Color.WHITE)
 	var close_style := StyleBoxFlat.new()
 	close_style.bg_color = Color(1, 1, 1, 0.25)
-	close_style.set_corner_radius_all(20)
+	close_style.set_corner_radius_all(18)
 	close_button.add_theme_stylebox_override("normal", close_style)
 	close_button.add_theme_stylebox_override("hover", close_style)
 	close_button.add_theme_stylebox_override("pressed", close_style)
@@ -1343,9 +1387,9 @@ func _promo_req_chip(text_value: String, ok_state: bool) -> Label:
 	return label
 
 
-## 转职树渲染（概念图 ui_develop_promo.png）：节点卡 = 顶部一行（头像+名称+状态
-## tag+右侧按钮/注记），文字行（描述/习得技能/数值/条件胶囊）统一放卡片底部通栏
-## （v0.20.7 用户拍板：左列排版对不齐就直接放底部）。
+## 转职树渲染（概念图 ui_develop_promo.html 转职详情叠层）：节点卡顶行 = 头像圆 +
+## 名称(18) + 状态 tag + step 浅字 + 右列 act；文字行（描述/习得技能/数值/条件胶囊）
+## 统一放卡片底部通栏（v0.20.7 用户拍板；v0.20.12 分支并排 + 图例口径/需求文案修正）。
 func _refresh_promotion(character: CharacterData, level: int) -> void:
 	if _promotion_tree_box == null or not is_instance_valid(_promotion_tree_box):
 		return
@@ -1354,8 +1398,13 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 	_promotion_buttons.clear()
 	var active := GameFlow.get_active_promotion(_profile, _selected_id)
 	var candidates := GameFlow.get_promotion_candidates(_profile, _selected_id)
+	var profession := character.profession
+	var base_job_skill: StringName = PROFESSION_JOB_SKILLS.get(
+		profession.profession_id if profession != null else &"", &"")
+
+	# 概念 .ptip：界面为 ↓ 箭头推进树而非圆点，图例文字与之一致（v0.20.12）。
 	var intro := Label.new()
-	intro.text = "职业级转职树：同职业武将共享同一路线，绿点＝当前职业，金点＝可转职目标，灰点＝未解锁；转职不可逆，需二次确认。"
+	intro.text = "职业级转职树：同职业武将共享同一路线。绿色＝当前职业/已完成，金色＝可转职目标，灰色＝未解锁；↓ 为推进方向；转职不可逆，需二次确认。"
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_font_size_override("font_size", 12)
 	intro.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
@@ -1364,151 +1413,309 @@ func _refresh_promotion(character: CharacterData, level: int) -> void:
 	intro_panel.add_child(intro)
 	_promotion_tree_box.add_child(intro_panel)
 
-	# 已完成链：基础职业（或当前职业）节点
-	var base_tag := "当前职业" if active == null else "基础职业 · 未转职"
-	var base_note := ""
-	if active == null:
-		var job_skill: StringName = PROFESSION_JOB_SKILLS.get(
-			character.profession.profession_id if character.profession != null else &"", &"")
-		base_note = "职业技能「%s」需一转后习得。" % (
-			SkillRegistry.get_skill_name(job_skill) if not job_skill.is_empty() else "—")
-	_promotion_tree_box.add_child(_make_promo_node(
-		character.profession.display_name.left(1), "green",
-		character.profession.display_name,
-		[[base_tag, UITheme.TAG_OK_FG, UITheme.TAG_OK_BG]],
-		character.profession.description,
-		[_make_note_label("职业包括大招「%s」" % (BehaviorRegistry.ultimate_display_name(
-			character.ultimate_override_id if not character.ultimate_override_id.is_empty()
-			else (character.profession.ultimate_id if character.profession != null else &""))
-			if character.profession != null else "—"), UITheme.LIGHT_LOCK)],
-		null))
-	_promotion_tree_box.add_child(_make_tree_arrow())
-
-	# 已转职链节点
+	# ---------- 基础职业节点（未转职=当前职业；已转职=基础职业，绿 done） ----------
 	var path_ids: Array = _profile.get_character(_selected_id).get("promotion_path", [])
+	var first_taken: PromotionData = null
 	for pid in path_ids:
-		var taken := GameFlow.load_promotion_data(str(pid))
+		var loaded := GameFlow.load_promotion_data(str(pid))
+		if loaded != null:
+			first_taken = loaded
+			break
+	var base_tags: Array = [["当前职业" if active == null else "基础职业",
+		UITheme.TAG_OK_FG, UITheme.TAG_OK_BG]]
+	var base_step := "基础职业 · 未转职"
+	if active != null and first_taken != null:
+		base_step = "基础职业 · 已转「%s」" % first_taken.display_name
+	var base_extras: Array[Control] = []
+	if active == null and not base_job_skill.is_empty():
+		base_extras.append(_make_note_label("职业技能「%s」需一转后习得。" % (
+			SkillRegistry.get_skill_name(base_job_skill)), UITheme.LIGHT_DESC))
+	_promotion_tree_box.add_child(_make_promo_node(
+		profession.display_name.left(1) if profession != null else "?", "green",
+		profession.display_name if profession != null else "未知",
+		base_tags, base_step,
+		profession.description if profession != null else "", base_extras, null))
+
+	# ---------- 二转分支数据：未转职=一转候选 next 预览；已一转=真实候选 ----------
+	var branches: Array[PromotionData] = []
+	if active == null and not candidates.is_empty():
+		for next_id in candidates[0].next_promotion_ids:
+			var branch := GameFlow.load_promotion_data(str(next_id))
+			if branch != null:
+				branches.append(branch)
+	else:
+		for candidate in candidates:
+			branches.append(candidate)
+
+	# 基础职业节点之后的推进箭头
+	if not path_ids.is_empty() or not candidates.is_empty():
+		_promotion_tree_box.add_child(_make_tree_arrow())
+
+	# ---------- 已转职链（绿 done 节点，概念 .tnode.done） ----------
+	for path_idx in range(path_ids.size()):
+		var taken := GameFlow.load_promotion_data(str(path_ids[path_idx]))
 		if taken == null:
 			continue
 		var is_current := active != null and str(taken.promotion_id) == str(active.promotion_id)
+		var taken_tags: Array = [["当前职业" if is_current else "已转职",
+			UITheme.TAG_OK_FG, UITheme.TAG_OK_BG]]
 		_promotion_tree_box.add_child(_make_promo_node(
-			taken.display_name.left(1), "gold",
-			taken.display_name,
-			[["当前职业" if is_current else "已转职", UITheme.TAG_OK_FG, UITheme.TAG_OK_BG]],
-			taken.description, [], null))
-		_promotion_tree_box.add_child(_make_tree_arrow())
+			taken.display_name.left(1), "gold", taken.display_name,
+			taken_tags, "", taken.description, [], null))
+		if path_idx < path_ids.size() - 1 or not candidates.is_empty():
+			_promotion_tree_box.add_child(_make_tree_arrow())
 
-	# 下一转候选（金 · 可转职 + 转职为按钮 + 数值/条件）
-	for promotion in candidates:
-		var level_ok := level >= promotion.required_level
-		var materials_ok := true
-		var material_pills: Array[Control] = []
-		for cost in promotion.item_costs:
-			if cost == null or cost.item == null:
-				continue
-			var owned: int = int(_profile.items.get(str(cost.item.item_id), 0))
-			var enough: bool = owned >= cost.amount
-			materials_ok = materials_ok and enough
-			material_pills.append(_promo_req_chip("%s %d / %d %s" % [cost.item.display_name,
-				owned, cost.amount, "充足" if enough else "不足"], enough))
-		var skill_line := ""
-		for sid in promotion.granted_skill_ids:
-			skill_line = "习得职业技能「%s」：%s" % [SkillRegistry.get_skill_name(sid),
-				JOB_SKILL_HINTS.get(sid, "效果见 SKILLS.md 4.1")]
-			break
-		var depth_text := "二转 · 可转职" if active != null else "一转 · 可转职（唯一）"
-		var numeric_text := _promotion_numeric_text(promotion)
-		var promote_button := Button.new()
-		promote_button.text = "转职为「%s」" % promotion.display_name
-		promote_button.custom_minimum_size = Vector2(200, 48)
-		promote_button.focus_mode = Control.FOCUS_NONE
-		promote_button.add_theme_font_size_override("font_size", 15)
-		UITheme.apply_kenney_rect_button(promote_button, "yellow" if (level_ok and materials_ok) else "grey",
-			UITheme.INK if (level_ok and materials_ok) else UITheme.LIGHT_BODY)
-		promote_button.disabled = not (level_ok and materials_ok)
-		promote_button.pressed.connect(_on_promote_pressed.bind(promotion))
-		_promotion_buttons.append(promote_button)
-		var extras: Array[Control] = []
-		if not skill_line.is_empty():
-			extras.append(_make_note_label(skill_line, UITheme.LIGHT_BODY))
-		if not numeric_text.is_empty():
-			extras.append(_make_note_label(numeric_text, UITheme.LIGHT_BODY))
-		var pill_row := HBoxContainer.new()
-		pill_row.add_theme_constant_override("separation", 8)
-		pill_row.add_child(_promo_req_chip("Lv %d / %d %s" % [level,
-			promotion.required_level, "已达标" if level_ok else "未达标"], level_ok))
-		for pill in material_pills:
-			pill_row.add_child(pill)
-		extras.append(pill_row)
-		_promotion_tree_box.add_child(_make_promo_node(
-			promotion.display_name.left(1), "gold", promotion.display_name,
-			[[depth_text, UITheme.LIGHT_GOLD_TEXT, UITheme.TAG_OPEN_BG]],
-			promotion.description, extras, promote_button))
-		_promotion_tree_box.add_child(_make_tree_arrow())
-
-	# 二转分支预览（未完成一转时灰显）
+	# ---------- 一转候选（未转职唯一路线：全宽金卡） ----------
 	if active == null and not candidates.is_empty():
-		var first_promotion := candidates[0]
-		var branch_note_text := "— 二转分支 · 完成一转后 %d 选 1" % first_promotion.next_promotion_ids.size()
-		var first_cost: ItemAmountData = null
-		for cost in first_promotion.item_costs:
-			if cost != null and cost.item != null:
-				first_cost = cost
-				break
-		if first_cost != null:
-			branch_note_text += "（需 Lv %d · %s ×%d）" % [first_promotion.required_level,
-				first_cost.item.display_name, first_cost.amount]
-		branch_note_text += "   选定后写入「转职路径」，不可回退"
-		var branch_note := Label.new()
-		branch_note.text = branch_note_text
-		branch_note.add_theme_font_size_override("font_size", 13)
-		branch_note.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
-		_promotion_tree_box.add_child(branch_note)
-		var branch_row := HBoxContainer.new()
-		branch_row.add_theme_constant_override("separation", 10)
-		_promotion_tree_box.add_child(branch_row)
-		for next_id in first_promotion.next_promotion_ids:
-			var branch := GameFlow.load_promotion_data(str(next_id))
-			if branch == null:
-				continue
-			var locked_button := Button.new()
-			locked_button.text = "未解锁"
-			locked_button.custom_minimum_size = Vector2(120, 44)
-			locked_button.focus_mode = Control.FOCUS_NONE
-			locked_button.disabled = true
-			UITheme.apply_kenney_rect_button(locked_button, "grey", UITheme.LIGHT_BODY)
-			# B-039：二转分支卡并排显示（原误挂到树容器导致两卡纵向全宽堆叠）。
-			var extras: Array[Control] = []
-			var numeric_text := _promotion_numeric_text(branch)
-			if not numeric_text.is_empty():
-				extras.append(_make_note_label(numeric_text, UITheme.LIGHT_BODY))
-			var req_row := HBoxContainer.new()
-			req_row.add_theme_constant_override("separation", 8)
-			var lv_ok := level >= branch.required_level
-			req_row.add_child(_promo_req_chip("Lv %d / %d %s" % [level,
-				branch.required_level, "已达标" if lv_ok else "未达标"], lv_ok))
-			for cost in branch.item_costs:
-				if cost == null or cost.item == null:
-					continue
-				var owned: int = int(_profile.items.get(str(cost.item.item_id), 0))
-				var enough: bool = owned >= cost.amount
-				req_row.add_child(_promo_req_chip("%s %d / %d %s" % [cost.item.display_name,
-					owned, cost.amount, "充足" if enough else "不足"], enough))
-			extras.append(req_row)
-			var line_tag := "二转 · 强化线" if not branch.enhanced_skill_ids.is_empty() else "二转 · 新技能线"
-			branch_row.add_child(_make_promo_node(
-				branch.display_name.left(1), "grey", branch.display_name,
-				[[line_tag, UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT],
-				["需先完成一转", UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG]],
-				branch.description, extras, locked_button))
+		_promotion_tree_box.add_child(_make_promo_tier_node(candidates[0], level, base_job_skill))
+		# 二转分支预览（灰锁两卡并排，概念 .brow/.tnode.locked）
+		if not branches.is_empty():
+			_promotion_tree_box.add_child(_make_branch_head(branches))
+			_promotion_tree_box.add_child(_make_branch_row(branches, level, base_job_skill, true))
+	# ---------- 二转候选（已一转后：两分支真实候选并排；条件未满按灰锁展示） ----------
+	elif active != null and not branches.is_empty():
+		_promotion_tree_box.add_child(_make_branch_head(branches))
+		_promotion_tree_box.add_child(_make_branch_row(branches, level, base_job_skill, false))
 
 
-## 节点卡（概念图 .pnode/.bopt）：顶行 = 头像圆 + 名称 + 状态 tag + 右侧按钮/注记；
-## 描述与附加行统一放卡片底部通栏（v0.20.7 用户拍板）。
+## 一转候选金卡（概念 .tnode.next：tag 一转·可转职 + step 一转路线 + 转职为按钮）。
+func _make_promo_tier_node(promotion: PromotionData, level: int,
+		base_job_skill: StringName) -> PanelContainer:
+	var tier_tags: Array = [["一转 · 可转职", UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG]]
+	var extras: Array[Control] = []
+	extras.append(_make_note_label(_promotion_fx_line(promotion, base_job_skill), UITheme.LIGHT_BODY))
+	extras.append(_promo_req_flow(promotion, level))
+	var go_button := _make_promo_go_button(promotion, level, 180.0)
+	return _make_promo_node(promotion.display_name.left(1), "gold", promotion.display_name,
+		tier_tags, "一转路线（唯一）", promotion.description, extras, go_button)
+
+
+## 二转分支行（概念 .brow）：两卡并排、各占一半，杜绝全宽堆叠（B-039 口径）。
+func _make_branch_row(branches: Array, level: int, base_job_skill: StringName,
+		preview: bool) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for branch in branches:
+		if branch == null:
+			continue
+		var locked: bool = preview or level < branch.required_level or not _promo_materials_ok(branch)
+		row.add_child(_make_branch_node(branch, level, base_job_skill, locked))
+	return row
+
+
+## 二转分支卡（概念 .tnode.branch）：技能线 tag + 状态 tag + fx/条件 + 右列按钮。
+func _make_branch_node(branch: PromotionData, level: int, base_job_skill: StringName,
+		locked: bool) -> PanelContainer:
+	var line_tag := "二转 · 强化线" if not branch.enhanced_skill_ids.is_empty() else "二转 · 新技能线"
+	var node_tags: Array = [[line_tag, UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT]]
+	if locked:
+		node_tags.append(["未解锁", UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG])
+	else:
+		node_tags.append(["可转职", UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG])
+	var extras: Array[Control] = []
+	extras.append(_make_note_label(_promotion_fx_line(branch, base_job_skill), UITheme.LIGHT_BODY))
+	extras.append(_promo_req_flow(branch, level))
+	var right: Control = null
+	if locked:
+		right = _make_promo_locked_button()
+	else:
+		right = _make_promo_go_button(branch, level, 176.0)
+	return _make_promo_node(branch.display_name.left(1), "grey" if locked else "gold",
+		branch.display_name, node_tags, "", "", extras, right)
+
+
+## 分支标题行（概念 .bhead）：金色短线 + 标题（需 Lv/材料取分支自身数据）+ 右弱字。
+func _make_branch_head(branches: Array) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var dash := ColorRect.new()
+	dash.color = UITheme.LIGHT_GOLD_SELECT
+	dash.custom_minimum_size = Vector2(18, 3)
+	dash.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(dash)
+	var head_text := "二转分支 · 完成一转后 %d 选 1" % branches.size()
+	if not branches.is_empty() and branches[0] != null:
+		var first_branch: PromotionData = branches[0]
+		if not first_branch.item_costs.is_empty():
+			var first_cost = first_branch.item_costs[0]
+			if first_cost != null and first_cost.item != null:
+				head_text += "（需 Lv %d · %s ×%d）" % [first_branch.required_level,
+					first_cost.item.display_name, first_cost.amount]
+	var title_label := Label.new()
+	title_label.text = head_text
+	title_label.add_theme_font_size_override("font_size", 13)
+	title_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(title_label)
+	var foot_label := Label.new()
+	foot_label.text = "选定后写入「转职路径」，不可回退"
+	foot_label.add_theme_font_size_override("font_size", 12)
+	foot_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	foot_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(foot_label)
+	return row
+
+
+## 转职条件胶囊流（概念 .reqs/.reqchip）：自动折行，窄卡不横向外溢（B-042 口径）。
+func _promo_req_flow(promotion: PromotionData, level: int) -> Control:
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 6)
+	var level_ok := level >= promotion.required_level
+	flow.add_child(_promo_req_chip("Lv %d / %d %s" % [level, promotion.required_level,
+		"已达标" if level_ok else "未达标"], level_ok))
+	for cost in promotion.item_costs:
+		if cost == null or cost.item == null:
+			continue
+		var owned: int = int(_profile.items.get(str(cost.item.item_id), 0))
+		var enough: bool = owned >= cost.amount
+		flow.add_child(_promo_req_chip("%s %d / %d %s" % [cost.item.display_name,
+			owned, cost.amount, "充足" if enough else "不足"], enough))
+	return flow
+
+
+## 转职材料是否齐备（空材料视为满足）。
+func _promo_materials_ok(promotion: PromotionData) -> bool:
+	if promotion == null:
+		return false
+	for cost in promotion.item_costs:
+		if cost == null or cost.item == null:
+			continue
+		if int(_profile.items.get(str(cost.item.item_id), 0)) < cost.amount:
+			return false
+	return true
+
+
+## 转职为按钮（概念 .act .btn 宽 180；二转分支卡内 176）：满足黄、未满足灰禁用。
+func _make_promo_go_button(promotion: PromotionData, level: int, width: float) -> Button:
+	var usable := level >= promotion.required_level and _promo_materials_ok(promotion)
+	var button := Button.new()
+	button.text = "转职为「%s」" % promotion.display_name
+	button.custom_minimum_size = Vector2(width, 46)
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 15)
+	UITheme.apply_kenney_rect_button(button, "yellow" if usable else "grey",
+		UITheme.INK if usable else UITheme.LIGHT_BODY)
+	button.disabled = not usable
+	button.pressed.connect(_on_promote_pressed.bind(promotion))
+	_promotion_buttons.append(button)
+	return button
+
+
+## 灰锁按钮（概念 .dis2「未解锁」，宽 128；不触发转职）。
+func _make_promo_locked_button() -> Button:
+	var button := Button.new()
+	button.text = "未解锁"
+	button.custom_minimum_size = Vector2(128, 44)
+	button.focus_mode = Control.FOCUS_NONE
+	button.disabled = true
+	UITheme.apply_kenney_rect_button(button, "grey", UITheme.LIGHT_BODY)
+	return button
+
+
+## 转职节点详情正文（概念 .fx）：习得/强化说明 + 数值，单行文本自动折行。
+func _promotion_fx_line(promotion: PromotionData, base_job_skill: StringName) -> String:
+	if promotion == null:
+		return ""
+	var body := ""
+	if not promotion.enhanced_skill_ids.is_empty():
+		body = _promotion_enhance_fx_text(promotion)
+		if body.is_empty():
+			body = "「%s+」强化" % SkillRegistry.get_skill_name(promotion.enhanced_skill_ids[0])
+	if body.is_empty():
+		body = _promotion_learn_fx_text(promotion, base_job_skill)
+	var numeric := _promotion_numeric_text(promotion)
+	if not body.is_empty() and not numeric.is_empty():
+		return "%s · %s" % [body, numeric]
+	if not body.is_empty():
+		return body
+	return numeric
+
+
+## 习得技能说明（概念 .fx「习得职业技能… / 保留「军旗」，习得「护卫」…」）。
+func _promotion_learn_fx_text(promotion: PromotionData, base_job_skill: StringName) -> String:
+	if promotion == null:
+		return ""
+	var core_sid: StringName = &""
+	var new_ids: Array[StringName] = []
+	for sid in promotion.granted_skill_ids:
+		if str(sid) == str(base_job_skill):
+			if core_sid.is_empty():
+				core_sid = sid
+		else:
+			new_ids.append(sid)
+	if new_ids.is_empty():
+		if core_sid.is_empty():
+			return ""
+		return "习得职业技能「%s」：%s" % [SkillRegistry.get_skill_name(core_sid),
+			JOB_SKILL_HINTS.get(core_sid, "效果见 SKILLS.md 4.1")]
+	var new_hints: Array[String] = []
+	for sid in new_ids:
+		new_hints.append("「%s」：%s" % [SkillRegistry.get_skill_name(sid),
+			SECOND_SKILL_HINTS.get(sid, "效果见 SKILLS.md 4.1")])
+	var lead := "习得"
+	if not core_sid.is_empty():
+		lead = "保留「%s」，习得" % SkillRegistry.get_skill_name(core_sid)
+	return "%s%s" % [lead, "；".join(new_hints)]
+
+
+## 强化线数值说明（概念 .fx「「军旗+」强化：光环半径 150 → 180px · …」）：
+## 以父节点（一转）参数为基线、分支 skill_params 为增强后值，按 PROMO_PARAM_KEYS 取数。
+func _promotion_enhance_fx_text(branch: PromotionData) -> String:
+	if branch == null or branch.enhanced_skill_ids.is_empty():
+		return ""
+	var parent := GameFlow.load_promotion_data(str(branch.parent_id))
+	if parent == null:
+		return ""
+	var parts: Array[String] = []
+	for key in PROMO_PARAM_KEYS:
+		if not PROMO_PARAM_LABELS.has(key):
+			continue
+		if not branch.skill_params.has(key) or not parent.skill_params.has(key):
+			continue
+		var old_value := float(parent.skill_params[key])
+		var new_value := float(branch.skill_params[key])
+		if is_equal_approx(old_value, new_value):
+			continue
+		var old_text := _format_promo_param_value(key, old_value)
+		var new_text := _format_promo_param_value(key, new_value)
+		if key == "radius":
+			# 概念 .fx 口径：光环半径 150 → 180px（单位只落在新值）。
+			old_text = "%.0f" % old_value
+			new_text = "%.0fpx" % new_value
+		parts.append("%s %s → %s" % [PROMO_PARAM_LABELS[key],
+			old_text, new_text])
+	if parts.is_empty():
+		return ""
+	return "「%s+」强化：%s" % [SkillRegistry.get_skill_name(branch.enhanced_skill_ids[0]),
+		" · ".join(parts)]
+
+
+## 转职技能参数值展示（强化线 .fx）：百分比 key 带 +/-，其余按单位格式化。
+func _format_promo_param_value(key: String, value: float) -> String:
+	if key in PROMO_PARAM_PERCENT:
+		return "%+.0f%%" % (value * 100.0)
+	match key:
+		"radius": return "%.0f" % value
+		"duration": return "%.0f 秒" % value
+		"base_refund": return "%.0f%%" % value
+		"every": return "%d 次" % int(value)
+		"mult": return "×%.1f" % value
+	return "%.1f" % value
+
+
+## 节点卡（概念图 .tnode/.pnode）：顶行 = 头像圆 + 名称(18) + 状态 tag + step 浅字 + 右列按钮；
+## 描述与附加行统一放卡片底部通栏（v0.20.7 用户拍板）。灰锁卡标题用弱色。
 func _make_promo_node(avatar_char: String, color_key: String, title: String,
-		tags: Array, desc: String, extras: Array, right: Control = null) -> PanelContainer:
+		tags: Array, step: String, desc: String, extras: Array,
+		right: Control = null) -> PanelContainer:
 	var border_color := UITheme.LIGHT_GOLD_SELECT
 	var bg_color := Color("#fffdf2")
+	var locked_style := false
 	for tag_def in tags:
 		if tag_def[1] == UITheme.TAG_OK_FG:
 			border_color = UITheme.TAG_OK_FG
@@ -1516,33 +1723,42 @@ func _make_promo_node(avatar_char: String, color_key: String, title: String,
 		if tag_def[1] == UITheme.LIGHT_LOCK or tag_def[1] == UITheme.TAG_LOCK_FG:
 			border_color = UITheme.LIGHT_PANEL_BORDER
 			bg_color = UITheme.LIGHT_CARD_BG
+			locked_style = true
 	var node := PanelContainer.new()
 	var style := UITheme.light_card_style(bg_color, border_color)
 	style.set_border_width_all(3)
 	style.content_margin_left = 12.0
 	style.content_margin_right = 12.0
-	style.content_margin_top = 9.0
-	style.content_margin_bottom = 9.0
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 10.0
 	node.add_theme_stylebox_override("panel", style)
 	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 4)
+	box.add_theme_constant_override("separation", 6)
 	node.add_child(box)
 	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 10)
+	head.add_theme_constant_override("separation", 12)
 	box.add_child(head)
 	head.add_child(UITheme.avatar_label(avatar_char, color_key, 40.0, 18))
 	var title_label := Label.new()
 	title_label.text = title
 	title_label.add_theme_font_override("font", UITheme.spaced_font(2))
-	title_label.add_theme_font_size_override("font_size", 16)
-	title_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	title_label.add_theme_font_size_override("font_size", 18)
+	title_label.add_theme_color_override("font_color",
+		UITheme.LIGHT_DESC if locked_style else UITheme.LIGHT_INK)
 	title_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	head.add_child(title_label)
 	for tag_def in tags:
 		var tag := UITheme.tag_label(tag_def[0], tag_def[1], tag_def[2], 11)
 		tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		head.add_child(tag)
+	if not step.is_empty():
+		var step_label := Label.new()
+		step_label.text = step
+		step_label.add_theme_font_size_override("font_size", 12)
+		step_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		step_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		head.add_child(step_label)
 	var head_spacer := Control.new()
 	head_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(head_spacer)
@@ -1554,7 +1770,7 @@ func _make_promo_node(avatar_char: String, color_key: String, title: String,
 		desc_label.text = desc
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc_label.add_theme_font_size_override("font_size", 12)
-		desc_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+		desc_label.add_theme_color_override("font_color", UITheme.LIGHT_DESC)
 		box.add_child(desc_label)
 	for control in extras:
 		box.add_child(control)
