@@ -107,7 +107,6 @@ var _trait_label: Label
 var _exp_scroll_label: Label
 var _exp_scroll_button: Button
 var _exp_scroll_hint: Label
-var _resource_labels: Dictionary = {}
 
 
 func _ready() -> void:
@@ -151,7 +150,7 @@ func _reload_characters() -> void:
 			_locked_ids.append(character_id)
 
 
-# ============ 顶栏（概念图 .topbar：标题 + 资源胶囊） ============
+# ============ 顶栏（标题；右上角资源胶囊已按用户要求移除 v0.20.11） ============
 
 func _build_ui() -> void:
 	var topbar := HBoxContainer.new()
@@ -164,16 +163,6 @@ func _build_ui() -> void:
 	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	topbar.add_child(title)
-	for resource_def in [["yellow_turban_cloth", true], ["exp_scroll", false]]:
-		var chip := Label.new()
-		chip.name = "Res_" + resource_def[0]
-		chip.add_theme_stylebox_override("normal", UITheme.tag_style(
-			UITheme.TAG_OPEN_BG if resource_def[1] else UITheme.LIGHT_BLUE_SOFT, 11, 4))
-		chip.add_theme_font_size_override("font_size", 14)
-		chip.add_theme_color_override("font_color",
-			UITheme.TAG_OPEN_FG if resource_def[1] else UITheme.LIGHT_BODY)
-		topbar.add_child(chip)
-		_resource_labels[resource_def[0]] = chip
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -651,11 +640,6 @@ func _refresh() -> void:
 	_refresh_trait(character)
 	_refresh_exp_scroll(level)
 	_sync_owned_button_labels()
-	for resource_id in _resource_labels.keys():
-		var chip: Label = _resource_labels[resource_id]
-		var item := GameFlow.load_item_data(resource_id)
-		chip.text = "%s ×%d" % [item.display_name if item != null else resource_id,
-			int(_profile.items.get(resource_id, 0))]
 
 
 # ============ 技能页签（概念图 .skrow/.skcard） ============
