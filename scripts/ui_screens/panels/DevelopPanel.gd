@@ -1193,7 +1193,6 @@ func _refresh_job_tab(character: CharacterData, level: int) -> void:
 
 	# ① 职业身份卡（概念图 ui_develop_job.html .jcard：白浅卡 + 蓝色定位 tag +
 	# 克制 lock tag + 右侧转职状态列；描述取职业数据，不再写死虎贲文案——B-040）
-	_update_job_tab_badge(not candidates.is_empty())
 	var identity := PanelContainer.new()
 	var identity_style := UITheme.light_card_style()
 	identity_style.content_margin_left = 12.0
@@ -1375,16 +1374,6 @@ func _make_kv_label(text_value: String, color: Color, font_size: int) -> Label:
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	return label
-
-
-## 职业页签「可转」提示（概念图 .tabbadge 黄色小标；Godot 4 TabBar 不暴露内部 tab 按钮、
-## 无法挂文字徽标，B-040 以标题后缀「职业 · 可转」近似——切到职业页或转职完成后自动还原）。
-func _update_job_tab_badge(show_flag: bool) -> void:
-	if _tab_container == null or not is_instance_valid(_tab_container):
-		return
-	if _tab_container.get_tab_count() < 2:
-		return
-	_tab_container.set_tab_title(1, "职业 · 可转" if show_flag else "职业")
 
 
 ## 职业 tags → 定位词组合（概念图 .jtags：如虎贲 melee+banner →「近战 · 持旗鼓舞」）。
