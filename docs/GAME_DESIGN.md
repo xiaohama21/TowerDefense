@@ -1,6 +1,7 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.36.27（2026-09-07）
+> 版本：v0.36.28（2026-09-07）
+> v0.36.28 变更（阶段 8·提交 10 延伸·登记，程序 0.8.10.32，**关羽 spine 左右对照验收 + 接入战斗试点登记**，用户拍板 2026-09-07「补充文档，然后接入战斗试试吧」，纯文档，无程序逻辑改动）：①[modules/ART_ASSETS.md](modules/ART_ASSETS.md) v0.5 → **v0.6**——§5.6 补渲染验收结论（关羽 Idle/Attack_A 左右并排对照，全帧水平对称像素差 meanAbsDiff=0.000，方案 A 节点翻转渲染零差异）+ 朝向公式澄清（`scale.x = -facing × 基准缩放`）；②§5.7 新增「战斗接入（关羽试点）」登记——落地时机 = 阶段 8·提交 10 延伸（目标程序 0.8.10.33）：数据驱动注册表、素材缺失/无 GDExtension 回退程序化绘制、动画最小映射集（Idle/Attack_A）、SpineSprite 代码动态挂载、spine 激活时程序化身体/武器跳过 + 怒气条/冷却环防遮挡、实机截图验收不达标即回退；③模块索引 ART_ASSETS 行与 README「当前状态」同步。程序版本号不变（0.8.10.32）。
 > v0.36.27 变更（阶段 8·提交 10 延伸·登记，程序 0.8.10.32，**人物朝向镜像方案定稿（方案 A 节点翻转）**，用户拍板 2026-09-07「1.使用A方案；2.ok；3.非战斗界面不用翻转」，纯文档，无程序逻辑改动）：[modules/ART_ASSETS.md](modules/ART_ASSETS.md) v0.4 → **v0.5** §5.6「人物朝向」转定稿——①实现方式 = SpineSprite 所在节点 `scale.x = 朝向(±1) × 基准缩放`（素材/动画零改动；弹道按 `_aim_angle` 全角度旋转不受影响）；②判定规则 = Tower 增 `facing`（默认 -1 匹配素材朝左），随 `_update_aim` 按目标相对塔的水平分量刷新，|dx| 过小保持原朝向防抖；③非战斗界面（百科/养成）不翻转；④落地时机 = spine 正式接入战斗时（未排期），实施时 HUD 不挂 SpineSprite 子级、逐角色出左右对照渲染图验收；⑤数据层镜像/双素材不采用（个别角色观感不达标时再评估数据层镜像）。程序版本号不变（0.8.10.32）。
 > v0.36.26 变更（阶段 8·提交 10 延伸·登记，程序 0.8.10.32，**角色 spine 动画试点登记**，用户拍板 2026-09-07「1.记录文档；2.保留（spine_test）；人物朝向镜像需求登记」，纯文档，无程序逻辑改动）：①[modules/ART_ASSETS.md](modules/ART_ASSETS.md) v0.3 → **v0.4**——新增 §5「角色素材（spine 动画，试点登记）」：D69 素材包（《315 套 Q 版卡通角色 spine 动画》，spine 3.8.75）首件试点关羽（序号 097 / Hero_GuanYu_A）转换落地 `assets/characters/guan_yu/`（hero_guan_yu_a，SpineSprite / spine-godot GDExtension 4.3 线加载验证：12 动画全可播放、静态帧与原 png 序列同动作帧轮廓逐像素一致、骑马姿态默认朝左）；3.8→4.3 升级转换器 `tools/spine_upgrade_38_to_43.py` 固化（curve / transform 约束 / 皮肤名 default / rotate·color·mix 键映射，三处 DLL 崩溃根因登记）；`assets/spine_test/spineboy/` 官方 4.x 样例保留作对照（不打包）；来源许可表登记 D69 包（包内免责声明「学习研究、不得商用」——商用前需购正版授权）；**人物朝向镜像（朝右）登记为待拍板待办**；②模块索引 ART_ASSETS 行更新；③README「当前状态」同步。程序版本号不变（0.8.10.32）。
 > v0.36.25 变更（阶段 8·提交 10 延伸·设计先行，程序 0.8.10.32，**局内 HUD 概念图定稿归档**，用户拍板 2026-09-07，纯文档/素材无程序逻辑改动）：新增第 14 屏战斗局内 HUD 概念图 `docs/ui_concept/ui_battle_hud.png`（源码 `docs/ui_concept/src/ui_battle_hud.html`，映射见 [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) §4）——顶栏资源胶囊（金币 / 基地生命 / 波次）+ Kenney 按钮行（开始波次=黄 / 军需=蓝 / 暂停·设置·重开=灰 / 退出=红）+ **基地生命变色规则（常态绿 `#0e9f58`、≤30% 变红 `#e5484d`）** + 选中塔**底部人物详情面板**（深蓝半透明虚线面板：头像 / 技能副行 / 阶数徽标 + 伤害·攻速·射程三格胶囊 + 升阶·回收两钮）；战斗界面规范同步 [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) v0.20.20 §10、概念图工作流 [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) v0.3、README；程序版本号不变（0.8.10.32）。
@@ -189,7 +190,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 | [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) | 界面排版规范：网格、页签、语义色板 | 9 实现侧 |
 | [modules/BUGS.md](modules/BUGS.md) | Bug 修复记录：问题/复现/根因/处理，关联版本号 | 全阶段（v0.27.6 起强制登记） |
 | [modules/STATS_PIPELINE.md](modules/STATS_PIPELINE.md) | 数值来源与结算管线：五层计算顺序、增益桶与上限、伤害/攻速/射程/怒气公式、减益叠加语义 | 10 实现侧（v0.31.6 新增） |
-| [modules/ART_ASSETS.md](modules/ART_ASSETS.md) | 美术资产规范：分类目录、UI/地图素材台账、角色 spine 素材（v0.4 试点登记、v0.5 朝向定稿）、来源许可 | 13 美术风格行实现侧、附录资源映射（v0.33.4 新增；v0.4 角色 spine 试点登记；v0.5 朝向定稿） |
+| [modules/ART_ASSETS.md](modules/ART_ASSETS.md) | 美术资产规范：分类目录、UI/地图素材台账、角色 spine 素材（v0.4 试点登记、v0.5 朝向定稿、v0.6 接入试点登记）、来源许可 | 13 美术风格行实现侧、附录资源映射（v0.33.4 新增；v0.4 角色 spine 试点登记；v0.5 朝向定稿；v0.6 接入试点登记） |
 | [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) | UI 概念图生成与归档：概念图工作流、v3 视觉语言、PNG↔源码映射、复现/维护 | 13 美术风格设计侧（v0.34.3 新增） |
 | [modules/MAP_EDITOR.md](modules/MAP_EDITOR.md) | 地图编辑器：布局数据生产工具（宿主、数据模型、校验导出、里程碑） | 5.1/5.6 工具侧、13 地图素材实现侧（v0.35.4 新增；v0.35.5 M1 骨架落地） |
 
