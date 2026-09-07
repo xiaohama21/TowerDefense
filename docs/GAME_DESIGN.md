@@ -1,6 +1,7 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
-> 版本：v0.36.25（2026-09-07）
+> 版本：v0.36.26（2026-09-07）
+> v0.36.26 变更（阶段 8·提交 10 延伸·登记，程序 0.8.10.32，**角色 spine 动画试点登记**，用户拍板 2026-09-07「1.记录文档；2.保留（spine_test）；人物朝向镜像需求登记」，纯文档，无程序逻辑改动）：①[modules/ART_ASSETS.md](modules/ART_ASSETS.md) v0.3 → **v0.4**——新增 §5「角色素材（spine 动画，试点登记）」：D69 素材包（《315 套 Q 版卡通角色 spine 动画》，spine 3.8.75）首件试点关羽（序号 097 / Hero_GuanYu_A）转换落地 `assets/characters/guan_yu/`（hero_guan_yu_a，SpineSprite / spine-godot GDExtension 4.3 线加载验证：12 动画全可播放、静态帧与原 png 序列同动作帧轮廓逐像素一致、骑马姿态默认朝左）；3.8→4.3 升级转换器 `tools/spine_upgrade_38_to_43.py` 固化（curve / transform 约束 / 皮肤名 default / rotate·color·mix 键映射，三处 DLL 崩溃根因登记）；`assets/spine_test/spineboy/` 官方 4.x 样例保留作对照（不打包）；来源许可表登记 D69 包（包内免责声明「学习研究、不得商用」——商用前需购正版授权）；**人物朝向镜像（朝右）登记为待拍板待办**；②模块索引 ART_ASSETS 行更新；③README「当前状态」同步。程序版本号不变（0.8.10.32）。
 > v0.36.25 变更（阶段 8·提交 10 延伸·设计先行，程序 0.8.10.32，**局内 HUD 概念图定稿归档**，用户拍板 2026-09-07，纯文档/素材无程序逻辑改动）：新增第 14 屏战斗局内 HUD 概念图 `docs/ui_concept/ui_battle_hud.png`（源码 `docs/ui_concept/src/ui_battle_hud.html`，映射见 [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) §4）——顶栏资源胶囊（金币 / 基地生命 / 波次）+ Kenney 按钮行（开始波次=黄 / 军需=蓝 / 暂停·设置·重开=灰 / 退出=红）+ **基地生命变色规则（常态绿 `#0e9f58`、≤30% 变红 `#e5484d`）** + 选中塔**底部人物详情面板**（深蓝半透明虚线面板：头像 / 技能副行 / 阶数徽标 + 伤害·攻速·射程三格胶囊 + 升阶·回收两钮）；战斗界面规范同步 [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) v0.20.20 §10、概念图工作流 [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) v0.3、README；程序版本号不变（0.8.10.32）。
 > v0.36.24 变更（阶段 8·提交 10 延伸·修复 3，程序 0.8.10.31 → **0.8.10.32**）：**百科武将图鉴页签标题与详情内边距修正（[UI_LAYOUT.md](modules/UI_LAYOUT.md) v0.20.18 → v0.20.19 / [BUGS](modules/BUGS.md) B-049 / [ENCYCLOPEDIA.md](modules/ENCYCLOPEDIA.md) v0.1.8 → v0.1.9，用户反馈「武将图鉴的页签名称 scroll 删除」「详情面板里文字离面板边框提太近了，你再看看 UI」）**——①TabContainer 页签标题默认取直接子节点名，`_make_tab` 的滚动容器作页签子节点致标题带「Scroll」后缀；修复=`_make_tab` 显式 `set_tab_title` 设概念页签文字（基础/技能/转职/信物/特性）。②页签体内容无内边距紧贴浅蓝描边（实测文字距边框左 3px / 上 4px，概念 `.tabbody padding:10px 14px` 为 17px/13px）；修复=页签滚动内容外包 MarginContainer（14/14/10/10 + 横向 EXPAND_FILL）。EncShotProbe 增补页签标题断言与逐页签切换零越界审计，像素比色核验文字距边框 17px 与概念图一致；回归 Smoke / Flow 绿。
 > v0.36.23 变更（阶段 8·提交 10 延伸·修复 2，程序 0.8.10.30 → **0.8.10.31**）：**百科再对齐残留偏差终版修正（[UI_LAYOUT.md](modules/UI_LAYOUT.md) v0.20.17 → v0.20.18 / [BUGS](modules/BUGS.md) B-048 / [ENCYCLOPEDIA.md](modules/ENCYCLOPEDIA.md) v0.1.7 → v0.1.8，用户再对照概念图反馈「还有问题」后像素级比对定位并拍板按推荐顺序修改）**——①「武将图鉴 / 敌人图鉴」分段按钮按概念 .segbtn 改 Kenney 蓝底白字（选中）/ 灰底深字（未选），替换误用浅金卡选中样式；②武将头像改概念九色表 CHARACTER_AVATAR_COLORS（avatar_label 补 brown/pink/teal），不再按职业色；③CHARACTER_ORDER 概念序更正（黄忠第 4 / 皇甫嵩第 5）；④默认选中对齐概念稿（张飞 / 黄巾渠帅·张梁）；⑤EnemyAvatar 渐变白屏修复（B-048：渐变纹理 _draw 内现建同帧画不上，改 setup 预生成 ImageTexture 缓存）。像素探针同坐标比色核验；EncShotProbe / FlowRunner 断言同步；回归 Smoke / Flow 绿。
@@ -187,7 +188,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 | [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) | 界面排版规范：网格、页签、语义色板 | 9 实现侧 |
 | [modules/BUGS.md](modules/BUGS.md) | Bug 修复记录：问题/复现/根因/处理，关联版本号 | 全阶段（v0.27.6 起强制登记） |
 | [modules/STATS_PIPELINE.md](modules/STATS_PIPELINE.md) | 数值来源与结算管线：五层计算顺序、增益桶与上限、伤害/攻速/射程/怒气公式、减益叠加语义 | 10 实现侧（v0.31.6 新增） |
-| [modules/ART_ASSETS.md](modules/ART_ASSETS.md) | 美术资产规范：分类目录、UI/地图素材台账、来源许可 | 13 美术风格行实现侧、附录资源映射（v0.33.4 新增） |
+| [modules/ART_ASSETS.md](modules/ART_ASSETS.md) | 美术资产规范：分类目录、UI/地图素材台账、角色 spine 素材（v0.4）、来源许可 | 13 美术风格行实现侧、附录资源映射（v0.33.4 新增；v0.4 增角色 spine 试点登记） |
 | [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) | UI 概念图生成与归档：概念图工作流、v3 视觉语言、PNG↔源码映射、复现/维护 | 13 美术风格设计侧（v0.34.3 新增） |
 | [modules/MAP_EDITOR.md](modules/MAP_EDITOR.md) | 地图编辑器：布局数据生产工具（宿主、数据模型、校验导出、里程碑） | 5.1/5.6 工具侧、13 地图素材实现侧（v0.35.4 新增；v0.35.5 M1 骨架落地） |
 
