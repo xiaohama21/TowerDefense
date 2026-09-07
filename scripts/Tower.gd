@@ -28,6 +28,15 @@ const ULT_VISUAL_DURATION := 0.55
 const MELEE_SWING_FROM := -1.35
 const MELEE_SWING_TO := 0.95
 const MELEE_SLASH_RADIUS := 38.0
+## 角色 spine 战斗接入试点（ART_ASSETS §5.7，v0.6 / 0.8.10.33）：character_id -> spine 数据资源。
+## 素材缺失 / SpineSprite 类不可用（未随包 spine-godot GDExtension）→ 自动回退程序化绘制。
+const SPINE_CHARACTERS: Dictionary = {
+	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a-data-res.tres",
+}
+const SPINE_BASE_SCALE: float = 0.22
+const SPINE_Y_OFFSET: float = 6.0
+## 朝向切换防抖阈值：|dx| 小于该值（目标在正上/正下）保持原朝向（ART_ASSETS §5.6）。
+const SPINE_FACE_SWITCH_EPS: float = 6.0
 const PROFESSION_COLORS := {
 	&"cavalry": Color(0.76, 0.24, 0.2, 1.0),
 	&"tiger_guard": Color(0.3, 0.62, 0.45, 1.0),
@@ -169,6 +178,12 @@ var _attack_flash: float = 0.0
 var _melee_swing: float = 0.0
 var _skill_flash: float = 0.0
 var _skill_flash_color: Color = Color(1.0, 0.85, 0.4)
+## 角色 spine（试点 v0.6）：动态挂载节点与状态（不强依赖 GDExtension 类型）。
+var _spine: Node = null
+var _use_spine_visual: bool = false
+## 世界朝向（ART_ASSETS §5.6）：-1 朝左（素材原生）/ +1 朝右（镜像）。
+var _facing: int = -1
+var _spine_attack_busy: bool = false
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
@@ -303,6 +318,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_hero_color = PROFESSION_COLORS.get(_profession_id, Color(0.45, 0.55, 0.65, 1.0))
 	name_label.text = display_name
 	name_label.add_theme_color_override("font_color", _hero_color.lightened(0.35))
+	# 角色 spine（试点 v0.6 / 0.8.10.33）：关羽战斗接入，缺失自动回退程序化绘制。
+	_setup_spine_visual()
 	_rebuild_attack_timer()
 	_rebuild_range_area()
 	queue_redraw()
@@ -352,6 +369,7 @@ func play_attack_flash() -> void:
 	## 弹道类攻击的枪口闪光，由弹道执行器触发。
 	_attack_flash = 0.18
 	SfxLibrary.play(&"attack", -16.0)
+	_play_spine_attack()  # 试点 v0.6：spine 攻击动画（弹道类）。
 	queue_redraw()
 
 
@@ -359,6 +377,7 @@ func play_melee_hit() -> void:
 	## 近战挥击，由近战执行器触发；不产生枪口闪光。
 	_melee_swing = MELEE_SWING_DURATION
 	SfxLibrary.play(&"attack", -14.0)
+	_play_spine_attack()  # 试点 v0.6：spine 攻击动画（近战类）。
 	queue_redraw()
 
 
@@ -379,6 +398,70 @@ func _swing_offset() -> float:
 	var t := 1.0 - _melee_swing / MELEE_SWING_DURATION
 	var eased := 1.0 - (1.0 - t) * (1.0 - t)
 	return lerpf(MELEE_SWING_FROM, MELEE_SWING_TO, eased)
+
+
+## —— 角色 spine 战斗接入试点（ART_ASSETS §5.7，v0.6 / 0.8.10.33）——
+func _setup_spine_visual() -> void:
+	if _use_spine_visual or _spine != null:
+		return
+	var res_path: String = SPINE_CHARACTERS.get(str(character_id), "")
+	if res_path.is_empty() or not ResourceLoader.exists(res_path):
+		return
+	if not ClassDB.class_exists(&"SpineSprite"):
+		return
+	var data: Resource = load(res_path)
+	if data == null:
+		return
+	_spine = ClassDB.instantiate(&"SpineSprite")
+	_spine.set("skeleton_data_res", data)
+	add_child(_spine)
+	_spine.position = Vector2(0.0, SPINE_Y_OFFSET)
+	_use_spine_visual = true
+	_apply_spine_facing()
+	_play_spine_idle()
+
+
+func _apply_spine_facing() -> void:
+	if _spine == null:
+		return
+	# 素材原生朝左：朝左（facing=-1）→ scale.x=+基准；朝右（facing=+1）→ 镜像 -基准。
+	_spine.scale = Vector2(SPINE_BASE_SCALE * -_facing, SPINE_BASE_SCALE)
+
+
+func _play_spine_idle() -> void:
+	if _spine == null:
+		return
+	var state: Object = _spine.get_animation_state()
+	if state == null:
+		return
+	state.set_animation("Idle", true, 0)
+	_spine_attack_busy = false
+
+
+func _play_spine_attack() -> void:
+	if not _use_spine_visual or _spine == null:
+		return
+	var state: Object = _spine.get_animation_state()
+	if state == null:
+		return
+	var track: Object = state.get_track(0)
+	if track != null and not track.is_complete():
+		var anim: Object = track.get_animation()
+		if anim != null and str(anim.get_name()) == "Attack_A":
+			return  # 攻击动画播放中不打断重播。
+	state.set_animation("Attack_A", false, 0)
+	_spine_attack_busy = true
+
+
+func _update_spine_animation(_delta: float) -> void:
+	if not _use_spine_visual or _spine == null or not _spine_attack_busy:
+		return
+	var state: Object = _spine.get_animation_state()
+	if state == null:
+		return
+	var track: Object = state.get_track(0)
+	if track == null or track.is_complete():
+		_play_spine_idle()
 
 
 func _rebuild_attack_timer() -> void:
@@ -423,6 +506,8 @@ func _process(_delta: float) -> void:
 
 	if target:
 		_update_aim()
+	# 角色 spine（试点 v0.6）：攻击动画播完回落 Idle。
+	_update_spine_animation(_delta)
 
 	# 大招释放（v0.15.0）：手动模式满怒待发，自动模式满怒即放。
 	if rage >= _max_rage:
@@ -995,6 +1080,12 @@ func _update_aim() -> void:
 	var direction := to_local(target.global_position)
 	_aim_angle = direction.angle()
 	muzzle.position = Vector2.from_angle(_aim_angle) * 30.0
+	# 人物朝向（ART_ASSETS §5.6，试点 v0.6）：按目标水平分量翻转，|dx| 过小保持防抖。
+	if _use_spine_visual and absf(direction.x) > SPINE_FACE_SWITCH_EPS:
+		var desired := -1 if direction.x < 0.0 else 1
+		if desired != _facing:
+			_facing = desired
+			_apply_spine_facing()
 	queue_redraw()
 
 
@@ -1029,12 +1120,14 @@ func _on_selection_area_input_event(
 
 func _draw() -> void:
 	_draw_base()
-	_draw_body()
-	if _melee_swing > 0.0:
-		_draw_slash_arc()
-	_draw_weapon()
-	if _attack_flash > 0.0:
-		_draw_attack_flash()
+	# 角色 spine（试点 v0.6）：程序化身体/武器/挥击弧/枪口闪让位给 spine 动画。
+	if not _use_spine_visual:
+		_draw_body()
+		if _melee_swing > 0.0:
+			_draw_slash_arc()
+		_draw_weapon()
+		if _attack_flash > 0.0:
+			_draw_attack_flash()
 	if _skill_flash > 0.0:
 		_draw_skill_flash()
 	_draw_rage_bar()
@@ -1066,7 +1159,8 @@ func _draw_rage_bar() -> void:
 	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
 	var width := 34.0 * pulse
 	var height := 6.0
-	var origin := Vector2(-width / 2.0, 28)
+	# 角色 spine（试点 v0.6）：素材更高，怒气条移到脚下，避免被角色遮挡。
+	var origin := Vector2(-width / 2.0, 38.0 if _use_spine_visual else 28.0)
 	draw_rect(Rect2(origin, Vector2(width, height)), Color(0.0, 0.0, 0.0, 0.6))
 	var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.3, 0.62, 0.95, 0.95)
 	draw_rect(Rect2(origin + Vector2(1, 1), Vector2((width - 2.0) * ratio, height - 2.0)), fill_color)
@@ -1088,7 +1182,9 @@ func _draw_character_skill_cooldown() -> void:
 		return
 	var remaining := clampf(_char_skill_cooldown_left / total, 0.0, 1.0)
 	var start := -PI / 2.0
-	draw_arc(Vector2.ZERO, 25.0, start, start + TAU * remaining, 24, Color(0.55, 0.85, 1.0, 0.85), 2.5, true)
+	# 角色 spine（试点 v0.6）：冷却环外扩避免被角色素材遮挡。
+	var cd_radius := 36.0 if _use_spine_visual else 25.0
+	draw_arc(Vector2.ZERO, cd_radius, start, start + TAU * remaining, 24, Color(0.55, 0.85, 1.0, 0.85), 2.5, true)
 
 
 ## 大招专属视觉（v0.15.0，GDD 阶段 5 提交 1）：按 ultimate_id 绘制差异化演出，
