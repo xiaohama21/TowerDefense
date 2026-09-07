@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
 > 界面排版文字规范（权威）见 [UI_LAYOUT.md](UI_LAYOUT.md)，素材台账见 [ART_ASSETS.md](ART_ASSETS.md)。
-> 文档版本：v0.2（2026-09-04）
+> 文档版本：v0.3（2026-09-07）
+> v0.3 变更（2026-09-07，阶段 8·提交 10 延伸，程序 0.8.10.32，**局内 HUD 概念图定稿归档**，用户拍板 2026-09-07，纯文档/素材无程序逻辑改动）：新增第 14 屏 `ui_battle_hud.png`（战斗局内 HUD，源码 `src/ui_battle_hud.html`）——Kenney 亮蓝顶栏 + 深海军蓝战场示意（s01 风格网格 / 主路 / 基地 / 敌人占位点 / 选中塔张飞·阶 2）：①顶栏 = 章节名 + 金币（leonardo.ai 素材裁剪 `src/icons_battle/coin_crop.png`）+ 基地生命（`base_hp_crop.png`，数值常态绿 `#0e9f58`、**≤30% 变红 `#e5484d`**，左上图例两态对照）+ 波次 3/8（图标虚线圆占位）+ Kenney 按钮行（开始第 N 波=黄 / 军需=蓝带占位图标 / 暂停·设置·重开=灰 / 退出=红）；②**底部人物详情面板**（选中塔时）：深蓝半透明底 + 2px 浅蓝虚线描边圆角面板——头像 / 姓名·职业 / 职业·角色技能副行 / 「局内阶数 n/3」黄徽标 + 伤害·攻速·射程三格居中胶囊 + 底部仅「升阶（黄，含费用）」「回收（灰，含返还）」两钮（v0.3 拍板移除大招 / 冷却位，面板缩至 460×166）；③图例区 = HP 两态 + 虚线圆占位说明。同步 UI_LAYOUT v0.20.20 §10 / GDD v0.36.25 / README；程序版本号不变。
 > v0.2 变更（2026-09-04，阶段 8·提交 10 延伸·修复 2，程序 0.8.10.2 / GDD v0.35.3 / UI_LAYOUT v0.17.4，武将养成「职业」页签收纳 +「转职详情」概念图定稿，用户拍板 2026-09-04）：①**新增两屏概念图** `ui_develop_job.png`（武将养成「职业」页签——原「转职」页签更名并只保留当前职业信息：身份/能力状态/转职进度 +「可转」徽标）与 `ui_develop_promo.png`（职业页签 →「转职详情 ▸」按钮打开的 1160px 叠层树状路线，转职操作迁入，详见 UI_LAYOUT §6）；②**养成页签内容区取宽**——左列武将列表 402→382px、卡片分行排版、按钮定宽，消除文字横向溢出；③源码 `src/ui_develop_job.html`·`src/ui_develop_promo.html` 与 PNG 同源入库（Chrome headless 1280×720 同参数重渲，DOM 溢出自检无裁剪）；④概念图共 **13 屏**（11 屏原基线 + 2 屏新存档），映射见 §4。
 > v0.1 变更（阶段 8·提交 9 延伸·修复 3，程序 0.8.9.3，概念图源码归档 + 工作流建档，纯文档/素材无逻辑改动）：①概念图**可复现源码**自包含归档 `docs/ui_concept/src/`（11 屏 HTML + 共享 CSS + 快乐体字体 + Kenney 17 图子集，含早期草稿 `archive/`）；②用 Chrome headless 按固定参数重渲 11 屏 PNG 与归档逐字节一致校验：10 屏一致；`ui_squad.png` 原存档图为更早稿——先按现行源码校准、再按 **BUGS B-025** 卡面费用样式改版重渲，11 屏 PNG 与源码保持同源；③本档建档：视觉语言 token、PNG↔源码映射、设计脉络与拍板记录、复现/维护工作流。
 
@@ -45,7 +46,7 @@
 | 滚动条 | 细蓝 `#7ec8ea` 圆角 thumb + 浅蓝轨道 | 内容超高兜底，防撑爆 |
 | 文字层级 | 屏标题 26~27px 深蓝、正文 14~16、辅助 11~12 灰蓝 | 修正"按钮过大字体过小"教训 |
 
-## 4. 概念图清单与映射（13 屏）
+## 4. 概念图清单与映射（14 屏）
 
 | PNG（docs/ui_concept/） | 源码（docs/ui_concept/src/） | 内容一句话 | 排版规范 |
 |---|---|---|---|
@@ -62,6 +63,7 @@
 | `ui_settings.png` | `ui_settings.html` | 设置：页签 + 开关/滑块列表 | UI_LAYOUT §11 |
 | `ui_encyclopedia.png` | `ui_encyclopedia.html` | 百科·武将图鉴：左 2 列网格 + 五页签 + 数值模拟器条 | UI_LAYOUT §12 |
 | `ui_encyclopedia_enemy.png` | `ui_encyclopedia_enemy.html` | 百科·敌人图鉴：基础/特殊行为/各档难度/出现关卡 | UI_LAYOUT §12 |
+| `ui_battle_hud.png` | `ui_battle_hud.html` | 战斗局内 HUD：顶栏资源条 + 选中塔底部详情面板 + HP 变色图例（v0.3 存档） | UI_LAYOUT §10 |
 
 ## 5. 设计脉络与拍板记录（v0.33.4 → v0.33.8）
 
@@ -70,6 +72,7 @@
 - **v0.33.6 主菜单落地（换肤基建）**：首页按 `ui_home.png` 在 Godot 实现，Kenney 九宫格三态按钮封装 `UITheme.apply_kenney_rect_button`，「新的征程」弹窗自绘。
 - **v0.33.8 百科前置设计**：六张大厅屏侧栏统一加「百科」按钮（设置与返回主菜单之间，随提交 9 开发）；武将养成新增**技能页签**（职业大招 + 职业技能 + 角色专属技能 A/B）；百科两屏（武将图鉴/敌人图鉴）概念图定稿。编队为独立整屏、不含大厅侧栏。
 - **v0.35.3 职业页签收纳（2026-09-04 拍板）**：武将养成「转职」页签更名「职业」——只保留当前职业信息（身份/能力状态/转职进度），完整转职路线与操作收敛至新增「转职详情」叠层（树状 + 二次确认规则不变）；新增 ui_develop_job / ui_develop_promo 两屏，页签内容区取宽（武将列表 402→382px）。
+- **v0.36.25 局内 HUD 概念图（2026-09-07 拍板）**：战斗局内 HUD 首屏 `ui_battle_hud.png`——顶栏资源条 + 选中塔底部虚线半透明详情面板；两轮迭代拍板：HP 常态绿、≤30% 变红（图例两态对照）；详情底部仅保留升阶 / 回收两钮、中间伤害·攻速·射程三格胶囊收紧、面板缩至 460×166。波次 / 军需图标缺美术，以虚线圆占位（`src/icons_battle/` 存金币 / 基地生命裁剪图）。
 
 ## 6. 复现与维护
 
@@ -79,11 +82,12 @@
 "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --hide-scrollbars --window-size=1280,720 --force-device-scale-factor=1 --virtual-time-budget=4000 --screenshot=out.png file:///F:/godotProject/TowerDefense/docs/ui_concept/src/ui_home.html
 ```
 
-- 基线：2026-09-04 首档 11 屏逐字节校验一致（MD5）；v0.2（0.8.10.2）追加 `ui_develop_job` / `ui_develop_promo` 两屏（职业页签 / 转职详情叠层）并按同参数重渲入库，PNG 与源码同源（历史稿在 git 中可回溯）。
+- 基线：2026-09-04 首档 11 屏逐字节校验一致（MD5）；v0.2（0.8.10.2）追加 `ui_develop_job` / `ui_develop_promo` 两屏（职业页签 / 转职详情叠层）并按同参数重渲入库，PNG 与源码同源（历史稿在 git 中可回溯）；v0.3（2026-09-07）追加 `ui_battle_hud`（战斗局内 HUD）同参数重渲入库（MD5 7B7B1CD92ABC11B53CCA16D1B6B1E8C2）。
 - 改版步骤：改 HTML → 重渲 → 用户确认 → 覆盖 PNG → 同步本档与 UI_LAYOUT（版本 + changelog）→ 走版本分支提交。
 - 复现细节、素材清单与目录树见 `docs/ui_concept/src/README.md`（随源码自包含）。
 
 ## 7. 变更记录
 
 - v0.2（2026-09-04）：职业页签收纳 + 转职详情叠层两屏概念图定稿（同顶部 changelog）。
+- v0.3（2026-09-07）：局内 HUD 概念图定稿归档（同顶部 changelog）。
 - v0.1（2026-09-04）：建档（同顶部 changelog）。
