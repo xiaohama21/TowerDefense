@@ -538,7 +538,8 @@ func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the
 ## repeat rewards configured on the stage. 奖励数量按难度材料倍率缩放（GDD 10.7）。
-## 战斗内设置（v0.19.2）：暂停并弹出设置面板（复用 SettingsPanel，改动即时生效并持久化）。
+## 战斗内设置（v0.19.2；v0.37.8 弹窗亮色化 B-055）：暂停并弹出设置面板（复用 SettingsPanel，
+## 改动即时生效并持久化）。弹窗外框走 Kenney 亮蓝 DIALOG 语言（同 MainMenu「新的征程」确认弹窗）。
 func _on_settings_pressed() -> void:
 	if _settings_popup != null and is_instance_valid(_settings_popup):
 		return
@@ -551,7 +552,7 @@ func _on_settings_pressed() -> void:
 	_settings_popup.process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().root.add_child(_settings_popup)
 	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.04, 0.06, 0.5)
+	dim.color = Color(0.02, 0.05, 0.09, 0.62)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_settings_popup.add_child(dim)
 	var center := CenterContainer.new()
@@ -559,16 +560,20 @@ func _on_settings_pressed() -> void:
 	_settings_popup.add_child(center)
 	var panel := PanelContainer.new()
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.055, 0.075, 0.12, 0.97)
-	panel_style.border_color = Color(0.25, 0.43, 0.68, 0.9)
-	panel_style.set_border_width_all(2)
-	panel_style.set_corner_radius_all(10)
+	panel_style.bg_color = UITheme.DIALOG_PANEL
+	panel_style.border_color = UITheme.DIALOG_BORDER
+	panel_style.set_border_width_all(3)
+	panel_style.border_width_bottom = 7
+	panel_style.set_corner_radius_all(18)
+	panel_style.shadow_color = Color(0.02, 0.1, 0.18, 0.45)
+	panel_style.shadow_size = 18
+	panel_style.shadow_offset = Vector2(0, 8)
 	panel.add_theme_stylebox_override("panel", panel_style)
 	center.add_child(panel)
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 18)
 	margin.add_theme_constant_override("margin_bottom", 20)
 	panel.add_child(margin)
 	var box := VBoxContainer.new()
@@ -578,8 +583,10 @@ func _on_settings_pressed() -> void:
 	box.add_child(settings)
 	var close_button := Button.new()
 	close_button.text = "关闭设置"
-	close_button.custom_minimum_size = Vector2(200, 46)
+	close_button.custom_minimum_size = Vector2(220, 48)
+	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_button.add_theme_font_size_override("font_size", 18)
+	UITheme.apply_kenney_rect_button(close_button, "blue", Color.WHITE)
 	close_button.pressed.connect(_on_settings_popup_closed)
 	box.add_child(close_button)
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkexudmbf46ut"
-path="res://.godot/imported/ui_defeat.png-557645a135e905f1fea833e9ec86a8cb.ctex"
+uid="uid://b7f6pwkasgis4"
+path="res://.godot/imported/ui_battle_hud.png-193ce6dc571677073e5388c975d2373f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/ui_concept/ui_defeat.png"
-dest_files=["res://.godot/imported/ui_defeat.png-557645a135e905f1fea833e9ec86a8cb.ctex"]
+source_file="res://docs/ui_concept/ui_battle_hud.png"
+dest_files=["res://.godot/imported/ui_battle_hud.png-193ce6dc571677073e5388c975d2373f.ctex"]
 
 [params]
 
