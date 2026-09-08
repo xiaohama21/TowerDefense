@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<title>ui_wheel</title>
+<style>
+/* ===== 胜利结算转盘页概念稿（v0.1）：金色氛围 + 6 扇区轮盘 + 奖池权重 + 结果入档 ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1280px; height:720px; overflow:hidden; }
+body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
+/* ---------- 战场底（复用示意） ---------- */
+.field { position:absolute; inset:0; overflow:hidden;
+  background-color:#214230;
+  background-image:conic-gradient(#1d3a2a 25%, #214230 0 50%, #1d3a2a 0 75%, #214230 0);
+  background-size:160px 160px; }
+.gridline { position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:80px 80px; }
+.road { position:absolute; left:0; top:240px; width:1200px; height:80px;
+  background:#7b5a40; border-top:4px solid #261f19; border-bottom:4px solid #261f19; }
+.road .shine { position:absolute; left:0; top:8px; width:100%; height:10px; background:rgba(255,235,205,.10); }
+.road-drop { position:absolute; left:1200px; top:240px; width:80px; height:160px;
+  background:#7b5a40; border:4px solid #261f19; border-left:0; }
+.gate { position:absolute; left:10px; top:248px; width:64px; height:64px; border-radius:10px;
+  background:rgba(199,158,92,.24); border:3px solid #c79e5c; color:#e8c98a;
+  font-size:30px; line-height:58px; text-align:center; }
+.base { position:absolute; left:1206px; top:326px; width:68px; height:68px; border-radius:12px;
+  background:#ad4a3d; border:3px solid #d9bf73; box-shadow:0 4px 10px rgba(0,0,0,.35); }
+.base .door { position:absolute; left:50%; bottom:5px; transform:translateX(-50%);
+  width:22px; height:30px; background:#261f19; border-radius:6px 6px 0 0; }
+.base .roof { position:absolute; left:-6px; top:-10px; width:calc(100% + 12px); height:14px;
+  background:#7e3129; border-radius:8px 8px 0 0; border:2px solid #d9bf73; }
+.flag { position:absolute; left:1256px; top:296px; width:3px; height:34px; background:#c9a35c; }
+.flag i { position:absolute; left:3px; top:-2px; width:18px; height:12px; background:#e05a4e; border-radius:0 6px 6px 0; }
+.tree { position:absolute; width:0; height:0; }
+.tree .trunk { position:absolute; left:-5px; top:22px; width:10px; height:16px; background:#4d3824; border-radius:2px; }
+.tree .leaf { position:absolute; left:-24px; top:-10px; width:48px; height:44px;
+  background:radial-gradient(circle at 34% 28%, #3f7d52, #2f613f 70%);
+  border:3px solid #235038; border-radius:50% 50% 46% 54%; }
+.mtn { position:absolute; width:0; height:0; }
+.mtn .a { position:absolute; width:52px; height:42px; background:#544f45; clip-path:polygon(50% 6%, 100% 100%, 0 100%); }
+.mtn .b { position:absolute; width:26px; height:18px; left:8px; top:2px; background:#576b57; clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+/* 遮罩（金紫氛围） */
+.w-mask { position:absolute; inset:0;
+  background:radial-gradient(ellipse 820px 480px at 50% 40%, rgba(255,214,120,.18), rgba(14,20,44,.78) 76%); }
+.w-glow { position:absolute; left:50%; top:8px; width:860px; height:160px; transform:translateX(-50%);
+  background:radial-gradient(ellipse, rgba(255,226,140,.4), rgba(255,226,140,0) 70%); pointer-events:none; }
+/* 面板 */
+.w-panel { position:absolute; left:50%; top:50%; width:1180px; height:656px; transform:translate(-50%,-50%);
+  background:#f2faff; border:3px solid #1c9fd7; border-bottom:7px solid #167da8; border-radius:18px;
+  box-shadow:0 18px 48px rgba(4,16,30,.65), inset 0 1px 0 rgba(255,255,255,.65);
+  overflow:hidden; display:flex; flex-direction:column; }
+/* 金标题条 */
+.w-title { flex:none; height:58px; display:flex; align-items:center; gap:12px; padding:0 16px 0 24px;
+  background:linear-gradient(180deg,#ffd75e,#f0a92f); border-bottom:3px solid #d6951f; }
+.w-title img { width:26px; height:26px; }
+.w-title h2 { font-size:25px; color:#5a4300; letter-spacing:6px; font-weight:normal; text-shadow:0 1px 0 rgba(255,255,255,.35); }
+.w-title .who { font-size:12.5px; color:#5a4300; letter-spacing:1px; background:rgba(255,255,255,.45);
+  border-radius:10px; padding:3px 12px; white-space:nowrap; }
+.w-title .gold { margin-left:6px; display:flex; align-items:center; gap:7px; background:#fff; border-radius:12px;
+  padding:2px 13px 2px 4px; box-shadow:0 1px 4px rgba(0,0,0,.25); }
+.w-title .gold img { width:26px; height:26px; object-fit:contain; }
+.w-title .gold .v { font-size:18px; color:#b07a00; letter-spacing:.5px; }
+.w-title .close { margin-left:auto; width:32px; height:32px; border:0; border-radius:50%; cursor:default;
+  background:rgba(255,255,255,.5); display:flex; align-items:center; justify-content:center; }
+.w-title .close img { width:15px; height:15px; }
+/* 主体 */
+.w-body { flex:1; min-height:0; display:flex; padding:14px 22px 10px; gap:16px; }
+/* 左：轮盘 */
+.w-left { width:392px; flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.wheel-wrap { position:relative; width:352px; height:352px; }
+.wheel { position:absolute; inset:14px; border-radius:50%; overflow:hidden;
+  background:conic-gradient(from -30deg, #ffd75e 0deg 60deg, #58c993 60deg 120deg, #57b6e8 120deg 180deg,
+    #b58cf0 180deg 240deg, #f0a050 240deg 300deg, #ef7d6b 300deg 360deg);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.75), 0 6px 16px rgba(0,0,0,.35); }
+.wheel .line { position:absolute; inset:0; border-radius:50%;
+  background:repeating-conic-gradient(from -30deg, rgba(255,255,255,.95) 0deg 1.6deg, transparent 1.6deg 60deg); }
+.seg { position:absolute; display:block; transform:translate(-50%,-50%); text-align:center; line-height:1.3; pointer-events:none; }
+.seg .l1 { font-size:16px; letter-spacing:1px; white-space:nowrap; }
+.seg .l2 { font-size:10.5px; letter-spacing:.5px; white-space:nowrap; margin-top:1px; opacity:.95; }
+.seg .l1.dark, .seg .l2.dark { color:#6b4a00; }
+.seg .l1.lite, .seg .l2.lite { color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.35); }
+.seg.hit { background:rgba(255,255,255,.32); border-radius:9px; padding:2px 9px;
+  box-shadow:0 0 0 2px #fff, 0 0 14px rgba(255,255,255,.9); }
+/* 外圈 & 铆钉 */
+.rim { position:absolute; inset:0; border-radius:50%; border:9px solid #e8b93e;
+  box-shadow:0 0 0 4px rgba(90,67,0,.25), 0 10px 22px rgba(0,0,0,.45); }
+.rim::after { content:""; position:absolute; inset:-13px; border-radius:50%;
+  border:3px solid rgba(255,255,255,.55); }
+.nail { position:absolute; width:10px; height:10px; border-radius:50%; background:#fff;
+  border:2px solid #c79a2e; box-shadow:0 1px 2px rgba(0,0,0,.3); }
+/* 指针（SVG：顶部固定；轮盘 -30° 校准后，命中扇区「黄巾布 ×2」停至指针下，演示已抽中） */
+.needle { position:absolute; inset:0; z-index:5; pointer-events:none; }
+/* 中心轴 */
+.hub { position:absolute; left:50%; top:50%; margin:0; width:74px; height:74px; transform:translate(-50%,-50%);
+  border-radius:50%; background:radial-gradient(circle at 32% 28%, #fff6d8, #f5d778 76%);
+  border:5px solid #d6a12e; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 8px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.8); z-index:6; }
+.hub .star { font-size:30px; color:#8a6d00; line-height:1; }
+/* 轮盘底部说明 */
+.wheel-cap { margin-top:10px; font-size:11.5px; color:#a8bccb; letter-spacing:.5px; text-align:center; line-height:1.6; }
+.wheel-cap b { color:#b8860b; font-weight:normal; }
+/* 右列 */
+.w-right { flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
+.card { background:#fff; border:2px solid #d7e9f5; border-radius:13px; display:flex; flex-direction:column; min-height:0;
+  box-shadow:0 2px 6px rgba(30,90,130,.06); }
+.card-t { flex:none; display:flex; align-items:center; gap:8px; padding:6px 13px 5px;
+  font-size:13.5px; color:#14538a; letter-spacing:2px; border-bottom:2px dashed #e3eff7; }
+.card-t .hint { margin-left:auto; font-size:10.5px; color:#a8bccb; letter-spacing:.5px; font-weight:normal; }
+/* 奖池行 */
+.pool { padding:5px 10px 8px; display:flex; flex-direction:column; gap:3px; }
+.prow { display:flex; align-items:center; gap:9px; padding:3px 8px; border-radius:9px; background:#f8fbfe; }
+.prow.hit { background:#fff8e0; box-shadow:0 0 0 2px rgba(255,204,0,.45); }
+.prow .dot { width:15px; height:15px; flex:none; border-radius:50%; border:2px solid #fff;
+  box-shadow:0 0 0 1px rgba(0,0,0,.15); }
+.prow .pn { font-size:13.5px; color:#33566f; letter-spacing:.5px; white-space:nowrap; }
+.prow .pt { font-size:10.5px; color:#a8bccb; letter-spacing:.5px; white-space:nowrap; }
+.prow .pr { margin-left:auto; font-size:14px; color:#b8860b; letter-spacing:.5px; white-space:nowrap; }
+.prow.hit .pn { color:#8a6d00; }
+.prow.hit .pt { color:#b89a4a; }
+/* 规则卡 */
+.rule { padding:7px 13px 8px; display:flex; flex-direction:column; gap:4px; }
+.rline { display:flex; align-items:center; gap:8px; font-size:12px; color:#6b93ad; letter-spacing:.5px; line-height:1.5; }
+.rline b { font-weight:normal; color:#1b4d78; }
+.rline .rt { width:64px; flex:none; font-size:11px; color:#a8bccb; letter-spacing:1px; }
+/* 结果横幅 */
+.w-result { flex:none; display:flex; align-items:center; gap:12px; padding:9px 14px;
+  background:linear-gradient(180deg,#fffdf0,#fff6d8); border:2px solid #ffcc00; border-radius:13px;
+  box-shadow:0 0 0 3px rgba(255,204,0,.22); }
+.w-result .ric { width:46px; height:46px; flex:none; border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #ffd75e, #f0a92f 78%); border:2px solid #fff;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,.2); }
+.w-result .ric svg { width:24px; height:24px; }
+.w-result .rt2 { font-size:15px; color:#1b4d78; letter-spacing:1px; }
+.w-result .rd2 { font-size:11.5px; color:#8a6d00; line-height:1.55; letter-spacing:.5px; margin-top:2px; }
+.w-result .rd2 b { font-weight:normal; color:#b8860b; }
+.w-result .rgot { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.w-result .rgot .tag { font-size:11.5px; }
+/* 底部说明 */
+.w-note { flex:none; display:flex; align-items:center; gap:8px; margin:0 22px 14px; padding:7px 14px;
+  font-size:11.5px; color:#33566f; background:#eef6fb; border:1px dashed #bfdcef; border-radius:10px;
+  line-height:1.6; letter-spacing:.5px; }
+.w-note b { color:#b8860b; font-weight:normal; }
+.w-note .dim { color:#7d9cb4; }
+</style>
+</head>
+<body>
+<div class="field">
+  <div class="road"><div class="shine"></div></div>
+  <div class="road-drop"></div>
+  <div class="gate">▶</div>
+  <div class="base"><div class="roof"></div><div class="door"></div></div>
+  <div class="flag"><i></i></div>
+  <div class="tree" style="left:150px; top:150px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:1010px; top:150px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:250px; top:510px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="mtn" style="left:1060px; top:580px"><div class="a"></div><div class="b"></div></div>
+  <div class="gridline"></div>
+</div>
+<div class="w-mask"></div>
+<div class="w-glow"></div>
+<div class="w-panel">
+  <div class="w-title">
+    <img src="kenney_ui_pack/PNG/Yellow/Double/star.png" alt="">
+    <h2>结算转盘</h2>
+    <span class="who">s04 东郡驰援 · 胜利结算</span>
+    <span class="gold"><img src="icons_battle/coin_crop.png" alt=""><span class="v">剩余金币 186</span></span>
+    <button class="close"><img src="kenney_ui_pack/PNG/Blue/Default/icon_cross.png" alt="✕"></button>
+  </div>
+  <div class="w-body">
+    <div class="w-left">
+      <div class="wheel-wrap">
+        <div class="rim"></div>
+        <div class="nail" style="left:83.75%; top:16.25%; transform:translate(-50%,-50%)"></div>
+        <div class="nail" style="left:97.73%; top:50%; transform:translate(-50%,-50%)"></div>
+        <div class="nail" style="left:83.75%; top:83.75%; transform:translate(-50%,-50%)"></div>
+        <div class="nail" style="left:50%; top:97.73%; transform:translate(-50%,-50%)"></div>
+        <div class="nail" style="left:16.25%; top:83.75%; transform:translate(-50%,-50%)"></div>
+        <div class="nail" style="left:2.27%; top:50%; transform:translate(-50%,-50%)"></div>
+        <div class="nail" style="left:16.25%; top:16.25%; transform:translate(-50%,-50%)"></div>
+        <div class="wheel">
+          <div class="line"></div>
+        </div>
+        <!-- 扇区标签：r≈108、圆心 (176,176) 与 wheel-wrap 对齐；轮盘 -30° 校准后扇区中心 = 0/60/120/180/240/300°，命中扇区「黄巾布 ×2」位于顶部指针下 -->
+        <div class="seg hit" style="left:176px; top:68px"><div class="l1 dark">黄巾布</div><div class="l2 dark">×2 · 权重 30</div></div>
+        <div class="seg" style="left:270px; top:122px"><div class="l1 lite">黄巾布</div><div class="l2 lite">×5 · 权重 20</div></div>
+        <div class="seg" style="left:270px; top:230px"><div class="l1 lite">武将碎片</div><div class="l2 lite">×10 · 权重 20</div></div>
+        <div class="seg" style="left:176px; top:284px"><div class="l1 lite">武将碎片</div><div class="l2 lite">×20 · 权重 10</div></div>
+        <div class="seg" style="left:82px; top:230px"><div class="l1 lite">科技点</div><div class="l2 lite">×1 · 权重 5</div></div>
+        <div class="seg" style="left:82px; top:122px"><div class="l1 lite">黄巾布</div><div class="l2 lite">×10 · 权重 5</div></div>
+        <svg class="needle" viewBox="0 0 352 352"><polygon points="160,1 192,1 176,30" fill="#8a6d00"/><polygon points="165,5 187,5 176,26" fill="#c0392b"/></svg>
+        <div class="hub"><span class="star">★</span></div>
+      </div>
+      <div class="wheel-cap">演示态：点击「抽 1 次」→ <b>轮盘旋转缓停</b>，命中扇区转至<b>顶部指针</b> + 白环高亮 + 右侧结果入档<br>轮盘为 <b>6 扇区示意</b>，扇区文本 = 奖励与权重（图标待美术）</div>
+    </div>
+    <div class="w-right">
+      <div class="card" style="flex:1.2">
+        <div class="card-t">奖池与权重<span class="hint">同 SettlementWheel / NUMBERS 10.9 草案</span></div>
+        <div class="pool">
+          <div class="prow hit"><span class="dot" style="background:#ffd75e"></span><span class="pn">黄巾布</span><span class="pt">材料 · 早期养成</span><span class="pr">×2 · 30</span></div>
+          <div class="prow"><span class="dot" style="background:#58c993"></span><span class="pn">黄巾布</span><span class="pt">材料 · 早期养成</span><span class="pr">×5 · 20</span></div>
+          <div class="prow"><span class="dot" style="background:#57b6e8"></span><span class="pn">武将碎片</span><span class="pt">随机已拥有武将</span><span class="pr">×10 · 20</span></div>
+          <div class="prow"><span class="dot" style="background:#b58cf0"></span><span class="pn">武将碎片</span><span class="pt">随机已拥有武将</span><span class="pr">×20 · 10</span></div>
+          <div class="prow"><span class="dot" style="background:#f0a050"></span><span class="pn">科技点</span><span class="pt">科技树直接入账</span><span class="pr">×1 · 5</span></div>
+          <div class="prow"><span class="dot" style="background:#ef7d6b"></span><span class="pn">黄巾布</span><span class="pt">材料 · 早期养成</span><span class="pr">×10 · 5</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-t">抽取规则</div>
+        <div class="rule">
+          <div class="rline"><span class="rt">开启条件</span><b>胜利结算页</b>且剩余金币 <b>≥ 150</b></div>
+          <div class="rline"><span class="rt">抽取次数</span>每局胜利<b>仅 1 次</b>（按钮抽取后置灰）</div>
+          <div class="rline"><span class="rt">结果入档</span>抽中奖励<b>即时写入存档</b>，关闭/重开不丢失</div>
+        </div>
+      </div>
+      <div class="w-result">
+        <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="#5a4300" stroke-width="2" stroke-linecap="round"><path d="M6 3.5h12l-1.8 17H7.8z"/><path d="M9 8.5h6M9 12h6"/></svg></span>
+        <span><span class="rt2">恭喜获得：黄巾布 ×2</span>
+          <div class="rd2">已入账 → <b>背包 · 材料</b>；按钮已置灰「转盘已抽取」</div></span>
+        <span class="rgot"><span class="tag lock">转盘已抽取</span><span class="tag ok">奖励已入档</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="w-note"><b>交互说明：</b>胜利结算页点击「转盘抽奖」打开本页 → 点中央「★」抽 1 次 → 轮盘旋转约 2.5s 缓停（命中扇区停至顶部指针）→ 扇区白环高亮 + 结果横幅入档 → 「转盘已抽取」置灰；✕ 关闭返回胜利结算页。权重 = NUMBERS 10.9 草案（求贤令条目已随抽将暂时移除，落地以 SettlementWheel 为准）；扇区图标与碎片人物头像均为<span class="dim">待美术占位</span>。</div>
+</div>
+</body>
+</html>

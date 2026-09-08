@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<title>ui_victory</title>
+<style>
+/* ===== 胜利结算页概念稿（v0.1）：战场背景 + 绿横幅胜 利 + 奖励明细 + 转盘入口 ===== */
+@font-face { font-family:"ZCOOL-Kuaile"; src:url("fonts/ZCOOL-Kuaile.ttf") format("truetype"); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1280px; height:720px; overflow:hidden; }
+body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
+/* ---------- 战场底（胜利后：塔已守成，道路清净） ---------- */
+.field { position:absolute; inset:0; overflow:hidden;
+  background-color:#214230;
+  background-image:conic-gradient(#1d3a2a 25%, #214230 0 50%, #1d3a2a 0 75%, #214230 0);
+  background-size:160px 160px; }
+.gridline { position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:80px 80px; }
+.road { position:absolute; left:0; top:240px; width:1200px; height:80px;
+  background:#7b5a40; border-top:4px solid #261f19; border-bottom:4px solid #261f19; }
+.road .shine { position:absolute; left:0; top:8px; width:100%; height:10px; background:rgba(255,235,205,.10); }
+.road-drop { position:absolute; left:1200px; top:240px; width:80px; height:160px;
+  background:#7b5a40; border:4px solid #261f19; border-left:0; }
+.gate { position:absolute; left:10px; top:248px; width:64px; height:64px; border-radius:10px;
+  background:rgba(199,158,92,.24); border:3px solid #c79e5c; color:#e8c98a;
+  font-size:30px; line-height:58px; text-align:center; }
+.base { position:absolute; left:1206px; top:326px; width:68px; height:68px; border-radius:12px;
+  background:#ad4a3d; border:3px solid #d9bf73; box-shadow:0 4px 10px rgba(0,0,0,.35); }
+.base .door { position:absolute; left:50%; bottom:5px; transform:translateX(-50%);
+  width:22px; height:30px; background:#261f19; border-radius:6px 6px 0 0; }
+.base .roof { position:absolute; left:-6px; top:-10px; width:calc(100% + 12px); height:14px;
+  background:#7e3129; border-radius:8px 8px 0 0; border:2px solid #d9bf73; }
+.flag { position:absolute; left:1256px; top:296px; width:3px; height:34px; background:#c9a35c; }
+.flag i { position:absolute; left:3px; top:-2px; width:18px; height:12px; background:#e05a4e; border-radius:0 6px 6px 0; }
+.tree { position:absolute; width:0; height:0; }
+.tree .trunk { position:absolute; left:-5px; top:22px; width:10px; height:16px; background:#4d3824; border-radius:2px; }
+.tree .leaf { position:absolute; left:-24px; top:-10px; width:48px; height:44px;
+  background:radial-gradient(circle at 34% 28%, #3f7d52, #2f613f 70%);
+  border:3px solid #235038; border-radius:50% 50% 46% 54%; }
+.mtn { position:absolute; width:0; height:0; }
+.mtn .a { position:absolute; width:52px; height:42px; background:#544f45; clip-path:polygon(50% 6%, 100% 100%, 0 100%); }
+.mtn .b { position:absolute; width:26px; height:18px; left:8px; top:2px; background:#576b57; clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+.mtn2 { position:absolute; width:0; height:0; }
+.mtn2 .a { position:absolute; width:44px; height:36px; background:#544f45; clip-path:polygon(50% 8%, 100% 100%, 0 100%); }
+.mtn2 .b { position:absolute; width:20px; height:14px; left:8px; top:2px; background:#576b57; clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+/* 守成塔（胜利态：四塔在位） */
+.tw { position:absolute; width:50px; height:52px; }
+.tw .body { position:absolute; left:6px; top:7px; width:38px; height:38px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.9); font-size:19px; color:#fff;
+  display:flex; align-items:center; justify-content:center; text-shadow:0 1px 2px rgba(90,20,10,.5); }
+.tw .tname { position:absolute; left:0; top:44px; width:56px; text-align:center;
+  font-size:12px; color:#ffe9b0; letter-spacing:1px; white-space:nowrap; text-shadow:0 1px 3px #000; }
+.tw .ring { position:absolute; left:-27px; top:-24px; width:90px; height:90px;
+  border:2px solid rgba(255,206,92,.5); border-radius:50%; }
+.tw liu  { background:radial-gradient(circle at 32% 28%, #ffd75e, #f0a92f 78%); }
+.tw guan { background:radial-gradient(circle at 32% 28%, #ff9d7d, #e85b43 78%); }
+.tw zhang{ background:radial-gradient(circle at 32% 28%, #ffb066, #f0802f 78%); }
+.tw huang{ background:radial-gradient(circle at 32% 28%, #5fd6a2, #26a86f 78%); }
+/* 胜利彩纸屑（Q 版氛围） */
+.confetti { position:absolute; pointer-events:none; }
+.confetti i { position:absolute; width:9px; height:14px; border-radius:2px; opacity:.85;
+  background:var(--c,#ffcc00); transform:rotate(var(--r,0deg)); box-shadow:0 2px 4px rgba(0,0,0,.25); }
+/* 遮罩与面板 */
+.v-mask { position:absolute; inset:0; background:radial-gradient(ellipse 900px 520px at 50% 34%, rgba(255,214,110,.14), rgba(8,22,38,.72) 74%); }
+.v-glow { position:absolute; left:50%; top:14px; width:760px; height:150px; transform:translateX(-50%);
+  background:radial-gradient(ellipse, rgba(255,224,130,.5), rgba(255,224,130,0) 70%); pointer-events:none; }
+.v-panel { position:absolute; left:50%; top:50%; width:1160px; height:656px; transform:translate(-50%,-50%);
+  background:#f2faff; border:3px solid #1c9fd7; border-bottom:7px solid #167da8; border-radius:18px;
+  box-shadow:0 18px 48px rgba(4,16,30,.65), inset 0 1px 0 rgba(255,255,255,.65);
+  overflow:hidden; display:flex; flex-direction:column; }
+/* 胜利横幅 */
+.v-banner { flex:none; height:86px; display:flex; align-items:center; justify-content:center; gap:18px;
+  background:linear-gradient(180deg,#3ecf8a,#179d63); border-bottom:3px solid #0f7a4b;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.25); }
+.v-banner img { width:34px; height:34px; }
+.v-banner .vt { font-size:46px; color:#fff; letter-spacing:18px; text-shadow:0 2px 0 rgba(10,80,45,.45);
+  font-weight:normal; padding-left:18px; }
+.v-banner .vt2 { font-size:16px; color:#eafff3; letter-spacing:3px; margin-left:8px; }
+/* 元数据行 */
+.v-meta { flex:none; display:flex; align-items:center; gap:8px; padding:8px 20px 6px; border-bottom:2px dashed #d7e9f5; }
+.v-meta .spacer { flex:1; }
+.pill { display:flex; align-items:center; gap:7px; background:#fff; border:2px solid #d7e9f5; border-radius:11px;
+  padding:3px 12px 3px 5px; }
+.pill img { width:22px; height:22px; object-fit:contain; }
+.pill .k { font-size:11px; color:#7d9cb4; letter-spacing:1px; }
+.pill .v { font-size:17px; letter-spacing:.5px; white-space:nowrap; }
+.pill .v.okg { color:#0e9f58; }
+.pill .v.gold { color:#b8860b; }
+/* 主体两列 */
+.v-body { flex:1; min-height:0; display:flex; gap:12px; padding:12px 20px 10px; }
+.card { background:#fff; border:2px solid #d7e9f5; border-radius:14px; box-shadow:0 2px 6px rgba(30,90,130,.06);
+  display:flex; flex-direction:column; min-height:0; }
+.card-t { flex:none; display:flex; align-items:center; gap:8px; padding:7px 14px 6px;
+  font-size:14px; color:#14538a; letter-spacing:2px; border-bottom:2px dashed #e3eff7; }
+.card-t .hint { margin-left:auto; font-size:11px; color:#a8bccb; letter-spacing:.5px; font-weight:normal; }
+/* 左列：奖励明细 */
+.col-l { flex:1.25; min-width:0; display:flex; flex-direction:column; }
+.exp-rows { padding:6px 12px; display:flex; flex-direction:column; gap:4px; }
+.xrow { display:flex; align-items:center; gap:10px; padding:4px 8px; border-radius:10px; background:#f8fbfe; }
+.xrow .ava { width:34px; height:34px; font-size:16px; flex:none; }
+.xrow .nm { font-size:15px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+.xrow .lv { font-size:10.5px; color:#2eaadc; margin-left:2px; white-space:nowrap; }
+.xrow .bar { flex:1; height:9px; margin:0 4px; border-radius:5px; background:#e3eef7; overflow:hidden; }
+.xrow .bar b { display:block; height:100%; border-radius:5px;
+  background:linear-gradient(90deg,#ffd75e,#f0a92f); }
+.xrow .xp { font-size:16px; color:#b8860b; letter-spacing:.5px; white-space:nowrap; }
+.xrow .xp small { font-size:11px; color:#7d9cb4; }
+.dash { flex:none; height:0; margin:4px 14px; border-top:1px dashed #dbeaf4; }
+.rw { display:flex; align-items:center; gap:10px; padding:7px 14px; }
+.rw .ic { width:30px; height:30px; flex:none; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  border:2px dashed #9cbed9; background:#f6fafd; }
+.rw .ic svg { width:16px; height:16px; }
+.rw .nm2 { font-size:14px; color:#33566f; letter-spacing:1px; white-space:nowrap; }
+.rw .dt { font-size:11.5px; color:#7d9cb4; letter-spacing:.5px; }
+.rw .right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.rw .amt { font-size:17px; color:#b8860b; letter-spacing:.5px; white-space:nowrap; }
+.rw .uname { display:flex; align-items:center; gap:8px; }
+.rw .uname .ava { width:32px; height:32px; font-size:15px; }
+/* 右列 */
+.col-r { flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
+.stat-rows { padding:8px 14px 10px; display:flex; flex-direction:column; gap:7px; }
+.srow { display:flex; align-items:center; gap:8px; font-size:12.5px; color:#6b93ad; letter-spacing:1px; }
+.srow .v { margin-left:auto; font-size:19px; color:#1b4d78; letter-spacing:.5px; }
+.srow .v.gold { color:#b8860b; }
+.srow .v.okg { color:#0e9f58; }
+.srow .v.red { color:#e5484d; }
+/* 挑战目标预留 */
+.goal { border-style:dashed; border-color:#bfdcef; background:#f6fafd; }
+.goal-t { border-bottom:1px dashed #dcecf6; }
+.goal-box { flex:1; display:flex; gap:8px; padding:8px 12px 10px; align-items:stretch; }
+.gslot { flex:1; border:1.5px dashed #cfe3f2; border-radius:10px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:3px; padding:4px; }
+.gslot .star { font-size:13px; color:#c9dbe8; letter-spacing:2px; }
+.gslot .st { font-size:10.5px; color:#9fb3c4; letter-spacing:.5px; }
+/* 转盘入口 */
+.win { flex:none; border:2px solid #ffcc00; background:linear-gradient(180deg,#fffdf0,#fff6d8);
+  border-radius:14px; padding:9px 14px 10px; display:flex; align-items:center; gap:12px; box-shadow:0 0 0 3px rgba(255,204,0,.25); }
+.win .wi { width:40px; height:40px; flex:none; border-radius:50%;
+  background:linear-gradient(180deg,#ffd75e,#f0a92f); border:2px solid #fff;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,.2); }
+.win .wi svg { width:21px; height:21px; }
+.win .wt { font-size:14.5px; color:#1b4d78; letter-spacing:1px; }
+.win .wd { font-size:11px; color:#8a6d00; line-height:1.5; letter-spacing:.5px; margin-top:2px; }
+.win .wd b { font-weight:normal; color:#b8860b; }
+.win .act { margin-left:auto; flex:none; }
+/* 底部按钮 */
+.v-foot { flex:none; display:flex; align-items:center; gap:12px; padding:10px 20px 12px;
+  border-top:2px dashed #d7e9f5; }
+.v-foot .hint { font-size:11.5px; color:#a8bccb; line-height:1.6; letter-spacing:.5px; }
+.v-note { flex:none; display:flex; align-items:center; gap:8px; margin:0 20px 14px; padding:7px 14px;
+  font-size:11.5px; color:#33566f; background:#eef6fb; border:1px dashed #bfdcef; border-radius:10px;
+  line-height:1.6; letter-spacing:.5px; }
+.v-note b { color:#b8860b; font-weight:normal; }
+.v-note .dim { color:#7d9cb4; }
+</style>
+</head>
+<body>
+<div class="field">
+  <div class="road"><div class="shine"></div></div>
+  <div class="road-drop"></div>
+  <div class="gate">▶</div>
+  <div class="base"><div class="roof"></div><div class="door"></div></div>
+  <div class="flag"><i></i></div>
+  <div class="tree" style="left:150px; top:150px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:920px; top:150px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:300px; top:500px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:1000px; top:500px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="mtn" style="left:250px; top:600px"><div class="a"></div><div class="b"></div></div>
+  <div class="mtn2" style="left:330px; top:612px"><div class="a"></div><div class="b"></div></div>
+  <!-- 守成四塔 -->
+  <div class="tw" style="left:120px; top:330px"><div class="ring"></div><div class="body liu">刘</div><div class="tname">刘备 · 阶 2</div></div>
+  <div class="tw" style="left:420px; top:330px"><div class="body guan">关</div><div class="tname">关羽 · 阶 2</div></div>
+  <div class="tw" style="left:760px; top:330px"><div class="body zhang">张</div><div class="tname">张飞 · 阶 3</div></div>
+  <div class="tw" style="left:1060px; top:330px"><div class="body huang">黄</div><div class="tname">黄忠 · 阶 1</div></div>
+  <div class="gridline"></div>
+</div>
+
+<div class="v-mask"></div>
+
+<div class="v-glow"></div>
+<div class="v-panel">
+  <div class="v-banner">
+    <img src="kenney_ui_pack/PNG/Yellow/Double/star.png" alt="">
+    <span class="vt">胜 利</span>
+    <img src="kenney_ui_pack/PNG/Yellow/Double/star.png" alt="">
+    <span class="vt2">城防未破 · 波次全清</span>
+  </div>
+  <div class="v-meta">
+    <span class="tag blue">第一章 · 黄巾之乱</span>
+    <span class="tag blue">s04 东郡驰援</span>
+    <span class="tag ok">难度 · 标准</span>
+    <span class="tag open">首次通关</span>
+    <div class="spacer"></div>
+    <span class="pill"><img src="icons_battle/base_hp_crop.png" alt=""><span class="k">基地生命</span><span class="v okg">12 / 20</span></span>
+    <span class="pill"><img src="icons_battle/coin_crop.png" alt=""><span class="k">剩余金币</span><span class="v gold">186</span></span>
+    <span class="pill"><span class="k">通关波次</span><span class="v">6 / 6</span></span>
+  </div>
+  <div class="v-body">
+    <div class="col-l">
+      <div class="card" style="flex:1">
+        <div class="card-t">奖励明细<span class="hint">已全部写入存档 · 难度材料倍率 ×1.0</span></div>
+        <div class="exp-rows">
+          <div class="xrow"><span class="ava gold">刘</span><span class="nm">刘备</span><span class="lv">Lv14</span>
+            <span class="bar"><b style="width:82%"></b></span><span class="xp">+86 <small>经验</small></span></div>
+          <div class="xrow"><span class="ava red">关</span><span class="nm">关羽</span><span class="lv">Lv13</span>
+            <span class="bar"><b style="width:78%"></b></span><span class="xp">+84 <small>经验</small></span></div>
+          <div class="xrow"><span class="ava">张</span><span class="nm">张飞</span><span class="lv">Lv12</span>
+            <span class="bar"><b style="width:80%"></b></span><span class="xp">+85 <small>经验</small></span></div>
+          <div class="xrow"><span class="ava green">黄</span><span class="nm">黄忠</span><span class="lv">Lv9</span>
+            <span class="bar"><b style="width:70%"></b></span><span class="xp">+80 <small>经验</small></span></div>
+        </div>
+        <div class="dash"></div>
+        <div class="rw">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="2" stroke-linecap="round"><path d="M6 3.5h12l-1.8 17H7.8z"/><path d="M9 8.5h6M9 12h6"/></svg></span>
+          <span class="nm2">材料掉落</span><span class="dt">黄巾军留下的材料 · 用于早期养成</span>
+          <span class="right"><span class="amt">黄巾布 ×2</span><span class="tag open">首通</span></span>
+        </div>
+        <div class="rw">
+          <span class="uname"><span class="ava" style="background:linear-gradient(180deg,#ff9ec4,#e85b8f)">貂</span>
+          <span class="nm2">新武将加入</span></span><span class="dt">舞娘 · 大招辅助</span>
+          <span class="right"><span class="amt" style="color:#1b4d78; font-size:15px">貂蝉</span><span class="tag ok">已入阵容</span></span>
+        </div>
+        <div class="rw">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v8M8.5 12h7"/></svg></span>
+          <span class="nm2">科技点</span><span class="dt">首次通关奖励 · 可在科技树使用</span>
+          <span class="right"><span class="amt">+2</span><span class="tag open">首通</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="card">
+        <div class="card-t">本局战绩</div>
+        <div class="stat-rows">
+          <div class="srow">防守波次<span class="v okg">6 / 6 全清</span></div>
+          <div class="srow">基地生命<span class="v okg">12 / 20 残存</span></div>
+          <div class="srow">出战武将<span class="v">4 名 · 全数存活</span></div>
+        </div>
+      </div>
+      <div class="card goal" style="flex:1">
+        <div class="card-t goal-t">挑战目标 · 星级<span class="hint">阶段 10 预留</span></div>
+        <div class="goal-box">
+          <div class="gslot"><span class="star">★ ★ ★</span><span class="st">不使用军需通关等（预留）</span></div>
+          <div class="gslot"><span class="star">☆</span><span class="st">目标结算入口占位</span></div>
+        </div>
+      </div>
+      <div class="win">
+        <span class="wi"><svg viewBox="0 0 24 24" fill="none" stroke="#5a4300" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1.6 3.4 4 5.4 8 5.8 0 5-3.2 8.6-8 11-4.8-2.4-8-6-8-11 4-.4 6.4-2.4 8-5.8z"/><path d="M12 8.6v9"/></svg></span>
+        <span><span class="wt">结算转盘 · 胜利特典</span>
+          <div class="wd">剩余金币 <b>186 ≥ 150</b>，可抽 <b>1 次</b>（仅限 1 次）· 奖励直接入档</div></span>
+        <span class="act"><button class="btn small go" style="width:158px">转盘抽奖 ▸</button></span>
+      </div>
+    </div>
+  </div>
+  <div class="v-foot">
+    <span class="hint">本局配置与奖励已存档记忆；<br>胜利奖励一次性入档，失败 / 退出不保留（核心规则）</span>
+    <div class="spacer"></div>
+    <button class="btn small grey" style="width:132px">重试本关</button>
+    <button class="btn small grey" style="width:132px">返回选关</button>
+    <button class="btn small go" style="width:200px">下一关：宛城之围</button>
+  </div>
+  <div class="v-note"><b>说明：</b>横幅绿 = 胜利语义；奖励明细 = 出战经验 + 首通掉落 + 新武将 + 科技点；「挑战目标 · 星级」为阶段 10 预留位（虚线占位，不参与本期结算）；剩余金币 ≥ 150 时开启结算转盘入口（见转盘页概念图）；武将头像 / 材料图标虚线圆 = 立绘与美术占位。</div>
+</div>
+<!-- 胜利彩纸屑 -->
+<div class="confetti">
+  <i style="left:120px; top:60px; --c:#ffcc00; --r:24deg"></i>
+  <i style="left:210px; top:130px; --c:#ff8d7a; --r:-18deg"></i>
+  <i style="left:320px; top:50px; --c:#5fd6a2; --r:60deg"></i>
+  <i style="left:430px; top:150px; --c:#7ec8ea; --r:10deg"></i>
+  <i style="left:560px; top:70px; --c:#ffd75e; --r:40deg"></i>
+  <i style="left:700px; top:140px; --c:#ff8d7a; --r:-30deg"></i>
+  <i style="left:830px; top:60px; --c:#b393e8; --r:15deg"></i>
+  <i style="left:950px; top:120px; --c:#5fd6a2; --r:-8deg"></i>
+  <i style="left:1060px; top:70px; --c:#ffcc00; --r:55deg"></i>
+  <i style="left:1180px; top:140px; --c:#7ec8ea; --r:22deg"></i>
+  <i style="left:180px; top:220px; --c:#b393e8; --r:-40deg"></i>
+  <i style="left:1130px; top:220px; --c:#ffd75e; --r:30deg"></i>
+</div>
+</body>
+</html>
