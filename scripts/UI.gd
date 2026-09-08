@@ -16,8 +16,6 @@ signal tower_upgrade_requested
 signal tower_sell_requested
 ## 手动大招（v0.15.0）：属性面板"释放大招"按钮。
 signal ultimate_cast_requested
-## 角色技能（阶段 8·提交 6）：属性面板"释放技能"按钮（手动模式）。
-signal character_skill_cast_requested
 signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
@@ -62,8 +60,6 @@ var _tower_title_label: Label
 var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
-var _tower_skill_label: Label
-var _tower_char_skill_button: Button
 var _tower_ultimate_button: Button
 var _boss_banner: Label
 var _boss_banner_timer: SceneTreeTimer = null
@@ -114,7 +110,7 @@ func set_stage_name(stage_name: String) -> void:
 ## 调试辅助面板（仅调试构建创建）：加金币、跳波次、清场，方便测试。
 func _create_debug_panel() -> void:
 	var panel := DEBUG_PANEL_SCRIPT.new()
-	panel.position = Vector2(16, 164)
+	panel.position = Vector2(16, 206)
 	panel.wave_jump_requested.connect(debug_wave_jump_requested.emit)
 	panel.clear_enemies_requested.connect(debug_clear_enemies_requested.emit)
 	$Root.add_child(panel)
@@ -133,53 +129,51 @@ func setup_character_bar(characters: Array) -> void:
 		if character_data == null:
 			continue
 		var character_id := str(character_data.character_id)
-		var profession_name := "未知职业"
-		if character_data.profession != null:
-			profession_name = character_data.profession.display_name
 		var level := GameFlow.get_character_level(ProfileStore.get_profile(), character_id)
 
-		# 卡片 = 拖拽手柄：武将名 / 职业全名 / Lv（蓝）/ 费用（金）。
+		# 卡片（阶段 8·提交 11）= 拖拽手柄：头像（概念色圆 + 姓氏首字，暂无立绘素材
+		# 先占位、控件预留后续立绘替换）+ 武将名 + Lv（蓝）/ 费用（金）；职业行移除。
 		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(124, 0)
+		panel.custom_minimum_size = Vector2(118, 0)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		panel.gui_input.connect(_on_card_gui_input.bind(character_id))
 		character_bar.add_child(panel)
 
 		var content := VBoxContainer.new()
 		content.alignment = BoxContainer.ALIGNMENT_CENTER
-		content.add_theme_constant_override("separation", 0)
+		content.add_theme_constant_override("separation", 2)
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
+
+		var avatar := UITheme.avatar_label(
+			character_data.display_name.left(1),
+			UITheme.character_avatar_color_key(character_id), 56.0, 24)
+		avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		avatar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		content.add_child(avatar)
 
 		var name_label := Label.new()
 		name_label.text = character_data.display_name
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_font_size_override("font_size", 16)
+		name_label.add_theme_font_size_override("font_size", 15)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		content.add_child(name_label)
 
-		var profession_label := Label.new()
-		profession_label.text = profession_name
-		profession_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		profession_label.add_theme_font_size_override("font_size", 12)
-		profession_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(profession_label)
-
 		var stat_row := HBoxContainer.new()
 		stat_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		stat_row.add_theme_constant_override("separation", 6)
+		stat_row.add_theme_constant_override("separation", 8)
 		stat_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		content.add_child(stat_row)
 
 		var lv_label := Label.new()
 		lv_label.text = "Lv.%d" % level
-		lv_label.add_theme_font_size_override("font_size", 13)
+		lv_label.add_theme_font_size_override("font_size", 12)
 		lv_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stat_row.add_child(lv_label)
 
 		var cost_label := Label.new()
 		cost_label.text = "%d 金" % character_data.build_cost
-		cost_label.add_theme_font_size_override("font_size", 13)
+		cost_label.add_theme_font_size_override("font_size", 12)
 		cost_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stat_row.add_child(cost_label)
 
@@ -187,8 +181,8 @@ func setup_character_bar(characters: Array) -> void:
 		_character_cards[character_id] = {
 			"id": character_id,
 			"panel": panel,
+			"avatar": avatar,
 			"name": name_label,
-			"profession": profession_label,
 			"lv": lv_label,
 			"cost": cost_label,
 		}
@@ -244,16 +238,15 @@ func _apply_card_style(card: Variant) -> void:
 		border = UITheme.RED.darkened(0.5)
 	if is_instance_valid(panel):
 		panel.add_theme_stylebox_override("panel", _make_card_style(border, bg))
+	var avatar: Label = card.get("avatar")
 	var name_label: Label = card.get("name")
-	var profession_label: Label = card.get("profession")
 	var lv_label: Label = card.get("lv")
 	var cost_label: Label = card.get("cost")
+	if is_instance_valid(avatar):
+		avatar.modulate = Color(0.55, 0.57, 0.53, 0.9) if not affordable else Color.WHITE
 	if is_instance_valid(name_label):
 		name_label.add_theme_color_override("font_color",
 			UITheme.DISABLED if not affordable else UITheme.TEXT)
-	if is_instance_valid(profession_label):
-		profession_label.add_theme_color_override("font_color",
-			UITheme.DISABLED if not affordable else UITheme.GRAY)
 	if is_instance_valid(lv_label):
 		lv_label.add_theme_color_override("font_color",
 			UITheme.DISABLED if not affordable else UITheme.BLUE)
@@ -279,7 +272,7 @@ func _make_card_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 ## 对话底栏 / 塔面板 / 结算 / 消息。拖入则虚影隐藏、松手取消。
 ## 调试面板为开发辅助浮层（不拦截点击），不计入，避免遮挡行 2 可建格。
 func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
-	if screen_pos.y <= 158.0:
+	if screen_pos.y <= 196.0:
 		return true
 	if _result_panel != null and _result_panel.visible:
 		return true
@@ -431,12 +424,6 @@ func _create_tower_panel() -> void:
 	_tower_attr_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_tower_attr_label)
 
-	_tower_skill_label = Label.new()
-	_tower_skill_label.add_theme_font_size_override("font_size", 14)
-	_tower_skill_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.72))
-	_tower_skill_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(_tower_skill_label)
-
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	vbox.add_child(buttons)
@@ -463,15 +450,6 @@ func _create_tower_panel() -> void:
 	_tower_ultimate_button.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	_tower_ultimate_button.pressed.connect(func() -> void: ultimate_cast_requested.emit())
 	buttons.add_child(_tower_ultimate_button)
-
-	# 角色技能（阶段 8·提交 6）：A 主动手动释放 / B 被动说明；冷却中置灰。
-	_tower_char_skill_button = Button.new()
-	_tower_char_skill_button.custom_minimum_size = Vector2(0, 40)
-	_tower_char_skill_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tower_char_skill_button.add_theme_font_size_override("font_size", 16)
-	_tower_char_skill_button.add_theme_color_override("font_color", Color(0.6, 0.9, 1.0))
-	_tower_char_skill_button.pressed.connect(func() -> void: character_skill_cast_requested.emit())
-	buttons.add_child(_tower_char_skill_button)
 
 
 func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
@@ -526,33 +504,6 @@ func _refresh_tower_panel() -> void:
 	_tower_sell_button.disabled = false
 
 	var manual_mode: bool = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
-	# 技能行（阶段 8·提交 6）：职业技能（转职授予） + 角色技能（武将专属）。
-	var skill_parts: Array[String] = []
-	for skill_id in tower.get_granted_skills():
-		skill_parts.append(tower.get_skill_display_name(skill_id))
-	var char_skill_id: StringName = tower.get_character_skill_id()
-	var char_skill_name := ""
-	if not char_skill_id.is_empty():
-		char_skill_name = SkillRegistry.get_character_skill_name(char_skill_id)
-	var skill_text := "职业技能：" + ("、".join(skill_parts) if not skill_parts.is_empty() else "无")
-	if not char_skill_name.is_empty():
-		skill_text += "　角色技：" + char_skill_name
-	_tower_skill_label.text = skill_text
-
-	# 角色技能按钮（A 主动手动释放；B 被动仅说明）
-	var has_char_skill := not char_skill_id.is_empty()
-	_tower_char_skill_button.visible = has_char_skill
-	if has_char_skill:
-		if SkillRegistry.is_character_skill_b_type(tower):
-			_tower_char_skill_button.text = "%s（被动）" % char_skill_name
-			_tower_char_skill_button.disabled = true
-		elif tower.is_character_skill_ready():
-			_tower_char_skill_button.text = "释放 %s！" % char_skill_name
-			_tower_char_skill_button.disabled = not manual_mode
-		else:
-			_tower_char_skill_button.text = "%s · 冷却 %.1fs" % [char_skill_name, tower.get_character_skill_cooldown_left()]
-			_tower_char_skill_button.disabled = true
-
 	# 手动大招按钮（v0.15.0）
 	_tower_ultimate_button.visible = manual_mode
 	if manual_mode:

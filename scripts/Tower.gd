@@ -33,8 +33,10 @@ const MELEE_SLASH_RADIUS := 38.0
 const SPINE_CHARACTERS: Dictionary = {
 	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a-data-res.tres",
 }
-const SPINE_BASE_SCALE: float = 0.22
-const SPINE_Y_OFFSET: float = 6.0
+## 阶段 8·提交 11（0.8.11.0）：0.22 → 0.33 试点调大（身体 ≈27px → ≈41px、约半格，
+## 实机截图验收后定稿；其余角色接入沿用「每角色调一次 + 截图验收」流程）。
+const SPINE_BASE_SCALE: float = 0.33
+const SPINE_Y_OFFSET: float = 8.0
 ## 朝向切换防抖阈值：|dx| 小于该值（目标在正上/正下）保持原朝向（ART_ASSETS §5.6）。
 const SPINE_FACE_SWITCH_EPS: float = 6.0
 const PROFESSION_COLORS := {
@@ -184,6 +186,9 @@ var _use_spine_visual: bool = false
 ## 世界朝向（ART_ASSETS §5.6）：-1 朝左（素材原生）/ +1 朝右（镜像）。
 var _facing: int = -1
 var _spine_attack_busy: bool = false
+## 拖拽虚影头像模式（阶段 8·提交 11）：BuildManager 拖拽占位——只画攻击范围圈 +
+## 武将占位头像贴图（底边贴地），跳过底座/身体/怒气条/冷却环等实塔视觉。
+var _ghost_avatar_only: bool = false
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
@@ -464,6 +469,12 @@ func _update_spine_animation(_delta: float) -> void:
 		_play_spine_idle()
 
 
+## 拖拽虚影头像（阶段 8·提交 11，BuildManager 调用）：进入头像模式。
+func set_ghost_avatar_mode() -> void:
+	_ghost_avatar_only = true
+	queue_redraw()
+
+
 func _rebuild_attack_timer() -> void:
 	# 角色技能常驻攻速加成（周仓·死战）与职业 buff 同区相乘。
 	var effective := attack_cooldown / (attack_speed_buff * (1.0 + get_trait_param("attack_speed_per_kill", 0.04) * kill_stacks) * (1.0 + _char_skill_speed_bonus) * (1.0 + _tech_attack_speed_pct))
@@ -544,13 +555,18 @@ func _process(_delta: float) -> void:
 	if SkillRegistry.has_character_skill(self) and not SkillRegistry.is_character_skill_b_type(self):
 		if _char_skill_cooldown_left > 0.0:
 			_char_skill_cooldown_left = maxf(_char_skill_cooldown_left - _delta, 0.0)
+			# 冷却环每帧重绘（阶段 8·提交 11，BUGS B-050 修复）：脱战无目标时无攻击
+			# 闪光等重绘事件，弧线曾冻结在旧值；实际冷却一直在走。
+			queue_redraw()
 			if _char_skill_cooldown_left <= 0.0:
 				_char_skill_ready = true
 				SkillRegistry.on_character_skill_ready(self)
 				if _char_skill_ready and not _char_skill_ready_notified:
 					_char_skill_ready_notified = true
 					spawn_float_text("技能就绪", Color(0.6, 0.9, 1.0), 14)
-		elif _char_skill_ready and not _manual_ultimate_mode:
+		# 阶段 8·提交 11：技能释放入口移出塔详情面板后，A 型就绪即自动释放，
+		# 与手动大招开关（manual_ultimate）解耦；手动大招仅约束大招本身。
+		elif _char_skill_ready:
 			if cast_character_skill():
 				_char_skill_ready = false
 				_char_skill_ready_notified = false
@@ -1119,6 +1135,11 @@ func _on_selection_area_input_event(
 
 
 func _draw() -> void:
+	if _ghost_avatar_only:
+		if is_selected:
+			_draw_range()
+		_draw_ghost_avatar()
+		return
 	_draw_base()
 	# 角色 spine（试点 v0.6）：程序化身体/武器/挥击弧/枪口闪让位给 spine 动画。
 	if not _use_spine_visual:
@@ -1140,6 +1161,25 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, 30.0, 0.0, TAU, 32, SELECT_RING_COLOR, 3.0, true)
 
 
+## 虚影占位头像（阶段 8·提交 11）：概念色圆 + 白描边 + 姓氏首字（与建造卡片头像同款
+## 占位视觉，后续立绘替换同一绘制位）；底边贴地（y=0），随节点 modulate 绿/红染色。
+func _draw_ghost_avatar() -> void:
+	var colors: Array = UITheme.avatar_gradient_colors(UITheme.character_avatar_color_key(str(character_id)))
+	var bg: Color = colors[0].lerp(colors[1], 0.5)
+	var side := 84.0
+	var radius := side * 0.5
+	var center_y := -radius
+	draw_circle(Vector2(0, center_y), radius, Color.WHITE)
+	draw_circle(Vector2(0, center_y), radius - 3.0, bg)
+	var font: Font = ThemeDB.fallback_font
+	var font_size := int(side * 0.42)
+	var text_height := font.get_height(font_size)
+	var ascent := font.get_ascent(font_size)
+	var baseline_y := center_y - text_height * 0.5 + ascent
+	draw_string(font, Vector2(-side * 0.5, baseline_y), display_name.left(1),
+		HORIZONTAL_ALIGNMENT_CENTER, side, font_size, Color.WHITE)
+
+
 ## 技能扩散环（v0.16.0）：半径随进度放大、颜色淡出。
 func _draw_skill_flash() -> void:
 	var t := 1.0 - _skill_flash / 0.4
@@ -1151,24 +1191,56 @@ func _draw_skill_flash() -> void:
 
 
 func _draw_rage_bar() -> void:
-	# 怒气条（v0.15.0 美化）：分段槽 + 边框；满怒金色脉动（手动模式提示）。
+	# 怒气条（v0.15.0 美化；阶段 8·提交 11 胶囊化）：脚下小胶囊——深色底槽 +
+	# 灰蓝→满怒金填充；满怒放大呼吸 + 外发光，一眼可辨满怒。
 	if rage <= 0.0:
 		return
 	var ratio := clampf(rage / _max_rage, 0.0, 1.0)
 	var full := ratio >= 1.0
 	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
-	var width := 34.0 * pulse
-	var height := 6.0
+	var width := 44.0 * pulse
+	var height := 7.0
 	# 角色 spine（试点 v0.6）：素材更高，怒气条移到脚下，避免被角色遮挡。
-	var origin := Vector2(-width / 2.0, 38.0 if _use_spine_visual else 28.0)
-	draw_rect(Rect2(origin, Vector2(width, height)), Color(0.0, 0.0, 0.0, 0.6))
-	var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.3, 0.62, 0.95, 0.95)
-	draw_rect(Rect2(origin + Vector2(1, 1), Vector2((width - 2.0) * ratio, height - 2.0)), fill_color)
+	var origin := Vector2(-width / 2.0, (48.0 if _use_spine_visual else 31.0) - height * 0.5)
+	# 满怒呼吸光晕（先画，被胶囊盖住内部）。
 	if full:
-		draw_rect(Rect2(origin, Vector2(width, height)), Color(1.0, 0.9, 0.5, 0.9), false, 1.0)
-	for i in range(1, 4):
-		var x := origin.x + width * i / 4.0
-		draw_line(Vector2(x, origin.y), Vector2(x, origin.y + height), Color(0.0, 0.0, 0.0, 0.35), 1.0)
+		var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.006)
+		_draw_capsule(origin - Vector2(3.0, 3.0), width + 6.0, height + 6.0, Color(1.0, 0.85, 0.35, glow))
+	_draw_capsule(origin, width, height, Color(0.0, 0.0, 0.0, 0.66))
+	var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.35, 0.68, 1.0, 0.95)
+	var inset := 1.5
+	_draw_capsule_fill(origin + Vector2(inset, inset), width - inset * 2.0, height - inset * 2.0, ratio, fill_color)
+	if full:
+		_draw_capsule(origin, width, height, Color(1.0, 0.92, 0.5, 0.95), true)
+
+
+## 实心胶囊（圆角端 = 半圆），pos 为左上角。
+func _draw_capsule(pos: Vector2, w: float, h: float, color: Color, outline_only: bool = false) -> void:
+	var r := h * 0.5
+	if outline_only:
+		draw_arc(pos + Vector2(r, r), r, PI * 0.5, PI * 1.5, 12, color, 1.5)
+		draw_arc(pos + Vector2(w - r, r), r, -PI * 0.5, PI * 0.5, 12, color, 1.5)
+		draw_line(pos + Vector2(0.0, r), pos + Vector2(w, r), color, 1.5)
+		draw_line(pos + Vector2(0.0, h - r), pos + Vector2(w, h - r), color, 1.5)
+		return
+	if w <= h:
+		draw_circle(pos + Vector2(w * 0.5, h * 0.5), w * 0.5, color)
+		return
+	draw_rect(Rect2(pos + Vector2(r, 0), Vector2(w - r * 2.0, h)), color)
+	draw_circle(pos + Vector2(r, r), r, color)
+	draw_circle(pos + Vector2(w - r, r), r, color)
+
+
+## 胶囊填充（按 ratio 从左侧截断，右端始终圆头；低怒气时退化为圆点）。
+func _draw_capsule_fill(pos: Vector2, w: float, h: float, ratio: float, color: Color) -> void:
+	var r := h * 0.5
+	var wf := w * clampf(ratio, 0.0, 1.0)
+	if wf <= h:
+		draw_circle(pos + Vector2(wf * 0.5, r), wf * 0.5, color)
+		return
+	draw_rect(Rect2(pos + Vector2(r, 0), Vector2(wf - r * 2.0, h)), color)
+	draw_circle(pos + Vector2(r, r), r, color)
+	draw_circle(pos + Vector2(wf - r, r), r, color)
 
 
 ## 角色技能冷却盘（阶段 8·提交 6）：塔身外细环按剩余冷却比例收缩，就绪时隐藏。
@@ -1183,7 +1255,7 @@ func _draw_character_skill_cooldown() -> void:
 	var remaining := clampf(_char_skill_cooldown_left / total, 0.0, 1.0)
 	var start := -PI / 2.0
 	# 角色 spine（试点 v0.6）：冷却环外扩避免被角色素材遮挡。
-	var cd_radius := 36.0 if _use_spine_visual else 25.0
+	var cd_radius := 40.0 if _use_spine_visual else 25.0
 	draw_arc(Vector2.ZERO, cd_radius, start, start + TAU * remaining, 24, Color(0.55, 0.85, 1.0, 0.85), 2.5, true)
 
 
@@ -1237,6 +1309,12 @@ func _draw_ultimate_visual() -> void:
 
 
 func _draw_base() -> void:
+	# 角色 spine（阶段 8·提交 11）：底座圆盘弱化——改贴地淡阴影，消除脚下多余「内圈」。
+	if _use_spine_visual:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.55, 0.5))
+		draw_circle(Vector2(0, 6), 20.0, Color(0.0, 0.0, 0.0, 0.16))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
 	draw_circle(Vector2.ZERO, 22.0, _hero_color.darkened(0.45))
 	draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 28, _hero_color.darkened(0.15), 2.5, true)
 

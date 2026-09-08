@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
 > 界面排版文字规范（权威）见 [UI_LAYOUT.md](UI_LAYOUT.md)，素材台账见 [ART_ASSETS.md](ART_ASSETS.md)。
-> 文档版本：v0.4（2026-09-08）
+> 文档版本：v0.5（2026-09-08）
+> v0.5 变更（2026-09-08，阶段 8·提交 11 落地，程序 0.8.10.33 → **0.8.11.0** / GDD v0.37.1 / UI_LAYOUT v0.20.22，用户拍板 2026-09-07「去除详情面板里技能相关的东西」）：**`ui_battle_hud.png` 修订重渲**——底部人物详情面板移除「职业技能 · 角色技」副行（v0.8.11.0 塔详情面板技能区整体移除、角色技能 A 型就绪自动释放、冷却状态改由塔身冷却环表达），姓名行随 `.dp-who` 垂直居中；源码 `src/ui_battle_hud.html` 同步，Chrome headless 1280×720 同参数重渲入库（与旧稿逐像素差异仅限详情面板文字区，PNG 与源码同源）。
 > v0.4 变更（2026-09-08，阶段 8·提交 11 设计先行，程序 0.8.10.33 不变（0.8.11 开发中）/ GDD v0.37.0 / UI_LAYOUT v0.20.21，纯文档/素材无程序逻辑改动（待拍板））：**新增第 15/16 屏概念图初稿归档（待用户拍板）**——①`ui_squad_confirm.png`（编队「确认出战」二次确认弹窗，源码 `src/ui_squad_confirm.html`，640×557 弹窗：关卡/难度元数据 + 出战武将四行名单 + 队伍遗物卡 + 虚线提示条 + 取消/确认出战，排版规范 UI_LAYOUT §7）；②`ui_supply.png`（局内「军需」面板，源码 `src/ui_supply.html`，局内 HUD 场景变体：四张军需卡列表 + 右侧详情预览卡，交互 = 悬停即时预览 / 点击金框固定选中 / 「购买」即买即用无二次确认，列表可纵向扩展超高滚动兜底，排版规范 UI_LAYOUT §10）；两屏 Chrome headless 1280×720 同参数重渲入库、DOM 零越界审计通过，PNG 与源码同源。概念图共 **16 屏**，映射见 §4。
 > v0.3 变更（2026-09-07，阶段 8·提交 10 延伸，程序 0.8.10.32，**局内 HUD 概念图定稿归档**，用户拍板 2026-09-07，纯文档/素材无程序逻辑改动）：新增第 14 屏 `ui_battle_hud.png`（战斗局内 HUD，源码 `src/ui_battle_hud.html`）——Kenney 亮蓝顶栏 + 深海军蓝战场示意（s01 风格网格 / 主路 / 基地 / 敌人占位点 / 选中塔张飞·阶 2）：①顶栏 = 章节名 + 金币（leonardo.ai 素材裁剪 `src/icons_battle/coin_crop.png`）+ 基地生命（`base_hp_crop.png`，数值常态绿 `#0e9f58`、**≤30% 变红 `#e5484d`**，左上图例两态对照）+ 波次 3/8（图标虚线圆占位）+ Kenney 按钮行（开始第 N 波=黄 / 军需=蓝带占位图标 / 暂停·设置·重开=灰 / 退出=红）；②**底部人物详情面板**（选中塔时）：深蓝半透明底 + 2px 浅蓝虚线描边圆角面板——头像 / 姓名·职业 / 职业·角色技能副行 / 「局内阶数 n/3」黄徽标 + 伤害·攻速·射程三格居中胶囊 + 底部仅「升阶（黄，含费用）」「回收（灰，含返还）」两钮（v0.3 拍板移除大招 / 冷却位，面板缩至 460×166）；③图例区 = HP 两态 + 虚线圆占位说明。同步 UI_LAYOUT v0.20.20 §10 / GDD v0.36.25 / README；程序版本号不变。
 > v0.2 变更（2026-09-04，阶段 8·提交 10 延伸·修复 2，程序 0.8.10.2 / GDD v0.35.3 / UI_LAYOUT v0.17.4，武将养成「职业」页签收纳 +「转职详情」概念图定稿，用户拍板 2026-09-04）：①**新增两屏概念图** `ui_develop_job.png`（武将养成「职业」页签——原「转职」页签更名并只保留当前职业信息：身份/能力状态/转职进度 +「可转」徽标）与 `ui_develop_promo.png`（职业页签 →「转职详情 ▸」按钮打开的 1160px 叠层树状路线，转职操作迁入，详见 UI_LAYOUT §6）；②**养成页签内容区取宽**——左列武将列表 402→382px、卡片分行排版、按钮定宽，消除文字横向溢出；③源码 `src/ui_develop_job.html`·`src/ui_develop_promo.html` 与 PNG 同源入库（Chrome headless 1280×720 同参数重渲，DOM 溢出自检无裁剪）；④概念图共 **13 屏**（11 屏原基线 + 2 屏新存档），映射见 §4。
@@ -64,7 +65,7 @@
 | `ui_settings.png` | `ui_settings.html` | 设置：页签 + 开关/滑块列表 | UI_LAYOUT §11 |
 | `ui_encyclopedia.png` | `ui_encyclopedia.html` | 百科·武将图鉴：左 2 列网格 + 五页签 + 数值模拟器条 | UI_LAYOUT §12 |
 | `ui_encyclopedia_enemy.png` | `ui_encyclopedia_enemy.html` | 百科·敌人图鉴：基础/特殊行为/各档难度/出现关卡 | UI_LAYOUT §12 |
-| `ui_battle_hud.png` | `ui_battle_hud.html` | 战斗局内 HUD：顶栏资源条 + 选中塔底部详情面板 + HP 变色图例（v0.3 存档） | UI_LAYOUT §10 |
+| `ui_battle_hud.png` | `ui_battle_hud.html` | 战斗局内 HUD：顶栏资源条 + 选中塔底部详情面板 + HP 变色图例（v0.3 存档；v0.5 修订移除「职业技能 · 角色技」副行） | UI_LAYOUT §10 |
 | `ui_squad_confirm.png` | `ui_squad_confirm.html` | 出征·编队「确认出战」二次确认弹窗（640×557：元数据 + 武将名单 + 遗物 + 取消/确认，v0.4 存档） | UI_LAYOUT §7 |
 | `ui_supply.png` | `ui_supply.html` | 局内「军需」面板：军需卡列表 + 右侧详情预览，悬停/点击查看、购买即买即用（v0.4 存档） | UI_LAYOUT §10 |
 
@@ -86,7 +87,7 @@
 "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --hide-scrollbars --window-size=1280,720 --force-device-scale-factor=1 --virtual-time-budget=4000 --screenshot=out.png file:///F:/godotProject/TowerDefense/docs/ui_concept/src/ui_home.html
 ```
 
-- 基线：2026-09-04 首档 11 屏逐字节校验一致（MD5）；v0.2（0.8.10.2）追加 `ui_develop_job` / `ui_develop_promo` 两屏（职业页签 / 转职详情叠层）并按同参数重渲入库，PNG 与源码同源（历史稿在 git 中可回溯）；v0.3（2026-09-07）追加 `ui_battle_hud`（战斗局内 HUD）同参数重渲入库（MD5 7B7B1CD92ABC11B53CCA16D1B6B1E8C2）；v0.4（2026-09-08）追加 `ui_squad_confirm`（编队确认出战弹窗）/ `ui_supply`（局内军需面板）两屏同参数重渲入库，PNG 与源码同源。
+- 基线：2026-09-04 首档 11 屏逐字节校验一致（MD5）；v0.2（0.8.10.2）追加 `ui_develop_job` / `ui_develop_promo` 两屏（职业页签 / 转职详情叠层）并按同参数重渲入库，PNG 与源码同源（历史稿在 git 中可回溯）；v0.3（2026-09-07）追加 `ui_battle_hud`（战斗局内 HUD）同参数重渲入库（MD5 7B7B1CD92ABC11B53CCA16D1B6B1E8C2）；v0.4（2026-09-08）追加 `ui_squad_confirm`（编队确认出战弹窗）/ `ui_supply`（局内军需面板）两屏同参数重渲入库，PNG 与源码同源；v0.5（2026-09-08）`ui_battle_hud` 按提交 11 拍板修订重渲（移除详情面板技能副行），PNG 与源码同源。
 - 改版步骤：改 HTML → 重渲 → 用户确认 → 覆盖 PNG → 同步本档与 UI_LAYOUT（版本 + changelog）→ 走版本分支提交。
 - 复现细节、素材清单与目录树见 `docs/ui_concept/src/README.md`（随源码自包含）。
 

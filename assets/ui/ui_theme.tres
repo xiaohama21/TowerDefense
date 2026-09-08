@@ -1,13 +1,13 @@
-[gd_resource type="Theme" load_steps=4 format=3]
+[gd_resource type="Theme" format=3 uid="uid://bdnhh547r1myo"]
 
-[ext_resource type="FontFile" path="res://assets/fonts/ZCOOL-Kuaile.ttf" id="1_font"]
+[ext_resource type="FontFile" uid="uid://75rwemvteb0p" path="res://assets/fonts/ZCOOL-Kuaile.ttf" id="1_font"]
 
 [sub_resource type="SystemFont" id="SystemFont_fallback"]
 font_names = PackedStringArray("Microsoft YaHei", "微软雅黑", "Noto Sans CJK SC", "SimHei", "SimSun")
 
 [sub_resource type="FontVariation" id="FontVariation_main"]
+fallbacks = Array[Font]([SubResource("SystemFont_fallback")])
 base_font = ExtResource("1_font")
-fallbacks = [SubResource("SystemFont_fallback")]
 
 [resource]
 default_font = SubResource("FontVariation_main")

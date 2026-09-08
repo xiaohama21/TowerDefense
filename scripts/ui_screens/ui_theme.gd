@@ -204,6 +204,17 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", Color.WHITE)
 	var style := StyleBoxFlat.new()
+	var colors: Array = avatar_gradient_colors(color_key, base)
+	style.bg_color = colors[0].lerp(colors[1], 0.5)
+	style.set_corner_radius_all(diameter * 0.5)
+	style.border_color = Color.WHITE
+	style.set_border_width_all(2)
+	label.add_theme_stylebox_override("normal", style)
+	return label
+
+
+## 头像渐变取色（avatar_label / character_avatar_texture 共用）：base 缺省用 key 色。
+static func avatar_gradient_colors(color_key: String = "blue", base: Color = Color(0, 0, 0, 0)) -> Array:
 	var top: Color = LIGHT_ACCENT
 	var bottom: Color = Color("#1c8fc0")
 	if base != Color(0, 0, 0, 0):
@@ -220,12 +231,24 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 		"brown": top = Color("#c8a06a"); bottom = Color("#9c6f3e")
 		"pink": top = Color("#ff9ec2"); bottom = Color("#e0558c")
 		"teal": top = Color("#63d8c8"); bottom = Color("#1f9d92")
-	style.bg_color = top.lerp(bottom, 0.5)
-	style.set_corner_radius_all(diameter * 0.5)
-	style.border_color = Color.WHITE
-	style.set_border_width_all(2)
-	label.add_theme_stylebox_override("normal", style)
-	return label
+	return [top, bottom]
+
+
+## 武将头像概念九色键（与 EncyclopediaPanel.CHARACTER_AVATAR_COLORS 同步维护；缺失回退蓝）。
+const CHARACTER_AVATAR_KEYS := {
+	"liu_bei": "gold",
+	"guan_yu": "red",
+	"zhang_fei": "blue",
+	"huang_zhong": "green",
+	"huang_fu_song": "purple",
+	"diao_chan": "orange",
+	"zhou_wei": "brown",
+	"zhao_yun": "pink",
+	"zhuge_liang": "teal",
+}
+
+static func character_avatar_color_key(character_id: String) -> String:
+	return str(CHARACTER_AVATAR_KEYS.get(character_id, "blue"))
 
 
 ## 浅色可点选卡片按钮四态（正常浅蓝卡 / 悬停亮蓝描边 / 禁用灰 / 选中金框米黄底）。
@@ -289,4 +312,3 @@ static func style_exp_bar(bar: ProgressBar) -> void:
 	fill.set_corner_radius_all(8)
 	bar.add_theme_stylebox_override("background", bg)
 	bar.add_theme_stylebox_override("fill", fill)
-

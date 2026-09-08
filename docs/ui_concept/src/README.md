@@ -26,7 +26,7 @@
 | `ui_settings.png` | `ui_settings.html` | 设置 |
 | `ui_encyclopedia.png` | `ui_encyclopedia.html` | 百科 · 武将图鉴 |
 | `ui_encyclopedia_enemy.png` | `ui_encyclopedia_enemy.html` | 百科 · 敌人图鉴 |
-| `ui_battle_hud.png` | `ui_battle_hud.html` | 战斗局内 HUD（顶栏资源条 / 选中塔底部详情面板 / HP 变色图例，v0.36.25 存档） |
+| `ui_battle_hud.png` | `ui_battle_hud.html` | 战斗局内 HUD（顶栏资源条 / 选中塔底部详情面板 / HP 变色图例，v0.36.25 存档；2026-09-08 v0.37.1 修订移除详情面板技能副行） |
 | `ui_squad_confirm.png` | `ui_squad_confirm.html` | 出征·编队「确认出战」二次确认弹窗（640×557 叠层演示，v0.37.0 存档） |
 | `ui_supply.png` | `ui_supply.html` | 战斗局内「军需」面板（悬停/点击详情 + 购买即买即用，v0.37.0 存档） |
 
@@ -41,7 +41,7 @@
 ```
 
 - 参数固定 1280×720；`--virtual-time-budget=4000` 保证快乐体字体加载完成后才截图。
-- 基线校验：2026-09-04 用本命令重渲 11 屏 PNG，与 `docs/ui_concept/*.png` **逐字节一致**（ui_squad.png 原存档为更早稿：已按现行源码校准、并按 B-025 卡面费用样式改版重渲，PNG 与源码同源）；同日追加 `ui_develop_job.png` / `ui_develop_promo.png` 两屏（武将养成职业页签 / 转职详情叠层，v0.35.3）同参数重渲，与源码同源；2026-09-07 追加 `ui_battle_hud.png`（战斗局内 HUD，v0.36.25）同参数重渲入库，与源码同源；2026-09-08 追加 `ui_squad_confirm.png` / `ui_supply.png`（编队确认出战弹窗 / 局内军需面板，v0.37.0）同参数重渲入库，与源码同源。
+- 基线校验：2026-09-04 用本命令重渲 11 屏 PNG，与 `docs/ui_concept/*.png` **逐字节一致**（ui_squad.png 原存档为更早稿：已按现行源码校准、并按 B-025 卡面费用样式改版重渲，PNG 与源码同源）；同日追加 `ui_develop_job.png` / `ui_develop_promo.png` 两屏（武将养成职业页签 / 转职详情叠层，v0.35.3）同参数重渲，与源码同源；2026-09-07 追加 `ui_battle_hud.png`（战斗局内 HUD，v0.36.25）同参数重渲入库，与源码同源；2026-09-08 追加 `ui_squad_confirm.png` / `ui_supply.png`（编队确认出战弹窗 / 局内军需面板，v0.37.0）同参数重渲入库，与源码同源；2026-09-08 修订重渲 `ui_battle_hud.png`（移除详情面板「职业技能 · 角色技」副行，v0.37.1 / 提交 11 落地），与源码同源。
 - 验证脚本思路：重渲后比对 MD5；不一致即视为新版本，需人工确认后覆盖。
 
 ## 4. 素材清单与许可
