@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
-> 文档版本：v0.9（2026-09-08）
+> 文档版本：v0.10（2026-09-08）
+> v0.10 变更（阶段 8·提交 12 排期登记，程序 0.8.11.2 不变（0.8.11 修复/延伸期），用户拍板 2026-09-08「按你推荐来」/ GDD v0.37.5 / UI_LAYOUT v0.20.26 §15 / UI_CONCEPT v0.7，纯文档/素材无程序逻辑改动）：**光标素材目录预留 + 来源许可登记（Kenney Cursor Pack）**——①§2 目录树 `assets/ui/` 新增 `cursors/`（当前为空 = 预留，提交 12 落地）；②§3 待入库补注 `ui/cursors/`；③§6 来源许可登记 Kenney Cursor Pack 1.1（CC0，kenney.nl/assets/cursor-pack ）——`Outline/Default` 32px 原图 + 定稿配色 B 重着色（配方见 UI_LAYOUT §15），概念对照图所需 6 图子集随 `docs/ui_concept/src/kenney_cursor_pack/` 归档（仅设计复现用，完整包 729 个 PNG 未入库）。
 > v0.9 变更（阶段 8·提交 11 延伸，程序 0.8.11.0 → **0.8.11.1**，用户拍板 2026-09-08「可以 按你推荐的来」/ GDD v0.37.3 / UI_LAYOUT v0.20.24）：**建造卡头像素材落地 + 拖拽虚影实塔小人化（§5.7 更新）**——①**卡头像（v0.9）**：关羽 A 套 Idle 首帧 SubViewport 透明截图 → bbox 裁切 → 圆形与圆角方两尺寸 PNG（`assets/characters/guan_yu/hero_guan_yu_a_avatar.png` / `_square.png`，各 ≈60KB，.import 已生成）；**素材本地存放不入库**（gitignore），UI 注册表 `CHARACTER_AVATAR_TEXTURES` 数据驱动、缺素材回退概念色占位圆；其余角色沿用「每角色截图 + 注册」流程；②**拖拽虚影实塔化**：BuildManager 虚影 = 实塔同款 Tower 渲染（spine 角色直接显 sprite（SpineSprite 转 PROCESS_MODE_ALWAYS 播 Idle）/ 程序化身体+武器回退，`Tower.set_ghost_mode` 跳过怒气条/冷却环/大招、保留射程圈），半透明绿/红染色由 BuildManager modulate；③**怒气条位置修订**：spine 塔条位 y48 → **y30**（胶囊 38×10 收进格内，普通塔 y28，见 UI_LAYOUT v0.20.24）。
 > v0.8 变更（阶段 8·提交 11 落地，程序 0.8.10.33 → **0.8.11.0**，用户拍板 2026-09-07「1.接受…把这些放到提交 11 吧」）：**关羽 spine 尺寸调大试点落地 + 底座盘弱化（§5.7 更新）**——SPINE_BASE_SCALE 0.22 → **0.33**（约 1.5×，身体 ≈41px、约半格）/ SPINE_Y_OFFSET 6 → **8**；spine 激活时程序化底座圆盘改**贴地淡阴影**（`_draw_base` spine 分支：scale(1.55,0.5) 椭圆 alpha 0.16，消除脚下「内圈」）；怒气条位 y38 → 48（胶囊化见 UI_LAYOUT v0.20.22）、技能冷却环 r36 → 40 防遮挡；其余角色批量接入沿用 §5.7「每角色调一次 + 实机截图验收」流程（回退开关 = 清空 SPINE_CHARACTERS 注册表不变）。验收截图 build/spine_pilot/c11_{probe,battle_*}.png（gitignored）；同步 GDD v0.37.1 / UI_LAYOUT v0.20.22 / BUGS B-050 / README。
 > v0.7 变更（阶段 8·提交 10 延伸·落地，程序 0.8.10.32 → **0.8.10.33**，**关羽 spine 战斗接入试点落地**，用户拍板 2026-09-07「补充文档，然后接入战斗试试吧」）：①§5.7「战斗接入」由登记转 ✅ 落地——`scripts/Tower.gd` 新增 SPINE_CHARACTERS 注册表（guan_yu → hero_guan_yu_a-data-res.tres）与 SPINE_BASE_SCALE 0.22 / SPINE_Y_OFFSET 6 / SPINE_FACE_SWITCH_EPS 6；`apply_character` 末尾 `_setup_spine_visual()` 动态 `add_child` SpineSprite（ClassDB 实例化，Tower.tscn 零改动）；Idle 常驻循环 / `play_melee_hit`·`play_attack_flash` 触发 Attack_A 单次（`get_track(0)` 判重防打断、`is_complete()` 回落 Idle、动画名经 `get_name()` 读取）；`_update_aim` 按目标水平分量刷 `_facing`（默认 -1），渲染 `scale.x = -facing × 0.22`；spine 激活时 `_draw` 跳过程序化身体/武器/挥击弧/枪口闪，怒气条移至脚下（y=38）、技能冷却环外扩（r=36）防遮挡；素材缺失 / SpineSprite 类不可用（无 GDExtension）静默回退程序化绘制；②**实测**——Smoke 全绿；实机战斗（关羽塔 + 黄巾兵/骑兵）验证：部署 Idle(loop)、挥击 Attack_A(once)、播完回落 Idle；目标在塔左 facing=-1（素材原样）、在塔右 facing=+1（镜像朝右）均正常；截图 build/spine_pilot/battle_{cap_idle,cap_shot01,r_shot03}.png（gitignored 验证产物）；③回退开关 = 清空 SPINE_CHARACTERS 注册表。
@@ -34,6 +35,7 @@ assets/
 │   │   └── round/{yellow,red,grey,blue,green}/{normal,hover,pressed}.png
 │   ├── icons/              # 星形/勾选/关闭/箭头/输入框/分隔线/滑块
 │   ├── panels/             # 弹窗/面板九宫格底图（自绘或素材化，当前为空=预留）
+│   ├── cursors/            # 鼠标光标（Kenney Cursor Pack 调色定稿 B，提交 12 排期，当前为空=预留）
 │   └── ui_theme.tres       # 全局主题（默认字体=快乐体，系统字体回退）
 ├── map/                    # 战斗地图素材
 │   ├── decor/              # 装饰（banner/rock/torch/tree，原 assets/decor，v0.33.4 迁移）
@@ -65,7 +67,7 @@ assets/
 
 **语义色映射**（对齐 UITheme 语义，见 UI_LAYOUT.md 第 2 节）：黄=主行动（金语义，视觉以黄替金）、红=警示、灰=中性/禁用、蓝=信息/选中、绿=成功。按钮四态效果见 `docs/ui_concept/ui_button_states.png`。
 
-**待入库（空目录 = 预留）**：`ui/panels/` 弹窗面板底图（九宫格，Godot StyleBox 用）。正式换肤进度：主菜单已落地（v0.33.6——`UITheme.apply_kenney_rect_button` 九宫格按钮 + 自绘白面弹窗），其余面板逐步接入；尚未换肤的面板控件底色仍为程序化。
+**待入库（空目录 = 预留）**：`ui/panels/` 弹窗面板底图（九宫格，Godot StyleBox 用）；`ui/cursors/` 鼠标光标（Kenney Cursor Pack 调色定稿 B，阶段 8·提交 12 排期，规范见 UI_LAYOUT §15）。正式换肤进度：主菜单已落地（v0.33.6——`UITheme.apply_kenney_rect_button` 九宫格按钮 + 自绘白面弹窗），其余面板逐步接入；尚未换肤的面板控件底色仍为程序化。
 
 ## 4. 地图素材约定（后续章节/换肤）
 
@@ -125,6 +127,7 @@ assets/
 | 素材 | 来源 | 许可 | 备注 |
 |---|---|---|---|
 | Kenney UI Pack 切片 | kenney.nl | CC0 | 全部 UI 按钮/图标；概念图 HTML 所需 17 图子集随 docs/ui_concept/src/kenney_ui_pack 归档（仅设计复现用，完整包按官方 CC0 可随时重下） |
+| Kenney Cursor Pack 切片（光标） | kenney.nl（https://kenney.nl/assets/cursor-pack ） | CC0 | 光标视觉系统素材（阶段 8·提交 12 排期）：`Outline/Default` 32px 原图 + 定稿配色 B 重着色（配方见 UI_LAYOUT §15）；概念对照图所需 6 图子集随 docs/ui_concept/src/kenney_cursor_pack 归档（仅设计复现用，完整包 729 个 PNG 未入库） |
 | 站酷快乐体 2016 修订版 | 站酷（ZCOOL） | 免费商用 | 字体；使用声明随原压缩包存档 |
 | D69《315 套 Q 版卡通角色 spine 动画》 | 冰糖撞果冻店铺（下载链接见包内免责声明） | ⚠️ 包内声明「仅供学习研究、不得商用，请购买正版」 | 角色 spine 试点（序号 097 关羽）；商用前需购正版授权，当前仅作开发期试点 |
 
