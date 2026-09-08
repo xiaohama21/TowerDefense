@@ -5,6 +5,9 @@ extends Node
 
 var failures: Array[String] = []
 var _profile_file := ""
+## 设置隔离（B-054 顺带修复）：开场对话用例依赖 skip_dialogue 关闭，但 user://settings.cfg
+## 是全局用户设置（剧情速进可能被玩家开启）——跑前强制关闭、_cleanup 还原，避免用例被用户设置污染。
+var _saved_skip_dialogue: bool = false
 
 
 func _ready() -> void:
@@ -12,6 +15,8 @@ func _ready() -> void:
 	var nonce := "%s_%s" % [str(Time.get_unix_time_from_system()), str(Time.get_ticks_usec())]
 	_profile_file = "user://.flow_runner_%s.json" % nonce
 	ProfileStore.configure_paths(_profile_file)
+	_saved_skip_dialogue = GameFlow.is_gameplay_flag_enabled("skip_dialogue")
+	GameFlow.set_gameplay_flag("skip_dialogue", false)
 	call_deferred("_run")
 
 
@@ -176,6 +181,41 @@ func _test_hub(profile: PlayerProfile) -> void:
 		if card.has_meta("stage_id"):
 			stage_card_count += 1
 	_check(stage_card_count == 8, "地图面板应展示第一章 8 关卡片（2×4 网格）")
+
+	# 底部关卡预告条自适应回归（B-054 / 0.8.11.3）：逐关切换，详情条所有内容控件
+	# 不得越出面板（首通奖励/敌人列表长度不同曾把右列撑出面板甚至视口，s03/s06~s08）。
+	var detail_panel: Control = map_panel.get("_detail_panel")
+	var vp_rect := map_panel.get_viewport().get_visible_rect()
+	# 扫描会逐关切换选中态，结束后还原（后续步骤依赖 s01 默认选中 / 难度状态）。
+	var saved_scan_stage: StageData = map_panel.get("_selected_stage")
+	var saved_scan_diff: int = map_panel.get("_selected_difficulty")
+	for hub_stage_id in [&"ch01_s01", &"ch01_s02", &"ch01_s03", &"ch01_s04",
+			&"ch01_s05", &"ch01_s06", &"ch01_s07", &"ch01_s08"]:
+		var hub_stage: StageData = GameFlow.load_stage_data(hub_stage_id)
+		if hub_stage == null:
+			continue
+		map_panel._select_stage(hub_stage)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var det_rect: Rect2 = detail_panel.get_global_rect()
+		var inside := vp_rect.encloses(det_rect)
+		var worst := ""
+		for probe_child in detail_panel.find_children("*", "", true, false):
+			var probe_ctl := probe_child as Control
+			if probe_ctl == null or not probe_ctl.is_visible_in_tree():
+				continue
+			var probe_rect: Rect2 = probe_ctl.get_global_rect()
+			if probe_rect.size.x <= 0.0 or probe_rect.size.y <= 0.0:
+				continue
+			if not det_rect.encloses(probe_rect):
+				inside = false
+				worst = "%s rect=%s" % [probe_ctl.get_class(), str(probe_rect)]
+				break
+		_check(inside, "%s 关卡预告条内容不得越出详情面板/视口（B-054）%s" % [str(hub_stage_id), worst])
+	if saved_scan_stage != null:
+		map_panel._select_stage(saved_scan_stage)
+		map_panel.set("_selected_difficulty", saved_scan_diff)
+		await get_tree().process_frame
 
 	# 切换到武将养成面板
 	_show_hub_panel(hub, &"develop")
@@ -623,6 +663,7 @@ func _test_battle_entry() -> void:
 
 
 func _cleanup() -> void:
+	GameFlow.set_gameplay_flag("skip_dialogue", _saved_skip_dialogue)
 	for suffix in ["", ".bak", ".tmp"]:
 		var path: String = _profile_file + suffix
 		if FileAccess.file_exists(path):

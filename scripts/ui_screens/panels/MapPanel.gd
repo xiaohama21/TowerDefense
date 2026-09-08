@@ -57,7 +57,7 @@ var _detail_difficulty_chip: Label
 var _detail_desc: Label
 var _detail_stats: Array[Label] = []
 var _stat_key_labels: Array[Label] = []
-var _detail_rewards: HBoxContainer
+var _detail_rewards: HFlowContainer
 var _deploy_button: Button
 var _clear_button: Button
 
@@ -669,6 +669,10 @@ func _build_detail_bar() -> void:
 		var value_label := Label.new()
 		value_label.add_theme_font_size_override("font_size", 13)
 		value_label.add_theme_color_override("font_color", INK)
+		# 0.8.11.3 / B-054：长值（如敌人列表）不得把胶囊行撑破面板——overrun 使
+		# Label 最小宽度归零，胶囊按可用宽度均分，超宽省略号截断。
+		value_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		pill_row.add_child(value_label)
 		_detail_stats.append(value_label)
 
@@ -685,8 +689,11 @@ func _build_detail_bar() -> void:
 	reward_label.add_theme_font_size_override("font_size", 13)
 	reward_label.add_theme_color_override("font_color", MUTED)
 	reward_head.add_child(reward_label)
-	_detail_rewards = HBoxContainer.new()
-	_detail_rewards.add_theme_constant_override("separation", 8)
+	# 0.8.11.3 / B-054：首通奖励徽章改流式容器——横向放不下自动折行，不再把右列撑出面板。
+	_detail_rewards = HFlowContainer.new()
+	_detail_rewards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_detail_rewards.add_theme_constant_override("h_separation", 8)
+	_detail_rewards.add_theme_constant_override("v_separation", 6)
 	reward_head.add_child(_detail_rewards)
 
 	var actions := HBoxContainer.new()
