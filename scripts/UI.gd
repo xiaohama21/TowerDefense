@@ -25,6 +25,11 @@ signal dialogue_finished
 
 const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
 const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
+## 建造卡立绘头像（0.8.11.1）：character_id → 圆形透明 PNG（SpineSprite Idle 首帧截取，
+## 素材与 D69 试点同口径本地存放不入库）；无条目/缺素材回退概念色占位圆。
+const CHARACTER_AVATAR_TEXTURES := {
+	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a_avatar.png",
+}
 
 @onready var gold_label: Label = $Root/TopBar/Margin/Content/GoldLabel
 @onready var lives_label: Label = $Root/TopBar/Margin/Content/LivesLabel
@@ -39,7 +44,9 @@ const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
 @onready var message_panel: PanelContainer = $Root/MessagePanel
 @onready var message_label: Label = $Root/MessagePanel/Margin/MessageLabel
 @onready var status_label: Label = $Root/StatusLabel
-@onready var character_bar: HBoxContainer = $Root/CharacterBar
+@onready var character_bar: HBoxContainer = $Root/BottomBar/CharacterBar
+@onready var _bottom_bar: PanelContainer = $Root/BottomBar
+@onready var _build_hint: Label = $Root/BuildHint
 
 const DEBUG_PANEL_SCRIPT := preload("res://scripts/DebugPanel.gd")
 
@@ -101,6 +108,7 @@ func _ready() -> void:
 	update_wave(GameManager.current_wave, GameManager.total_waves)
 	_previous_paused_state = get_tree().paused
 	_refresh_action_buttons()
+	_show_build_hint_once()
 
 
 func set_stage_name(stage_name: String) -> void:
@@ -110,7 +118,7 @@ func set_stage_name(stage_name: String) -> void:
 ## 调试辅助面板（仅调试构建创建）：加金币、跳波次、清场，方便测试。
 func _create_debug_panel() -> void:
 	var panel := DEBUG_PANEL_SCRIPT.new()
-	panel.position = Vector2(16, 206)
+	panel.position = Vector2(640, 84)
 	panel.wave_jump_requested.connect(debug_wave_jump_requested.emit)
 	panel.clear_enemies_requested.connect(debug_clear_enemies_requested.emit)
 	$Root.add_child(panel)
@@ -131,51 +139,47 @@ func setup_character_bar(characters: Array) -> void:
 		var character_id := str(character_data.character_id)
 		var level := GameFlow.get_character_level(ProfileStore.get_profile(), character_id)
 
-		# 卡片（阶段 8·提交 11）= 拖拽手柄：头像（概念色圆 + 姓氏首字，暂无立绘素材
-		# 先占位、控件预留后续立绘替换）+ 武将名 + Lv（蓝）/ 费用（金）；职业行移除。
+		# 卡片（0.8.11.1 底部横版，卡条 80px 高）= 拖拽手柄：48px 圆头像（关羽等有
+		# 素材角色用立绘纹理、其余概念色占位）+ 右侧 武将名 / Lv（蓝）/ 费用（金）。
 		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(118, 0)
+		panel.custom_minimum_size = Vector2(124, 68)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		panel.gui_input.connect(_on_card_gui_input.bind(character_id))
 		character_bar.add_child(panel)
 
-		var content := VBoxContainer.new()
+		var content := HBoxContainer.new()
 		content.alignment = BoxContainer.ALIGNMENT_CENTER
-		content.add_theme_constant_override("separation", 2)
+		content.add_theme_constant_override("separation", 8)
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
 
-		var avatar := UITheme.avatar_label(
-			character_data.display_name.left(1),
-			UITheme.character_avatar_color_key(character_id), 56.0, 24)
+		var avatar: Control = _make_card_avatar(character_id, character_data.display_name)
 		avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		avatar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		content.add_child(avatar)
+
+		var info := VBoxContainer.new()
+		info.alignment = BoxContainer.ALIGNMENT_CENTER
+		info.add_theme_constant_override("separation", 1)
+		info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(info)
 
 		var name_label := Label.new()
 		name_label.text = character_data.display_name
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_size_override("font_size", 15)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(name_label)
-
-		var stat_row := HBoxContainer.new()
-		stat_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		stat_row.add_theme_constant_override("separation", 8)
-		stat_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(stat_row)
+		info.add_child(name_label)
 
 		var lv_label := Label.new()
 		lv_label.text = "Lv.%d" % level
-		lv_label.add_theme_font_size_override("font_size", 12)
+		lv_label.add_theme_font_size_override("font_size", 11)
 		lv_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stat_row.add_child(lv_label)
+		info.add_child(lv_label)
 
 		var cost_label := Label.new()
 		cost_label.text = "%d 金" % character_data.build_cost
-		cost_label.add_theme_font_size_override("font_size", 12)
+		cost_label.add_theme_font_size_override("font_size", 11)
 		cost_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stat_row.add_child(cost_label)
+		info.add_child(cost_label)
 
 		_character_costs[character_id] = character_data.build_cost
 		_character_cards[character_id] = {
@@ -187,6 +191,25 @@ func setup_character_bar(characters: Array) -> void:
 			"cost": cost_label,
 		}
 	_refresh_character_bar_affordance()
+
+
+## 建造卡头像（0.8.11.1）：注册表有素材且可加载 → 圆形立绘 TextureRect；
+## 否则概念色圆 + 姓氏首字占位（avatar_label 同款）。
+func _make_card_avatar(character_id: String, display_name: String) -> Control:
+	const diameter := 48.0
+	var tex_path: String = CHARACTER_AVATAR_TEXTURES.get(character_id, "")
+	if not tex_path.is_empty() and ResourceLoader.exists(tex_path):
+		var tex: Texture2D = load(tex_path)
+		if tex != null:
+			var rect := TextureRect.new()
+			rect.custom_minimum_size = Vector2(diameter, diameter)
+			rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			rect.texture = tex
+			return rect
+	return UITheme.avatar_label(
+		display_name.left(1),
+		UITheme.character_avatar_color_key(character_id), diameter, 22)
 
 
 ## 建造栏负担标识（v0.12.2 / v0.33.3 卡片重设计）：金币不足整卡置灰 + 费用红色。
@@ -238,7 +261,7 @@ func _apply_card_style(card: Variant) -> void:
 		border = UITheme.RED.darkened(0.5)
 	if is_instance_valid(panel):
 		panel.add_theme_stylebox_override("panel", _make_card_style(border, bg))
-	var avatar: Label = card.get("avatar")
+	var avatar: Control = card.get("avatar")
 	var name_label: Label = card.get("name")
 	var lv_label: Label = card.get("lv")
 	var cost_label: Label = card.get("cost")
@@ -272,7 +295,8 @@ func _make_card_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 ## 对话底栏 / 塔面板 / 结算 / 消息。拖入则虚影隐藏、松手取消。
 ## 调试面板为开发辅助浮层（不拦截点击），不计入，避免遮挡行 2 可建格。
 func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
-	if screen_pos.y <= 196.0:
+	# 0.8.11.1 布局：顶栏整行 0..80、底部建造卡条整行 640..720；战场 row1..7 完整可建。
+	if screen_pos.y <= 80.0 or screen_pos.y >= 640.0:
 		return true
 	if _result_panel != null and _result_panel.visible:
 		return true
@@ -457,12 +481,14 @@ func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
 	_panel_stage_data = stage_data
 	_tower_panel.visible = true
 	_refresh_tower_panel()
+	_refresh_bottom_bar_visible()
 
 
 func hide_tower_panel() -> void:
 	_panel_tower = null
 	_panel_stage_data = null
 	_tower_panel.visible = false
+	_refresh_bottom_bar_visible()
 
 
 ## 刷新当前塔面板（Main 在角色技能释放后调用）。
@@ -576,8 +602,9 @@ func _create_dialogue_layer() -> void:
 	panel.anchor_bottom = 1.0
 	panel.offset_left = 120.0
 	panel.offset_right = -120.0
-	panel.offset_top = -230.0
-	panel.offset_bottom = -24.0
+	# 0.8.11.1：底部建造卡条常驻 640..720，对话面板上移让位（448..638）。
+	panel.offset_top = -272.0
+	panel.offset_bottom = -82.0
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 24)
@@ -625,6 +652,7 @@ func show_dialogue(lines: Array) -> void:
 	_dialogue_lines = lines
 	_dialogue_index = 0
 	_dialogue_layer.visible = true
+	_refresh_bottom_bar_visible()
 	# 打开瞬间与每次推进后的短防抖：快速连点不会一次跳过多行。
 	_dialogue_advance_after_msec = Time.get_ticks_msec() + 200
 	_show_current_line()
@@ -663,6 +691,7 @@ func _advance_dialogue() -> void:
 func _finish_dialogue() -> void:
 	_dialogue_layer.visible = false
 	dialogue_finished.emit()
+	_refresh_bottom_bar_visible()
 
 
 func skip_dialogue() -> void:
@@ -671,6 +700,29 @@ func skip_dialogue() -> void:
 
 func is_dialogue_active() -> bool:
 	return _dialogue_layer != null and _dialogue_layer.visible
+
+
+## 底部建造卡条显隐（0.8.11.1）：塔详情面板 / 结算展示期间收起让位；
+## 剧情对话面板已上移（448..638）不遮卡条，对话期保持可建造。
+func _refresh_bottom_bar_visible() -> void:
+	if _bottom_bar == null:
+		return
+	var blocked: bool = (_tower_panel != null and _tower_panel.visible) \
+		or (_result_center != null and _result_center.visible)
+	_bottom_bar.visible = not blocked
+
+
+## 建造引导提示（0.8.11.1）：开局一次性淡入停留淡出（卡条已移底部，提示补位）。
+func _show_build_hint_once() -> void:
+	if _build_hint == null:
+		return
+	_build_hint.visible = true
+	_build_hint.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(_build_hint, "modulate:a", 1.0, 0.5)
+	tween.tween_interval(5.0)
+	tween.tween_property(_build_hint, "modulate:a", 0.0, 0.8)
+	tween.tween_callback(func() -> void: _build_hint.visible = false)
 
 
 func _make_panel_style() -> StyleBoxFlat:
@@ -817,6 +869,7 @@ func show_result(data: Dictionary) -> void:
 	_tower_panel.visible = false
 	_result_center.visible = true
 	_result_panel.visible = true
+	_refresh_bottom_bar_visible()
 
 
 ## 转盘结果展示（阶段 8 提交 2）：入账成功后由 Main 调用；单次点击后禁用。
@@ -833,3 +886,4 @@ func show_result_wheel_result(text: String) -> void:
 func hide_result() -> void:
 	_result_center.visible = false
 	_result_panel.visible = false
+	_refresh_bottom_bar_visible()

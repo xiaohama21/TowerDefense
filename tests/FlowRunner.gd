@@ -146,8 +146,8 @@ func _test_hub(profile: PlayerProfile) -> void:
 	_check(map_panel.visible and not develop_panel.visible and not settings_panel.visible,
 		"大厅默认应显示地图选择面板")
 	# 布局回归（v0.10.2）：set_anchors_preset 曾导致容器 0×0 钉在原点。
-	var viewport_size := get_viewport().get_visible_rect().size
-	_check(hub.get_node("Columns").size == viewport_size, "大厅布局应铺满视口")
+
+	_check(hub.get_node("HubPanel/Columns").size == hub.get_node("HubPanel").size, "大厅 Columns 应铺满 HubPanel（v0.10.2 回归，GameHub 换肤后加 HubPanel 包裹）")
 
 	var map_buttons := _collect_buttons(map_panel)
 	var disabled_count := 0
@@ -160,15 +160,15 @@ func _test_hub(profile: PlayerProfile) -> void:
 	var has_instant_clear := false
 	var diff_name_count := 0
 	for button in map_buttons:
-		if button.text == "出 征":
+		if button.text == "出征 · 编队":
 			has_deploy = true
-		elif button.text == "一键通关（测试）":
+		elif button.text == "一键通关(测试)":
 			has_instant_clear = true
 		elif button.text == "标准" or button.text == "困难":
 			diff_name_count += 1
-	_check(map_buttons.size() >= 19 and has_deploy and has_instant_clear and diff_name_count == 2,
-		"地图面板应包含章节行 + 8 关卡卡片 + 底部操作条（难度 2 档 + 出征 + 一键通关）")
-	_check(disabled_count >= 12, "预留章节、未解锁关卡与未解锁难度应禁用")
+	_check(map_buttons.size() >= 13 and has_deploy and has_instant_clear and diff_name_count == 2,
+		"地图面板应包含章节行 + 8 关卡卡片 + 底部操作条（难度 2 档 + 出征·编队 + 一键通关）")
+	_check(disabled_count == 6, "未解锁的 s03~s08 六关卡片应禁用")
 	var map_scrolls := map_panel.find_children("*", "ScrollContainer", true, false)
 	_check(map_scrolls.is_empty(), "地图面板应一屏展示无滚动条")
 	var stage_card_count := 0
@@ -193,11 +193,28 @@ func _test_hub(profile: PlayerProfile) -> void:
 			locked_count += 1
 	print("PROBE develop_buttons=", develop_buttons.size(), " locked_disabled=", locked_count)
 	_check(locked_count >= 7, "图鉴应显示 7 名未拥有武将（置灰）")
-	# 转职分支候选（v0.17.0）：未转职时展示一转候选按钮，等级/材料不足应禁用。
-	var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
-	var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
-	_check(promote_button != null and promote_button is Button and promote_button.disabled,
-		"等级/材料不足时转职按钮应禁用")
+	# 转职候选（v0.35.3+ 收纳）：收敛至职业页签「转职详情 ▸」叠层——切职业页 →
+	# 打开叠层后应展示一转候选按钮，新档 Lv1 未达门槛应禁用。
+	var develop_tabs = develop_panel.get("_tab_container")
+	_check(develop_tabs != null, "养成面板应含页签容器")
+	if develop_tabs != null:
+		develop_tabs.current_tab = 1  # 页签序：技能 / 职业 / 信物 / 特性
+		await get_tree().process_frame
+	var detail_button: Button = null
+	for button in _collect_buttons(develop_panel):
+		if button.text.begins_with("转职详情"):
+			detail_button = button
+			break
+	_check(detail_button != null, "职业页签应含「转职详情 ▸」入口")
+	if detail_button != null:
+		detail_button.pressed.emit()
+		await get_tree().process_frame
+		var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
+		var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
+		_check(promote_button != null and promote_button is Button and promote_button.disabled,
+			"等级/材料不足时转职按钮应禁用")
+		develop_panel._close_promotion_overlay()
+		await get_tree().process_frame
 
 	# 切换到设置面板
 	_show_hub_panel(hub, &"settings")
@@ -245,7 +262,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	# 界面排版重构（v0.27.0）：默认选中首个已解锁关卡（s01），一键通关在底部操作条。
 	var clear_button: Button = null
 	for button in _collect_buttons(map_panel):
-		if button.text == "一键通关（测试）":
+		if button.text == "一键通关(测试)":
 			clear_button = button
 			break
 	_check(clear_button != null, "地图面板底部操作条应有一键通关按钮")
@@ -275,7 +292,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		"难度切换应只有标准/困难两档（随 difficulty_presets 扩展）")
 	var deploy_button: Button = null
 	for button in _collect_buttons(map_panel):
-		if button.text == "出 征":
+		if button.text == "出征 · 编队":
 			deploy_button = button
 			break
 	_check(map_panel.get("_deploy_confirm") == null, "地图面板不应再挂载出征确认框（v0.33.1 直达编队）")
@@ -529,7 +546,7 @@ func _test_battle_entry() -> void:
 	_check(stage_label.text == "长社火攻", "战斗界面应展示 GameFlow 选中的关卡")
 	_check(main.get_node_or_null("UI/Root/TopBar/Margin/Content/ExitButton") != null,
 		"战斗顶栏应有退出按钮")
-	var character_bar := main.get_node("UI/Root/CharacterBar") as HBoxContainer
+	var character_bar := main.get_node("UI/Root/BottomBar/CharacterBar") as HBoxContainer
 	_check(character_bar.get_child_count() == 1, "编队过滤后建造栏应只含出战武将")
 	# 布局回归（v0.10.2）：结算弹窗承载容器必须铺满屏幕，居中才成立。
 	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer

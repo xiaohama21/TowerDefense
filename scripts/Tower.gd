@@ -186,9 +186,10 @@ var _use_spine_visual: bool = false
 ## 世界朝向（ART_ASSETS §5.6）：-1 朝左（素材原生）/ +1 朝右（镜像）。
 var _facing: int = -1
 var _spine_attack_busy: bool = false
-## 拖拽虚影头像模式（阶段 8·提交 11）：BuildManager 拖拽占位——只画攻击范围圈 +
-## 武将占位头像贴图（底边贴地），跳过底座/身体/怒气条/冷却环等实塔视觉。
-var _ghost_avatar_only: bool = false
+## 拖拽虚影模式（阶段 8·提交 11 延伸 0.8.11.1）：BuildManager 拖拽占位——渲染与
+## 实塔同款小人（spine 优先 / 程序化身体回退）+ 攻击范围圈，跳过怒气条/冷却环/
+## 大招等战斗表现；半透明与绿/红染色由 BuildManager modulate 控制。
+var _ghost_mode: bool = false
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
@@ -469,9 +470,12 @@ func _update_spine_animation(_delta: float) -> void:
 		_play_spine_idle()
 
 
-## 拖拽虚影头像（阶段 8·提交 11，BuildManager 调用）：进入头像模式。
-func set_ghost_avatar_mode() -> void:
-	_ghost_avatar_only = true
+## 拖拽虚影（0.8.11.1，BuildManager 调用）：进入虚影模式——spine 子节点转
+## PROCESS_MODE_ALWAYS 让 Idle 动画继续播放（塔本体被禁用 process，防战斗逻辑）。
+func set_ghost_mode() -> void:
+	_ghost_mode = true
+	if _spine != null:
+		_spine.process_mode = Node.PROCESS_MODE_ALWAYS
 	queue_redraw()
 
 
@@ -1135,10 +1139,13 @@ func _on_selection_area_input_event(
 
 
 func _draw() -> void:
-	if _ghost_avatar_only:
+	if _ghost_mode:
+		_draw_base()
+		if not _use_spine_visual:
+			_draw_body()
+			_draw_weapon()
 		if is_selected:
 			_draw_range()
-		_draw_ghost_avatar()
 		return
 	_draw_base()
 	# 角色 spine（试点 v0.6）：程序化身体/武器/挥击弧/枪口闪让位给 spine 动画。
@@ -1161,25 +1168,6 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, 30.0, 0.0, TAU, 32, SELECT_RING_COLOR, 3.0, true)
 
 
-## 虚影占位头像（阶段 8·提交 11）：概念色圆 + 白描边 + 姓氏首字（与建造卡片头像同款
-## 占位视觉，后续立绘替换同一绘制位）；底边贴地（y=0），随节点 modulate 绿/红染色。
-func _draw_ghost_avatar() -> void:
-	var colors: Array = UITheme.avatar_gradient_colors(UITheme.character_avatar_color_key(str(character_id)))
-	var bg: Color = colors[0].lerp(colors[1], 0.5)
-	var side := 84.0
-	var radius := side * 0.5
-	var center_y := -radius
-	draw_circle(Vector2(0, center_y), radius, Color.WHITE)
-	draw_circle(Vector2(0, center_y), radius - 3.0, bg)
-	var font: Font = ThemeDB.fallback_font
-	var font_size := int(side * 0.42)
-	var text_height := font.get_height(font_size)
-	var ascent := font.get_ascent(font_size)
-	var baseline_y := center_y - text_height * 0.5 + ascent
-	draw_string(font, Vector2(-side * 0.5, baseline_y), display_name.left(1),
-		HORIZONTAL_ALIGNMENT_CENTER, side, font_size, Color.WHITE)
-
-
 ## 技能扩散环（v0.16.0）：半径随进度放大、颜色淡出。
 func _draw_skill_flash() -> void:
 	var t := 1.0 - _skill_flash / 0.4
@@ -1198,10 +1186,11 @@ func _draw_rage_bar() -> void:
 	var ratio := clampf(rage / _max_rage, 0.0, 1.0)
 	var full := ratio >= 1.0
 	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
-	var width := 44.0 * pulse
-	var height := 7.0
+	var width := 38.0 * pulse
+	var height := 10.0
 	# 角色 spine（试点 v0.6）：素材更高，怒气条移到脚下，避免被角色遮挡。
-	var origin := Vector2(-width / 2.0, (48.0 if _use_spine_visual else 31.0) - height * 0.5)
+	# 0.8.11.1：收进格内（格半高 40）——spine 塔中心 y30 / 普通塔 y28，下缘 ≤ 格底线。
+	var origin := Vector2(-width / 2.0, (30.0 if _use_spine_visual else 28.0) - height * 0.5)
 	# 满怒呼吸光晕（先画，被胶囊盖住内部）。
 	if full:
 		var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.006)

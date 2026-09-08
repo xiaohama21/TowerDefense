@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
-> 文档版本：v0.8（2026-09-08）
+> 文档版本：v0.9（2026-09-08）
+> v0.9 变更（阶段 8·提交 11 延伸，程序 0.8.11.0 → **0.8.11.1**，用户拍板 2026-09-08「可以 按你推荐的来」/ GDD v0.37.3 / UI_LAYOUT v0.20.24）：**建造卡头像素材落地 + 拖拽虚影实塔小人化（§5.7 更新）**——①**卡头像（v0.9）**：关羽 A 套 Idle 首帧 SubViewport 透明截图 → bbox 裁切 → 圆形与圆角方两尺寸 PNG（`assets/characters/guan_yu/hero_guan_yu_a_avatar.png` / `_square.png`，各 ≈60KB，.import 已生成）；**素材本地存放不入库**（gitignore），UI 注册表 `CHARACTER_AVATAR_TEXTURES` 数据驱动、缺素材回退概念色占位圆；其余角色沿用「每角色截图 + 注册」流程；②**拖拽虚影实塔化**：BuildManager 虚影 = 实塔同款 Tower 渲染（spine 角色直接显 sprite（SpineSprite 转 PROCESS_MODE_ALWAYS 播 Idle）/ 程序化身体+武器回退，`Tower.set_ghost_mode` 跳过怒气条/冷却环/大招、保留射程圈），半透明绿/红染色由 BuildManager modulate；③**怒气条位置修订**：spine 塔条位 y48 → **y30**（胶囊 38×10 收进格内，普通塔 y28，见 UI_LAYOUT v0.20.24）。
 > v0.8 变更（阶段 8·提交 11 落地，程序 0.8.10.33 → **0.8.11.0**，用户拍板 2026-09-07「1.接受…把这些放到提交 11 吧」）：**关羽 spine 尺寸调大试点落地 + 底座盘弱化（§5.7 更新）**——SPINE_BASE_SCALE 0.22 → **0.33**（约 1.5×，身体 ≈41px、约半格）/ SPINE_Y_OFFSET 6 → **8**；spine 激活时程序化底座圆盘改**贴地淡阴影**（`_draw_base` spine 分支：scale(1.55,0.5) 椭圆 alpha 0.16，消除脚下「内圈」）；怒气条位 y38 → 48（胶囊化见 UI_LAYOUT v0.20.22）、技能冷却环 r36 → 40 防遮挡；其余角色批量接入沿用 §5.7「每角色调一次 + 实机截图验收」流程（回退开关 = 清空 SPINE_CHARACTERS 注册表不变）。验收截图 build/spine_pilot/c11_{probe,battle_*}.png（gitignored）；同步 GDD v0.37.1 / UI_LAYOUT v0.20.22 / BUGS B-050 / README。
 > v0.7 变更（阶段 8·提交 10 延伸·落地，程序 0.8.10.32 → **0.8.10.33**，**关羽 spine 战斗接入试点落地**，用户拍板 2026-09-07「补充文档，然后接入战斗试试吧」）：①§5.7「战斗接入」由登记转 ✅ 落地——`scripts/Tower.gd` 新增 SPINE_CHARACTERS 注册表（guan_yu → hero_guan_yu_a-data-res.tres）与 SPINE_BASE_SCALE 0.22 / SPINE_Y_OFFSET 6 / SPINE_FACE_SWITCH_EPS 6；`apply_character` 末尾 `_setup_spine_visual()` 动态 `add_child` SpineSprite（ClassDB 实例化，Tower.tscn 零改动）；Idle 常驻循环 / `play_melee_hit`·`play_attack_flash` 触发 Attack_A 单次（`get_track(0)` 判重防打断、`is_complete()` 回落 Idle、动画名经 `get_name()` 读取）；`_update_aim` 按目标水平分量刷 `_facing`（默认 -1），渲染 `scale.x = -facing × 0.22`；spine 激活时 `_draw` 跳过程序化身体/武器/挥击弧/枪口闪，怒气条移至脚下（y=38）、技能冷却环外扩（r=36）防遮挡；素材缺失 / SpineSprite 类不可用（无 GDExtension）静默回退程序化绘制；②**实测**——Smoke 全绿；实机战斗（关羽塔 + 黄巾兵/骑兵）验证：部署 Idle(loop)、挥击 Attack_A(once)、播完回落 Idle；目标在塔左 facing=-1（素材原样）、在塔右 facing=+1（镜像朝右）均正常；截图 build/spine_pilot/battle_{cap_idle,cap_shot01,r_shot03}.png（gitignored 验证产物）；③回退开关 = 清空 SPINE_CHARACTERS 注册表。
 > v0.6 变更（阶段 8·提交 10 延伸·登记，程序 0.8.10.32，**左右对照验收结论 + 关羽接入战斗试点登记**，用户拍板 2026-09-07「补充文档，然后接入战斗试试吧」，纯文档，无程序逻辑改动）：①§5.6 补**渲染验收结论**——关羽 Idle / Attack_A 左右并排对照渲染（左=素材原样朝左，右=scale.x=-1 镜像朝右，build/spine_pilot/facing_*.png 属 gitignore 验证产物），全帧水平对称像素差 meanAbsDiff=0.000，方案 A 节点翻转渲染零瑕疵；②§5.6 朝向公式澄清为 `scale.x = -facing × 基准缩放`（facing 世界方向：-1 朝左=素材原样 +基准；+1 朝右=镜像 -基准）；③新增 §5.7「战斗接入（关羽试点，v0.6 登记）」——落地时机定为阶段 8·提交 10 延伸（目标程序 0.8.10.33，其余角色批量接入另排期）：Tower 内 character_id→spine 数据注册表数据驱动、素材缺失/无 GDExtension 回退程序化绘制、动画映射最小集（Idle 循环 / Attack_A 单次触发回落）、SpineSprite 代码动态挂载（不入 Tower.tscn）、朝向按 §5.6、spine 激活时程序化身体/武器/挥击弧/枪口闪跳过且怒气条上移与冷却环外扩防遮挡；④试点判定=战斗实机截图交用户验收，观感不达标即回退注册表。
@@ -105,7 +106,7 @@ assets/
    - **不采用**：② 数据层镜像、③ 双素材（仅当个别角色节点翻转观感不达标时再评估 ②）。
    - **验收（2026-09-07 渲染对照）**：关羽 Idle / Attack_A 左右并排渲染图全帧水平对称像素差 meanAbsDiff=0.000 —— 节点翻转渲染零差异，方案 A 通过；
 
-7. **战斗接入（关羽试点，v0.7 ✅ 落地，程序 0.8.10.33；v0.8 尺寸调大 + 底座弱化，程序 0.8.11.0）**：接入约定如下（v0.6 先文档登记 → v0.7 实现 → v0.8 微调）：
+7. **战斗接入（关羽试点，v0.7 ✅ 落地，程序 0.8.10.33；v0.8 尺寸调大 + 底座弱化，程序 0.8.11.0；v0.9 卡头像 + 虚影实塔化，程序 0.8.11.1）**：接入约定如下（v0.6 先文档登记 → v0.7 实现 → v0.8 微调 → v0.9 卡头像/虚影）：
    - **数据驱动注册**：Tower 内 character_id → spine 数据资源注册表（试点为 `guan_yu` → `hero_guan_yu_a-data-res.tres`）；后续角色批量接入时收敛为角色数据字段/独立表并同步本节；
    - **缺失回退**：注册表无条目 / 资源不存在 / SpineSprite 类不可用（未随包 GDExtension）→ 沿用程序化绘制（`_draw_body`/`_draw_weapon`），游戏不依赖素材；
    - **动画映射（试点最小集）**：常驻 `Idle` 循环；攻击 = `Attack_A` 单次（近战 `play_melee_hit` / 弹道 `play_attack_flash` 处触发，经 `get_track(0)` + `is_complete()` 回落 Idle）；Move / Critical / Death 等随玩法接入再映射；
@@ -115,6 +116,9 @@ assets/
    - **试点判定**：战斗实机截图（Idle 朝左 / 攻击朝右）交用户验收；观感不达标即清空注册表一键回退程序化绘制。
    - **实现明细（v0.7 / 0.8.10.33；v0.8 / 0.8.11.0 更新）**：Tower 内 SPINE_CHARACTERS 注册表 + SPINE_BASE_SCALE 0.33 / SPINE_Y_OFFSET 8 / SPINE_FACE_SWITCH_EPS 6；`apply_character` 末尾 `_setup_spine_visual()` 动态 add_child SpineSprite（skeleton_data_res 指向 data-res.tres）；`_update_aim` 按目标水平分量刷 `_facing`（±1），`scale.x = -facing × 0.33`；`play_melee_hit` / `play_attack_flash` 触发 Attack_A（get_track(0) 判重 + is_complete() 回落 Idle，动画名经 get_name() 读取）；spine 激活时 _draw 跳过身体/武器/挥击弧/枪口闪，**底座圆盘改贴地淡阴影**（_draw_base spine 分支：scale(1.55,0.5) 椭圆 alpha 0.16，消除脚下「内圈」），怒气条移至脚下（y=48，胶囊化见 UI_LAYOUT v0.20.22）、技能冷却环外扩（r=40）；素材缺失 / SpineSprite 类不存在 → 静默回退程序化绘制；
    - **实测（2026-09-07 首验；2026-09-08 v0.8 复验）**：Smoke 全绿；实机战斗（s01 关羽塔 + 黄巾兵/骑兵）验证——部署后 Idle(loop)、挥击瞬间 Attack_A(once)、播完回落 Idle；目标在塔左 → facing=-1（素材原样朝左）、目标在塔右 → facing=+1（scale.x=-0.33 镜像朝右）均正常；v0.8 尺寸 0.33 / 底座阴影 / 怒气条 / 冷却环 / 虚影头像见 build/spine_pilot/c11_{probe,battle_*}.png（gitignored，提交 11 验收截图）。
+   - **卡头像素材（v0.9 / 0.8.11.1）**：SpineSprite Idle 首帧 SubViewport 透明截图 → bbox 裁切 → 圆形 `hero_guan_yu_a_avatar.png` 与圆角方 `_avatar_square.png` 两尺寸（各 ≈60KB，`assets/characters/guan_yu/`，.import 已生成）——**素材本地存放不入库**（gitignore），UI 注册表 `CHARACTER_AVATAR_TEXTURES` 数据驱动（character_id → 路径），缺素材回退概念色占位圆；其余角色沿用「每角色截图 + 注册」流程；
+   - **拖拽虚影实塔化（v0.9 / 0.8.11.1）**：BuildManager 虚影 = 实塔同款 Tower——spine 角色直接显示 sprite（SpineSprite 转 PROCESS_MODE_ALWAYS 播 Idle）/ 程序化回退画身体+武器；虚影态（`set_ghost_mode`）跳过怒气条/冷却环/大招/选中圈、保留射程圈；半透明绿/红染色由 BuildManager modulate 控制；
+   - **怒气条位置修订（v0.9 / 0.8.11.1）**：spine 塔条位 y48 → **y30**（胶囊 38×10 收进格内，普通塔 y28；冷却环 r40 不变）。
 
 ## 6. 来源与许可登记
 
@@ -133,3 +137,5 @@ assets/
 - v0.5（2026-09-07）：人物朝向方案定稿（方案 A 节点翻转 + facing 判定规则 + 非战斗界面不翻转），见 §5.6。
 - v0.6（2026-09-07）：左右对照验收结论 + 关羽接入战斗试点登记（见档头 v0.6 变更行与 §5.7）。
 - v0.7（2026-09-07）：关羽 spine 战斗接入试点落地（程序 0.8.10.33，见档头 v0.7 变更行与 §5.7）。
+- v0.8（2026-09-08，补登）：关羽 spine 尺寸调大 + 底座盘弱化落地（程序 0.8.11.0，见档头 v0.8 变更行与 §5.7）。
+- v0.9（2026-09-08）：建造卡头像素材 + 拖拽虚影实塔小人化 + 怒气条收格（程序 0.8.11.1，见档头 v0.9 变更行与 §5.7）。

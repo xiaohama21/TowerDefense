@@ -226,8 +226,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## 虚影（阶段 8·提交 11）= 武将占位头像贴图（半透明、随可建性绿/红染色）+
-## 攻击范围圈 + 落点格提示；不参与任何战斗逻辑。
+## 虚影（阶段 8·提交 11 延伸 0.8.11.1）= 实塔同款小人（spine 优先 / 程序化身体
+## 回退，半透明随可建性绿/红染色）+ 攻击范围圈 + 落点格提示；不参与任何战斗逻辑。
 func _ensure_ghost() -> void:
 	if _ghost != null and is_instance_valid(_ghost):
 		return
@@ -237,7 +237,7 @@ func _ensure_ghost() -> void:
 	ghost.process_mode = Node.PROCESS_MODE_DISABLED
 	ghost.apply_character(_drag_character, _drag_loadout)
 	ghost.is_selected = true
-	ghost.set_ghost_avatar_mode()
+	ghost.set_ghost_mode()
 	ghost.queue_redraw()
 	_ghost = ghost
 

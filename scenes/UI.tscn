@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/UI.gd" id="1_ui"]
 
@@ -9,10 +9,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.25, 0.43, 0.68, 0.85)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_message"]
 bg_color = Color(0.055, 0.075, 0.12, 0.96)
@@ -25,6 +25,15 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bottom"]
+bg_color = Color(0.04, 0.062, 0.105, 0.95)
+border_width_top = 2
+border_color = Color(0.25, 0.43, 0.68, 0.85)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
 
 [node name="UI" type="CanvasLayer"]
 process_mode = 3
@@ -43,10 +52,10 @@ mouse_filter = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 82.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 80.0
 grow_horizontal = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_top")
@@ -54,9 +63,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_top")
 [node name="Margin" type="MarginContainer" parent="Root/TopBar"]
 layout_mode = 2
 theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_bottom = 16
 
 [node name="Content" type="HBoxContainer" parent="Root/TopBar/Margin"]
 layout_mode = 2
@@ -135,17 +144,23 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "退出"
 
-[node name="CharacterBar" type="HBoxContainer" parent="Root"]
+[node name="BottomBar" type="PanelContainer" parent="Root"]
 layout_mode = 1
-anchors_preset = 10
+anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
-offset_left = 16.0
-offset_top = 92.0
-offset_right = -16.0
-offset_bottom = 196.0
+anchor_bottom = 1.0
+offset_top = -80.0
 grow_horizontal = 2
-mouse_filter = 1
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bottom")
+
+[node name="CharacterBar" type="HBoxContainer" parent="Root/BottomBar"]
+layout_mode = 2
+alignment = 1
 theme_override_constants/separation = 12
+mouse_filter = 2
 
 [node name="MessagePanel" type="PanelContainer" parent="Root"]
 visible = false
@@ -202,18 +217,16 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BuildHint" type="Label" parent="Root"]
+visible = false
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = -54.0
-offset_right = 430.0
-offset_bottom = -20.0
-grow_vertical = 0
+offset_top = 88.0
+offset_right = 704.0
+offset_bottom = 142.0
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.78, 0.92, 0.8, 0.9)
+theme_override_colors/font_color = Color(0.78, 0.92, 0.8, 0.95)
 theme_override_colors/font_outline_color = Color(0.03, 0.06, 0.05, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 18
-text = "拖出武将卡片到空地建造：松手放置 · 右键 / ESC 取消；点击已建塔查看属性"
+theme_override_font_sizes/font_size = 17
+text = "从底部拖出武将卡到空地建造：松手放置 · 右键 / ESC 取消；点击已建塔查看属性"
+autowrap_mode = 2
