@@ -77,6 +77,11 @@ func _run() -> void:
 	var exp_scroll := load("res://resources/items/exp_scroll.tres") as ItemData
 	_check(exp_scroll != null and exp_scroll.item_type == ItemData.ItemType.CONSUMABLE,
 		"练兵令应为可用的消耗品道具")
+	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（由消耗品改列，原消耗品类仅余测试练兵令）。
+	for relic_id in ["wolf_tooth", "iron_shield", "provision_bag", "scout_eye", "war_drums"]:
+		var relic_item := load("res://resources/items/%s.tres" % relic_id) as ItemData
+		_check(relic_item != null and relic_item.item_type == ItemData.ItemType.RELIC,
+			"遗物 %s 物品分类应为遗物" % relic_id)
 
 	# 阶段 8 提交 6（v0.31.0）：职业级转职树——骑兵树铁骑 → 玄甲（强化）/骁骑（新技能）双分支。
 	var promo_iron := load("res://resources/promotions/cavalry_iron_rider.tres") as PromotionData
@@ -97,9 +102,9 @@ func _run() -> void:
 	_check(guan_yu_data != null and zhao_yun_data != null
 		and guan_yu_data.promotion_ids == zhao_yun_data.promotion_ids
 		and not guan_yu_data.promotion_ids.is_empty(), "同职业角色应共享同一职业转职树")
-	# 角色称号（v0.28 纯记录无机制）：原角色专属转职名保留展示。
-	_check(guan_yu_data != null and guan_yu_data.titles == ["突击骑", "武圣", "青龙骑"],
-		"关羽称号应保留原专属转职名（突击骑/武圣/青龙骑）")
+	# 角色称号（v0.28 纯记录无机制；v0.37.10 关羽正式称号定稿=武圣，旧专属转职名不再展示）。
+	_check(guan_yu_data != null and guan_yu_data.titles == ["武圣"],
+		"关羽称号应为武圣（v0.37.10 正式定稿）")
 	_check(zhao_yun_data != null and zhao_yun_data.titles == ["龙骧卫"], "赵云称号应为龙骧卫")
 
 	# 阶段 6（v0.17.0）：羁绊试点——资源齐全、桃园满员激活 +5%、五虎将缺员预览不激活。

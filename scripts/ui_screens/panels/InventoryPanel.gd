@@ -11,9 +11,10 @@ const EXP_SCROLL_ID := "exp_scroll"
 ## 测试发放的局内遗物（v0.19.0，CHARACTERS.md 4.8）：全部 5 件各 1。
 const TEST_RELIC_IDS: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 
-const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品"]
+## 类目顺序与 ItemData.ItemType 枚举一致（追加在末尾，勿改中间顺序）。
+const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品", "遗物"]
 ## 图标块底色按类型轮换（概念图 .ava 彩色方块）。
-const TYPE_COLORS := ["gold", "blue", "green", "purple", "orange"]
+const TYPE_COLORS := ["gold", "blue", "green", "purple", "orange", "teal"]
 ## 顶部资源胶囊展示的资源道具（求贤令随 v0.30.0 库存隐藏不展示）。
 const RESOURCE_CHIP_IDS := ["yellow_cloth", "exp_scroll"]
 
