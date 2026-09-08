@@ -3,7 +3,7 @@ extends VBoxContainer
 ## 地图选择面板（UI_LAYOUT §5，Kenney 换肤 v0.18.0，按概念图 ui_hub_map.png）：
 ## 顶栏（标题 + 章节下拉 + 通关/总星进度胶囊 + 难度 Kenney 分段）→ 关卡 4×2 白卡
 ## （状态徽标 + 星级三槽[阶段10预留] + sNN 关名 + 两行简介 + 敌人/波次·经验 + 首通奖励行）
-## → 底部关卡预告条（简介 + 四统计胶囊 + 首通奖励徽章 + 一键通关(测试) + 出征·编队）。
+## → 底部关卡预告条（简介 + 敌人/波次统计胶囊 + 首通奖励徽章 + 一键通关(测试) + 出征·编队）。
 ## 交互不变：卡片点选联动预告条；返回选关保留关卡/难度；出征直达编队（v0.33.1）。
 
 signal stage_selected(stage_id: StringName, difficulty: int)
@@ -641,9 +641,11 @@ func _build_detail_bar() -> void:
 	var stats := HBoxContainer.new()
 	stats.add_theme_constant_override("separation", 8)
 	left.add_child(stats)
-	for stat_def in ["敌人", "波次", "经验", "推荐"]:
+	# v0.37.7（0.8.11.4）：详情条收敛为两枚信息胶囊（移除经验/推荐——信息冗余且短内容
+	# 胶囊被均分撑宽留白多）；胶囊按内容自适应宽（SHRINK_BEGIN），键值自然排版不再撑满整行。
+	for stat_def in ["敌人", "波次"]:
 		var pill := PanelContainer.new()
-		pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pill.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		var pill_style := StyleBoxFlat.new()
 		pill_style.bg_color = Color("#f3f9fd")
 		pill_style.border_color = REWARD_LINE
@@ -669,10 +671,6 @@ func _build_detail_bar() -> void:
 		var value_label := Label.new()
 		value_label.add_theme_font_size_override("font_size", 13)
 		value_label.add_theme_color_override("font_color", INK)
-		# 0.8.11.3 / B-054：长值（如敌人列表）不得把胶囊行撑破面板——overrun 使
-		# Label 最小宽度归零，胶囊按可用宽度均分，超宽省略号截断。
-		value_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		pill_row.add_child(value_label)
 		_detail_stats.append(value_label)
 
@@ -794,11 +792,10 @@ func _refresh_action_bar() -> void:
 	_detail_name.text = "s%02d %s" % [stage.stage_number, stage.display_name]
 	_detail_difficulty_chip.text = "难度 · %s" % Difficulty.name(_selected_difficulty)
 	_detail_desc.text = stage.description
+	# v0.37.7（0.8.11.4）：详情条信息胶囊收敛为敌人/波次两项。
 	var stat_values := [
 		_enemy_names(stage),
 		"%d 波" % stage.waves.size(),
-		str(stage.participant_xp),
-		"塔×%d · 升阶×%d" % [stage.recommended_tower_count, stage.recommended_rank_count],
 	]
 	for i in _detail_stats.size():
 		_stat_key_labels[i].visible = true
