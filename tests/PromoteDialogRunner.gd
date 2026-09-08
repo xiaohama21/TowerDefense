@@ -53,7 +53,7 @@ func _run() -> void:
 	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
 	add_child(hub)
 	await get_tree().process_frame
-	var develop_panel := hub.get_node("Columns/Content/DevelopPanel")
+	var develop_panel := hub.get_node("HubPanel/Columns/Content/DevelopPanel")
 	hub._show_panel(&"develop")
 	await get_tree().process_frame
 	develop_panel._on_character_pressed("guan_yu")

@@ -64,7 +64,7 @@ func _load_owned_characters() -> void:
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
-	background.color = UITheme.BG
+	background.color = UITheme.LIGHT_PAGE_BG
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -86,7 +86,9 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "编队出征 · %s（最多 %d 名武将 · %s）" % [stage_name, squad_cap, diff_name]
 	title.add_theme_font_size_override("font_size", 30)
-	title.add_theme_color_override("font_color", UITheme.GOLD)
+	title.add_theme_font_override("font", UITheme.spaced_font(3))
+	title.add_theme_font_size_override("font_size", 27)
+	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	root.add_child(title)
 
 	var grid := GridContainer.new()
@@ -109,11 +111,12 @@ func _build_ui() -> void:
 
 	_counter_label = Label.new()
 	_counter_label.add_theme_font_size_override("font_size", 22)
+	_counter_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	root.add_child(_counter_label)
 
 	_bond_label = Label.new()
 	_bond_label.add_theme_font_size_override("font_size", 15)
-	_bond_label.add_theme_color_override("font_color", UITheme.GRAY)
+	_bond_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	_bond_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(_bond_label)
 
@@ -121,7 +124,7 @@ func _build_ui() -> void:
 	var relic_hint := Label.new()
 	relic_hint.text = "遗物选带（最多 %d 件 · 永久使用，选带不消耗库存）" % RELIC_CAP
 	relic_hint.add_theme_font_size_override("font_size", 16)
-	relic_hint.add_theme_color_override("font_color", UITheme.GRAY)
+	relic_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	root.add_child(relic_hint)
 
 	# HFlowContainer 自动换行，避免遗物按钮过多时溢出屏幕（v0.19.1 修复）。 
@@ -147,7 +150,7 @@ func _build_ui() -> void:
 
 	_relic_counter_label = Label.new()
 	_relic_counter_label.add_theme_font_size_override("font_size", 15)
-	_relic_counter_label.add_theme_color_override("font_color", UITheme.GRAY)
+	_relic_counter_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	root.add_child(_relic_counter_label)
 
 	var actions := HBoxContainer.new()
@@ -157,13 +160,19 @@ func _build_ui() -> void:
 	var back_button := Button.new()
 	back_button.text = "返回选关"
 	back_button.custom_minimum_size = Vector2(160, 48)
+	back_button.focus_mode = Control.FOCUS_NONE
+	back_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(back_button, "grey", UITheme.LIGHT_BODY)
 	back_button.pressed.connect(func() -> void: GameFlow.goto_stage_select())
 	actions.add_child(back_button)
 
 	_start_button = Button.new()
 	_start_button.text = "确认出战"
 	_start_button.custom_minimum_size = Vector2(220, 48)
-	_start_button.add_theme_font_size_override("font_size", 22)
+	_start_button.focus_mode = Control.FOCUS_NONE
+	_start_button.add_theme_font_override("font", UITheme.spaced_font(3))
+	_start_button.add_theme_font_size_override("font_size", 20)
+	UITheme.apply_kenney_rect_button(_start_button, "yellow", UITheme.INK)
 	_start_button.pressed.connect(_on_start_pressed)
 	actions.add_child(_start_button)
 
@@ -228,9 +237,9 @@ func _profession_name(character_data: CharacterData) -> String:
 	return character_data.profession.display_name if character_data.profession != null else "未知职业"
 
 
-## 选中态高亮（v0.19.2）：金色底 + 深色文字（统一走 UITheme 封装）。
+## 卡片样式（v0.19.0 换肤）：浅色卡四态 + 选中金框（统一走 UITheme 封装）。
 func _apply_selected_style(button: Button) -> void:
-	UITheme.apply_selected_style(button)
+	UITheme.apply_light_selectable(button)
 
 
 func _on_character_toggled(pressed: bool, character_id: String) -> void:

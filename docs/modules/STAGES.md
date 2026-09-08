@@ -10,7 +10,7 @@
 
 关卡由 `StageData` 定义：`starting_lives`（基地生命）、`starting_currency`（初始金币）、`squad_size`（可出战武将数）、`build_slot_count`（建造槽）、`waves`（波次列表）、`prerequisite_stage_ids`（前置关卡）、局内升级与回收参数（`max_inbattle_upgrade_level` / `upgrade_cost_factor` / `sell_refund_ratio`，见 5.4，v0.9 已实施）。
 
-**布局字段（v0.9 数据驱动化，`StageData` 新增）**：`path_points`（直角折线拐点，含图外出入口延长段）、`build_slot_positions`（建造位坐标）、`decor_cells`（装饰格）。道路格子由 `path_points` 逐格推导（`GridBackground.derive_road_cells`），出入口地标取首/末图内格；建造位、道路、地标均不再硬编码于场景。
+**布局字段（v0.9 数据驱动化，`StageData` 新增）**：`path_points`（直角折线拐点，含图外出入口延长段）、`build_slot_positions`（建造位坐标）、`decor_cells`（装饰格）、`decor_types`（装饰类型映射，v0.36.0 新增：`Dictionary[Vector2i, StringName]` 格子 → tree/rock/banner/torch，**缺省格沿用格子哈希确定式选型**——旧关卡无此字段行为不变；地图编辑器装饰刷按选定类型写入）。道路格子由 `path_points` 逐格推导（`GridBackground.derive_road_cells`），出入口地标取首/末图内格；建造位、道路、地标均不再硬编码于场景。
 
 **建造位结构化（✅ v0.14.1 已落地试点）**：建造位从坐标数组升级为 `BuildSlotData` 子资源（`position` + `slot_type: any/melee/ranged` + `locked` + `unlock_cost`），`StageData.build_slots` 承载，向后兼容旧 `build_slot_positions`：
 - **类型化**：近战优位（转角双覆盖）/ 远程优位（开阔覆盖）/ 通用位，建造位按类型绘制"近战/远程/通用"标签；类型为**软引导**（不限制放置），不做数值加成。

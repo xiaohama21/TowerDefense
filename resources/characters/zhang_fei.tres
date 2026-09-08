@@ -21,9 +21,9 @@ titles = ["蛇矛先锋"]
 character_skill_id = &"char_dangyang_roar"
 character_skill_params = {
 "cooldown": 22.0,
-"knockback": 60.0,
+"fear_duration": 1.0,
 "slow_factor": 0.4,
-"slow_duration": 3.0
+"slow_duration": 2.0
 }
 trait_id = &"trait_yanyan_roar"
 trait_params = {

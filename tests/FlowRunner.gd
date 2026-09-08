@@ -135,14 +135,14 @@ func _test_hub(profile: PlayerProfile) -> void:
 	add_child(hub)
 	await get_tree().process_frame
 
-	var sidebar_buttons := _collect_buttons(hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox"))
+	var sidebar_buttons := _collect_buttons(hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox"))
 	_check(sidebar_buttons.size() == 7, "大厅侧栏应有 6 个功能入口 + 返回主菜单（v0.34 百科入列）")
 	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
 	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 
-	var map_panel := hub.get_node("Columns/Content/MapPanel")
-	var develop_panel := hub.get_node("Columns/Content/DevelopPanel")
-	var settings_panel := hub.get_node("Columns/Content/SettingsPanel")
+	var map_panel := hub.get_node("HubPanel/Columns/Content/MapPanel")
+	var develop_panel := hub.get_node("HubPanel/Columns/Content/DevelopPanel")
+	var settings_panel := hub.get_node("HubPanel/Columns/Content/SettingsPanel")
 	_check(map_panel.visible and not develop_panel.visible and not settings_panel.visible,
 		"大厅默认应显示地图选择面板")
 	# 布局回归（v0.10.2）：set_anchors_preset 曾导致容器 0×0 钉在原点。
@@ -226,7 +226,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		_check(not GameFlow.is_gameplay_flag_enabled("auto_next_wave"),
 			"取消勾选应清除自动下一波标志")
 	# 背包页签（v0.15.1）：查看道具 + 测试发放练兵令。
-	var inventory_panel := hub.get_node("Columns/Content/InventoryPanel")
+	var inventory_panel := hub.get_node("HubPanel/Columns/Content/InventoryPanel")
 	_show_hub_panel(hub, &"inventory")
 	_check(inventory_panel.visible and not settings_panel.visible, "点击背包应切换内容区")
 	var grant_button: Button = null
@@ -307,9 +307,9 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	add_child(hub)
 	await get_tree().process_frame
 
-	var encyclopedia := hub.get_node("Columns/Content/EncyclopediaPanel")
+	var encyclopedia := hub.get_node("HubPanel/Columns/Content/EncyclopediaPanel")
 	_check(encyclopedia != null and not encyclopedia.visible, "大厅默认不应显示百科面板")
-	var sidebar_box := hub.get_node("Columns/Sidebar/SidebarMargin/SidebarBox")
+	var sidebar_box := hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox")
 	var encyclopedia_button: Button = null
 	for child in _collect_buttons(sidebar_box):
 		var button := child as Button
@@ -333,8 +333,9 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	else:
 		before_save = "<none>"
 
-	# 武将图鉴：左侧 9 将网格（全部角色可见），默认选中首位。
-	var grid_node := encyclopedia.get_node_or_null("Root/Body/LeftScroll/LeftBox/CharacterGrid") as Node
+	# 武将图鉴：左侧 9 将网格（全部角色可见），概念默认选中张飞。
+	var left_box := encyclopedia.get("_left_box") as Control
+	var grid_node := left_box.get_node_or_null("CharacterGrid") as Node
 	_check(grid_node != null, "百科应构建武将 2 列网格")
 	var character_cards := 0
 	if grid_node != null:
@@ -344,7 +345,7 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	_check(character_cards == 9, "武将图鉴应展示全部 9 名武将（当前版全量可见）")
 	await get_tree().process_frame
 	# B-023 回归：左列 2 列网格应横向铺满（原列宽塌陷至 8px，卡片不可见/不可点，
-	# 表现=“只有默认首位貂蝉数据”）。
+	# 表现=“只有默认首位数据”）。
 	var character_min_width := 100000.0
 	if grid_node != null:
 		for child in grid_node.get_children():
@@ -357,24 +358,30 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button and (child as Button).text.contains("…"):
 				card_texts_clean = false
 	_check(card_texts_clean, "武将卡文本应精简放得下、不出现省略号（B-024）")
-	_check((encyclopedia.get("_header_name_label") as Label).text == "貂蝉", "武将图鉴默认应选中首位貂蝉")
+	_check((encyclopedia.get("_header_name_label") as Label).text == "张飞", "武将图鉴默认应选中概念稿张飞")
 	var chapter_row := encyclopedia.get_node_or_null("Root/ChapterRow") as Node
 	_check(chapter_row != null and not chapter_row.visible, "武将图鉴视图顶部不应展示章节行")
 
 	# 数值模拟器：切换诸葛亮并调局内升阶 3 阶，属性实时刷新且无存档变化。
 	encyclopedia._select_character("zhuge_liang")
-	var rank_slider := encyclopedia.get("_sim_rank_slider") as HSlider
-	_check(rank_slider != null, "百科应提供局内升阶滑杆")
-	if rank_slider != null:
-		rank_slider.value = 3
-	var sim_stats := (encyclopedia.get("_sim_stats_label") as Label).text
-	_check(sim_stats.contains("伤害") and sim_stats.contains("射程"), "模拟器应实时展示伤害/射程")
+	encyclopedia._sim_level = 20
+	encyclopedia._set_sim_rank(3)
+	var dmg_label := encyclopedia.get("_sim_result_values").get("伤害") as Label
+	_check(dmg_label != null and dmg_label.text != "-", "模拟器结果卡应实时展示伤害（概念 .res）")
+	var sim_results: Array[Label] = []
+	for key in ["伤害", "攻速", "射程"]:
+		var result_label := encyclopedia.get("_sim_result_values").get(key) as Label
+		if result_label != null:
+			sim_results.append(result_label)
+	_check(sim_results.size() == 3, "模拟器结果卡应为伤害/攻速/射程三枚（概念 .res）")
 	var zhuge := GameFlow.load_character_data("zhuge_liang")
 	var base := zhuge.compute_stats_at(20, null, 0, null)
 	var steps := zhuge.get_battle_rank_steps()
 	var expected_damage := int(round(base.damage * CharacterData.rank_scale(steps.damage, 3)))
 	var ranked := zhuge.compute_stats_at(20, null, 0, null, 3)
 	_check(ranked.damage == expected_damage, "模拟器升阶数值应与共享倍率公式一致（观星角色）")
+	_check(dmg_label != null and str(int(ranked.damage)) == dmg_label.text,
+		"结果卡伤害应与升阶公式一致（%s / %s）" % [dmg_label.text if dmg_label else "?", str(int(ranked.damage))])
 	_check(is_equal_approx(zhuge.get_static_range_multiplier(), 1.12), "诸葛亮观星应提供 +12% 静态射程加成")
 	_check(is_equal_approx(GameFlow.load_character_data("liu_bei").get_static_range_multiplier(), 1.0),
 		"非观星角色静态射程倍率应为 1.0")
@@ -392,7 +399,9 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_check(chapter_row != null and chapter_row.visible, "敌人图鉴视图顶部应展示章节选择行（B-023）")
-	var enemy_grid := encyclopedia.get_node_or_null("Root/Body/LeftScroll/LeftBox/EnemyGrid") as GridContainer
+	_check(str(encyclopedia.get("_selected_enemy_id")) == "yellow_turban_general",
+		"敌人图鉴默认应选中概念稿黄巾渠帅·张梁")
+	var enemy_grid := left_box.get_node_or_null("EnemyGrid") as GridContainer
 	_check(enemy_grid != null and enemy_grid.columns == 2, "敌人图鉴左列应为 2 列网格（横排两个卡片，B-023）")
 	var enemy_cards := 0
 	var enemy_min_width := 100000.0
@@ -408,8 +417,8 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	_collect_labels(encyclopedia, labels)
 	for label in labels:
 		all_text += label.text + "\n"
-	_check(all_text.contains("「困难」生命 140"), "敌人难度面板困难档生命应为基础 ×1.4（步卒 100→140）")
-	_check(all_text.contains("出现关卡"), "敌人详情应含出现关卡反查")
+	_check(all_text.contains("标准难度") and all_text.contains("困难难度"), "敌人难度面板应按难度档拆卡展示")
+	_check(all_text.contains("出现关卡"), "敌人详情头/明细应含出现关卡反查")
 	var soldier_entries := GameFlow.get_enemy_stage_entries("yellow_turban_soldier")
 	_check(not soldier_entries.is_empty(), "黄巾步卒应反查到出现关卡")
 	var general_stage_ids: Array[String] = []

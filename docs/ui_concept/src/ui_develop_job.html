@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  .body { display:flex; gap:14px; flex:1; min-height:0; margin-top:12px; }
+  /* 左：武将列表 */
+  .roster { width:402px; background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:10px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .roster .hd { display:flex; align-items:center; gap:8px; font-size:15px; color:#33566f; letter-spacing:2px; padding:2px 4px 9px; }
+  .roster .hd .cnt { font-size:12px; color:#7d9cb4; letter-spacing:1px; }
+  .roster .grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5,1fr); gap:8px; min-height:0; }
+  .rcard { background:#f7fbfe; border:2px solid #d7e9f5; border-radius:12px; padding:7px 9px; display:flex; gap:9px; align-items:center;
+    min-width:0; }
+  .rcard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.4); }
+  .rcard .ava { width:44px; height:44px; font-size:21px; }
+  .rcard .info { min-width:0; }
+  .rcard .nm { font-size:15px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rcard .sub { font-size:11.5px; color:#6b93ad; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rcard .src { font-size:10.5px; color:#a8bccb; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.5px; }
+  .rcard .sub b { color:#2eaadc; font-weight:normal; }
+  .rcard .lvl { margin-left:auto; font-size:14px; color:#2eaadc; white-space:nowrap; flex:none; }
+  .rcard.locked { background:#eef3f7; border-color:#d5e0e8; }
+  .rcard.locked .nm { color:#9fb3c4; }
+  .rcard.locked .sub { color:#a8bccb; }
+  /* 右列 */
+  .rcol { flex:1; display:flex; flex-direction:column; gap:12px; min-width:0; }
+  .base { padding:14px 16px 12px; }
+  .base .row1 { display:flex; align-items:center; gap:12px; }
+  .base .ava { width:64px; height:64px; font-size:28px; }
+  .base .who { min-width:0; }
+  .base .who .nm { font-size:24px; color:#1b4d78; letter-spacing:2px; }
+  .base .who .chips { display:flex; gap:6px; margin-top:5px; }
+  .base .lvlbig { margin-left:auto; text-align:right; }
+  .base .lvlbig .n { font-size:26px; color:#2eaadc; line-height:1; }
+  .base .lvlbig .t { font-size:12px; color:#7d9cb4; letter-spacing:2px; }
+  .expbar { margin-top:11px; height:14px; background:#e3eef6; border-radius:8px; overflow:hidden; position:relative; }
+  .expbar i { display:block; height:100%; width:80%; background:linear-gradient(180deg,#63d9a4,#2fb47b); border-radius:8px; }
+  .expbar span { position:absolute; right:8px; top:0; font-size:10px; color:#fff; line-height:14px; letter-spacing:1px; text-shadow:0 1px 1px rgba(0,0,0,.25); }
+  .statrow { display:flex; gap:8px; margin-top:11px; }
+  .stat { flex:1; text-align:center; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:9px; padding:6px 4px 5px; }
+  .stat .k { font-size:11.5px; color:#7d9cb4; letter-spacing:1px; }
+  .stat .v { font-size:17px; color:#14538a; margin-top:1px; }
+  .stat .v b { font-weight:normal; color:#b8860b; }
+  /* 页签 */
+  .tabs { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .tabs .tabbar { display:flex; gap:6px; padding:10px 14px 0; }
+  .tab { font-size:16px; letter-spacing:3px; padding:6px 18px 7px; border-radius:10px 10px 0 0; cursor:pointer; white-space:nowrap; }
+  .tab.on { background:#e6f4fd; color:#14538a; border:2px solid #9fd0ea; border-bottom:0; }
+  .tab.off { color:#9fb3c4; }
+  .tabbody { flex:1; border:2px solid #9fd0ea; border-radius:0 12px 12px 12px; background:#fff; padding:12px 14px; min-height:0; overflow:hidden; }
+  .promo { display:flex; align-items:center; gap:10px; }
+  .pnode { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:9px 12px; }
+  .pnode .t { font-size:13px; color:#7d9cb4; letter-spacing:1px; }
+  .pnode .n { font-size:18px; color:#1b4d78; margin-top:2px; letter-spacing:1px; }
+  .pnode.done { border-color:#9ad8b4; background:#f3fbf6; }
+  .pnode.done .n { color:#11804a; }
+  .pnode.now { border-color:#ffcc00; box-shadow:0 0 0 2px rgba(255,204,0,.35); }
+  .parrow { font-size:20px; color:#9fd0ea; flex:none; }
+  .pnode .req { font-size:12px; color:#7d9cb4; margin-top:3px; letter-spacing:1px; }
+  .pnode .req b { color:#b8860b; font-weight:normal; }
+  .branch { display:flex; gap:10px; margin-top:10px; }
+  .bopt { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:8px 12px; cursor:pointer; }
+  .bopt.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.35); }
+  .bopt .t { font-size:12px; color:#7d9cb4; letter-spacing:1px; display:flex; justify-content:space-between; }
+  .bopt .n { font-size:17px; color:#1b4d78; margin-top:2px; }
+  .bopt .fx { font-size:12px; color:#6b93ad; margin-top:4px; line-height:1.5; }
+  .fx b { color:#14538a; font-weight:normal; }
+  .promo-foot { margin-top:10px; display:flex; align-items:center; gap:12px; background:#f3f9fd; border:1px dashed #bfdcef; border-radius:10px; padding:8px 12px; }
+  .promo-foot .need { font-size:13px; color:#33566f; letter-spacing:1px; }
+  .promo-foot .need b { color:#b8860b; font-weight:normal; }
+  .promo-foot .warn { font-size:12px; color:#c0392b; }
+
+  /* 技能页签 */
+  .skrow { display:flex; gap:10px; }
+  .skcard { border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:8px 10px; display:flex; flex-direction:column; gap:5px; }
+  .skcard.ult, .skcard.job { flex:1; min-width:0; }
+  .skcard.role { margin-top:8px; }
+  .skcard .skhd { display:flex; align-items:center; gap:10px; }
+  .skcard .skmeta { min-width:0; }
+  .skcard .sknm { font-size:16px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+  .skcard .roletype { font-size:11px; color:#b8860b; margin-left:5px; letter-spacing:1px; }
+  .sktags { display:flex; gap:5px; margin-top:3px; flex-wrap:wrap; }`n  .skcard .tag { font-size:11px; padding:1px 8px; }
+  .skfx { font-size:12px; color:#33566f; line-height:1.5; }
+  .skfx b { color:#14538a; font-weight:normal; }
+  .sknote { font-size:10.5px; color:#7d9cb4; line-height:1.45; background:#eef6fb; border:1px dashed #bfdcef; border-radius:8px; padding:4px 8px; }
+  .sknote b { color:#b8860b; font-weight:normal; }
+  .tag.fire { color:#c0392b; background:#ffe6e1; }
+  .rage { margin-left:auto; flex:none; width:84px; height:16px; background:#fff; border:2px solid #ffcc00; border-radius:9px; overflow:hidden; position:relative; }
+  .rage i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,#ffd75e,#ffb300); }
+  .rage b { position:absolute; inset:0; text-align:center; font-size:9.5px; line-height:12px; color:#8a6d00; letter-spacing:1px; font-weight:normal; }
+  /* ===== 职业页签（v2.2：右列加宽 402→382，半卡紧凑排版，按钮定宽） ===== */
+  .roster { width:382px; }
+  .tabbadge { display:inline-block; margin-left:7px; vertical-align:2px; font-size:10px;
+    color:#8a6d00; background:#ffe08a; border:1px solid #ffcc00; border-radius:7px;
+    padding:0 6px; letter-spacing:1px; }
+  .job { display:flex; flex-direction:column; gap:8px; height:100%; }
+  .jrow { display:flex; gap:10px; flex:none; }
+  .jcard { border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:8px 12px; min-width:0; }
+  .jcard .top { display:flex; align-items:center; gap:10px; }
+  .jcard .nm { font-size:15.5px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+  .jcard .desc { font-size:12px; color:#6b93ad; line-height:1.55; margin-top:3px; }
+  .jcard .desc b { color:#14538a; font-weight:normal; }
+  .jtags { display:flex; gap:5px; margin-top:3px; flex-wrap:wrap; }
+  .jtags .tag { font-size:11px; padding:1px 9px; }
+  .jstatus { margin-left:auto; flex:none; text-align:right; padding-left:8px; }
+  .jstatus .t { font-size:11.5px; color:#8a6d00; letter-spacing:1px; margin-top:3px; }
+  .half { flex:1; min-width:0; }
+  .half .top .nm { font-size:14px; }
+  .half .fx { font-size:11.5px; color:#33566f; line-height:1.55; margin-top:4px; }
+  .half .fx b { color:#14538a; font-weight:normal; }
+  .half .note { font-size:10.5px; color:#7d9cb4; line-height:1.5; margin-top:4px;
+    background:#eef6fb; border:1px dashed #bfdcef; border-radius:8px; padding:2px 8px; }
+  .half .note b { color:#b8860b; font-weight:normal; }
+  .half .tag { font-size:10.5px; padding:1px 8px; margin-left:auto; }
+  .jpromo { display:flex; align-items:center; gap:14px; padding:7px 12px; }
+  .jpromo .pl { font-size:13.5px; color:#14538a; letter-spacing:2px; flex:none; }
+  .jchips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .jchip { font-size:11px; letter-spacing:.5px; padding:2px 10px; border-radius:8px;
+    background:#e1f1fb; color:#14538a; white-space:nowrap; }
+  .jchip.ok { background:#d8f2e3; color:#11804a; }
+  .jbtn { margin-left:auto; flex:none; }
+  .jbtn .btn { width:176px; height:46px; font-size:16px; letter-spacing:2px; }
+  .jpromo-note { font-size:11px; color:#7d9cb4; margin-top:4px; letter-spacing:.5px; line-height:1.55; }
+  .jpromo-note b { color:#b8860b; font-weight:normal; }</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn active">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>武将养成</h2>
+        <span class="prog gold">黄巾布 <b>×128</b></span>
+        <span class="prog">练兵令 <b>×6</b></span>
+        <div class="spacer"></div>
+        <span class="prog">已上阵 <b>4/4</b></span>
+      </div>
+      <div class="body">
+        <div class="roster">
+          <div class="hd"><span>武将列表</span><span class="cnt">9 名 · 已拥有 5 名</span></div>
+          <div class="grid">
+            <div class="rcard"><span class="ava gold">刘</span><div class="info"><div class="nm">刘备</div><div class="sub">虎贲 · 辅助</div></div><span class="lvl">Lv14</span></div>
+            <div class="rcard"><span class="ava red">关</span><div class="info"><div class="nm">关羽</div><div class="sub">骑兵</div></div><span class="lvl">Lv13</span></div>
+            <div class="rcard sel"><span class="ava">张</span><div class="info"><div class="nm">张飞</div><div class="sub">虎贲</div></div><span class="lvl">Lv12</span></div>
+            <div class="rcard"><span class="ava green">黄</span><div class="info"><div class="nm">黄忠</div><div class="sub">弓箭手</div></div><span class="lvl">Lv9</span></div>
+            <div class="rcard"><span class="ava purple">皇</span><div class="info"><div class="nm">皇甫嵩</div><div class="sub">投石车</div></div><span class="lvl">Lv8</span></div>
+            <div class="rcard locked"><span class="ava grey">貂</span><div class="info"><div class="nm">貂蝉</div><div class="sub">舞娘 · 未解锁</div><div class="src">通关 s04 东郡驰援</div></div></div>
+            <div class="rcard locked"><span class="ava grey">周</span><div class="info"><div class="nm">周仓</div><div class="sub">虎贲 · 未解锁</div><div class="src">通关 s05 宛城之围</div></div></div>
+            <div class="rcard locked"><span class="ava grey">赵</span><div class="info"><div class="nm">赵云</div><div class="sub">骑兵 · 未解锁</div><div class="src">通关 s06 下曲阳之战</div></div></div>
+            <div class="rcard locked"><span class="ava grey">诸</span><div class="info"><div class="nm">诸葛亮</div><div class="sub">术士 · 未解锁</div><div class="src">通关 s07 广宗前哨</div></div></div>
+          </div>
+        </div>
+        <div class="rcol">
+          <div class="panel base">
+            <div class="row1">
+              <span class="ava">张</span>
+              <div class="who">
+                <div class="nm">张飞</div>
+                <div class="chips"><span class="tag blue">虎贲 · 近战</span><span class="tag open">称号 · 蛇矛先锋</span></div>
+              </div>
+              <div class="lvlbig"><div class="n">Lv.12</div><div class="t">等级</div></div>
+            </div>
+            <div class="expbar"><i></i><span>320 / 400</span></div>
+            <div class="statrow">
+              <div class="stat"><div class="k">伤害</div><div class="v">115</div></div>
+              <div class="stat"><div class="k">攻速</div><div class="v">0.67s</div></div>
+              <div class="stat"><div class="k">射程</div><div class="v">120</div></div>
+              <div class="stat"><div class="k">建造费用</div><div class="v"><b>60</b></div></div>
+            </div>
+          </div>
+          <div class="panel tabs">
+            <div class="tabbar">
+              <div class="tab off">技能</div>
+              <div class="tab on">职业<span class="tabbadge">可转</span></div>
+              <div class="tab off">信物</div>
+              <div class="tab off">特性</div>
+            </div>
+                        <div class="tabbody">
+              <div class="job">
+                <div class="jcard">
+                  <div class="top">
+                    <span class="ava" style="width:40px;height:40px;font-size:18px;">虎</span>
+                    <div>
+                      <div class="nm" style="font-size:17px;">虎贲</div>
+                      <div class="jtags">
+                        <span class="tag blue">近战 · 持旗鼓舞</span>
+                        <span class="tag lock">对骑兵克制</span>
+                      </div>
+                    </div>
+                    <div class="jstatus">
+                      <span class="tag open">已可一转</span>
+                      <div class="t">Lv 12 / 10 · 达标</div>
+                    </div>
+                  </div>
+                  <div class="desc">近战抗线、持旗鼓舞的近战 buff 职业（当前<b>未转职</b>）；技能效果详见「技能」页签。</div>
+                </div>
+                <div class="jrow">
+                  <div class="jcard half">
+                    <div class="top">
+                      <span class="ava red" style="width:26px;height:26px;font-size:12px;">破</span>
+                      <div class="nm">职业大招 · 破阵</div>
+                      <span class="tag ok">已习得</span>
+                    </div>
+                    <div class="fx">1.5× 普攻范围伤害 · 击退 40px · 200px 友军攻速 +15%（5s）</div>
+                    <div class="note">职业自带 · 满怒自动释放（可选手动）</div>
+                  </div>
+                  <div class="jcard half">
+                    <div class="top">
+                      <span class="ava gold" style="width:26px;height:26px;font-size:12px;">旗</span>
+                      <div class="nm">职业技能 · 军旗</div>
+                      <span class="tag lock">未习得</span>
+                    </div>
+                    <div class="fx">常驻光环：150px 内友军伤害 +4%（自身不生效）</div>
+                    <div class="note">一转「虎贲军」习得 · 档位强化见转职详情</div>
+                  </div>
+                </div>
+                <div class="jcard jpromo">
+                  <div class="pl">转职进度</div>
+                  <div>
+                    <div class="jchips">
+                      <span class="jchip">下一转 · 虎贲军（一转）</span>
+                      <span class="jchip ok">Lv 12/10 已达标</span>
+                      <span class="jchip ok">黄巾布 128/10 充足</span>
+                    </div>
+                    <div class="jpromo-note">完整路线：虎贲 → <b>虎贲军</b> → 陷阵（军旗+）／虎卫（护卫）；二转 20 级，转职不可逆。</div>
+                  </div>
+                  <div class="jbtn"><button class="btn go small">转职详情 ▸</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
