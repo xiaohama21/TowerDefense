@@ -1179,10 +1179,8 @@ func _draw_skill_flash() -> void:
 
 
 func _draw_rage_bar() -> void:
-	# 怒气条（v0.15.0 美化；阶段 8·提交 11 胶囊化）：脚下小胶囊——深色底槽 +
-	# 灰蓝→满怒金填充；满怒放大呼吸 + 外发光，一眼可辨满怒。
-	if rage <= 0.0:
-		return
+	# 怒气条（v0.15.0 美化；阶段 8·提交 11 胶囊化；0.8.11.2 空槽常驻）：脚下小胶囊——
+	# 深色底槽 + 灰蓝→满怒金填充；满怒放大呼吸 + 外发光，一眼可辨满怒。空槽常驻弱显（B-053）。
 	var ratio := clampf(rage / _max_rage, 0.0, 1.0)
 	var full := ratio >= 1.0
 	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
@@ -1195,10 +1193,13 @@ func _draw_rage_bar() -> void:
 	if full:
 		var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.006)
 		_draw_capsule(origin - Vector2(3.0, 3.0), width + 6.0, height + 6.0, Color(1.0, 0.85, 0.35, glow))
-	_draw_capsule(origin, width, height, Color(0.0, 0.0, 0.0, 0.66))
-	var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.35, 0.68, 1.0, 0.95)
-	var inset := 1.5
-	_draw_capsule_fill(origin + Vector2(inset, inset), width - inset * 2.0, height - inset * 2.0, ratio, fill_color)
+	# 空槽常驻（0.8.11.2 / B-053）：0 怒气弱显底槽，获得怒气后恢复深底槽。
+	_draw_capsule(origin, width, height,
+		Color(0.0, 0.0, 0.0, 0.35 if ratio <= 0.0 else 0.66))
+	if ratio > 0.0:
+		var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.35, 0.68, 1.0, 0.95)
+		var inset := 1.5
+		_draw_capsule_fill(origin + Vector2(inset, inset), width - inset * 2.0, height - inset * 2.0, ratio, fill_color)
 	if full:
 		_draw_capsule(origin, width, height, Color(1.0, 0.92, 0.5, 0.95), true)
 
