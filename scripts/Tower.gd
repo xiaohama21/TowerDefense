@@ -867,6 +867,20 @@ func is_ultimate_ready() -> bool:
 	return _manual_ultimate_mode and _ultimate_ready and rage >= _max_rage
 
 
+## 手动动作槽（v0.37.12 设计定稿，UI_LAYOUT v0.20.32 §10）：
+## 现网仅大招（R 恒主位）；未来「可手动」技能经 CHARACTER_SKILLS/SKILLS 登记后在此追加（Q 预留）。
+func get_manual_actions() -> Array:
+	var actions: Array = []
+	if _manual_ultimate_mode:
+		actions.append({
+			"id": &"ultimate",
+			"label": "释放大招",
+			"shortcut": "R",
+			"ready": is_ultimate_ready(),
+		})
+	return actions
+
+
 func set_float_text_layer(layer: Node) -> void:
 	_float_text_layer = layer
 

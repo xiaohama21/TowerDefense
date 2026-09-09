@@ -530,10 +530,13 @@ func _refresh_tower_panel() -> void:
 	_tower_sell_button.disabled = false
 
 	var manual_mode: bool = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
-	# 手动大招按钮（v0.15.0）
-	_tower_ultimate_button.visible = manual_mode
-	if manual_mode:
-		if tower.is_ultimate_ready():
+	# 手动动作槽（v0.37.12 / UI_LAYOUT v0.20.32 §10）：现网 action[0] = 大招（R 恒主位），
+	# 未来「可手动」技能登记后由 Tower.get_manual_actions() 按序追加（Q 预留），此处数据驱动渲染。
+	var actions: Array = tower.get_manual_actions() if manual_mode else []
+	_tower_ultimate_button.visible = not actions.is_empty()
+	if _tower_ultimate_button.visible:
+		var action: Dictionary = actions[0]
+		if action.get("ready", false):
 			_tower_ultimate_button.text = "释放大招！（R）"
 			_tower_ultimate_button.disabled = false
 		else:
