@@ -1,17 +1,18 @@
 extends Control
 
 ## 编队界面（SquadSelect）——按概念图 ui_squad.png v3 / UI_LAYOUT.md §7（v0.20.35）
-## 落地（docs v0.37.17 / 程序 0.8.11.11，用户拍板 2026-09-09「直接按照概念图开发编队界面与出战弹窗」）：
+## 落地（docs v0.37.19 / 程序 0.8.11.12；2026-09-09 用户拍板「直接按照概念图开发编队界面与出战弹窗」，
+## 0.8.11.12 按反馈简化「遗物不显示持有 / 右侧只列三行数值 / 详情浮层紧凑 / 确认弹窗遗物仅图标+名称」）：
 ## 天空渐变底 + 亮蓝白页（标题行：出征·编队 + 章节 tag + 关卡·难度 tag + 出战计数；
 ## 操作提示行：点选说明 +「溢出自动滚动」tag + 已拥有/未解锁计数）→ 左右两栏：
 ## 左 = 3 列滚动武将网格（≤9 名 3×3 一屏铺满、第 10 位起自动增行纵向滚动；卡 =
 ## 圆头像 / 姓名+Lv / 职业·定位 / 羁绊 mini（随勾选实时刷新）/ 卡面底部内嵌建造费用通栏
 ## B-025（与卡面同底同圆角，不贴片）；未解锁灰卡标注解锁来源，无费用）+
-## 队伍遗物行（说明列 + 紫晶渐变图标 pill：名称 / 持有×n / 已选·可选徽标；悬停浮层看详情、
-## 移开即消失、不占布局；超过一行横向滚动）→ 右 = 总战力加成面板（随编队实时计算：
-## 科技 / 羁绊 / 遗物三组明细 + 概算口径注脚；明细超高组内滚动）→ 底部固定操作条
+## 队伍遗物行（说明列 + 紫晶渐变图标 pill：名称 / 已选·可选徽标，不显示持有数量；悬停浮层看详情、
+## 移开即消失、不占布局；超过一行横向滚动）→ 右 = 队伍加成面板（科技 / 羁绊 / 遗物三行，
+## 每行直接一个合计数值 + 概算口径注脚）→ 底部固定操作条
 ## （返回选关 灰 / 确认出战 金）→「确认出战」自绘二次确认弹窗（ui_squad_confirm.png 版式：
-## 蓝标题条 + 章节 chip + ✕；出战武将名单行 + 遗物横卡 + 虚线提示条 + 取消/确认底栏）。
+## 蓝标题条 + 章节 chip + ✕；出战武将名单行 + 遗物清单（图标占位 + 名称）+ 虚线提示条 + 取消/确认底栏）。
 ## 行为保留（v0.33.1）：点选/取消、最多 squad_size 名、遗物最多 2 件（超上限禁选）、
 ## 编队记忆自动预填；确认后写入档案（squad_character_ids / squad_relic_ids）并 goto_battle；
 ## 返回选关保留关卡与难度。
@@ -94,8 +95,9 @@ var _grid_scroll: ScrollContainer
 var _grid: GridContainer
 var _relic_scroll: ScrollContainer
 var _relic_row: HBoxContainer
-var _power_groups_box: VBoxContainer
-var _power_total_label: Label
+var _tech_value_label: Label
+var _bond_value_label: Label
+var _relic_value_label: Label
 
 var _confirm_popup: Control
 var _relic_tooltip: PanelContainer
@@ -328,7 +330,7 @@ func _build_zone_bar() -> HBoxContainer:
 	label.add_theme_font_override("font", UITheme.spaced_font(2))
 	bar.add_child(label)
 	var hint := Label.new()
-	hint.text = "点选 / 取消 · 金色描边为出战 · 羁绊与右侧战力加成实时刷新"
+	hint.text = "点选 / 取消 · 金色描边为出战 · 羁绊与右侧队伍加成实时刷新"
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color("#a8bccb"))
 	bar.add_child(hint)
@@ -620,13 +622,14 @@ func _build_relic_area() -> Control:
 
 	var profile := ProfileStore.get_profile()
 	for relic_id in GameFlow.get_owned_relic_ids(profile):
-		_relic_row.add_child(_make_relic_pill(relic_id, int(profile.items.get(relic_id, 0))))
+		_relic_row.add_child(_make_relic_pill(relic_id))
 	return zone
 
 
-## 遗物 pill（概念 .rpill：紫晶渐变方块图标 + 名称 + 持有 ×n + 已选/可选徽标 +
+## 遗物 pill（概念 .rpill：紫晶渐变方块图标 + 名称 + 已选/可选徽标 +
 ## 右下角虚线圆悬停示意）；悬停浮层看详情、移开即消失（不占页面布局）。
-func _make_relic_pill(relic_id: String, amount: int) -> Button:
+## v0.37.19：不显示持有数量（多余），名称直排于图标右侧。
+func _make_relic_pill(relic_id: String) -> Button:
 	var relic := GameFlow.load_battle_relic_data(relic_id)
 	if relic == null:
 		return Button.new()
@@ -655,23 +658,14 @@ func _make_relic_pill(relic_id: String, amount: int) -> Button:
 
 	content.add_child(UITheme.tile_label(relic.display_name.left(1), "purple", 46.0, 21))
 
-	var info := VBoxContainer.new()
-	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	info.add_theme_constant_override("separation", 0)
-	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(info)
 	var name_label := Label.new()
 	name_label.text = relic.display_name
 	name_label.add_theme_font_size_override("font_size", 13)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	info.add_child(name_label)
-	var amount_label := Label.new()
-	amount_label.text = "持有 ×%d" % amount
-	amount_label.add_theme_font_size_override("font_size", 10)
-	amount_label.add_theme_color_override("font_color", Color("#a8bccb"))
-	info.add_child(amount_label)
+	content.add_child(name_label)
 
 	var state_label := Label.new()
 	var state_style := UITheme.tag_style(UITheme.TAG_OPEN_BG, 6, 1)
@@ -717,8 +711,11 @@ func _pill_style(selected: bool, hover: bool = false) -> StyleBoxFlat:
 	return style
 
 
-# ---------------------------------------------------------------- 右：总战力加成
+# ---------------------------------------------------------------- 右：队伍加成
 
+## 右栏面板（v0.37.19 简化）：不再展示「总战力」折合大数字与来源明细，
+## 只列 科技 / 羁绊 / 遗物 三行，每行直接一个合计加成数值（伤害加算，
+## 含攻速时按倍率折入显示 ≈+N%）；空态灰字 +0%。口径注脚一行保留。
 func _build_power_panel() -> Panel:
 	var panel := Panel.new()
 	panel.custom_minimum_size = Vector2(254, 0)
@@ -742,7 +739,7 @@ func _build_power_panel() -> Panel:
 	head.add_theme_constant_override("separation", 7)
 	box.add_child(head)
 	var head_title := Label.new()
-	head_title.text = "总战力加成"
+	head_title.text = "队伍加成"
 	head_title.add_theme_font_override("font", UITheme.spaced_font(2))
 	head_title.add_theme_font_size_override("font_size", 15)
 	head_title.add_theme_color_override("font_color", Color("#14538a"))
@@ -753,38 +750,24 @@ func _build_power_panel() -> Panel:
 	head_dash.dash_color = Color("#d7e9f5")
 	box.add_child(head_dash)
 
-	var total_row := HBoxContainer.new()
-	total_row.add_theme_constant_override("separation", 10)
-	box.add_child(total_row)
-	_power_total_label = Label.new()
-	_power_total_label.text = "+0%"
-	_power_total_label.add_theme_font_size_override("font_size", 32)
-	_power_total_label.add_theme_color_override("font_color", Color("#b8860b"))
-	total_row.add_child(_power_total_label)
-	var total_cap := Label.new()
-	total_cap.text = "出战队伍折合战力\n伤害类加算 × 攻速倍率"
-	total_cap.add_theme_font_size_override("font_size", 10)
-	total_cap.add_theme_color_override("font_color", Color("#7d9cb4"))
-	total_cap.add_theme_constant_override("line_spacing", 2)
-	total_cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	total_cap.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	total_row.add_child(total_cap)
-
-	# 三组明细容器：内容超出时组内纵向滚动；未超高时均布不拉伸。
-	var groups_scroll := ScrollContainer.new()
-	groups_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	groups_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_power_groups_box = VBoxContainer.new()
-	_power_groups_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_power_groups_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_power_groups_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	_power_groups_box.add_theme_constant_override("separation", 6)
-	groups_scroll.add_child(_power_groups_box)
-	_style_v_scrollbar(groups_scroll)
-	box.add_child(groups_scroll)
+	# 三行加成（无明细、无来源标注）：中间区域垂直居中，行距拉开保持清爽。
+	var groups := VBoxContainer.new()
+	groups.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	groups.alignment = BoxContainer.ALIGNMENT_CENTER
+	groups.add_theme_constant_override("separation", 16)
+	box.add_child(groups)
+	var tech_row := _make_power_row(Color("#2eaadc"), "科技")
+	_tech_value_label = tech_row["value"] as Label
+	groups.add_child(tech_row["row"] as Control)
+	var bond_row := _make_power_row(Color("#26a86f"), "羁绊")
+	_bond_value_label = bond_row["value"] as Label
+	groups.add_child(bond_row["row"] as Control)
+	var relic_row := _make_power_row(Color("#7e5fc4"), "遗物")
+	_relic_value_label = relic_row["value"] as Label
+	groups.add_child(relic_row["row"] as Control)
 
 	var note := Label.new()
-	note.text = "战力为展示概算，非结算数值：伤害类加算后与攻速倍率连乘；基地生命 / 初始金币类不计入。"
+	note.text = "概算展示：伤害类加算 × 攻速倍率；基地生命 / 初始金币不计入。"
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.add_theme_font_size_override("font_size", 10)
 	note.add_theme_color_override("font_color", Color("#a8bccb"))
@@ -793,68 +776,48 @@ func _build_power_panel() -> Panel:
 	return panel
 
 
-## 战力小组（概念 .p-group：色点 + 标题 + 右侧合计 + 明细行 + 灰字来源）。
-func _power_group(dot_color: Color, title: String, head_value: String,
-		rows: Array[Dictionary]) -> VBoxContainer:
-	var group := VBoxContainer.new()
-	group.add_theme_constant_override("separation", 3)
-
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 6)
-	group.add_child(head)
+## 加成单行（色点 + 名称 + 右侧数值；数值控件由刷新逻辑改文本与颜色）。
+func _make_power_row(dot_color: Color, title: String) -> Dictionary:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
 	var dot := Panel.new()
-	dot.custom_minimum_size = Vector2(8, 8)
+	dot.custom_minimum_size = Vector2(9, 9)
 	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var dot_style := StyleBoxFlat.new()
 	dot_style.bg_color = dot_color
 	dot_style.set_corner_radius_all(4)
 	dot.add_theme_stylebox_override("panel", dot_style)
-	head.add_child(dot)
-	var title_label := Label.new()
-	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", 12)
-	title_label.add_theme_color_override("font_color", Color("#33566f"))
-	title_label.add_theme_font_override("font", UITheme.spaced_font(1))
-	head.add_child(title_label)
-	var value_label := Label.new()
-	value_label.text = head_value
-	value_label.add_theme_font_size_override("font_size", 13)
-	value_label.add_theme_color_override("font_color", Color("#b8860b"))
-	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	head.add_child(value_label)
+	row.add_child(dot)
+	var name := Label.new()
+	name.text = title
+	name.add_theme_font_override("font", UITheme.spaced_font(1))
+	name.add_theme_font_size_override("font_size", 14)
+	name.add_theme_color_override("font_color", Color("#33566f"))
+	name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(name)
+	var value := Label.new()
+	value.text = "+0%"
+	value.add_theme_font_size_override("font_size", 16)
+	value.add_theme_color_override("font_color", Color("#9fb3c4"))
+	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(value)
+	return {"row": row, "value": value}
 
-	for row in rows:
-		var row_box := HBoxContainer.new()
-		row_box.add_theme_constant_override("separation", 6)
-		group.add_child(row_box)
-		var dim := bool(row.get("dim", false))
-		var ok := bool(row.get("ok", false))
-		var src := Label.new()
-		src.text = str(row.get("src", ""))
-		src.add_theme_font_size_override("font_size", 11)
-		src.add_theme_color_override("font_color",
-			Color("#8aa2b6") if dim else Color("#1b4d78"))
-		src.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		row_box.add_child(src)
-		var val := Label.new()
-		val.text = str(row.get("val", ""))
-		val.add_theme_font_size_override("font_size", 11)
-		val.add_theme_color_override("font_color",
-			UITheme.TAG_OK_FG if ok else (Color("#9fb3c4") if dim else Color("#14538a")))
-		val.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		val.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		row_box.add_child(val)
-		var tip_text := str(row.get("tip", ""))
-		if not tip_text.is_empty():
-			var tip := Label.new()
-			tip.text = tip_text
-			tip.add_theme_font_size_override("font_size", 9)
-			tip.add_theme_color_override("font_color", Color("#a8bccb"))
-			tip.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-			group.add_child(tip)
-	return group
+
+## 组值文本与配色：有加成金色（含攻速折入显示 ≈+N%），空态灰 +0%。
+func _apply_power_value(value_label: Label, damage: int, speed: float) -> void:
+	if damage <= 0 and speed <= 0.0:
+		value_label.text = "+0%"
+		value_label.add_theme_color_override("font_color", Color("#9fb3c4"))
+		return
+	var text := "+%d%%" % damage
+	if speed > 0.0:
+		var combined: float = round((1.0 + float(damage) / 100.0) * (1.0 + speed / 100.0) * 100.0 - 100.0)
+		text = "≈+%d%%" % combined
+	value_label.text = text
+	value_label.add_theme_color_override("font_color", Color("#b8860b"))
 
 
 # ---------------------------------------------------------------- 底部操作条
@@ -929,7 +892,6 @@ func _show_relic_tooltip(relic_id: String) -> void:
 		return
 	for child in _relic_tooltip_box.get_children():
 		child.queue_free()
-	var amount := int(ProfileStore.get_profile().items.get(relic_id, 0))
 	var selected := _selected_relic_ids.has(relic_id)
 
 	var title_row := HBoxContainer.new()
@@ -949,18 +911,26 @@ func _show_relic_tooltip(relic_id: String) -> void:
 	var desc := Label.new()
 	desc.text = relic.description if not relic.description.is_empty() else "（暂无描述）"
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc.custom_minimum_size = Vector2(222, 0)
+	desc.custom_minimum_size = Vector2(232, 0)
 	desc.add_theme_font_size_override("font_size", 11)
 	desc.add_theme_color_override("font_color", Color("#5f8aa6"))
 	desc.add_theme_constant_override("line_spacing", 2)
 	_relic_tooltip_box.add_child(desc)
 
-	var effect_tag := UITheme.tag_label(_relic_effect_text(relic),
-		UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 10)
-	_relic_tooltip_box.add_child(effect_tag)
+	# 效果 chip 改自动换行文本块（定宽 232 不把浮层撑宽，去空白紧凑化）。
+	var effect_label := Label.new()
+	effect_label.text = _relic_effect_text(relic)
+	effect_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	effect_label.custom_minimum_size = Vector2(232, 0)
+	effect_label.add_theme_stylebox_override("normal",
+		UITheme.tag_style(UITheme.TAG_OPEN_BG, 6, 1))
+	effect_label.add_theme_font_size_override("font_size", 10)
+	effect_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
+	effect_label.add_theme_constant_override("line_spacing", 1)
+	_relic_tooltip_box.add_child(effect_label)
 
 	var meta := Label.new()
-	meta.text = "队伍级 · 永久持有 · 持有 ×%d" % amount
+	meta.text = "队伍级 · 永久使用 · 不消耗库存"
 	meta.add_theme_font_size_override("font_size", 9)
 	meta.add_theme_color_override("font_color", Color("#a8bccb"))
 	_relic_tooltip_box.add_child(meta)
@@ -1129,123 +1099,42 @@ func _refresh_card_texts() -> void:
 				state_label.add_theme_color_override("font_color", Color("#14538a"))
 
 
-# ---------------------------------------------------------------- 总战力计算（展示概算）
+# ---------------------------------------------------------------- 队伍加成刷新
 
-## 概算口径（UI_LAYOUT §7）：伤害类（科技全局/职业适用 + 激活羁绊 + 遗物伤害）加算，
-## 攻速倍率（遗物 ×(1/interval)、科技职业攻速）连乘；基地生命/初始金币不计入。
-## 数据与战斗同源：科技 TechTree.get_tech_bonuses、羁绊 get_bond_progress、
-## 遗物字段即 get_battle_relic_bonuses 口径；此处仅展示概算，不做编队桶 clamp。
+## 口径（UI_LAYOUT §7，v0.37.19 简化）：只展示 科技 / 羁绊 / 遗物 三个合计数值
+## ——伤害类加算（科技全局+出战职业分支 / 激活羁绊 / 已选遗物），攻速类（科技
+## 职业攻速 / 遗物 ×(1/interval)）按倍率折入显示 ≈+N%；基地生命/初始金币不计。
+## 数据与战斗同源，仅展示概算，不做编队桶 clamp；不列来源明细。
 func _refresh_power_panel() -> void:
-	if _power_total_label == null or _power_groups_box == null:
+	if _tech_value_label == null or _bond_value_label == null or _relic_value_label == null:
 		return
-	for child in _power_groups_box.get_children():
-		child.queue_free()
-
 	var profile := ProfileStore.get_profile()
+
+	# ① 科技：军略全局伤害 + 出战职业分支（伤害加算；职业攻速折入）。
 	var tech_damage := 0
 	var tech_speed := 0.0
-	var tech_rows: Array[Dictionary] = []
 	var unlocked_sources := _unlocked_tech_sources(profile)
-
-	# ① 科技（军略全局伤害 + 出战职业适用分支；来源小字列已解锁条目名）。
-	var global_damage := 0
-	var global_sources: Array[String] = []
 	for item in TechTree.get_items():
-		if not profile.has_tech(item.id):
-			continue
-		var effect: Dictionary = item.effect
-		if int(effect.get("damage_pct", 0)) > 0:
-			global_damage += int(effect["damage_pct"])
-			global_sources.append(item.name)
-	if global_damage > 0:
-		tech_damage += global_damage
-		tech_rows.append({
-			"src": "全武将伤害",
-			"val": "+%d%%" % global_damage,
-			"tip": "来源：%s" % " · ".join(global_sources),
-		})
+		if profile.has_tech(item.id):
+			tech_damage += int(item.effect.get("damage_pct", 0))
 	for character_data in _selected_character_datas():
 		var profession := character_data.profession
 		if profession == null:
 			continue
 		var profession_id := str(profession.profession_id)
-		var profession_damage := int(unlocked_sources.get("profession_%s_damage_pct" % profession_id, 0))
-		var profession_speed := int(unlocked_sources.get("profession_%s_attack_speed_pct" % profession_id, 0))
-		if profession_damage <= 0 and profession_speed <= 0:
-			continue
-		var source_names: Array[String] = []
-		if profession_damage > 0:
-			source_names.append("%s伤害 +%d" % [profession.display_name, profession_damage])
-		if profession_speed > 0:
-			source_names.append("%s攻速 +%d" % [profession.display_name, profession_speed])
-		if profession_damage > 0:
-			tech_damage += profession_damage
-			tech_rows.append({
-				"src": "%s伤害" % profession.display_name,
-				"val": "+%d%%" % profession_damage,
-				"tip": "来源：%s" % " · ".join(source_names),
-			})
-		if profession_speed > 0:
-			tech_speed += float(profession_speed)
-			tech_rows.append({
-				"src": "%s攻速" % profession.display_name,
-				"val": "+%d%%" % profession_speed,
-				"tip": "来源：%s" % " · ".join(source_names),
-			})
-	if tech_rows.is_empty():
-		tech_rows.append({
-			"src": "未解锁伤害科技",
-			"val": "+0%",
-			"dim": true,
-			"tip": "科技树 → 军略解锁后实时计入",
-		})
-	var tech_head := "+%d%%" % tech_damage
-	if tech_speed > 0.0:
-		tech_head = "≈+%d%%" % round((1.0 + float(tech_damage) / 100.0)
-			* (1.0 + tech_speed / 100.0) * 100.0 - 100.0)
-	_power_groups_box.add_child(_power_group(Color("#2eaadc"), "科技战力加成", tech_head, tech_rows))
+		tech_damage += int(unlocked_sources.get("profession_%s_damage_pct" % profession_id, 0))
+		tech_speed += float(unlocked_sources.get("profession_%s_attack_speed_pct" % profession_id, 0))
+	_apply_power_value(_tech_value_label, tech_damage, tech_speed)
 
-	# ② 羁绊（激活绿行 + 未满预览灰行：注明还差谁）。
-	var bond_rows: Array[Dictionary] = []
+	# ② 羁绊：已激活组合的同队攻击加成合计（未满员不计入）。
 	var bond_damage := 0.0
 	for progress in GameFlow.get_bond_progress(_selected_ids):
 		var bond := progress["bond"] as BondData
-		if bond == null or int(progress["count"]) <= 0:
-			continue
-		var active := bool(progress["active"])
-		var total := int(progress["total"])
-		var percent := int(round(bond.damage_bonus * 100.0))
-		if active:
+		if bond != null and bool(progress["active"]):
 			bond_damage += bond.damage_bonus
-			bond_rows.append({
-				"src": "%s %d/%d" % [bond.display_name, int(progress["count"]), total],
-				"val": "同队攻击 +%d%%" % percent,
-				"ok": true,
-			})
-		else:
-			var missing: Array[String] = []
-			for member_id in bond.member_ids:
-				if not _selected_ids.has(str(member_id)):
-					var member := GameFlow.load_character_data(str(member_id))
-					missing.append(member.display_name if member != null else str(member_id))
-			bond_rows.append({
-				"src": "%s %d/%d" % [bond.display_name, int(progress["count"]), total],
-				"val": "同队攻击 +%d%%" % percent,
-				"dim": true,
-				"tip": "预览：还差 %s · 出战即生效" % " / ".join(missing),
-			})
-	if bond_rows.is_empty():
-		bond_rows.append({
-			"src": "未激活羁绊",
-			"val": "+0%",
-			"dim": true,
-			"tip": "同队组合满员即激活（如桃园结义 3/3）",
-		})
-	_power_groups_box.add_child(_power_group(Color("#26a86f"), "羁绊加成",
-		"+%d%%" % round(bond_damage * 100.0), bond_rows))
+	_apply_power_value(_bond_value_label, int(round(bond_damage * 100.0)), 0.0)
 
-	# ③ 遗物（仅已选带计入；攻速单独按倍率折入合计）。
-	var relic_rows: Array[Dictionary] = []
+	# ③ 遗物：仅已选带计入（伤害加算；攻速倍率折入）。
 	var relic_damage := 0
 	var relic_speed := 0.0
 	for relic_id in _selected_relic_ids:
@@ -1255,28 +1144,7 @@ func _refresh_power_panel() -> void:
 		relic_damage += relic.damage_bonus_pct
 		if not is_equal_approx(relic.attack_interval_factor, 1.0):
 			relic_speed += (1.0 / relic.attack_interval_factor - 1.0) * 100.0
-		var amount := int(profile.items.get(relic_id, 0))
-		relic_rows.append({
-			"src": relic.display_name,
-			"val": _relic_effect_text(relic),
-			"tip": "持有 ×%d" % amount,
-		})
-	if relic_rows.is_empty():
-		relic_rows.append({
-			"src": "未选带遗物",
-			"val": "+0%",
-			"dim": true,
-			"tip": "最多 2 件：点击下方 pill 选带（永久使用不消耗）",
-		})
-	var relic_head := "+%d%%" % relic_damage
-	if relic_speed > 0.0:
-		relic_head = "≈+%.1f%%" % (float(relic_damage) + relic_speed)
-	_power_groups_box.add_child(_power_group(Color("#7e5fc4"), "遗物加成", relic_head, relic_rows))
-
-	# 总战力：伤害类加算 × 攻速倍率（展示概算，不做编队桶 clamp）。
-	var total := (1.0 + float(tech_damage + int(round(bond_damage * 100.0)) + relic_damage) / 100.0) \
-		* (1.0 + (tech_speed + relic_speed) / 100.0) - 1.0
-	_power_total_label.text = "+%d%%" % round(total * 100.0)
+	_apply_power_value(_relic_value_label, relic_damage, relic_speed)
 
 
 func _selected_character_datas() -> Array[CharacterData]:
@@ -1555,10 +1423,12 @@ func _confirm_character_row(character_data: CharacterData, profile: PlayerProfil
 	return row
 
 
-## 队伍遗物横卡（概念 .cf-relic）：名称 + 效果 + 持有数；未选带显示灰字占位。
+## 队伍遗物清单（概念 .cf-relic；v0.37.19 简化）：图标占位 + 名称，
+## 不显示效果与持有数；未选带显示灰字占位。
 func _confirm_relic_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	if _selected_relic_ids.is_empty():
 		var empty := Label.new()
 		empty.text = "未选带遗物（本局无遗物加成）"
@@ -1566,40 +1436,30 @@ func _confirm_relic_row() -> HBoxContainer:
 		empty.add_theme_color_override("font_color", Color("#a8bccb"))
 		row.add_child(empty)
 		return row
-	var profile := ProfileStore.get_profile()
 	for relic_id in _selected_relic_ids:
 		var relic := GameFlow.load_battle_relic_data(str(relic_id))
 		if relic == null:
 			continue
 		var card := Panel.new()
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card.custom_minimum_size = Vector2(0, 52)
+		card.custom_minimum_size = Vector2(150, 52)
 		var style := UITheme.light_card_style()
 		style.set_border_width_all(2)
 		card.add_theme_stylebox_override("panel", style)
 		var content := HBoxContainer.new()
 		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		content.offset_left = 12.0
-		content.offset_right = -12.0
-		content.offset_top = 6.0
-		content.offset_bottom = -6.0
-		content.add_theme_constant_override("separation", 10)
+		content.offset_left = 10.0
+		content.offset_right = -10.0
+		content.offset_top = 5.0
+		content.offset_bottom = -5.0
+		content.add_theme_constant_override("separation", 8)
 		card.add_child(content)
+		content.add_child(UITheme.tile_label(relic.display_name.left(1), "purple", 42.0, 19))
 		var name_label := Label.new()
 		name_label.text = relic.display_name
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 13)
 		name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 		name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		content.add_child(name_label)
-		var effect_label := Label.new()
-		effect_label.text = "%s · 持有 ×%d" % [_relic_effect_text(relic),
-			int(profile.items.get(relic_id, 0))]
-		effect_label.add_theme_font_size_override("font_size", 11)
-		effect_label.add_theme_color_override("font_color", Color("#6b93ad"))
-		effect_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		effect_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		effect_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		content.add_child(effect_label)
 		row.add_child(card)
 	return row
 
