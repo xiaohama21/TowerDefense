@@ -590,7 +590,9 @@ func _test_squad_select_screen() -> void:
 	_check(start_button != null and not start_button.disabled, "已选武将后「确认出战」应可用")
 	_check(toggles.all(func(button: Button) -> bool: return button.custom_minimum_size.x >= 232.0),
 		"武将卡片宽 232px（B-020 防选中态标签裁剪）")
-	_check(toggles.any(func(button: Button) -> bool: return button.text.contains("2/3")),
+	var squad_labels: Array[Label] = []
+	_collect_labels(scene, squad_labels)
+	_check(squad_labels.any(func(label: Label) -> bool: return label.text.contains("2/3")),
 		"选中刘/关后卡片羁绊标签应实时刷新为 2/3（B-020）")
 
 	# 编队记忆（v0.33.1）：发放遗物并把上次出战配置写入档案，重建界面应自动预填。
@@ -617,13 +619,17 @@ func _test_squad_select_screen() -> void:
 	_check(start_button2 != null and not start_button2.disabled, "预填编队后「确认出战」应可用")
 	start_button2.pressed.emit()
 	await get_tree().process_frame
-	var confirm_dialog: ConfirmationDialog = scene2.get("_confirm_dialog")
-	_check(confirm_dialog != null and confirm_dialog.visible, "点击「确认出战」应弹出二次确认弹窗")
-	_check(confirm_dialog.dialog_text.contains("刘备") and confirm_dialog.dialog_text.contains("关羽"),
+	var confirm_popup := scene2.get("_confirm_popup") as Control
+	_check(confirm_popup != null and confirm_popup.visible, "点击「确认出战」应弹出二次确认弹窗")
+	var popup_labels: Array[Label] = []
+	if confirm_popup != null:
+		_collect_labels(confirm_popup, popup_labels)
+	_check(popup_labels.any(func(label: Label) -> bool: return label.text.contains("刘备"))
+		and popup_labels.any(func(label: Label) -> bool: return label.text.contains("关羽")),
 		"确认弹窗应展示出战武将名单")
-	_check(confirm_dialog.dialog_text.contains("狼牙符") and confirm_dialog.dialog_text.contains("永久使用"),
+	_check(popup_labels.any(func(label: Label) -> bool: return label.text.contains("狼牙符"))
+		and popup_labels.any(func(label: Label) -> bool: return label.text.contains("永久使用")),
 		"确认弹窗应展示遗物清单与永久使用说明")
-	confirm_dialog.hide()
 	scene2.queue_free()
 	await get_tree().process_frame
 
@@ -734,4 +740,3 @@ func _finish() -> void:
 		for failure in failures:
 			print(" - %s" % failure)
 		get_tree().quit(1)
-

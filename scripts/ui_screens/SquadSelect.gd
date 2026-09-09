@@ -1,47 +1,167 @@
 extends Control
 
-## 编队界面（GDD 阶段 1）：从已拥有武将中选出 squad_size 个出战。
-## 未解锁角色不会出现在拥有列表中（解锁即拥有，见 CHARACTERS.md 4.3）。
-## 纵向分区定稿（v0.33.1，UI_LAYOUT.md §6）：武将选择区 → 羁绊提示 → 遗物选带区 →
-## 底部固定操作条（返回选关 / 确认出战 + 二次确认弹窗）；出战编队持久记忆自动预填。
+## 编队界面（SquadSelect）——按概念图 ui_squad.png v3 / UI_LAYOUT.md §7（v0.20.35）
+## 落地（docs v0.37.17 / 程序 0.8.11.11，用户拍板 2026-09-09「直接按照概念图开发编队界面与出战弹窗」）：
+## 天空渐变底 + 亮蓝白页（标题行：出征·编队 + 章节 tag + 关卡·难度 tag + 出战计数；
+## 操作提示行：点选说明 +「溢出自动滚动」tag + 已拥有/未解锁计数）→ 左右两栏：
+## 左 = 3 列滚动武将网格（≤9 名 3×3 一屏铺满、第 10 位起自动增行纵向滚动；卡 =
+## 圆头像 / 姓名+Lv / 职业·定位 / 羁绊 mini（随勾选实时刷新）/ 卡面底部内嵌建造费用通栏
+## B-025（与卡面同底同圆角，不贴片）；未解锁灰卡标注解锁来源，无费用）+
+## 队伍遗物行（说明列 + 紫晶渐变图标 pill：名称 / 持有×n / 已选·可选徽标；悬停浮层看详情、
+## 移开即消失、不占布局；超过一行横向滚动）→ 右 = 总战力加成面板（随编队实时计算：
+## 科技 / 羁绊 / 遗物三组明细 + 概算口径注脚；明细超高组内滚动）→ 底部固定操作条
+## （返回选关 灰 / 确认出战 金）→「确认出战」自绘二次确认弹窗（ui_squad_confirm.png 版式：
+## 蓝标题条 + 章节 chip + ✕；出战武将名单行 + 遗物横卡 + 虚线提示条 + 取消/确认底栏）。
+## 行为保留（v0.33.1）：点选/取消、最多 squad_size 名、遗物最多 2 件（超上限禁选）、
+## 编队记忆自动预填；确认后写入档案（squad_character_ids / squad_relic_ids）并 goto_battle；
+## 返回选关保留关卡与难度。
 
 const RELIC_CAP := 2
+const GRID_COLUMNS := 3
+const CARD_MIN_SIZE := Vector2(280, 130)
+const CN_NUMERALS := ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
+
+## 武将卡副行「职业 · 定位」的定位短词（概念 ui_squad.html v3 卡片 .sub 第二段，用户拍板
+## v3 定稿口径）；缺失回退百科打法词（EncyclopediaPanel.CHARACTER_FLAVOR），再缺失留空。
+const SQUAD_ROLE_WORDS := {
+	"liu_bei": "辅助",
+	"guan_yu": "爆发",
+	"zhang_fei": "近战",
+	"huang_zhong": "点杀",
+	"huang_fu_song": "范围",
+	"diao_chan": "大招辅助",
+	"zhou_wei": "牵制",
+	"zhao_yun": "快攻",
+	"zhuge_liang": "范围",
+}
+
+const EncyclopediaPanelScript := preload("res://scripts/ui_screens/panels/EncyclopediaPanel.gd")
+
+## 细虚线（Godot StyleBoxFlat 不支持 dashed，自绘横线；概念 .cost 上承线 / 分区线）。
+class DashLine:
+	extends Control
+
+	var dash_color := Color("#e6f0f7")
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		draw_dashed_line(Vector2.ZERO, Vector2(size.x, 0.0), dash_color, 1.0, 5.0)
+
+
+## 遗物 pill 右下角「虚线圆 + ⇪」悬停示意（概念 .rpill 角标；纯装饰不响应鼠标）。
+class HoverHintMark:
+	extends Control
+
+	var _color := Color("#9fb3c4")
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var center := Vector2(size.x * 0.5, size.y * 0.5)
+		var radius := 4.5
+		var segments := 16
+		for i in range(segments):
+			if i % 2 == 0:
+				var a0 := TAU * float(i) / float(segments)
+				var a1 := TAU * float(i + 1) / float(segments)
+				draw_arc(center, radius, a0, a1, 2, _color, 1.0, true)
+		var x := center.x
+		draw_line(Vector2(x, center.y + 2.0), Vector2(x, center.y - 3.0), _color, 1.0)
+		draw_line(Vector2(x - 2.5, center.y - 0.5), Vector2(x, center.y - 3.0), _color, 1.0)
+		draw_line(Vector2(x + 2.5, center.y - 0.5), Vector2(x, center.y - 3.0), _color, 1.0)
+
 
 var _stage_data: StageData
-var _owned_characters: Array[CharacterData] = []
+var _chapter: ChapterData
+var _roster: Array[CharacterData] = []
+var _owned_ids: Array[String] = []
 var _selected_ids: Array[String] = []
-var _buttons: Dictionary = {}
-
-var _counter_label: Label
-var _bond_label: Label
-var _start_button: Button
-var _confirm_dialog: ConfirmationDialog
 var _selected_relic_ids: Array[String] = []
-var _relic_buttons: Dictionary = {}
-var _relic_counter_label: Label
+
+## 武将卡控件表：character_id → {button, level, bonds_box, state_label, state_style,
+## cost_tag, cost_value, lock_label, src_label, locked}。
+var _card_widgets: Dictionary = {}
+## 遗物 pill 控件表：relic_id → {button, state_label, state_style, name_label}。
+var _pill_widgets: Dictionary = {}
+
+var _title_progress_label: Label
+var _zone_progress_label: Label
+var _start_button: Button
+var _grid_scroll: ScrollContainer
+var _grid: GridContainer
+var _relic_scroll: ScrollContainer
+var _relic_row: HBoxContainer
+var _power_groups_box: VBoxContainer
+var _power_total_label: Label
+
+var _confirm_popup: Control
+var _relic_tooltip: PanelContainer
+var _relic_tooltip_box: VBoxContainer
 
 
 func _ready() -> void:
 	_stage_data = GameFlow.load_stage_data(GameFlow.selected_stage_id)
-	_load_owned_characters()
+	_chapter = _chapter_for_stage(_stage_data)
+	_load_roster()
 	_apply_saved_memory()
 	_build_ui()
-	_sync_button_states()
-	_sync_relic_button_states()
+	_sync_all()
 	_refresh()
 
 
-## 编队记忆自动预填（v0.33.1，UI_LAYOUT.md §6）：优先读取玩家档案记忆
-## （「确认出战」写入 squad_character_ids / squad_relic_ids）；档案无记忆时回退
-## 运行时状态（旧版流程 / 战斗重试直接带参进入的场景）。
-## 校验规则：武将须仍拥有且不超 squad_size 上限；遗物须仍有库存（数量 ≥1）且不超 2 件。
+# ---------------------------------------------------------------- 数据准备
+
+func _chapter_for_stage(stage: StageData) -> ChapterData:
+	if stage == null:
+		return GameFlow.get_chapter()
+	for entry in ResourceLoader.list_directory(GameFlow.CHAPTER_SCENE_DIR):
+		if not entry.ends_with(".tres"):
+			continue
+		var chapter := load("%s/%s" % [GameFlow.CHAPTER_SCENE_DIR, entry]) as ChapterData
+		if chapter == null:
+			continue
+		for chapter_stage in chapter.stages:
+			if chapter_stage != null and str(chapter_stage.stage_id) == str(stage.stage_id):
+				return chapter
+	return GameFlow.get_chapter()
+
+
+## 全量武将卡（含未拥有灰卡）：概念顺序（CHARACTER_ORDER）优先，未知角色按 id 收尾。
+func _load_roster() -> void:
+	var profile := ProfileStore.get_profile()
+	_owned_ids.clear()
+	for owned_id in profile.get_owned_character_ids():
+		_owned_ids.append(str(owned_id))
+	var order := {}
+	for i in EncyclopediaPanelScript.CHARACTER_ORDER.size():
+		order[EncyclopediaPanelScript.CHARACTER_ORDER[i]] = i
+	var ids := GameFlow.get_all_character_ids()
+	ids.sort_custom(func(a, b) -> bool:
+		var ai: int = order.get(str(a), 999999)
+		var bi: int = order.get(str(b), 999999)
+		if ai != bi:
+			return ai < bi
+		return str(a) < str(b)
+	)
+	for character_id in ids:
+		var character_data := GameFlow.load_character_data(str(character_id))
+		if character_data != null:
+			_roster.append(character_data)
+
+
+## 编队记忆自动预填（v0.33.1，UI_LAYOUT §7）：优先玩家档案记忆，档案无记忆回退运行时
+## 状态；武将须仍拥有且不超 squad_size，遗物须仍有库存且不超 2 件。
 func _apply_saved_memory() -> void:
 	var profile := ProfileStore.get_profile()
 	var saved_characters := GameFlow.load_saved_squad(profile)
 	var character_source := saved_characters if not saved_characters.is_empty() else GameFlow.squad_character_ids
-	for character_data in _owned_characters:
+	for character_data in _roster:
 		var character_id := str(character_data.character_id)
-		if character_source.has(character_id) and _selected_ids.size() < _squad_cap():
+		if _is_owned(character_id) and character_source.has(character_id) \
+				and _selected_ids.size() < _squad_cap():
 			_selected_ids.append(character_id)
 	var saved_relics := GameFlow.load_saved_squad_relics(profile)
 	var relic_source := saved_relics if not saved_relics.is_empty() else GameFlow.squad_relic_ids
@@ -49,148 +169,402 @@ func _apply_saved_memory() -> void:
 		if _selected_relic_ids.size() >= RELIC_CAP or _selected_relic_ids.has(relic_id):
 			continue
 		var amount := int(profile.items.get(relic_id, 0))
-		var relic := GameFlow.load_battle_relic_data(relic_id)
+		var relic := GameFlow.load_battle_relic_data(str(relic_id))
 		if amount > 0 and relic != null and relic.is_valid():
-			_selected_relic_ids.append(relic_id)
+			_selected_relic_ids.append(str(relic_id))
 
 
-func _load_owned_characters() -> void:
-	var profile := ProfileStore.get_profile()
-	for character_id in profile.get_owned_character_ids():
-		var character_data := GameFlow.load_character_data(character_id)
-		if character_data != null:
-			_owned_characters.append(character_data)
+func _is_owned(character_id: String) -> bool:
+	return _owned_ids.has(character_id)
 
+
+func _squad_cap() -> int:
+	return _stage_data.squad_size if _stage_data != null else 4
+
+
+# ---------------------------------------------------------------- 页面骨架
 
 func _build_ui() -> void:
-	var background := ColorRect.new()
-	background.color = UITheme.LIGHT_PAGE_BG
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
+	_build_background()
+	var page := _build_page_panel()
+	_build_page_content(page)
+	_build_relic_tooltip()
 
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 100)
-	margin.add_theme_constant_override("margin_right", 100)
-	margin.add_theme_constant_override("margin_top", 48)
-	margin.add_theme_constant_override("margin_bottom", 48)
-	add_child(margin)
 
+## 天空三档渐变 + 顶部柔光（同 GameHub / MainMenu 视觉令牌）。
+func _build_background() -> void:
+	var sky := TextureRect.new()
+	sky.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sky.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	var sky_gradient := Gradient.new()
+	sky_gradient.offsets = PackedFloat32Array([0.0, 0.48, 1.0])
+	sky_gradient.colors = PackedColorArray([UITheme.SKY_TOP, UITheme.SKY_MID, UITheme.SKY_BOTTOM])
+	var sky_texture := GradientTexture2D.new()
+	sky_texture.gradient = sky_gradient
+	sky_texture.fill_from = Vector2(0.5, 0.0)
+	sky_texture.fill_to = Vector2(0.5, 1.0)
+	sky_texture.width = 8
+	sky_texture.height = 256
+	sky.texture = sky_texture
+	add_child(sky)
+
+	var glow := TextureRect.new()
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	var glow_gradient := Gradient.new()
+	glow_gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+	glow_gradient.colors = PackedColorArray([Color(1, 1, 1, 0.28), Color(1, 1, 1, 0.14), Color(1, 1, 1, 0.0)])
+	var glow_texture := GradientTexture2D.new()
+	glow_texture.gradient = glow_gradient
+	glow_texture.fill = GradientTexture2D.FILL_RADIAL
+	glow_texture.fill_from = Vector2(0.5, 0.5)
+	glow_texture.fill_to = Vector2(1.0, 0.5)
+	glow_texture.width = 128
+	glow_texture.height = 128
+	glow.texture = glow_texture
+	glow.position = Vector2(640.0 - 380.0, -160.0)
+	glow.size = Vector2(760.0, 420.0)
+	add_child(glow)
+
+
+## 居中圆角页（概念 .page：亮蓝描边 + 7px 深蓝下边 + 圆角 18 + 投影）。
+func _build_page_panel() -> Panel:
+	var page := Panel.new()
+	page.anchor_left = 0.0
+	page.anchor_right = 1.0
+	page.anchor_top = 0.0
+	page.anchor_bottom = 1.0
+	page.offset_left = 24.0
+	page.offset_right = -24.0
+	page.offset_top = 36.0
+	page.offset_bottom = -36.0
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#f2faff")
+	style.border_color = Color("#1c9fd7")
+	style.set_border_width_all(3)
+	style.border_width_bottom = 7
+	style.set_corner_radius_all(18)
+	style.shadow_color = Color(0.024, 0.11, 0.196, 0.45)
+	style.shadow_size = 26
+	style.shadow_offset = Vector2(0, 12)
+	page.add_theme_stylebox_override("panel", style)
+	add_child(page)
+	return page
+
+
+func _build_page_content(page: Panel) -> void:
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 16)
-	margin.add_child(root)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.offset_left = 22.0
+	root.offset_right = -22.0
+	root.offset_top = 14.0
+	root.offset_bottom = -12.0
+	root.add_theme_constant_override("separation", 9)
+	page.add_child(root)
 
-	var squad_cap: int = _stage_data.squad_size if _stage_data != null else 4
-	var stage_name: String = _stage_data.display_name if _stage_data != null else "未选择关卡"
-	var diff_name: String = Difficulty.name(GameFlow.selected_difficulty)
+	root.add_child(_build_title_bar())
+	root.add_child(_build_zone_bar())
+
+	var cols := HBoxContainer.new()
+	cols.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	cols.add_theme_constant_override("separation", 14)
+	root.add_child(cols)
+	var left := VBoxContainer.new()
+	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left.add_theme_constant_override("separation", 10)
+	cols.add_child(left)
+	left.add_child(_build_character_area())
+	left.add_child(_build_relic_area())
+	cols.add_child(_build_power_panel())
+
+	root.add_child(_build_footer())
+
+## 标题行（概念 .title）：出征·编队 + 章节 tag + 关卡·难度 tag + 出战计数。
+func _build_title_bar() -> HBoxContainer:
+	var bar := HBoxContainer.new()
+	bar.add_theme_constant_override("separation", 10)
 	var title := Label.new()
-	title.text = "编队出征 · %s（最多 %d 名武将 · %s）" % [stage_name, squad_cap, diff_name]
-	title.add_theme_font_size_override("font_size", 30)
+	title.text = "出征 · 编队"
 	title.add_theme_font_override("font", UITheme.spaced_font(3))
-	title.add_theme_font_size_override("font_size", 27)
+	title.add_theme_font_size_override("font_size", 26)
 	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-	root.add_child(title)
-
-	var grid := GridContainer.new()
-	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
-	root.add_child(grid)
-
-	for character_data in _owned_characters:
-		var character_id := str(character_data.character_id)
-		var button := Button.new()
-		button.toggle_mode = true
-		button.custom_minimum_size = Vector2(232, 84)
-		button.add_theme_font_size_override("font_size", 16)
-		button.text = _character_button_text(character_data)
-		button.toggled.connect(_on_character_toggled.bind(character_id))
-		_apply_selected_style(button)
-		grid.add_child(button)
-		_buttons[character_id] = button
-
-	_counter_label = Label.new()
-	_counter_label.add_theme_font_size_override("font_size", 22)
-	_counter_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-	root.add_child(_counter_label)
-
-	_bond_label = Label.new()
-	_bond_label.add_theme_font_size_override("font_size", 15)
-	_bond_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	_bond_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	root.add_child(_bond_label)
-
-	# 遗物选带（v0.19.0；✅ v0.33.1 改永久使用——选带不消耗库存、可反复携带，BUGS B-019）。
-	var relic_hint := Label.new()
-	relic_hint.text = "遗物选带（最多 %d 件 · 永久使用，选带不消耗库存）" % RELIC_CAP
-	relic_hint.add_theme_font_size_override("font_size", 16)
-	relic_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	root.add_child(relic_hint)
-
-	# HFlowContainer 自动换行，避免遗物按钮过多时溢出屏幕（v0.19.1 修复）。 
-	var relic_box := HFlowContainer.new()
-	relic_box.add_theme_constant_override("separation", 10)
-	root.add_child(relic_box)
-
-	var profile := ProfileStore.get_profile()
-	for relic_id in GameFlow.get_owned_relic_ids(profile):
-		var relic := GameFlow.load_battle_relic_data(relic_id)
-		if relic == null:
-			continue
-		var relic_button := Button.new()
-		relic_button.toggle_mode = true
-		relic_button.custom_minimum_size = Vector2(190, 54)
-		relic_button.add_theme_font_size_override("font_size", 14)
-		var relic_amount := int(profile.items.get(relic_id, 0))
-		relic_button.text = "%s ×%d\n%s" % [relic.display_name, relic_amount, relic.description]
-		relic_button.toggled.connect(_on_relic_toggled.bind(relic_id))
-		_apply_selected_style(relic_button)
-		relic_box.add_child(relic_button)
-		_relic_buttons[relic_id] = relic_button
-
-	_relic_counter_label = Label.new()
-	_relic_counter_label.add_theme_font_size_override("font_size", 15)
-	_relic_counter_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	root.add_child(_relic_counter_label)
-
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 16)
-	root.add_child(actions)
-
-	var back_button := Button.new()
-	back_button.text = "返回选关"
-	back_button.custom_minimum_size = Vector2(160, 48)
-	back_button.focus_mode = Control.FOCUS_NONE
-	back_button.add_theme_font_size_override("font_size", 17)
-	UITheme.apply_kenney_rect_button(back_button, "grey", UITheme.LIGHT_BODY)
-	back_button.pressed.connect(func() -> void: GameFlow.goto_stage_select())
-	actions.add_child(back_button)
-
-	_start_button = Button.new()
-	_start_button.text = "确认出战"
-	_start_button.custom_minimum_size = Vector2(220, 48)
-	_start_button.focus_mode = Control.FOCUS_NONE
-	_start_button.add_theme_font_override("font", UITheme.spaced_font(3))
-	_start_button.add_theme_font_size_override("font_size", 20)
-	UITheme.apply_kenney_rect_button(_start_button, "yellow", UITheme.INK)
-	_start_button.pressed.connect(_on_start_pressed)
-	actions.add_child(_start_button)
-
-	# 「确认出战」二次确认弹窗（v0.33.1）：展示关卡/难度/武将名单/遗物清单，确认后才进战斗。
-	_confirm_dialog = ConfirmationDialog.new()
-	_confirm_dialog.title = "确认出战"
-	var ok_button := _confirm_dialog.get_ok_button()
-	if ok_button != null:
-		ok_button.text = "确认出战"
-	var cancel_button := _confirm_dialog.get_cancel_button()
-	if cancel_button != null:
-		cancel_button.text = "取消"
-	_confirm_dialog.confirmed.connect(_on_confirm_deploy)
-	add_child(_confirm_dialog)
+	bar.add_child(title)
+	bar.add_child(UITheme.tag_label(_chapter_label(), Color("#14538a"), Color("#e1f1fb"), 13))
+	bar.add_child(UITheme.tag_label(_stage_and_difficulty_label(), UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 13))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.add_child(spacer)
+	_title_progress_label = UITheme.tag_label("出战 0 / 0", Color("#33566f"), Color("#e1f1fb"), 14)
+	bar.add_child(_title_progress_label)
+	return bar
 
 
-func _bond_tag_text(character_id: String) -> String:
-	var tags: Array[String] = []
+func _chapter_label() -> String:
+	if _chapter != null:
+		var numeral: String = CN_NUMERALS[_chapter.chapter_number - 1] \
+				if _chapter.chapter_number >= 1 and _chapter.chapter_number <= CN_NUMERALS.size() \
+				else str(_chapter.chapter_number)
+		return "第%s章 · %s" % [numeral, _chapter.display_name]
+	return "第一章 · 黄巾之乱"
+
+
+func _stage_and_difficulty_label() -> String:
+	if _stage_data == null:
+		return "未选择关卡"
+	return "s%02d %s · %s" % [_stage_data.stage_number, _stage_data.display_name,
+		Difficulty.name(GameFlow.selected_difficulty)]
+
+
+## 操作提示行（概念 .zone）：说明 + 溢出自动滚动 tag + 已拥有/未解锁计数。
+func _build_zone_bar() -> HBoxContainer:
+	var bar := HBoxContainer.new()
+	bar.add_theme_constant_override("separation", 8)
+	var label := Label.new()
+	label.text = "出战武将"
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", Color("#33566f"))
+	label.add_theme_font_override("font", UITheme.spaced_font(2))
+	bar.add_child(label)
+	var hint := Label.new()
+	hint.text = "点选 / 取消 · 金色描边为出战 · 羁绊与右侧战力加成实时刷新"
+	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_color_override("font_color", Color("#a8bccb"))
+	bar.add_child(hint)
+	var scroll_tag := UITheme.tag_label("溢出自动滚动", Color("#14538a"), Color("#e1f1fb"), 11)
+	bar.add_child(scroll_tag)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.add_child(spacer)
+	_zone_progress_label = Label.new()
+	_zone_progress_label.add_theme_font_size_override("font_size", 13)
+	_zone_progress_label.add_theme_color_override("font_color", Color("#33566f"))
+	_zone_progress_label.add_theme_font_override("font", UITheme.spaced_font(1))
+	bar.add_child(_zone_progress_label)
+	return bar
+
+
+# ---------------------------------------------------------------- 左：武将网格
+
+func _build_character_area() -> Control:
+	_grid_scroll = ScrollContainer.new()
+	_grid_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_grid_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grid_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_grid = GridContainer.new()
+	_grid.columns = GRID_COLUMNS
+	_grid.add_theme_constant_override("h_separation", 10)
+	_grid.add_theme_constant_override("v_separation", 10)
+	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grid_scroll.add_child(_grid)
+	_style_v_scrollbar(_grid_scroll)
+	for character_data in _roster:
+		_grid.add_child(_make_character_card(character_data))
+	return _grid_scroll
+
+
+func _make_character_card(character_data: CharacterData) -> Button:
+	var character_id := str(character_data.character_id)
+	var owned := _is_owned(character_id)
+	var card := Button.new()
+	card.focus_mode = Control.FOCUS_NONE
+	card.toggle_mode = owned
+	card.disabled = not owned
+	card.custom_minimum_size = CARD_MIN_SIZE
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_apply_card_styleboxes(card, owned)
+	if owned:
+		card.toggled.connect(_on_character_toggled.bind(character_id))
+
+	var content := VBoxContainer.new()
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 11.0
+	content.offset_right = -11.0
+	content.offset_top = 8.0
+	content.offset_bottom = 0.0
+	content.add_theme_constant_override("separation", 0)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(content)
+
+	var body := HBoxContainer.new()
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 11)
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(body)
+
+	var avatar := UITheme.avatar_label(character_data.display_name.left(1),
+		"grey" if not owned else UITheme.character_avatar_color_key(character_id), 58.0, 27)
+	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	body.add_child(avatar)
+
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	info.add_theme_constant_override("separation", 3)
+	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_child(info)
+
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 7)
+	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info.add_child(name_row)
+	var name_label := Label.new()
+	name_label.text = character_data.display_name
+	name_label.add_theme_font_override("font", UITheme.spaced_font(1))
+	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_color_override("font_color",
+		UITheme.LIGHT_INK if owned else Color("#9fb3c4"))
+	name_row.add_child(name_label)
+	var level_label := Label.new()
+	level_label.text = ""
+	level_label.visible = owned
+	level_label.add_theme_stylebox_override("normal", UITheme.tag_style(Color("#e1f1fb"), 7, 1))
+	level_label.add_theme_font_size_override("font_size", 11)
+	level_label.add_theme_color_override("font_color", Color("#14538a"))
+	name_row.add_child(level_label)
+
+	var sub_label := Label.new()
+	sub_label.text = _character_sub_text(character_data, owned)
+	sub_label.add_theme_font_size_override("font_size", 12)
+	sub_label.add_theme_color_override("font_color",
+		Color("#6b93ad") if owned else Color("#a8bccb"))
+	sub_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	info.add_child(sub_label)
+
+	var src_label := Label.new()
+	src_label.text = GameFlow.get_acquisition_text(character_id) if not owned else ""
+	src_label.visible = not owned
+	src_label.add_theme_font_size_override("font_size", 10)
+	src_label.add_theme_color_override("font_color", Color("#9fb3c4"))
+	src_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	info.add_child(src_label)
+
+	var bonds_box := HBoxContainer.new()
+	bonds_box.visible = owned
+	bonds_box.add_theme_constant_override("separation", 5)
+	bonds_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info.add_child(bonds_box)
+
+	# 卡面底部内嵌建造费用通栏（B-025）：细虚线上承 + 与卡面同底同圆角，不贴片。
+	var cost_area := VBoxContainer.new()
+	cost_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(cost_area)
+	var dash := DashLine.new()
+	dash.custom_minimum_size = Vector2(0, 1)
+	dash.dash_color = Color("#dbe6ee") if not owned else Color("#e6f0f7")
+	cost_area.add_child(dash)
+	var cost_row := HBoxContainer.new()
+	cost_row.custom_minimum_size = Vector2(0, 27)
+	cost_row.add_theme_constant_override("separation", 7)
+	cost_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cost_area.add_child(cost_row)
+
+	var cost_tag := Label.new()
+	cost_tag.text = "建造费用"
+	cost_tag.visible = owned
+	cost_tag.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OPEN_BG, 6, 1))
+	cost_tag.add_theme_font_size_override("font_size", 10)
+	cost_tag.add_theme_color_override("font_color", Color("#8a6d00"))
+	cost_tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cost_row.add_child(cost_tag)
+
+	var cost_value := Label.new()
+	cost_value.text = str(character_data.build_cost) if owned else ""
+	cost_value.visible = owned
+	cost_value.add_theme_font_size_override("font_size", 15)
+	cost_value.add_theme_color_override("font_color", Color("#b8860b"))
+	cost_value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cost_row.add_child(cost_value)
+
+	var lock_label := Label.new()
+	lock_label.text = "🔒"
+	lock_label.visible = not owned
+	lock_label.add_theme_font_size_override("font_size", 13)
+	lock_label.add_theme_color_override("font_color", Color("#9fb3c4"))
+	lock_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cost_row.add_child(lock_label)
+
+	var cost_spacer := Control.new()
+	cost_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cost_row.add_child(cost_spacer)
+
+	var state_label := Label.new()
+	var state_style := UITheme.tag_style(Color("#e1f1fb"), 7, 1)
+	state_label.add_theme_stylebox_override("normal", state_style)
+	state_label.add_theme_font_size_override("font_size", 10)
+	state_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cost_row.add_child(state_label)
+
+	var widgets := {
+		"button": card,
+		"level": level_label,
+		"bonds": bonds_box,
+		"src": src_label,
+		"state": state_label,
+		"state_style": state_style,
+		"locked": not owned,
+	}
+	_card_widgets[character_id] = widgets
+	return card
+
+
+## 武将卡副行「职业 · 定位」（概念 .sub）；定位词 = SQUAD_ROLE_WORDS，缺失回退百科打法词。
+func _character_sub_text(character_data: CharacterData, owned: bool) -> String:
+	var profession_name := character_data.profession.display_name \
+			if character_data.profession != null else "未知职业"
+	if not owned:
+		return profession_name
+	var character_id := str(character_data.character_id)
+	var role: String = SQUAD_ROLE_WORDS.get(character_id, "")
+	if role.is_empty():
+		role = EncyclopediaPanelScript.CHARACTER_FLAVOR.get(character_id, "")
+	return profession_name if role.is_empty() else "%s · %s" % [profession_name, role]
+
+
+## 武将卡四态样式（概念 .scard：白底蓝灰描边圆角 14；选中金框 #ffcc00 + 米黄底 + 金晕）。
+func _apply_card_styleboxes(card: Button, owned: bool) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color("#ffffff")
+	normal.border_color = Color("#d7e9f5")
+	normal.set_border_width_all(3)
+	normal.set_corner_radius_all(14)
+	normal.content_margin_left = 11.0
+	normal.content_margin_right = 11.0
+	normal.content_margin_top = 8.0
+	normal.content_margin_bottom = 0.0
+	var hover: StyleBoxFlat = normal.duplicate()
+	hover.bg_color = Color("#f7fbfe")
+	hover.border_color = Color("#9fd0ea")
+	var disabled: StyleBoxFlat = normal.duplicate()
+	disabled.bg_color = Color("#eef3f7")
+	disabled.border_color = Color("#d5e0e8")
+	var selected := StyleBoxFlat.new()
+	selected.bg_color = Color("#fffdf2")
+	selected.border_color = Color("#ffcc00")
+	selected.set_border_width_all(3)
+	selected.set_corner_radius_all(14)
+	selected.shadow_color = Color(1.0, 0.8, 0.0, 0.35)
+	selected.shadow_size = 5
+	selected.content_margin_left = 11.0
+	selected.content_margin_right = 11.0
+	selected.content_margin_top = 8.0
+	selected.content_margin_bottom = 0.0
+	card.add_theme_stylebox_override("normal", normal)
+	card.add_theme_stylebox_override("hover", hover)
+	card.add_theme_stylebox_override("disabled", disabled)
+	card.add_theme_stylebox_override("pressed", selected)
+	card.add_theme_stylebox_override("hover_pressed", selected)
+	card.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+
+
+## 卡面羁绊 mini 标签（概念 .mini：激活绿 / 预览黄；随勾选实时刷新，B-020 口径）。
+func _refresh_card_bonds(bonds_box: HBoxContainer, character_id: String) -> void:
+	if not is_instance_valid(bonds_box):
+		return
+	for child in bonds_box.get_children():
+		child.queue_free()
 	var squad := _selected_ids.duplicate()
 	if not squad.has(character_id):
 		squad.append(character_id)
@@ -198,49 +572,433 @@ func _bond_tag_text(character_id: String) -> String:
 		var bond := progress["bond"] as BondData
 		if bond == null or not bond.member_ids.has(StringName(character_id)):
 			continue
-		tags.append("%s %d/%d" % [bond.display_name, int(progress["count"]), int(progress["total"])])
-	return "　".join(tags)
+		var count := int(progress["count"])
+		var total := int(progress["total"])
+		var active := bool(progress["active"])
+		var tag := Label.new()
+		tag.text = "%s %d/%d" % [bond.display_name.left(2), count, total]
+		tag.add_theme_stylebox_override("normal", UITheme.tag_style(
+			UITheme.TAG_OK_BG if active else UITheme.TAG_OPEN_BG, 6, 1))
+		tag.add_theme_font_size_override("font_size", 10)
+		tag.add_theme_color_override("font_color",
+			UITheme.TAG_OK_FG if active else UITheme.TAG_OPEN_FG)
+		bonds_box.add_child(tag)
 
 
-## 武将卡片文本（v0.33.2，BUGS B-020）：统一构建入口，勾选后随羁绊预览计数刷新。
-func _character_button_text(character_data: CharacterData) -> String:
-	var bond_tags := _bond_tag_text(str(character_data.character_id))
-	return "%s\n%s · %d 金币%s" % [
-		character_data.display_name, _profession_name(character_data), character_data.build_cost,
-		("\n" + bond_tags) if bond_tags != "" else "",
-	]
+# ---------------------------------------------------------------- 左：队伍遗物行
+
+func _build_relic_area() -> Control:
+	var zone := HBoxContainer.new()
+	zone.add_theme_constant_override("separation", 8)
+	zone.custom_minimum_size = Vector2(0, 52)
+
+	var side := VBoxContainer.new()
+	side.custom_minimum_size = Vector2(88, 0)
+	side.add_theme_constant_override("separation", 1)
+	var side_title := Label.new()
+	side_title.text = "队伍遗物"
+	side_title.add_theme_font_override("font", UITheme.spaced_font(2))
+	side_title.add_theme_font_size_override("font_size", 13)
+	side_title.add_theme_color_override("font_color", Color("#33566f"))
+	side.add_child(side_title)
+	var side_hint := Label.new()
+	side_hint.text = "悬停看详情\n移开即消失\n图标待美术"
+	side_hint.add_theme_font_size_override("font_size", 9)
+	side_hint.add_theme_color_override("font_color", Color("#a8bccb"))
+	side_hint.add_theme_constant_override("line_spacing", 1)
+	side.add_child(side_hint)
+	zone.add_child(side)
+
+	_relic_scroll = ScrollContainer.new()
+	_relic_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_relic_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_relic_row = HBoxContainer.new()
+	_relic_row.add_theme_constant_override("separation", 8)
+	_relic_scroll.add_child(_relic_row)
+	_style_h_scrollbar(_relic_scroll)
+	zone.add_child(_relic_scroll)
+
+	var profile := ProfileStore.get_profile()
+	for relic_id in GameFlow.get_owned_relic_ids(profile):
+		_relic_row.add_child(_make_relic_pill(relic_id, int(profile.items.get(relic_id, 0))))
+	return zone
 
 
-## 刷新全部武将卡片文本（v0.33.2，BUGS B-020）：羁绊 X/Y 预览随当前勾选实时更新。
-func _refresh_character_button_texts() -> void:
-	for character_data in _owned_characters:
-		var button := _buttons.get(str(character_data.character_id)) as Button
-		if is_instance_valid(button):
-			button.text = _character_button_text(character_data)
+## 遗物 pill（概念 .rpill：紫晶渐变方块图标 + 名称 + 持有 ×n + 已选/可选徽标 +
+## 右下角虚线圆悬停示意）；悬停浮层看详情、移开即消失（不占页面布局）。
+func _make_relic_pill(relic_id: String, amount: int) -> Button:
+	var relic := GameFlow.load_battle_relic_data(relic_id)
+	if relic == null:
+		return Button.new()
+	var pill := Button.new()
+	pill.focus_mode = Control.FOCUS_NONE
+	pill.toggle_mode = true
+	pill.custom_minimum_size = Vector2(150, 52)
+	pill.add_theme_stylebox_override("normal", _pill_style(false))
+	pill.add_theme_stylebox_override("hover", _pill_style(false, true))
+	pill.add_theme_stylebox_override("pressed", _pill_style(true))
+	pill.add_theme_stylebox_override("hover_pressed", _pill_style(true))
+	pill.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	pill.toggled.connect(_on_relic_toggled.bind(relic_id))
+	pill.mouse_entered.connect(_show_relic_tooltip.bind(relic_id))
+	pill.mouse_exited.connect(_hide_relic_tooltip)
+
+	var content := HBoxContainer.new()
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 8.0
+	content.offset_right = -8.0
+	content.offset_top = 3.0
+	content.offset_bottom = -3.0
+	content.add_theme_constant_override("separation", 8)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pill.add_child(content)
+
+	content.add_child(UITheme.tile_label(relic.display_name.left(1), "purple", 46.0, 21))
+
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	info.add_theme_constant_override("separation", 0)
+	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(info)
+	var name_label := Label.new()
+	name_label.text = relic.display_name
+	name_label.add_theme_font_size_override("font_size", 13)
+	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	info.add_child(name_label)
+	var amount_label := Label.new()
+	amount_label.text = "持有 ×%d" % amount
+	amount_label.add_theme_font_size_override("font_size", 10)
+	amount_label.add_theme_color_override("font_color", Color("#a8bccb"))
+	info.add_child(amount_label)
+
+	var state_label := Label.new()
+	var state_style := UITheme.tag_style(UITheme.TAG_OPEN_BG, 6, 1)
+	state_label.add_theme_stylebox_override("normal", state_style)
+	state_label.add_theme_font_size_override("font_size", 10)
+	state_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	content.add_child(state_label)
+
+	var hint_mark := HoverHintMark.new()
+	hint_mark.custom_minimum_size = Vector2(16, 16)
+	hint_mark.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	hint_mark.offset_left = -18.0
+	hint_mark.offset_top = -18.0
+	hint_mark.offset_right = -2.0
+	hint_mark.offset_bottom = -2.0
+	hint_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pill.add_child(hint_mark)
+
+	_pill_widgets[relic_id] = {
+		"button": pill,
+		"state": state_label,
+		"state_style": state_style,
+	}
+	return pill
 
 
-## 编队羁绊状态说明（v0.17.0，GDD modules/CHARACTERS.md 4.8）：激活/预览与效果描述。
-func _bond_summary_text() -> String:
+func _pill_style(selected: bool, hover: bool = false) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	if selected:
+		style.bg_color = Color("#fffdf2")
+		style.border_color = Color("#ffcc00")
+		style.shadow_color = Color(1.0, 0.8, 0.0, 0.35)
+		style.shadow_size = 4
+	else:
+		style.bg_color = Color("#ffffff") if not hover else Color("#f7fbfe")
+		style.border_color = Color("#9fd0ea") if hover else Color("#d7e9f5")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_bottom = 0.0
+	return style
+
+
+# ---------------------------------------------------------------- 右：总战力加成
+
+func _build_power_panel() -> Panel:
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(254, 0)
+	var style := UITheme.light_panel_style()
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 11.0
+	style.content_margin_bottom = 9.0
+	panel.add_theme_stylebox_override("panel", style)
+
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = 12.0
+	box.offset_right = -12.0
+	box.offset_top = 11.0
+	box.offset_bottom = -9.0
+	box.add_theme_constant_override("separation", 6)
+	panel.add_child(box)
+
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 7)
+	box.add_child(head)
+	var head_title := Label.new()
+	head_title.text = "总战力加成"
+	head_title.add_theme_font_override("font", UITheme.spaced_font(2))
+	head_title.add_theme_font_size_override("font_size", 15)
+	head_title.add_theme_color_override("font_color", Color("#14538a"))
+	head.add_child(head_title)
+	head.add_child(UITheme.tag_label("随编队实时计算", Color("#14538a"), Color("#e1f1fb"), 9))
+	var head_dash := DashLine.new()
+	head_dash.custom_minimum_size = Vector2(0, 2)
+	head_dash.dash_color = Color("#d7e9f5")
+	box.add_child(head_dash)
+
+	var total_row := HBoxContainer.new()
+	total_row.add_theme_constant_override("separation", 10)
+	box.add_child(total_row)
+	_power_total_label = Label.new()
+	_power_total_label.text = "+0%"
+	_power_total_label.add_theme_font_size_override("font_size", 32)
+	_power_total_label.add_theme_color_override("font_color", Color("#b8860b"))
+	total_row.add_child(_power_total_label)
+	var total_cap := Label.new()
+	total_cap.text = "出战队伍折合战力\n伤害类加算 × 攻速倍率"
+	total_cap.add_theme_font_size_override("font_size", 10)
+	total_cap.add_theme_color_override("font_color", Color("#7d9cb4"))
+	total_cap.add_theme_constant_override("line_spacing", 2)
+	total_cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	total_cap.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	total_row.add_child(total_cap)
+
+	# 三组明细容器：内容超出时组内纵向滚动；未超高时均布不拉伸。
+	var groups_scroll := ScrollContainer.new()
+	groups_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	groups_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_power_groups_box = VBoxContainer.new()
+	_power_groups_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_power_groups_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_power_groups_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	_power_groups_box.add_theme_constant_override("separation", 6)
+	groups_scroll.add_child(_power_groups_box)
+	_style_v_scrollbar(groups_scroll)
+	box.add_child(groups_scroll)
+
+	var note := Label.new()
+	note.text = "战力为展示概算，非结算数值：伤害类加算后与攻速倍率连乘；基地生命 / 初始金币类不计入。"
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_theme_font_size_override("font_size", 10)
+	note.add_theme_color_override("font_color", Color("#a8bccb"))
+	note.add_theme_constant_override("line_spacing", 2)
+	box.add_child(note)
+	return panel
+
+
+## 战力小组（概念 .p-group：色点 + 标题 + 右侧合计 + 明细行 + 灰字来源）。
+func _power_group(dot_color: Color, title: String, head_value: String,
+		rows: Array[Dictionary]) -> VBoxContainer:
+	var group := VBoxContainer.new()
+	group.add_theme_constant_override("separation", 3)
+
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 6)
+	group.add_child(head)
+	var dot := Panel.new()
+	dot.custom_minimum_size = Vector2(8, 8)
+	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var dot_style := StyleBoxFlat.new()
+	dot_style.bg_color = dot_color
+	dot_style.set_corner_radius_all(4)
+	dot.add_theme_stylebox_override("panel", dot_style)
+	head.add_child(dot)
+	var title_label := Label.new()
+	title_label.text = title
+	title_label.add_theme_font_size_override("font_size", 12)
+	title_label.add_theme_color_override("font_color", Color("#33566f"))
+	title_label.add_theme_font_override("font", UITheme.spaced_font(1))
+	head.add_child(title_label)
+	var value_label := Label.new()
+	value_label.text = head_value
+	value_label.add_theme_font_size_override("font_size", 13)
+	value_label.add_theme_color_override("font_color", Color("#b8860b"))
+	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	head.add_child(value_label)
+
+	for row in rows:
+		var row_box := HBoxContainer.new()
+		row_box.add_theme_constant_override("separation", 6)
+		group.add_child(row_box)
+		var dim := bool(row.get("dim", false))
+		var ok := bool(row.get("ok", false))
+		var src := Label.new()
+		src.text = str(row.get("src", ""))
+		src.add_theme_font_size_override("font_size", 11)
+		src.add_theme_color_override("font_color",
+			Color("#8aa2b6") if dim else Color("#1b4d78"))
+		src.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		row_box.add_child(src)
+		var val := Label.new()
+		val.text = str(row.get("val", ""))
+		val.add_theme_font_size_override("font_size", 11)
+		val.add_theme_color_override("font_color",
+			UITheme.TAG_OK_FG if ok else (Color("#9fb3c4") if dim else Color("#14538a")))
+		val.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		val.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		row_box.add_child(val)
+		var tip_text := str(row.get("tip", ""))
+		if not tip_text.is_empty():
+			var tip := Label.new()
+			tip.text = tip_text
+			tip.add_theme_font_size_override("font_size", 9)
+			tip.add_theme_color_override("font_color", Color("#a8bccb"))
+			tip.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			group.add_child(tip)
+	return group
+
+
+# ---------------------------------------------------------------- 底部操作条
+
+func _build_footer() -> HBoxContainer:
+	var foot := HBoxContainer.new()
+	foot.add_theme_constant_override("separation", 12)
+	foot.custom_minimum_size = Vector2(0, 52)
+
+	var back_button := Button.new()
+	back_button.text = "返回选关"
+	back_button.custom_minimum_size = Vector2(168, 52)
+	back_button.focus_mode = Control.FOCUS_NONE
+	back_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(back_button, "grey", UITheme.LIGHT_BODY)
+	back_button.pressed.connect(func() -> void: GameFlow.goto_stage_select())
+	foot.add_child(back_button)
+
+	var note := Label.new()
+	note.text = "返回保留所选关卡与难度 · 确认出战前弹出名单复核"
+	note.add_theme_font_size_override("font_size", 12)
+	note.add_theme_color_override("font_color", Color("#a8bccb"))
+	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	foot.add_child(note)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	foot.add_child(spacer)
+
+	_start_button = Button.new()
+	_start_button.text = "确认出战"
+	_start_button.custom_minimum_size = Vector2(200, 52)
+	_start_button.focus_mode = Control.FOCUS_NONE
+	_start_button.add_theme_font_override("font", UITheme.spaced_font(2))
+	_start_button.add_theme_font_size_override("font_size", 20)
+	UITheme.apply_kenney_rect_button(_start_button, "yellow", UITheme.INK)
+	_start_button.pressed.connect(_open_confirm_popup)
+	foot.add_child(_start_button)
+	return foot
+
+
+# ---------------------------------------------------------------- 遗物悬停浮层
+
+func _build_relic_tooltip() -> void:
+	_relic_tooltip = PanelContainer.new()
+	_relic_tooltip.top_level = true
+	_relic_tooltip.visible = false
+	_relic_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#ffffff")
+	style.border_color = Color("#ffcc00")
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(13)
+	style.shadow_color = Color(0.118, 0.235, 0.353, 0.25)
+	style.shadow_size = 12
+	style.content_margin_left = 11.0
+	style.content_margin_right = 11.0
+	style.content_margin_top = 8.0
+	style.content_margin_bottom = 7.0
+	_relic_tooltip.add_theme_stylebox_override("panel", style)
+	_relic_tooltip_box = VBoxContainer.new()
+	_relic_tooltip_box.add_theme_constant_override("separation", 4)
+	_relic_tooltip.add_child(_relic_tooltip_box)
+	add_child(_relic_tooltip)
+
+
+func _show_relic_tooltip(relic_id: String) -> void:
+	var relic := GameFlow.load_battle_relic_data(relic_id)
+	var pill_widget: Dictionary = _pill_widgets.get(relic_id, {})
+	var pill := pill_widget.get("button", null) as Button
+	if relic == null or not is_instance_valid(pill):
+		return
+	for child in _relic_tooltip_box.get_children():
+		child.queue_free()
+	var amount := int(ProfileStore.get_profile().items.get(relic_id, 0))
+	var selected := _selected_relic_ids.has(relic_id)
+
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	_relic_tooltip_box.add_child(title_row)
+	var name_label := Label.new()
+	name_label.text = relic.display_name
+	name_label.add_theme_font_override("font", UITheme.spaced_font(1))
+	name_label.add_theme_font_size_override("font_size", 14)
+	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	title_row.add_child(name_label)
+	var status_tag := UITheme.tag_label("已选" if selected else "可选",
+		UITheme.TAG_OPEN_FG if selected else Color("#14538a"),
+		UITheme.TAG_OPEN_BG if selected else Color("#e1f1fb"), 10)
+	title_row.add_child(status_tag)
+
+	var desc := Label.new()
+	desc.text = relic.description if not relic.description.is_empty() else "（暂无描述）"
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.custom_minimum_size = Vector2(222, 0)
+	desc.add_theme_font_size_override("font_size", 11)
+	desc.add_theme_color_override("font_color", Color("#5f8aa6"))
+	desc.add_theme_constant_override("line_spacing", 2)
+	_relic_tooltip_box.add_child(desc)
+
+	var effect_tag := UITheme.tag_label(_relic_effect_text(relic),
+		UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 10)
+	_relic_tooltip_box.add_child(effect_tag)
+
+	var meta := Label.new()
+	meta.text = "队伍级 · 永久持有 · 持有 ×%d" % amount
+	meta.add_theme_font_size_override("font_size", 9)
+	meta.add_theme_color_override("font_color", Color("#a8bccb"))
+	_relic_tooltip_box.add_child(meta)
+
+	_relic_tooltip.reset_size()
+	var size := _relic_tooltip.size
+	var target := pill.get_global_rect()
+	var viewport := get_viewport().get_visible_rect()
+	var pos_x := clampf(target.get_center().x - size.x * 0.5, 4.0, viewport.size.x - size.x - 4.0)
+	var pos_y := target.position.y - size.y - 10.0
+	if pos_y < 4.0:
+		pos_y = target.end.y + 10.0
+	_relic_tooltip.position = Vector2(pos_x, pos_y)
+	_relic_tooltip.visible = true
+
+
+func _hide_relic_tooltip() -> void:
+	if _relic_tooltip != null:
+		_relic_tooltip.visible = false
+
+
+## 遗物效果文案（概念 .cf-relic .rfx / pill 效果 chip；与字段一一对应）。
+func _relic_effect_text(relic: BattleRelicData) -> String:
 	var parts: Array[String] = []
-	for progress in GameFlow.get_bond_progress(_selected_ids):
-		var bond := progress["bond"] as BondData
-		if bond == null:
-			continue
-		var state := "✅ 已激活" if bool(progress["active"]) else "预览"
-		parts.append("%s %d/%d %s：%s" % [
-			bond.display_name, int(progress["count"]), int(progress["total"]), state, bond.description,
-		])
-	return "\n".join(parts)
+	if relic.damage_bonus_pct > 0:
+		parts.append("全伤害 +%d%%" % relic.damage_bonus_pct)
+	if not is_equal_approx(relic.attack_interval_factor, 1.0):
+		parts.append("攻速 ×%.2f" % relic.attack_interval_factor)
+	if relic.range_bonus_pct > 0:
+		parts.append("射程 +%d%%" % relic.range_bonus_pct)
+	if relic.start_gold > 0:
+		parts.append("初始金币 +%d" % relic.start_gold)
+	if relic.base_hp_bonus > 0:
+		parts.append("基地生命 +%d" % relic.base_hp_bonus)
+	return " · ".join(parts) if not parts.is_empty() else "效果配置缺失"
 
 
-func _profession_name(character_data: CharacterData) -> String:
-	return character_data.profession.display_name if character_data.profession != null else "未知职业"
-
-
-## 卡片样式（v0.19.0 换肤）：浅色卡四态 + 选中金框（统一走 UITheme 封装）。
-func _apply_selected_style(button: Button) -> void:
-	UITheme.apply_light_selectable(button)
-
+# ---------------------------------------------------------------- 交互
 
 func _on_character_toggled(pressed: bool, character_id: String) -> void:
 	if pressed:
@@ -248,16 +1006,651 @@ func _on_character_toggled(pressed: bool, character_id: String) -> void:
 			_selected_ids.append(character_id)
 	else:
 		_selected_ids.erase(character_id)
-	_sync_button_states()
+	_sync_all()
 	_refresh()
 
 
-## 「确认出战」（v0.33.1）：先弹二次确认，确认后写入编队记忆并进入战斗。
-func _on_start_pressed() -> void:
-	if _selected_ids.is_empty():
+func _on_relic_toggled(pressed: bool, relic_id: String) -> void:
+	if pressed:
+		if _selected_relic_ids.has(relic_id):
+			return
+		if _selected_relic_ids.size() >= RELIC_CAP:
+			# 已满 2 件：回弹并保持原状态（超出禁选，v0.33.1 语义）。
+			var pill_widget: Dictionary = _pill_widgets.get(relic_id, {})
+			var pill := pill_widget.get("button", null) as Button
+			if pill != null:
+				pill.set_pressed_no_signal(false)
+			return
+		_selected_relic_ids.append(relic_id)
+	else:
+		_selected_relic_ids.erase(relic_id)
+	_sync_all()
+	_refresh()
+
+
+func _sync_all() -> void:
+	for character_id in _card_widgets.keys():
+		_sync_character_card(str(character_id))
+	for relic_id in _pill_widgets.keys():
+		_sync_relic_pill(str(relic_id))
+
+
+func _sync_character_card(character_id: String) -> void:
+	var widgets: Dictionary = _card_widgets.get(character_id, {})
+	var card := widgets.get("button", null) as Button
+	if not is_instance_valid(card):
 		return
-	_refresh_confirm_dialog_text()
-	_confirm_dialog.popup_centered()
+	var locked := bool(widgets.get("locked", false))
+	var selected := _selected_ids.has(character_id)
+	card.set_pressed_no_signal(selected)
+	if locked:
+		card.disabled = true
+		card.modulate = Color.WHITE
+		return
+	var cap_full := _selected_ids.size() >= _squad_cap() and not selected
+	card.disabled = cap_full
+	card.modulate = Color(1, 1, 1, 0.55) if cap_full else Color.WHITE
+
+
+func _sync_relic_pill(relic_id: String) -> void:
+	var widgets: Dictionary = _pill_widgets.get(relic_id, {})
+	var pill := widgets.get("button", null) as Button
+	var state_label := widgets.get("state", null) as Label
+	var state_style := widgets.get("state_style", null) as StyleBoxFlat
+	if not is_instance_valid(pill) or not is_instance_valid(state_label) or state_style == null:
+		return
+	var selected := _selected_relic_ids.has(relic_id)
+	pill.set_pressed_no_signal(selected)
+	var cap_full := _selected_relic_ids.size() >= RELIC_CAP and not selected
+	if selected:
+		state_label.text = "已选"
+		state_style.bg_color = UITheme.TAG_OPEN_BG
+		state_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
+	else:
+		state_label.text = "可选"
+		state_style.bg_color = Color("#e1f1fb")
+		state_label.add_theme_color_override("font_color", Color("#14538a"))
+	pill.modulate = Color(1, 1, 1, 0.55) if cap_full else Color.WHITE
+
+
+## 全量刷新（勾选变化后调用）：标题/区计数、卡面文本与状态、遗物 pill、右侧战力面板。
+func _refresh() -> void:
+	_refresh_header_counts()
+	_refresh_card_texts()
+	_refresh_power_panel()
+	if _start_button != null:
+		_start_button.disabled = _selected_ids.is_empty()
+
+
+func _refresh_header_counts() -> void:
+	var cap := _squad_cap()
+	if _title_progress_label != null:
+		_title_progress_label.text = "出战 %d / %d" % [_selected_ids.size(), cap]
+	if _zone_progress_label != null:
+		var owned := 0
+		for character_data in _roster:
+			if _is_owned(str(character_data.character_id)):
+				owned += 1
+		_zone_progress_label.text = "已拥有 %d · 未解锁 %d" % [owned, _roster.size() - owned]
+
+
+func _refresh_card_texts() -> void:
+	for character_id in _card_widgets.keys():
+		var widgets: Dictionary = _card_widgets.get(str(character_id), {})
+		var card := widgets.get("button", null) as Button
+		if not is_instance_valid(card):
+			continue
+		var level_label := widgets.get("level", null) as Label
+		var src_label := widgets.get("src", null) as Label
+		var locked := bool(widgets.get("locked", false))
+		var selected := _selected_ids.has(str(character_id))
+		if level_label != null:
+			level_label.visible = not locked
+			if not locked:
+				level_label.text = "Lv%d" % GameFlow.get_character_level(
+					ProfileStore.get_profile(), str(character_id))
+		if src_label != null:
+			src_label.visible = locked
+		_refresh_card_bonds(widgets.get("bonds", null) as HBoxContainer, str(character_id))
+		var state_label := widgets.get("state", null) as Label
+		var state_style := widgets.get("state_style", null) as StyleBoxFlat
+		if is_instance_valid(state_label) and state_style != null:
+			if locked:
+				state_label.text = "未解锁"
+				state_style.bg_color = Color("#d9e4ec")
+				state_label.add_theme_color_override("font_color", Color("#7d8fa0"))
+			elif selected:
+				state_label.text = "出战"
+				state_style.bg_color = UITheme.TAG_OK_BG
+				state_label.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
+			else:
+				state_label.text = "可上阵"
+				state_style.bg_color = Color("#e1f1fb")
+				state_label.add_theme_color_override("font_color", Color("#14538a"))
+
+
+# ---------------------------------------------------------------- 总战力计算（展示概算）
+
+## 概算口径（UI_LAYOUT §7）：伤害类（科技全局/职业适用 + 激活羁绊 + 遗物伤害）加算，
+## 攻速倍率（遗物 ×(1/interval)、科技职业攻速）连乘；基地生命/初始金币不计入。
+## 数据与战斗同源：科技 TechTree.get_tech_bonuses、羁绊 get_bond_progress、
+## 遗物字段即 get_battle_relic_bonuses 口径；此处仅展示概算，不做编队桶 clamp。
+func _refresh_power_panel() -> void:
+	if _power_total_label == null or _power_groups_box == null:
+		return
+	for child in _power_groups_box.get_children():
+		child.queue_free()
+
+	var profile := ProfileStore.get_profile()
+	var tech_damage := 0
+	var tech_speed := 0.0
+	var tech_rows: Array[Dictionary] = []
+	var unlocked_sources := _unlocked_tech_sources(profile)
+
+	# ① 科技（军略全局伤害 + 出战职业适用分支；来源小字列已解锁条目名）。
+	var global_damage := 0
+	var global_sources: Array[String] = []
+	for item in TechTree.get_items():
+		if not profile.has_tech(item.id):
+			continue
+		var effect: Dictionary = item.effect
+		if int(effect.get("damage_pct", 0)) > 0:
+			global_damage += int(effect["damage_pct"])
+			global_sources.append(item.name)
+	if global_damage > 0:
+		tech_damage += global_damage
+		tech_rows.append({
+			"src": "全武将伤害",
+			"val": "+%d%%" % global_damage,
+			"tip": "来源：%s" % " · ".join(global_sources),
+		})
+	for character_data in _selected_character_datas():
+		var profession := character_data.profession
+		if profession == null:
+			continue
+		var profession_id := str(profession.profession_id)
+		var profession_damage := int(unlocked_sources.get("profession_%s_damage_pct" % profession_id, 0))
+		var profession_speed := int(unlocked_sources.get("profession_%s_attack_speed_pct" % profession_id, 0))
+		if profession_damage <= 0 and profession_speed <= 0:
+			continue
+		var source_names: Array[String] = []
+		if profession_damage > 0:
+			source_names.append("%s伤害 +%d" % [profession.display_name, profession_damage])
+		if profession_speed > 0:
+			source_names.append("%s攻速 +%d" % [profession.display_name, profession_speed])
+		if profession_damage > 0:
+			tech_damage += profession_damage
+			tech_rows.append({
+				"src": "%s伤害" % profession.display_name,
+				"val": "+%d%%" % profession_damage,
+				"tip": "来源：%s" % " · ".join(source_names),
+			})
+		if profession_speed > 0:
+			tech_speed += float(profession_speed)
+			tech_rows.append({
+				"src": "%s攻速" % profession.display_name,
+				"val": "+%d%%" % profession_speed,
+				"tip": "来源：%s" % " · ".join(source_names),
+			})
+	if tech_rows.is_empty():
+		tech_rows.append({
+			"src": "未解锁伤害科技",
+			"val": "+0%",
+			"dim": true,
+			"tip": "科技树 → 军略解锁后实时计入",
+		})
+	var tech_head := "+%d%%" % tech_damage
+	if tech_speed > 0.0:
+		tech_head = "≈+%d%%" % round((1.0 + float(tech_damage) / 100.0)
+			* (1.0 + tech_speed / 100.0) * 100.0 - 100.0)
+	_power_groups_box.add_child(_power_group(Color("#2eaadc"), "科技战力加成", tech_head, tech_rows))
+
+	# ② 羁绊（激活绿行 + 未满预览灰行：注明还差谁）。
+	var bond_rows: Array[Dictionary] = []
+	var bond_damage := 0.0
+	for progress in GameFlow.get_bond_progress(_selected_ids):
+		var bond := progress["bond"] as BondData
+		if bond == null or int(progress["count"]) <= 0:
+			continue
+		var active := bool(progress["active"])
+		var total := int(progress["total"])
+		var percent := int(round(bond.damage_bonus * 100.0))
+		if active:
+			bond_damage += bond.damage_bonus
+			bond_rows.append({
+				"src": "%s %d/%d" % [bond.display_name, int(progress["count"]), total],
+				"val": "同队攻击 +%d%%" % percent,
+				"ok": true,
+			})
+		else:
+			var missing: Array[String] = []
+			for member_id in bond.member_ids:
+				if not _selected_ids.has(str(member_id)):
+					var member := GameFlow.load_character_data(str(member_id))
+					missing.append(member.display_name if member != null else str(member_id))
+			bond_rows.append({
+				"src": "%s %d/%d" % [bond.display_name, int(progress["count"]), total],
+				"val": "同队攻击 +%d%%" % percent,
+				"dim": true,
+				"tip": "预览：还差 %s · 出战即生效" % " / ".join(missing),
+			})
+	if bond_rows.is_empty():
+		bond_rows.append({
+			"src": "未激活羁绊",
+			"val": "+0%",
+			"dim": true,
+			"tip": "同队组合满员即激活（如桃园结义 3/3）",
+		})
+	_power_groups_box.add_child(_power_group(Color("#26a86f"), "羁绊加成",
+		"+%d%%" % round(bond_damage * 100.0), bond_rows))
+
+	# ③ 遗物（仅已选带计入；攻速单独按倍率折入合计）。
+	var relic_rows: Array[Dictionary] = []
+	var relic_damage := 0
+	var relic_speed := 0.0
+	for relic_id in _selected_relic_ids:
+		var relic := GameFlow.load_battle_relic_data(str(relic_id))
+		if relic == null:
+			continue
+		relic_damage += relic.damage_bonus_pct
+		if not is_equal_approx(relic.attack_interval_factor, 1.0):
+			relic_speed += (1.0 / relic.attack_interval_factor - 1.0) * 100.0
+		var amount := int(profile.items.get(relic_id, 0))
+		relic_rows.append({
+			"src": relic.display_name,
+			"val": _relic_effect_text(relic),
+			"tip": "持有 ×%d" % amount,
+		})
+	if relic_rows.is_empty():
+		relic_rows.append({
+			"src": "未选带遗物",
+			"val": "+0%",
+			"dim": true,
+			"tip": "最多 2 件：点击下方 pill 选带（永久使用不消耗）",
+		})
+	var relic_head := "+%d%%" % relic_damage
+	if relic_speed > 0.0:
+		relic_head = "≈+%.1f%%" % (float(relic_damage) + relic_speed)
+	_power_groups_box.add_child(_power_group(Color("#7e5fc4"), "遗物加成", relic_head, relic_rows))
+
+	# 总战力：伤害类加算 × 攻速倍率（展示概算，不做编队桶 clamp）。
+	var total := (1.0 + float(tech_damage + int(round(bond_damage * 100.0)) + relic_damage) / 100.0) \
+		* (1.0 + (tech_speed + relic_speed) / 100.0) - 1.0
+	_power_total_label.text = "+%d%%" % round(total * 100.0)
+
+
+func _selected_character_datas() -> Array[CharacterData]:
+	var result: Array[CharacterData] = []
+	for character_id in _selected_ids:
+		var character_data := GameFlow.load_character_data(str(character_id))
+		if character_data != null:
+			result.append(character_data)
+	return result
+
+
+## 已解锁科技效果汇总（TechTree.get_tech_bonuses 同源，仅按条目拆来源名展示）。
+func _unlocked_tech_sources(profile: PlayerProfile) -> Dictionary:
+	var result := {}
+	for item in TechTree.get_items():
+		if not profile.has_tech(item.id):
+			continue
+		var effect: Dictionary = item.effect
+		for key in effect.keys():
+			result[str(key)] = int(result.get(str(key), 0)) + int(effect[key])
+	return result
+
+
+# ---------------------------------------------------------------- 二次确认弹窗
+
+func _open_confirm_popup() -> void:
+	if _selected_ids.is_empty() or _confirm_popup != null:
+		return
+	var overlay := Control.new()
+	overlay.name = "DeployConfirm"
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_confirm_popup = overlay
+
+	var dim := ColorRect.new()
+	dim.color = Color(0.039, 0.149, 0.251, 0.55)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.add_child(dim)
+
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(640, 560)
+	panel.clip_contents = true
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = UITheme.DIALOG_PANEL
+	panel_style.border_color = UITheme.DIALOG_BORDER
+	panel_style.set_border_width_all(3)
+	panel_style.border_width_bottom = 7
+	panel_style.set_corner_radius_all(18)
+	panel_style.shadow_color = Color(0.024, 0.11, 0.196, 0.5)
+	panel_style.shadow_size = 18
+	panel_style.shadow_offset = Vector2(0, 8)
+	panel.add_theme_stylebox_override("panel", panel_style)
+	overlay.add_child(panel)
+	_panel_center(panel)
+	panel.add_child(_build_confirm_header())
+	panel.add_child(_build_confirm_body())
+	var footer := _build_confirm_footer()
+	panel.add_child(footer)
+
+	add_child(overlay)
+	var confirm_button := footer.get_node_or_null("ConfirmButton") as Button
+	if confirm_button != null:
+		confirm_button.call_deferred("grab_focus")
+
+
+func _panel_center(panel: Control) -> void:
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+
+
+## 弹窗蓝标题条（概念 .cf-title）：白字标题 + 章节 chip + 圆形 ✕。
+func _build_confirm_header() -> Panel:
+	var header := Panel.new()
+	header.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	header.offset_left = 3.0
+	header.offset_right = -3.0
+	header.offset_top = 3.0
+	header.offset_bottom = 57.0
+	var header_style := StyleBoxFlat.new()
+	header_style.bg_color = UITheme.DIALOG_HEAD
+	header_style.corner_radius_top_left = 15
+	header_style.corner_radius_top_right = 15
+	header.add_theme_stylebox_override("panel", header_style)
+
+	var row := HBoxContainer.new()
+	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 24.0
+	row.offset_right = -10.0
+	row.add_theme_constant_override("separation", 12)
+	header.add_child(row)
+
+	var title := Label.new()
+	title.text = "确认出战"
+	title.add_theme_font_override("font", UITheme.spaced_font(6))
+	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title.add_theme_color_override("font_shadow_color", Color("#0e5f92"))
+	title.add_theme_constant_override("shadow_offset_x", 0)
+	title.add_theme_constant_override("shadow_offset_y", 1)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(title)
+
+	var chapter_chip := Label.new()
+	chapter_chip.text = _chapter_label()
+	chapter_chip.add_theme_stylebox_override("normal", UITheme.tag_style(Color(1, 1, 1, 0.22), 12, 3))
+	chapter_chip.add_theme_font_size_override("font_size", 12)
+	chapter_chip.add_theme_color_override("font_color", Color("#eaf6ff"))
+	chapter_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(chapter_chip)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+
+	var close_button := Button.new()
+	close_button.custom_minimum_size = Vector2(32, 32)
+	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	close_button.focus_mode = Control.FOCUS_NONE
+	close_button.tooltip_text = "关闭"
+	close_button.icon = load("res://assets/ui/icons/cross_blue.png")
+	close_button.add_theme_constant_override("icon_max_width", 18)
+	var close_style := StyleBoxFlat.new()
+	close_style.bg_color = Color(1, 1, 1, 0.28)
+	close_style.set_corner_radius_all(16)
+	var close_pressed := StyleBoxFlat.new()
+	close_pressed.bg_color = Color(1, 1, 1, 0.45)
+	close_pressed.set_corner_radius_all(16)
+	close_button.add_theme_stylebox_override("normal", close_style)
+	close_button.add_theme_stylebox_override("hover", close_style)
+	close_button.add_theme_stylebox_override("pressed", close_pressed)
+	close_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	close_button.pressed.connect(_close_confirm_popup)
+	row.add_child(close_button)
+	return header
+
+
+func _build_confirm_body() -> Control:
+	var body := MarginContainer.new()
+	body.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	body.offset_left = 24.0
+	body.offset_right = -24.0
+	body.offset_top = 66.0
+	body.offset_bottom = -88.0
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	body.add_child(box)
+
+	# 元数据行（概念 .cf-meta）：关名蓝 tag / 难度 tag / 出战计数。
+	var meta := HBoxContainer.new()
+	meta.add_theme_constant_override("separation", 8)
+	box.add_child(meta)
+	meta.add_child(UITheme.tag_label(_stage_tag_text(), Color("#14538a"), Color("#e1f1fb"), 12))
+	meta.add_child(UITheme.tag_label("难度 · %s" % Difficulty.name(GameFlow.selected_difficulty),
+		UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 12))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	meta.add_child(spacer)
+	meta.add_child(UITheme.tag_label("出战 %d / %d" % [_selected_ids.size(), _squad_cap()],
+		Color("#33566f"), Color("#e1f1fb"), 12))
+
+	box.add_child(_confirm_section_title("出战武将"))
+	box.add_child(_confirm_character_list())
+	box.add_child(_confirm_section_title("队伍遗物 · 永久使用不消耗库存"))
+	box.add_child(_confirm_relic_row())
+
+	var tip := DashedPill.new()
+	tip.setup(Color("#eef6fb"), Color("#bfdcef"), 10.0)
+	var tip_margin := MarginContainer.new()
+	tip_margin.add_theme_constant_override("margin_left", 12)
+	tip_margin.add_theme_constant_override("margin_right", 12)
+	tip_margin.add_theme_constant_override("margin_top", 6)
+	tip_margin.add_theme_constant_override("margin_bottom", 6)
+	tip.add_child(tip_margin)
+	var tip_label := Label.new()
+	tip_label.text = "确认后立即进入战斗；出战武将与本局遗物即刻生效，遗物永久使用、不消耗库存；取消 / 关闭可返回编队继续调整。"
+	tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tip_label.add_theme_font_size_override("font_size", 12)
+	tip_label.add_theme_color_override("font_color", Color("#33566f"))
+	tip_label.add_theme_constant_override("line_spacing", 3)
+	tip_margin.add_child(tip_label)
+	box.add_child(tip)
+	return body
+
+
+func _stage_tag_text() -> String:
+	if _stage_data == null:
+		return "未选择关卡"
+	return "s%02d %s" % [_stage_data.stage_number, _stage_data.display_name]
+
+
+func _confirm_section_title(text: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color("#7d9cb4"))
+	label.add_theme_font_override("font", UITheme.spaced_font(2))
+	row.add_child(label)
+	var line := DashLine.new()
+	line.custom_minimum_size = Vector2(0, 1)
+	line.dash_color = Color("#dcecf6")
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(line)
+	return row
+
+
+## 出战武将名单（概念 .cf-list）：最多约 4 行可见，更多行纵向滚动；行间细虚线分隔。
+func _confirm_character_list() -> Control:
+	var list_holder := Control.new()
+	var row_height := 46.0
+	list_holder.custom_minimum_size = Vector2(0,
+		minf(_selected_ids.size() * row_height - 1.0, row_height * 4.0 - 1.0))
+	var list_scroll := ScrollContainer.new()
+	list_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_style_v_scrollbar(list_scroll)
+	list_holder.add_child(list_scroll)
+	var rows := VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 0)
+	list_scroll.add_child(rows)
+
+	var profile := ProfileStore.get_profile()
+	var deploy_index := 1
+	for character_id in _selected_ids:
+		var character_data := GameFlow.load_character_data(str(character_id))
+		if character_data != null:
+			rows.add_child(_confirm_character_row(character_data, profile, deploy_index))
+			deploy_index += 1
+		if deploy_index <= _selected_ids.size():
+			var divider := DashLine.new()
+			divider.custom_minimum_size = Vector2(0, 1)
+			divider.dash_color = Color("#dbeaf4")
+			rows.add_child(divider)
+	return list_holder
+
+
+func _confirm_character_row(character_data: CharacterData, profile: PlayerProfile,
+		deploy_index: int) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(0, 45)
+	row.add_theme_constant_override("separation", 10)
+	var avatar := UITheme.avatar_label(character_data.display_name.left(1),
+		UITheme.character_avatar_color_key(str(character_data.character_id)), 38.0, 17)
+	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(avatar)
+	var name_label := Label.new()
+	name_label.text = character_data.display_name
+	name_label.add_theme_font_override("font", UITheme.spaced_font(1))
+	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(name_label)
+	var sub_label := Label.new()
+	sub_label.text = _character_sub_text(character_data, true)
+	sub_label.add_theme_font_size_override("font_size", 12)
+	sub_label.add_theme_color_override("font_color", Color("#6b93ad"))
+	sub_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(sub_label)
+	var level_label := Label.new()
+	level_label.text = "Lv%d" % GameFlow.get_character_level(profile, str(character_data.character_id))
+	level_label.add_theme_font_size_override("font_size", 11)
+	level_label.add_theme_color_override("font_color", Color("#2eaadc"))
+	level_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(level_label)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	var pos_tag := UITheme.tag_label("出战 %d" % deploy_index, UITheme.TAG_OK_FG, UITheme.TAG_OK_BG, 11)
+	pos_tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(pos_tag)
+	return row
+
+
+## 队伍遗物横卡（概念 .cf-relic）：名称 + 效果 + 持有数；未选带显示灰字占位。
+func _confirm_relic_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	if _selected_relic_ids.is_empty():
+		var empty := Label.new()
+		empty.text = "未选带遗物（本局无遗物加成）"
+		empty.add_theme_font_size_override("font_size", 12)
+		empty.add_theme_color_override("font_color", Color("#a8bccb"))
+		row.add_child(empty)
+		return row
+	var profile := ProfileStore.get_profile()
+	for relic_id in _selected_relic_ids:
+		var relic := GameFlow.load_battle_relic_data(str(relic_id))
+		if relic == null:
+			continue
+		var card := Panel.new()
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card.custom_minimum_size = Vector2(0, 52)
+		var style := UITheme.light_card_style()
+		style.set_border_width_all(2)
+		card.add_theme_stylebox_override("panel", style)
+		var content := HBoxContainer.new()
+		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		content.offset_left = 12.0
+		content.offset_right = -12.0
+		content.offset_top = 6.0
+		content.offset_bottom = -6.0
+		content.add_theme_constant_override("separation", 10)
+		card.add_child(content)
+		var name_label := Label.new()
+		name_label.text = relic.display_name
+		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+		name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		content.add_child(name_label)
+		var effect_label := Label.new()
+		effect_label.text = "%s · 持有 ×%d" % [_relic_effect_text(relic),
+			int(profile.items.get(relic_id, 0))]
+		effect_label.add_theme_font_size_override("font_size", 11)
+		effect_label.add_theme_color_override("font_color", Color("#6b93ad"))
+		effect_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		effect_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		effect_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		content.add_child(effect_label)
+		row.add_child(card)
+	return row
+
+
+func _build_confirm_footer() -> HBoxContainer:
+	var foot := HBoxContainer.new()
+	foot.anchor_left = 0.0
+	foot.anchor_right = 1.0
+	foot.anchor_top = 1.0
+	foot.anchor_bottom = 1.0
+	foot.offset_left = 24.0
+	foot.offset_right = -24.0
+	foot.offset_top = -74.0
+	foot.offset_bottom = -18.0
+	foot.alignment = BoxContainer.ALIGNMENT_END
+	foot.add_theme_constant_override("separation", 12)
+
+	var hint := Label.new()
+	hint.text = "本局配置在确认后写入存档记忆，下次出征自动预填"
+	hint.add_theme_font_size_override("font_size", 11)
+	hint.add_theme_color_override("font_color", Color("#a8bccb"))
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	foot.add_child(hint)
+
+	var cancel_button := Button.new()
+	cancel_button.text = "取消"
+	cancel_button.custom_minimum_size = Vector2(150, 44)
+	cancel_button.focus_mode = Control.FOCUS_NONE
+	cancel_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(cancel_button, "grey", UITheme.LIGHT_BODY)
+	cancel_button.pressed.connect(_close_confirm_popup)
+	foot.add_child(cancel_button)
+
+	var confirm_button := Button.new()
+	confirm_button.name = "ConfirmButton"
+	confirm_button.text = "确认出战"
+	confirm_button.custom_minimum_size = Vector2(176, 44)
+	confirm_button.add_theme_font_override("font", UITheme.spaced_font(2))
+	confirm_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(confirm_button, "yellow", UITheme.INK)
+	confirm_button.pressed.connect(_on_confirm_deploy)
+	foot.add_child(confirm_button)
+	return foot
+
+
+func _close_confirm_popup() -> void:
+	if _confirm_popup != null and is_instance_valid(_confirm_popup):
+		_confirm_popup.queue_free()
+	_confirm_popup = null
 
 
 func _on_confirm_deploy() -> void:
@@ -272,70 +1665,47 @@ func _on_confirm_deploy() -> void:
 	GameFlow.goto_battle()
 
 
-func _refresh_confirm_dialog_text() -> void:
-	var stage_name := _stage_data.display_name if _stage_data != null else "未选择关卡"
-	var diff_name := Difficulty.name(GameFlow.selected_difficulty)
-	var names: Array[String] = []
-	for character_id in _selected_ids:
-		var character := GameFlow.load_character_data(character_id)
-		names.append(character.display_name if character != null else character_id)
-	var relic_lines: Array[String] = []
-	var profile := ProfileStore.get_profile()
-	for relic_id in _selected_relic_ids:
-		var relic := GameFlow.load_battle_relic_data(relic_id)
-		if relic != null:
-			relic_lines.append("· %s：%s" % [relic.display_name, relic.description])
-	var character_part := "、".join(names) if not names.is_empty() else "（未选择）"
-	var relic_part := "\n".join(relic_lines) if not relic_lines.is_empty() else "（未选带）"
-	_confirm_dialog.dialog_text = "关卡：%s（%s）\n出战武将：%s\n遗物（永久使用，不消耗库存）：\n%s\n\n确认后进入战斗。" % [
-		stage_name, diff_name, character_part, relic_part,
-	]
+## ESC 关闭确认弹窗（原生 ConfirmationDialog 取消语义保留）。
+func _unhandled_input(event: InputEvent) -> void:
+	if _confirm_popup != null and is_instance_valid(_confirm_popup) \
+			and event.is_action_pressed("ui_cancel"):
+		_close_confirm_popup()
+		get_viewport().set_input_as_handled()
 
 
-func _squad_cap() -> int:
-	return _stage_data.squad_size if _stage_data != null else 4
+# ---------------------------------------------------------------- 滚动条样式（同 MapPanel）
+
+func _style_v_scrollbar(scroll: ScrollContainer) -> void:
+	var vbar := scroll.get_v_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
+	track.set_corner_radius_all(5)
+	var grabber := StyleBoxFlat.new()
+	grabber.bg_color = Color("#7ec8ea")
+	grabber.set_corner_radius_all(5)
+	var grabber_hot := StyleBoxFlat.new()
+	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
+	grabber_hot.set_corner_radius_all(5)
+	vbar.add_theme_stylebox_override("scroll", track)
+	vbar.add_theme_stylebox_override("grabber", grabber)
+	vbar.add_theme_stylebox_override("grabber_highlight", grabber_hot)
+	vbar.add_theme_stylebox_override("grabber_pressed", grabber_hot)
+	vbar.custom_minimum_size = Vector2(10, 0)
 
 
-func _on_relic_toggled(pressed: bool, relic_id: String) -> void:
-	if pressed:
-		if not _selected_relic_ids.has(relic_id) and _selected_relic_ids.size() < RELIC_CAP:
-			_selected_relic_ids.append(relic_id)
-	else:
-		_selected_relic_ids.erase(relic_id)
-	_sync_relic_button_states()
-	_refresh()
-
-
-func _sync_relic_button_states() -> void:
-	for relic_id in _relic_buttons.keys():
-		var button := _relic_buttons[relic_id] as Button
-		if not is_instance_valid(button):
-			continue
-		button.set_pressed_no_signal(_selected_relic_ids.has(str(relic_id)))
-		if not _selected_relic_ids.has(str(relic_id)):
-			button.disabled = _selected_relic_ids.size() >= RELIC_CAP
-		else:
-			button.disabled = false
-
-
-func _sync_button_states() -> void:
-	for character_id in _buttons.keys():
-		var button := _buttons[character_id] as Button
-		if not is_instance_valid(button):
-			continue
-		button.set_pressed_no_signal(_selected_ids.has(str(character_id)))
-		# 达到编队上限后禁止再勾选新武将。
-		if not _selected_ids.has(str(character_id)):
-			button.disabled = _selected_ids.size() >= _squad_cap()
-		else:
-			button.disabled = false
-
-
-func _refresh() -> void:
-	_counter_label.text = "已选 %d / %d 名武将" % [_selected_ids.size(), _squad_cap()]
-	_relic_counter_label.text = "已选 %d / %d 件遗物" % [_selected_relic_ids.size(), RELIC_CAP]
-	_start_button.disabled = _selected_ids.is_empty()
-	var summary := _bond_summary_text()
-	_bond_label.text = summary
-	_bond_label.visible = not summary.is_empty()
-	_refresh_character_button_texts()
+func _style_h_scrollbar(scroll: ScrollContainer) -> void:
+	var hbar := scroll.get_h_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
+	track.set_corner_radius_all(5)
+	var grabber := StyleBoxFlat.new()
+	grabber.bg_color = Color("#7ec8ea")
+	grabber.set_corner_radius_all(5)
+	var grabber_hot := StyleBoxFlat.new()
+	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
+	grabber_hot.set_corner_radius_all(5)
+	hbar.add_theme_stylebox_override("scroll", track)
+	hbar.add_theme_stylebox_override("grabber", grabber)
+	hbar.add_theme_stylebox_override("grabber_highlight", grabber_hot)
+	hbar.add_theme_stylebox_override("grabber_pressed", grabber_hot)
+	hbar.custom_minimum_size = Vector2(0, 10)
