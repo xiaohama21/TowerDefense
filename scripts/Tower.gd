@@ -39,6 +39,11 @@ const SPINE_BASE_SCALE: float = 0.33
 const SPINE_Y_OFFSET: float = 8.0
 ## 朝向切换防抖阈值：|dx| 小于该值（目标在正上/正下）保持原朝向（ART_ASSETS §5.6）。
 const SPINE_FACE_SWITCH_EPS: float = 6.0
+## 就绪胶囊顶栏避让（BUGS B-057）：塔顶胶囊默认中心 y=-62；塔靠顶（可建首排
+## 行1 中心 y=120 时胶囊中心 58 落在顶栏 0..80 内）不可见不可点——胶囊中心
+## 最低压到 92（顶栏下 12px），绘制与 QuickCastArea 命中区同源计算。
+const QUICK_CAST_CENTER_FLOOR_Y: float = 92.0
+const QUICK_CAST_OFFSET_Y: float = -62.0
 const PROFESSION_COLORS := {
 	&"cavalry": Color(0.76, 0.24, 0.2, 1.0),
 	&"tiger_guard": Color(0.3, 0.62, 0.45, 1.0),
@@ -505,6 +510,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	# 大招手动开关即时生效（BUGS B-057）：apply_character 快照每帧同步——
+	# 战斗中设置弹窗切换 manual_ultimate 后全部塔立刻生效（旧实现只读一次，
+	# 已建塔保持自动模式，满怒见敌即放，表现为「没点击就释放/持续释放」。
+	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
+	_sync_quick_cast_area()
 	var passive := BehaviorRegistry.is_passive_behavior(_behavior_id)
 	if not passive and not _is_target_in_range(target):
 		target = find_target()
@@ -1215,15 +1225,32 @@ func _draw_skill_flash() -> void:
 	draw_circle(Vector2.ZERO, radius * 0.35, Color(color.r, color.g, color.b, alpha * 0.25))
 
 
-## 就绪胶囊（v0.37.14 / UI_LAYOUT v0.20.33，入口 3）：手动模式满怒时塔顶金胶囊 + R 字，
-## 与脚下怒气胶囊区分（快放入口提示）；点击命中 QuickCastArea（CollisionShape r13，y=-62）。
+## 就绪胶囊/命中区避让锚点（BUGS B-057）：胶囊中心在本塔局部坐标的 y——
+## 保证胶囊中心不低于屏幕 y=92（顶栏 0..80 下缘 +12）；可建首排（行 1，塔心
+## y=120）由 -62 收至 -28 仍可见可点，其余塔维持 -62 塔顶口径。
+func quick_cast_center_local_y() -> float:
+	return maxf(QUICK_CAST_OFFSET_Y, QUICK_CAST_CENTER_FLOOR_Y - global_position.y)
+
+
+## 命中区随锚点移动（BUGS B-057）：QuickCastArea 与胶囊绘制同源计算，
+## 防「画在塔顶、点击区在屏幕外/顶栏内」的错位。
+func _sync_quick_cast_area() -> void:
+	var center := quick_cast_center_local_y()
+	if not quick_cast_area.position.is_equal_approx(Vector2(0.0, center)):
+		quick_cast_area.position = Vector2(0.0, center)
+
+
+## 就绪胶囊（v0.37.14 / UI_LAYOUT v0.20.33，入口 3；B-057 避让锚点）：
+## 手动模式满怒时塔顶金胶囊 + R 字，与脚下怒气胶囊区分（快放入口提示）；
+## 点击命中 QuickCastArea（CollisionShape r13，中心随 quick_cast_center_local_y）。
 func _draw_quick_cast_capsule() -> void:
 	if not is_ultimate_ready():
 		return
 	var pulse := 1.0 + 0.06 * sin(Time.get_ticks_msec() * 0.007)
 	var w := 30.0 * pulse
 	var h := 10.0
-	var top := -67.0
+	var center := quick_cast_center_local_y()
+	var top := center - h * 0.5
 	var origin := Vector2(-w * 0.5, top)
 	var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.007)
 	_draw_capsule(origin - Vector2(3.0, 3.0), w + 6.0, h + 6.0, Color(1.0, 0.85, 0.35, glow))
@@ -1233,7 +1260,6 @@ func _draw_quick_cast_capsule() -> void:
 	var text_pos := Vector2(-w * 0.5, top + 8.5)
 	draw_string_outline(font, text_pos, "R", HORIZONTAL_ALIGNMENT_CENTER, w, 10, 2, Color(0.2, 0.12, 0.02, 0.9))
 	draw_string(font, text_pos, "R", HORIZONTAL_ALIGNMENT_CENTER, w, 10, Color(1.0, 1.0, 1.0, 1.0))
-
 
 func _draw_rage_bar() -> void:
 	# 怒气条（v0.15.0 美化；阶段 8·提交 11 胶囊化；0.8.11.2 空槽常驻）：脚下小胶囊——
