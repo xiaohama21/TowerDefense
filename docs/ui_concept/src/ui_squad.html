@@ -8,65 +8,121 @@
     background:#f2faff; border:3px solid #1c9fd7; border-bottom:7px solid #167da8;
     border-radius:18px; box-shadow:0 14px 40px rgba(6,28,50,.45), inset 0 1px 0 rgba(255,255,255,.6); overflow:hidden;
     padding:14px 22px 12px; }
-  .title { display:flex; align-items:center; gap:10px; }
+  .title { display:flex; align-items:center; gap:10px; flex:none; }
   .title h2 { font-size:26px; color:#1b4d78; letter-spacing:3px; font-weight:normal; white-space:nowrap; }
-  .zone { display:flex; align-items:center; gap:8px; margin-top:10px; }
-  .zone .zt { font-size:15px; color:#33566f; letter-spacing:2px; }
-  .zone .zn { font-size:12px; color:#a8bccb; letter-spacing:1px; margin-left:6px; }
-  /* 武将网格 3×3 */
-  .grid-scroll { flex:1; min-height:0; margin-top:8px; }
-  .grid { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,92px); gap:10px; padding-bottom:44px; }
-  .scard { background:#fff; border:3px solid #d7e9f5; border-radius:13px; padding:6px 10px 0; display:flex; flex-direction:column;
-    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); min-width:0; }
-  .scard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 3px rgba(255,204,0,.4); }
-  .scard .body { flex:1; min-height:0; display:flex; align-items:center; gap:9px; }
-  .scard .ava { width:44px; height:44px; font-size:21px; flex:none; }
-  .scard .info { flex:1; min-width:0; line-height:1.2; }
+  .zone { display:flex; align-items:center; gap:8px; margin-top:9px; flex:none; min-height:24px; }
+  .zone .zt { font-size:15px; color:#33566f; letter-spacing:2px; white-space:nowrap; }
+  .zone .zn { font-size:11.5px; color:#a8bccb; letter-spacing:.5px; margin-left:8px; white-space:nowrap; }
+  /* 主体两栏 */
+  .cols { flex:1; min-height:0; display:flex; gap:14px; margin-top:9px; }
+  .left { flex:1; min-width:0; display:flex; flex-direction:column; }
+  /* 武将网格：3 列自适应行高；≤9 名整屏铺满，更多自动增行、超高滚动兜底 */
+  .grid-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#7ec8ea #e8f2f9; }
+  .grid-scroll::-webkit-scrollbar { width:12px; }
+  .grid-scroll::-webkit-scrollbar-track { background:#e8f2f9; border-radius:8px; }
+  .grid-scroll::-webkit-scrollbar-thumb { background:#7ec8ea; border:2px solid #e8f2f9; border-radius:8px; min-height:36px; }
+  .grid-scroll::-webkit-scrollbar-thumb:hover { background:#2eaadc; }
+  .grid { min-height:100%; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:minmax(130px,auto); gap:10px; }
+  .scard.ghost { border-style:dashed; border-color:#c9dbe8; background:#f4f9fd; }
+  .scard.ghost .nm { color:#8aa2b6; }
+  .scard.ghost .sub, .scard.ghost .src { color:#a8bccb; }
+  .scard { background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:8px 11px 0; display:flex; flex-direction:column; min-width:0;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .scard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 3px rgba(255,204,0,.35); }
+  .scard .body { flex:1; min-height:0; display:flex; align-items:center; gap:11px; }
+  .scard .ava { width:58px; height:58px; font-size:27px; flex:none; }
+  .scard .info { flex:1; min-width:0; line-height:1.15; }
   .scard .row1 { display:flex; align-items:baseline; gap:7px; }
-  .scard .nm { font-size:15px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .scard .lvl { font-size:11px; color:#2eaadc; flex:none; }
-  .scard .sub { font-size:11px; color:#6b93ad; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .scard .bonds { display:flex; gap:5px; margin-top:2px; }
-  .mini { font-size:10px; padding:1px 7px; border-radius:7px; white-space:nowrap; letter-spacing:.5px; }
-  .mini.ok { color:#11804a; background:#d8f2e3; }
-  .mini.pre { color:#8a6d00; background:#fff3c4; }
-  /* 卡面底部费用通栏：与卡面同底、细虚线上承，一体不贴片（B-025） */
-  .scard .cost { flex:none; display:flex; align-items:center; gap:8px; height:26px; margin-top:4px;
-    border-top:1px dashed #e6f0f7; }
-  .scard .cost .fv { font-size:16px; color:#b8860b; line-height:1; }
-  .scard .cost .st { margin-left:auto; }
-  .scard .cost .lock { font-size:13px; color:#9fb3c4; line-height:1; }
+  .scard .nm { font-size:16px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .scard .lvl { font-size:10.5px; color:#14538a; background:#e1f1fb; border-radius:7px; padding:1px 6px; flex:none; }
+  .scard .sub { font-size:11.5px; color:#6b93ad; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .scard .bonds { display:flex; gap:5px; margin-top:4px; }
   .scard.locked { background:#eef3f7; border-color:#d5e0e8; }
   .scard.locked .nm { color:#9fb3c4; }
   .scard.locked .sub { color:#a8bccb; }
-  .scard.locked .src { font-size:10.5px; color:#9fb3c4; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .scard.locked .src { font-size:10.5px; color:#9fb3c4; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* 卡面底部费用通栏：同底细虚线上承，一体不贴片（B-025） */
+  .scard .cost { flex:none; display:flex; align-items:center; gap:7px; height:27px; margin-top:5px; border-top:1px dashed #e6f0f7; }
   .scard.locked .cost { border-top-color:#dbe6ee; }
-  /* 羁绊提示条 */
-  .bondbar { display:flex; align-items:center; gap:10px; min-height:38px; margin-top:10px;
-    background:#fff; border:2px solid #d7e9f5; border-radius:11px; padding:5px 12px; }
-  .bondbar .tt { font-size:14px; color:#33566f; letter-spacing:2px; }
-  .bond { font-size:13px; padding:2px 10px; border-radius:8px; white-space:nowrap; }
-  .bond.live { color:#11804a; background:#d8f2e3; }
-  .bond.pending { color:#8a6d00; background:#fff3c4; }
-  .bondbar .hint { font-size:12px; color:#a8bccb; margin-left:auto; letter-spacing:.5px; }
-  /* 遗物区 */
-  .rel { margin-top:10px; display:flex; gap:10px; align-items:stretch; }
-  .rel-grid { flex:1; display:flex; gap:10px; min-width:0; }
-  .rcard { flex:1; background:#fff; border:3px solid #d7e9f5; border-radius:12px; padding:7px 10px; min-width:0;
-    box-shadow:inset 0 1px 0 #fff, 0 2px 5px rgba(30,90,130,.07); }
-  .rcard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.4); }
-  .rcard .t { font-size:11px; color:#7d9cb4; letter-spacing:1px; display:flex; justify-content:space-between; align-items:center; }
-  .rcard .n { font-size:14px; color:#1b4d78; margin-top:2px; }
-  .rcard .fx { font-size:11px; color:#6b93ad; margin-top:2px; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .rcard .fx b { color:#14538a; font-weight:normal; }
-  .rel-note { width:220px; flex:none; background:#f3f9fd; border:2px dashed #bfdcef; border-radius:12px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:4px 6px; text-align:center; }
-  .rel-note .big { font-size:16px; color:#b8860b; }
-  .rel-note .sm { font-size:11px; color:#7d9cb4; line-height:1.55; letter-spacing:.5px; }
-  .rel-note .sm b { color:#14538a; font-weight:normal; }
+  .mini { font-size:10px; padding:1px 7px; border-radius:7px; white-space:nowrap; letter-spacing:.5px; }
+  .mini.ok { color:#11804a; background:#d8f2e3; }
+  .mini.pre { color:#8a6d00; background:#fff3c4; }
+  .mini.blu { color:#14538a; background:#e1f1fb; }
+  .scard .cost .lab { font-size:10px; color:#8a6d00; background:#fff3c4; border-radius:6px; padding:1px 6px; letter-spacing:.5px; }
+  .scard .cost .fv { font-size:15px; color:#b8860b; line-height:1; }
+  .scard .cost .st { margin-left:auto; display:flex; align-items:center; gap:6px; }
+  .scard .cost .lock { font-size:14px; color:#9fb3c4; line-height:1; }
+  /* 遗物区：说明与选带同排，图标位 + 名称，悬停浮层看详情 */
+  .relzone { position:relative; flex:none; margin-top:10px; display:flex; gap:8px; align-items:center; }
+  .relrow { display:flex; align-items:center; gap:8px; }
+  .relscroll { flex:1; min-width:0; overflow-x:auto; scrollbar-width:thin; scrollbar-color:#7ec8ea #e8f2f9; }
+  .relscroll::-webkit-scrollbar { height:10px; }
+  .relscroll::-webkit-scrollbar-track { background:#e8f2f9; border-radius:6px; }
+  .relscroll::-webkit-scrollbar-thumb { background:#7ec8ea; border:2px solid #e8f2f9; border-radius:6px; }
+  .relscroll::-webkit-scrollbar-thumb:hover { background:#2eaadc; }
+  .relside { flex:none; width:88px; line-height:1.3; }
+  .relside .zt { font-size:13px; color:#33566f; letter-spacing:1.5px; }
+  .relside .zn { font-size:9px; color:#a8bccb; letter-spacing:.2px; margin-top:3px; }
+  .rpill { position:relative; flex:1 1 150px; min-width:150px; display:flex; align-items:center; gap:7px;
+    background:#fff; border:2px solid #d7e9f5; border-radius:12px; padding:5px 6px;
+    box-shadow:inset 0 1px 0 #fff, 0 2px 5px rgba(30,90,130,.06); }
+  .rpill.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.3); }
+  .rpic { width:38px; height:38px; border-radius:10px; flex:none; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#c0a1ef,#8a66cf); color:#fff; font-size:18px; text-shadow:0 1px 0 rgba(0,0,0,.15);
+    border:2px solid rgba(255,255,255,.85); box-shadow:0 2px 5px rgba(90,61,158,.25); }
+  .rinfo { flex:1; min-width:0; line-height:1.25; }
+  .rname { font-size:12.5px; color:#1b4d78; letter-spacing:.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rsub { font-size:9px; color:#a8bccb; letter-spacing:.3px; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rpill .rstate { margin-left:1px; flex:none; }
+  .rpill .rstate .mini { font-size:9px; padding:1px 6px; }
+  /* 遗物悬停详情：悬停即现、移开即消失（此处为示意展开态） */
+  .ttip { position:absolute; top:-125px; left:calc(50% - 76px); width:248px; z-index:6;
+    background:#fff; border:3px solid #ffcc00; border-radius:13px; padding:8px 11px 7px;
+    box-shadow:0 8px 20px rgba(30,60,90,.25); }
+  .ttip::after { content:""; position:absolute; left:50%; top:100%; transform:translateX(-50%);
+    border:8px solid transparent; border-top-color:#ffcc00; }
+  .ttip .t-row { display:flex; align-items:baseline; gap:7px; }
+  .ttip .t-name { font-size:14.5px; color:#1b4d78; letter-spacing:1px; }
+  .ttip .t-desc { font-size:11px; color:#5f8aa6; margin-top:4px; line-height:1.45; }
+  .ttip .t-fx { margin-top:4px; }
+  .ttip .t-meta { font-size:9.5px; color:#a8bccb; margin-top:4px; letter-spacing:.3px; }
+  /* 右侧总战力加成面板 */
+  .power { width:254px; flex:none; background:#fff; border:3px solid #d7e9f5; border-radius:14px;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); padding:11px 12px 9px;
+    display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .p-head { display:flex; align-items:center; gap:7px; border-bottom:2px dashed #d7e9f5; padding-bottom:7px; }
+  .p-head .pt { font-size:15px; color:#14538a; letter-spacing:2px; }
+  .p-total { flex:none; display:flex; align-items:center; gap:12px; padding:9px 2px 8px; border-bottom:1px solid #eef4f9; }
+  .p-big { font-size:34px; color:#b8860b; line-height:1; letter-spacing:1px; }
+  .p-big .pct { font-size:20px; }
+  .p-cap { font-size:10.5px; color:#7d9cb4; line-height:1.5; letter-spacing:.5px; }
+  .p-groups { flex:1; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#7ec8ea #e8f2f9;
+    display:flex; flex-direction:column; justify-content:space-evenly; }
+  .p-groups::-webkit-scrollbar { width:10px; }
+  .p-groups::-webkit-scrollbar-track { background:#e8f2f9; border-radius:6px; }
+  .p-groups::-webkit-scrollbar-thumb { background:#7ec8ea; border:2px solid #e8f2f9; border-radius:6px; min-height:30px; }
+  .p-groups::-webkit-scrollbar-thumb:hover { background:#2eaadc; }
+  .p-group { padding-top:5px; }
+  .p-group + .p-group { border-top:1px dashed #e3eef6; margin-top:5px; padding-top:8px; }
+  .g-head { display:flex; align-items:center; gap:6px; }
+  .dot { width:8px; height:8px; border-radius:50%; flex:none; }
+  .dot.blue { background:#2eaadc; } .dot.green { background:#26a86f; } .dot.purple { background:#7e5fc4; }
+  .g-head .gt { font-size:13px; color:#33566f; letter-spacing:1.5px; white-space:nowrap; }
+  .g-head .gs { margin-left:auto; font-size:14px; color:#b8860b; letter-spacing:.5px; white-space:nowrap; }
+  .g-head .gs.off { color:#9fb3c4; }
+  .g-row { display:flex; align-items:baseline; gap:6px; margin-top:6px; }
+  .g-src { font-size:12px; color:#1b4d78; letter-spacing:.5px; white-space:nowrap; }
+  .g-val { margin-left:auto; font-size:12px; color:#14538a; white-space:nowrap; }
+  .g-val.ok { color:#11804a; }
+  .g-row.dim .g-src { color:#8aa2b6; }
+  .g-row.dim .g-val { color:#9fb3c4; }
+  .g-tip { font-size:9.5px; color:#a8bccb; margin-top:3px; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .p-note { flex:none; margin-top:8px; padding-top:7px; border-top:1px dashed #d7e9f5;
+    font-size:10px; color:#a8bccb; line-height:1.6; letter-spacing:.3px; }
+  .p-note b { color:#7d9cb4; font-weight:normal; }
   /* 底部 */
-  .foot { display:flex; align-items:center; gap:10px; min-height:60px; margin-top:10px; }
-  .foot .note { font-size:12.5px; color:#a8bccb; letter-spacing:.5px; margin-left:8px; }
+  .foot { flex:none; display:flex; align-items:center; gap:10px; min-height:54px; margin-top:9px; }
+  .foot .note { font-size:12px; color:#a8bccb; letter-spacing:.5px; margin-left:8px; }
 </style>
 </head>
 <body>
@@ -77,59 +133,129 @@
       <span class="tag blue">第一章 · 黄巾之乱</span>
       <span class="tag open">s04 东郡驰援 · 标准</span>
       <div class="spacer"></div>
-      <span class="prog">出战 <b>4/4</b></span>
+      <span class="prog">出战 <b>4 / 4</b></span>
     </div>
-    <div class="zone"><span class="zt">出战武将</span><span class="zn">点击卡片选中 / 取消 · 已选金色描边 · 最多 4 名 · 羁绊随勾选实时刷新</span><div class="spacer"></div><span class="prog">已拥有 5 · 未解锁 4</span></div>
-    <div class="grid-scroll scroll">
-    <div class="grid">
-      <div class="scard sel"><div class="body"><span class="ava gold">刘</span>
-        <div class="info"><div class="row1"><span class="nm">刘备</span><span class="lvl">Lv14</span></div><div class="sub">虎贲 · 辅助</div><div class="bonds"><span class="mini ok">桃园 3/3</span></div></div></div>
-        <div class="cost"><span class="mini pre">建造费用</span><span class="fv">55</span><span class="st"><span class="tag ok">出战</span></span></div></div>
-      <div class="scard sel"><div class="body"><span class="ava red">关</span>
-        <div class="info"><div class="row1"><span class="nm">关羽</span><span class="lvl">Lv13</span></div><div class="sub">骑兵 · 爆发</div><div class="bonds"><span class="mini ok">桃园 3/3</span><span class="mini pre">五虎 3/5</span></div></div></div>
-        <div class="cost"><span class="mini pre">建造费用</span><span class="fv">70</span><span class="st"><span class="tag ok">出战</span></span></div></div>
-      <div class="scard sel"><div class="body"><span class="ava">张</span>
-        <div class="info"><div class="row1"><span class="nm">张飞</span><span class="lvl">Lv12</span></div><div class="sub">虎贲 · 近战</div><div class="bonds"><span class="mini ok">桃园 3/3</span><span class="mini pre">五虎 3/5</span></div></div></div>
-        <div class="cost"><span class="mini pre">建造费用</span><span class="fv">60</span><span class="st"><span class="tag ok">出战</span></span></div></div>
-      <div class="scard sel"><div class="body"><span class="ava green">黄</span>
-        <div class="info"><div class="row1"><span class="nm">黄忠</span><span class="lvl">Lv9</span></div><div class="sub">弓箭手 · 点杀</div><div class="bonds"><span class="mini pre">五虎 3/5</span></div></div></div>
-        <div class="cost"><span class="mini pre">建造费用</span><span class="fv">65</span><span class="st"><span class="tag ok">出战</span></span></div></div>
-      <div class="scard"><div class="body"><span class="ava purple">皇</span>
-        <div class="info"><div class="row1"><span class="nm">皇甫嵩</span><span class="lvl">Lv8</span></div><div class="sub">投石车 · 范围</div></div></div>
-        <div class="cost"><span class="mini pre">建造费用</span><span class="fv">75</span><span class="st"><span class="tag blue">可上阵</span></span></div></div>
-      <div class="scard locked"><div class="body"><span class="ava grey">貂</span>
-        <div class="info"><div class="row1"><span class="nm">貂蝉</span></div><div class="sub">舞娘 · 大招辅助</div><div class="src">通关 s04 东郡驰援解锁</div></div></div>
-        <div class="cost"><span class="lock">🔒</span><span class="st"><span class="tag lock">未解锁</span></span></div></div>
-      <div class="scard locked"><div class="body"><span class="ava grey">周</span>
-        <div class="info"><div class="row1"><span class="nm">周仓</span></div><div class="sub">虎贲 · 高血压制</div><div class="src">通关 s05 宛城之围解锁</div></div></div>
-        <div class="cost"><span class="lock">🔒</span><span class="st"><span class="tag lock">未解锁</span></span></div></div>
-      <div class="scard locked"><div class="body"><span class="ava grey">赵</span>
-        <div class="info"><div class="row1"><span class="nm">赵云</span></div><div class="sub">骑兵 · 快攻</div><div class="src">通关 s06 下曲阳之战解锁</div></div></div>
-        <div class="cost"><span class="lock">🔒</span><span class="st"><span class="tag lock">未解锁</span></span></div></div>
-      <div class="scard locked"><div class="body"><span class="ava grey">诸</span>
-        <div class="info"><div class="row1"><span class="nm">诸葛亮</span></div><div class="sub">术士 · 范围</div><div class="src">通关 s07 广宗前哨解锁</div></div></div>
-        <div class="cost"><span class="lock">🔒</span><span class="st"><span class="tag lock">未解锁</span></span></div></div>
+    <div class="zone">
+      <span class="zt">出战武将</span>
+      <span class="zn">点选 / 取消 · 金色描边为出战 · 羁绊与右侧战力加成实时刷新</span>
+      <span class="tag blue" style="font-size:10.5px;padding:2px 8px;letter-spacing:.5px;">溢出自动滚动</span>
+      <div class="spacer"></div>
+      <span class="prog">已拥有 5 · 未解锁 4</span>
     </div>
-    </div>
-    <div class="bondbar">
-      <span class="tt">羁绊</span>
-      <span class="bond live">桃园结义 3/3 · 已激活：同队攻击 +5%</span>
-      <span class="bond pending">五虎将 3/5 · 预览（马超未登场，暂不可激活）</span>
-      <span class="hint">出战即生效 · 加成随勾选实时刷新</span>
-    </div>
-    <div class="zone"><span class="zt">队伍遗物</span><span class="zn">战前选带 · 最多 2 件 · 永久使用不消耗库存</span></div>
-    <div class="rel">
-      <div class="rel-grid">
-        <div class="rcard sel"><div class="t"><span>遗物 1</span><span class="tag ok">已选</span></div><div class="n">战鼓</div><div class="fx">全军攻速 <b>×0.95</b> · 持有 ×2</div></div>
-        <div class="rcard sel"><div class="t"><span>遗物 2</span><span class="tag ok">已选</span></div><div class="n">狼牙符</div><div class="fx">全伤害 <b>+5%</b> · 持有 ×1</div></div>
-        <div class="rcard"><div class="t"><span>可选</span></div><div class="n">鹰眼符</div><div class="fx">射程 <b>+10%</b> · 持有 ×1</div></div>
-        <div class="rcard"><div class="t"><span>可选</span></div><div class="n">军粮袋</div><div class="fx">初始金币 <b>+50</b> · 持有 ×1</div></div>
-        <div class="rcard"><div class="t"><span>可选</span></div><div class="n">铁盾徽记</div><div class="fx">基地生命 <b>+10</b> · 持有 ×1</div></div>
+    <div class="cols">
+      <div class="left">
+        <div class="grid-scroll">
+        <div class="grid">
+          <div class="scard sel"><div class="body"><span class="ava gold">刘</span>
+            <div class="info"><div class="row1"><span class="nm">刘备</span><span class="lvl">Lv14</span></div>
+            <div class="sub">虎贲 · 辅助</div><div class="bonds"><span class="mini ok">桃园 3/3</span></div></div></div>
+            <div class="cost"><span class="lab">建造费用</span><span class="fv">55</span><span class="st"><span class="mini ok">出战</span></span></div></div>
+          <div class="scard sel"><div class="body"><span class="ava red">关</span>
+            <div class="info"><div class="row1"><span class="nm">关羽</span><span class="lvl">Lv13</span></div>
+            <div class="sub">骑兵 · 爆发</div><div class="bonds"><span class="mini ok">桃园 3/3</span><span class="mini pre">五虎 3/5</span></div></div></div>
+            <div class="cost"><span class="lab">建造费用</span><span class="fv">70</span><span class="st"><span class="mini ok">出战</span></span></div></div>
+          <div class="scard sel"><div class="body"><span class="ava">张</span>
+            <div class="info"><div class="row1"><span class="nm">张飞</span><span class="lvl">Lv12</span></div>
+            <div class="sub">虎贲 · 近战</div><div class="bonds"><span class="mini ok">桃园 3/3</span><span class="mini pre">五虎 3/5</span></div></div></div>
+            <div class="cost"><span class="lab">建造费用</span><span class="fv">60</span><span class="st"><span class="mini ok">出战</span></span></div></div>
+          <div class="scard sel"><div class="body"><span class="ava green">黄</span>
+            <div class="info"><div class="row1"><span class="nm">黄忠</span><span class="lvl">Lv9</span></div>
+            <div class="sub">弓箭手 · 点杀</div><div class="bonds"><span class="mini pre">五虎 3/5</span></div></div></div>
+            <div class="cost"><span class="lab">建造费用</span><span class="fv">65</span><span class="st"><span class="mini ok">出战</span></span></div></div>
+          <div class="scard"><div class="body"><span class="ava purple">皇</span>
+            <div class="info"><div class="row1"><span class="nm">皇甫嵩</span><span class="lvl">Lv8</span></div>
+            <div class="sub">投石车 · 范围</div></div></div>
+            <div class="cost"><span class="lab">建造费用</span><span class="fv">75</span><span class="st"><span class="mini blu">可上阵</span></span></div></div>
+          <div class="scard locked"><div class="body"><span class="ava grey">貂</span>
+            <div class="info"><div class="row1"><span class="nm">貂蝉</span></div>
+            <div class="sub">舞娘 · 大招辅助</div><div class="src">通关 s04 东郡驰援解锁</div></div></div>
+            <div class="cost"><span class="lock">🔒</span><span class="st"><span class="mini blu">未解锁</span></span></div></div>
+          <div class="scard locked"><div class="body"><span class="ava grey">周</span>
+            <div class="info"><div class="row1"><span class="nm">周仓</span></div>
+            <div class="sub">虎贲 · 牵制</div><div class="src">通关 s05 宛城之围解锁</div></div></div>
+            <div class="cost"><span class="lock">🔒</span><span class="st"><span class="mini blu">未解锁</span></span></div></div>
+          <div class="scard locked"><div class="body"><span class="ava grey">赵</span>
+            <div class="info"><div class="row1"><span class="nm">赵云</span></div>
+            <div class="sub">骑兵 · 快攻</div><div class="src">通关 s06 下曲阳之战解锁</div></div></div>
+            <div class="cost"><span class="lock">🔒</span><span class="st"><span class="mini blu">未解锁</span></span></div></div>
+          <div class="scard locked"><div class="body"><span class="ava grey">诸</span>
+            <div class="info"><div class="row1"><span class="nm">诸葛亮</span></div>
+            <div class="sub">术士 · 范围</div><div class="src">通关 s07 广宗前哨解锁</div></div></div>
+            <div class="cost"><span class="lock">🔒</span><span class="st"><span class="mini blu">未解锁</span></span></div></div>
+          <div class="scard ghost"><div class="body"><span class="ava grey">新</span>
+            <div class="info"><div class="row1"><span class="nm">新武将</span></div>
+            <div class="sub">后续章节登场</div><div class="src">解锁后自动入列</div></div></div>
+            <div class="cost"><span class="st"><span class="mini blu">预留位</span></span></div></div>
+        </div>
+        </div>
+        <div class="relzone">
+          <div class="relside">
+            <div class="zt">队伍遗物</div>
+            <div class="zn">悬停看详情<br>移开即消失<br>图标待美术</div>
+          </div>
+          <div class="relscroll">
+            <div class="relrow">
+            <div class="rpill sel">
+              <span class="rpic">鼓</span>
+              <div class="rinfo"><div class="rname">战鼓</div><div class="rsub">持有 ×2</div></div>
+              <span class="rstate"><span class="mini pre">已选</span></span>
+            </div>
+            <div class="rpill sel">
+              <span class="rpic">狼</span>
+              <div class="rinfo"><div class="rname">狼牙符</div><div class="rsub">持有 ×1</div></div>
+              <span class="rstate"><span class="mini pre">已选</span></span>
+            </div>
+            <div class="rpill">
+              <span class="rpic">鹰</span>
+              <div class="rinfo"><div class="rname">鹰眼符</div><div class="rsub">持有 ×1</div></div>
+              <span class="rstate"><span class="mini blu">可选</span></span>
+            </div>
+            <div class="rpill">
+              <span class="rpic">粮</span>
+              <div class="rinfo"><div class="rname">军粮袋</div><div class="rsub">持有 ×1</div></div>
+              <span class="rstate"><span class="mini blu">可选</span></span>
+            </div>
+            <div class="rpill">
+              <span class="rpic">盾</span>
+              <div class="rinfo"><div class="rname">铁盾徽记</div><div class="rsub">持有 ×1</div></div>
+              <span class="rstate"><span class="mini blu">可选</span></span>
+            </div>
+            </div>
+          </div>
+          <div class="ttip">
+            <div class="t-row"><span class="t-name">鹰眼符</span><span class="mini blu">可选</span></div>
+            <div class="t-desc">斥候鹰羽所制的护符，目力过人。射程 +10%，先敌一步。</div>
+            <div class="t-fx"><span class="mini pre">射程 +10%</span></div>
+            <div class="t-meta">队伍级 · 永久持有 · 持有 ×1 · 悬停示意：移开即消失</div>
+          </div>
+        </div>
       </div>
-      <div class="rel-note">
-        <div class="big">已选 2 / 2</div>
-        <div class="sm">遗物<b>永久持有</b>，选带不消耗库存；<br>更多遗物见<b>背包 → 遗物</b>。</div>
-        
+      <div class="power">
+        <div class="p-head"><span class="pt">总战力加成</span><span class="tag blue">随编队实时计算</span></div>
+        <div class="p-total">
+          <span class="p-big">+23<span class="pct">%</span></span>
+          <span class="p-cap">出战队伍折合战力<br>伤害类加算 × 攻速倍率</span>
+        </div>
+        <div class="p-groups">
+          <div class="p-group">
+            <div class="g-head"><i class="dot blue"></i><span class="gt">科技战力加成</span><span class="gs">+6%</span></div>
+            <div class="g-row"><span class="g-src">全武将伤害</span><span class="g-val">+6%</span></div>
+            <div class="g-tip">来源：精兵操练 +2 · 老兵经验 +4（已解锁）</div>
+          </div>
+          <div class="p-group">
+            <div class="g-head"><i class="dot green"></i><span class="gt">羁绊加成</span><span class="gs">+5%</span></div>
+            <div class="g-row"><span class="g-src">桃园结义 3/3</span><span class="g-val ok">同队攻击 +5%</span></div>
+            <div class="g-row dim"><span class="g-src">五虎将 3/5</span><span class="g-val">同队攻击 +6%</span></div>
+            <div class="g-tip">预览：还差 赵云 / 马超 · 出战即生效</div>
+          </div>
+          <div class="p-group">
+            <div class="g-head"><i class="dot purple"></i><span class="gt">遗物加成</span><span class="gs">≈ +10.5%</span></div>
+            <div class="g-row"><span class="g-src">狼牙符</span><span class="g-val">全伤害 +5%</span></div>
+            <div class="g-row"><span class="g-src">战鼓</span><span class="g-val">攻速 ≈ +5.3%</span></div>
+            <div class="g-tip">仅已选带 2 件计入 · 未选带不计入</div>
+          </div>
+        </div>
+        <div class="p-note">战力为<b>展示概算</b>，非结算数值：伤害类加算后与攻速倍率连乘；基地生命 / 初始金币类不计入。</div>
       </div>
     </div>
     <div class="foot">
@@ -141,8 +267,3 @@
   </div>
 </body>
 </html>
-
-
-
-
-

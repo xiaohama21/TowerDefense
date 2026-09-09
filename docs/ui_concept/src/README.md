@@ -21,7 +21,7 @@
 | `ui_develop.png` | `ui_develop.html` | 武将养成（技能 / 转职 / 信物 / 特性页签） |
 | `ui_develop_job.png` | `ui_develop_job.html` | 武将养成「职业」页签（当前职业信息 + 转职进度 + 转职详情入口，v0.35.3） |
 | `ui_develop_promo.png` | `ui_develop_promo.html` | 武将养成「转职详情」叠层（职业级转职树 + 转职操作，v0.35.3） |
-| `ui_squad.png` | `ui_squad.html` | 出征 · 编队 |
+| `ui_squad.png` | `ui_squad.html` | 出征 · 编队（v0.10 定稿：3×3 武将网格滚动扩展 + 遗物 pill 悬停详情 + 右「总战力加成」面板；滚动演示屏截图去 `--hide-scrollbars`） |
 | `ui_tech.png` | `ui_tech.html` | 科技树 |
 | `ui_inventory.png` | `ui_inventory.html` | 背包 |
 | `ui_settings.png` | `ui_settings.html` | 设置 |
