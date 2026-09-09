@@ -213,6 +213,25 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 	return label
 
 
+## 道具方块图标占位（概念图 .tile：类型色渐变圆角方块 + 首字白字；背包卡片/说明条用）。
+static func tile_label(text: String, color_key: String = "blue", size: float = 52.0, font_size: int = 24) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.custom_minimum_size = Vector2(size, size)
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	var style := StyleBoxFlat.new()
+	var colors: Array = avatar_gradient_colors(color_key)
+	style.bg_color = colors[0].lerp(colors[1], 0.5)
+	style.set_corner_radius_all(size * 0.23)
+	style.border_color = Color.WHITE
+	style.set_border_width_all(2)
+	label.add_theme_stylebox_override("normal", style)
+	return label
+
+
 ## 头像渐变取色（avatar_label / character_avatar_texture 共用）：base 缺省用 key 色。
 static func avatar_gradient_colors(color_key: String = "blue", base: Color = Color(0, 0, 0, 0)) -> Array:
 	var top: Color = LIGHT_ACCENT

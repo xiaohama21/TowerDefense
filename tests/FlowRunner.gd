@@ -286,6 +286,30 @@ func _test_hub(profile: PlayerProfile) -> void:
 	var inventory_panel := hub.get_node("HubPanel/Columns/Content/InventoryPanel")
 	_show_hub_panel(hub, &"inventory")
 	_check(inventory_panel.visible and not settings_panel.visible, "点击背包应切换内容区")
+	# 背包版式 v0.37.11（对照概念图 ui_inventory）：顶栏无资源胶囊、类目收敛、
+	# 网格入滚动容器（超高滚动兜底）；空类目出空态提示不崩溃。
+	var inventory_topbar := inventory_panel.get_child(0) as HBoxContainer
+	_check(inventory_topbar != null, "背包顶栏应存在")
+	if inventory_topbar != null:
+		var top_texts: Array[String] = []
+		for child in inventory_topbar.get_children():
+			if child is Label:
+				top_texts.append((child as Label).text)
+		_check(not top_texts.any(func(t: String) -> bool:
+			return t.begins_with("黄巾布") or t.begins_with("练兵令")),
+			"背包顶栏应无资源胶囊（黄巾布/练兵令）")
+	var inventory_filter_row := inventory_panel.get_child(1) as HBoxContainer
+	var filter_texts: Array[String] = []
+	if inventory_filter_row != null:
+		for child in inventory_filter_row.get_children():
+			if child is Button:
+				filter_texts.append((child as Button).text)
+	_check(filter_texts == ["全部", "材料", "消耗品", "遗物"],
+		"背包类目 chips 应收敛为 全部/材料/消耗品/遗物，实际 %s" % [filter_texts])
+	var inventory_scroll := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
+	_check(inventory_scroll != null, "背包网格应包在 GridScroll 滚动容器内")
+	if inventory_scroll != null and inventory_scroll.get_child_count() > 0:
+		_check(inventory_scroll.get_child(0) is GridContainer, "GridScroll 内应含道具网格")
 	var grant_button: Button = null
 	for button in _collect_buttons(inventory_panel):
 		if button.text == "获得练兵令 ×10":
@@ -296,6 +320,36 @@ func _test_hub(profile: PlayerProfile) -> void:
 		grant_button.pressed.emit()
 		await get_tree().process_frame
 		_check(int(profile.items.get("exp_scroll", 0)) == 10, "测试发放应写入 10 枚练兵令")
+	# 空类目（遗物未发放前为空）：网格空态 + 底部说明条提示；切回全部恢复卡片。
+	inventory_panel._on_category_pressed(int(inventory_panel.FILTER_TYPES[2]))
+	await get_tree().process_frame
+	var empty_cards := 0
+	var empty_grid := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
+	if empty_grid != null and empty_grid.get_child_count() > 0:
+		var grid_node := empty_grid.get_child(0) as GridContainer
+		if grid_node != null:
+			for card in grid_node.get_children():
+				if card is Button:
+					empty_cards += 1
+	_check(empty_cards == 0, "空类目网格不应渲染道具卡")
+	var inventory_detail_box := inventory_panel.get("_detail_box") as VBoxContainer
+	if inventory_detail_box != null:
+		var empty_hint := false
+		for child in inventory_detail_box.get_children():
+			if child is Label and "暂无道具" in (child as Label).text:
+				empty_hint = true
+		_check(empty_hint, "空类目应在底部说明条提示暂无道具")
+	inventory_panel._on_category_pressed(-1)
+	await get_tree().process_frame
+	var restored_cards := 0
+	var restored_grid := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
+	if restored_grid != null and restored_grid.get_child_count() > 0:
+		var grid_node2 := restored_grid.get_child(0) as GridContainer
+		if grid_node2 != null:
+			for card in grid_node2.get_children():
+				if card is Button:
+					restored_cards += 1
+	_check(restored_cards >= 1, "切回全部后应恢复道具卡渲染")
 
 	# 难度选择（v0.16.0 修复）：面板难度更新 _selected_difficulty，并随一键通关按所选难度写档。
 	_show_hub_panel(hub, &"map")
