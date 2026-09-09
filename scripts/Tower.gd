@@ -49,6 +49,7 @@ const PROFESSION_COLORS := {
 }
 
 signal selection_changed(tower: Tower)
+signal quick_cast_requested(tower: Tower)
 
 @export var range_radius: float = 150.0
 @export var damage: int = 40
@@ -194,6 +195,7 @@ var _ghost_mode: bool = false
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
 @onready var selection_area: Area2D = $SelectionArea
+@onready var quick_cast_area: Area2D = $QuickCastArea
 @onready var muzzle: Marker2D = $Muzzle
 @onready var name_label: Label = $NameLabel
 
@@ -222,6 +224,7 @@ func _ready() -> void:
 	if not display_name.is_empty():
 		name_label.text = display_name
 	selection_area.input_event.connect(_on_selection_area_input_event)
+	quick_cast_area.input_event.connect(_on_quick_cast_area_input_event)
 	queue_redraw()
 
 
@@ -1131,6 +1134,25 @@ func set_selected(selected: bool) -> void:
 	selection_changed.emit(self)
 
 
+## 就绪胶囊快放（v0.37.14 / UI_LAYOUT v0.20.33，入口 3）：点胶囊直发该塔大招——
+## 不改变选中态（与点塔身选中解耦）；未就绪（含自动模式）该区不响应。
+func _on_quick_cast_area_input_event(
+	_viewport: Node,
+	event: InputEvent,
+	_shape_idx: int
+) -> void:
+	if event is not InputEventMouseButton:
+		return
+
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+		return
+	if not is_ultimate_ready():
+		return
+	quick_cast_requested.emit(self)
+	get_viewport().set_input_as_handled()
+
+
 func _on_selection_area_input_event(
 	_viewport: Node,
 	event: InputEvent,
@@ -1173,6 +1195,7 @@ func _draw() -> void:
 	if _skill_flash > 0.0:
 		_draw_skill_flash()
 	_draw_rage_bar()
+	_draw_quick_cast_capsule()
 	_draw_character_skill_cooldown()
 	if _ult_visual_time > 0.0:
 		_draw_ultimate_visual()
@@ -1190,6 +1213,26 @@ func _draw_skill_flash() -> void:
 	var color := Color(_skill_flash_color.r, _skill_flash_color.g, _skill_flash_color.b, alpha)
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 20, color, 3.0)
 	draw_circle(Vector2.ZERO, radius * 0.35, Color(color.r, color.g, color.b, alpha * 0.25))
+
+
+## 就绪胶囊（v0.37.14 / UI_LAYOUT v0.20.33，入口 3）：手动模式满怒时塔顶金胶囊 + R 字，
+## 与脚下怒气胶囊区分（快放入口提示）；点击命中 QuickCastArea（CollisionShape r13，y=-62）。
+func _draw_quick_cast_capsule() -> void:
+	if not is_ultimate_ready():
+		return
+	var pulse := 1.0 + 0.06 * sin(Time.get_ticks_msec() * 0.007)
+	var w := 30.0 * pulse
+	var h := 10.0
+	var top := -67.0
+	var origin := Vector2(-w * 0.5, top)
+	var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.007)
+	_draw_capsule(origin - Vector2(3.0, 3.0), w + 6.0, h + 6.0, Color(1.0, 0.85, 0.35, glow))
+	_draw_capsule(origin, w, h, Color(0.35, 0.2, 0.05, 1.0))
+	_draw_capsule(origin, w, h, Color(1.0, 0.92, 0.5, 1.0), true)
+	var font := ThemeDB.fallback_font
+	var text_pos := Vector2(-w * 0.5, top + 8.5)
+	draw_string_outline(font, text_pos, "R", HORIZONTAL_ALIGNMENT_CENTER, w, 10, 2, Color(0.2, 0.12, 0.02, 0.9))
+	draw_string(font, text_pos, "R", HORIZONTAL_ALIGNMENT_CENTER, w, 10, Color(1.0, 1.0, 1.0, 1.0))
 
 
 func _draw_rage_bar() -> void:

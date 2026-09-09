@@ -221,8 +221,22 @@ func _on_tower_built(character_id: String) -> void:
 
 func _on_tower_created(tower: Tower) -> void:
 	tower.selection_changed.connect(_on_tower_selection_changed)
+	tower.quick_cast_requested.connect(_on_tower_quick_cast_requested)
 	tower.set_float_text_layer(self)
 	SfxLibrary.play(&"build", -10.0)
+
+
+## 就绪胶囊快放（v0.37.14 / UI_LAYOUT v0.20.33，入口 3）：点胶囊直发该塔大招——
+## 不改变选中态；选中态下面板按钮 / R 键路径不变。
+func _on_tower_quick_cast_requested(tower: Tower) -> void:
+	if tower == null or not is_instance_valid(tower):
+		return
+	if tower.cast_ultimate_manual():
+		ui.show_status("%s 释放大招！" % tower.display_name, 1.0)
+		if tower == _selected_tower:
+			ui.show_tower_panel(tower, stage_data)
+	else:
+		ui.show_status("%s：范围内暂无目标" % tower.display_name)
 
 
 func _on_tower_selection_changed(tower: Tower) -> void:
