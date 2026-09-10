@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)；美术资产规范/入库目录/许可见 [ART_ASSETS.md](ART_ASSETS.md)；技能来源见 [SKILLS.md](SKILLS.md) 与 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)；物品/遗物/掉落来源见 [DROPS_GACHA.md](DROPS_GACHA.md)。
 > 承载总纲原章节：13「美术风格」的实现侧补充（AI 出图管线）。
-> 文档版本：v0.2（2026-09-09）
+> 文档版本：v0.3（2026-09-10）
+> v0.3 变更（2026-09-10，经验池 + 军功/军需重构定稿同步 / GDD v0.37.22 / DESIGN_REVIEW v0.4.7 / NUMBERS 10.14·10.15，纯文档，程序 0.8.11.13 不变，排期 0.8.15 / 0.8.16）：**§4.1 练兵令转历史 + §4.3 新增两件军需提示词（id 草案）**——①`exp_scroll` 随 0.8.15 经验池删除（图标**不再出图**，条目作历史保留）；②§4.3 增补「掷石齐射」`stone_volley`（全场 60 物理伤害）与「犒军」`reward_troops`（全队怒气 +20）提示词与图标意象（军需池 6 件制，坚壁 / 伤药 / 火油罐本就未建档、无需处理）。
 > v0.2 变更（2026-09-09，信物重构定稿同步 / GDD v0.37.20 / CHARACTERS 4.8 / DESIGN_REVIEW v0.4.6，纯文档，程序 0.8.11.12 不变，排期 0.8.14）：**§4.4 武将信物口径更新**——旧 3 件信物转专属槽占位（锁住、暂不出图）；新增 Boss 签名信物「天公雷诏」「太平要术·残卷」提示词随 0.8.14 按本模板补入（命名/效果见 CHARACTERS 4.8 / NUMBERS 10.13）。**§4.6 通用碎片作历史保留**——碎片功能整体删除、不再出图。
 > v0.1 变更（2026-09-08，首次建档，纯文档/素材、无程序逻辑改动）：**AI（Leonardo.ai）出图提示词库建档**——面向"技能图标 + 物品图标"的运行时图徽生成管线：统一 Q 版卡通三国风格底座 + 通用负面词 + 出图规范；职业技能核心 6 + 二转新技能 6 + 职业大招 6 + 角色技能 9 + 材料/道具、局内遗物、局内军需、武将信物、羁绊徽记等物品分类提示词；登记 0.1 模块索引。程序版本号不变。
 
@@ -150,11 +151,11 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 | 物品 | item_id | 说明 | 图标意象 |
 |---|---|---|---|
 | 黄巾布 | `yellow_turban_cloth` | 转职/养成材料（第一章掉落） | 黄色头巾布束 |
-| 练兵令 | `exp_scroll` | 测试消耗品（升 1 级，不进掉落） | 木质练兵令卷 |
+| 练兵令【❌ 随 0.8.15 删除】 | `exp_scroll` | 测试消耗品（升 1 级，不进掉落）；**经验池「直接升级」取代，图标不再出图** | 木质练兵令卷（历史条目） |
 | 求贤令 | `gacha_token` | 抽奖消耗（⏸ v0.30.0 移除，资源保留） | 求贤令牌 |
 
 - **黄巾布** `yellow_turban_cloth`（黄巾军遗留材料）：一束明黄头巾布。Prompt：`A folded bundle of yellow-turban cloth tied as a headband roll, rustic loot material from rebel soldiers, warm mustard-yellow fabric with simple weave.`
-- **练兵令** `exp_scroll`（测试用，练级）：一块练兵木令/竹简。Prompt：`A wooden training command tally with tied cord, simple drill scroll for leveling troops, wood-brown and ink tones.`
+- **练兵令** `exp_scroll`【历史保留 · 已删除（0.8.15）】（测试用，练级）：一块练兵木令/竹简。Prompt：`A wooden training command tally with tied cord, simple drill scroll for leveling troops, wood-brown and ink tones.`
 - **求贤令** `gacha_token`（求贤招募，资源保留）：一枚求贤令牌（羽饰金边）。Prompt：`An ornate recruit talisman token for seeking worthies, gold-trimmed jade tablet with a small feather tassel, ceremonial blue-gold tones.`
 
 ### 4.2 局内遗物（背包/编队选带，永久使用）
@@ -173,7 +174,7 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 - **战鼓** `war_drums`：擂动牛皮战鼓、士气高昂。Prompt：`A leather war drum with golden studs and crossed drumsticks, morale drumming, warm brown drum with gold ring.`
 - **狼牙符** `wolf_tooth`：磨制狼牙、出手更狠。Prompt：`A sharp wolf-fang talisman bound with a leather cord and coarse fur, fierce predator strength, bone-white fang and grey tones.`
 
-### 4.3 局内军需（战备，军需面板消耗）
+### 4.3 局内军需（战备，军需面板消耗；2026-09-10 定稿 6 件池 / 排期 0.8.16）
 
 | 物品 | item_id | 效果 | 图标意象 |
 |---|---|---|---|
@@ -181,11 +182,15 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 | 修整 | `repair` | 基地生命 +10 | 锤具修整城防 |
 | 缓兵 | `slow_down` | 全场减速 40%/5s | 缓兵疑雾/滞行符 |
 | 擂鼓 | `war_drum` | 全队攻速 +30%/8s | 重擂战鼓 |
+| 掷石齐射【新】 | `stone_volley`（id 草案） | 全场敌人各受 60 物理伤害 | 漫空飞石齐落 |
+| 犒军【新】 | `reward_troops`（id 草案） | 全队怒气 +20 | 犒赏酒肉 + 士气金光 |
 
 - **火攻** `fire_attack`：火种引燃全场敌军 + 灼烧。Prompt：`An igniting fire-brand setting the whole battlefield ablaze, burning spread with lingering scorch on enemies, fierce orange flames and sparks.`
 - **修整** `repair`：紧急修整城防。Prompt：`A hammer and trowel repairing a city-wall segment, reinforcement and repair tools, warm wood handle with stone and mortar.`
 - **缓兵** `slow_down`：疑兵烟雾、全场滞行。Prompt：`Deceptive decoys and drifting fog slowing an entire marching column, a slow-down ward with trailing mist, grey-blue cold tones.`
 - **擂鼓** `war_drum`：重擂鼓点普照全队提速。Prompt：`A great war drum being struck with glowing percussion ring-waves rallying all allies, red-gold drumbeats radiating morale.`
+- **掷石齐射** `stone_volley`【0.8.16 新增】：漫天飞石齐落敌阵。Prompt：`A volley of hurled boulders arcing across the battlefield in mid-flight with dust trails, massed stone-throwing barrage from the whole army, grey stone and dusty ochre tones.`
+- **犒军** `reward_troops`【0.8.16 新增】：犒赏三军、怒气高涨。Prompt：`A reward feast for the troops with wine jars and grain sacks under a golden morale glow, cheering soldier silhouettes and rising fury, warm amber and gold tones.`
 
 ### 4.4 武将信物（现有入库 3；2026-09-09 重构定稿、排期 0.8.14：旧 3 件转专属槽占位锁住；Boss 签名信物「天公雷诏」「太平要术·残卷」提示词待补；兑换途径删除）
 
@@ -233,3 +238,5 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 ## 6. 变更记录
 
 - v0.1（2026-09-08）：首次建档——统一风格底座与负面词、出图规范；职业技能核心 6（3.1）+ 强化态复用说明（3.2）+ 二转新技能 6（3.3）+ 职业大招 6（3.4）+ 角色技能 9（3.5）；物品分类提示词（4.1 材料道具 / 4.2 局内遗物 / 4.3 局内军需 / 4.4 武将信物 / 4.5 羁绊徽记 / 4.6 通用碎片）；0.1 模块索引登记 ART_PROMPTS 行；总纲 v0.37.8→v0.37.9、README 当前状态同步。程序版本号不变（0.8.11.5）。
+- v0.2（2026-09-09）：信物重构定稿同步——§4.4 旧 3 件信物转专属槽占位（锁住、暂不出图）、Boss 签名信物提示词随 0.8.14 补；§4.6 碎片作历史保留。程序版本号不变（0.8.11.12）。
+- v0.3（2026-09-10）：经验池 + 军功/军需重构定稿同步——§4.1 `exp_scroll` 随 0.8.15 删除（不再出图）；§4.3 新增掷石齐射 `stone_volley` / 犒军 `reward_troops`（id 草案）提示词与图标意象。程序版本号不变（0.8.11.13）。
