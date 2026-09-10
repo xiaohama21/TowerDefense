@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)；美术资产规范/入库目录/许可见 [ART_ASSETS.md](ART_ASSETS.md)；技能来源见 [SKILLS.md](SKILLS.md) 与 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)；物品/遗物/掉落来源见 [DROPS_GACHA.md](DROPS_GACHA.md)。
 > 承载总纲原章节：13「美术风格」的实现侧补充（AI 出图管线）。
-> 文档版本：v0.1（2026-09-08）
+> 文档版本：v0.2（2026-09-09）
+> v0.2 变更（2026-09-09，信物重构定稿同步 / GDD v0.37.20 / CHARACTERS 4.8 / DESIGN_REVIEW v0.4.6，纯文档，程序 0.8.11.12 不变，排期 0.8.14）：**§4.4 武将信物口径更新**——旧 3 件信物转专属槽占位（锁住、暂不出图）；新增 Boss 签名信物「天公雷诏」「太平要术·残卷」提示词随 0.8.14 按本模板补入（命名/效果见 CHARACTERS 4.8 / NUMBERS 10.13）。**§4.6 通用碎片作历史保留**——碎片功能整体删除、不再出图。
 > v0.1 变更（2026-09-08，首次建档，纯文档/素材、无程序逻辑改动）：**AI（Leonardo.ai）出图提示词库建档**——面向"技能图标 + 物品图标"的运行时图徽生成管线：统一 Q 版卡通三国风格底座 + 通用负面词 + 出图规范；职业技能核心 6 + 二转新技能 6 + 职业大招 6 + 角色技能 9 + 材料/道具、局内遗物、局内军需、武将信物、羁绊徽记等物品分类提示词；登记 0.1 模块索引。程序版本号不变。
 
 ---
@@ -186,7 +187,7 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 - **缓兵** `slow_down`：疑兵烟雾、全场滞行。Prompt：`Deceptive decoys and drifting fog slowing an entire marching column, a slow-down ward with trailing mist, grey-blue cold tones.`
 - **擂鼓** `war_drum`：重擂鼓点普照全队提速。Prompt：`A great war drum being struck with glowing percussion ring-waves rallying all allies, red-gold drumbeats radiating morale.`
 
-### 4.4 武将信物（章节掉落 / 兑换，现有入库 3）
+### 4.4 武将信物（现有入库 3；2026-09-09 重构定稿、排期 0.8.14：旧 3 件转专属槽占位锁住；Boss 签名信物「天公雷诏」「太平要术·残卷」提示词待补；兑换途径删除）
 
 | 信物 | relic_id | 意象 |
 |---|---|---|
@@ -210,7 +211,7 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 - **桃园结义** `taoyuan_oath`（刘关张同队 +5% 攻击）：桃园三结义。Prompt：`An oath emblem of three brothers clasping hands beneath a blooming peach tree, peach-pink blossom and jade tones, sworn-brotherhood seal.`
 - **五虎将** `five_tigers`（同队 +6% 攻击）：五虎啸聚。Prompt：`A crest of five roaring tiger generals, bold tiger-head emblem ringed by five stars, gold and crimson tones, elite vanguard crest.`
 
-### 4.6 通用碎片（重复抽出 → 碎片，信物兑换用）
+### 4.6 通用碎片【❌ 已删除（2026-09-09 信物重构定稿，排期 0.8.14）——碎片功能整体删除，本节提示词作历史保留】
 
 | 物品 | 说明 | 意象 |
 |---|---|---|
