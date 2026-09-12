@@ -55,6 +55,8 @@ var _combo_window_left: float = 0.0
 var _wave_kill_xp_total: int = 0
 var _wave_support_xp_granted: int = 0
 var _support_coverage_last_time: Dictionary = {}
+## 最近一次漏怪是否来自隐匿单位（✅ 0.8.13.1）：供局内提示引导补破隐来源。
+var last_leak_was_stealth: bool = false
 
 func enemy_reached_base(damage: int = 1):
 	if lives <= 0:

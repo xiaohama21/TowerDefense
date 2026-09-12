@@ -27,6 +27,8 @@ func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
 	enemy.enemy_id = enemy_data.enemy_id
 	enemy.display_name = enemy_data.display_name
 	enemy.special_behavior_id = enemy_data.special_behavior_id
+	# 隐匿状态（NUMBERS 10.16，✅ 0.8.13.1）：必须在 add_child 之前写入（_ready 依赖）。
+	enemy.stealth = enemy_data.stealth
 	enemy.special_cooldown = 1.5 if not enemy_data.special_behavior_id.is_empty() else 0.0
 	enemy.speed = enemy_data.move_speed
 	enemy.max_hp = int(round(enemy_data.max_hp * Difficulty.enemy_hp_mult(GameFlow.selected_difficulty)))

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_stealth_assassin"
+display_name = "黄巾夜行刺"
+description = "隐匿行踪的刺客，避开以单位为目标的攻击；需破隐才能锁定，或以范围效果盲压。"
+tags = [&"yellow_turban", &"assassin", &"stealth"]
+max_hp = 260
+move_speed = 100.0
+armor = 0
+stealth = true
+special_behavior_id = &"fast_charger"
+damage_to_base = 4
+currency_reward = 25
+kill_xp = 22
+body_color = Color(0.42, 0.32, 0.58, 1)
+body_size = Vector2(30, 32)

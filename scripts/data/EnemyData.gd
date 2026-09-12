@@ -15,6 +15,9 @@ class_name EnemyData
 @export_range(-1, 9999, 1) var armor: int = 0
 @export_range(0, 9999, 1) var damage_to_base: int = 1
 @export var special_behavior_id: StringName
+## 隐匿状态（NUMBERS 10.16，✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；
+## 无差别范围/区域效果仍可命中。模板侧同名字段为 true 时一并继承。
+@export var stealth: bool = false
 ## 敌人模板（v0.18.0，GDD modules/ENEMIES.md）：引用模板后 0/空哨兵字段继承模板值。
 @export var template: EnemyTemplateData
 
@@ -52,6 +55,7 @@ func resolved() -> EnemyData:
 		copy.kill_xp = template.kill_xp
 	if copy.special_behavior_id.is_empty():
 		copy.special_behavior_id = template.special_behavior_id
+	copy.stealth = copy.stealth or template.stealth
 	if copy.tags.is_empty():
 		copy.tags = template.tags.duplicate()
 	if copy.body_color.a <= 0.0:

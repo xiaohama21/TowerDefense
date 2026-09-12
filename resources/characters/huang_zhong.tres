@@ -29,6 +29,7 @@ character_skill_params = {
 trait_id = &"trait_hundred_step"
 trait_params = {
 "step": 0.1,
-"max_stacks": 3.0
+"max_stacks": 3.0,
+"reveal_stealth": 1.0
 }
 unlock_stage_id = &"ch01_s03"

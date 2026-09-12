@@ -3,6 +3,9 @@ extends PathFollow2D
 class_name Enemy
 
 const ENEMY_GROUP: StringName = &"enemies"
+## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：破隐扫描周期与现形闪光时长。
+const STEALTH_SCAN_INTERVAL: float = 0.25
+const REVEAL_FLASH_DURATION: float = 0.7
 
 @export var speed: float = 100.0
 @export var max_hp: int = 100
@@ -31,6 +34,12 @@ var special_cooldown: float = 0.0
 var slow_factor: float = 1.0
 ## 召唤物标记（阶段 8 提交 2）：连击计入召唤物（P1 4.1 拍板），由召唤方设置。
 var is_summon: bool = false
+## 隐匿状态（✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；范围/无差别区域可命中。
+## 由 EnemyManager 依 EnemyData.stealth 写入；能否被某塔选中见 is_visible_to()。
+var stealth: bool = false
+var _stealth_revealed: bool = false
+var _stealth_scan_tick: float = 0.0
+var _reveal_flash_left: float = 0.0
 var _slow_time_left: float = 0.0
 ## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
 var burn_dps: int = 0
@@ -80,6 +89,10 @@ func _ready() -> void:
 			hp_bar.modulate = Color(1.0, 0.85, 0.4)
 			hp_bar.visible = true
 	update_hp_bar()
+	_refresh_stealth_visual()
+	if stealth:
+		# 隐匿登场预警（音效；虚影由 _draw 表达）。
+		SfxLibrary.play(&"alert", -8.0)
 	queue_redraw()
 
 
@@ -89,8 +102,18 @@ func _process(delta: float) -> void:
 
 	if _hit_flash_left > 0.0:
 		_hit_flash_left = maxf(_hit_flash_left - delta, 0.0)
-		if _hit_flash_left <= 0.0 and body:
-			body.modulate = Color.WHITE
+		if _hit_flash_left <= 0.0:
+			_apply_body_modulate()
+
+	# 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：0.25s 扫描破隐覆盖 + 现形闪光衰减。
+	if stealth:
+		_stealth_scan_tick = maxf(_stealth_scan_tick - delta, 0.0)
+		if _stealth_scan_tick <= 0.0:
+			_stealth_scan_tick = STEALTH_SCAN_INTERVAL
+			refresh_stealth_reveal()
+	if _reveal_flash_left > 0.0:
+		_reveal_flash_left = maxf(_reveal_flash_left - delta, 0.0)
+		queue_redraw()
 
 	if _slow_time_left > 0.0:
 		_slow_time_left = maxf(_slow_time_left - delta, 0.0)
@@ -148,6 +171,7 @@ func _process(delta: float) -> void:
 			velocity_dir = delta_pos.normalized()
 
 	if progress_ratio >= 1.0 - 0.0001:
+		GameManager.last_leak_was_stealth = stealth
 		GameManager.enemy_reached_base(damage_to_base)
 		die(false)
 
@@ -215,6 +239,71 @@ func get_vulnerability_multiplier() -> float:
 	return 1.0 + _vulnerability_bonus
 
 
+## ============ 隐匿与破隐（NUMBERS 10.16，✅ 0.8.13.1） ============
+
+## 是否处于隐匿（数据字段口径；能否被某塔选中见 is_visible_to）。
+func is_stealthed() -> bool:
+	return stealth
+
+
+## 对指定塔是否可见：非隐匿恒可见；隐匿需该塔持有破隐（Tower.reveals_stealth）。
+func is_visible_to(tower) -> bool:
+	if not stealth:
+		return true
+	return tower != null and is_instance_valid(tower) and tower.reveals_stealth()
+
+
+## 当前是否已现形（表现口径：虚影 vs 正常 + 血条）。
+func is_revealed() -> bool:
+	return not stealth or _stealth_revealed
+
+
+## 0.25s 低频扫描（✅ 0.8.13.1）：任一“持破隐且自身在其射程内”的塔覆盖即现形；
+## 破隐不做一次性现形——离开覆盖自动恢复隐匿（NUMBERS 10.16）。
+func refresh_stealth_reveal() -> void:
+	if not stealth:
+		return
+	var revealed := false
+	for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var tower := node as Tower
+		if tower == null or not is_instance_valid(tower) or not tower.reveals_stealth():
+			continue
+		if global_position.distance_to(tower.global_position) <= tower.range_radius:
+			revealed = true
+			break
+	_set_stealth_revealed(revealed)
+
+
+func _set_stealth_revealed(value: bool) -> void:
+	if value == _stealth_revealed:
+		return
+	_stealth_revealed = value
+	if value:
+		_reveal_flash_left = REVEAL_FLASH_DURATION
+		SfxLibrary.play(&"skill", -16.0)
+	_refresh_stealth_visual()
+
+
+## 虚影透明度：隐匿且未现形 = 半透明（保留行进警示）。
+func _ghost_alpha() -> float:
+	return 0.4 if (stealth and not _stealth_revealed) else 1.0
+
+
+## 体色统一出口（受击闪光 × 虚影透明度）。
+func _apply_body_modulate() -> void:
+	if body == null:
+		return
+	var tint := Color(1.0, 0.45, 0.4) if _hit_flash_left > 0.0 else Color(1.0, 1.0, 1.0)
+	tint.a = _ghost_alpha()
+	body.modulate = tint
+
+
+func _refresh_stealth_visual() -> void:
+	_apply_body_modulate()
+	update_hp_bar()
+	queue_redraw()
+
+
 ## 伤害入口（NUMBERS 10.12，✅ 0.8.13.0 护甲模型替换）：
 ## damage_type = 物理 / 魔法 / 真实（DamageTypes）；pen_ratios = 百分比穿甲
 ## （{来源 key: 比值}，同源取最高由调用方聚合、跨源乘算、单源 ≤30%）；
@@ -244,8 +333,7 @@ func take_damage(
 	if not source_id.is_empty():
 		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
 	_hit_flash_left = 0.12
-	if body:
-		body.modulate = Color(1.0, 0.45, 0.4)
+	_apply_body_modulate()
 	update_hp_bar()
 
 	if current_hp <= 0:
@@ -298,7 +386,8 @@ func heal(amount: int) -> void:
 func update_hp_bar() -> void:
 	if hp_bar:
 		# 满血隐藏、受击后显示（v0.12.2 优化：减少画面杂乱）
-		hp_bar.visible = current_hp < max_hp
+		# 隐匿未现形时同样隐藏血条（✅ 0.8.13.1）。
+		hp_bar.visible = current_hp < max_hp and is_revealed()
 		hp_bar.max_value = max_hp
 		hp_bar.value = current_hp
 
@@ -349,6 +438,21 @@ func _draw() -> void:
 				Vector2(cos(angle) * 8.0, -half.y - 16.0 + sin(angle) * 3.0),
 				2.4, Color(1.0, 0.85, 0.35, 0.95)
 			)
+	# 隐匿表现（✅ 0.8.13.1）：未现形 = 淡蓝虚线警示环；现形瞬间 = 青色扩散环。
+	if stealth:
+		if not _stealth_revealed:
+			var dash_radius := half.length() + 9.0
+			var segments := 12
+			for i in range(segments):
+				if i % 2 == 1:
+					continue
+				var a0 := float(i) / float(segments) * TAU
+				var a1 := (float(i) + 0.6) / float(segments) * TAU
+				draw_arc(Vector2.ZERO, dash_radius, a0, a1, 3, Color(0.62, 0.72, 0.95, 0.55), 1.6)
+		if _reveal_flash_left > 0.0:
+			var reveal_t := _reveal_flash_left / REVEAL_FLASH_DURATION
+			draw_arc(Vector2.ZERO, half.length() + 10.0 + (1.0 - reveal_t) * 14.0, 0.0, TAU, 26,
+				Color(0.55, 0.9, 1.0, reveal_t * 0.8), 2.0)
 	# 恐惧表现（当阳桥，v0.35.2 / 0.8.10.1）：紫色呼吸圆环（与眩晕小星区分）。
 	if _fear_time_left > 0.0:
 		var pulse := 0.5 + 0.5 * sin(_fear_pulse * 7.0)

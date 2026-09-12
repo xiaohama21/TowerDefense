@@ -27,6 +27,8 @@ var _battle_supplies: Array[BattleSupplyData] = []
 var _supply_uses_left: Dictionary = {}
 var _battle_supply_popup: CanvasLayer = null
 var _supply_buttons: Dictionary = {}
+## 隐匿漏怪提示（✅ 0.8.13.1）：每局最多提示一次，引导补破隐来源。
+var _stealth_hint_shown: bool = false
 
 func _ready():
 	get_tree().paused = false
@@ -66,6 +68,7 @@ func _ready():
 	GameManager.victory.connect(_on_victory)
 	GameManager.boss_entered.connect(_on_boss_entered)
 	GameManager.combo_changed.connect(_on_combo_changed)
+	GameManager.enemy_leaked.connect(_on_enemy_leaked)
 
 	wave_manager.wave_completed.connect(_on_wave_completed)
 	ui.next_wave_pressed.connect(_on_next_wave_pressed)
@@ -288,6 +291,15 @@ func _on_tower_sell_requested() -> void:
 		ui.hide_tower_panel()
 
 
+## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（黄忠固有 /
+## 借东风全图 / 舞娘 3 阶光环），或改用范围盲压；每局一次。
+func _on_enemy_leaked(_damage: int) -> void:
+	if _stealth_hint_shown or not GameManager.last_leak_was_stealth:
+		return
+	_stealth_hint_shown = true
+	ui.show_status("隐匿单位突破防线：黄忠（固有）/ 借东风 / 舞娘 3 阶可破隐，或改用范围盲压", 3.5)
+
+
 ## Boss 登场横幅（v0.15.0）：2.5 秒内只播一次。
 func _on_boss_entered(display_name: String) -> void:
 	var now := Time.get_ticks_msec()
@@ -345,6 +357,7 @@ func _disconnect_game_signals() -> void:
 		[GameManager.game_over, Callable(self, "_on_game_over")],
 		[GameManager.victory, Callable(self, "_on_victory")],
 		[GameManager.boss_entered, Callable(self, "_on_boss_entered")],
+		[GameManager.enemy_leaked, Callable(self, "_on_enemy_leaked")],
 	]
 	for pair in callbacks:
 		var signal_ref: Signal = pair[0]

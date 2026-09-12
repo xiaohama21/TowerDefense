@@ -18,6 +18,8 @@ class_name EnemyTemplateData
 @export_range(-1, 9999, 1) var armor: int = -1
 @export_range(0, 9999, 1) var damage_to_base: int = 0
 @export var special_behavior_id: StringName
+## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：true 且派生资源未开启时继承（OR 合并）。
+@export var stealth: bool = false
 
 @export_category("Rewards (0 = 未覆盖)")
 @export_range(0, 99999, 1) var currency_reward: int = 0

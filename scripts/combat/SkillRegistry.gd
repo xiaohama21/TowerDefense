@@ -574,17 +574,21 @@ static func _cast_death_fight(tower: Tower) -> bool:
 	return true
 
 
-## 诸葛亮·借东风（A/CD30）：全图友方塔攻速 +20%、弹道速度 +50% 持续 8s。
+## 诸葛亮·借东风（A/CD30）：全图友方塔攻速 +20%、弹道速度 +50% 持续 8s；
+## v0.10 / ✅ 0.8.13.1 追加**全图破隐**（reveal_stealth，NUMBERS 10.16）。
 static func _cast_borrow_wind(tower: Tower) -> bool:
 	var speed_bonus := character_param(tower, &"char_borrow_wind", "team_speed_bonus", 0.2)
 	var bullet_speed_bonus := character_param(tower, &"char_borrow_wind", "bullet_speed_bonus", 0.5)
 	var duration := character_param(tower, &"char_borrow_wind", "duration", 8.0)
+	var reveal := character_param(tower, &"char_borrow_wind", "reveal_stealth", 1.0)
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var ally := node as Tower
 		if ally == null or not is_instance_valid(ally):
 			continue
 		ally.apply_attack_speed_buff("char_borrow_wind", 1.0 + speed_bonus, duration)
 		ally.apply_bullet_speed_buff("char_borrow_wind", 1.0 + bullet_speed_bonus, duration)
+		if reveal > 0.0:
+			ally.apply_stealth_reveal_buff("char_borrow_wind", duration)
 	tower.spawn_float_text(get_character_skill_name(&"char_borrow_wind"), Color(0.6, 0.85, 1.0))
 	tower.play_skill_effect(Color(0.6, 0.85, 1.0))
 	SfxLibrary.play(&"skill", -6.0)

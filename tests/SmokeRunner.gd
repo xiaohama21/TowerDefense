@@ -688,6 +688,97 @@ func _run() -> void:
 		_check(probe_before - armor_probe.current_hp == 1000, "护甲算例：真实伤害应无视护甲与减伤")
 		armor_probe.queue_free()
 
+	# 0.8.13.1（NUMBERS 10.12 / ENEMIES 5.5.5）：第一章全敌甲值表逐敌断言。
+	# B-059 回归护栏：黄巾力士 .tres 曾因 armor 键重复（10 后跟旧 0）静默回退为 0。
+	var c13_armor_table := {
+		"yellow_turban_soldier": 0,
+		"yellow_turban_archer": 0,
+		"yellow_turban_cavalry": 2,
+		"yellow_turban_sorcerer": 4,
+		"yellow_turban_sergeant": 8,
+		"yellow_turban_berserker": 10,
+		"yellow_turban_general": 20,
+		"yellow_turban_stealth_assassin": 0,
+	}
+	for c13_armor_id in c13_armor_table:
+		var c13_armor_enemy := load("res://resources/enemies/yellow_turban/%s.tres" % c13_armor_id) as EnemyData
+		_check(c13_armor_enemy != null, "第一章敌人数据应可加载: %s" % c13_armor_id)
+		if c13_armor_enemy != null:
+			var c13_armor_expected := int(c13_armor_table[c13_armor_id])
+			_check(c13_armor_enemy.armor == c13_armor_expected,
+				"%s 甲值应为 %d（实为 %d，B-059）" % [c13_armor_id, c13_armor_expected, c13_armor_enemy.armor])
+
+	# 隐匿与破隐（NUMBERS 10.16，✅ 0.8.13.1）：索敌过滤 / 三条破隐来源 / 范围盲压双路径。
+	var c13_stealth_data := load("res://resources/enemies/yellow_turban/yellow_turban_stealth_assassin.tres") as EnemyData
+	_check(c13_stealth_data != null and c13_stealth_data.stealth, "夜行刺应配置 stealth = true")
+	if c13_stealth_data != null:
+		_check(c13_stealth_data.max_hp == 260 and is_equal_approx(c13_stealth_data.move_speed, 100.0)
+			and c13_stealth_data.armor == 0 and c13_stealth_data.damage_to_base == 4
+			and c13_stealth_data.currency_reward == 25 and c13_stealth_data.kill_xp == 22,
+			"夜行刺数值应按 NUMBERS 10.16（260HP / 100 速 / 0 甲 / 漏 4 / 25 金 / 22 经验）")
+		var c13_probe := enemy_manager.spawn_enemy_from_data(c13_stealth_data) as Enemy
+		_check(c13_probe != null and c13_probe.is_stealthed(), "夜行刺生成后应处于隐匿")
+		GameManager.gold = 9999
+		var c13_watch: Tower = tower_manager.build_tower(Vector2(64, 704), guan_yu, null, {"level": 1})
+		if c13_probe != null and c13_watch != null:
+			c13_watch.set_process(false)
+			c13_probe.set_process(false)
+			c13_probe.global_position = c13_watch.global_position + Vector2(80, 0)
+			_check(not c13_watch.reveals_stealth(), "未破隐的塔不应持有破隐")
+			_check(not c13_probe.is_visible_to(c13_watch), "隐匿单位对未破隐的塔应不可见")
+			_check(c13_watch.find_target() == null, "未破隐的塔不应选中隐匿单位（find_target 过滤）")
+			_check(c13_watch.enemies_in_range().has(c13_probe),
+				"范围查询 enemies_in_range 应仍包含隐匿单位（范围盲压双路径）")
+			# 破隐来源 2：限时全图（诸葛亮·借东风）。
+			c13_watch.apply_stealth_reveal_buff("char_borrow_wind", 5.0)
+			_check(c13_watch.reveals_stealth(), "限时破隐 buff 应使塔持有破隐")
+			_check(c13_probe.is_visible_to(c13_watch), "持破隐的塔应可见隐匿单位")
+			_check(c13_watch.find_target() == c13_probe, "持破隐的塔应能选中隐匿单位")
+			c13_probe.refresh_stealth_reveal()
+			_check(c13_probe.is_revealed(), "进入破隐覆盖后隐匿单位应现形")
+			c13_watch.queue_free()
+		if c13_probe != null:
+			c13_probe.queue_free()
+		# 破隐来源 1：黄忠固有（trait_params.reveal_stealth，覆盖 = 自身射程）。
+		var c13_sentry_data := load("res://resources/characters/huang_zhong.tres") as CharacterData
+		_check(c13_sentry_data != null
+			and float(c13_sentry_data.trait_params.get("reveal_stealth", 0.0)) > 0.0,
+			"黄忠应配置固有破隐特性参数（trait_params.reveal_stealth）")
+		var c13_sentry: Tower = tower_manager.build_tower(Vector2(320, 704), c13_sentry_data, null, {"level": 1})
+		if c13_sentry != null:
+			c13_sentry.set_process(false)
+			_check(c13_sentry.has_inherent_reveal() and c13_sentry.reveals_stealth(),
+				"黄忠塔应带固有破隐（has_inherent_reveal / reveals_stealth）")
+			c13_sentry.queue_free()
+		# 破隐来源 2 数据面：借东风暴露 reveal_stealth 参数（SkillRegistry 读取）。
+		var c13_zhuge := load("res://resources/characters/zhuge_liang.tres") as CharacterData
+		_check(c13_zhuge != null
+			and float(c13_zhuge.character_skill_params.get("reveal_stealth", 0.0)) > 0.0,
+			"诸葛亮·借东风应暴露 reveal_stealth 参数")
+	# 破隐来源 3：貂蝉局内 3 阶光环（半径 = 舞娘射程）——走真实升阶路径，
+	# 不手动调 refresh_aura_damage_bonus()，守卫「升阶即时刷新光环」（BUGS B-060）。
+	var c13_dancer_data := load("res://resources/characters/diao_chan.tres") as CharacterData
+	var c13_dancer: Tower = tower_manager.build_tower(Vector2(560, 704), c13_dancer_data, null, {"level": 1})
+	var c13_ally: Tower = tower_manager.build_tower(Vector2(640, 704), liu_bei, null, {"level": 1})
+	if c13_dancer != null and c13_ally != null:
+		c13_dancer.set_process(false)
+		c13_ally.set_process(false)
+		_check(not c13_ally.reveals_stealth(), "2 阶及以下的舞娘不应提供破隐光环")
+		var c13_rank_start := c13_dancer.battle_rank
+		var c13_upgraded := true
+		while c13_dancer.battle_rank < Tower.DANCER_REVEAL_RANK:
+			if not tower_manager.upgrade_tower(c13_dancer, stage_data):
+				c13_upgraded = false
+				break
+		_check(c13_upgraded and c13_dancer.battle_rank == Tower.DANCER_REVEAL_RANK,
+			"舞娘应能由 %d 阶升到 %d 阶破隐档" % [c13_rank_start, Tower.DANCER_REVEAL_RANK])
+		_check(c13_dancer.reveals_stealth(), "3 阶舞娘自身应持有破隐（升阶即时刷新光环，B-060）")
+		_check(c13_ally.reveals_stealth(), "3 阶舞娘射程内的友方应获得破隐（升阶即时刷新光环，B-060）")
+		c13_dancer.queue_free()
+		c13_ally.queue_free()
+
+
+
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。
 	var xp_session := BattleSession.new("smoke_xp_stage")
@@ -1613,6 +1704,31 @@ func _run() -> void:
 			map_issues.clear()
 	_check(map_issues.is_empty(), "地图校验器不应有遗留问题")
 
+	# 0.8.13.1：s06 新增观察波（教学节奏，STAGES §7）——8 波、第 2 波 = 步卒观察 + 夜行刺演示。
+	var c13_s06 := load("res://resources/stages/chapter_01/ch01_s06.tres") as StageData
+	_check(c13_s06 != null and c13_s06.waves.size() == 8, "s06 应有 8 波（含观察波）")
+	if c13_s06 != null and c13_s06.waves.size() >= 2:
+		var c13_wave_numbers_ok := true
+		for c13_wave_index in range(c13_s06.waves.size()):
+			if c13_s06.waves[c13_wave_index].wave_number != c13_wave_index + 1:
+				c13_wave_numbers_ok = false
+		_check(c13_wave_numbers_ok, "s06 波次编号应从 1 连续到 8")
+		var c13_obs := c13_s06.waves[1]
+		_check(str(c13_obs.wave_id) == "ch01_s06_w02" and c13_obs.wave_number == 2,
+			"观察波应位于第 2 位（wave_id = ch01_s06_w02）")
+		var c13_obs_soldiers := 0
+		var c13_obs_stealth := 0
+		for c13_group in c13_obs.spawn_groups:
+			if c13_group == null or c13_group.enemy == null:
+				continue
+			if c13_group.enemy.stealth:
+				c13_obs_stealth += c13_group.count
+			elif str(c13_group.enemy.enemy_id) == "yellow_turban_soldier":
+				c13_obs_soldiers += c13_group.count
+		_check(c13_obs_soldiers == 4 and c13_obs_stealth == 2,
+			"观察波应为 4 步卒 + 2 夜行刺（实为 %d 步卒 + %d 隐匿）" % [c13_obs_soldiers, c13_obs_stealth])
+
+
 	# 阶段 8 提交 8 延伸·修复 7（v0.33.7 / 0.8.8.7，BUGS B-022）：角色图鉴数据完整性——
 	# 初始武将获取方式（unlock_stage_id 空 =「初始解锁」）、9 名武将特性数据齐全、观星射程实算。
 	_check(GameFlow.get_acquisition_text("guan_yu") == "初始解锁"
@@ -1669,6 +1785,9 @@ func _check_resource_integrity() -> void:
 	var stages: Dictionary = {}
 	var items: Dictionary = {}
 	for path in _collect_resource_paths("res://resources"):
+		var duplicate_key := _duplicate_resource_key(path)
+		if not duplicate_key.is_empty():
+			_check(false, "资源存在重复键（后者静默胜出，BUGS B-059）: %s -> %s" % [path, duplicate_key])
 		var resource := load(path) as Resource
 		if resource == null:
 			_check(false, "资源加载失败: %s" % path)
@@ -1737,6 +1856,31 @@ func _check_resource_integrity() -> void:
 		for next_id in promotion.next_promotion_ids:
 			_check(promotions.has(str(next_id)),
 				"转职 %s 引用了不存在的后续转职 %s" % [promotion_id, next_id])
+
+
+
+## B-059 回归护栏：`.tres` 的 `[resource]` 主段落不得出现重复键（Godot 静默取
+## 后者胜出——黄巾力士 armor = 10 后跟旧 armor = 0 即被回退为 0）。返回首个重复键名。
+func _duplicate_resource_key(path: String) -> String:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return ""
+	var keys: Array[String] = []
+	var in_resource_section := false
+	while not file.eof_reached():
+		var trimmed := file.get_line().strip_edges()
+		if trimmed.begins_with("["):
+			in_resource_section = trimmed == "[resource]"
+			continue
+		if not in_resource_section or not trimmed.contains("="):
+			continue
+		var key := trimmed.split("=", true, 1)[0].strip_edges()
+		if keys.has(key):
+			file.close()
+			return key
+		keys.append(key)
+	file.close()
+	return ""
 
 
 func _collect_resource_paths(dir_path: String) -> Array[String]:

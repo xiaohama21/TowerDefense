@@ -88,6 +88,8 @@ const AURA_DAMAGE_CAP: float = 0.5
 const FORMATION_DAMAGE_CAP: float = 0.3
 ## 常驻光环低频兜底扫描周期（提交 7）：塔静止、光环成员仅随建/拆塔变化，0.25s 足够。
 const AURA_SCAN_INTERVAL: float = 0.25
+## 舞娘破隐光环起始阶数（NUMBERS 10.16，✅ 0.8.13.1）：局内升到 3 阶后射程内友军获得破隐。
+const DANCER_REVEAL_RANK: int = 3
 # 增益（鼓舞/军需/连击）：按来源加法叠加、设总上限，到期逐来源回落（3.2/3.4）。
 var attack_speed_buff: float = 1.0
 var damage_buff: float = 1.0
@@ -149,6 +151,9 @@ var chain_arrow_pending: bool = false
 var tremor_stun_cooldowns: Dictionary = {}
 ## 常驻光环伤害桶汇总（提交 7，增益档次 1）：刘备仁德 + 虎贲军旗加算后 clamp(AURA_DAMAGE_CAP)。
 var _aura_damage_bonus: float = 0.0
+## 破隐（NUMBERS 10.16，✅ 0.8.13.1）：三来源聚合——固有特性 / 限时全图 buff / 舞娘 3 阶光环。
+var _stealth_reveal_until_ms: int = -1
+var _stealth_reveal_from_aura: bool = false
 var _aura_scan_tick: float = 0.0
 ## 上次光环刷新时间戳（ms）：finalize_damage 前惰性节流刷新，保证直接 queue_free
 ## 拆塔（不经 sell_tower）或塔停 _process 时光环桶也能在结算前自愈。
@@ -747,6 +752,7 @@ func set_next_attack_bonus(source: StringName, bonus: float) -> void:
 ## clamp(0, AURA_DAMAGE_CAP)；两者均不再进 passive_damage_multiplier 独立乘区。
 ## 多虎贲互乘（1.06^n）与「军旗 × 仁德」互乘路径由此消除。
 func refresh_aura_damage_bonus() -> void:
+	_stealth_reveal_from_aura = _is_in_dancer_reveal_aura()
 	var total := 0.0
 	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
 		var other := node as Tower
@@ -955,6 +961,42 @@ func deal_damage(target_enemy: Enemy, amount: int, damage_type: StringName = Str
 	target_enemy.take_damage(amount, character_id, resolved_type, penetration["ratios"], int(penetration["flat"]))
 
 
+## ============ 破隐（NUMBERS 10.16，✅ 0.8.13.1） ============
+
+## 固有破隐：特性参数 reveal_stealth > 0（黄忠·哨戒），覆盖半径 = 自身射程。
+func has_inherent_reveal() -> bool:
+	return get_trait_param("reveal_stealth", 0.0) > 0.0
+
+
+## 限时全图破隐（诸葛亮·借东风）：同源取更晚到期时间，效果结束即失效。
+func apply_stealth_reveal_buff(_source_id: String, duration: float) -> void:
+	if duration <= 0.0:
+		return
+	_stealth_reveal_until_ms = maxi(_stealth_reveal_until_ms, Time.get_ticks_msec() + int(round(duration * 1000.0)))
+
+
+## 本塔当前是否持有破隐（索敌过滤唯一出口；NUMBERS 10.16）。
+func reveals_stealth() -> bool:
+	if has_inherent_reveal() or _stealth_reveal_from_aura:
+		return true
+	return _stealth_reveal_until_ms >= 0 and Time.get_ticks_msec() < _stealth_reveal_until_ms
+
+
+## 舞娘 3 阶破隐光环：自身为 3 阶舞娘，或位于任一 3 阶友方舞娘射程内。
+func _is_in_dancer_reveal_aura() -> bool:
+	if _profession_id == &"dancer" and battle_rank >= DANCER_REVEAL_RANK:
+		return true
+	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
+		var other := node as Tower
+		if other == null or other == self or not is_instance_valid(other) or other.is_queued_for_deletion():
+			continue
+		if other.get_profession_id() != &"dancer" or other.battle_rank < DANCER_REVEAL_RANK:
+			continue
+		if global_position.distance_to(other.global_position) <= other.range_radius:
+			return true
+	return false
+
+
 func get_trait_id() -> StringName:
 	return _trait_id
 
@@ -1089,6 +1131,9 @@ func find_target() -> Enemy:
 		# 最小射程（投石车等）：目标过近时忽略，交由其他单位处理。
 		if distance_squared < min_range_squared:
 			continue
+		# 隐匿（NUMBERS 10.16）：未被本塔破隐覆盖的隐匿单位不可被选为目标。
+		if not enemy.is_visible_to(self):
+			continue
 		if enemy.progress_ratio > best_progress:
 			best_progress = enemy.progress_ratio
 			best_target = enemy
@@ -1160,6 +1205,9 @@ func _is_target_in_range(candidate) -> bool:
 		return false
 	# 最小射程：目标进入近距离后无法继续攻击（投石车弱点）。
 	if distance_squared < _min_range * _min_range:
+		return false
+	# 隐匿（NUMBERS 10.16）：持有破隐的塔才可锁定隐匿单位（普攻/单体技能/自动大招同源）。
+	if not enemy.is_visible_to(self):
 		return false
 	return true
 
