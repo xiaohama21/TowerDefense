@@ -2,6 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
+> 文档版本：v0.14（2026-09-12）
+> v0.14 变更（2026-09-12，光标视觉系统落地 / GDD v0.37.34 / UI_LAYOUT v0.20.45，程序 0.8.11.14 → **0.8.12.0**，用户 2026-09-08 拍板「按你推荐来」的方案实施）：**光标素材入库（阶段 8·提交 12）**——①§2 目录树 `ui/cursors/` 由「预留」转**已入库**（9 枚 × {32px, `_2x` 64px} = 18 个 PNG）；②§3 新增「鼠标光标（Kenney Cursor Pack，调色定稿 B）」台账（图标映射 + 复现脚本）；③§6 许可行更新——源图子集由 6 图扩为 **9 图 ×2 尺寸**（`Outline/Default` + `Outline/Double`，随 `docs/ui_concept/src/kenney_cursor_pack/` 归档并在 `src/README.md` 素材清单登记，完整包 728 个 PNG = `Outline/Basic` × `Default/Double` 各 182 未入库）；④素材形态 = 源图按灰度明度线性映射双色重着色（芯 `#cdeffb` ≈PALE / 描边 `#14538a` =STROKE，配方见 UI_LAYOUT §15），形状 / 描边结构 / 透明度逐像素保留。
 > 文档版本：v0.13（2026-09-12）
 > v0.13 变更（2026-09-12，文档同步勘误 / GDD v0.37.33，纯文档，程序 0.8.11.14 不变）：**§7 变更记录补登 v0.10~v0.12 漏登条目**（档头变更行早已记录，记录小节此前停在 v0.9），并顺补本 v0.13 条目。
 > v0.12 变更（2026-09-11，通用 HUD 图徽入概念稿 / 局内 HUD v2 定稿同步 / GDD v0.37.30 / UI_LAYOUT v0.20.41 / UI_CONCEPT v0.12 / ART_PROMPTS v0.11，纯文档/素材无程序逻辑改动，程序 0.8.11.13 不变，用户确认 2026-09-11「确认，同步文档吧」）：**§3 台账新增「通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集」**——已出图 7 枚，设计源与复现脚本归档 `docs/ui_concept/src/icons_battle/`：`wave_flag.png` 波次旗帜（顶栏波次胶囊 + 敌人出口出怪按钮）、`wave_flag_plate.png` 波次旗帜带底板版（备用）、`coin.png` 金币（顶栏 + 各处费用胶囊）、`base_hp.png` 基地生命、`dmg_physical.png` / `dmg_magic.png` / `dmg_true.png` 伤害类型、`stat_attack_speed.png` 攻击速度；**运行时入库目录预留 `assets/ui/icons/`**（随局内 HUD v2 换肤落地，未入库）；§6 许可登记「通用 HUD 图徽（外部 AI 生成）」一行。v0.11 历史行保留。
@@ -39,7 +41,7 @@ assets/
 │   │   └── round/{yellow,red,grey,blue,green}/{normal,hover,pressed}.png
 │   ├── icons/              # 星形/勾选/关闭/箭头/输入框/分隔线/滑块
 │   ├── panels/             # 弹窗/面板九宫格底图（自绘或素材化，当前为空=预留）
-│   ├── cursors/            # 鼠标光标（Kenney Cursor Pack 调色定稿 B，提交 12 排期，当前为空=预留）
+│   ├── cursors/            # 鼠标光标（Kenney Cursor Pack 调色定稿 B，v0.14 入库：9 枚 × {32px, _2x}）
 │   └── ui_theme.tres       # 全局主题（默认字体=快乐体，系统字体回退）
 ├── map/                    # 战斗地图素材
 │   ├── decor/              # 装饰（banner/rock/torch/tree，原 assets/decor，v0.33.4 迁移）
@@ -83,7 +85,22 @@ assets/
 
 > 复现：`python prep_hud_icons.py`（PIL；自本地 `F:\godotProject\leonardo.ai\通用HUD\*.jpg` 1024×1024 原图去白底、去底板并裁边，输出 coin / base_hp / wave_flag_plate / wave_flag 四枚；`dmg_*` / `stat_attack_speed` 自同目录 `png/` 16 枚通用图标直接拷入）。风格锚点 = [ART_PROMPTS.md](ART_PROMPTS.md) §5（通用 HUD 图徽）。待出图：射程 / 护甲 / 经验 / 韧性 / 穿甲 / 移速（§5.3）与负面状态 6（§5.4）、军需 / 阶级角标图徽。
 
-**待入库（空目录 = 预留）**：`ui/panels/` 弹窗面板底图（九宫格，Godot StyleBox 用）；`ui/cursors/` 鼠标光标（Kenney Cursor Pack 调色定稿 B，阶段 8·提交 12 排期，规范见 UI_LAYOUT §15）；`ui/icons/` 的**通用 HUD 图徽集**（波次旗帜 / 金币 / 基地生命 / 伤害类型 / 攻速已出图，见上表）。正式换肤进度：主菜单已落地（v0.33.6——`UITheme.apply_kenney_rect_button` 九宫格按钮 + 自绘白面弹窗），其余面板逐步接入；尚未换肤的面板控件底色仍为程序化。
+**鼠标光标（Kenney Cursor Pack，调色定稿 B，v0.14 入库 = 程序 0.8.12.0）**：运行时目录 `assets/ui/cursors/`（每枚含 32px 与 `_2x` 64px 两版），鼠标形态规范与**热点实测表**见 [UI_LAYOUT.md](UI_LAYOUT.md) §15：
+
+| 文件（`assets/ui/cursors/`） | 包内原名（`Outline/{Default,Double}`） | 用途 |
+|---|---|---|
+| `pointer_toon_a.png` | `pointer_toon_a` | 全局默认指针（Q 版指针；备选 `pointer_a`） |
+| `hand_point.png` | `hand_point` | 按钮 / 卡片 / 页签 hover（CursorService 统一出口） |
+| `hand_closed.png` | `hand_closed` | 建造卡拖出拖拽（BuildManager 拖拽覆盖层） |
+| `cross_large.png` | `cross_large` | 战场画布准星（Main 战场 FieldCursor 层） |
+| `drawing_pen.png` | `drawing_pen` | 地图编辑器笔刷：路径 / 建造位 |
+| `drawing_brush.png` | `drawing_brush` | 地图编辑器笔刷：装饰 |
+| `drawing_eraser.png` | `drawing_eraser` | 地图编辑器笔刷：擦除 |
+| `cursor_disabled.png` | `cursor_disabled` | 地图编辑器笔刷：禁建（`CURSOR_FORBIDDEN` 槽） |
+
+> 复现：`python tools/prep_cursors.py`（PIL；源图按灰度明度线性映射双色重着色——`v = (r+g+b)/3/240` clamp 0..1，outline→fill 插值；同时按几何规则标定热点并与 `scripts/services/CursorIcons.gd` 交叉校验，`--montage 路径` 可出热点校验图）。
+
+**待入库（空目录 = 预留）**：`ui/panels/` 弹窗面板底图（九宫格，Godot StyleBox 用）；`ui/icons/` 的**通用 HUD 图徽集**（波次旗帜 / 金币 / 基地生命 / 伤害类型 / 攻速已出图，见上表）。正式换肤进度：主菜单已落地（v0.33.6——`UITheme.apply_kenney_rect_button` 九宫格按钮 + 自绘白面弹窗），其余面板逐步接入；尚未换肤的面板控件底色仍为程序化。
 
 ## 4. 地图素材约定（后续章节/换肤）
 
@@ -143,7 +160,7 @@ assets/
 | 素材 | 来源 | 许可 | 备注 |
 |---|---|---|---|
 | Kenney UI Pack 切片 | kenney.nl | CC0 | 全部 UI 按钮/图标；概念图 HTML 所需 17 图子集随 docs/ui_concept/src/kenney_ui_pack 归档（仅设计复现用，完整包按官方 CC0 可随时重下） |
-| Kenney Cursor Pack 切片（光标） | kenney.nl（https://kenney.nl/assets/cursor-pack ） | CC0 | 光标视觉系统素材（阶段 8·提交 12 排期）：`Outline/Default` 32px 原图 + 定稿配色 B 重着色（配方见 UI_LAYOUT §15）；概念对照图所需 6 图子集随 docs/ui_concept/src/kenney_cursor_pack 归档（仅设计复现用，完整包 729 个 PNG 未入库） |
+| Kenney Cursor Pack 切片（光标） | kenney.nl（https://kenney.nl/assets/cursor-pack ） | CC0 | 光标视觉系统素材（**v0.14 已入库**，程序 0.8.12.0）：`Outline/Default`(32px) + `Outline/Double`(64px) 原图经 `tools/prep_cursors.py` 按定稿配色 B 重着色（配方见 UI_LAYOUT §15）；源图 9 图 ×2 尺寸子集随 docs/ui_concept/src/kenney_cursor_pack 归档（`src/README.md` 登记；完整包 728 个 PNG 未入库） |
 | 站酷快乐体 2016 修订版 | 站酷（ZCOOL） | 免费商用 | 字体；使用声明随原压缩包存档 |
 | D69《315 套 Q 版卡通角色 spine 动画》 | 冰糖撞果冻店铺（下载链接见包内免责声明） | ⚠️ 包内声明「仅供学习研究、不得商用，请购买正版」 | 角色 spine 试点（序号 097 关羽）；商用前需购正版授权，当前仅作开发期试点 |
 | 通用 HUD 图徽（波次旗帜 / 金币 / 基地生命 / 伤害类型 / 攻速） | 外部 AI 生成（Leonardo，本地目录 `F:\godotProject\leonardo.ai\通用HUD\`） | 以来源为准（自生成素材） | 局内 HUD 图标集（见 §3）；设计源 + 抠透明脚本随 `docs/ui_concept/src/icons_battle/` 归档，运行时入库目录 `assets/ui/icons/` 预留 |
@@ -163,3 +180,4 @@ assets/
 - v0.11（2026-09-09，2026-09-12 补登）：Spine 试点素材与工具归档——`.gitignore` 落实「素材不入库」（`assets/characters/` / `assets/spine_test/` / `bin/`），程序 0.8.11.7 不变。
 - v0.12（2026-09-11，2026-09-12 补登）：§3 台账新增「通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集」，程序 0.8.11.13 不变。
 - v0.13（2026-09-12）：§7 变更记录补登 v0.10~v0.12 漏登条目（同顶部 changelog）。
+- v0.14（2026-09-12）：光标素材入库——§2 `assets/ui/cursors/` 落地 9 枚 ×2 尺寸、§3 新增光标台账、§6 许可更新（程序 0.8.12.0，见档头 v0.14 变更行与 UI_LAYOUT §15）。

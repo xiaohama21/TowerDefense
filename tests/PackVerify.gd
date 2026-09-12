@@ -50,6 +50,7 @@ func _run() -> void:
 	_check("全量角色/职业/转职资源", _characters_integrity())
 	_check("全量关卡/波次/敌人资源", _stages_integrity())
 	_check("羁绊/遗物/道具/科技/数值/模板资源", _misc_integrity())
+	_check("光标素材（Kenney Cursor Pack ×2 尺寸 + 热点落点）", _cursor_assets_integrity())
 	print("PACK_VERIFY_%s" % ("OK" if failures.is_empty() else "FAIL"))
 	print("DETAILS:")
 	for line in details:
@@ -165,4 +166,28 @@ func _misc_integrity() -> bool:
 		missing.append("heavy_cavalry_template")
 	details.append("羁绊=%d、局内遗物=%d、道具=%d" % [bonds.size(), relic_ids.size(), item_ids.size()])
 	details.append("羁绊/遗物/道具/科技/数值/模板缺失=%s" % str(missing))
+	return missing.is_empty()
+
+
+## 光标素材（UI_LAYOUT §15 光标规范，程序 0.8.12.0）：9 枚 × {32px, _2x 64px} 全部可载入、
+## 尺寸正确，且目录登记的热点落在实心像素上（防素材 / 热点表漂移）。
+func _cursor_assets_integrity() -> bool:
+	var missing: Array[String] = []
+	for icon in CursorIcons.HOTSPOT_32:
+		for suffix in ["", "_2x"]:
+			var path := "%s%s%s.png" % [CursorIcons.DIR, icon, suffix]
+			var texture := load(path) as Texture2D
+			if texture == null:
+				missing.append(path)
+				continue
+			var expected := 64 if suffix == "_2x" else 32
+			var image := texture.get_image()
+			if image == null or image.get_width() != expected or image.get_height() != expected:
+				missing.append("%s size=%s" % [path, "null" if image == null else str(image.get_size())])
+				continue
+			var hotspot: Vector2 = (CursorIcons.HOTSPOT_64 if suffix == "_2x" else CursorIcons.HOTSPOT_32)[icon]
+			var alpha := image.get_pixel(int(hotspot.x), int(hotspot.y)).a
+			if alpha < 0.8:
+				missing.append("%s hotspot(%d,%d) alpha=%.2f" % [path, int(hotspot.x), int(hotspot.y), alpha])
+	details.append("光标素材 %d 枚 ×2 尺寸，缺失/异常=%s" % [CursorIcons.HOTSPOT_32.size(), str(missing)])
 	return missing.is_empty()
