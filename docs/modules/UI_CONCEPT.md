@@ -1,7 +1,10 @@
 # UI 概念图生成与归档（UI_CONCEPT）
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
-> 界面排版文字规范（权威）见 [UI_LAYOUT.md](UI_LAYOUT.md)，素材台账见 [ART_ASSETS.md](ART_ASSETS.md)。
+> 素材台账见 [ART_ASSETS.md](ART_ASSETS.md)。
+> 文档版本：v0.13（2026-09-12）
+> v0.13 变更（2026-09-12，百科图鉴概念稿修订 / GDD v0.37.31 / UI_LAYOUT v0.20.42 §12 / ENCYCLOPEDIA v0.1.10，纯文档/素材无程序逻辑改动，程序 0.8.11.13 不变，用户拍板 2026-09-12「归档提交吧」）：**`ui_encyclopedia.png` / `ui_encyclopedia_enemy.png` 修订重渲入库（Chrome headless 1280×720 同参数、PNG 与源码同源）**——①**属性列改「胶囊条」**（概念 .pills / .pill：一条数据一枚胶囊 = 左图标 + 中标签 + 右数值），武将「基础」页四统计卡改 2 列胶囊、数值模拟器三枚结果卡左置图徽；②敌人详情改 **基础属性 4 枚胶囊** + **击杀奖励 3 枚独立胶囊**（金币 / 经验 / 军功 各计一条，不再合并），难度卡内联三项改图徽 + 数值；③**新增素材 `src/icons_hud/`**（16 枚通用 HUD 图徽：伤害 3 / 属性 7 / 状态 6；**160×160 透明底单符号**——原深藏青圆角方底板已剥离、边缘噪点已清理，与 `icons_battle/coin_crop.png` 同款落底，浅色面板直接可用）与生成脚本 `src/prep_icons_hud.py`（PIL，非 HTML/Chrome 流程，同 `ui_cursor_palette.py` 例外）；④缺口：敌人生命 / 军功 图徽待出图（虚线占位）、漏怪伤害暂借立绘级 `base_hp_crop.png`；⑤两屏均为**概念稿**，百科代码落地另行排期。
+> 文档版本：v0.12（2026-09-11）
 > 文档版本：v0.12（2026-09-11）
 > v0.12 变更（2026-09-11，局内 HUD v2 概念稿定稿 / GDD v0.37.30 / UI_LAYOUT v0.20.41 / ART_ASSETS v0.12 / ART_PROMPTS v0.11，纯文档/素材无程序逻辑改动，程序 0.8.11.13 不变，用户确认 2026-09-11「确认，同步文档吧」）：**新增第 20 屏 `ui_battle_hud_v2.png`（源码 `src/ui_battle_hud_v2.html`，Chrome headless 1280×720 同参数重渲入库、PNG 与源码同源）**——局内 HUD 第二版按 6 条修改意见重做：①深墨绿 + 暖金局内皮肤（底 `#13241b` / 描边金 `#c9a35c` / 文字 `#f2e7cd` / 数值 `#ffd479` / 生命 `#4ec97e`、≤30% 危急 `#ef5b52` / 主行动 `#ffcc00`；地图与道路不改色）；②顶栏图标化（金币 / 基地生命 / 波次 = 图标 + 数字，☰ 菜单收录 继续 · 设置 · 重开 · 退出）+ **取消「开始第 N 波」按钮**（出怪改点击敌人出口道路上的波次旗帜，Space 同效、自动开波后无需点击）；③**塔详情整合进底栏**（选中塔 → 建造位整块换为同规格 5 卡：头像 / 伤害 / 攻速 / 升阶 / 回收；升阶 · 回收圆盘图标 46px + 右下角金币费用胶囊，语言同建造位；不显示等阶、无射程数值、取消选中金圈）；④地图塔不显示名称 + 阶级角标（1/2/3，0 阶不显示）；⑤军需槽（局外选带 / 局内花金币购买：未购 = 右下角金币胶囊点击购买、已购 = ✓ + 左上剩余次数、达限购次数置灰禁用、锁 = 科技未解锁）；⑥概念稿内左侧大虚线胶囊仅提示示意、不开发；旧稿 `ui_battle_hud.png` / `src/ui_battle_hud.html` 保留为历史存档；屏数 19 → **20**；排版规范见 UI_LAYOUT §10（v0.20.41）。
 > 文档版本：v0.11（2026-09-10）
@@ -71,8 +74,8 @@
 | `ui_tech.png` | `ui_tech.html` | 科技树：三分支分类展示（滚动兜底） | UI_LAYOUT §8 |
 | `ui_inventory.png` | `ui_inventory.html` | 背包：道具分类页签 + 列表（滚动兜底） | UI_LAYOUT §9 |
 | `ui_settings.png` | `ui_settings.html` | 设置：页签 + 开关/滑块列表 | UI_LAYOUT §11 |
-| `ui_encyclopedia.png` | `ui_encyclopedia.html` | 百科·武将图鉴：左 2 列网格 + 五页签 + 数值模拟器条 | UI_LAYOUT §12 |
-| `ui_encyclopedia_enemy.png` | `ui_encyclopedia_enemy.html` | 百科·敌人图鉴：基础/特殊行为/各档难度/出现关卡 | UI_LAYOUT §12 |
+| `ui_encyclopedia.png` | `ui_encyclopedia.html` | 百科·武将图鉴：左 2 列网格 + 五页签 + 数值模拟器条；属性列 = 2 列**胶囊条**（左通用 HUD 图徽 · 右数值），模拟器结果卡同款图徽（v0.13 概念稿待落地） | UI_LAYOUT §12 |
+| `ui_encyclopedia_enemy.png` | `ui_encyclopedia_enemy.html` | 百科·敌人图鉴：基础属性 4 枚**胶囊**（含 1 枚待出图占位）+ **击杀奖励 3 枚独立胶囊**（金币 / 经验 / 军功）+ 特殊行为 / 各档难度（内联图徽）/ 出现关卡（v0.13 概念稿待落地） | UI_LAYOUT §12 |
 | `ui_battle_hud.png` | `ui_battle_hud.html` | 战斗局内 HUD：贴顶顶栏 0..80 + 底部建造卡条 640..720 + 怒气胶囊收格三态 + HP 变色图例（v0.3 存档；v0.5 移除技能副行；v0.9 按 0.8.11.1 版式重渲） | UI_LAYOUT §10 |
 | `ui_battle_hud_v2.png` | `ui_battle_hud_v2.html` | 战斗局内 HUD v2：深墨绿 + 暖金皮肤 / 顶栏图标化 + 出口波次旗帜出怪（取消「开始第 N 波」按钮）/ 底栏 5 卡塔详情（费用胶囊同建造位、不显示等阶、取消选中金圈）/ 地图塔去名称 + 阶级角标 / 军需槽局外选带 · 局内金币购买（v0.12 定稿） | UI_LAYOUT §10 |
 | `ui_squad_confirm.png` | `ui_squad_confirm.html` | 出征·编队「确认出战」二次确认弹窗（640×557：元数据 + 武将名单 + 遗物 + 取消/确认，v0.4 存档） | UI_LAYOUT §7 |
