@@ -87,7 +87,9 @@ static func apply_card_style(button: Button, state_color: Color, selected: bool 
 
 ## Kenney 九宫格按钮换肤（UI_LAYOUT §3 / ART_ASSETS v0.2，v0.33.6 首页落地）：
 ## 素材 assets/ui/buttons/rect/<color_key>/{normal,hover,pressed}.png（原图 384×128，裁边 24）。
-static func apply_kenney_rect_button(button: Button, color_key: String, font_color: Color) -> void:
+## content_margin 默认 12（大按钮）；局内顶栏等紧凑按钮行传更小值，避免九宫格最小宽撑破整行。
+static func apply_kenney_rect_button(button: Button, color_key: String, font_color: Color,
+		content_margin: float = 12.0) -> void:
 	var pressed_style: StyleBoxTexture = null
 	for state_name in ["normal", "hover", "pressed"]:
 		var style := StyleBoxTexture.new()
@@ -96,7 +98,7 @@ static func apply_kenney_rect_button(button: Button, color_key: String, font_col
 		style.texture_margin_top = 24.0
 		style.texture_margin_right = 24.0
 		style.texture_margin_bottom = 24.0
-		style.set_content_margin_all(12.0)
+		style.set_content_margin_all(content_margin)
 		button.add_theme_stylebox_override(state_name, style)
 		if state_name == "pressed":
 			pressed_style = style

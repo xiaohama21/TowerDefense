@@ -61,14 +61,14 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   background:radial-gradient(circle at 36% 30%, #ffe08a, #e7b84f 70%);
   border:2px solid #9c6f2b; box-shadow:0 2px 4px rgba(0,0,0,.35); }
 
-/* ---------- 顶栏（0.8.11.1 起贴顶全宽 0..80，圆角去 0；v0.37.6 版式同步） ---------- */
+/* ---------- 顶栏（0.8.11.1 起贴顶全宽 0..80，圆角去 0；v0.37.32 亮色化：亮蓝白 + 3px 蓝线） ---------- */
 .bar { position:absolute; left:0; top:0; width:1280px; height:80px;
   display:flex; align-items:center; gap:10px; padding:0 18px;
-  background:linear-gradient(180deg, rgba(24,34,54,.97), rgba(13,18,31,.97));
-  border-bottom:2px solid #406ead;
-  box-shadow:inset 0 -1px 0 rgba(255,255,255,.06); }
-.stage { font-size:16px; color:#c9e9d2; letter-spacing:0; white-space:nowrap; flex:none; }
-.rule { width:1px; height:34px; background:rgba(255,255,255,.16); flex:none; }
+  background:linear-gradient(180deg, #f6fbff, #e8f4fd);
+  border-bottom:3px solid #7ec8ea;
+  box-shadow:0 3px 8px rgba(3,26,46,.18); }
+.stage { font-size:16px; color:#1b4d78; letter-spacing:0; white-space:nowrap; flex:none; }
+.rule { width:1px; height:34px; background:rgba(28,120,180,.18); flex:none; }
 .pill { display:flex; align-items:center; gap:8px; height:46px; padding:0 8px 0 5px;
   background:#fff; border:2px solid #7fb2d9; border-radius:13px;
   box-shadow:0 2px 6px rgba(0,0,0,.3); flex:none; }
@@ -98,13 +98,14 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 .b-exit { height:40px; width:84px; font-size:15px; letter-spacing:1px; color:#fff;
   border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); }
 
-/* ---------- 底部建造卡条（0.8.11.1 移底部常驻 640..720；拖卡至空地建造） ---------- */
+/* ---------- 底部建造卡条（0.8.11.1 移底部常驻 640..720；v0.37.32 亮色化） ---------- */
 .cards { position:absolute; left:0; right:0; top:640px; height:80px;
   display:flex; align-items:center; justify-content:center; gap:12px; padding:0 18px;
-  background:rgba(10,16,26,.95); border-top:2px solid rgba(64,110,173,.9); }
+  background:linear-gradient(180deg, #eef8fe, #e2f1fb); border-top:3px solid #7ec8ea;
+  box-shadow:0 -3px 8px rgba(3,26,46,.18); }
 .ccard { width:124px; height:68px; flex:none; display:flex; align-items:center; gap:8px;
-  background:rgba(22,32,50,.85); border:2px solid rgba(96,146,196,.85); border-radius:8px;
-  padding:0 8px; box-shadow:0 2px 6px rgba(0,0,0,.35); }
+  background:#f7fbfe; border:2px solid #9fd0ea; border-radius:8px;
+  padding:0 8px; box-shadow:0 2px 6px rgba(3,26,46,.18); }
 .cava { width:48px; height:48px; flex:none; border-radius:50%; color:#fff; font-size:22px;
   display:flex; align-items:center; justify-content:center;
   text-shadow:0 1px 2px rgba(90,20,10,.5); }
@@ -112,9 +113,9 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 .cava.zhang_fei { background:radial-gradient(circle at 32% 28%, #8fd0ff, #2f7fc9 78%); }
 .cava.liu_bei { background:radial-gradient(circle at 32% 28%, #ffe08a, #d9a53a 78%); }
 .cinfo { display:flex; flex-direction:column; justify-content:center; gap:1px; min-width:0; }
-.cname { font-size:15px; color:#eef4fb; white-space:nowrap; }
-.clv { font-size:11px; color:#7ec8ea; letter-spacing:.5px; white-space:nowrap; }
-.ccost { font-size:11px; color:#ffd34d; letter-spacing:.5px; white-space:nowrap; }
+.cname { font-size:15px; color:#1b4d78; white-space:nowrap; }
+.clv { font-size:11px; color:#2eaadc; letter-spacing:.5px; white-space:nowrap; }
+.ccost { font-size:11px; color:#b8860b; letter-spacing:.5px; white-space:nowrap; }
 
 /* ---------- 图例（HP 两态 / 占位说明 / 0.8.11.1 版式说明） ---------- */
 .legend { position:absolute; left:20px; top:92px; display:flex; flex-direction:column; gap:7px;

@@ -524,30 +524,22 @@ func _format_settlement_reward(result: Dictionary) -> String:
 			return "未知奖励"
 
 
-## 顶栏退出（GDD v0.9.3）：本局尚未出结果时弹确认——中途退出收益作废
-## （核心规则），会话由 _exit_tree 的弃置逻辑兜底清理。
+## 顶栏退出（GDD v0.9.3；v0.37.32 换 Kenney 亮色二次确认弹窗）：本局尚未出结果时弹确认
+## ——中途退出收益作废（核心规则），会话由 _exit_tree 的弃置逻辑兜底清理。
 func _on_exit_pressed() -> void:
 	build_manager.cancel_drag()
 	if battle_session != null and battle_session.is_in_progress():
-		var dialog := ConfirmationDialog.new()
-		dialog.process_mode = Node.PROCESS_MODE_ALWAYS
-		dialog.dialog_text = "退出将放弃本局未结算的收益，确定退出？"
-		dialog.ok_button_text = "放弃并退出"
-		dialog.cancel_button_text = "继续战斗"
-		dialog.confirmed.connect(_on_exit_confirmed.bind(dialog))
-		dialog.canceled.connect(dialog.queue_free)
-		dialog.close_requested.connect(dialog.queue_free)
-		get_tree().root.add_child(dialog)
-		dialog.popup_centered()
+		BattleConfirmDialog.open(self, "确认退出本关？",
+			"退出将放弃本局未结算的收益与进度，且不会被写入存档。",
+			"放弃并退出", _on_exit_confirmed, "继续战斗", "red")
 	else:
 		GameFlow.goto_hub()
 
 
-func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
+func _on_exit_confirmed() -> void:
 	build_manager.cancel_drag()
 	GameFlow.clear_squad_relics()
 	GameFlow.goto_hub()
-	dialog.queue_free()
 
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the
@@ -624,7 +616,16 @@ func _on_pause_pressed():
 	else:
 		ui.show_status("游戏继续")
 
-func _on_restart_pressed():
+## 顶栏重开（v0.37.32）：先弹 Kenney 亮色二次确认（防误触、与退出确认同语言），
+## 确认后弃置本局会话、解除暂停并重载关卡（收益作废规则同退出）。
+func _on_restart_pressed() -> void:
+	build_manager.cancel_drag()
+	BattleConfirmDialog.open(self, "确认重开本关？",
+		"重开会放弃本局未结算的收益与进度，并从第一波重新开始本关。",
+		"确认重开", _on_restart_confirmed, "继续战斗")
+
+
+func _on_restart_confirmed() -> void:
 	build_manager.cancel_drag()
 	_discard_active_session()
 	get_tree().paused = false

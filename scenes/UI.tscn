@@ -3,16 +3,16 @@
 [ext_resource type="Script" path="res://scripts/UI.gd" id="1_ui"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top"]
-bg_color = Color(0.055, 0.075, 0.12, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.25, 0.43, 0.68, 0.85)
+bg_color = Color(0.933, 0.973, 0.996, 0.96)
+border_width_bottom = 3
+border_color = Color(0.494, 0.784, 0.918, 1)
 corner_radius_top_left = 0
 corner_radius_top_right = 0
 corner_radius_bottom_right = 0
 corner_radius_bottom_left = 0
+shadow_color = Color(0.02, 0.1, 0.18, 0.18)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_message"]
 bg_color = Color(0.055, 0.075, 0.12, 0.96)
@@ -27,13 +27,16 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bottom"]
-bg_color = Color(0.04, 0.062, 0.105, 0.95)
-border_width_top = 2
-border_color = Color(0.25, 0.43, 0.68, 0.85)
+bg_color = Color(0.914, 0.961, 0.992, 0.96)
+border_width_top = 3
+border_color = Color(0.494, 0.784, 0.918, 1)
 corner_radius_top_left = 0
 corner_radius_top_right = 0
 corner_radius_bottom_right = 0
 corner_radius_bottom_left = 0
+shadow_color = Color(0.02, 0.1, 0.18, 0.18)
+shadow_size = 6
+shadow_offset = Vector2(0, -3)
 
 [node name="UI" type="CanvasLayer"]
 process_mode = 3
@@ -63,42 +66,38 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_top")
 [node name="Margin" type="MarginContainer" parent="Root/TopBar"]
 layout_mode = 2
 theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 16
+theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="Content" type="HBoxContainer" parent="Root/TopBar/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="StageLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.92, 0.8, 1)
+theme_override_colors/font_color = Color(0.106, 0.302, 0.471, 1)
 theme_override_font_sizes/font_size = 20
 text = "关卡"
 vertical_alignment = 1
 
 [node name="GoldLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_color = Color(0.722, 0.525, 0.043, 1)
 theme_override_font_sizes/font_size = 22
 text = "金币：100"
 vertical_alignment = 1
 
 [node name="LivesLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
+theme_override_colors/font_color = Color(0.055, 0.624, 0.345, 1)
 theme_override_font_sizes/font_size = 22
 text = "生命：20"
 vertical_alignment = 1
 
 [node name="WaveLabel" type="Label" parent="Root/TopBar/Margin/Content"]
-custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.84, 1, 1)
+theme_override_colors/font_color = Color(0.078, 0.325, 0.541, 1)
 theme_override_font_sizes/font_size = 22
 text = "波次：0 / 5"
 vertical_alignment = 1

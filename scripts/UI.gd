@@ -23,8 +23,14 @@ signal result_wheel_pressed
 signal exit_pressed
 signal dialogue_finished
 
-const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
-const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
+## 局内面板亮色化（v0.37.32）：卡片/塔面板改 Kenney 亮蓝白语言
+## （底 #f7fbfe / 描边 #9fd0ea），与大厅、战斗顶栏（#eef8fe + #7ec8ea 细线）统一。
+const PANEL_STYLE_BG := Color("#f7fbfe")
+const PANEL_STYLE_BORDER := Color("#9fd0ea")
+## 基地生命两态（v0.37.32 / UI_LAYOUT §10）：常态绿，≤30% 危急变红并脉动。
+const LIVES_COLOR_OK := Color("#0e9f58")
+const LIVES_COLOR_LOW := Color("#e5484d")
+const LIVES_LOW_RATIO := 0.3
 ## 建造卡立绘头像（0.8.11.1）：character_id → 圆形透明 PNG（SpineSprite Idle 首帧截取，
 ## 素材与 D69 试点同口径本地存放不入库）；无条目/缺素材回退概念色占位圆。
 const CHARACTER_AVATAR_TEXTURES := {
@@ -58,6 +64,9 @@ var _character_costs: Dictionary = {}
 ## 当前按下（正在拖拽）的卡片 id：按下金色高亮，松手/取消复位。
 var _held_card_id: String = ""
 var _dialogue_panel: Control = null
+## 基地生命危急态（v0.37.32）：≤30% 红字 + 脉动；_lives_pulse 为脉动相位累加。
+var _lives_low: bool = false
+var _lives_pulse: float = 0.0
 
 # 武将属性面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
 var _panel_tower: Tower = null
@@ -88,6 +97,7 @@ var _dialogue_advance_after_msec: int = 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_style_top_bar_buttons()
 	next_wave_button.pressed.connect(_on_next_wave_button_pressed)
 	supply_button.pressed.connect(func() -> void: battle_supply_pressed.emit())
 	pause_button.pressed.connect(_on_pause_button_pressed)
@@ -109,6 +119,17 @@ func _ready() -> void:
 	_previous_paused_state = get_tree().paused
 	_refresh_action_buttons()
 	_show_build_hint_once()
+
+
+## 顶栏按钮换肤（v0.37.32 / UI_LAYOUT §10）：黄 开始第 N 波 / 蓝 军需 / 灰 暂停·设置·重开 /
+## 红 退出，与大厅 Kenney 亮蓝按钮同源（素材 assets/ui/buttons/rect）。
+func _style_top_bar_buttons() -> void:
+	UITheme.apply_kenney_rect_button(next_wave_button, "yellow", UITheme.INK, 8.0)
+	UITheme.apply_kenney_rect_button(supply_button, "blue", Color.WHITE, 6.0)
+	UITheme.apply_kenney_rect_button(pause_button, "grey", UITheme.INK, 6.0)
+	UITheme.apply_kenney_rect_button(settings_button, "grey", UITheme.INK, 6.0)
+	UITheme.apply_kenney_rect_button(restart_button, "grey", UITheme.INK, 6.0)
+	UITheme.apply_kenney_rect_button(exit_button, "red", Color.WHITE, 6.0)
 
 
 func set_stage_name(stage_name: String) -> void:
@@ -253,12 +274,13 @@ func _apply_card_style(card: Variant) -> void:
 	var affordable: bool = GameManager.gold >= int(_character_costs.get(card.get("id", ""), 0))
 	var held: bool = _held_card_id == str(card.get("id", ""))
 	var border := PANEL_STYLE_BORDER
-	var bg := UITheme.PANEL_BG
+	var bg := UITheme.LIGHT_CARD_BG
 	if held:
-		border = UITheme.SELECT_BORDER
-		bg = UITheme.SELECT_BG.darkened(0.55)
+		border = UITheme.LIGHT_GOLD_SELECT
+		bg = Color("#fff7dc")
 	elif not affordable:
-		border = UITheme.RED.darkened(0.5)
+		border = Color("#e0a09a")
+		bg = Color("#fff5f3")
 	if is_instance_valid(panel):
 		panel.add_theme_stylebox_override("panel", _make_card_style(border, bg))
 	var avatar: Control = card.get("avatar")
@@ -266,16 +288,16 @@ func _apply_card_style(card: Variant) -> void:
 	var lv_label: Label = card.get("lv")
 	var cost_label: Label = card.get("cost")
 	if is_instance_valid(avatar):
-		avatar.modulate = Color(0.55, 0.57, 0.53, 0.9) if not affordable else Color.WHITE
+		avatar.modulate = Color(1, 1, 1, 0.45) if not affordable else Color.WHITE
 	if is_instance_valid(name_label):
 		name_label.add_theme_color_override("font_color",
-			UITheme.DISABLED if not affordable else UITheme.TEXT)
+			UITheme.LIGHT_LOCK if not affordable else UITheme.LIGHT_INK)
 	if is_instance_valid(lv_label):
 		lv_label.add_theme_color_override("font_color",
-			UITheme.DISABLED if not affordable else UITheme.BLUE)
+			UITheme.LIGHT_LOCK if not affordable else UITheme.LIGHT_ACCENT)
 	if is_instance_valid(cost_label):
 		cost_label.add_theme_color_override("font_color",
-			UITheme.RED if not affordable else UITheme.GOLD)
+			Color("#d0453f") if not affordable else UITheme.LIGHT_GOLD_TEXT)
 
 
 func _make_card_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
@@ -314,6 +336,9 @@ func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
 func _process(_delta: float) -> void:
 	# UI 始终处理，暂停后仍可继续或重开游戏。
 	_refresh_wave_label()
+	if _lives_low:
+		_lives_pulse += _delta * 5.2
+		lives_label.modulate = Color(1, 1, 1, 0.6 + 0.4 * (0.5 + 0.5 * sin(_lives_pulse)))
 	if get_tree().paused != _previous_paused_state:
 		_previous_paused_state = get_tree().paused
 		_refresh_action_buttons()
@@ -327,7 +352,19 @@ func update_gold(new_amount: int) -> void:
 
 func update_lives(new_amount: int) -> void:
 	lives_label.text = "生命：%d" % max(new_amount, 0)
+	_refresh_lives_color(new_amount)
 	_refresh_action_buttons()
+
+
+## 基地生命两态（UI_LAYOUT §10，v0.37.32 落地）：常态绿 #0e9f58；
+## ≤30% 变红 #e5484d 并在 _process 里脉动呼吸（透明度 0.6~1.0）。
+func _refresh_lives_color(amount: int) -> void:
+	var max_lives := maxi(GameManager.starting_lives, 1)
+	_lives_low = float(max(amount, 0)) / float(max_lives) <= LIVES_LOW_RATIO
+	lives_label.add_theme_color_override("font_color",
+		LIVES_COLOR_LOW if _lives_low else LIVES_COLOR_OK)
+	if not _lives_low:
+		lives_label.modulate = Color.WHITE
 
 
 func update_wave(current: int, total: int) -> void:

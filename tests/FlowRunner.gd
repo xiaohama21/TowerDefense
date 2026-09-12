@@ -556,6 +556,16 @@ func _collect_labels(node: Node, result: Array[Label]) -> void:
 		_collect_labels(child, result)
 
 
+func _find_node_named(node: Node, node_name: String) -> Node:
+	if node.name == node_name:
+		return node
+	for child in node.get_children():
+		var found := _find_node_named(child, node_name)
+		if found != null:
+			return found
+	return null
+
+
 
 func _test_squad_select_screen() -> void:
 	# 编队以"新档"为前置（v0.15.1：前置背包/一键通关测试会改动共享档，此处重建新档，
@@ -694,15 +704,14 @@ func _test_battle_entry() -> void:
 	var exit_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/ExitButton") as Button
 	exit_button_flow.pressed.emit()
 	await get_tree().process_frame
-	var exit_dialog: ConfirmationDialog = null
-	for child in get_tree().root.get_children():
-		if child is ConfirmationDialog:
-			exit_dialog = child
-			break
-	_check(exit_dialog != null, "战斗退出应弹出确认对话框")
+	var exit_dialog := get_tree().root.get_node_or_null("%s/%s" % [
+		BattleConfirmDialog.LAYER_NAME, BattleConfirmDialog.DIALOG_NAME]) as Control
+	_check(exit_dialog != null, "战斗退出应弹出二次确认弹窗")
 	if exit_dialog != null:
-		_check(exit_dialog.ok_button_text == "放弃并退出", "退出确认框应提示放弃本局收益")
-		exit_dialog.queue_free()
+		var exit_confirm := _find_node_named(exit_dialog, "ConfirmButton") as Button
+		_check(exit_confirm != null and exit_confirm.text == "放弃并退出",
+			"退出确认框应提示放弃本局收益")
+		exit_dialog.close()
 		await get_tree().process_frame
 
 	# 自动开启下一波（v0.15.3）：开启后波次结束自动开下一波，关闭时保持手动等待。

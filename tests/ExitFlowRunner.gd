@@ -25,6 +25,7 @@ func _check(condition: bool, message: String) -> void:
 func _run() -> void:
 	_test_scene_resources()
 	await _test_battle_exit()
+	await _test_battle_restart_confirm()
 	await _test_hub_back_button()
 	await _test_main_menu_quit()
 	_cleanup()
@@ -66,18 +67,70 @@ func _test_battle_exit() -> void:
 	exit_button.pressed.emit()
 	await get_tree().process_frame
 
-	var exit_dialog: ConfirmationDialog = null
-	for child in get_tree().root.get_children():
-		if child is ConfirmationDialog:
-			exit_dialog = child
-			break
-	_check(exit_dialog != null, "战斗退出应弹出确认对话框")
+	var exit_dialog := _find_battle_confirm()
+	_check(exit_dialog != null, "战斗退出应弹出二次确认弹窗")
 	if exit_dialog != null:
-		_check(exit_dialog.ok_button_text == "放弃并退出", "退出确认框应提示放弃本局收益")
-		exit_dialog.queue_free()
+		_check(_confirm_button_text(exit_dialog) == "放弃并退出", "退出确认框应提示放弃本局收益")
+		exit_dialog.close()
 		await get_tree().process_frame
 	main.queue_free()
 	await get_tree().process_frame
+
+
+## 战斗重开（v0.37.32 用户反馈「重开没有做二次确认弹窗」）：顶栏「重开」必须先弹
+## Kenney 亮色二次确认；取消 = 弹窗关闭且战斗场景保留（不重载），确认文案为「确认重开」。
+func _test_battle_restart_confirm() -> void:
+	var profile := ProfileStore.create_new_profile(false)
+	GameFlow.ensure_initial_characters(profile)
+	GameFlow.select_stage(&"ch01_s01")
+	GameFlow.set_squad(["liu_bei"] as Array[String])
+	var main := (load("res://scenes/Main.tscn") as PackedScene).instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	var restart_button := main.get_node_or_null(
+		"UI/Root/TopBar/Margin/Content/RestartButton") as Button
+	_check(restart_button != null, "战斗顶栏应有重开按钮")
+	if restart_button == null:
+		main.queue_free()
+		await get_tree().process_frame
+		return
+	restart_button.pressed.emit()
+	await get_tree().process_frame
+
+	var dialog := _find_battle_confirm()
+	_check(dialog != null, "战斗重开应先弹出二次确认弹窗")
+	if dialog != null:
+		_check(_confirm_button_text(dialog) == "确认重开", "重开确认框主按钮应为「确认重开」")
+		_check(get_tree().paused, "重开确认弹窗打开期间战斗应暂停")
+		dialog.dismiss()
+		await get_tree().process_frame
+		_check(not get_tree().paused, "取消重开后应恢复战斗（解除暂停）")
+		_check(is_instance_valid(main) and main.is_inside_tree(), "取消重开后战斗场景应保留")
+	main.queue_free()
+	await get_tree().process_frame
+
+
+## 局内二次确认弹窗查找（BattleConfirmDialog 挂在独立 CanvasLayer 上）。
+func _find_battle_confirm() -> Control:
+	return get_tree().root.get_node_or_null("%s/%s" % [BattleConfirmDialog.LAYER_NAME,
+		BattleConfirmDialog.DIALOG_NAME]) as Control
+
+
+func _confirm_button_text(dialog: Control) -> String:
+	var button := _find_by_name(dialog, "ConfirmButton") as Button
+	return button.text if button != null else ""
+
+
+func _find_by_name(root: Node, node_name: String) -> Node:
+	if root.name == node_name:
+		return root
+	for child in root.get_children():
+		var found := _find_by_name(child, node_name)
+		if found != null:
+			return found
+	return null
 
 
 ## 游戏大厅（v0.10.1）：侧栏底部"返回主菜单"→ goto_menu（主菜单），而非退出游戏。
