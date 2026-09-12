@@ -779,6 +779,142 @@ func _run() -> void:
 
 
 
+	# 0.8.13.2（NUMBERS 10.17）：第一章新精英四类数值 + 甲光环（armor_aura）机制。
+	var c132_new_table := {
+		"yellow_turban_heavy_berserker": {"hp": 640, "speed": 42.0, "armor": 22, "leak": 3, "gold": 25, "xp": 30},
+		"yellow_turban_elite_sergeant": {"hp": 420, "speed": 62.0, "armor": 8, "leak": 3, "gold": 25, "xp": 32},
+		"yellow_turban_stealth_healer": {"hp": 240, "speed": 58.0, "armor": 2, "leak": 3, "gold": 25, "xp": 26},
+		"yellow_turban_armor_aura_caster": {"hp": 260, "speed": 50.0, "armor": 6, "leak": 3, "gold": 25, "xp": 24},
+	}
+	for c132_id in c132_new_table:
+		var c132_data := load("res://resources/enemies/yellow_turban/%s.tres" % c132_id) as EnemyData
+		_check(c132_data != null, "0.8.13.2 新精英应可加载: %s" % c132_id)
+		if c132_data == null:
+			continue
+		var c132_exp: Dictionary = c132_new_table[c132_id]
+		_check(c132_data.max_hp == int(c132_exp["hp"])
+			and is_equal_approx(c132_data.move_speed, float(c132_exp["speed"]))
+			and c132_data.armor == int(c132_exp["armor"])
+			and c132_data.damage_to_base == int(c132_exp["leak"])
+			and c132_data.currency_reward == int(c132_exp["gold"])
+			and c132_data.kill_xp == int(c132_exp["xp"]),
+			"%s 数值应按 NUMBERS 10.17（HP 640/420/240/260 组）" % c132_id)
+		if c132_id == "yellow_turban_stealth_healer":
+			_check(c132_data.stealth and c132_data.special_behavior_id == &"healer_aura"
+				and int(c132_data.special_params.get("amount", 0)) == 20
+				and is_equal_approx(float(c132_data.special_params.get("radius", 0.0)), 140.0)
+				and is_equal_approx(float(c132_data.special_params.get("interval", 0.0)), 2.5),
+				"隐方士应以 special_params 覆盖 healer_aura（2.5s / 20 / 140px，B.3.2）")
+		elif c132_id == "yellow_turban_elite_sergeant":
+			_check(c132_data.special_behavior_id == &"armor_aura"
+				and int(c132_data.special_params.get("armor_bonus", 0)) == 6
+				and is_equal_approx(float(c132_data.special_params.get("radius", 0.0)), 140.0),
+				"精锐伍长应配置军阵光环 armor_aura +6 / 140px")
+		elif c132_id == "yellow_turban_armor_aura_caster":
+			_check(c132_data.special_behavior_id == &"armor_aura"
+				and int(c132_data.special_params.get("armor_bonus", 0)) == 6
+				and is_equal_approx(float(c132_data.special_params.get("radius", 0.0)), 160.0),
+				"符祭应配置 armor_aura +6 / 160px")
+
+	# 甲光环口径（NUMBERS 10.17）：先加甲后算减伤 / 同源取最大 / 窗口过期恢复 / 半径内覆盖。
+	var c132_aura_probe_data := EnemyData.new()
+	c132_aura_probe_data.enemy_id = &"smoke_armor_aura_probe"
+	c132_aura_probe_data.display_name = "甲光环算例桩"
+	c132_aura_probe_data.max_hp = 100000
+	c132_aura_probe_data.move_speed = 0.0
+	c132_aura_probe_data.currency_reward = 0
+	c132_aura_probe_data.armor = 8
+	var c132_aura_probe := enemy_manager.spawn_enemy_from_data(c132_aura_probe_data) as Enemy
+	if c132_aura_probe != null:
+		c132_aura_probe.set_process(false)
+		_check(c132_aura_probe.get_effective_armor() == 8, "无光环时有效甲应等于基础甲")
+		c132_aura_probe.apply_armor_aura_bonus(6, 3.0)
+		_check(c132_aura_probe.get_effective_armor() == 14 and c132_aura_probe.get_armor_aura_bonus() == 6,
+			"光环生效时有效甲应为 8 + 6 = 14")
+		var c132_aura_before := c132_aura_probe.current_hp
+		c132_aura_probe.take_damage(1000)
+		_check(c132_aura_before - c132_aura_probe.current_hp == 781,
+			"加甲后物理减伤应按有效甲 14 计（×(1−14/64) = 781）")
+		c132_aura_probe.apply_armor_aura_bonus(3, 3.0)
+		_check(c132_aura_probe.get_armor_aura_bonus() == 6, "同源较弱光环不应覆盖（取最大）")
+		c132_aura_probe.apply_armor_aura_bonus(8, 3.0)
+		_check(c132_aura_probe.get_armor_aura_bonus() == 8, "同源更强光环应取最大值")
+		# 窗口过期：另起短窗口桩（同源刷新取「更晚到期」，长窗口桩无法被缩短）。
+		var c132_aura_expire := enemy_manager.spawn_enemy_from_data(c132_aura_probe_data) as Enemy
+		if c132_aura_expire != null:
+			c132_aura_expire.set_process(false)
+			c132_aura_expire.apply_armor_aura_bonus(6, 0.05)
+			_check(c132_aura_expire.get_effective_armor() == 14, "短窗口光环应先生效")
+			await get_tree().create_timer(0.12).timeout
+			_check(c132_aura_expire.get_armor_aura_bonus() == 0 and c132_aura_expire.get_effective_armor() == 8,
+				"光环窗口过期应恢复基础甲（施法者阵亡 / 离开半径无需额外清理）")
+			c132_aura_expire.queue_free()
+		c132_aura_probe.queue_free()
+
+	# 甲光环半径覆盖（EnemyManager._apply_armor_aura）：含自身、覆盖半径内友军、不打半径外。
+	var c132_aura_source := enemy_manager.spawn_enemy_from_data(
+		load("res://resources/enemies/yellow_turban/yellow_turban_elite_sergeant.tres") as EnemyData) as Enemy
+	var c132_aura_near := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	var c132_aura_far := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if c132_aura_source != null and c132_aura_near != null and c132_aura_far != null:
+		for c132_aura_unit in [c132_aura_source, c132_aura_near, c132_aura_far]:
+			c132_aura_unit.set_process(false)
+		c132_aura_source.global_position = Vector2(240, 240)
+		c132_aura_near.global_position = Vector2(340, 240)
+		c132_aura_far.global_position = Vector2(640, 240)
+		enemy_manager._apply_armor_aura(c132_aura_source)
+		_check(c132_aura_source.get_armor_aura_bonus() == 6, "甲光环应覆盖施法者自身")
+		_check(c132_aura_near.get_armor_aura_bonus() == 6, "甲光环应覆盖 140px 内友军")
+		_check(c132_aura_far.get_armor_aura_bonus() == 0, "甲光环不应覆盖 140px 外敌人")
+		c132_aura_source.queue_free()
+		c132_aura_near.queue_free()
+		c132_aura_far.queue_free()
+
+	# 各关波次预算（NUMBERS 10.18 / STAGES §7）：新增波插在验收波之前、编号两位补位、验收波保持末位。
+	var c132_wave_counts := {
+		"ch01_s01": 6, "ch01_s02": 7, "ch01_s03": 7, "ch01_s04": 9,
+		"ch01_s05": 9, "ch01_s06": 9, "ch01_s07": 9, "ch01_s08": 11,
+	}
+	var c132_stage_enemy_ids := {
+		"ch01_s03": ["yellow_turban_elite_sergeant"],
+		"ch01_s05": ["yellow_turban_heavy_berserker"],
+		"ch01_s06": ["yellow_turban_stealth_assassin"],
+		"ch01_s07": ["yellow_turban_armor_aura_caster", "yellow_turban_stealth_healer"],
+		"ch01_s08": ["yellow_turban_heavy_berserker", "yellow_turban_elite_sergeant",
+			"yellow_turban_stealth_assassin", "yellow_turban_armor_aura_caster", "yellow_turban_stealth_healer"],
+	}
+	for c132_stage_id in c132_wave_counts:
+		var c132_stage := load("res://resources/stages/chapter_01/%s.tres" % c132_stage_id) as StageData
+		_check(c132_stage != null, "0.8.13.2 关卡应可加载: %s" % c132_stage_id)
+		if c132_stage == null:
+			continue
+		var c132_expected_waves := int(c132_wave_counts[c132_stage_id])
+		_check(c132_stage.waves.size() == c132_expected_waves,
+			"%s 应有 %d 波（NUMBERS 10.18）" % [c132_stage_id, c132_expected_waves])
+		var c132_numbers_ok := true
+		var c132_seen_enemy_ids := {}
+		for c132_wave_index in range(c132_stage.waves.size()):
+			var c132_wave: WaveData = c132_stage.waves[c132_wave_index]
+			if c132_wave.wave_number != c132_wave_index + 1 \
+					or str(c132_wave.wave_id) != "%s_w%02d" % [c132_stage_id, c132_wave_index + 1]:
+				c132_numbers_ok = false
+			for c132_group in c132_wave.spawn_groups:
+				if c132_group != null and c132_group.enemy != null:
+					c132_seen_enemy_ids[str(c132_group.enemy.enemy_id)] = true
+		_check(c132_numbers_ok, "%s 波次应从 1 连续编号且 wave_id 两位补位" % c132_stage_id)
+		_check(c132_stage.waves[c132_stage.waves.size() - 1].is_boss_wave,
+			"%s 验收波应保持在末位（is_boss_wave）" % c132_stage_id)
+		for c132_enemy_id in c132_stage_enemy_ids.get(c132_stage_id, []):
+			_check(c132_seen_enemy_ids.has(c132_enemy_id), "%s 波次中应出现 %s" % [c132_stage_id, c132_enemy_id])
+		# 波次完成奖口径（NUMBERS 5.3）：s01~s03 = 0，s04~s08 = 10——新增波不得引入新经济来源。
+		var c132_stage_number := int(c132_stage_id.substr(6, 2))
+		var c132_cc_expected := 10 if c132_stage_number >= 4 else 0
+		var c132_cc_ok := true
+		for c132_wave in c132_stage.waves:
+			if c132_wave.completion_currency != c132_cc_expected:
+				c132_cc_ok = false
+		_check(c132_cc_ok, "%s 波次完成奖应统一为 %d（NUMBERS 5.3）" % [c132_stage_id, c132_cc_expected])
+
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。
 	var xp_session := BattleSession.new("smoke_xp_stage")
@@ -1704,15 +1840,16 @@ func _run() -> void:
 			map_issues.clear()
 	_check(map_issues.is_empty(), "地图校验器不应有遗留问题")
 
-	# 0.8.13.1：s06 新增观察波（教学节奏，STAGES §7）——8 波、第 2 波 = 步卒观察 + 夜行刺演示。
+	# 0.8.13.1：s06 新增观察波（教学节奏，STAGES §7）——第 2 波 = 步卒观察 + 夜行刺演示；
+	# 0.8.13.2：再 +1 隐匿混编波（9 波，验收波顺延末位）。
 	var c13_s06 := load("res://resources/stages/chapter_01/ch01_s06.tres") as StageData
-	_check(c13_s06 != null and c13_s06.waves.size() == 8, "s06 应有 8 波（含观察波）")
+	_check(c13_s06 != null and c13_s06.waves.size() == 9, "s06 应有 9 波（观察波 + 隐匿混编波）")
 	if c13_s06 != null and c13_s06.waves.size() >= 2:
 		var c13_wave_numbers_ok := true
 		for c13_wave_index in range(c13_s06.waves.size()):
 			if c13_s06.waves[c13_wave_index].wave_number != c13_wave_index + 1:
 				c13_wave_numbers_ok = false
-		_check(c13_wave_numbers_ok, "s06 波次编号应从 1 连续到 8")
+		_check(c13_wave_numbers_ok, "s06 波次编号应从 1 连续到 9")
 		var c13_obs := c13_s06.waves[1]
 		_check(str(c13_obs.wave_id) == "ch01_s06_w02" and c13_obs.wave_number == 2,
 			"观察波应位于第 2 位（wave_id = ch01_s06_w02）")

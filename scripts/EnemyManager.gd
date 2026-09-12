@@ -33,6 +33,8 @@ func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
 	enemy.speed = enemy_data.move_speed
 	enemy.max_hp = int(round(enemy_data.max_hp * Difficulty.enemy_hp_mult(GameFlow.selected_difficulty)))
 	enemy.armor = enemy_data.armor
+	# 特殊行为参数（✅ 0.8.13.2）：armor_aura / healer_aura 读取；须在 add_child 前写入。
+	enemy.special_params = enemy_data.special_params.duplicate()
 	enemy.tags = (enemy_data.tags as Array[StringName]).duplicate()
 	enemy.reward = enemy_data.currency_reward
 	enemy.kill_xp = enemy_data.kill_xp
@@ -70,21 +72,48 @@ func _process_special_behaviors(delta: float) -> void:
 		var balance := GameBalance.get_balance()
 		match enemy.special_behavior_id:
 			&"healer_aura":
-				enemy.special_cooldown = balance.healer_interval
+				enemy.special_cooldown = _special_float(enemy, "interval", balance.healer_interval)
 				_heal_nearby(enemy)
+			&"armor_aura":
+				enemy.special_cooldown = _special_float(enemy, "interval", balance.armor_aura_interval)
+				_apply_armor_aura(enemy)
 			&"summon_guard":
 				enemy.special_cooldown = balance.summon_interval
 				_summon_guards(enemy)
 
 
+## 特殊行为参数读取（✅ 0.8.13.2）：special_params 缺键回退 BalanceData（NUMBERS 10.17）。
+func _special_float(enemy: Enemy, key: String, default_value: float) -> float:
+	return float(enemy.special_params.get(key, default_value))
+
+
 func _heal_nearby(source: Enemy) -> void:
+	var balance := GameBalance.get_balance()
+	var amount := int(_special_float(source, "amount", float(balance.healer_amount)))
+	var radius := _special_float(source, "radius", balance.healer_radius)
 	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
 		var enemy := node as Enemy
 		if enemy == null or enemy.is_dead or enemy == source:
 			continue
-		var balance := GameBalance.get_balance()
-		if enemy.current_hp < enemy.max_hp and enemy.global_position.distance_to(source.global_position) <= balance.healer_radius:
-			enemy.heal(balance.healer_amount)
+		if enemy.current_hp < enemy.max_hp and enemy.global_position.distance_to(source.global_position) <= radius:
+			enemy.heal(amount)
+
+
+## 护甲光环（armor_aura，✅ 0.8.13.2 / NUMBERS 10.17）：半径内友军（含自身）加甲，
+## 被覆盖单位写 duration 窗口（默认 2 个刷新周期）——施法者阵亡 / 离开半径靠窗口过期恢复。
+func _apply_armor_aura(source: Enemy) -> void:
+	var balance := GameBalance.get_balance()
+	var bonus := int(_special_float(source, "armor_bonus", float(balance.armor_aura_bonus)))
+	var radius := _special_float(source, "radius", balance.armor_aura_radius)
+	var duration := _special_float(source, "duration", balance.armor_aura_duration)
+	if bonus <= 0 or radius <= 0.0:
+		return
+	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+		var enemy := node as Enemy
+		if enemy == null or enemy.is_dead:
+			continue
+		if enemy.global_position.distance_to(source.global_position) <= radius:
+			enemy.apply_armor_aura_bonus(bonus, duration)
 
 
 func _summon_guards(boss: Enemy) -> void:

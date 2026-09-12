@@ -18,6 +18,9 @@ class_name EnemyData
 ## 隐匿状态（NUMBERS 10.16，✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；
 ## 无差别范围/区域效果仍可命中。模板侧同名字段为 true 时一并继承。
 @export var stealth: bool = false
+## 特殊行为参数（B.3.2，✅ 0.8.13.2）：armor_aura 的 armor_bonus / radius / interval / duration、
+## healer_aura 的 amount / radius / interval 等；缺省回退 BalanceData（NUMBERS 10.17）。
+@export var special_params: Dictionary = {}
 ## 敌人模板（v0.18.0，GDD modules/ENEMIES.md）：引用模板后 0/空哨兵字段继承模板值。
 @export var template: EnemyTemplateData
 
@@ -56,6 +59,11 @@ func resolved() -> EnemyData:
 	if copy.special_behavior_id.is_empty():
 		copy.special_behavior_id = template.special_behavior_id
 	copy.stealth = copy.stealth or template.stealth
+	# 特殊行为参数（✅ 0.8.13.2）：模板键为底、派生资源逐键覆盖（缺键继承）。
+	var merged_params := template.special_params.duplicate()
+	for key in copy.special_params:
+		merged_params[key] = copy.special_params[key]
+	copy.special_params = merged_params
 	if copy.tags.is_empty():
 		copy.tags = template.tags.duplicate()
 	if copy.body_color.a <= 0.0:

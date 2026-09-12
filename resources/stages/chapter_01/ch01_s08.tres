@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=61 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=83 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -16,6 +16,11 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_berserker.tres" id="4_e4"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sorcerer.tres" id="4_e5"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_general.tres" id="4_e6"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_heavy_berserker.tres" id="4_e7"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_elite_sergeant.tres" id="4_e8"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_stealth_assassin.tres" id="4_e9"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_armor_aura_caster.tres" id="4_e10"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_stealth_healer.tres" id="4_e11"]
 
 [ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
 [ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
@@ -172,12 +177,132 @@ spawn_interval = 0.5
 
 [sub_resource type="Resource" id="WaveData_7"]
 script = ExtResource("2_wave")
-wave_id = &"ch01_s08_w07"
-wave_number = 7
+wave_id = &"ch01_s08_w11"
+wave_number = 11
 spawn_groups = [SubResource("EnemySpawnData_w7_0"), SubResource("EnemySpawnData_w7_1"), SubResource("EnemySpawnData_w7_2")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = true
+
+[sub_resource type="Resource" id="EnemySpawnData_w08_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e7")
+count = 2
+spawn_interval = 1.2
+
+[sub_resource type="Resource" id="EnemySpawnData_w08_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e8")
+count = 2
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w08_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 8
+spawn_interval = 0.55
+
+[sub_resource type="Resource" id="WaveData_8"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w07"
+wave_number = 7
+spawn_groups = [SubResource("EnemySpawnData_w08_0"), SubResource("EnemySpawnData_w08_1"), SubResource("EnemySpawnData_w08_2")]
+preparation_time = 2.0
+completion_currency = 10
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w10_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e9")
+count = 3
+spawn_interval = 1.6
+
+[sub_resource type="Resource" id="EnemySpawnData_w10_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e1")
+count = 5
+spawn_interval = 0.7
+
+[sub_resource type="Resource" id="EnemySpawnData_w10_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e3")
+count = 4
+spawn_interval = 0.85
+
+[sub_resource type="Resource" id="WaveData_9"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w08"
+wave_number = 8
+spawn_groups = [SubResource("EnemySpawnData_w10_0"), SubResource("EnemySpawnData_w10_1"), SubResource("EnemySpawnData_w10_2")]
+preparation_time = 2.0
+completion_currency = 10
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w12_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e10")
+count = 2
+spawn_interval = 1.4
+
+[sub_resource type="Resource" id="EnemySpawnData_w12_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e11")
+count = 1
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w12_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e2")
+count = 2
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w12_3"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 10
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="WaveData_10"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w09"
+wave_number = 9
+spawn_groups = [SubResource("EnemySpawnData_w12_0"), SubResource("EnemySpawnData_w12_1"), SubResource("EnemySpawnData_w12_2"), SubResource("EnemySpawnData_w12_3")]
+preparation_time = 2.0
+completion_currency = 10
+is_boss_wave = false
+
+[sub_resource type="Resource" id="EnemySpawnData_w14_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e7")
+count = 3
+spawn_interval = 1.1
+
+[sub_resource type="Resource" id="EnemySpawnData_w14_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e8")
+count = 2
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w14_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e9")
+count = 2
+spawn_interval = 2.0
+
+[sub_resource type="Resource" id="EnemySpawnData_w14_3"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e3")
+count = 4
+spawn_interval = 0.9
+
+[sub_resource type="Resource" id="WaveData_11"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s08_w10"
+wave_number = 10
+spawn_groups = [SubResource("EnemySpawnData_w14_0"), SubResource("EnemySpawnData_w14_1"), SubResource("EnemySpawnData_w14_2"), SubResource("EnemySpawnData_w14_3")]
+preparation_time = 2.0
+completion_currency = 10
+is_boss_wave = false
 
 [sub_resource type="Resource" id="ItemAmountData_cloth"]
 script = ExtResource("7_amount")
@@ -304,7 +429,7 @@ build_slot_count = 10
 max_inbattle_upgrade_level = 3
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
-waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_7")]
+waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_8"), SubResource("WaveData_9"), SubResource("WaveData_10"), SubResource("WaveData_11"), SubResource("WaveData_7")]
 dialogue = SubResource("DialogueData_1")
 theme = &"night"
 path_points = [Vector2(-40, 280), Vector2(40, 280), Vector2(840, 280), Vector2(840, 520), Vector2(1080, 520), Vector2(1080, 120), Vector2(1240, 120), Vector2(1320, 120)]

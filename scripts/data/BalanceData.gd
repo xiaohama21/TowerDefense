@@ -38,6 +38,11 @@ class_name BalanceData
 @export_range(0.0, 60.0, 0.1) var healer_interval: float = 2.0
 @export_range(0, 9999, 1) var healer_amount: int = 15
 @export_range(0.0, 9999.0, 1.0) var healer_radius: float = 120.0
+# 甲光环（armor_aura，✅ 0.8.13.2 / NUMBERS 10.17）：缺省值，可被 EnemyData.special_params 覆盖。
+@export_range(0.0, 60.0, 0.1) var armor_aura_interval: float = 1.5
+@export_range(0.0, 9999.0, 1.0) var armor_aura_radius: float = 140.0
+@export_range(0, 999, 1) var armor_aura_bonus: int = 6
+@export_range(0.0, 60.0, 0.1) var armor_aura_duration: float = 3.0
 @export_range(0.0, 120.0, 0.1) var summon_interval: float = 8.0
 @export_range(1, 99, 1) var summon_count: int = 2
 

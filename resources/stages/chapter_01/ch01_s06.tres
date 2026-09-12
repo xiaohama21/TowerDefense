@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=51 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -189,12 +189,39 @@ spawn_interval = 0.5
 
 [sub_resource type="Resource" id="WaveData_7"]
 script = ExtResource("2_wave")
-wave_id = &"ch01_s06_w08"
-wave_number = 8
+wave_id = &"ch01_s06_w09"
+wave_number = 9
 spawn_groups = [SubResource("EnemySpawnData_w7_0"), SubResource("EnemySpawnData_w7_1"), SubResource("EnemySpawnData_w7_2"), SubResource("EnemySpawnData_w7_3")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = true
+
+[sub_resource type="Resource" id="EnemySpawnData_w09_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e5")
+count = 3
+spawn_interval = 1.8
+
+[sub_resource type="Resource" id="EnemySpawnData_w09_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e1")
+count = 4
+spawn_interval = 0.8
+
+[sub_resource type="Resource" id="EnemySpawnData_w09_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 8
+spawn_interval = 0.55
+
+[sub_resource type="Resource" id="WaveData_8"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s06_w08"
+wave_number = 8
+spawn_groups = [SubResource("EnemySpawnData_w09_0"), SubResource("EnemySpawnData_w09_1"), SubResource("EnemySpawnData_w09_2")]
+preparation_time = 2.0
+completion_currency = 10
+is_boss_wave = false
 
 [sub_resource type="Resource" id="ItemAmountData_cloth"]
 script = ExtResource("7_amount")
@@ -241,7 +268,7 @@ build_slot_count = 10
 max_inbattle_upgrade_level = 3
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
-waves = [SubResource("WaveData_1"), SubResource("WaveData_obs"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_7")]
+waves = [SubResource("WaveData_1"), SubResource("WaveData_obs"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_8"), SubResource("WaveData_7")]
 dialogue = SubResource("DialogueData_1")
 theme = &"grass"
 path_points = [Vector2(-40, 600), Vector2(40, 600), Vector2(600, 600), Vector2(600, 200), Vector2(1000, 200), Vector2(1000, 600), Vector2(1240, 600), Vector2(1320, 600)]

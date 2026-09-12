@@ -2,7 +2,7 @@ extends Control
 
 ## 游戏百科（ENCYCLOPEDIA.md v0.1.9 概念终版对齐）：只读信息中心——
 ## 武将图鉴（9 将全量 + 基础/技能/转职/信物/特性页签 + 数值模拟器）与
-## 敌人图鉴（章节选择 + 7 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
+## 敌人图鉴（章节选择 + 12 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
 ## 布局规范 UI_LAYOUT.md §12（v0.20.19）；卡片副行口径 = 职业名/定位 · 打法词（概念字典）。禁止面板间散落私有文案漂移。
 
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
@@ -14,9 +14,14 @@ const ENEMY_ORDER: Array[String] = [
 	"yellow_turban_soldier",
 	"yellow_turban_cavalry",
 	"yellow_turban_sergeant",
+	"yellow_turban_elite_sergeant",
 	"yellow_turban_archer",
 	"yellow_turban_berserker",
+	"yellow_turban_heavy_berserker",
 	"yellow_turban_sorcerer",
+	"yellow_turban_armor_aura_caster",
+	"yellow_turban_stealth_assassin",
+	"yellow_turban_stealth_healer",
 	"yellow_turban_general",
 ]
 
@@ -26,9 +31,14 @@ const ENEMY_LOCATIONS := {
 	"yellow_turban_soldier": "炮灰",
 	"yellow_turban_cavalry": "快速",
 	"yellow_turban_sergeant": "精英",
+	"yellow_turban_elite_sergeant": "精英",
 	"yellow_turban_archer": "远程",
 	"yellow_turban_berserker": "坦克",
+	"yellow_turban_heavy_berserker": "坦克",
 	"yellow_turban_sorcerer": "支援",
+	"yellow_turban_armor_aura_caster": "支援",
+	"yellow_turban_stealth_assassin": "隐匿",
+	"yellow_turban_stealth_healer": "隐匿",
 	"yellow_turban_general": "Boss",
 }
 
@@ -37,9 +47,14 @@ const ENEMY_TACTIC_SUB := {
 	"yellow_turban_soldier": "近战",
 	"yellow_turban_cavalry": "机动",
 	"yellow_turban_sergeant": "头目",
+	"yellow_turban_elite_sergeant": "军阵",
 	"yellow_turban_archer": "高漏伤",
 	"yellow_turban_berserker": "高血量",
+	"yellow_turban_heavy_berserker": "中甲",
 	"yellow_turban_sorcerer": "治疗光环",
+	"yellow_turban_armor_aura_caster": "甲光环",
+	"yellow_turban_stealth_assassin": "隐匿突袭",
+	"yellow_turban_stealth_healer": "隐匿治疗",
 	"yellow_turban_general": "召唤",
 }
 
@@ -94,9 +109,14 @@ const ENEMY_AVATAR_GRADIENTS := {
 	"yellow_turban_soldier": [Color("#e7c34f"), Color("#c08a16")],
 	"yellow_turban_cavalry": [Color("#e08d4f"), Color("#b45a17")],
 	"yellow_turban_sergeant": [Color("#d75f4f"), Color("#a62e20")],
+	"yellow_turban_elite_sergeant": [Color("#c94a3a"), Color("#8c1f18")],
 	"yellow_turban_archer": [Color("#7fbf6a"), Color("#3f8f34")],
 	"yellow_turban_berserker": [Color("#8f7fbf"), Color("#5c46a6")],
+	"yellow_turban_heavy_berserker": [Color("#8f9fd0"), Color("#4f5fa6")],
 	"yellow_turban_sorcerer": [Color("#5fb8d9"), Color("#2b80a8")],
+	"yellow_turban_armor_aura_caster": [Color("#d9b45f"), Color("#a8791f")],
+	"yellow_turban_stealth_assassin": [Color("#5f6fd9"), Color("#2b3a8f")],
+	"yellow_turban_stealth_healer": [Color("#5fd0a8"), Color("#25806a")],
 	"yellow_turban_general": [Color("#7a6a9e"), Color("#44366b")],
 }
 
@@ -105,7 +125,9 @@ const CHAPTER_FACTION := "黄巾军"
 
 ## 敌人特殊行为玩家向文案（BEHAVIORS.md B.3.2，勿直出 special_behavior_id）。
 const ENEMY_BEHAVIOR_HINTS := {
-	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点",
+	&"fast_charger": "高速推进，漏怪时造成更高基地伤害（轻骑 / 夜行刺）",
+	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点（隐方士 = 2.5s / 140px / 20 点）",
+	&"armor_aura": "为周围友军（含自身）加甲 +6，持续刷新（精锐伍长 140px / 符祭 160px）",
 	&"summon_guard": "每 8s 自岔路召唤 2 名步卒（广宗决战分叉试点）",
 }
 
@@ -129,7 +151,7 @@ const CHARACTER_SKILL_HINTS := {
 	&"char_burn_camp": "目标区域 1.5× 魔法伤害 + 灼烧 3s（每秒 0.25× 魔法）",
 	&"char_seven_charges": "对射程内所有敌人造成 1× 物理伤害 + 自身攻速 +30% 持续 3s",
 	&"char_death_fight": "自身攻速 +30%（常驻，仅触发一次）",
-	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s",
+	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s；期间**全图破隐**（可锁定隐匿单位）",
 }
 
 ## 概念图 .dhead 底部 2px 虚线分隔（StyleBoxFlat 不支持 dashed，_draw 手绘横虚线）。
@@ -1394,6 +1416,11 @@ func _refresh_enemy_detail() -> void:
 	if not enemy.special_behavior_id.is_empty():
 		behavior_text = str(ENEMY_BEHAVIOR_HINTS.get(enemy.special_behavior_id, "说明随版本完善"))
 	body.add_child(_make_labeled_card("特殊行为", behavior_text))
+	# ②′ 隐匿机制卡（NUMBERS 10.16，✅ 0.8.13.1）：隐匿单位补破隐反制说明。
+	if enemy.stealth:
+		body.add_child(_make_labeled_card("隐匿机制",
+			"无目标框、不显示血条，不可被「以单位为目标」的攻击选中；范围 / 无差别区域效果仍可命中。"
+			+ "破隐来源：黄忠（固有）/ 诸葛亮·借东风（全图 8s）/ 貂蝉 3 阶光环（半径 = 射程）"))
 
 	# ③ 各档难度面板（概念 .diffrow，随 difficulty_presets 自动扩档）
 	var diff_row := HBoxContainer.new()

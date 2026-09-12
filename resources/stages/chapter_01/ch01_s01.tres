@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=30 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -86,12 +86,33 @@ is_boss_wave = false
 
 [sub_resource type="Resource" id="WaveData_5"]
 script = ExtResource("2_wave")
-wave_id = &"ch01_s01_w05"
-wave_number = 5
+wave_id = &"ch01_s01_w06"
+wave_number = 6
 spawn_groups = [SubResource("EnemySpawnData_soldier_7"), SubResource("EnemySpawnData_sergeant_1")]
 preparation_time = 2.0
 completion_currency = 0
 is_boss_wave = true
+
+[sub_resource type="Resource" id="EnemySpawnData_w06_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 14
+spawn_interval = 0.45
+
+[sub_resource type="Resource" id="EnemySpawnData_w06_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("5_cavalry")
+count = 3
+spawn_interval = 1.0
+
+[sub_resource type="Resource" id="WaveData_6"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s01_w05"
+wave_number = 5
+spawn_groups = [SubResource("EnemySpawnData_w06_0"), SubResource("EnemySpawnData_w06_1")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
 
 [sub_resource type="Resource" id="ItemAmountData_cloth"]
 script = ExtResource("7_item_amount")
@@ -132,7 +153,7 @@ build_slot_count = 10
 max_inbattle_upgrade_level = 3
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
-waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5")]
+waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_6"), SubResource("WaveData_5")]
 dialogue = SubResource("DialogueData_1")
 theme = &"grass"
 path_points = [Vector2(-40, 280), Vector2(40, 280), Vector2(680, 280), Vector2(680, 520), Vector2(1040, 520), Vector2(1040, 360), Vector2(1240, 360), Vector2(1320, 360)]

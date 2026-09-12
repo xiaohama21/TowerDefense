@@ -521,7 +521,7 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button:
 				enemy_cards += 1
 				enemy_min_width = minf(enemy_min_width, (child as Button).size.x)
-	_check(enemy_cards == 7, "敌人图鉴应展示第一章全部 7 种敌人")
+	_check(enemy_cards == 12, "敌人图鉴应展示第一章全部 12 种敌人（0.8.13.1 夜行刺 + 0.8.13.2 四类新精英）")
 	_check(enemy_min_width >= 100.0, "敌人卡应横向铺满左列 2 列网格（B-023）")
 	var all_text := ""
 	var labels: Array[Label] = []
@@ -698,7 +698,7 @@ func _test_battle_entry() -> void:
 	_check(grid_bg.theme_name == &"fire", "s02 应应用火攻主题")
 	_check(main.get_node_or_null("BuildSlots") == null, "v0.33.3 起战场不应生成 BuildSlots 节点")
 	_check(get_tree().get_nodes_in_group("build_slots").is_empty(), "v0.33.3 起战场不应生成建造位")
-	_check(GameManager.total_waves == 6, "s02 应有 6 波敌人")
+	_check(GameManager.total_waves == 7, "s02 应有 7 波敌人（0.8.13.2 +1）")
 
 	# 退出导航（v0.15.2）：顶栏退出弹确认框（确认后回游戏大厅，不直接退出）。
 	var exit_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/ExitButton") as Button

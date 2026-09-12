@@ -30,6 +30,9 @@ var velocity_dir: Vector2 = Vector2.RIGHT
 # 由 EnemyManager 按 ID 执行；cooldown 为行为计时器。
 var special_behavior_id: StringName = &""
 var special_cooldown: float = 0.0
+## 特殊行为参数（B.3.2，✅ 0.8.13.2）：EnemyManager 从 EnemyData.special_params 写入，
+## armor_aura / healer_aura 按 key 读取（缺省回退 BalanceData）。
+var special_params: Dictionary = {}
 # 减速 debuff（术士大招/张飞咆哮/诸葛亮光环等）：取最强因子，倒计时归零解除。
 var slow_factor: float = 1.0
 ## 召唤物标记（阶段 8 提交 2）：连击计入召唤物（P1 4.1 拍板），由召唤方设置。
@@ -40,6 +43,10 @@ var stealth: bool = false
 var _stealth_revealed: bool = false
 var _stealth_scan_tick: float = 0.0
 var _reveal_flash_left: float = 0.0
+## 护甲光环（armor_aura，✅ 0.8.13.2）：EnemyManager 周期刷新写入，窗口过期自动失效
+## （施法者阵亡 / 离开半径无需额外清理）；先加甲后算减伤（NUMBERS 10.17）。
+var _armor_aura_bonus: int = 0
+var _armor_aura_until_ms: int = -1
 var _slow_time_left: float = 0.0
 ## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
 var burn_dps: int = 0
@@ -304,6 +311,29 @@ func _refresh_stealth_visual() -> void:
 	queue_redraw()
 
 
+## ============ 护甲光环（armor_aura，NUMBERS 10.17，✅ 0.8.13.2） ============
+
+## 写入光环加成（同源取最大、窗口取更晚到期；到期判定见 get_armor_aura_bonus）。
+func apply_armor_aura_bonus(value: int, duration: float) -> void:
+	if value <= 0 or duration <= 0.0:
+		return
+	_armor_aura_bonus = maxi(_armor_aura_bonus, value)
+	_armor_aura_until_ms = maxi(_armor_aura_until_ms, Time.get_ticks_msec() + int(round(duration * 1000.0)))
+
+
+## 当前生效的护甲光环加成（窗口过期即 0）。
+func get_armor_aura_bonus() -> int:
+	if _armor_aura_until_ms >= 0 and Time.get_ticks_msec() < _armor_aura_until_ms:
+		return _armor_aura_bonus
+	_armor_aura_bonus = 0
+	return 0
+
+
+## 有效甲值唯一出口（基础甲 + 生效中光环）：结算 / 调试统一读此值。
+func get_effective_armor() -> int:
+	return maxi(armor + get_armor_aura_bonus(), 0)
+
+
 ## 伤害入口（NUMBERS 10.12，✅ 0.8.13.0 护甲模型替换）：
 ## damage_type = 物理 / 魔法 / 真实（DamageTypes）；pen_ratios = 百分比穿甲
 ## （{来源 key: 比值}，同源取最高由调用方聚合、跨源乘算、单源 ≤30%）；
@@ -345,7 +375,8 @@ func take_damage(
 ## 单源 ≤30%；3) 固定穿透后置；4) 减伤 m = armor_f / (armor_f + C)，无保底；
 ## 真实伤害（f_type = 0）恒为满伤。勿在调用侧另写护甲公式。
 func _apply_armor(amount: int, damage_type: StringName, pen_ratios: Dictionary, pen_flat: int) -> int:
-	var armor_eff := maxf(float(armor) * DamageTypes.armor_factor(damage_type), 0.0)
+	# 光环加甲（✅ 0.8.13.2）：先加甲再走类型系数 → 穿甲 → 固定穿透（NUMBERS 10.17）。
+	var armor_eff := maxf(float(get_effective_armor()) * DamageTypes.armor_factor(damage_type), 0.0)
 	if armor_eff <= 0.0:
 		return amount
 	var remaining := 1.0
