@@ -33,10 +33,17 @@ const MELEE_SLASH_RADIUS := 38.0
 const SPINE_CHARACTERS: Dictionary = {
 	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a-data-res.tres",
 }
-const SPINE_BASE_SCALE: float = 0.22
-const SPINE_Y_OFFSET: float = 6.0
+## 阶段 8·提交 11（0.8.11.0）：0.22 → 0.33 试点调大（身体 ≈27px → ≈41px、约半格，
+## 实机截图验收后定稿；其余角色接入沿用「每角色调一次 + 截图验收」流程）。
+const SPINE_BASE_SCALE: float = 0.33
+const SPINE_Y_OFFSET: float = 8.0
 ## 朝向切换防抖阈值：|dx| 小于该值（目标在正上/正下）保持原朝向（ART_ASSETS §5.6）。
 const SPINE_FACE_SWITCH_EPS: float = 6.0
+## 就绪胶囊顶栏避让（BUGS B-057）：塔顶胶囊默认中心 y=-62；塔靠顶（可建首排
+## 行1 中心 y=120 时胶囊中心 58 落在顶栏 0..80 内）不可见不可点——胶囊中心
+## 最低压到 92（顶栏下 12px），绘制与 QuickCastArea 命中区同源计算。
+const QUICK_CAST_CENTER_FLOOR_Y: float = 92.0
+const QUICK_CAST_OFFSET_Y: float = -62.0
 const PROFESSION_COLORS := {
 	&"cavalry": Color(0.76, 0.24, 0.2, 1.0),
 	&"tiger_guard": Color(0.3, 0.62, 0.45, 1.0),
@@ -47,6 +54,7 @@ const PROFESSION_COLORS := {
 }
 
 signal selection_changed(tower: Tower)
+signal quick_cast_requested(tower: Tower)
 
 @export var range_radius: float = 150.0
 @export var damage: int = 40
@@ -184,10 +192,15 @@ var _use_spine_visual: bool = false
 ## 世界朝向（ART_ASSETS §5.6）：-1 朝左（素材原生）/ +1 朝右（镜像）。
 var _facing: int = -1
 var _spine_attack_busy: bool = false
+## 拖拽虚影模式（阶段 8·提交 11 延伸 0.8.11.1）：BuildManager 拖拽占位——渲染与
+## 实塔同款小人（spine 优先 / 程序化身体回退）+ 攻击范围圈，跳过怒气条/冷却环/
+## 大招等战斗表现；半透明与绿/红染色由 BuildManager modulate 控制。
+var _ghost_mode: bool = false
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var range_area: Area2D = $RangeArea
 @onready var selection_area: Area2D = $SelectionArea
+@onready var quick_cast_area: Area2D = $QuickCastArea
 @onready var muzzle: Marker2D = $Muzzle
 @onready var name_label: Label = $NameLabel
 
@@ -216,6 +229,7 @@ func _ready() -> void:
 	if not display_name.is_empty():
 		name_label.text = display_name
 	selection_area.input_event.connect(_on_selection_area_input_event)
+	quick_cast_area.input_event.connect(_on_quick_cast_area_input_event)
 	queue_redraw()
 
 
@@ -464,6 +478,15 @@ func _update_spine_animation(_delta: float) -> void:
 		_play_spine_idle()
 
 
+## 拖拽虚影（0.8.11.1，BuildManager 调用）：进入虚影模式——spine 子节点转
+## PROCESS_MODE_ALWAYS 让 Idle 动画继续播放（塔本体被禁用 process，防战斗逻辑）。
+func set_ghost_mode() -> void:
+	_ghost_mode = true
+	if _spine != null:
+		_spine.process_mode = Node.PROCESS_MODE_ALWAYS
+	queue_redraw()
+
+
 func _rebuild_attack_timer() -> void:
 	# 角色技能常驻攻速加成（周仓·死战）与职业 buff 同区相乘。
 	var effective := attack_cooldown / (attack_speed_buff * (1.0 + get_trait_param("attack_speed_per_kill", 0.04) * kill_stacks) * (1.0 + _char_skill_speed_bonus) * (1.0 + _tech_attack_speed_pct))
@@ -487,6 +510,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	# 大招手动开关即时生效（BUGS B-057）：apply_character 快照每帧同步——
+	# 战斗中设置弹窗切换 manual_ultimate 后全部塔立刻生效（旧实现只读一次，
+	# 已建塔保持自动模式，满怒见敌即放，表现为「没点击就释放/持续释放」。
+	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
+	_sync_quick_cast_area()
 	var passive := BehaviorRegistry.is_passive_behavior(_behavior_id)
 	if not passive and not _is_target_in_range(target):
 		target = find_target()
@@ -544,13 +572,18 @@ func _process(_delta: float) -> void:
 	if SkillRegistry.has_character_skill(self) and not SkillRegistry.is_character_skill_b_type(self):
 		if _char_skill_cooldown_left > 0.0:
 			_char_skill_cooldown_left = maxf(_char_skill_cooldown_left - _delta, 0.0)
+			# 冷却环每帧重绘（阶段 8·提交 11，BUGS B-050 修复）：脱战无目标时无攻击
+			# 闪光等重绘事件，弧线曾冻结在旧值；实际冷却一直在走。
+			queue_redraw()
 			if _char_skill_cooldown_left <= 0.0:
 				_char_skill_ready = true
 				SkillRegistry.on_character_skill_ready(self)
 				if _char_skill_ready and not _char_skill_ready_notified:
 					_char_skill_ready_notified = true
 					spawn_float_text("技能就绪", Color(0.6, 0.9, 1.0), 14)
-		elif _char_skill_ready and not _manual_ultimate_mode:
+		# 阶段 8·提交 11：技能释放入口移出塔详情面板后，A 型就绪即自动释放，
+		# 与手动大招开关（manual_ultimate）解耦；手动大招仅约束大招本身。
+		elif _char_skill_ready:
 			if cast_character_skill():
 				_char_skill_ready = false
 				_char_skill_ready_notified = false
@@ -847,6 +880,20 @@ func is_ultimate_ready() -> bool:
 	return _manual_ultimate_mode and _ultimate_ready and rage >= _max_rage
 
 
+## 手动动作槽（v0.37.12 设计定稿，UI_LAYOUT v0.20.32 §10）：
+## 现网仅大招（R 恒主位）；未来「可手动」技能经 CHARACTER_SKILLS/SKILLS 登记后在此追加（Q 预留）。
+func get_manual_actions() -> Array:
+	var actions: Array = []
+	if _manual_ultimate_mode:
+		actions.append({
+			"id": &"ultimate",
+			"label": "释放大招",
+			"shortcut": "R",
+			"ready": is_ultimate_ready(),
+		})
+	return actions
+
+
 func set_float_text_layer(layer: Node) -> void:
 	_float_text_layer = layer
 
@@ -1097,6 +1144,25 @@ func set_selected(selected: bool) -> void:
 	selection_changed.emit(self)
 
 
+## 就绪胶囊快放（v0.37.14 / UI_LAYOUT v0.20.33，入口 3）：点胶囊直发该塔大招——
+## 不改变选中态（与点塔身选中解耦）；未就绪（含自动模式）该区不响应。
+func _on_quick_cast_area_input_event(
+	_viewport: Node,
+	event: InputEvent,
+	_shape_idx: int
+) -> void:
+	if event is not InputEventMouseButton:
+		return
+
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+		return
+	if not is_ultimate_ready():
+		return
+	quick_cast_requested.emit(self)
+	get_viewport().set_input_as_handled()
+
+
 func _on_selection_area_input_event(
 	_viewport: Node,
 	event: InputEvent,
@@ -1119,6 +1185,14 @@ func _on_selection_area_input_event(
 
 
 func _draw() -> void:
+	if _ghost_mode:
+		_draw_base()
+		if not _use_spine_visual:
+			_draw_body()
+			_draw_weapon()
+		if is_selected:
+			_draw_range()
+		return
 	_draw_base()
 	# 角色 spine（试点 v0.6）：程序化身体/武器/挥击弧/枪口闪让位给 spine 动画。
 	if not _use_spine_visual:
@@ -1131,6 +1205,7 @@ func _draw() -> void:
 	if _skill_flash > 0.0:
 		_draw_skill_flash()
 	_draw_rage_bar()
+	_draw_quick_cast_capsule()
 	_draw_character_skill_cooldown()
 	if _ult_visual_time > 0.0:
 		_draw_ultimate_visual()
@@ -1150,25 +1225,95 @@ func _draw_skill_flash() -> void:
 	draw_circle(Vector2.ZERO, radius * 0.35, Color(color.r, color.g, color.b, alpha * 0.25))
 
 
-func _draw_rage_bar() -> void:
-	# 怒气条（v0.15.0 美化）：分段槽 + 边框；满怒金色脉动（手动模式提示）。
-	if rage <= 0.0:
+## 就绪胶囊/命中区避让锚点（BUGS B-057）：胶囊中心在本塔局部坐标的 y——
+## 保证胶囊中心不低于屏幕 y=92（顶栏 0..80 下缘 +12）；可建首排（行 1，塔心
+## y=120）由 -62 收至 -28 仍可见可点，其余塔维持 -62 塔顶口径。
+func quick_cast_center_local_y() -> float:
+	return maxf(QUICK_CAST_OFFSET_Y, QUICK_CAST_CENTER_FLOOR_Y - global_position.y)
+
+
+## 命中区随锚点移动（BUGS B-057）：QuickCastArea 与胶囊绘制同源计算，
+## 防「画在塔顶、点击区在屏幕外/顶栏内」的错位。
+func _sync_quick_cast_area() -> void:
+	var center := quick_cast_center_local_y()
+	if not quick_cast_area.position.is_equal_approx(Vector2(0.0, center)):
+		quick_cast_area.position = Vector2(0.0, center)
+
+
+## 就绪胶囊（v0.37.14 / UI_LAYOUT v0.20.33，入口 3；B-057 避让锚点）：
+## 手动模式满怒时塔顶金胶囊 + R 字，与脚下怒气胶囊区分（快放入口提示）；
+## 点击命中 QuickCastArea（CollisionShape r13，中心随 quick_cast_center_local_y）。
+func _draw_quick_cast_capsule() -> void:
+	if not is_ultimate_ready():
 		return
+	var pulse := 1.0 + 0.06 * sin(Time.get_ticks_msec() * 0.007)
+	var w := 30.0 * pulse
+	var h := 10.0
+	var center := quick_cast_center_local_y()
+	var top := center - h * 0.5
+	var origin := Vector2(-w * 0.5, top)
+	var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.007)
+	_draw_capsule(origin - Vector2(3.0, 3.0), w + 6.0, h + 6.0, Color(1.0, 0.85, 0.35, glow))
+	_draw_capsule(origin, w, h, Color(0.35, 0.2, 0.05, 1.0))
+	_draw_capsule(origin, w, h, Color(1.0, 0.92, 0.5, 1.0), true)
+	var font := ThemeDB.fallback_font
+	var text_pos := Vector2(-w * 0.5, top + 8.5)
+	draw_string_outline(font, text_pos, "R", HORIZONTAL_ALIGNMENT_CENTER, w, 10, 2, Color(0.2, 0.12, 0.02, 0.9))
+	draw_string(font, text_pos, "R", HORIZONTAL_ALIGNMENT_CENTER, w, 10, Color(1.0, 1.0, 1.0, 1.0))
+
+func _draw_rage_bar() -> void:
+	# 怒气条（v0.15.0 美化；阶段 8·提交 11 胶囊化；0.8.11.2 空槽常驻）：脚下小胶囊——
+	# 深色底槽 + 灰蓝→满怒金填充；满怒放大呼吸 + 外发光，一眼可辨满怒。空槽常驻弱显（B-053）。
 	var ratio := clampf(rage / _max_rage, 0.0, 1.0)
 	var full := ratio >= 1.0
 	var pulse := 1.0 + (0.08 * sin(Time.get_ticks_msec() * 0.006) if full else 0.0)
-	var width := 34.0 * pulse
-	var height := 6.0
+	var width := 38.0 * pulse
+	var height := 10.0
 	# 角色 spine（试点 v0.6）：素材更高，怒气条移到脚下，避免被角色遮挡。
-	var origin := Vector2(-width / 2.0, 38.0 if _use_spine_visual else 28.0)
-	draw_rect(Rect2(origin, Vector2(width, height)), Color(0.0, 0.0, 0.0, 0.6))
-	var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.3, 0.62, 0.95, 0.95)
-	draw_rect(Rect2(origin + Vector2(1, 1), Vector2((width - 2.0) * ratio, height - 2.0)), fill_color)
+	# 0.8.11.1：收进格内（格半高 40）——spine 塔中心 y30 / 普通塔 y28，下缘 ≤ 格底线。
+	var origin := Vector2(-width / 2.0, (30.0 if _use_spine_visual else 28.0) - height * 0.5)
+	# 满怒呼吸光晕（先画，被胶囊盖住内部）。
 	if full:
-		draw_rect(Rect2(origin, Vector2(width, height)), Color(1.0, 0.9, 0.5, 0.9), false, 1.0)
-	for i in range(1, 4):
-		var x := origin.x + width * i / 4.0
-		draw_line(Vector2(x, origin.y), Vector2(x, origin.y + height), Color(0.0, 0.0, 0.0, 0.35), 1.0)
+		var glow := 0.22 + 0.10 * sin(Time.get_ticks_msec() * 0.006)
+		_draw_capsule(origin - Vector2(3.0, 3.0), width + 6.0, height + 6.0, Color(1.0, 0.85, 0.35, glow))
+	# 空槽常驻（0.8.11.2 / B-053）：0 怒气弱显底槽，获得怒气后恢复深底槽。
+	_draw_capsule(origin, width, height,
+		Color(0.0, 0.0, 0.0, 0.35 if ratio <= 0.0 else 0.66))
+	if ratio > 0.0:
+		var fill_color := Color(1.0, 0.82, 0.3, 1.0) if full else Color(0.35, 0.68, 1.0, 0.95)
+		var inset := 1.5
+		_draw_capsule_fill(origin + Vector2(inset, inset), width - inset * 2.0, height - inset * 2.0, ratio, fill_color)
+	if full:
+		_draw_capsule(origin, width, height, Color(1.0, 0.92, 0.5, 0.95), true)
+
+
+## 实心胶囊（圆角端 = 半圆），pos 为左上角。
+func _draw_capsule(pos: Vector2, w: float, h: float, color: Color, outline_only: bool = false) -> void:
+	var r := h * 0.5
+	if outline_only:
+		draw_arc(pos + Vector2(r, r), r, PI * 0.5, PI * 1.5, 12, color, 1.5)
+		draw_arc(pos + Vector2(w - r, r), r, -PI * 0.5, PI * 0.5, 12, color, 1.5)
+		draw_line(pos + Vector2(0.0, r), pos + Vector2(w, r), color, 1.5)
+		draw_line(pos + Vector2(0.0, h - r), pos + Vector2(w, h - r), color, 1.5)
+		return
+	if w <= h:
+		draw_circle(pos + Vector2(w * 0.5, h * 0.5), w * 0.5, color)
+		return
+	draw_rect(Rect2(pos + Vector2(r, 0), Vector2(w - r * 2.0, h)), color)
+	draw_circle(pos + Vector2(r, r), r, color)
+	draw_circle(pos + Vector2(w - r, r), r, color)
+
+
+## 胶囊填充（按 ratio 从左侧截断，右端始终圆头；低怒气时退化为圆点）。
+func _draw_capsule_fill(pos: Vector2, w: float, h: float, ratio: float, color: Color) -> void:
+	var r := h * 0.5
+	var wf := w * clampf(ratio, 0.0, 1.0)
+	if wf <= h:
+		draw_circle(pos + Vector2(wf * 0.5, r), wf * 0.5, color)
+		return
+	draw_rect(Rect2(pos + Vector2(r, 0), Vector2(wf - r * 2.0, h)), color)
+	draw_circle(pos + Vector2(r, r), r, color)
+	draw_circle(pos + Vector2(wf - r, r), r, color)
 
 
 ## 角色技能冷却盘（阶段 8·提交 6）：塔身外细环按剩余冷却比例收缩，就绪时隐藏。
@@ -1183,7 +1328,7 @@ func _draw_character_skill_cooldown() -> void:
 	var remaining := clampf(_char_skill_cooldown_left / total, 0.0, 1.0)
 	var start := -PI / 2.0
 	# 角色 spine（试点 v0.6）：冷却环外扩避免被角色素材遮挡。
-	var cd_radius := 36.0 if _use_spine_visual else 25.0
+	var cd_radius := 40.0 if _use_spine_visual else 25.0
 	draw_arc(Vector2.ZERO, cd_radius, start, start + TAU * remaining, 24, Color(0.55, 0.85, 1.0, 0.85), 2.5, true)
 
 
@@ -1237,6 +1382,12 @@ func _draw_ultimate_visual() -> void:
 
 
 func _draw_base() -> void:
+	# 角色 spine（阶段 8·提交 11）：底座圆盘弱化——改贴地淡阴影，消除脚下多余「内圈」。
+	if _use_spine_visual:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.55, 0.5))
+		draw_circle(Vector2(0, 6), 20.0, Color(0.0, 0.0, 0.0, 0.16))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
 	draw_circle(Vector2.ZERO, 22.0, _hero_color.darkened(0.45))
 	draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 28, _hero_color.darkened(0.15), 2.5, true)
 

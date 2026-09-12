@@ -39,6 +39,9 @@ var hub_active_panel: StringName = &"map"
 ## 当前难度（index 对应 difficulty_presets，默认标准=0）。
 var selected_difficulty: int = Difficulty.NORMAL
 ## 敌人出现关卡索引（ENCYCLOPEDIA §3.1/§4）：首查惰性构建，enemy_id → 关卡条目数组。
+## 游戏性开关运行时缓存（BUGS B-057）：is_gameplay_flag_enabled 原本每次读盘，
+## 塔逐帧同步手动大招开关需内存缓存；set_gameplay_flag 双写缓存与磁盘保持即时生效。
+var _gameplay_flag_cache: Dictionary = {}
 var _enemy_stage_index: Dictionary = {}
 
 
@@ -547,12 +550,15 @@ func goto_menu() -> void:
 
 ## 读取设置面板持久化的游戏性开关（如剧情速进）。
 func is_gameplay_flag_enabled(flag: String) -> bool:
-	var config := ConfigFile.new()
-	config.load(SETTINGS_PATH)
-	return bool(config.get_value("gameplay", flag, false))
+	if not _gameplay_flag_cache.has(flag):
+		var config := ConfigFile.new()
+		config.load(SETTINGS_PATH)
+		_gameplay_flag_cache[flag] = bool(config.get_value("gameplay", flag, false))
+	return bool(_gameplay_flag_cache[flag])
 
 
 func set_gameplay_flag(flag: String, value: bool) -> void:
+	_gameplay_flag_cache[flag] = value
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value("gameplay", flag, value)

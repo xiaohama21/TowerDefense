@@ -79,7 +79,6 @@ func _ready():
 	ui.tower_sell_requested.connect(_on_tower_sell_requested)
 	ui.battle_supply_pressed.connect(_on_battle_supply_pressed)
 	ui.ultimate_cast_requested.connect(_on_ultimate_cast_requested)
-	ui.character_skill_cast_requested.connect(_on_character_skill_cast_requested)
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
@@ -222,8 +221,22 @@ func _on_tower_built(character_id: String) -> void:
 
 func _on_tower_created(tower: Tower) -> void:
 	tower.selection_changed.connect(_on_tower_selection_changed)
+	tower.quick_cast_requested.connect(_on_tower_quick_cast_requested)
 	tower.set_float_text_layer(self)
 	SfxLibrary.play(&"build", -10.0)
+
+
+## 就绪胶囊快放（v0.37.14 / UI_LAYOUT v0.20.33，入口 3）：点胶囊直发该塔大招——
+## 不改变选中态；选中态下面板按钮 / R 键路径不变。
+func _on_tower_quick_cast_requested(tower: Tower) -> void:
+	if tower == null or not is_instance_valid(tower):
+		return
+	if tower.cast_ultimate_manual():
+		ui.show_status("%s 释放大招！" % tower.display_name, 1.0)
+		if tower == _selected_tower:
+			ui.show_tower_panel(tower, stage_data)
+	else:
+		ui.show_status("%s：范围内暂无目标" % tower.display_name)
 
 
 func _on_tower_selection_changed(tower: Tower) -> void:
@@ -274,17 +287,6 @@ func _on_boss_entered(display_name: String) -> void:
 ## 手动大招（v0.15.0）：属性面板按钮触发。
 func _on_ultimate_cast_requested() -> void:
 	_try_cast_selected_ultimate()
-
-
-## 角色技能（阶段 8·提交 6）：属性面板"释放技能"按钮（手动模式）。
-func _on_character_skill_cast_requested() -> void:
-	if _selected_tower == null or not is_instance_valid(_selected_tower):
-		return
-	if _selected_tower.cast_character_skill():
-		ui.show_status("%s 释放 %s！" % [_selected_tower.display_name, SkillRegistry.get_character_skill_name(_selected_tower.get_character_skill_id())], 1.0)
-		ui.refresh_tower_panel()
-	else:
-		ui.show_status("技能未就绪或范围内无目标")
 
 
 ## R 键释放大招（v0.15.0，仅手动模式且选中塔）。
@@ -522,35 +524,28 @@ func _format_settlement_reward(result: Dictionary) -> String:
 			return "未知奖励"
 
 
-## 顶栏退出（GDD v0.9.3）：本局尚未出结果时弹确认——中途退出收益作废
-## （核心规则），会话由 _exit_tree 的弃置逻辑兜底清理。
+## 顶栏退出（GDD v0.9.3；v0.37.32 换 Kenney 亮色二次确认弹窗）：本局尚未出结果时弹确认
+## ——中途退出收益作废（核心规则），会话由 _exit_tree 的弃置逻辑兜底清理。
 func _on_exit_pressed() -> void:
 	build_manager.cancel_drag()
 	if battle_session != null and battle_session.is_in_progress():
-		var dialog := ConfirmationDialog.new()
-		dialog.process_mode = Node.PROCESS_MODE_ALWAYS
-		dialog.dialog_text = "退出将放弃本局未结算的收益，确定退出？"
-		dialog.ok_button_text = "放弃并退出"
-		dialog.cancel_button_text = "继续战斗"
-		dialog.confirmed.connect(_on_exit_confirmed.bind(dialog))
-		dialog.canceled.connect(dialog.queue_free)
-		dialog.close_requested.connect(dialog.queue_free)
-		get_tree().root.add_child(dialog)
-		dialog.popup_centered()
+		BattleConfirmDialog.open(self, "确认退出本关？",
+			"退出将放弃本局未结算的收益与进度，且不会被写入存档。",
+			"放弃并退出", _on_exit_confirmed, "继续战斗", "red")
 	else:
 		GameFlow.goto_hub()
 
 
-func _on_exit_confirmed(dialog: ConfirmationDialog) -> void:
+func _on_exit_confirmed() -> void:
 	build_manager.cancel_drag()
 	GameFlow.clear_squad_relics()
 	GameFlow.goto_hub()
-	dialog.queue_free()
 
 
 ## First clear grants unlocks and first-clear rewards; replays only grant the
 ## repeat rewards configured on the stage. 奖励数量按难度材料倍率缩放（GDD 10.7）。
-## 战斗内设置（v0.19.2）：暂停并弹出设置面板（复用 SettingsPanel，改动即时生效并持久化）。
+## 战斗内设置（v0.19.2；v0.37.8 弹窗亮色化 B-055）：暂停并弹出设置面板（复用 SettingsPanel，
+## 改动即时生效并持久化）。弹窗外框走 Kenney 亮蓝 DIALOG 语言（同 MainMenu「新的征程」确认弹窗）。
 func _on_settings_pressed() -> void:
 	if _settings_popup != null and is_instance_valid(_settings_popup):
 		return
@@ -563,7 +558,7 @@ func _on_settings_pressed() -> void:
 	_settings_popup.process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().root.add_child(_settings_popup)
 	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.04, 0.06, 0.5)
+	dim.color = Color(0.02, 0.05, 0.09, 0.62)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_settings_popup.add_child(dim)
 	var center := CenterContainer.new()
@@ -571,16 +566,20 @@ func _on_settings_pressed() -> void:
 	_settings_popup.add_child(center)
 	var panel := PanelContainer.new()
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.055, 0.075, 0.12, 0.97)
-	panel_style.border_color = Color(0.25, 0.43, 0.68, 0.9)
-	panel_style.set_border_width_all(2)
-	panel_style.set_corner_radius_all(10)
+	panel_style.bg_color = UITheme.DIALOG_PANEL
+	panel_style.border_color = UITheme.DIALOG_BORDER
+	panel_style.set_border_width_all(3)
+	panel_style.border_width_bottom = 7
+	panel_style.set_corner_radius_all(18)
+	panel_style.shadow_color = Color(0.02, 0.1, 0.18, 0.45)
+	panel_style.shadow_size = 18
+	panel_style.shadow_offset = Vector2(0, 8)
 	panel.add_theme_stylebox_override("panel", panel_style)
 	center.add_child(panel)
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 18)
 	margin.add_theme_constant_override("margin_bottom", 20)
 	panel.add_child(margin)
 	var box := VBoxContainer.new()
@@ -590,8 +589,10 @@ func _on_settings_pressed() -> void:
 	box.add_child(settings)
 	var close_button := Button.new()
 	close_button.text = "关闭设置"
-	close_button.custom_minimum_size = Vector2(200, 46)
+	close_button.custom_minimum_size = Vector2(220, 48)
+	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_button.add_theme_font_size_override("font_size", 18)
+	UITheme.apply_kenney_rect_button(close_button, "blue", Color.WHITE)
 	close_button.pressed.connect(_on_settings_popup_closed)
 	box.add_child(close_button)
 
@@ -615,7 +616,16 @@ func _on_pause_pressed():
 	else:
 		ui.show_status("游戏继续")
 
-func _on_restart_pressed():
+## 顶栏重开（v0.37.32）：先弹 Kenney 亮色二次确认（防误触、与退出确认同语言），
+## 确认后弃置本局会话、解除暂停并重载关卡（收益作废规则同退出）。
+func _on_restart_pressed() -> void:
+	build_manager.cancel_drag()
+	BattleConfirmDialog.open(self, "确认重开本关？",
+		"重开会放弃本局未结算的收益与进度，并从第一波重新开始本关。",
+		"确认重开", _on_restart_confirmed, "继续战斗")
+
+
+func _on_restart_confirmed() -> void:
 	build_manager.cancel_drag()
 	_discard_active_session()
 	get_tree().paused = false

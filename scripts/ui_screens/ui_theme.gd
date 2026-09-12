@@ -87,7 +87,9 @@ static func apply_card_style(button: Button, state_color: Color, selected: bool 
 
 ## Kenney 九宫格按钮换肤（UI_LAYOUT §3 / ART_ASSETS v0.2，v0.33.6 首页落地）：
 ## 素材 assets/ui/buttons/rect/<color_key>/{normal,hover,pressed}.png（原图 384×128，裁边 24）。
-static func apply_kenney_rect_button(button: Button, color_key: String, font_color: Color) -> void:
+## content_margin 默认 12（大按钮）；局内顶栏等紧凑按钮行传更小值，避免九宫格最小宽撑破整行。
+static func apply_kenney_rect_button(button: Button, color_key: String, font_color: Color,
+		content_margin: float = 12.0) -> void:
 	var pressed_style: StyleBoxTexture = null
 	for state_name in ["normal", "hover", "pressed"]:
 		var style := StyleBoxTexture.new()
@@ -96,7 +98,7 @@ static func apply_kenney_rect_button(button: Button, color_key: String, font_col
 		style.texture_margin_top = 24.0
 		style.texture_margin_right = 24.0
 		style.texture_margin_bottom = 24.0
-		style.set_content_margin_all(12.0)
+		style.set_content_margin_all(content_margin)
 		button.add_theme_stylebox_override(state_name, style)
 		if state_name == "pressed":
 			pressed_style = style
@@ -204,6 +206,36 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", Color.WHITE)
 	var style := StyleBoxFlat.new()
+	var colors: Array = avatar_gradient_colors(color_key, base)
+	style.bg_color = colors[0].lerp(colors[1], 0.5)
+	style.set_corner_radius_all(diameter * 0.5)
+	style.border_color = Color.WHITE
+	style.set_border_width_all(2)
+	label.add_theme_stylebox_override("normal", style)
+	return label
+
+
+## 道具方块图标占位（概念图 .tile：类型色渐变圆角方块 + 首字白字；背包卡片/说明条用）。
+static func tile_label(text: String, color_key: String = "blue", size: float = 52.0, font_size: int = 24) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.custom_minimum_size = Vector2(size, size)
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	var style := StyleBoxFlat.new()
+	var colors: Array = avatar_gradient_colors(color_key)
+	style.bg_color = colors[0].lerp(colors[1], 0.5)
+	style.set_corner_radius_all(size * 0.23)
+	style.border_color = Color.WHITE
+	style.set_border_width_all(2)
+	label.add_theme_stylebox_override("normal", style)
+	return label
+
+
+## 头像渐变取色（avatar_label / character_avatar_texture 共用）：base 缺省用 key 色。
+static func avatar_gradient_colors(color_key: String = "blue", base: Color = Color(0, 0, 0, 0)) -> Array:
 	var top: Color = LIGHT_ACCENT
 	var bottom: Color = Color("#1c8fc0")
 	if base != Color(0, 0, 0, 0):
@@ -220,12 +252,24 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 		"brown": top = Color("#c8a06a"); bottom = Color("#9c6f3e")
 		"pink": top = Color("#ff9ec2"); bottom = Color("#e0558c")
 		"teal": top = Color("#63d8c8"); bottom = Color("#1f9d92")
-	style.bg_color = top.lerp(bottom, 0.5)
-	style.set_corner_radius_all(diameter * 0.5)
-	style.border_color = Color.WHITE
-	style.set_border_width_all(2)
-	label.add_theme_stylebox_override("normal", style)
-	return label
+	return [top, bottom]
+
+
+## 武将头像概念九色键（与 EncyclopediaPanel.CHARACTER_AVATAR_COLORS 同步维护；缺失回退蓝）。
+const CHARACTER_AVATAR_KEYS := {
+	"liu_bei": "gold",
+	"guan_yu": "red",
+	"zhang_fei": "blue",
+	"huang_zhong": "green",
+	"huang_fu_song": "purple",
+	"diao_chan": "orange",
+	"zhou_wei": "brown",
+	"zhao_yun": "pink",
+	"zhuge_liang": "teal",
+}
+
+static func character_avatar_color_key(character_id: String) -> String:
+	return str(CHARACTER_AVATAR_KEYS.get(character_id, "blue"))
 
 
 ## 浅色可点选卡片按钮四态（正常浅蓝卡 / 悬停亮蓝描边 / 禁用灰 / 选中金框米黄底）。
@@ -289,4 +333,3 @@ static func style_exp_bar(bar: ProgressBar) -> void:
 	fill.set_corner_radius_all(8)
 	bar.add_theme_stylebox_override("background", bg)
 	bar.add_theme_stylebox_override("fill", fill)
-

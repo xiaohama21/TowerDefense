@@ -8,6 +8,9 @@ enum ItemType {
 	PROMOTION_MATERIAL,
 	CHARACTER_SHARD,
 	CONSUMABLE,
+	# 遗物（v0.37.10 / 0.8.11.6）：局内遗物（编队选带、永久持有）由消耗品改列本类；
+	# 追加在枚举末尾——.tres 以数值存储 item_type，不得在中间插入以免错位。
+	RELIC,
 }
 
 enum Rarity {

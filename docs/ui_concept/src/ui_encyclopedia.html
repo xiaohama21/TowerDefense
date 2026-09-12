@@ -42,11 +42,14 @@
   .irow { font-size:13.5px; color:#33566f; line-height:1.6; }
   .irow .k { color:#7d9cb4; letter-spacing:1px; font-size:12px; }
   .irow .k b { color:#14538a; font-weight:normal; }
-  .statrow { display:flex; gap:8px; }
-  .stat { flex:1; text-align:center; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:9px; padding:5px 4px 4px; }
-  .stat .k { font-size:11px; color:#7d9cb4; letter-spacing:1px; }
-  .stat .v { font-size:16px; color:#14538a; margin-top:1px; }
-  .stat .v b { font-weight:normal; color:#b8860b; }
+  /* 属性列 = 胶囊条（一条数据一枚胶囊：左图标 · 右数值） */
+  .pills { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .pill { display:flex; align-items:center; gap:7px; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:999px;
+    padding:3px 13px 3px 4px; min-width:0; box-shadow:inset 0 1px 0 #fff; }
+  .pill .ic { width:27px; height:27px; flex:none; }
+  .pill .k { font-size:11.5px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+  .pill .v { margin-left:auto; font-size:15.5px; color:#14538a; }
+  .pill .v b { font-weight:normal; color:#b8860b; }
   /* 数值模拟器 */
   .sim { margin-top:12px; background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:9px 16px; display:flex; flex-direction:column; gap:7px;
     box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
@@ -62,9 +65,10 @@
   .rk.on { background:#1c9fd7; color:#fff; }
   .rk.off { background:#e1f1fb; color:#33566f; }
   .eq { color:#9fd0ea; font-size:20px; }
-  .res { min-width:64px; text-align:center; background:#fff6d8; border:1px solid #f0d98a; border-radius:9px; padding:5px 8px 4px; }
-  .res .k { font-size:10.5px; color:#8a6d00; letter-spacing:1px; }
-  .res .v { font-size:16px; color:#b8860b; margin-top:1px; }
+  .res { min-width:92px; display:flex; align-items:center; gap:7px; background:#fff6d8; border:1px solid #f0d98a; border-radius:9px; padding:4px 9px 4px 5px; }
+  .res .ic { width:25px; height:25px; flex:none; }
+  .res .k { font-size:10.5px; color:#8a6d00; letter-spacing:1px; text-align:left; }
+  .res .v { font-size:16px; color:#b8860b; margin-top:1px; text-align:left; }
   .sim .note { margin-left:auto; text-align:right; }
 
   .ava.brown { background:linear-gradient(180deg,#c8a06a,#9c6f3e); }
@@ -136,11 +140,11 @@
               <div class="rows">
                 <div class="irow"><span class="k">职业定位 · </span>近战 buff 类——前线光环与士气增益，半输出半辅助；技能 / 转职 / 信物 / 特性见其余页签。</div>
                 <div class="irow"><span class="k">等级上限 · </span><b>1 ~ 30</b>（随章节推进逐步开放；经验由通关与击杀获得）</div>
-                <div class="statrow">
-                  <div class="stat"><div class="k">伤害（Lv12）</div><div class="v">115</div></div>
-                  <div class="stat"><div class="k">攻速</div><div class="v">0.67s</div></div>
-                  <div class="stat"><div class="k">射程</div><div class="v">120</div></div>
-                  <div class="stat"><div class="k">建造费用</div><div class="v"><b>60</b></div></div>
+                <div class="pills">
+                  <div class="pill"><img class="ic" src="icons_hud/dmg_physical.png"><span class="k">伤害（Lv12）</span><span class="v">115</span></div>
+                  <div class="pill"><img class="ic" src="icons_hud/stat_attack_speed.png"><span class="k">攻速</span><span class="v">0.67s</span></div>
+                  <div class="pill"><img class="ic" src="icons_hud/stat_range.png"><span class="k">射程</span><span class="v">120</span></div>
+                  <div class="pill"><img class="ic" src="icons_battle/coin_crop.png"><span class="k">建造费用</span><span class="v"><b>60</b></span></div>
                 </div>
                 <div class="irow"><span class="k">角色简介 · </span>燕人张飞，长矛连刺稳定输出，专克轻骑。</div>
                 <div class="irow"><span class="k">获取方式 · </span>通关「s02 · 长社火攻」首通解锁（刘备 / 关羽为初始武将）。</div>
@@ -158,9 +162,9 @@
         </div>
         <div class="simr2">
           <span class="eq">=</span>
-          <div class="res"><div class="k">伤害</div><div class="v">115</div></div>
-          <div class="res"><div class="k">攻速</div><div class="v">0.67s</div></div>
-          <div class="res"><div class="k">射程</div><div class="v">120</div></div>
+          <div class="res"><img class="ic" src="icons_hud/dmg_physical.png"><div><div class="k">伤害</div><div class="v">115</div></div></div>
+          <div class="res"><img class="ic" src="icons_hud/stat_attack_speed.png"><div><div class="k">攻速</div><div class="v">0.67s</div></div></div>
+          <div class="res"><img class="ic" src="icons_hud/stat_range.png"><div><div class="k">射程</div><div class="v">120</div></div></div>
           <div class="spacer"></div>
           <div class="note"><span class="tag ok">预览不影响存档</span><div style="font-size:11px;color:#a4b8c8;margin-top:4px;letter-spacing:.5px;text-align:right;">数值与战斗实算一致（含特性与升阶乘区）</div></div>
         </div>

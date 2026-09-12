@@ -16,8 +16,6 @@ signal tower_upgrade_requested
 signal tower_sell_requested
 ## 手动大招（v0.15.0）：属性面板"释放大招"按钮。
 signal ultimate_cast_requested
-## 角色技能（阶段 8·提交 6）：属性面板"释放技能"按钮（手动模式）。
-signal character_skill_cast_requested
 signal result_next_pressed
 signal result_retry_pressed
 signal result_menu_pressed
@@ -25,8 +23,19 @@ signal result_wheel_pressed
 signal exit_pressed
 signal dialogue_finished
 
-const PANEL_STYLE_BG := Color(0.055, 0.075, 0.12, 0.94)
-const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
+## 局内面板亮色化（v0.37.32）：卡片/塔面板改 Kenney 亮蓝白语言
+## （底 #f7fbfe / 描边 #9fd0ea），与大厅、战斗顶栏（#eef8fe + #7ec8ea 细线）统一。
+const PANEL_STYLE_BG := Color("#f7fbfe")
+const PANEL_STYLE_BORDER := Color("#9fd0ea")
+## 基地生命两态（v0.37.32 / UI_LAYOUT §10）：常态绿，≤30% 危急变红并脉动。
+const LIVES_COLOR_OK := Color("#0e9f58")
+const LIVES_COLOR_LOW := Color("#e5484d")
+const LIVES_LOW_RATIO := 0.3
+## 建造卡立绘头像（0.8.11.1）：character_id → 圆形透明 PNG（SpineSprite Idle 首帧截取，
+## 素材与 D69 试点同口径本地存放不入库）；无条目/缺素材回退概念色占位圆。
+const CHARACTER_AVATAR_TEXTURES := {
+	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a_avatar.png",
+}
 
 @onready var gold_label: Label = $Root/TopBar/Margin/Content/GoldLabel
 @onready var lives_label: Label = $Root/TopBar/Margin/Content/LivesLabel
@@ -41,7 +50,9 @@ const PANEL_STYLE_BORDER := Color(0.25, 0.43, 0.68, 0.85)
 @onready var message_panel: PanelContainer = $Root/MessagePanel
 @onready var message_label: Label = $Root/MessagePanel/Margin/MessageLabel
 @onready var status_label: Label = $Root/StatusLabel
-@onready var character_bar: HBoxContainer = $Root/CharacterBar
+@onready var character_bar: HBoxContainer = $Root/BottomBar/CharacterBar
+@onready var _bottom_bar: PanelContainer = $Root/BottomBar
+@onready var _build_hint: Label = $Root/BuildHint
 
 const DEBUG_PANEL_SCRIPT := preload("res://scripts/DebugPanel.gd")
 
@@ -53,6 +64,9 @@ var _character_costs: Dictionary = {}
 ## 当前按下（正在拖拽）的卡片 id：按下金色高亮，松手/取消复位。
 var _held_card_id: String = ""
 var _dialogue_panel: Control = null
+## 基地生命危急态（v0.37.32）：≤30% 红字 + 脉动；_lives_pulse 为脉动相位累加。
+var _lives_low: bool = false
+var _lives_pulse: float = 0.0
 
 # 武将属性面板（升级/回收）当前展示的塔与关卡规则；塔被回收后引用失效。
 var _panel_tower: Tower = null
@@ -62,8 +76,6 @@ var _tower_title_label: Label
 var _tower_attr_label: Label
 var _tower_upgrade_button: Button
 var _tower_sell_button: Button
-var _tower_skill_label: Label
-var _tower_char_skill_button: Button
 var _tower_ultimate_button: Button
 var _boss_banner: Label
 var _boss_banner_timer: SceneTreeTimer = null
@@ -85,6 +97,7 @@ var _dialogue_advance_after_msec: int = 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_style_top_bar_buttons()
 	next_wave_button.pressed.connect(_on_next_wave_button_pressed)
 	supply_button.pressed.connect(func() -> void: battle_supply_pressed.emit())
 	pause_button.pressed.connect(_on_pause_button_pressed)
@@ -105,6 +118,18 @@ func _ready() -> void:
 	update_wave(GameManager.current_wave, GameManager.total_waves)
 	_previous_paused_state = get_tree().paused
 	_refresh_action_buttons()
+	_show_build_hint_once()
+
+
+## 顶栏按钮换肤（v0.37.32 / UI_LAYOUT §10）：黄 开始第 N 波 / 蓝 军需 / 灰 暂停·设置·重开 /
+## 红 退出，与大厅 Kenney 亮蓝按钮同源（素材 assets/ui/buttons/rect）。
+func _style_top_bar_buttons() -> void:
+	UITheme.apply_kenney_rect_button(next_wave_button, "yellow", UITheme.INK, 8.0)
+	UITheme.apply_kenney_rect_button(supply_button, "blue", Color.WHITE, 6.0)
+	UITheme.apply_kenney_rect_button(pause_button, "grey", UITheme.INK, 6.0)
+	UITheme.apply_kenney_rect_button(settings_button, "grey", UITheme.INK, 6.0)
+	UITheme.apply_kenney_rect_button(restart_button, "grey", UITheme.INK, 6.0)
+	UITheme.apply_kenney_rect_button(exit_button, "red", Color.WHITE, 6.0)
 
 
 func set_stage_name(stage_name: String) -> void:
@@ -114,7 +139,7 @@ func set_stage_name(stage_name: String) -> void:
 ## 调试辅助面板（仅调试构建创建）：加金币、跳波次、清场，方便测试。
 func _create_debug_panel() -> void:
 	var panel := DEBUG_PANEL_SCRIPT.new()
-	panel.position = Vector2(16, 164)
+	panel.position = Vector2(640, 84)
 	panel.wave_jump_requested.connect(debug_wave_jump_requested.emit)
 	panel.clear_enemies_requested.connect(debug_clear_enemies_requested.emit)
 	$Root.add_child(panel)
@@ -133,66 +158,79 @@ func setup_character_bar(characters: Array) -> void:
 		if character_data == null:
 			continue
 		var character_id := str(character_data.character_id)
-		var profession_name := "未知职业"
-		if character_data.profession != null:
-			profession_name = character_data.profession.display_name
 		var level := GameFlow.get_character_level(ProfileStore.get_profile(), character_id)
 
-		# 卡片 = 拖拽手柄：武将名 / 职业全名 / Lv（蓝）/ 费用（金）。
+		# 卡片（0.8.11.1 底部横版，卡条 80px 高）= 拖拽手柄：48px 圆头像（关羽等有
+		# 素材角色用立绘纹理、其余概念色占位）+ 右侧 武将名 / Lv（蓝）/ 费用（金）。
 		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(124, 0)
+		panel.custom_minimum_size = Vector2(124, 68)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		panel.gui_input.connect(_on_card_gui_input.bind(character_id))
 		character_bar.add_child(panel)
 
-		var content := VBoxContainer.new()
+		var content := HBoxContainer.new()
 		content.alignment = BoxContainer.ALIGNMENT_CENTER
-		content.add_theme_constant_override("separation", 0)
+		content.add_theme_constant_override("separation", 8)
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
 
+		var avatar: Control = _make_card_avatar(character_id, character_data.display_name)
+		avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(avatar)
+
+		var info := VBoxContainer.new()
+		info.alignment = BoxContainer.ALIGNMENT_CENTER
+		info.add_theme_constant_override("separation", 1)
+		info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(info)
+
 		var name_label := Label.new()
 		name_label.text = character_data.display_name
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_font_size_override("font_size", 16)
+		name_label.add_theme_font_size_override("font_size", 15)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(name_label)
-
-		var profession_label := Label.new()
-		profession_label.text = profession_name
-		profession_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		profession_label.add_theme_font_size_override("font_size", 12)
-		profession_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(profession_label)
-
-		var stat_row := HBoxContainer.new()
-		stat_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		stat_row.add_theme_constant_override("separation", 6)
-		stat_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(stat_row)
+		info.add_child(name_label)
 
 		var lv_label := Label.new()
 		lv_label.text = "Lv.%d" % level
-		lv_label.add_theme_font_size_override("font_size", 13)
+		lv_label.add_theme_font_size_override("font_size", 11)
 		lv_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stat_row.add_child(lv_label)
+		info.add_child(lv_label)
 
 		var cost_label := Label.new()
 		cost_label.text = "%d 金" % character_data.build_cost
-		cost_label.add_theme_font_size_override("font_size", 13)
+		cost_label.add_theme_font_size_override("font_size", 11)
 		cost_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stat_row.add_child(cost_label)
+		info.add_child(cost_label)
 
 		_character_costs[character_id] = character_data.build_cost
 		_character_cards[character_id] = {
 			"id": character_id,
 			"panel": panel,
+			"avatar": avatar,
 			"name": name_label,
-			"profession": profession_label,
 			"lv": lv_label,
 			"cost": cost_label,
 		}
 	_refresh_character_bar_affordance()
+
+
+## 建造卡头像（0.8.11.1）：注册表有素材且可加载 → 圆形立绘 TextureRect；
+## 否则概念色圆 + 姓氏首字占位（avatar_label 同款）。
+func _make_card_avatar(character_id: String, display_name: String) -> Control:
+	const diameter := 48.0
+	var tex_path: String = CHARACTER_AVATAR_TEXTURES.get(character_id, "")
+	if not tex_path.is_empty() and ResourceLoader.exists(tex_path):
+		var tex: Texture2D = load(tex_path)
+		if tex != null:
+			var rect := TextureRect.new()
+			rect.custom_minimum_size = Vector2(diameter, diameter)
+			rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			rect.texture = tex
+			return rect
+	return UITheme.avatar_label(
+		display_name.left(1),
+		UITheme.character_avatar_color_key(character_id), diameter, 22)
 
 
 ## 建造栏负担标识（v0.12.2 / v0.33.3 卡片重设计）：金币不足整卡置灰 + 费用红色。
@@ -236,30 +274,30 @@ func _apply_card_style(card: Variant) -> void:
 	var affordable: bool = GameManager.gold >= int(_character_costs.get(card.get("id", ""), 0))
 	var held: bool = _held_card_id == str(card.get("id", ""))
 	var border := PANEL_STYLE_BORDER
-	var bg := UITheme.PANEL_BG
+	var bg := UITheme.LIGHT_CARD_BG
 	if held:
-		border = UITheme.SELECT_BORDER
-		bg = UITheme.SELECT_BG.darkened(0.55)
+		border = UITheme.LIGHT_GOLD_SELECT
+		bg = Color("#fff7dc")
 	elif not affordable:
-		border = UITheme.RED.darkened(0.5)
+		border = Color("#e0a09a")
+		bg = Color("#fff5f3")
 	if is_instance_valid(panel):
 		panel.add_theme_stylebox_override("panel", _make_card_style(border, bg))
+	var avatar: Control = card.get("avatar")
 	var name_label: Label = card.get("name")
-	var profession_label: Label = card.get("profession")
 	var lv_label: Label = card.get("lv")
 	var cost_label: Label = card.get("cost")
+	if is_instance_valid(avatar):
+		avatar.modulate = Color(1, 1, 1, 0.45) if not affordable else Color.WHITE
 	if is_instance_valid(name_label):
 		name_label.add_theme_color_override("font_color",
-			UITheme.DISABLED if not affordable else UITheme.TEXT)
-	if is_instance_valid(profession_label):
-		profession_label.add_theme_color_override("font_color",
-			UITheme.DISABLED if not affordable else UITheme.GRAY)
+			UITheme.LIGHT_LOCK if not affordable else UITheme.LIGHT_INK)
 	if is_instance_valid(lv_label):
 		lv_label.add_theme_color_override("font_color",
-			UITheme.DISABLED if not affordable else UITheme.BLUE)
+			UITheme.LIGHT_LOCK if not affordable else UITheme.LIGHT_ACCENT)
 	if is_instance_valid(cost_label):
 		cost_label.add_theme_color_override("font_color",
-			UITheme.RED if not affordable else UITheme.GOLD)
+			Color("#d0453f") if not affordable else UITheme.LIGHT_GOLD_TEXT)
 
 
 func _make_card_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
@@ -279,7 +317,8 @@ func _make_card_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 ## 对话底栏 / 塔面板 / 结算 / 消息。拖入则虚影隐藏、松手取消。
 ## 调试面板为开发辅助浮层（不拦截点击），不计入，避免遮挡行 2 可建格。
 func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
-	if screen_pos.y <= 158.0:
+	# 0.8.11.1 布局：顶栏整行 0..80、底部建造卡条整行 640..720；战场 row1..7 完整可建。
+	if screen_pos.y <= 80.0 or screen_pos.y >= 640.0:
 		return true
 	if _result_panel != null and _result_panel.visible:
 		return true
@@ -297,6 +336,9 @@ func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
 func _process(_delta: float) -> void:
 	# UI 始终处理，暂停后仍可继续或重开游戏。
 	_refresh_wave_label()
+	if _lives_low:
+		_lives_pulse += _delta * 5.2
+		lives_label.modulate = Color(1, 1, 1, 0.6 + 0.4 * (0.5 + 0.5 * sin(_lives_pulse)))
 	if get_tree().paused != _previous_paused_state:
 		_previous_paused_state = get_tree().paused
 		_refresh_action_buttons()
@@ -310,7 +352,19 @@ func update_gold(new_amount: int) -> void:
 
 func update_lives(new_amount: int) -> void:
 	lives_label.text = "生命：%d" % max(new_amount, 0)
+	_refresh_lives_color(new_amount)
 	_refresh_action_buttons()
+
+
+## 基地生命两态（UI_LAYOUT §10，v0.37.32 落地）：常态绿 #0e9f58；
+## ≤30% 变红 #e5484d 并在 _process 里脉动呼吸（透明度 0.6~1.0）。
+func _refresh_lives_color(amount: int) -> void:
+	var max_lives := maxi(GameManager.starting_lives, 1)
+	_lives_low = float(max(amount, 0)) / float(max_lives) <= LIVES_LOW_RATIO
+	lives_label.add_theme_color_override("font_color",
+		LIVES_COLOR_LOW if _lives_low else LIVES_COLOR_OK)
+	if not _lives_low:
+		lives_label.modulate = Color.WHITE
 
 
 func update_wave(current: int, total: int) -> void:
@@ -431,12 +485,6 @@ func _create_tower_panel() -> void:
 	_tower_attr_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_tower_attr_label)
 
-	_tower_skill_label = Label.new()
-	_tower_skill_label.add_theme_font_size_override("font_size", 14)
-	_tower_skill_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.72))
-	_tower_skill_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(_tower_skill_label)
-
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	vbox.add_child(buttons)
@@ -464,27 +512,20 @@ func _create_tower_panel() -> void:
 	_tower_ultimate_button.pressed.connect(func() -> void: ultimate_cast_requested.emit())
 	buttons.add_child(_tower_ultimate_button)
 
-	# 角色技能（阶段 8·提交 6）：A 主动手动释放 / B 被动说明；冷却中置灰。
-	_tower_char_skill_button = Button.new()
-	_tower_char_skill_button.custom_minimum_size = Vector2(0, 40)
-	_tower_char_skill_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tower_char_skill_button.add_theme_font_size_override("font_size", 16)
-	_tower_char_skill_button.add_theme_color_override("font_color", Color(0.6, 0.9, 1.0))
-	_tower_char_skill_button.pressed.connect(func() -> void: character_skill_cast_requested.emit())
-	buttons.add_child(_tower_char_skill_button)
-
 
 func show_tower_panel(tower: Tower, stage_data: StageData) -> void:
 	_panel_tower = tower
 	_panel_stage_data = stage_data
 	_tower_panel.visible = true
 	_refresh_tower_panel()
+	_refresh_bottom_bar_visible()
 
 
 func hide_tower_panel() -> void:
 	_panel_tower = null
 	_panel_stage_data = null
 	_tower_panel.visible = false
+	_refresh_bottom_bar_visible()
 
 
 ## 刷新当前塔面板（Main 在角色技能释放后调用）。
@@ -526,37 +567,13 @@ func _refresh_tower_panel() -> void:
 	_tower_sell_button.disabled = false
 
 	var manual_mode: bool = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
-	# 技能行（阶段 8·提交 6）：职业技能（转职授予） + 角色技能（武将专属）。
-	var skill_parts: Array[String] = []
-	for skill_id in tower.get_granted_skills():
-		skill_parts.append(tower.get_skill_display_name(skill_id))
-	var char_skill_id: StringName = tower.get_character_skill_id()
-	var char_skill_name := ""
-	if not char_skill_id.is_empty():
-		char_skill_name = SkillRegistry.get_character_skill_name(char_skill_id)
-	var skill_text := "职业技能：" + ("、".join(skill_parts) if not skill_parts.is_empty() else "无")
-	if not char_skill_name.is_empty():
-		skill_text += "　角色技：" + char_skill_name
-	_tower_skill_label.text = skill_text
-
-	# 角色技能按钮（A 主动手动释放；B 被动仅说明）
-	var has_char_skill := not char_skill_id.is_empty()
-	_tower_char_skill_button.visible = has_char_skill
-	if has_char_skill:
-		if SkillRegistry.is_character_skill_b_type(tower):
-			_tower_char_skill_button.text = "%s（被动）" % char_skill_name
-			_tower_char_skill_button.disabled = true
-		elif tower.is_character_skill_ready():
-			_tower_char_skill_button.text = "释放 %s！" % char_skill_name
-			_tower_char_skill_button.disabled = not manual_mode
-		else:
-			_tower_char_skill_button.text = "%s · 冷却 %.1fs" % [char_skill_name, tower.get_character_skill_cooldown_left()]
-			_tower_char_skill_button.disabled = true
-
-	# 手动大招按钮（v0.15.0）
-	_tower_ultimate_button.visible = manual_mode
-	if manual_mode:
-		if tower.is_ultimate_ready():
+	# 手动动作槽（v0.37.12 / UI_LAYOUT v0.20.32 §10）：现网 action[0] = 大招（R 恒主位），
+	# 未来「可手动」技能登记后由 Tower.get_manual_actions() 按序追加（Q 预留），此处数据驱动渲染。
+	var actions: Array = tower.get_manual_actions() if manual_mode else []
+	_tower_ultimate_button.visible = not actions.is_empty()
+	if _tower_ultimate_button.visible:
+		var action: Dictionary = actions[0]
+		if action.get("ready", false):
 			_tower_ultimate_button.text = "释放大招！（R）"
 			_tower_ultimate_button.disabled = false
 		else:
@@ -625,8 +642,9 @@ func _create_dialogue_layer() -> void:
 	panel.anchor_bottom = 1.0
 	panel.offset_left = 120.0
 	panel.offset_right = -120.0
-	panel.offset_top = -230.0
-	panel.offset_bottom = -24.0
+	# 0.8.11.1：底部建造卡条常驻 640..720，对话面板上移让位（448..638）。
+	panel.offset_top = -272.0
+	panel.offset_bottom = -82.0
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 24)
@@ -674,6 +692,7 @@ func show_dialogue(lines: Array) -> void:
 	_dialogue_lines = lines
 	_dialogue_index = 0
 	_dialogue_layer.visible = true
+	_refresh_bottom_bar_visible()
 	# 打开瞬间与每次推进后的短防抖：快速连点不会一次跳过多行。
 	_dialogue_advance_after_msec = Time.get_ticks_msec() + 200
 	_show_current_line()
@@ -712,6 +731,7 @@ func _advance_dialogue() -> void:
 func _finish_dialogue() -> void:
 	_dialogue_layer.visible = false
 	dialogue_finished.emit()
+	_refresh_bottom_bar_visible()
 
 
 func skip_dialogue() -> void:
@@ -720,6 +740,29 @@ func skip_dialogue() -> void:
 
 func is_dialogue_active() -> bool:
 	return _dialogue_layer != null and _dialogue_layer.visible
+
+
+## 底部建造卡条显隐（0.8.11.1）：塔详情面板 / 结算展示期间收起让位；
+## 剧情对话面板已上移（448..638）不遮卡条，对话期保持可建造。
+func _refresh_bottom_bar_visible() -> void:
+	if _bottom_bar == null:
+		return
+	var blocked: bool = (_tower_panel != null and _tower_panel.visible) \
+		or (_result_center != null and _result_center.visible)
+	_bottom_bar.visible = not blocked
+
+
+## 建造引导提示（0.8.11.1）：开局一次性淡入停留淡出（卡条已移底部，提示补位）。
+func _show_build_hint_once() -> void:
+	if _build_hint == null:
+		return
+	_build_hint.visible = true
+	_build_hint.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(_build_hint, "modulate:a", 1.0, 0.5)
+	tween.tween_interval(5.0)
+	tween.tween_property(_build_hint, "modulate:a", 0.0, 0.8)
+	tween.tween_callback(func() -> void: _build_hint.visible = false)
 
 
 func _make_panel_style() -> StyleBoxFlat:
@@ -866,6 +909,7 @@ func show_result(data: Dictionary) -> void:
 	_tower_panel.visible = false
 	_result_center.visible = true
 	_result_panel.visible = true
+	_refresh_bottom_bar_visible()
 
 
 ## 转盘结果展示（阶段 8 提交 2）：入账成功后由 Main 调用；单次点击后禁用。
@@ -882,3 +926,4 @@ func show_result_wheel_result(text: String) -> void:
 func hide_result() -> void:
 	_result_center.visible = false
 	_result_panel.visible = false
+	_refresh_bottom_bar_visible()

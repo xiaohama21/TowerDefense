@@ -5,6 +5,9 @@ extends Node
 
 var failures: Array[String] = []
 var _profile_file := ""
+## 设置隔离（B-054 顺带修复）：开场对话用例依赖 skip_dialogue 关闭，但 user://settings.cfg
+## 是全局用户设置（剧情速进可能被玩家开启）——跑前强制关闭、_cleanup 还原，避免用例被用户设置污染。
+var _saved_skip_dialogue: bool = false
 
 
 func _ready() -> void:
@@ -12,6 +15,8 @@ func _ready() -> void:
 	var nonce := "%s_%s" % [str(Time.get_unix_time_from_system()), str(Time.get_ticks_usec())]
 	_profile_file = "user://.flow_runner_%s.json" % nonce
 	ProfileStore.configure_paths(_profile_file)
+	_saved_skip_dialogue = GameFlow.is_gameplay_flag_enabled("skip_dialogue")
+	GameFlow.set_gameplay_flag("skip_dialogue", false)
 	call_deferred("_run")
 
 
@@ -146,8 +151,8 @@ func _test_hub(profile: PlayerProfile) -> void:
 	_check(map_panel.visible and not develop_panel.visible and not settings_panel.visible,
 		"大厅默认应显示地图选择面板")
 	# 布局回归（v0.10.2）：set_anchors_preset 曾导致容器 0×0 钉在原点。
-	var viewport_size := get_viewport().get_visible_rect().size
-	_check(hub.get_node("Columns").size == viewport_size, "大厅布局应铺满视口")
+
+	_check(hub.get_node("HubPanel/Columns").size == hub.get_node("HubPanel").size, "大厅 Columns 应铺满 HubPanel（v0.10.2 回归，GameHub 换肤后加 HubPanel 包裹）")
 
 	var map_buttons := _collect_buttons(map_panel)
 	var disabled_count := 0
@@ -160,15 +165,15 @@ func _test_hub(profile: PlayerProfile) -> void:
 	var has_instant_clear := false
 	var diff_name_count := 0
 	for button in map_buttons:
-		if button.text == "出 征":
+		if button.text == "出征 · 编队":
 			has_deploy = true
-		elif button.text == "一键通关（测试）":
+		elif button.text == "一键通关(测试)":
 			has_instant_clear = true
 		elif button.text == "标准" or button.text == "困难":
 			diff_name_count += 1
-	_check(map_buttons.size() >= 19 and has_deploy and has_instant_clear and diff_name_count == 2,
-		"地图面板应包含章节行 + 8 关卡卡片 + 底部操作条（难度 2 档 + 出征 + 一键通关）")
-	_check(disabled_count >= 12, "预留章节、未解锁关卡与未解锁难度应禁用")
+	_check(map_buttons.size() >= 13 and has_deploy and has_instant_clear and diff_name_count == 2,
+		"地图面板应包含章节行 + 8 关卡卡片 + 底部操作条（难度 2 档 + 出征·编队 + 一键通关）")
+	_check(disabled_count == 6, "未解锁的 s03~s08 六关卡片应禁用")
 	var map_scrolls := map_panel.find_children("*", "ScrollContainer", true, false)
 	_check(map_scrolls.is_empty(), "地图面板应一屏展示无滚动条")
 	var stage_card_count := 0
@@ -176,6 +181,41 @@ func _test_hub(profile: PlayerProfile) -> void:
 		if card.has_meta("stage_id"):
 			stage_card_count += 1
 	_check(stage_card_count == 8, "地图面板应展示第一章 8 关卡片（2×4 网格）")
+
+	# 底部关卡预告条自适应回归（B-054 / 0.8.11.3）：逐关切换，详情条所有内容控件
+	# 不得越出面板（首通奖励/敌人列表长度不同曾把右列撑出面板甚至视口，s03/s06~s08）。
+	var detail_panel: Control = map_panel.get("_detail_panel")
+	var vp_rect := map_panel.get_viewport().get_visible_rect()
+	# 扫描会逐关切换选中态，结束后还原（后续步骤依赖 s01 默认选中 / 难度状态）。
+	var saved_scan_stage: StageData = map_panel.get("_selected_stage")
+	var saved_scan_diff: int = map_panel.get("_selected_difficulty")
+	for hub_stage_id in [&"ch01_s01", &"ch01_s02", &"ch01_s03", &"ch01_s04",
+			&"ch01_s05", &"ch01_s06", &"ch01_s07", &"ch01_s08"]:
+		var hub_stage: StageData = GameFlow.load_stage_data(hub_stage_id)
+		if hub_stage == null:
+			continue
+		map_panel._select_stage(hub_stage)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var det_rect: Rect2 = detail_panel.get_global_rect()
+		var inside := vp_rect.encloses(det_rect)
+		var worst := ""
+		for probe_child in detail_panel.find_children("*", "", true, false):
+			var probe_ctl := probe_child as Control
+			if probe_ctl == null or not probe_ctl.is_visible_in_tree():
+				continue
+			var probe_rect: Rect2 = probe_ctl.get_global_rect()
+			if probe_rect.size.x <= 0.0 or probe_rect.size.y <= 0.0:
+				continue
+			if not det_rect.encloses(probe_rect):
+				inside = false
+				worst = "%s rect=%s" % [probe_ctl.get_class(), str(probe_rect)]
+				break
+		_check(inside, "%s 关卡预告条内容不得越出详情面板/视口（B-054）%s" % [str(hub_stage_id), worst])
+	if saved_scan_stage != null:
+		map_panel._select_stage(saved_scan_stage)
+		map_panel.set("_selected_difficulty", saved_scan_diff)
+		await get_tree().process_frame
 
 	# 切换到武将养成面板
 	_show_hub_panel(hub, &"develop")
@@ -193,11 +233,28 @@ func _test_hub(profile: PlayerProfile) -> void:
 			locked_count += 1
 	print("PROBE develop_buttons=", develop_buttons.size(), " locked_disabled=", locked_count)
 	_check(locked_count >= 7, "图鉴应显示 7 名未拥有武将（置灰）")
-	# 转职分支候选（v0.17.0）：未转职时展示一转候选按钮，等级/材料不足应禁用。
-	var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
-	var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
-	_check(promote_button != null and promote_button is Button and promote_button.disabled,
-		"等级/材料不足时转职按钮应禁用")
+	# 转职候选（v0.35.3+ 收纳）：收敛至职业页签「转职详情 ▸」叠层——切职业页 →
+	# 打开叠层后应展示一转候选按钮，新档 Lv1 未达门槛应禁用。
+	var develop_tabs = develop_panel.get("_tab_container")
+	_check(develop_tabs != null, "养成面板应含页签容器")
+	if develop_tabs != null:
+		develop_tabs.current_tab = 1  # 页签序：技能 / 职业 / 信物 / 特性
+		await get_tree().process_frame
+	var detail_button: Button = null
+	for button in _collect_buttons(develop_panel):
+		if button.text.begins_with("转职详情"):
+			detail_button = button
+			break
+	_check(detail_button != null, "职业页签应含「转职详情 ▸」入口")
+	if detail_button != null:
+		detail_button.pressed.emit()
+		await get_tree().process_frame
+		var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
+		var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
+		_check(promote_button != null and promote_button is Button and promote_button.disabled,
+			"等级/材料不足时转职按钮应禁用")
+		develop_panel._close_promotion_overlay()
+		await get_tree().process_frame
 
 	# 切换到设置面板
 	_show_hub_panel(hub, &"settings")
@@ -229,6 +286,30 @@ func _test_hub(profile: PlayerProfile) -> void:
 	var inventory_panel := hub.get_node("HubPanel/Columns/Content/InventoryPanel")
 	_show_hub_panel(hub, &"inventory")
 	_check(inventory_panel.visible and not settings_panel.visible, "点击背包应切换内容区")
+	# 背包版式 v0.37.11（对照概念图 ui_inventory）：顶栏无资源胶囊、类目收敛、
+	# 网格入滚动容器（超高滚动兜底）；空类目出空态提示不崩溃。
+	var inventory_topbar := inventory_panel.get_child(0) as HBoxContainer
+	_check(inventory_topbar != null, "背包顶栏应存在")
+	if inventory_topbar != null:
+		var top_texts: Array[String] = []
+		for child in inventory_topbar.get_children():
+			if child is Label:
+				top_texts.append((child as Label).text)
+		_check(not top_texts.any(func(t: String) -> bool:
+			return t.begins_with("黄巾布") or t.begins_with("练兵令")),
+			"背包顶栏应无资源胶囊（黄巾布/练兵令）")
+	var inventory_filter_row := inventory_panel.get_child(1) as HBoxContainer
+	var filter_texts: Array[String] = []
+	if inventory_filter_row != null:
+		for child in inventory_filter_row.get_children():
+			if child is Button:
+				filter_texts.append((child as Button).text)
+	_check(filter_texts == ["全部", "材料", "消耗品", "遗物"],
+		"背包类目 chips 应收敛为 全部/材料/消耗品/遗物，实际 %s" % [filter_texts])
+	var inventory_scroll := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
+	_check(inventory_scroll != null, "背包网格应包在 GridScroll 滚动容器内")
+	if inventory_scroll != null and inventory_scroll.get_child_count() > 0:
+		_check(inventory_scroll.get_child(0) is GridContainer, "GridScroll 内应含道具网格")
 	var grant_button: Button = null
 	for button in _collect_buttons(inventory_panel):
 		if button.text == "获得练兵令 ×10":
@@ -239,13 +320,43 @@ func _test_hub(profile: PlayerProfile) -> void:
 		grant_button.pressed.emit()
 		await get_tree().process_frame
 		_check(int(profile.items.get("exp_scroll", 0)) == 10, "测试发放应写入 10 枚练兵令")
+	# 空类目（遗物未发放前为空）：网格空态 + 底部说明条提示；切回全部恢复卡片。
+	inventory_panel._on_category_pressed(int(inventory_panel.FILTER_TYPES[2]))
+	await get_tree().process_frame
+	var empty_cards := 0
+	var empty_grid := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
+	if empty_grid != null and empty_grid.get_child_count() > 0:
+		var grid_node := empty_grid.get_child(0) as GridContainer
+		if grid_node != null:
+			for card in grid_node.get_children():
+				if card is Button:
+					empty_cards += 1
+	_check(empty_cards == 0, "空类目网格不应渲染道具卡")
+	var inventory_detail_box := inventory_panel.get("_detail_box") as VBoxContainer
+	if inventory_detail_box != null:
+		var empty_hint := false
+		for child in inventory_detail_box.get_children():
+			if child is Label and "暂无道具" in (child as Label).text:
+				empty_hint = true
+		_check(empty_hint, "空类目应在底部说明条提示暂无道具")
+	inventory_panel._on_category_pressed(-1)
+	await get_tree().process_frame
+	var restored_cards := 0
+	var restored_grid := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
+	if restored_grid != null and restored_grid.get_child_count() > 0:
+		var grid_node2 := restored_grid.get_child(0) as GridContainer
+		if grid_node2 != null:
+			for card in grid_node2.get_children():
+				if card is Button:
+					restored_cards += 1
+	_check(restored_cards >= 1, "切回全部后应恢复道具卡渲染")
 
 	# 难度选择（v0.16.0 修复）：面板难度更新 _selected_difficulty，并随一键通关按所选难度写档。
 	_show_hub_panel(hub, &"map")
 	# 界面排版重构（v0.27.0）：默认选中首个已解锁关卡（s01），一键通关在底部操作条。
 	var clear_button: Button = null
 	for button in _collect_buttons(map_panel):
-		if button.text == "一键通关（测试）":
+		if button.text == "一键通关(测试)":
 			clear_button = button
 			break
 	_check(clear_button != null, "地图面板底部操作条应有一键通关按钮")
@@ -275,7 +386,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		"难度切换应只有标准/困难两档（随 difficulty_presets 扩展）")
 	var deploy_button: Button = null
 	for button in _collect_buttons(map_panel):
-		if button.text == "出 征":
+		if button.text == "出征 · 编队":
 			deploy_button = button
 			break
 	_check(map_panel.get("_deploy_confirm") == null, "地图面板不应再挂载出征确认框（v0.33.1 直达编队）")
@@ -445,6 +556,16 @@ func _collect_labels(node: Node, result: Array[Label]) -> void:
 		_collect_labels(child, result)
 
 
+func _find_node_named(node: Node, node_name: String) -> Node:
+	if node.name == node_name:
+		return node
+	for child in node.get_children():
+		var found := _find_node_named(child, node_name)
+		if found != null:
+			return found
+	return null
+
+
 
 func _test_squad_select_screen() -> void:
 	# 编队以"新档"为前置（v0.15.1：前置背包/一键通关测试会改动共享档，此处重建新档，
@@ -479,7 +600,9 @@ func _test_squad_select_screen() -> void:
 	_check(start_button != null and not start_button.disabled, "已选武将后「确认出战」应可用")
 	_check(toggles.all(func(button: Button) -> bool: return button.custom_minimum_size.x >= 232.0),
 		"武将卡片宽 232px（B-020 防选中态标签裁剪）")
-	_check(toggles.any(func(button: Button) -> bool: return button.text.contains("2/3")),
+	var squad_labels: Array[Label] = []
+	_collect_labels(scene, squad_labels)
+	_check(squad_labels.any(func(label: Label) -> bool: return label.text.contains("2/3")),
 		"选中刘/关后卡片羁绊标签应实时刷新为 2/3（B-020）")
 
 	# 编队记忆（v0.33.1）：发放遗物并把上次出战配置写入档案，重建界面应自动预填。
@@ -506,13 +629,17 @@ func _test_squad_select_screen() -> void:
 	_check(start_button2 != null and not start_button2.disabled, "预填编队后「确认出战」应可用")
 	start_button2.pressed.emit()
 	await get_tree().process_frame
-	var confirm_dialog: ConfirmationDialog = scene2.get("_confirm_dialog")
-	_check(confirm_dialog != null and confirm_dialog.visible, "点击「确认出战」应弹出二次确认弹窗")
-	_check(confirm_dialog.dialog_text.contains("刘备") and confirm_dialog.dialog_text.contains("关羽"),
+	var confirm_popup := scene2.get("_confirm_popup") as Control
+	_check(confirm_popup != null and confirm_popup.visible, "点击「确认出战」应弹出二次确认弹窗")
+	var popup_labels: Array[Label] = []
+	if confirm_popup != null:
+		_collect_labels(confirm_popup, popup_labels)
+	_check(popup_labels.any(func(label: Label) -> bool: return label.text.contains("刘备"))
+		and popup_labels.any(func(label: Label) -> bool: return label.text.contains("关羽")),
 		"确认弹窗应展示出战武将名单")
-	_check(confirm_dialog.dialog_text.contains("狼牙符") and confirm_dialog.dialog_text.contains("永久使用"),
+	_check(popup_labels.any(func(label: Label) -> bool: return label.text.contains("狼牙符"))
+		and popup_labels.any(func(label: Label) -> bool: return label.text.contains("永久使用")),
 		"确认弹窗应展示遗物清单与永久使用说明")
-	confirm_dialog.hide()
 	scene2.queue_free()
 	await get_tree().process_frame
 
@@ -529,7 +656,7 @@ func _test_battle_entry() -> void:
 	_check(stage_label.text == "长社火攻", "战斗界面应展示 GameFlow 选中的关卡")
 	_check(main.get_node_or_null("UI/Root/TopBar/Margin/Content/ExitButton") != null,
 		"战斗顶栏应有退出按钮")
-	var character_bar := main.get_node("UI/Root/CharacterBar") as HBoxContainer
+	var character_bar := main.get_node("UI/Root/BottomBar/CharacterBar") as HBoxContainer
 	_check(character_bar.get_child_count() == 1, "编队过滤后建造栏应只含出战武将")
 	# 布局回归（v0.10.2）：结算弹窗承载容器必须铺满屏幕，居中才成立。
 	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer
@@ -577,15 +704,14 @@ func _test_battle_entry() -> void:
 	var exit_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/ExitButton") as Button
 	exit_button_flow.pressed.emit()
 	await get_tree().process_frame
-	var exit_dialog: ConfirmationDialog = null
-	for child in get_tree().root.get_children():
-		if child is ConfirmationDialog:
-			exit_dialog = child
-			break
-	_check(exit_dialog != null, "战斗退出应弹出确认对话框")
+	var exit_dialog := get_tree().root.get_node_or_null("%s/%s" % [
+		BattleConfirmDialog.LAYER_NAME, BattleConfirmDialog.DIALOG_NAME]) as Control
+	_check(exit_dialog != null, "战斗退出应弹出二次确认弹窗")
 	if exit_dialog != null:
-		_check(exit_dialog.ok_button_text == "放弃并退出", "退出确认框应提示放弃本局收益")
-		exit_dialog.queue_free()
+		var exit_confirm := _find_node_named(exit_dialog, "ConfirmButton") as Button
+		_check(exit_confirm != null and exit_confirm.text == "放弃并退出",
+			"退出确认框应提示放弃本局收益")
+		exit_dialog.close()
 		await get_tree().process_frame
 
 	# 自动开启下一波（v0.15.3）：开启后波次结束自动开下一波，关闭时保持手动等待。
@@ -606,6 +732,7 @@ func _test_battle_entry() -> void:
 
 
 func _cleanup() -> void:
+	GameFlow.set_gameplay_flag("skip_dialogue", _saved_skip_dialogue)
 	for suffix in ["", ".bak", ".tmp"]:
 		var path: String = _profile_file + suffix
 		if FileAccess.file_exists(path):
@@ -622,4 +749,3 @@ func _finish() -> void:
 		for failure in failures:
 			print(" - %s" % failure)
 		get_tree().quit(1)
-

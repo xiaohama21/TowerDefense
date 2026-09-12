@@ -15,3 +15,25 @@ Thumbs.db
 # inside .godot/ and must stay out of version control.
 # Release build artifacts
 build/
+
+# Spine 试点素材与运行时（本地开发用不入库；见 docs/modules/ART_ASSETS.md §5）
+assets/characters/
+assets/spine_test/
+bin/
+# Spine 本地一次性探针（不入库；固化管线工具 = tools/spine_upgrade_38_to_43.py / tools/check_all_anims.gd）
+tools/check_guan_yu_tres.gd
+tools/check_guan_yu_tres.gd.uid
+tools/list_spine_api.gd
+tools/list_spine_api.gd.uid
+tools/prep_spineboy.ps1
+tools/probe_spine.gd.uid
+tools/probe_variant.gd
+tools/probe_variant.gd.uid
+tools/spine_headless.gd
+tools/spine_headless.gd.uid
+tools/spine_preview.gd
+tools/spine_preview.gd.uid
+tools/spine_preview.tscn
+tools/spine_preview_spineboy.gd
+tools/spine_preview_spineboy.gd.uid
+tools/spine_preview_spineboy.tscn

@@ -1,9 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://biukxvhgxh4y1"]
+[gd_scene load_steps=4 format=3 uid="uid://biukxvhgxh4y1"]
 
 [ext_resource type="Script" uid="uid://dc14iks0mccy5" path="res://scripts/Tower.gd" id="1_7itwv"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_selection"]
 radius = 32.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_quick_cast"]
+radius = 13.0
 
 [node name="Tower" type="Node2D" unique_id=1356743967]
 script = ExtResource("1_7itwv")
@@ -41,6 +44,17 @@ input_pickable = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SelectionArea"]
 shape = SubResource("CircleShape2D_selection")
+
+[node name="QuickCastArea" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+monitorable = false
+input_pickable = true
+position = Vector2(0, -62)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="QuickCastArea"]
+shape = SubResource("CircleShape2D_quick_cast")
 
 [node name="AttackTimer" type="Timer" parent="."]
 wait_time = 0.8

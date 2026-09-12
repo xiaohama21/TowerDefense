@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>ui_battle_hud</title>
 <style>
-/* ===== 局内顶栏概念稿（草稿 v0.3）：Kenney 亮蓝 + 快乐体，深海军蓝战场顶栏 ===== */
+/* ===== 局内 HUD 概念稿（草稿 v0.4，v0.37.8 版式同步重渲（0.8.11.1 起运行版式））：Kenney 亮蓝 + 快乐体；贴顶顶栏 0..80 + 底部卡条 640..720 ===== */
 @font-face { font-family:"ZCOOL-Kuaile"; src:url("fonts/ZCOOL-Kuaile.ttf") format("truetype"); }
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { width:1280px; height:720px; overflow:hidden; }
@@ -61,24 +61,24 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   background:radial-gradient(circle at 36% 30%, #ffe08a, #e7b84f 70%);
   border:2px solid #9c6f2b; box-shadow:0 2px 4px rgba(0,0,0,.35); }
 
-/* ---------- 顶栏 ---------- */
-.bar { position:absolute; left:16px; top:14px; width:1248px; height:80px;
-  display:flex; align-items:center; gap:8px; padding:0 12px;
-  background:linear-gradient(180deg, rgba(24,34,54,.97), rgba(13,18,31,.97));
-  border:2px solid #406ead; border-radius:14px;
-  box-shadow:0 8px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.10); }
-.stage { font-size:16px; color:#c9e9d2; letter-spacing:0; white-space:nowrap; }
-.rule { width:1px; height:36px; background:rgba(255,255,255,.16); }
-.pill { display:flex; align-items:center; gap:9px; height:52px; padding:0 9px 0 6px;
-  background:#fff; border:2px solid #7fb2d9; border-radius:14px;
-  box-shadow:0 2px 6px rgba(0,0,0,.3); }
-.well { width:38px; height:38px; flex:none; border-radius:10px; overflow:hidden;
+/* ---------- 顶栏（0.8.11.1 起贴顶全宽 0..80，圆角去 0；v0.37.32 亮色化：亮蓝白 + 3px 蓝线） ---------- */
+.bar { position:absolute; left:0; top:0; width:1280px; height:80px;
+  display:flex; align-items:center; gap:10px; padding:0 18px;
+  background:linear-gradient(180deg, #f6fbff, #e8f4fd);
+  border-bottom:3px solid #7ec8ea;
+  box-shadow:0 3px 8px rgba(3,26,46,.18); }
+.stage { font-size:16px; color:#1b4d78; letter-spacing:0; white-space:nowrap; flex:none; }
+.rule { width:1px; height:34px; background:rgba(28,120,180,.18); flex:none; }
+.pill { display:flex; align-items:center; gap:8px; height:46px; padding:0 8px 0 5px;
+  background:#fff; border:2px solid #7fb2d9; border-radius:13px;
+  box-shadow:0 2px 6px rgba(0,0,0,.3); flex:none; }
+.well { width:32px; height:32px; flex:none; border-radius:9px; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
   background:linear-gradient(180deg,#ffffff,#f0f6fb); border:1px solid #d7e6f2; }
 .well img { width:100%; height:100%; object-fit:contain; }
 .well.ghost { border:2px dashed #9cbed9; background:rgba(232,242,250,.55); }
-.well.ghost svg { width:22px; height:22px; }
-.pill .v { font-size:24px; letter-spacing:.5px; white-space:nowrap; }
+.well.ghost svg { width:19px; height:19px; }
+.pill .v { font-size:22px; letter-spacing:.5px; white-space:nowrap; }
 .v-gold { color:#b07a00; }
 .v-hp   { color:#0e9f58; }
 .v-wave { color:#14538a; }
@@ -86,61 +86,61 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 .bken { border:0; font-family:"ZCOOL-Kuaile",sans-serif; cursor:default;
   border-image-slice:24 fill; border-image-width:24px; border-image-repeat:round;
   display:flex; align-items:center; justify-content:center; white-space:nowrap; }
-.b-start { height:48px; width:178px; font-size:20px; letter-spacing:2px; color:#22384a;
+.b-start { height:46px; width:168px; font-size:19px; letter-spacing:2px; color:#22384a;
   border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); }
-.b-supply { height:48px; width:126px; font-size:19px; letter-spacing:1px; color:#fff; gap:8px;
+.b-supply { height:46px; width:116px; font-size:18px; letter-spacing:1px; color:#fff; gap:8px;
   border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); }
-.supply-ico { width:26px; height:26px; flex:none; border-radius:50%;
+.supply-ico { width:24px; height:24px; flex:none; border-radius:50%;
   border:2px dashed rgba(255,255,255,.9); display:flex; align-items:center; justify-content:center; }
-.supply-ico svg { width:15px; height:15px; opacity:.95; }
-.b-ghost { height:42px; width:74px; font-size:16px; letter-spacing:1px; color:#33566f;
+.supply-ico svg { width:14px; height:14px; opacity:.95; }
+.b-ghost { height:40px; width:72px; font-size:15px; letter-spacing:1px; color:#33566f;
   border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); }
-.b-exit { height:42px; width:84px; font-size:16px; letter-spacing:1px; color:#fff;
+.b-exit { height:40px; width:84px; font-size:15px; letter-spacing:1px; color:#fff;
   border-image-source:url("kenney_ui_pack/PNG/Red/Double/button_rectangle_depth_flat.png"); }
-.legend { position:absolute; left:24px; top:106px; display:flex; flex-direction:column; gap:7px;
-  font-size:13px; color:#cfe3f2; background:rgba(10,16,26,.58); border:1px dashed rgba(180,210,235,.6);
-  border-radius:10px; padding:8px 12px; letter-spacing:1px; }
-.lrow { display:flex; align-items:center; gap:9px; }
-.mpill { display:flex; align-items:center; gap:6px; background:#fff; border:1.5px solid #8fc2e2;
-  border-radius:9px; padding:2px 9px 2px 3px; height:27px; }
-.mpill img { width:19px; height:19px; object-fit:contain; }
-.mpill .v { font-size:14px; }
-.mcap { color:#bcd8ea; white-space:nowrap; }
 
-/* ---------- 底部人物详情（虚线半透明草图） ---------- */
-.dpanel { position:absolute; left:420px; bottom:14px; width:460px; padding:10px 12px 11px;
-  background:rgba(12,18,30,.62); border:2px dashed rgba(160,205,240,.8); border-radius:16px;
-  display:flex; flex-direction:column; gap:8px;
-  box-shadow:0 8px 22px rgba(0,0,0,.35); }
-.dp-head { display:flex; align-items:center; gap:10px; }
-.dp-ava { width:42px; height:42px; flex:none; border-radius:50%;
-  background:radial-gradient(circle at 32% 28%, #ff9d7d, #e85b43 78%);
-  border:2px solid rgba(255,255,255,.85); color:#fff; font-size:20px;
+/* ---------- 底部建造卡条（0.8.11.1 移底部常驻 640..720；v0.37.32 亮色化） ---------- */
+.cards { position:absolute; left:0; right:0; top:640px; height:80px;
+  display:flex; align-items:center; justify-content:center; gap:12px; padding:0 18px;
+  background:linear-gradient(180deg, #eef8fe, #e2f1fb); border-top:3px solid #7ec8ea;
+  box-shadow:0 -3px 8px rgba(3,26,46,.18); }
+.ccard { width:124px; height:68px; flex:none; display:flex; align-items:center; gap:8px;
+  background:#f7fbfe; border:2px solid #9fd0ea; border-radius:8px;
+  padding:0 8px; box-shadow:0 2px 6px rgba(3,26,46,.18); }
+.cava { width:48px; height:48px; flex:none; border-radius:50%; color:#fff; font-size:22px;
   display:flex; align-items:center; justify-content:center;
   text-shadow:0 1px 2px rgba(90,20,10,.5); }
-.dp-who { display:flex; flex-direction:column; gap:2px; min-width:0; }
-.dp-name { font-size:18px; color:#fff; letter-spacing:1px; white-space:nowrap; }
-.dp-sub { font-size:11px; color:#9fc0d8; letter-spacing:1px; white-space:nowrap; }
-.dp-tag { margin-left:auto; flex:none; font-size:12px; color:#4a3700; background:#ffd34d;
-  border-radius:9px; padding:2px 10px; letter-spacing:1px; white-space:nowrap; }
-.dp-stats { display:flex; gap:8px; }
-.dp-stat { flex:1; background:rgba(255,255,255,.055); border:1px dashed rgba(190,225,250,.4);
-  border-radius:10px; padding:4px 6px 5px; text-align:center; }
-.dp-stat .k { font-size:11px; color:#9fc0d8; letter-spacing:1px; }
-.dp-stat .b { font-size:16px; color:#7ec8ea; letter-spacing:.5px; }
-.dp-btns { display:flex; gap:8px; }
-.b-act { height:36px; flex:1; min-width:0; }
+.cava.guan_yu { background:radial-gradient(circle at 32% 28%, #ff9d7d, #e85b43 78%); }
+.cava.zhang_fei { background:radial-gradient(circle at 32% 28%, #8fd0ff, #2f7fc9 78%); }
+.cava.liu_bei { background:radial-gradient(circle at 32% 28%, #ffe08a, #d9a53a 78%); }
+.cinfo { display:flex; flex-direction:column; justify-content:center; gap:1px; min-width:0; }
+.cname { font-size:15px; color:#1b4d78; white-space:nowrap; }
+.clv { font-size:11px; color:#2eaadc; letter-spacing:.5px; white-space:nowrap; }
+.ccost { font-size:11px; color:#b8860b; letter-spacing:.5px; white-space:nowrap; }
 
-/* ---------- 选中塔 ---------- */
-.tsel { position:absolute; width:50px; height:52px; }
-.tsel .ring { position:absolute; left:-27px; top:-24px; width:90px; height:90px;
-  border:2px solid rgba(255,206,92,.95); border-radius:50%;
-  box-shadow:0 0 0 5px rgba(255,206,92,.14); }
-.tsel .body { position:absolute; left:6px; top:7px; width:38px; height:38px; border-radius:50%;
-  background:radial-gradient(circle at 32% 28%, #ff9d7d, #e85b43 78%);
+/* ---------- 图例（HP 两态 / 占位说明 / 0.8.11.1 版式说明） ---------- */
+.legend { position:absolute; left:20px; top:92px; display:flex; flex-direction:column; gap:7px;
+  font-size:12px; color:#cfe3f2; background:rgba(10,16,26,.6); border:1px dashed rgba(180,210,235,.6);
+  border-radius:10px; padding:8px 12px; letter-spacing:1px; max-width:356px; }
+.lrow { display:flex; align-items:center; gap:9px; white-space:nowrap; }
+.mpill { display:flex; align-items:center; gap:6px; background:#fff; border:1.5px solid #8fc2e2;
+  border-radius:9px; padding:2px 9px 2px 3px; height:26px; }
+.mpill img { width:18px; height:18px; object-fit:contain; }
+.mpill .v { font-size:13px; }
+.mcap { color:#bcd8ea; white-space:nowrap; }
+.lnote { color:#9fc0d8; line-height:1.7; letter-spacing:.5px; }
+.lnote b { color:#ffe9b0; font-weight:normal; }
+
+/* ---------- 已建塔（张飞 · 阶 2，脚下怒气胶囊收格示意） ---------- */
+.tsel { position:absolute; width:50px; height:74px; }
+.tsel .body { position:absolute; left:6px; top:4px; width:38px; height:38px; border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #8fd0ff, #2f7fc9 78%);
   border:2px solid rgba(255,255,255,.9); color:#fff; font-size:19px;
-  display:flex; align-items:center; justify-content:center; text-shadow:0 1px 2px rgba(90,20,10,.5); }
-.tsel .tname { position:absolute; left:2px; top:44px; width:56px; text-align:center;
+  display:flex; align-items:center; justify-content:center; text-shadow:0 1px 2px rgba(20,60,100,.6); }
+.tsel .rage { position:absolute; left:6px; top:46px; width:38px; height:10px; border-radius:5px;
+  background:rgba(8,14,24,.9); border:1px solid rgba(140,185,225,.55); overflow:hidden; }
+.tsel .rage i { position:absolute; left:1px; top:1px; bottom:1px; width:17px;
+  background:linear-gradient(180deg,#a7c2d8,#6f8ea8); border-radius:4px; }
+.tsel .tname { position:absolute; left:-6px; top:60px; width:62px; text-align:center;
   font-size:12px; color:#ffe9b0; letter-spacing:1px; white-space:nowrap;
   text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.8); }
 </style>
@@ -174,13 +174,14 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   <div class="mtn2" style="left:1056px; top:578px"><div class="a"></div><div class="b"></div></div>
   <div class="mtn" style="left:1136px; top:566px; opacity:.92"><div class="a"></div><div class="b"></div></div>
   <!-- 选中塔（张飞 · 阶 2） -->
-  <div class="tsel" style="left:735px; top:406px">
-    <div class="ring"></div>
+    <!-- 已建塔（张飞 · 阶 2）：脚下怒气胶囊 38×10 收格内，空槽弱显 + 积怒灰蓝填充 -->
+  <div class="tsel" style="left:735px; top:404px">
     <div class="body">张</div>
+    <div class="rage"><i></i></div>
     <div class="tname">张飞 · 阶 2</div>
   </div>
   <div class="gridline"></div>
-</div><!-- ===== 局内顶栏 ===== -->
+</div><!-- ===== 局内顶栏（贴顶全宽 0..80） ===== -->
 <div class="bar">
   <div class="stage">桃园起兵 · 涿郡</div>
   <div class="rule"></div>
@@ -212,24 +213,31 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   <div class="bken b-exit">退出</div>
 </div>
 
-<!-- ===== 底部人物详情（虚线半透明草图） ===== -->
-<div class="dpanel">
-  <div class="dp-head">
-    <div class="dp-ava">张</div>
-    <div class="dp-who">
-      <div class="dp-name">张飞 · 虎贲</div>
-      <div class="dp-sub">职业技能：军旗　·　角色技：当阳桥</div>
+<!-- ===== 底部建造卡条（640..720 常驻；选中塔 / 结算时收起） ===== -->
+<div class="cards">
+  <div class="ccard">
+    <div class="cava guan_yu">关</div>
+    <div class="cinfo">
+      <div class="cname">关羽</div>
+      <div class="clv">Lv.1</div>
+      <div class="ccost">70 金</div>
     </div>
-    <div class="dp-tag">局内阶数 2 / 3</div>
   </div>
-  <div class="dp-stats">
-    <div class="dp-stat"><span class="k">伤害</span><br><span class="b">45</span></div>
-    <div class="dp-stat"><span class="k">攻速（次/秒）</span><br><span class="b">1.20</span></div>
-    <div class="dp-stat"><span class="k">射程</span><br><span class="b">140</span></div>
+  <div class="ccard">
+    <div class="cava zhang_fei">张</div>
+    <div class="cinfo">
+      <div class="cname">张飞</div>
+      <div class="clv">Lv.1</div>
+      <div class="ccost">60 金</div>
+    </div>
   </div>
-  <div class="dp-btns">
-    <div class="bken b-act" style="border-image-source:url('kenney_ui_pack/PNG/Yellow/Double/button_rectangle_depth_flat.png'); color:#4a3700; font-size:14px; letter-spacing:0;">升阶（36 金币）</div>
-    <div class="bken b-act" style="border-image-source:url('kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png'); color:#33566f; font-size:14px; letter-spacing:0;">回收（返还 120）</div>
+  <div class="ccard">
+    <div class="cava liu_bei">刘</div>
+    <div class="cinfo">
+      <div class="cname">刘备</div>
+      <div class="clv">Lv.1</div>
+      <div class="ccost">55 金</div>
+    </div>
   </div>
 </div>
 
@@ -241,13 +249,18 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
     <span class="mcap">危急（≤30%）红闪</span>
   </div>
   <div class="lrow">虚线圆 = 波次 / 军需图标占位（待美术补充）</div>
+  <div class="lnote">版式（0.8.11.1）：顶栏贴顶 0..80、建造卡条底部常驻 640..720，战场 row1..7 全可建；拖出卡条武将卡至空地建造。</div>
+  <div class="lnote">点击已建塔 → 卡条收起，<b>详情面板自底中部上展开</b>（虚线半透明 460 宽：头像 · 局内阶数徽标 / 伤害·攻速·射程 / 升阶·回收，无技能区）。</div>
+  <div class="lnote">怒气胶囊收格：空槽常驻弱显 → 积怒灰蓝填充 → <b>满怒金色放大呼吸</b>。</div>
 </div>
 
 <script>
 window.addEventListener('load',function(){
   var bad=[];
-  document.querySelectorAll('.bar *,.bar').forEach(function(el){
-    if(el.scrollWidth>el.clientWidth+1){ bad.push((el.className.baseVal!==undefined?el.className.baseVal:el.className)+'@'+el.scrollWidth+'/'+el.clientWidth); }
+  ['.bar','.cards'].forEach(function(sel){
+    document.querySelectorAll(sel+' *,'+sel).forEach(function(el){
+      if(el.scrollWidth>el.clientWidth+1){ bad.push((el.className.baseVal!==undefined?el.className.baseVal:el.className)+'@'+el.scrollWidth+'/'+el.clientWidth); }
+    });
   });
   document.title = bad.length? 'OVERFLOW '+bad.slice(0,10).join(','): 'OK';
 });

@@ -1,21 +1,36 @@
 extends VBoxContainer
 
-## 背包面板（GDD v0.15.1 / UI_LAYOUT §9，Kenney 换肤 v0.19.0 按概念图 ui_inventory.png）：
-## 顶栏资源胶囊（黄巾布/练兵令）+ 类目筛选 chips + 道具卡片网格（图标块 + 名称 +
-## 类型徽标 + 描述 + ×数量，点选金框）+ 底部说明条（选中物品完整描述）；
-## 附测试发放"练兵令 ×10"（仅测试辅助，不影响正式数值与结算）。
-
+## 背包面板（GDD v0.15.1 / UI_LAYOUT §9，Kenney 换肤 v0.19.0 按概念图 ui_inventory.png；
+## v0.37.11 顶栏资源胶囊移除 + 类目收敛 + 类型配色/方块图标 + 类型分组排序 + 滚动兜底）：
+## 标题 + 持有种类计数 + 类目筛选 chips + 道具卡片网格（类型色方块图标 + 名称 + 类型徽标 +
+## 描述 + ×数量金色，点选金框）+ 底部说明条（选中物品完整描述 + 持有计数）；
+## 附测试发放"练兵令 ×10"与"测试遗物 ×1（各）"（仅测试辅助，不影响正式数值与结算）。
 signal back_requested
 
 const EXP_SCROLL_ID := "exp_scroll"
 ## 测试发放的局内遗物（v0.19.0，CHARACTERS.md 4.8）：全部 5 件各 1。
 const TEST_RELIC_IDS: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 
-const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品"]
-## 图标块底色按类型轮换（概念图 .ava 彩色方块）。
-const TYPE_COLORS := ["gold", "blue", "green", "purple", "orange"]
-## 顶部资源胶囊展示的资源道具（求贤令随 v0.30.0 库存隐藏不展示）。
-const RESOURCE_CHIP_IDS := ["yellow_cloth", "exp_scroll"]
+## 类目顺序与 ItemData.ItemType 枚举一致（追加在末尾，勿改中间顺序）。
+const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品", "遗物"]
+## 筛选 chips 展示的类型（v0.37.11 收敛；货币/抽奖券/碎片随系统下线不生成——
+## 金币不入库存、求贤令 v0.30.0 库存隐藏、升星碎片 v0.30.0 移除，只保留有内容的类目）。
+const FILTER_TYPES: Array[int] = [
+	ItemData.ItemType.PROMOTION_MATERIAL,
+	ItemData.ItemType.CONSUMABLE,
+	ItemData.ItemType.RELIC,
+]
+## 方块图标渐变 key（概念图 .tile.*，索引 = ItemData.ItemType；avatar_gradient_colors 取色）。
+const TYPE_TILE_KEYS := ["gold", "teal", "blue", "green", "orange", "purple"]
+## 类型徽标配色（概念图 .ty.*：材料=蓝 / 道具(消耗品)=橙 / 遗物=紫 / 信物=金；索引 = ItemType）。
+const TYPE_TAG_FG := [
+	Color("#8a6d00"), Color("#14538a"), Color("#14538a"),
+	Color("#7d8fa0"), Color("#8a5a00"), Color("#5a3d9e"),
+]
+const TYPE_TAG_BG := [
+	Color("#fff3c4"), Color("#e1f1fb"), Color("#e1f1fb"),
+	Color("#d9e4ec"), Color("#fff0d2"), Color("#efe7fb"),
+]
 
 var _category: int = -1  # -1 = 全部
 var _selected_id := ""
@@ -46,16 +61,6 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 27)
 	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	topbar.add_child(title)
-	for resource_id in RESOURCE_CHIP_IDS:
-		var item := GameFlow.load_item_data(resource_id)
-		if item == null:
-			continue
-		var chip := Label.new()
-		chip.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OPEN_BG, 11, 4))
-		chip.add_theme_font_size_override("font_size", 14)
-		chip.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
-		chip.text = "%s ×%d" % [item.display_name, int(ProfileStore.get_profile().items.get(resource_id, 0))]
-		topbar.add_child(chip)
 	var top_spacer := Control.new()
 	top_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	topbar.add_child(top_spacer)
@@ -71,7 +76,8 @@ func _build_ui() -> void:
 	filter_row.add_theme_constant_override("separation", 8)
 	add_child(filter_row)
 	var group := ButtonGroup.new()
-	var categories := [-1] + range(ITEM_TYPE_NAMES.size())
+	var categories: Array = [-1]
+	categories.append_array(FILTER_TYPES)
 	for category_index in categories:
 		var button := Button.new()
 		button.text = "全部" if category_index < 0 else ITEM_TYPE_NAMES[category_index]
@@ -123,18 +129,37 @@ func _build_ui() -> void:
 	relic_grant_button.pressed.connect(_on_grant_test_relics)
 	grant_row.add_child(relic_grant_button)
 
-	# 道具卡片网格（概念图 .itemgrid：4 列白卡）
+	# 道具卡片网格（概念图 .itemgrid：4 列白卡；超高滚动兜底，滚动条按 v0.14 ③ 规范）
+	var grid_scroll := ScrollContainer.new()
+	grid_scroll.name = "GridScroll"
+	grid_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	grid_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(grid_scroll)
 	_grid = GridContainer.new()
 	_grid.columns = 4
 	_grid.add_theme_constant_override("h_separation", 12)
 	_grid.add_theme_constant_override("v_separation", 12)
 	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(_grid)
+	grid_scroll.add_child(_grid)
+	var vbar := grid_scroll.get_v_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
+	track.set_corner_radius_all(5)
+	var grabber := StyleBoxFlat.new()
+	grabber.bg_color = Color("#7ec8ea")
+	grabber.set_corner_radius_all(5)
+	var grabber_hot := StyleBoxFlat.new()
+	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
+	grabber_hot.set_corner_radius_all(5)
+	vbar.add_theme_stylebox_override("scroll", track)
+	vbar.add_theme_stylebox_override("grabber", grabber)
+	vbar.add_theme_stylebox_override("grabber_highlight", grabber_hot)
+	vbar.add_theme_stylebox_override("grabber_pressed", grabber_hot)
+	vbar.custom_minimum_size = Vector2(10, 0)
 
 	# 底部说明条（概念图 .detail：白底黄框）
 	_detail_panel = Panel.new()
-	_detail_panel.custom_minimum_size = Vector2(0, 96)
+	_detail_panel.custom_minimum_size = Vector2(0, 116)
 	var detail_style := UITheme.light_panel_style()
 	detail_style.border_color = UITheme.LIGHT_GOLD_SELECT
 	detail_style.content_margin_left = 14.0
@@ -150,6 +175,7 @@ func _build_ui() -> void:
 	_detail_box.offset_top = 10.0
 	_detail_box.offset_bottom = -10.0
 	_detail_box.add_theme_constant_override("separation", 4)
+	_detail_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	_detail_panel.add_child(_detail_box)
 	_show_detail_hint("点击上方卡片查看道具说明")
 
@@ -180,29 +206,59 @@ func _show_detail(item_id: String) -> void:
 	var item := GameFlow.load_item_data(item_id)
 	if item == null:
 		return
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 10)
-	_detail_box.add_child(head)
+	var type_index: int = item.item_type if item.item_type >= 0 else 0
+	var type_name: String = ITEM_TYPE_NAMES[type_index] if item.item_type >= 0 and item.item_type < ITEM_TYPE_NAMES.size() else "未知"
+	var amount := int(ProfileStore.get_profile().items.get(item_id, 0))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	_detail_box.add_child(row)
+	row.add_child(UITheme.tile_label(item.display_name.left(1), TYPE_TILE_KEYS[type_index % TYPE_TILE_KEYS.size()], 56.0, 26))
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_theme_constant_override("separation", 3)
+	row.add_child(info)
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+	info.add_child(name_row)
 	var name_label := Label.new()
 	name_label.text = item.display_name
 	name_label.add_theme_font_override("font", UITheme.spaced_font(2))
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-	head.add_child(name_label)
-	var type_name: String = ITEM_TYPE_NAMES[item.item_type] if item.item_type >= 0 and item.item_type < ITEM_TYPE_NAMES.size() else "未知"
-	head.add_child(UITheme.tag_label(type_name, UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 12))
-	var amount := int(ProfileStore.get_profile().items.get(item_id, 0))
-	var amount_label := Label.new()
-	amount_label.text = "持有 ×%d" % amount
-	amount_label.add_theme_font_size_override("font_size", 15)
-	amount_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
-	head.add_child(amount_label)
+	name_row.add_child(name_label)
+	name_row.add_child(UITheme.tag_label(type_name, TYPE_TAG_FG[type_index % TYPE_TAG_FG.size()], TYPE_TAG_BG[type_index % TYPE_TAG_BG.size()], 12))
+	if item.item_type == ItemData.ItemType.RELIC:
+		name_row.add_child(UITheme.tag_label("永久使用", UITheme.TAG_OK_FG, UITheme.TAG_OK_BG, 12))
 	var desc := Label.new()
 	desc.text = item.description if not item.description.is_empty() else "（无描述）"
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.add_theme_font_size_override("font_size", 14)
 	desc.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
-	_detail_box.add_child(desc)
+	desc.max_lines_visible = 2
+	desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	info.add_child(desc)
+	if item.item_type == ItemData.ItemType.RELIC:
+		var note := Label.new()
+		note.text = "遗物 = 队伍级 · 永久持有：编队选带生效，不消耗库存（最多 2 件）。"
+		note.add_theme_font_size_override("font_size", 12)
+		note.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+		info.add_child(note)
+	var count_box := VBoxContainer.new()
+	count_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	count_box.add_theme_constant_override("separation", 0)
+	row.add_child(count_box)
+	var count_num := Label.new()
+	count_num.text = "×%d" % amount
+	count_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_num.add_theme_font_size_override("font_size", 24)
+	count_num.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+	count_box.add_child(count_num)
+	var count_cap := Label.new()
+	count_cap.text = "持有"
+	count_cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_cap.add_theme_font_size_override("font_size", 12)
+	count_cap.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	count_box.add_child(count_cap)
 
 
 func _on_grant_exp_scroll() -> void:
@@ -232,7 +288,16 @@ func _refresh() -> void:
 		var amount := int(profile.items.get(key, 0))
 		if amount > 0:
 			entries.append([item_id, amount])
-	entries.sort()
+	# 概念图按类型分组排序（材料→消耗品→遗物…），同类型内按 id 字典序稳定排。
+	entries.sort_custom(func(a: Array, b: Array) -> bool:
+		var item_a := GameFlow.load_item_data(str(a[0]))
+		var item_b := GameFlow.load_item_data(str(b[0]))
+		var type_a: int = item_a.item_type if item_a != null else 0
+		var type_b: int = item_b.item_type if item_b != null else 0
+		if type_a != type_b:
+			return type_a < type_b
+		return str(a[0]) < str(b[0])
+	)
 	var topbar := get_child(0) as HBoxContainer
 	var capacity := topbar.get_node("CapacityChip") as Label
 	capacity.text = "共 %d 种" % entries.size()
@@ -249,6 +314,7 @@ func _refresh() -> void:
 		empty.add_theme_font_size_override("font_size", 16)
 		empty.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 		_grid.add_child(empty)
+		_show_detail_hint("该类目下暂无道具——通关掉落、一键通关或测试发放会获得道具。")
 		return
 	for entry in visible_entries:
 		_grid.add_child(_make_item_card(str(entry[0]), int(entry[1])))
@@ -270,7 +336,7 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	var card := Button.new()
 	card.toggle_mode = true
 	card.focus_mode = Control.FOCUS_NONE
-	card.custom_minimum_size = Vector2(0, 108)
+	card.custom_minimum_size = Vector2(0, 116)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var card_style := UITheme.light_panel_style()
 	card_style.set_border_width_all(2)
@@ -298,7 +364,7 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	content.add_theme_constant_override("separation", 10)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(content)
-	content.add_child(UITheme.avatar_label(display_name.left(1), TYPE_COLORS[type_index % TYPE_COLORS.size()], 44.0, 20))
+	content.add_child(UITheme.tile_label(display_name.left(1), TYPE_TILE_KEYS[type_index % TYPE_TILE_KEYS.size()], 52.0, 24))
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -314,7 +380,7 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	name_row.add_child(name_label)
-	name_row.add_child(UITheme.tag_label(type_name, UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 11))
+	name_row.add_child(UITheme.tag_label(type_name, TYPE_TAG_FG[type_index % TYPE_TAG_FG.size()], TYPE_TAG_BG[type_index % TYPE_TAG_BG.size()], 11))
 	var desc := Label.new()
 	desc.text = item.description if item != null and not item.description.is_empty() else "（无描述）"
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -326,8 +392,8 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	var amount_label := Label.new()
 	amount_label.text = "×%d" % amount
 	amount_label.add_theme_font_size_override("font_size", 15)
-	amount_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
-	content.add_child(amount_label)
+	amount_label.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+	info.add_child(amount_label)
 	return card
 
 

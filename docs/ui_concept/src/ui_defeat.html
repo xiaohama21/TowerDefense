@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<title>ui_defeat</title>
+<style>
+/* ===== 战败结算页概念稿（v0.1）：冷调遮罩 + 红横幅战 败 + 作废清单 + 规则提示 ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1280px; height:720px; overflow:hidden; }
+body { font-family:"ZCOOL-Kuaile",sans-serif; background:#1b2528; }
+/* ---------- 战场底（战败：火光已熄，敌军压境） ---------- */
+.field { position:absolute; inset:0; overflow:hidden;
+  background-color:#18242a;
+  background-image:conic-gradient(#162229 25%, #18242a 0 50%, #162229 0 75%, #18242a 0);
+  background-size:160px 160px; }
+.gridline { position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size:80px 80px; }
+.road { position:absolute; left:0; top:240px; width:1200px; height:80px;
+  background:#5d4a3a; border-top:4px solid #1e1a16; border-bottom:4px solid #1e1a16; }
+.road .shine { position:absolute; left:0; top:8px; width:100%; height:10px; background:rgba(235,205,150,.05); }
+.road-drop { position:absolute; left:1200px; top:240px; width:80px; height:160px;
+  background:#5d4a3a; border:4px solid #1e1a16; border-left:0; }
+.gate { position:absolute; left:10px; top:248px; width:64px; height:64px; border-radius:10px;
+  background:rgba(120,90,60,.2); border:3px solid #7a6652; color:#9c8468;
+  font-size:30px; line-height:58px; text-align:center; }
+.base { position:absolute; left:1206px; top:326px; width:68px; height:68px; border-radius:12px;
+  background:#5a2b28; border:3px solid #8a6a52; box-shadow:0 4px 10px rgba(0,0,0,.4); }
+.base .door { position:absolute; left:50%; bottom:5px; transform:translateX(-50%);
+  width:22px; height:30px; background:#17130f; border-radius:6px 6px 0 0; }
+.base .roof { position:absolute; left:-6px; top:-10px; width:calc(100% + 12px); height:14px;
+  background:#4a201d; border-radius:8px 8px 0 0; border:2px solid #8a6a52; }
+.flag { position:absolute; left:1256px; top:296px; width:3px; height:34px; background:#6f5a45; }
+.flag i { position:absolute; left:3px; top:-2px; width:18px; height:12px;
+  background:#4a3a32; border-radius:0 6px 6px 0; }
+.tree { position:absolute; width:0; height:0; }
+.tree .trunk { position:absolute; left:-5px; top:22px; width:10px; height:16px; background:#3b2f22; border-radius:2px; }
+.tree .leaf { position:absolute; left:-24px; top:-10px; width:48px; height:44px;
+  background:radial-gradient(circle at 34% 28%, #33523f, #243c2e 70%);
+  border:3px solid #1c3124; border-radius:50% 50% 46% 54%; }
+/* 敌军压境（黄巾小兵围基地） */
+.enemy { position:absolute; width:18px; height:18px; border-radius:50%;
+  background:radial-gradient(circle at 36% 30%, #d8b45e, #b08a3c 70%);
+  border:2px solid #7a5c26; box-shadow:0 2px 4px rgba(0,0,0,.45); }
+/* 失败余烬 */
+.ember { position:absolute; width:6px; height:6px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle, rgba(255,160,90,.9), rgba(255,90,50,0) 70%); opacity:.7; }
+/* 遮罩 */
+.d-mask { position:absolute; inset:0;
+  background:radial-gradient(ellipse 900px 520px at 50% 42%, rgba(70,40,44,.55), rgba(6,12,18,.82) 76%); }
+/* 面板 */
+.d-panel { position:absolute; left:50%; top:50%; width:820px; height:600px; transform:translate(-50%,-50%);
+  background:#f4f7fa; border:3px solid #cf5b54; border-bottom:7px solid #a93d38; border-radius:18px;
+  box-shadow:0 18px 48px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.7);
+  overflow:hidden; display:flex; flex-direction:column; }
+/* 战败横幅 */
+.d-banner { flex:none; height:92px; display:flex; align-items:center; justify-content:center; gap:16px;
+  background:linear-gradient(180deg,#e06a60,#c73f38); border-bottom:3px solid #9c2f2a;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.22); }
+.d-banner .dt { font-size:46px; color:#fff; letter-spacing:16px; text-shadow:0 2px 0 rgba(90,20,15,.4);
+  font-weight:normal; padding-left:16px; }
+.d-banner .dt2 { font-size:16px; color:#ffe9e6; letter-spacing:2px; }
+/* 副文案 */
+.d-sub { flex:none; text-align:center; padding:12px 30px 4px; font-size:16px; color:#7a5a56; letter-spacing:2px; }
+.d-sub b { color:#c0392b; font-weight:normal; }
+/* 战绩摘要 */
+.d-stats { flex:none; display:flex; gap:10px; margin:12px 26px 0; }
+.dstat { flex:1; background:#fff; border:2px solid #e8d9d6; border-radius:12px; padding:9px 12px;
+  display:flex; align-items:center; gap:8px; }
+.dstat .k { font-size:11.5px; color:#9a8a86; letter-spacing:1px; }
+.dstat .v { margin-left:auto; font-size:21px; color:#5b4a47; letter-spacing:.5px; white-space:nowrap; }
+.dstat .v.red { color:#e5484d; }
+.dstat .v.grey { color:#9aa8b2; }
+/* 作废清单 */
+.d-lost { flex:none; margin:12px 26px 0; background:#fff7f6; border:2px solid #f0c4be; border-radius:12px;
+  padding:9px 14px; }
+.d-lost .lt { font-size:13px; color:#b34038; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
+.d-lost .lt .dim { margin-left:auto; font-size:11px; color:#c9a29d; letter-spacing:.5px; font-weight:normal; }
+.d-lost .lgrid { display:flex; gap:8px; margin-top:8px; }
+.litem { flex:1; border:1.5px dashed #ecc9c3; border-radius:10px; padding:6px 8px; display:flex; align-items:center; gap:8px;
+  background:#fdf3f1; }
+.litem .ic { width:26px; height:26px; flex:none; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  border:2px dashed #d8b4ad; }
+.litem .ic svg { width:14px; height:14px; }
+.litem .nm3 { font-size:13px; color:#8a6f6b; letter-spacing:.5px; white-space:nowrap; }
+.litem .right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.litem .amt3 { font-size:14px; color:#b08883; white-space:nowrap; }
+.litem .ava { width:26px; height:26px; font-size:12px; filter:grayscale(1); opacity:.75; }
+.litem .off-tag { font-size:10px; color:#c0392b; background:#ffe6e1; border-radius:7px; padding:1px 7px; letter-spacing:1px; white-space:nowrap; }
+/* 规则提示 */
+.d-rule { flex:none; margin:12px 26px 0; background:#fdeeee; border:1.5px dashed #eec0ba; border-radius:11px;
+  padding:8px 14px; font-size:12.5px; color:#8a5a55; line-height:1.75; letter-spacing:.5px; }
+.d-rule b { color:#c0392b; font-weight:normal; }
+.d-rule .okline { color:#11804a; }
+.d-rule .okline b { color:#0e9f58; }
+/* 底部按钮 */
+.d-foot { flex:1; display:flex; align-items:flex-end; gap:12px; padding:14px 26px 18px; }
+.d-foot .hint { font-size:11.5px; color:#a8a0a0; line-height:1.6; letter-spacing:.5px; }
+.d-note { flex:none; display:flex; align-items:center; gap:8px; margin:0 26px 16px; padding:7px 14px;
+  font-size:11.5px; color:#6b5a58; background:#f3eef0; border:1px dashed #e0c8c4; border-radius:10px;
+  line-height:1.6; letter-spacing:.5px; }
+.d-note b { color:#c0392b; font-weight:normal; }
+</style>
+</head>
+<body>
+<div class="field">
+  <div class="road"><div class="shine"></div></div>
+  <div class="road-drop"></div>
+  <div class="gate">▶</div>
+  <div class="base"><div class="roof"></div><div class="door"></div></div>
+  <div class="flag"><i></i></div>
+  <div class="tree" style="left:150px; top:150px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:1010px; top:150px"><div class="leaf"></div><div class="trunk"></div></div>
+  <div class="tree" style="left:300px; top:500px"><div class="leaf"></div><div class="trunk"></div></div>
+  <!-- 敌军压境：兵临基地 -->
+  <div class="enemy" style="left:1110px; top:266px"></div>
+  <div class="enemy" style="left:1145px; top:282px"></div>
+  <div class="enemy" style="left:1175px; top:262px"></div>
+  <div class="enemy" style="left:1188px; top:306px"></div>
+  <div class="enemy" style="left:1150px; top:330px"></div>
+  <div class="gridline"></div>
+</div>
+<!-- 余烬 -->
+<div class="ember" style="left:1130px; top:250px"></div>
+<div class="ember" style="left:1210px; top:290px"></div>
+<div class="ember" style="left:1080px; top:330px"></div>
+<div class="d-mask"></div>
+<div class="d-panel">
+  <div class="d-banner">
+    <span class="dt">战 败</span>
+    <span class="dt2">基地陷落 · 波次 5 / 6</span>
+  </div>
+  <div class="d-sub">「<b>东郡驰援</b> 失守——胜败乃兵家常事，重整旗鼓再战！」</div>
+  <div class="d-stats">
+    <div class="dstat"><span class="k">坚持波次</span><span class="v">5 / 6</span></div>
+    <div class="dstat"><span class="k">基地生命</span><span class="v red">0 / 20</span></div>
+    <div class="dstat"><span class="k">结算转盘</span><span class="v grey">未开启</span></div>
+  </div>
+  <div class="d-lost">
+    <div class="lt">本局未结算奖励 · 全部作废<span class="dim">失败不产生任何成长</span></div>
+    <div class="lgrid">
+      <div class="litem">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#c9a29d" stroke-width="2" stroke-linecap="round"><path d="M6 3.5h12l-1.8 17H7.8z"/><path d="M9 8.5h6M9 12h6"/></svg></span>
+        <span class="nm3">材料掉落</span><span class="right"><span class="amt3">黄巾布 ×2</span><span class="off-tag">作废</span></span>
+      </div>
+      <div class="litem">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#c9a29d" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+        <span class="nm3">出战经验</span><span class="right"><span class="amt3">4 名武将</span><span class="off-tag">作废</span></span>
+      </div>
+      <div class="litem">
+        <span class="ava grey">貂</span>
+        <span class="nm3">首通解锁</span><span class="right"><span class="amt3">貂蝉</span><span class="off-tag">作废</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="d-rule">
+    <b>失败语义（核心规则）：</b>本局经验 / 掉落 / 解锁 / 科技点一律<b>不写入存档</b>；中途退出、崩溃同此处理。
+    结算转盘仅<b>胜利</b>后开启，失败作废。<span class="okline">已拥有遗物为<b>永久持有</b>，失败不扣除库存（v0.33.1）。</span>
+  </div>
+  <div class="d-foot">
+    <span class="hint">退出 / 崩溃同样不保留本局收益；<br>重试将从本关重新开始</span>
+    <div class="spacer"></div>
+    <button class="btn grey" style="width:170px; height:48px; font-size:18px;">返回选关</button>
+    <button class="btn go" style="width:186px; height:48px; font-size:18px;">重试本关</button>
+  </div>
+  <div class="d-note"><b>说明：</b>红横幅 + 红色数值 = 失败语义；作废清单演示「本可获取但已作废」的奖励（灰显 + 作废 tag）；重试 = 直接重新进入本关，返回选关 = 回到大厅地图并保留所选关卡与难度。</div>
+</div>
+</body>
+</html>
