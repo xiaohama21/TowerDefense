@@ -82,6 +82,7 @@ static func apply_card_style(button: Button, state_color: Color, selected: bool 
 	button.add_theme_color_override("font_color", state_color)
 	button.add_theme_color_override("font_hover_color", state_color)
 	button.add_theme_color_override("font_disabled_color", DISABLED)
+	CursorIcons.apply_hover(button)
 	if selected:
 		apply_selected_style(button)
 
@@ -113,6 +114,7 @@ static func apply_kenney_rect_button(button: Button, color_key: String, font_col
 	button.add_theme_color_override("font_pressed_color", font_color.darkened(0.15))
 	button.add_theme_color_override("font_hover_pressed_color", font_color.darkened(0.15))
 	button.add_theme_color_override("font_disabled_color", DISABLED)
+	CursorIcons.apply_hover(button)
 
 
 ## 共享字距字体（v0.19.0，首页私有实现收敛）：在全局主题字体（站酷快乐体 +
@@ -292,6 +294,7 @@ static func apply_light_selectable(button: Button, locked: bool = false) -> void
 	button.add_theme_color_override("font_pressed_color", LIGHT_INK)
 	button.add_theme_color_override("font_hover_pressed_color", LIGHT_INK)
 	button.add_theme_color_override("font_disabled_color", LIGHT_LOCK)
+	CursorIcons.apply_hover(button)
 
 
 ## TabContainer 浅色页签样式（概念图 .tabs：圆角顶页签 + 蓝边内容面板）。

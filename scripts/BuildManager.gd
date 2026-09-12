@@ -52,6 +52,7 @@ func _ready() -> void:
 	_catcher = Control.new()
 	_catcher.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_catcher.mouse_filter = Control.MOUSE_FILTER_STOP
+	_catcher.mouse_default_cursor_shape = Control.CURSOR_DRAG
 	_catcher.visible = false
 	_catcher.gui_input.connect(_on_catcher_gui_input)
 	_drag_layer.add_child(_catcher)

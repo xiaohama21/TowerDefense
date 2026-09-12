@@ -37,6 +37,7 @@ func _ready():
 		return
 
 	_apply_stage_layout()
+	_setup_field_cursor()
 	_ensure_initial_profile()
 	_available_characters = _load_available_characters(ProfileStore.get_profile())
 	if _available_characters.is_empty():
@@ -112,6 +113,18 @@ func _resolve_stage_data() -> StageData:
 	if data == null and stage_id != DEFAULT_STAGE_ID:
 		data = GameFlow.load_stage_data(DEFAULT_STAGE_ID)
 	return data
+
+
+## 光标视觉系统（UI_LAYOUT §15，程序 0.8.12.0）：战场画布区准星光标（cross_large）。
+## PASS 透传点击（塔选取走 Area2D 物理拾取）；HUD 在更高 CanvasLayer、建造拖拽覆盖层
+## 为 STOP，各自接管自己的悬停区。
+func _setup_field_cursor() -> void:
+	var field := Control.new()
+	field.name = "FieldCursor"
+	field.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	field.mouse_filter = Control.MOUSE_FILTER_PASS
+	field.mouse_default_cursor_shape = Control.CURSOR_CROSS
+	add_child(field)
 
 
 ## 战场布局由 StageData 驱动（GDD 5.6）：路径、道路瓦片、出入口地标与建造位。

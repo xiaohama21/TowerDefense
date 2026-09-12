@@ -21,6 +21,15 @@ const PAN_STEP := 80.0
 
 enum Brush { PATH, DECOR, FORBIDDEN, SLOT, ERASE }
 
+## 笔刷光标键（Kenney Cursor Pack，UI_LAYOUT §15 / CursorIcons.BRUSH_ICONS）。
+const BRUSH_CURSOR_KEYS := {
+	Brush.PATH: "path",
+	Brush.DECOR: "decor",
+	Brush.FORBIDDEN: "forbidden",
+	Brush.SLOT: "slot",
+	Brush.ERASE: "erase",
+}
+
 ## 装饰类型键（与 GridBackground.DECOR_TYPES 一致）。
 const DECOR_TYPE_KEYS: Array[StringName] = [&"tree", &"rock", &"banner", &"torch"]
 
@@ -203,7 +212,9 @@ func _build_ui() -> void:
 
 	_canvas_container = SubViewportContainer.new()
 	_canvas_container.stretch = true
-	_canvas_container.mouse_default_cursor_shape = Control.CURSOR_CROSS
+	# 画布光标 = 当前笔刷（UI_LAYOUT §15：随笔刷切换；Godot 无自定义槽，借用闲置形状槽）
+	_canvas_container.mouse_default_cursor_shape = CursorIcons.BRUSH_SHAPE
+	CursorIcons.register_brush(BRUSH_CURSOR_KEYS[Brush.PATH])
 	_canvas_container.gui_input.connect(_on_canvas_gui_input)
 	_canvas_container.mouse_exited.connect(_on_canvas_mouse_exited)
 	canvas_fit.add_child(_canvas_container)
@@ -557,6 +568,7 @@ func _export_base_map(path: String) -> int:
 
 func _on_brush_pressed(brush: int) -> void:
 	_brush = brush
+	CursorIcons.register_brush(BRUSH_CURSOR_KEYS.get(brush, "path"))
 	var button: Button = _brush_buttons.get(brush)
 	if button != null and not button.button_pressed:
 		button.button_pressed = true

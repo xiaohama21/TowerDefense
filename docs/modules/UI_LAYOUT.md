@@ -1,6 +1,8 @@
 # 界面排版设计规范（UI_LAYOUT）
 
 > 界面职责表见 [UI.md](UI.md)。
+> 文档版本：v0.20.45（2026-09-12）
+> v0.20.45 变更（2026-09-12，光标视觉系统落地 / GDD v0.37.34 / ART_ASSETS v0.14，程序 0.8.11.14 → **0.8.12.0**）：**§15 由「排期登记」改落地版**——补**落地清单**（`assets/ui/cursors/` 9 枚 × {32px, `_2x` 64px}、生成脚本 `tools/prep_cursors.py`、32px 基准 + 显示缩放 >140% 自动切 `_2x` 的尺寸策略）、**图标映射表**加「光标槽 / 落点」列、**热点实测表**（32px 与 64px 双列，与 `CursorIcons.gd` 同源 + `prep_cursors.py` 反向校验 + PackVerify 断言）、**应用点汇总**（唯一出口 `CursorIcons`；游戏内 `CursorService` autoload = 启动注册 + 运行期新控件自动挂 hover + 退出释放；编辑器插件仅注册笔刷专用槽）。
 > 文档版本：v0.20.44（2026-09-12）
 > v0.20.44 变更（2026-09-12，文档同步勘误 / GDD v0.37.33，纯文档，程序 0.8.11.14 不变）：**§6 养成页签「开发待排期」陈旧标记修正**——「技能」/「职业」页签与「职业 → 转职详情」叠层已于 v0.20.0~v0.20.14（程序 0.8.10.14~0.8.10.27，B-037~B-044）落地，标记改已落地口径（版式内容不变）。
 > v0.20.43 变更（2026-09-12，局内现行版 UI 亮色化 + 顶栏「重开」二次确认落地 / GDD v0.37.32 / UI_CONCEPT v0.14 / BUGS v0.45（B-058），程序 0.8.11.13 → **0.8.11.14**，用户反馈 2026-09-10「局内面板有几个地方需要修改一下：1.底部和顶部背景颜色可以调一下。2.重开没有做二次确认弹窗。」）：**§10 新增「局内 UI 亮色化（现行版落地）」条**——顶栏 / 底栏 / 建造卡 / 塔详情面板改 Kenney 亮蓝白（顶 `#eef8fe` + 3px `#7ec8ea` / 底 `#e9f5fd`；卡面 `#f7fbfe` + `#9fd0ea`；选中金框 `#ffcc00` / 不足 `#e0a09a` + `#fff5f3`），顶栏按钮换 Kenney 九宫格皮肤（黄 / 蓝 / 灰 / 红）且标签改内容自适应，基地生命两态（常态 `#0e9f58` / ≤30% `#e5484d` 脉动）；新增 `BattleConfirmDialog` 亮色二次确认弹窗（「重开」新增确认、「退出」换同源弹窗，ESC / ✕ / 取消 / 遮罩关闭，打开暂停 / 关闭复原）；v2 深墨绿 + 暖金换肤仍以 v0.20.41 定稿稿为准、排期另行登记。
@@ -237,18 +239,35 @@
 - 不重做战斗场景布局（`Main.tscn` 已有基础，仅按本规范调整色板与信息层级）。
 - 星级展示仅预留 UI 位，挑战目标系统本体在阶段 10 开发。
 
-## 15. 鼠标光标规范（Kenney Cursor Pack，阶段 8·提交 12 排期，v0.20.26 建档）
+## 15. 鼠标光标规范（Kenney Cursor Pack，v0.20.26 建档 / v0.20.45 落地）
 
-- **素材与定稿配色（v0.20.26，用户拍板 2026-09-08「按你推荐来」）**：Kenney Cursor Pack 1.1（CC0，https://kenney.nl/assets/cursor-pack ）`PNG/Outline/Default` 32px；原图 = 近白芯 `#f0f0f0` + 纯黑描边，观感生硬 → 定稿 **B「Kenney 浅蓝」**：芯 `#cdeffb`（≈PALE）/ 描边 `#14538a`（=STROKE）——浅色弹窗靠深蓝描边保轮廓、深色战场靠浅蓝芯保可见。重着色配方 = 按原图灰度明度线性映射双色（v = (r+g+b)/3/240 clamp 0..1，outline→fill 插值），形状 / 描边结构 / 透明度保留；对照图 `docs/ui_concept/ui_cursor_palette.png`（原版 + A/B/C 候选 × 浅色大厅底 / 深色战场底，2026-09-08 归档）。备选：A 白芯 `#ffffff` + 描边 `#167da8`；C 亮蓝芯 `#1c9fd7` + 描边 `#0a4a75`（深色底偏暗，不采用）。
-- **图标映射**：
+- **素材与定稿配色（v0.20.26 定稿，用户拍板 2026-09-08「按你推荐来」）**：Kenney Cursor Pack 1.1（CC0，https://kenney.nl/assets/cursor-pack ）`PNG/Outline/Default` 32px；原图 = 近白芯 `#f0f0f0` + 纯黑描边，观感生硬 → 定稿 **B「Kenney 浅蓝」**：芯 `#cdeffb`（≈PALE）/ 描边 `#14538a`（=STROKE）——浅色弹窗靠深蓝描边保轮廓、深色战场靠浅蓝芯保可见。重着色配方 = 按原图灰度明度线性映射双色（v = (r+g+b)/3/240 clamp 0..1，outline→fill 插值），形状 / 描边结构 / 透明度保留；对照图 `docs/ui_concept/ui_cursor_palette.png`（原版 + A/B/C 候选 × 浅色大厅底 / 深色战场底，2026-09-08 归档）。备选：A 白芯 `#ffffff` + 描边 `#167da8`；C 亮蓝芯 `#1c9fd7` + 描边 `#0a4a75`（深色底偏暗，不采用）。
+- **落地清单（v0.20.45，程序 0.8.12.0）**：运行时素材 = `assets/ui/cursors/` 9 枚 × {32px, `_2x` 64px}；源图 = `docs/ui_concept/src/kenney_cursor_pack/PNG/Outline/{Default,Double}`（9 图 ×2 尺寸）；生成脚本 = `tools/prep_cursors.py`（重着色 + 热点标定 + 与 `CursorIcons.gd` 一致性校验）。**尺寸策略**：32px 为基准（本作固定 1280×720 画布、UI 不随系统 DPI 缩放）；Windows 显示缩放 >140%（`DisplayServer.screen_get_scale() > 1.4`）时自动改用 `_2x` 64px 套与其对应热点。
+- **图标映射与落点**：
 
-  | 场景 | 图标（Outline/Default 32px） | 说明 |
-  |---|---|---|
-  | 全局默认指针 | `pointer_toon_a` | Q 版指针，贴合手绘 Q 版风格；备选 `pointer_a` |
-  | 按钮 / 卡片 / 页签 / 可点项 hover | `hand_point` | 替换系统手型，ui_theme 封装统一出口 |
-  | 拖拽（建造卡拖出 / 可拖动项） | `hand_closed` | BuildManager 拖拽态 |
-  | 战场 / 地图编辑器画布 | `cross_large` | 替换 `CURSOR_CROSS` |
-  | 地图编辑器笔刷 | 路径 `drawing_pen` / 装饰 `drawing_brush` / 擦除 `drawing_eraser` / 禁建 `cursor_disabled` | 随笔刷切换 |
+  | 场景 | 图标（Outline/{Default,Double}） | 光标槽 | 落点（程序 0.8.12.0） |
+  |---|---|---|---|
+  | 全局默认指针 | `pointer_toon_a`（备选 `pointer_a`） | `CURSOR_ARROW` | `CursorService` autoload 启动注册 |
+  | 按钮 / 卡片 / 页签 / 可点项 hover | `hand_point` | `CURSOR_POINTING_HAND` | `UITheme` 三入口封装 + `CursorService` 运行期新控件统一挂载 |
+  | 拖拽（建造卡拖出 / 可拖动项） | `hand_closed` | `CURSOR_DRAG` | `BuildManager` 拖拽覆盖层（Catcher） |
+  | 战场画布 | `cross_large` | `CURSOR_CROSS` | `Main._setup_field_cursor` 战场 FieldCursor 层（`MOUSE_FILTER_PASS` 透传，不影响塔选取 / 物理拾取） |
+  | 地图编辑器笔刷（画布随笔刷切换） | 路径·建造位 `drawing_pen` / 装饰 `drawing_brush` / 擦除 `drawing_eraser` | `CURSOR_HELP`（笔刷专用槽，随笔刷重注册图像） | `addons/map_editor/map_editor_window.gd`（画布 `mouse_default_cursor_shape` = 笔刷槽） |
+  | 禁建 | `cursor_disabled` | `CURSOR_FORBIDDEN` / 笔刷槽 | 同上（禁建笔刷） |
 
-- **热点（hotspot）**：指针 / 手型 = 引导尖端（箭头尖 / 食指尖）、准星 = 几何中心、笔刷 = 笔头；实现时逐枚按 alpha 定位并登记本表。尺寸 32px 基准；Windows 高 DPI 实机校验是否需要 64px（Double 套）。
-- **应用点（提交 12 落地，素材入 `assets/ui/cursors/`）**：全局默认 = project.godot `[display]` 光标配置或启动时 `set_custom_mouse_cursor`；悬停手型 = `UITheme.apply_kenney_rect_button` / 卡片 / `apply_light_selectable` 统一封装（禁止散点设置）；拖拽 = BuildManager 按住拖出期间；编辑器 = `addons/map_editor/map_editor_window.gd` 画布与笔刷循环。
+  > 编辑器插件运行在 Godot 编辑器进程（无 autoload），只注册笔刷专用槽，不动编辑器自身箭头 / 手型。
+- **热点（hotspot）实测表**（脚本按几何规则标定「瞄准方向上的极值实心像素簇质心」（alpha ≥ 200），准星 / 手掌类取几何中心；`Double` 64px 套非 32px 等比放大，故两套独立标定）：
+
+  | 图标 | 32px | `_2x` 64px | 规则 |
+  |---|---|---|---|
+  | `pointer_toon_a` | (3, 4) | (7, 7) | 箭头尖（左上极值） |
+  | `pointer_a` | (9, 8) | (17, 14) | 箭头尖 |
+  | `hand_point` | (9, 4) | (19, 5) | 食指尖（上极值） |
+  | `hand_closed` | (16, 16) | (32, 32) | 几何中心 |
+  | `cross_large` | (16, 16) | (32, 32) | 几何中心 |
+  | `drawing_pen` | (5, 5) | (9, 10) | 笔尖（左上极值） |
+  | `drawing_brush` | (24, 25) | (50, 51) | 笔头（右下极值） |
+  | `drawing_eraser` | (16, 16) | (32, 32) | 几何中心 |
+  | `cursor_disabled` | (2, 3) | (3, 4) | 箭头尖 |
+
+  > 热点表与代码同源：`scripts/services/CursorIcons.gd`（`HOTSPOT_32` / `HOTSPOT_64`）为唯一数据源，`tools/prep_cursors.py` 反向校验二者一致；`tests/PackVerify.gd` 断言素材可载入、尺寸正确、热点落在实心像素。
+- **应用点汇总（禁止散点）**：唯一出口 = `scripts/services/CursorIcons.gd`（静态目录 + 注册 + 释放）；游戏内 = autoload `CursorService`（启动注册全部槽位 / `node_added` 给运行期新建的 `BaseButton`·`TabBar` 挂 hover 手型 / `_exit_tree` 释放自定义光标，避免退出期纹理泄漏告警）；编辑器 = 插件直接调 `CursorIcons.register_brush()`。业务代码一律只设 `Control.mouse_default_cursor_shape`，不直接调 `Input.set_custom_mouse_cursor`。
