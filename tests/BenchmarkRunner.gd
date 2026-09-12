@@ -1131,8 +1131,8 @@ func _save_baseline() -> void:
 		push_error("无法写入基线快照：" + BASELINE_PATH)
 		return
 	var payload := {
-		"program_version": "0.8.10.0",
-		"note": "阶段 8·提交 10 数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
+		"program_version": "0.8.13.0",
+		"note": "阶段 8·提交 13 地基（0.8.13.0 伤害类型 + C=50 护甲模型）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
 	}
 	for key in flat:
 		payload[key] = flat[key]
@@ -1157,7 +1157,7 @@ func _finish() -> void:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	print("")
-	print("==================== 数值基准报告（阶段 8·提交 10） ====================")
+	print("==================== 数值基准报告（阶段 8·提交 13 地基 / 0.8.13.0） ====================")
 	for line in _bench_report:
 		print(line)
 	print("=======================================================================")

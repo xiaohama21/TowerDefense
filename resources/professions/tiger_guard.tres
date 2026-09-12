@@ -14,6 +14,7 @@ damage_multiplier = 0.9
 range_multiplier = 1.0
 attack_interval_multiplier = 1.0
 behavior_id = &"melee_thrust"
+attack_damage_type = &"physical"
 ultimate_id = &"ultimate_tiger_guard_sweep"
 rage_gain_mode = &"hit+damage"
 battle_rank_damage_step = 0.15

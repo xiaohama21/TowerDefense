@@ -36,21 +36,21 @@ const ULTIMATE_HINTS := {
 	&"ultimate_iron_bull": "重击地面，范围伤害并减速",
 	&"ultimate_green_dragon": "横扫大范围目标，伤害随怒气提升",
 	&"ultimate_dangyang_roar": "当阳桥喝断当阳，范围恐惧",
-	&"ultimate_archer_focus": "连续箭雨覆盖目标区域",
-	&"ultimate_strategist_blaze": "大范围法术伤害并施加减速",
+	&"ultimate_archer_focus": "连续物理箭雨覆盖目标区域",
+	&"ultimate_strategist_blaze": "大范围魔法伤害并施加减速",
 	&"ultimate_dancer_encourage": "范围内友方攻速与伤害提升，持续数秒",
-	&"ultimate_catapult_barrage": "快速连发抛射轰击目标区域",
+	&"ultimate_catapult_barrage": "3 连发物理抛射轰击目标区域",
 }
 
 ## 角色专属技能玩家向文案（同源 ENCYCLOPEDIA CHARACTER_SKILL_HINTS）。
 const CHARACTER_SKILL_HINTS := {
-	&"char_green_dragon": "对当前目标造成 2.5× 普攻伤害；击杀则冷却 -6s",
+	&"char_green_dragon": "3 段 × 2.0× 真实伤害（不分摊、无视护甲）；段内溢血转下一目标，每击杀冷却 -5s",
 	&"char_dangyang_roar": "范围内敌人恐惧 1s（反向行军）→ 减速 60% 持续 2s",
 	&"char_carry_people": "全队攻速 +15% 持续 5s（每波一次）",
-	&"char_dingjun": "2.5× 单体伤害；未击杀则目标被「定军」标记 5s：受该塔普攻伤害 +15%",
+	&"char_dingjun": "命中射程内最多 3 个目标，各 2.0× 物理伤害；未击杀者被「定军」标记 4s：受该塔普攻伤害 +15%",
 	&"char_moon_dance": "全队怒气 +10（自身 +15）",
-	&"char_burn_camp": "目标区域 1.5× 范围伤害 + 灼烧 3s（每秒 0.25×）",
-	&"char_seven_charges": "对射程内所有敌人造成 1× 范围伤害 + 自身攻速 +30% 持续 3s",
+	&"char_burn_camp": "目标区域 1.5× 魔法伤害 + 灼烧 3s（每秒 0.25× 魔法）",
+	&"char_seven_charges": "对射程内所有敌人造成 1× 物理伤害 + 自身攻速 +30% 持续 3s",
 	&"char_death_fight": "自身攻速 +30%（常驻，仅触发一次）",
 	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s",
 }

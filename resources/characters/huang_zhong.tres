@@ -21,8 +21,9 @@ titles = ["神射手"]
 character_skill_id = &"char_dingjun"
 character_skill_params = {
 "cooldown": 18.0,
-"mult": 2.5,
-"mark_duration": 5.0,
+"mult": 2.0,
+"targets": 3,
+"mark_duration": 4.0,
 "mark_damage_bonus": 0.15
 }
 trait_id = &"trait_hundred_step"

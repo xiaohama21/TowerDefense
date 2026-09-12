@@ -173,7 +173,7 @@ func _run() -> void:
 		derived.body_color = Color(0, 0, 0, 0)
 		derived.body_size = Vector2.ZERO
 		var merged := derived.resolved()
-		_check(merged != derived and merged.max_hp == 180 and merged.move_speed == 145.0 and merged.armor == 20,
+		_check(merged != derived and merged.max_hp == 180 and merged.move_speed == 145.0 and merged.armor == 32,
 			"模板派生应继承血量/速度/护甲")
 		_check(merged.currency_reward == 14 and merged.kill_xp == 12 and merged.damage_to_base == 2,
 			"模板派生应继承奖励与漏怪伤害")
@@ -520,11 +520,14 @@ func _run() -> void:
 				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
 				spear_tower.target = melee_target
 				spear_tower.attack()
-				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）
+				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）；
+				# 轻骑重标甲 2（NUMBERS 10.12 / 0.8.13.0）：物理减伤 2/52。
 				var benevolence := 1.08
+				var melee_base := int(round(spear_tower.damage * 1.15 * benevolence))
+				var melee_expected := int(round(float(melee_base) * (1.0 - 2.0 / 52.0)))
 				_check(
-					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15 * benevolence)),
-					"虎贲近战直伤应含 15% 骑兵克制与 8% 仁德光环"
+					melee_target.current_hp == melee_target.max_hp - melee_expected,
+					"虎贲近战直伤应含 15% 骑兵克制、8% 仁德光环与轻骑甲 2 减伤"
 				)
 				_check(spear_tower.is_swinging(), "近战攻击应触发挥击动作而非枪口闪光")
 				melee_target.die(false)
@@ -639,6 +642,52 @@ func _run() -> void:
 		BehaviorRegistry.get_profession_counter(&"cavalry", [&"cavalry"] as Array[StringName]), 1.0
 	), "其他职业不应触发虎贲克制")
 
+	# 伤害类型与护甲结算（NUMBERS 10.12，✅ 0.8.13.0；§4.4 算例逐条）。
+	var armor_probe_data := EnemyData.new()
+	armor_probe_data.enemy_id = &"smoke_armor_probe"
+	armor_probe_data.display_name = "护甲算例桩"
+	armor_probe_data.max_hp = 100000
+	armor_probe_data.move_speed = 0.0
+	armor_probe_data.currency_reward = 0
+	var armor_probe := enemy_manager.spawn_enemy_from_data(armor_probe_data) as Enemy
+	if armor_probe != null:
+		armor_probe.set_process(false)
+		armor_probe.armor = 0
+		var probe_before := armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 1000, "护甲算例：无甲 1000 伤害应满伤")
+		armor_probe.armor = 10
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 833, "护甲算例：甲 10 物理应 ×(1−10/60) = 833")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.MAGIC)
+		_check(probe_before - armor_probe.current_hp == 909, "护甲算例：甲 10 魔法应 ×(1−5/55) = 909")
+		armor_probe.armor = 20
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 714, "护甲算例：甲 20 物理应 ×(1−20/70) = 714")
+		armor_probe.armor = 30
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 625, "护甲算例：甲 30 物理应 ×(1−30/80) = 625")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.20, "b": 0.25}, 0)
+		_check(probe_before - armor_probe.current_hp == 735, "护甲算例：甲 30 + 双源穿甲 20%/25% 乘算应 = 735")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.20}, 0)
+		_check(probe_before - armor_probe.current_hp == 676, "护甲算例：同源取最高（20%）不连乘应 = 676")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.20}, 4)
+		_check(probe_before - armor_probe.current_hp == 714, "护甲算例：固定穿透在百分比之后（24−4=20）应 = 714")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.5}, 0)
+		_check(probe_before - armor_probe.current_hp == 704, "护甲算例：单源穿甲应 clamp ≤30%（甲 30 → 21）应 = 704")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.TRUE)
+		_check(probe_before - armor_probe.current_hp == 1000, "护甲算例：真实伤害应无视护甲与减伤")
+		armor_probe.queue_free()
+
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。
 	var xp_session := BattleSession.new("smoke_xp_stage")
@@ -682,7 +731,7 @@ func _run() -> void:
 		rage_target.global_position = rage_tower.global_position + Vector2(120, 0)
 		rage_tower.target = rage_target
 		rage_tower.attack()
-		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 伤害×0.1（武生对精英 +25% → 80 伤）")
+		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 面板伤害×0.1（武生 +25% → 80；怒气按打甲前口径，甲值不减怒）")
 		rage_tower.rage = 100.0
 		var ult_target := enemy_manager.spawn_enemy_from_data(load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData) as Enemy
 		ult_target.set_process(false)
@@ -1339,8 +1388,8 @@ func _run() -> void:
 		green_kill.current_hp = green_kill.max_hp
 		green_tower.target = green_kill
 		_check(green_tower.cast_character_skill(), "青龙偃月应能释放")
-		_check(is_equal_approx(green_tower.get_character_skill_cooldown_left(), 12.0),
-			"青龙偃月击杀应返 6s 冷却（18-6=12）")
+		_check(is_equal_approx(green_tower.get_character_skill_cooldown_left(), 13.0),
+			"青龙偃月击杀应返 5s 冷却（18-5=13）")
 		var green_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
 		green_tank.set_process(false)
 		green_tank.global_position = green_tower.global_position + Vector2(60, 0)
@@ -1348,8 +1397,8 @@ func _run() -> void:
 		green_tower.refund_character_skill_cooldown(999.0)
 		var green_before := green_tank.current_hp
 		_check(green_tower.cast_character_skill(), "青龙偃月应能再次释放")
-		_check(green_before - green_tank.current_hp == int(round(green_tower.damage * 2.5)),
-			"青龙偃月应造成 2.5× 普攻伤害")
+		_check(green_before - green_tank.current_hp == int(round(green_tower.damage * 2.0)) * 3,
+			"青龙偃月应造成 3 段 × 2.0× 真实伤害（不分摊）")
 		green_tank.queue_free()
 		green_tower.queue_free()
 	# 张飞·当阳桥（A/CD22）：范围内敌人恐惧 1s（反向行军、移速不变）→ 结束后

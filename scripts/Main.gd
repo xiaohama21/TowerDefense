@@ -802,7 +802,7 @@ func _apply_battle_supply(supply: BattleSupplyData) -> void:
 		var count := 0
 		for enemy in enemy_manager.get_alive_enemies():
 			if supply.instant_damage > 0:
-				enemy.take_damage(supply.instant_damage)
+				enemy.take_damage(supply.instant_damage, "", DamageTypes.MAGIC)
 			if supply.burn_dps > 0:
 				enemy.apply_burn(supply.burn_dps, supply.effect_duration)
 			count += 1

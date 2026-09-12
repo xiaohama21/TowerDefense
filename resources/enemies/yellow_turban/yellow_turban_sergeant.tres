@@ -10,6 +10,7 @@ description = "带队冲锋的前期精英。"
 tags = [&"yellow_turban", &"elite"]
 max_hp = 300
 move_speed = 65.0
+armor = 8
 damage_to_base = 2
 currency_reward = 25
 kill_xp = 25

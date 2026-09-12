@@ -21,8 +21,9 @@ titles = ["武圣"]
 character_skill_id = &"char_green_dragon"
 character_skill_params = {
 "cooldown": 18.0,
-"mult": 2.5,
-"kill_cd_refund": 6.0
+"segments": 3,
+"segment_mult": 2.0,
+"kill_cd_refund": 5.0
 }
 trait_id = &"trait_wusheng"
 trait_params = {

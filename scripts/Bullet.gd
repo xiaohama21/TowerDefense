@@ -4,6 +4,11 @@ class_name Bullet
 
 var target: Enemy = null
 var damage: int = 10
+## 伤害类型与护甲穿透（NUMBERS 10.12，✅ 0.8.13.0）：由来源塔按职业 / 技能写入，
+## 命中与落点爆炸均按此结算护甲。
+var damage_type: StringName = DamageTypes.PHYSICAL
+var pen_ratios: Dictionary = {}
+var pen_flat: int = 0
 var speed: float = 400.0
 var source_character_id: String = ""
 
@@ -57,7 +62,7 @@ func _physics_process(delta: float) -> void:
 	# Hit immediately when this frame's movement can reach the target. This
 	# avoids fast bullets skipping past it on a low frame rate.
 	if distance <= hit_radius or travel_distance >= distance:
-		target.take_damage(damage, source_character_id)
+		target.take_damage(damage, source_character_id, damage_type, pen_ratios, pen_flat)
 		_notify_hit_events(target)
 		queue_free()
 		return
@@ -104,7 +109,7 @@ func _explode() -> void:
 		if enemy == null or enemy.is_dead:
 			continue
 		if enemy.global_position.distance_to(lob_landing) <= explosion_radius:
-			enemy.take_damage(damage, source_character_id)
+			enemy.take_damage(damage, source_character_id, damage_type, pen_ratios, pen_flat)
 			# 震地（提交 7）：大招每发落点范围内敌人眩晕（同目标冷却防 3 连发叠晕）。
 			if tremor_stun and source_tower != null and is_instance_valid(source_tower):
 				SkillRegistry.try_apply_tremor_stun(source_tower, enemy)

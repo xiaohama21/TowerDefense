@@ -100,6 +100,8 @@ var kill_stacks := 0
 var _profession_id: StringName = StringName()
 var _profession_name: String = ""
 var _behavior_id: StringName = StringName()
+## 普攻伤害类型（NUMBERS 10.12，✅ 0.8.13.0）：职业配置决定（术士 = 魔法，其余物理）。
+var _profession_attack_damage_type: StringName = &"physical"
 var _base_damage: int = 40
 ## 局内升阶基准（阶段 8）：建造时的基础攻速间隔与射程（含遗物/特性加成），升阶在其上乘步进。
 var _base_attack_cooldown: float = 0.8
@@ -275,6 +277,7 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_profession_id = profession_data.profession_id if profession_data != null else StringName()
 	_profession_name = profession_data.display_name if profession_data != null else ""
 	_behavior_id = profession_data.behavior_id if profession_data != null else StringName()
+	_profession_attack_damage_type = profession_data.attack_damage_type if profession_data != null else &"physical"
 	if _behavior_id.is_empty():
 		_behavior_id = &"single_target_burst"
 	# 科技树职业分支（阶段 8 提交 3）：按职业 ID 读取对应效果键，无配置则为 0。
@@ -918,6 +921,40 @@ func is_target_valid(candidate) -> bool:
 	return _is_target_in_range(candidate)
 
 
+## 普攻伤害类型（NUMBERS 10.12，✅ 0.8.13.0）：职业配置决定；未配置回退物理。
+func get_attack_damage_type() -> StringName:
+	if DamageTypes.is_valid(_profession_attack_damage_type):
+		return _profession_attack_damage_type
+	return DamageTypes.PHYSICAL
+
+
+## 护甲穿透参数（NUMBERS 10.12，✅ 0.8.13.0 铺设「可配穿甲」挂点）：从已授予技能参数
+## 读取 armor_pen_ratio（百分比、单源 ≤30%）与 armor_pen_flat（固定、百分比之后）；
+## 返回 { "ratios": {来源 key: 比值}, "flat": int }——同源取最高由本方法按 key 聚合，
+## 跨源乘算由 Enemy.take_damage 执行。未配置 = 无穿透。
+func get_armor_penetration() -> Dictionary:
+	var ratio := 0.0
+	var flat := 0
+	for skill_id in _granted_skills:
+		ratio = maxf(ratio, get_skill_param(skill_id, "armor_pen_ratio", 0.0))
+		flat = maxi(flat, int(get_skill_param(skill_id, "armor_pen_flat", 0.0)))
+	var ratios := {}
+	if ratio > 0.0:
+		var source_key := character_id if not character_id.is_empty() else str(_profession_id)
+		ratios[source_key] = clampf(ratio, 0.0, DamageTypes.MAX_PENETRATION_RATIO)
+	return {"ratios": ratios, "flat": flat}
+
+
+## 以本塔为来源结算一次伤害（NUMBERS 10.12，✅ 0.8.13.0）：类型 + 穿透参数统一出口，
+## 调用点不直接拼 take_damage 参数；damage_type 留空 = 本塔普攻类型（术士 = 魔法）。
+func deal_damage(target_enemy: Enemy, amount: int, damage_type: StringName = StringName()) -> void:
+	if target_enemy == null or not is_instance_valid(target_enemy) or target_enemy.is_dead or amount <= 0:
+		return
+	var resolved_type := damage_type if DamageTypes.is_valid(damage_type) else get_attack_damage_type()
+	var penetration := get_armor_penetration()
+	target_enemy.take_damage(amount, character_id, resolved_type, penetration["ratios"], int(penetration["flat"]))
+
+
 func get_trait_id() -> StringName:
 	return _trait_id
 
@@ -1096,6 +1133,10 @@ func instantiate_bullet(target_enemy: Enemy) -> Bullet:
 	bullet.source_tower = self
 	bullet.kind = _profession_id
 	bullet.color = _hero_color
+	bullet.damage_type = get_attack_damage_type()
+	var penetration := get_armor_penetration()
+	bullet.pen_ratios = penetration["ratios"]
+	bullet.pen_flat = int(penetration["flat"])
 
 	var projectile_parent := get_tree().current_scene
 	if projectile_parent == null:

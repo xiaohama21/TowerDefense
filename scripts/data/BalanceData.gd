@@ -30,6 +30,10 @@ class_name BalanceData
 @export_range(0, 999, 1) var rage_gain_per_hit: int = 4
 @export_range(0.0, 10.0, 0.1) var rage_gain_per_damage: float = 0.1
 
+@export_category("Combat (NUMBERS.md 10.12)")
+## 护甲减伤常数 C：m = armor_f / (armor_f + C)；无保底，真实伤害跳过全部护甲步骤（✅ 0.8.13.0）。
+@export_range(1.0, 500.0, 1.0) var armor_constant: float = 50.0
+
 @export_category("Enemy Special Behaviors (BEHAVIORS.md B.3.2)")
 @export_range(0.0, 60.0, 0.1) var healer_interval: float = 2.0
 @export_range(0, 9999, 1) var healer_amount: int = 15

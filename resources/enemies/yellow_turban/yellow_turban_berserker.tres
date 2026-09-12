@@ -10,6 +10,7 @@ description = "黄巾军中的巨汉，血厚难啃。"
 tags = [&"yellow_turban", &"brute"]
 max_hp = 450
 move_speed = 45.0
+armor = 10
 armor = 0
 damage_to_base = 2
 currency_reward = 15

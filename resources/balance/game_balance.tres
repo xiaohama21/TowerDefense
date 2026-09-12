@@ -28,5 +28,6 @@ rage_gain_per_damage = 0.1
 healer_interval = 2.0
 healer_amount = 15
 healer_radius = 120.0
+armor_constant = 50.0
 summon_interval = 8.0
 summon_count = 2

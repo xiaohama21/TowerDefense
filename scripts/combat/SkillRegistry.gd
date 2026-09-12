@@ -264,7 +264,7 @@ static func _guard_proc(tower: Tower, target: Enemy) -> void:
 static func _deliver_extra_damage(tower: Tower, target: Enemy, amount: int, label: String, color: Color) -> void:
 	if amount <= 0 or tower == null or not is_instance_valid(tower) or target == null or target.is_dead:
 		return
-	target.take_damage(tower.finalize_damage(amount, target), tower.character_id)
+	tower.deal_damage(target, tower.finalize_damage(amount, target))
 	tower.spawn_float_text(label, color)
 	tower.play_skill_effect(color)
 	SfxLibrary.play(&"skill", -8.0)
@@ -394,19 +394,52 @@ static func kill_rage_refund(tower: Tower) -> float:
 
 ## ============ 角色技能执行器（演出：飘字 + 扩散环 + 音效） ============
 
-## 关羽·青龙偃月（A/CD18）：2.5× 普攻单体伤害；击杀则冷却 -6s。
+## 关羽·青龙偃月（A/CD18，v0.9 / 0.8.13.0）：3 段 × 2.0 真实伤害（逐段结算、不分摊、
+## 无视护甲且不可被任何减伤）；段内溢血转下一目标（射程内未被打过、路径最靠前者），
+## 每击杀一名敌人冷却 -5s。
 static func _cast_green_dragon(tower: Tower) -> bool:
 	var target: Enemy = tower.target
 	if target == null or not tower.is_target_valid(target):
 		return false
-	var hp_before := target.current_hp
-	target.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_green_dragon", "mult", 2.5))), target), tower.character_id)
-	if hp_before > 0 and target.current_hp <= 0:
-		tower.refund_character_skill_cooldown(character_param(tower, &"char_green_dragon", "kill_cd_refund", 6.0))
+	var segments := maxi(int(character_param(tower, &"char_green_dragon", "segments", 3.0)), 1)
+	var per_segment := int(round(tower.damage * character_param(tower, &"char_green_dragon", "segment_mult", 2.0)))
+	var kills := 0
+	var carry := 0
+	var struck: Array[Enemy] = []
+	var current: Enemy = target
+	for _i in range(segments):
+		if current == null or current.is_dead or not tower.is_target_valid(current):
+			current = _next_green_dragon_target(tower, struck)
+		if current == null:
+			break
+		var amount := per_segment + carry
+		var hp_before := current.current_hp
+		tower.deal_damage(current, amount, DamageTypes.TRUE)
+		carry = maxi(amount - (hp_before - current.current_hp), 0)
+		if not struck.has(current):
+			struck.append(current)
+		if current.is_dead:
+			kills += 1
+			current = null
+	tower.refund_character_skill_cooldown(character_param(tower, &"char_green_dragon", "kill_cd_refund", 5.0) * kills)
 	tower.spawn_float_text(get_character_skill_name(&"char_green_dragon"), Color(0.6, 0.95, 0.75))
 	tower.play_skill_effect(Color(0.6, 0.95, 0.75))
 	SfxLibrary.play(&"skill", -7.0)
 	return true
+
+
+## 青龙偃月后续段目标：射程内未被打过、路径进度最高者（溢血转向）。
+static func _next_green_dragon_target(tower: Tower, struck: Array[Enemy]) -> Enemy:
+	var best: Enemy = null
+	var best_progress := -1.0
+	for enemy in tower.enemies_in_range():
+		if enemy == null or enemy.is_dead or struck.has(enemy):
+			continue
+		if enemy.progress_ratio > best_progress:
+			best_progress = enemy.progress_ratio
+			best = enemy
+	return best
+
 
 
 ## 张飞·当阳桥（A/CD22）：范围内敌人恐惧 1s（反向行军、移速不变）→ 结束后
@@ -441,19 +474,44 @@ static func _cast_carry_people(tower: Tower) -> bool:
 	return true
 
 
-## 黄忠·定军山（A/CD18）：2.5× 单体伤害；未击杀则目标被定军标记 5s（普攻易伤 +15%）。
+## 黄忠·定军山（A/CD18，v0.9 / 0.8.13.0）：命中射程内最多 3 目标，各 2.0× 物理伤害
+## （不分摊、各目标独立结算）；未击杀者被「定军」标记：受该塔普攻伤害 +15%（易伤 4s）。
 static func _cast_dingjun(tower: Tower) -> bool:
-	var target: Enemy = tower.target
-	if target == null or not tower.is_target_valid(target):
+	var targets := _dingjun_targets(tower)
+	if targets.is_empty():
 		return false
-	var hp_before := target.current_hp
-	target.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_dingjun", "mult", 2.5))), target), tower.character_id)
-	if hp_before > 0 and target.current_hp > 0:
-		target.apply_mark(tower.character_id, character_param(tower, &"char_dingjun", "mark_duration", 5.0))
+	var mult := character_param(tower, &"char_dingjun", "mult", 2.0)
+	var mark_duration := character_param(tower, &"char_dingjun", "mark_duration", 4.0)
+	for enemy in targets:
+		if enemy == null or not is_instance_valid(enemy) or enemy.is_dead:
+			continue
+		var hp_before := enemy.current_hp
+		tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * mult)), enemy))
+		if hp_before > 0 and enemy.current_hp > 0:
+			enemy.apply_mark(tower.character_id, mark_duration)
 	tower.spawn_float_text(get_character_skill_name(&"char_dingjun"), Color(0.85, 0.75, 0.4))
 	tower.play_skill_effect(Color(0.85, 0.75, 0.4))
 	SfxLibrary.play(&"skill", -7.0)
 	return true
+
+
+## 定军山目标选取：当前目标优先，其余按路径进度（威胁最靠前）补足到 targets（默认 3）。
+static func _dingjun_targets(tower: Tower) -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	var limit := maxi(int(character_param(tower, &"char_dingjun", "targets", 3.0)), 1)
+	var current: Enemy = tower.target
+	if current != null and tower.is_target_valid(current):
+		result.append(current)
+	var candidates := tower.enemies_in_range()
+	candidates.sort_custom(func(a: Enemy, b: Enemy) -> bool: return a.progress_ratio > b.progress_ratio)
+	for enemy in candidates:
+		if result.size() >= limit:
+			break
+		if enemy.is_dead or result.has(enemy):
+			continue
+		result.append(enemy)
+	return result
+
 
 
 ## 貂蝉·月下舞（A/CD25）：全队怒气 +10（自身 +15）；怒气资源类间接关联为允许例外。
@@ -487,7 +545,7 @@ static func _cast_burn_camp(tower: Tower) -> bool:
 	var burn_duration := character_param(tower, &"char_burn_camp", "burn_duration", 3.0)
 	for enemy in tower.enemies_in_range():
 		if enemy.global_position.distance_to(center) <= aoe_radius:
-			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_burn_camp", "mult", 1.5))), enemy), tower.character_id)
+			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_burn_camp", "mult", 1.5))), enemy), DamageTypes.MAGIC)
 			enemy.apply_burn(burn_dps, burn_duration)
 	tower.spawn_float_text(get_character_skill_name(&"char_burn_camp"), Color(1.0, 0.55, 0.3))
 	tower.play_skill_effect(Color(1.0, 0.55, 0.3))
@@ -498,7 +556,7 @@ static func _cast_burn_camp(tower: Tower) -> bool:
 ## 赵云·七进七出（B·每波首次漏怪）：射程内所有敌人 1× 范围伤害 + 自身攻速 +30% 3s。
 static func _cast_seven_charges(tower: Tower) -> bool:
 	for enemy in tower.enemies_in_range():
-		enemy.take_damage(tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_seven_charges", "mult", 1.0))), enemy), tower.character_id)
+		tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_seven_charges", "mult", 1.0))), enemy))
 	tower.apply_attack_speed_buff("char_seven_charges", 1.0 + character_param(tower, &"char_seven_charges", "speed_bonus", 0.3), character_param(tower, &"char_seven_charges", "duration", 3.0))
 	tower.spawn_float_text(get_character_skill_name(&"char_seven_charges"), Color(0.7, 0.85, 1.0))
 	tower.play_skill_effect(Color(0.7, 0.85, 1.0))

@@ -103,7 +103,7 @@ func _process(delta: float) -> void:
 		if _burn_acc >= 1.0:
 			var tick := int(_burn_acc)
 			_burn_acc -= tick
-			take_damage(tick)
+			take_damage(tick, "", DamageTypes.MAGIC)
 
 	if not marks.is_empty():
 		var expired_marks: Array[String] = []
@@ -215,7 +215,17 @@ func get_vulnerability_multiplier() -> float:
 	return 1.0 + _vulnerability_bonus
 
 
-func take_damage(amount: int, source_character_id: String = "") -> void:
+## 伤害入口（NUMBERS 10.12，✅ 0.8.13.0 护甲模型替换）：
+## damage_type = 物理 / 魔法 / 真实（DamageTypes）；pen_ratios = 百分比穿甲
+## （{来源 key: 比值}，同源取最高由调用方聚合、跨源乘算、单源 ≤30%）；
+## pen_flat = 固定穿透（百分比之后扣减）。
+func take_damage(
+	amount: int,
+	source_character_id: String = "",
+	damage_type: StringName = DamageTypes.PHYSICAL,
+	pen_ratios: Dictionary = {},
+	pen_flat: int = 0
+) -> void:
 	if is_dead or amount <= 0:
 		return
 	var source_id := source_character_id.strip_edges()
@@ -226,8 +236,10 @@ func take_damage(amount: int, source_character_id: String = "") -> void:
 	var scaled := int(round(float(amount) * get_vulnerability_multiplier()))
 	if scaled <= 0:
 		return
-	# 护甲减算保留 10% 伤害下限，高护甲也不完全免伤（GDD 5.5）。
-	var effective := maxi(scaled - armor, ceili(scaled * 0.1))
+	# 护甲结算（类型系数 → 百分比穿甲 → 固定穿透 → 比值减伤）；真实伤害恒满伤。
+	var effective := _apply_armor(scaled, damage_type, pen_ratios, pen_flat)
+	if effective <= 0:
+		return
 	current_hp = maxi(current_hp - effective, 0)
 	if not source_id.is_empty():
 		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
@@ -239,6 +251,23 @@ func take_damage(amount: int, source_character_id: String = "") -> void:
 	if current_hp <= 0:
 		die(true)
 
+
+## 护甲结算唯一实现（NUMBERS 10.12，✅ 0.8.13.0）：
+## 1) 类型系数 armor_eff = max(armor × f_type, 0)；2) 百分比穿甲跨来源乘算 Π(1 − pᵢ)、
+## 单源 ≤30%；3) 固定穿透后置；4) 减伤 m = armor_f / (armor_f + C)，无保底；
+## 真实伤害（f_type = 0）恒为满伤。勿在调用侧另写护甲公式。
+func _apply_armor(amount: int, damage_type: StringName, pen_ratios: Dictionary, pen_flat: int) -> int:
+	var armor_eff := maxf(float(armor) * DamageTypes.armor_factor(damage_type), 0.0)
+	if armor_eff <= 0.0:
+		return amount
+	var remaining := 1.0
+	for key in pen_ratios:
+		var ratio := clampf(float(pen_ratios[key]), 0.0, DamageTypes.MAX_PENETRATION_RATIO)
+		remaining *= 1.0 - ratio
+	var armor_final := maxf(armor_eff * remaining - maxf(float(pen_flat), 0.0), 0.0)
+	var constant := maxf(GameBalance.get_balance().armor_constant, 1.0)
+	var reduction := armor_final / (armor_final + constant)
+	return maxi(int(round(float(amount) * (1.0 - reduction))), 0)
 
 func die(give_reward: bool) -> void:
 	if is_dead:
