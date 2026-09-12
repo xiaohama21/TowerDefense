@@ -2,8 +2,10 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
-> 文档版本：v0.12（2026-09-11）
-> v0.12 变更（2026-09-11，通用 HUD 图徽入概念稿 / 局内 HUD v2 定稿同步 / GDD v0.37.30 / UI_LAYOUT v0.20.41 / UI_CONCEPT v0.12 / ART_PROMPTS v0.11，纯文档/素材无程序逻辑改动，程序 0.8.11.13 不变，用户确认 2026-09-11「确认，同步文档吧」）：**§3 台账新增「通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集」**——已出图 7 枚，设计源与复现脚本归档 `docs/ui_concept/src/icons_battle/`：`wave_flag.png` 波次旗帜（顶栏波次胶囊 + 敌人出口出怪按钮）、`wave_flag_plate.png` 波次旗帜带底板版（备用）、`coin.png` 金币（顶栏 + 各处费用胶囊）、`base_hp.png` 基地生命、`dmg_physical.png` / `dmg_magic.png` / `dmg_true.png` 伤害类型、`stat_attack_speed.png` 攻击速度；**运行时入库目录预留 `assets/ui/icons/`**（随局内 HUD v2 换肤落地，未入库）；§6 许可登记「通用 HUD 图徽（外部 AI 生成）」一行。v0.11 历史行保留。> 文档版本：v0.11（2026-09-09）
+> 文档版本：v0.13（2026-09-12）
+> v0.13 变更（2026-09-12，文档同步勘误 / GDD v0.37.33，纯文档，程序 0.8.11.14 不变）：**§7 变更记录补登 v0.10~v0.12 漏登条目**（档头变更行早已记录，记录小节此前停在 v0.9），并顺补本 v0.13 条目。
+> v0.12 变更（2026-09-11，通用 HUD 图徽入概念稿 / 局内 HUD v2 定稿同步 / GDD v0.37.30 / UI_LAYOUT v0.20.41 / UI_CONCEPT v0.12 / ART_PROMPTS v0.11，纯文档/素材无程序逻辑改动，程序 0.8.11.13 不变，用户确认 2026-09-11「确认，同步文档吧」）：**§3 台账新增「通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集」**——已出图 7 枚，设计源与复现脚本归档 `docs/ui_concept/src/icons_battle/`：`wave_flag.png` 波次旗帜（顶栏波次胶囊 + 敌人出口出怪按钮）、`wave_flag_plate.png` 波次旗帜带底板版（备用）、`coin.png` 金币（顶栏 + 各处费用胶囊）、`base_hp.png` 基地生命、`dmg_physical.png` / `dmg_magic.png` / `dmg_true.png` 伤害类型、`stat_attack_speed.png` 攻击速度；**运行时入库目录预留 `assets/ui/icons/`**（随局内 HUD v2 换肤落地，未入库）；§6 许可登记「通用 HUD 图徽（外部 AI 生成）」一行。v0.11 历史行保留。
+> 文档版本：v0.11（2026-09-09）
 > v0.11 变更（2026-09-09，仓库归档对齐，纯文档/仓库卫生，程序 0.8.11.7 不变）：**Spine 试点素材与工具归档**——①`.gitignore` 落实「素材不入库」约定：`assets/characters/`（D69 试点素材与卡头像，授权口径见 §6）、`assets/spine_test/`（官方对照样例，§5.5）、`bin/`（spine-godot GDExtension 运行时，缺失时按 §5.7 静默回退程序化绘制）均本地存放不入库；②§5 已登记固化管线工具补入库 `tools/`：`spine_upgrade_38_to_43.py`（§5.3 转换器）+ `check_all_anims.gd`（§5.4 全动画冒烟，含 .uid），消除「文档登记但仓库缺失」；③本地一次性探针（check_guan_yu_tres / list_spine_api / probe_* / spine_headless / spine_preview* / prep_spineboy）不入库并 gitignore，孤儿 `probe_spine.gd.uid` 清理。文档版本 v0.10 → v0.11。
 > v0.10 变更（阶段 8·提交 12 排期登记，程序 0.8.11.2 不变（0.8.11 修复/延伸期），用户拍板 2026-09-08「按你推荐来」/ GDD v0.37.5 / UI_LAYOUT v0.20.26 §15 / UI_CONCEPT v0.7，纯文档/素材无程序逻辑改动）：**光标素材目录预留 + 来源许可登记（Kenney Cursor Pack）**——①§2 目录树 `assets/ui/` 新增 `cursors/`（当前为空 = 预留，提交 12 落地）；②§3 待入库补注 `ui/cursors/`；③§6 来源许可登记 Kenney Cursor Pack 1.1（CC0，kenney.nl/assets/cursor-pack ）——`Outline/Default` 32px 原图 + 定稿配色 B 重着色（配方见 UI_LAYOUT §15），概念对照图所需 6 图子集随 `docs/ui_concept/src/kenney_cursor_pack/` 归档（仅设计复现用，完整包 729 个 PNG 未入库）。
 > v0.9 变更（阶段 8·提交 11 延伸，程序 0.8.11.0 → **0.8.11.1**，用户拍板 2026-09-08「可以 按你推荐的来」/ GDD v0.37.3 / UI_LAYOUT v0.20.24）：**建造卡头像素材落地 + 拖拽虚影实塔小人化（§5.7 更新）**——①**卡头像（v0.9）**：关羽 A 套 Idle 首帧 SubViewport 透明截图 → bbox 裁切 → 圆形与圆角方两尺寸 PNG（`assets/characters/guan_yu/hero_guan_yu_a_avatar.png` / `_square.png`，各 ≈60KB，.import 已生成）；**素材本地存放不入库**（gitignore），UI 注册表 `CHARACTER_AVATAR_TEXTURES` 数据驱动、缺素材回退概念色占位圆；其余角色沿用「每角色截图 + 注册」流程；②**拖拽虚影实塔化**：BuildManager 虚影 = 实塔同款 Tower 渲染（spine 角色直接显 sprite（SpineSprite 转 PROCESS_MODE_ALWAYS 播 Idle）/ 程序化身体+武器回退，`Tower.set_ghost_mode` 跳过怒气条/冷却环/大招、保留射程圈），半透明绿/红染色由 BuildManager modulate；③**怒气条位置修订**：spine 塔条位 y48 → **y30**（胶囊 38×10 收进格内，普通塔 y28，见 UI_LAYOUT v0.20.24）。
@@ -157,3 +159,7 @@ assets/
 - v0.7（2026-09-07）：关羽 spine 战斗接入试点落地（程序 0.8.10.33，见档头 v0.7 变更行与 §5.7）。
 - v0.8（2026-09-08，补登）：关羽 spine 尺寸调大 + 底座盘弱化落地（程序 0.8.11.0，见档头 v0.8 变更行与 §5.7）。
 - v0.9（2026-09-08）：建造卡头像素材 + 拖拽虚影实塔小人化 + 怒气条收格（程序 0.8.11.1，见档头 v0.9 变更行与 §5.7）。
+- v0.10（2026-09-08，2026-09-12 补登）：光标素材目录预留 + 来源许可登记（Kenney Cursor Pack：§2 `assets/ui/cursors/` 预留、§6 许可、对照图 `ui_cursor_palette.png`），程序 0.8.11.2 不变。
+- v0.11（2026-09-09，2026-09-12 补登）：Spine 试点素材与工具归档——`.gitignore` 落实「素材不入库」（`assets/characters/` / `assets/spine_test/` / `bin/`），程序 0.8.11.7 不变。
+- v0.12（2026-09-11，2026-09-12 补登）：§3 台账新增「通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集」，程序 0.8.11.13 不变。
+- v0.13（2026-09-12）：§7 变更记录补登 v0.10~v0.12 漏登条目（同顶部 changelog）。
