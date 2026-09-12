@@ -128,7 +128,7 @@ const ENEMY_BEHAVIOR_HINTS := {
 	&"fast_charger": "高速推进，漏怪时造成更高基地伤害（轻骑 / 夜行刺）",
 	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点（隐方士 = 2.5s / 140px / 20 点）",
 	&"armor_aura": "为周围友军（含自身）加甲 +6，持续刷新（精锐伍长 140px / 符祭 160px）",
-	&"summon_guard": "每 8s 自岔路召唤 2 名步卒（广宗决战分叉试点）",
+	&"summon_guard": "每 8s 召唤 2 名步卒（有岔路自岔路进场，否则自身后沿主路出现）",
 }
 
 ## 职业大招玩家向文案（CHARACTERS.md 4.6 表）。

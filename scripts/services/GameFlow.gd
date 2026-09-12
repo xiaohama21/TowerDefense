@@ -161,7 +161,7 @@ func load_enemy_data(enemy_id: String) -> EnemyData:
 
 
 ## 敌人出现关卡条目（ENCYCLOPEDIA §3.1/§4）：stage_id + summoned 标记（仅 Boss 召唤登场）。
-## 召唤物来源说明与 EnemyManager._summon_guards 同源（如 s08 张梁召唤步卒）。
+## 召唤物来源说明与 EnemyManager._summon_guards 同源（如 s03 / s08 张梁召唤步卒）。
 func get_enemy_stage_entries(enemy_id: String) -> Array[Dictionary]:
 	if _enemy_stage_index.is_empty():
 		_build_enemy_stage_index()

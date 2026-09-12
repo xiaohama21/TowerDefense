@@ -536,6 +536,9 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_general"):
 		general_stage_ids.append(str(entry.get("stage_id", "")))
 	_check(general_stage_ids.has("ch01_s08"), "黄巾渠帅·张梁应出现在 s08")
+	# 0.8.13.3：张梁落位 s03 Boss → 出现关卡升为多关（首现 s03，明细按关号升序）。
+	_check(general_stage_ids.has("ch01_s03") and general_stage_ids[0] == "ch01_s03",
+		"黄巾渠帅·张梁应出现在 s03 且为首现关卡（多关登场）")
 
 	# 只读不变式：模拟器调参 + 全量浏览后存档文件不变。
 	var after_save := ""

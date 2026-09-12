@@ -58,7 +58,7 @@
 | `none` | 默认沿路径推进 | 全部现有敌人 | 已实现（默认行为） |
 | `fast_charger` | 高速推进、漏怪伤害更高 | 黄巾轻骑 | ✅ 已配置（v0.19.0：`yellow_turban_cavalry.tres` 补 `special_behavior_id`；数值已体现：145 速 / 漏 2 血） |
 | `healer_aura` | 每 2s 治疗周围 120px 友军 15 点（**参数可被 `special_params` 覆盖**：隐方士 = 2.5s / 20 / 140px，✅ 0.8.13.2） | 黄巾祭酒 / 黄巾隐方士 | ✅ 已建（v0.11.3，EnemyManager 执行） |
-| `summon_guard` | 每 8s 自岔路召唤 2 名步卒（分叉试点） | 黄巾渠帅张梁 | ✅ 已建（v0.11.3，需 StageData.fork_path_points） |
+| `summon_guard` | 每 8s 召唤 2 名步卒；**有岔路自岔路入口进场，无岔路时在 Boss 身后 60px 沿主路出现**（降级口径，✅ 0.8.13.3 s03 首用）；**数量上限未实装**（随阶段 9 Boss 模板补齐） | 黄巾渠帅张梁（s03 / s08） | ✅ 已建（v0.11.3；s08 岔路试点需 `StageData.fork_path_points`，s03 走主路降级） |
 | `armor_aura` | **为半径内友军（含自身）加甲**：+N 甲（同源取最大、不叠加）、每 `interval` 秒刷新、窗口过期自动失效（施法者阵亡 / 离开半径即恢复原甲）；先加甲后算减伤（NUMBERS 10.17） | 精锐伍长（+6 / 140px）/ 黄巾符祭（+6 / 160px） | ✅ 0.8.13.2 已实装（`EnemyManager._apply_armor_aura`，参数来自 `EnemyData.special_params`） |
 | `stealth` | **隐匿状态**（字段 `EnemyData.stealth`，非 `special_behavior_id`）：不可被“以单位为目标”的攻击选中；**无差别范围/区域效果可命中**；无目标框、不显示血条 | 黄巾夜行刺 / 黄巾隐方士 | ✅ 0.8.13.1 已落地 |
 | `suicide` | 到点自爆造成范围伤害 | 【远期】 | 未排期 |

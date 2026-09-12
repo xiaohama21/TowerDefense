@@ -872,7 +872,7 @@ func _run() -> void:
 
 	# 各关波次预算（NUMBERS 10.18 / STAGES §7）：新增波插在验收波之前、编号两位补位、验收波保持末位。
 	var c132_wave_counts := {
-		"ch01_s01": 6, "ch01_s02": 7, "ch01_s03": 7, "ch01_s04": 9,
+		"ch01_s01": 6, "ch01_s02": 7, "ch01_s03": 8, "ch01_s04": 9,
 		"ch01_s05": 9, "ch01_s06": 9, "ch01_s07": 9, "ch01_s08": 11,
 	}
 	var c132_stage_enemy_ids := {
@@ -914,6 +914,69 @@ func _run() -> void:
 			if c132_wave.completion_currency != c132_cc_expected:
 				c132_cc_ok = false
 		_check(c132_cc_ok, "%s 波次完成奖应统一为 %d（NUMBERS 5.3）" % [c132_stage_id, c132_cc_expected])
+
+	# 0.8.13.3 s03 Boss 波（张梁复用不改）：新增 w07 前哨压力波，原 w07 验收编成顺延为 w08 Boss 验收波。
+	# 口径见 NUMBERS 10.18·10.19 / STAGES §7 / ENEMIES 5.5.5；s03 未配岔路 → 召唤护卫走主路降级。
+	var c133_s03 := load("res://resources/stages/chapter_01/ch01_s03.tres") as StageData
+	_check(c133_s03 != null, "0.8.13.3 s03 关卡应可加载")
+	if c133_s03 != null:
+		_check(c133_s03.waves.size() == 8, "s03 应为 8 波（0.8.13.3 +1 Boss 波，NUMBERS 10.18）")
+		var c133_last: WaveData = c133_s03.waves[c133_s03.waves.size() - 1]
+		_check(str(c133_last.wave_id) == "ch01_s03_w08" and c133_last.wave_number == 8,
+			"s03 末波应为 w08（wave_id 两位补位 / 编号连续）")
+		_check(c133_last.is_boss_wave, "s03 末波应保持 Boss/验收波标记")
+		var c133_general_groups := 0
+		for c133_group in c133_last.spawn_groups:
+			if c133_group != null and c133_group.enemy != null \
+					and str(c133_group.enemy.enemy_id) == "yellow_turban_general":
+				c133_general_groups += 1
+		_check(c133_general_groups == 1, "s03 末波应含 1 组黄巾渠帅·张梁")
+		# w07 前哨压力波：精锐伍长 ×2（军阵光环压力，衔接 w06 观察波）。
+		var c133_w07: WaveData = c133_s03.waves[6]
+		var c133_elite_total := 0
+		for c133_group in c133_w07.spawn_groups:
+			if c133_group != null and c133_group.enemy != null \
+					and str(c133_group.enemy.enemy_id) == "yellow_turban_elite_sergeant":
+				c133_elite_total += int(c133_group.count)
+		_check(str(c133_w07.wave_id) == "ch01_s03_w07" and not c133_w07.is_boss_wave \
+				and c133_elite_total == 2, "s03 w07 应为精锐伍长 ×2 前哨压力波")
+		_check(c133_s03.fork_path_points.is_empty(), "s03 应沿用主路（岔路试点仅 s08）")
+		# 张梁数值锚点（复用不改）：数值/行为与 ENEMIES 5.5.5 / NUMBERS 10.19 一致。
+		var c133_general := load("res://resources/enemies/yellow_turban/yellow_turban_general.tres") as EnemyData
+		_check(c133_general != null and c133_general.max_hp == 3000 and c133_general.armor == 20 \
+				and c133_general.damage_to_base == 10 and c133_general.currency_reward == 100 \
+				and c133_general.kill_xp == 150 and c133_general.tags.has(&"boss") \
+				and c133_general.special_behavior_id == &"summon_guard",
+			"张梁应保持复用不改（3000HP / 甲 20 / 漏 10 / 金 100 / 经验 150 / summon_guard / boss）")
+		# 召唤护卫（无岔路降级）：护卫标记召唤物 + 自 Boss 身后 60px 沿主路入场。
+		if c133_general != null:
+			_check(enemy_manager.fork_path == null, "冒烟场景（s01）应无岔路（主路降级用例前置）")
+			var c133_boss := enemy_manager.spawn_enemy_from_data(c133_general) as Enemy
+			_check(c133_boss != null, "张梁应可在冒烟场景生成")
+			if c133_boss != null:
+				c133_boss.set_process(false)
+				c133_boss.progress = 200.0
+				var c133_before: Array[int] = []
+				for c133_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+					c133_before.append(c133_node.get_instance_id())
+				enemy_manager._summon_guards(c133_boss)
+				var c133_guards: Array[Enemy] = []
+				for c133_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+					if not c133_before.has(c133_node.get_instance_id()):
+						c133_guards.append(c133_node as Enemy)
+				var c133_summon_count := int(GameBalance.get_balance().summon_count)
+				_check(c133_guards.size() == c133_summon_count,
+					"张梁应召唤 %d 名护卫（BalanceData.summon_count）" % c133_summon_count)
+				var c133_guards_ok := not c133_guards.is_empty()
+				for c133_guard in c133_guards:
+					if c133_guard == null or not c133_guard.is_summon \
+							or not is_equal_approx(c133_guard.progress, 140.0):
+						c133_guards_ok = false
+				_check(c133_guards_ok, "无岔路时护卫应标记召唤物并出现在 Boss 身后 60px（主路）")
+				for c133_guard in c133_guards:
+					if c133_guard != null:
+						c133_guard.queue_free()
+				c133_boss.queue_free()
 
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。
