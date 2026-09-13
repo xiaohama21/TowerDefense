@@ -9,8 +9,6 @@ extends VBoxContainer
 
 signal back_requested
 
-const EXP_SCROLL_ID := "exp_scroll"
-
 ## 职业核心技能映射（基础授予与 resources/promotions 一致，SKILLS.md 4.1）。
 const PROFESSION_JOB_SKILLS := {
 	&"cavalry": &"charge",
@@ -144,9 +142,13 @@ var _promotion_rail_box: VBoxContainer
 var _relic_label: Label
 var _relic_optional_box: VBoxContainer
 var _trait_label: Label
-var _exp_scroll_label: Label
-var _exp_scroll_button: Button
-var _exp_scroll_hint: Label
+## 经验池行（✅ 0.8.15 / NUMBERS 10.14）：余额 + 分配入口 + 直接升级。
+var _exp_pool_label: Label
+var _exp_pool_allocate_button: Button
+var _exp_pool_level_button: Button
+var _exp_pool_hint: Label
+## 经验池分配弹窗（自绘 560px 叠层，二次确认后写档）。
+var _exp_pool_dialog: Control
 
 
 func _ready() -> void:
@@ -353,27 +355,36 @@ func _build_right_column() -> Control:
 	stat_row.add_theme_constant_override("separation", 8)
 	info_box.add_child(stat_row)
 
-	# 练兵令行（测试：直接升 1 级）
-	var exp_scroll_row := HBoxContainer.new()
-	exp_scroll_row.name = "ExpScrollRow"
-	exp_scroll_row.add_theme_constant_override("separation", 10)
-	info_box.add_child(exp_scroll_row)
-	_exp_scroll_label = Label.new()
-	_exp_scroll_label.add_theme_font_size_override("font_size", 13)
-	_exp_scroll_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
-	exp_scroll_row.add_child(_exp_scroll_label)
-	_exp_scroll_button = Button.new()
-	_exp_scroll_button.text = "使用练兵令（测试：直接升 1 级）"
-	_exp_scroll_button.custom_minimum_size = Vector2(240, 38)
-	_exp_scroll_button.focus_mode = Control.FOCUS_NONE
-	_exp_scroll_button.add_theme_font_size_override("font_size", 13)
-	UITheme.apply_kenney_rect_button(_exp_scroll_button, "grey", UITheme.LIGHT_BODY)
-	_exp_scroll_button.pressed.connect(_on_exp_scroll_pressed)
-	exp_scroll_row.add_child(_exp_scroll_button)
-	_exp_scroll_hint = Label.new()
-	_exp_scroll_hint.add_theme_font_size_override("font_size", 13)
-	_exp_scroll_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	exp_scroll_row.add_child(_exp_scroll_hint)
+	# 经验池行（✅ 0.8.15 / NUMBERS 10.14）：余额 + 「分配 ▸」+「直接升级」+ 不可逆注脚
+	var exp_pool_row := HBoxContainer.new()
+	exp_pool_row.name = "ExpPoolRow"
+	exp_pool_row.add_theme_constant_override("separation", 8)
+	info_box.add_child(exp_pool_row)
+	_exp_pool_label = Label.new()
+	_exp_pool_label.add_theme_font_size_override("font_size", 14)
+	_exp_pool_label.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+	exp_pool_row.add_child(_exp_pool_label)
+	_exp_pool_allocate_button = Button.new()
+	_exp_pool_allocate_button.text = "分配 ▸"
+	_exp_pool_allocate_button.custom_minimum_size = Vector2(96, 34)
+	_exp_pool_allocate_button.focus_mode = Control.FOCUS_NONE
+	_exp_pool_allocate_button.add_theme_font_size_override("font_size", 13)
+	UITheme.apply_kenney_rect_button(_exp_pool_allocate_button, "grey", UITheme.LIGHT_BODY)
+	_exp_pool_allocate_button.pressed.connect(_on_exp_pool_allocate_pressed)
+	exp_pool_row.add_child(_exp_pool_allocate_button)
+	_exp_pool_level_button = Button.new()
+	_exp_pool_level_button.text = "直接升级"
+	_exp_pool_level_button.custom_minimum_size = Vector2(112, 34)
+	_exp_pool_level_button.focus_mode = Control.FOCUS_NONE
+	_exp_pool_level_button.add_theme_font_size_override("font_size", 13)
+	UITheme.apply_kenney_rect_button(_exp_pool_level_button, "yellow", UITheme.INK)
+	_exp_pool_level_button.pressed.connect(_on_exp_pool_level_up_pressed)
+	exp_pool_row.add_child(_exp_pool_level_button)
+	_exp_pool_hint = Label.new()
+	_exp_pool_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_exp_pool_hint.add_theme_font_size_override("font_size", 12)
+	_exp_pool_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	exp_pool_row.add_child(_exp_pool_hint)
 
 	# 页签区（概念图 .tabs）：技能 / 职业 / 信物 / 特性
 	_tab_container = TabContainer.new()
@@ -613,7 +624,7 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 	return content
 
 
-## 左侧已拥有卡片内容刷新（等级可在本面板内变化，如使用练兵令直接升级；
+## 左侧已拥有卡片内容刷新（等级可在本面板内变化，如经验池分配 / 直接升级 或转职；
 ## 卡片含头像/姓名/职业/等级多个 Label，旧实现按 find_children 顺序覆盖，
 ## 会把头像写成全名、职业行写错、等级不更新——B-038 改为按命名节点更新）。
 func _sync_owned_button_labels() -> void:
@@ -678,7 +689,7 @@ func _refresh() -> void:
 		_refresh_promotion(character, level)
 	_refresh_relic(character)
 	_refresh_trait(character)
-	_refresh_exp_scroll(level)
+	_refresh_exp_pool(level)
 	_sync_owned_button_labels()
 
 
@@ -1943,30 +1954,296 @@ func _make_note_label(text_value: String, color: Color, font_size: int = 12) -> 
 	return label
 
 
-func _refresh_exp_scroll(level: int) -> void:
-	var count: int = int(_profile.items.get(EXP_SCROLL_ID, 0))
-	_exp_scroll_label.text = "练兵令 ×%d" % count
-	_exp_scroll_button.disabled = _selected_id.is_empty() or count <= 0 or level >= LevelCurve.max_level()
-	_exp_scroll_hint.text = "（仅测试发放，使用后直接升 1 级）"
+func _refresh_exp_pool(level: int) -> void:
+	var balance: int = _profile.get_exp_pool()
+	_exp_pool_label.text = "经验池 %d" % balance
+	var assignable := not _selected_id.is_empty() and _profile.can_allocate_exp_pool(_selected_id)
+	_exp_pool_allocate_button.disabled = balance <= 0 or not assignable
+	var cost: int = 0
+	if not _selected_id.is_empty():
+		cost = _profile.exp_pool_level_up_cost(_selected_id)
+	_exp_pool_level_button.disabled = cost <= 0 or balance < cost
+	if _selected_id.is_empty():
+		_exp_pool_hint.text = "（选择武将后可分配）"
+	elif cost <= 0:
+		_exp_pool_hint.text = "（已满级，无法分配池内经验）"
+	else:
+		_exp_pool_hint.text = "（分配不可逆 · 直接升级需 %d）" % cost
 
 
-func _on_exp_scroll_pressed() -> void:
+## 分配入口（✅ 0.8.15）：自绘弹窗选武将 + 数量 → 二次确认 → 写档（不可逆）。
+func _on_exp_pool_allocate_pressed() -> void:
+	if _selected_id.is_empty() or _profile.get_exp_pool() <= 0:
+		return
+	_open_exp_pool_dialog()
+
+
+## 「直接升级」（✅ 0.8.15）：消耗池内经验 +1 级（消耗 = 升级到下一级差额），二次确认。
+func _on_exp_pool_level_up_pressed() -> void:
 	if _selected_id.is_empty():
 		return
 	var level := GameFlow.get_character_level(_profile, _selected_id)
-	if level >= LevelCurve.max_level():
-		_exp_scroll_hint.text = "已达等级上限，无法使用"
+	var cost: int = _profile.exp_pool_level_up_cost(_selected_id)
+	if cost <= 0:
+		_refresh_exp_pool(level)
 		return
-	if not _profile.spend_item(EXP_SCROLL_ID, 1):
-		_exp_scroll_hint.text = "练兵令不足"
+	if _profile.get_exp_pool() < cost:
+		_refresh_exp_pool(level)
 		return
-	var current_total := _profile.get_character_exp(_selected_id)
-	var next_total := LevelCurve.exp_total_for_level(level + 1)
-	_profile.add_character_exp(_selected_id, next_total - current_total)
+	var character := _selected_character()
+	var display_name := character.display_name if character != null else _selected_id
+	var dialog := ConfirmationDialog.new()
+	dialog.dialog_text = "消耗 %d 点经验池经验，将「%s」提升至 Lv.%d？\n升级不可撤销（池内经验不可回收）。" % [cost, display_name, level + 1]
+	dialog.ok_button_text = "确认升级"
+	dialog.cancel_button_text = "取消"
+	dialog.confirmed.connect(_apply_exp_pool_level_up.bind(dialog))
+	# Godot 4 取消信号名为 canceled（v0.32.2 修复）。
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.close_requested.connect(dialog.queue_free)
+	add_child(dialog)
+	dialog.popup_centered()
+
+
+func _apply_exp_pool_level_up(dialog: ConfirmationDialog) -> void:
+	dialog.queue_free()
+	if _selected_id.is_empty():
+		return
+	if not _profile.level_up_with_exp_pool(_selected_id):
+		_refresh_exp_pool(GameFlow.get_character_level(_profile, _selected_id))
+		return
 	ProfileStore.save_profile(_profile)
-	_exp_scroll_hint.text = "已使用：等级提升至 %d" % (level + 1)
 	_refresh()
 
+
+# ============ 经验池分配弹窗（自绘 560px；UI_LAYOUT v0.20.47 §6） ============
+
+func _open_exp_pool_dialog() -> void:
+	if _exp_pool_dialog != null and is_instance_valid(_exp_pool_dialog):
+		return
+	var overlay := Control.new()
+	overlay.top_level = true
+	overlay.name = "ExpPoolDialog"
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var dim := ColorRect.new()
+	dim.color = Color(0.039, 0.149, 0.251, 0.55)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(560, 0)
+	panel.add_theme_stylebox_override("panel", _pool_dialog_panel_style())
+	center.add_child(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 0)
+	panel.add_child(column)
+	column.add_child(_build_pool_dialog_header(overlay))
+	column.add_child(_build_pool_dialog_body(overlay))
+	column.add_child(_build_pool_dialog_actions(overlay))
+	add_child(overlay)
+	_exp_pool_dialog = overlay
+
+
+func _pool_dialog_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = UITheme.DIALOG_PANEL
+	style.border_color = UITheme.DIALOG_BORDER
+	style.set_border_width_all(3)
+	style.border_width_bottom = 7
+	style.set_corner_radius_all(18)
+	style.shadow_color = Color(0.02, 0.1, 0.18, 0.45)
+	style.shadow_size = 18
+	style.shadow_offset = Vector2(0, 8)
+	return style
+
+
+## 蓝标题条：白字「经验池分配」+ 圆 ✕（沿用 §3 弹窗视觉语言）。
+func _build_pool_dialog_header(overlay: Control) -> Panel:
+	var header := Panel.new()
+	header.custom_minimum_size = Vector2(0, 54)
+	var style := StyleBoxFlat.new()
+	style.bg_color = UITheme.DIALOG_HEAD
+	style.corner_radius_top_left = 15
+	style.corner_radius_top_right = 15
+	header.add_theme_stylebox_override("panel", style)
+	var row := HBoxContainer.new()
+	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 20.0
+	row.offset_right = -12.0
+	row.add_theme_constant_override("separation", 10)
+	header.add_child(row)
+	var title := Label.new()
+	title.text = "经验池分配"
+	title.add_theme_font_override("font", UITheme.spaced_font(3))
+	title.add_theme_font_size_override("font_size", 23)
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(title)
+	var close_button := Button.new()
+	close_button.text = "✕"
+	close_button.custom_minimum_size = Vector2(34, 34)
+	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	close_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(close_button, "red", Color.WHITE)
+	close_button.pressed.connect(_close_exp_pool_dialog.bind(overlay))
+	row.add_child(close_button)
+	return header
+
+
+## 正文：余额 / 不可逆说明 + 武将下拉（满级禁用）+ 数量 SpinBox（默认全部余额）。
+func _build_pool_dialog_body(overlay: Control) -> MarginContainer:
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	margin.add_child(box)
+	var balance: int = _profile.get_exp_pool()
+	var note := Label.new()
+	note.text = "当前余额 %d 点。分配给已拥有武将后立即计入其经验（不可撤销）。" % balance
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_theme_font_size_override("font_size", 15)
+	note.add_theme_color_override("font_color", UITheme.DIALOG_TEXT)
+	box.add_child(note)
+
+	var target_row := HBoxContainer.new()
+	target_row.add_theme_constant_override("separation", 10)
+	box.add_child(target_row)
+	var target_label := Label.new()
+	target_label.text = "分配对象"
+	target_label.custom_minimum_size = Vector2(84, 0)
+	target_label.add_theme_font_size_override("font_size", 15)
+	target_label.add_theme_color_override("font_color", UITheme.DIALOG_TEXT)
+	target_row.add_child(target_label)
+	var picker := OptionButton.new()
+	picker.name = "PoolCharacterPicker"
+	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker.add_theme_font_size_override("font_size", 14)
+	var first_assignable := -1
+	for character_data in _owned:
+		var character_id := str(character_data.character_id)
+		var level := GameFlow.get_character_level(_profile, character_id)
+		var assignable := _profile.can_allocate_exp_pool(character_id)
+		picker.add_item("%s · Lv%d%s" % [character_data.display_name, level, "" if assignable else "（已满级）"])
+		# 武将 id 由 item metadata 承载（下拉文本含姓名，B-064：曾以文本解析取 id 致「分配」静默失效）。
+		var index := picker.item_count - 1
+		picker.set_item_metadata(index, character_id)
+		if not assignable:
+			picker.set_item_disabled(index, true)
+		elif first_assignable < 0:
+			first_assignable = index
+		if character_id == _selected_id:
+			picker.select(index)
+	if picker.selected < 0 or picker.is_item_disabled(picker.selected):
+		if first_assignable >= 0:
+			picker.select(first_assignable)
+	target_row.add_child(picker)
+
+	var amount_row := HBoxContainer.new()
+	amount_row.add_theme_constant_override("separation", 10)
+	box.add_child(amount_row)
+	var amount_label := Label.new()
+	amount_label.text = "分配数量"
+	amount_label.custom_minimum_size = Vector2(84, 0)
+	amount_label.add_theme_font_size_override("font_size", 15)
+	amount_label.add_theme_color_override("font_color", UITheme.DIALOG_TEXT)
+	amount_row.add_child(amount_label)
+	var spin := SpinBox.new()
+	spin.name = "PoolAmountSpin"
+	spin.min_value = 1
+	spin.max_value = maxi(balance, 1)
+	spin.step = 1
+	spin.value = balance
+	spin.custom_minimum_size = Vector2(160, 36)
+	amount_row.add_child(spin)
+	var amount_hint := Label.new()
+	amount_hint.text = "（1 ~ %d，默认全部余额）" % balance
+	amount_hint.add_theme_font_size_override("font_size", 13)
+	amount_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+	amount_row.add_child(amount_hint)
+	return margin
+
+
+## 底栏：灰「取消」+ 黄「分配」（点分配 → 二次确认）。
+func _build_pool_dialog_actions(overlay: Control) -> MarginContainer:
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 26)
+	margin.add_theme_constant_override("margin_right", 26)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 22)
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.add_theme_constant_override("separation", 12)
+	margin.add_child(actions)
+	var cancel_button := Button.new()
+	cancel_button.text = "取消"
+	cancel_button.custom_minimum_size = Vector2(140, 46)
+	cancel_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(cancel_button, "grey", UITheme.LIGHT_BODY)
+	cancel_button.pressed.connect(_close_exp_pool_dialog.bind(overlay))
+	actions.add_child(cancel_button)
+	var confirm_button := Button.new()
+	confirm_button.text = "分配"
+	confirm_button.custom_minimum_size = Vector2(160, 46)
+	confirm_button.add_theme_font_size_override("font_size", 17)
+	UITheme.apply_kenney_rect_button(confirm_button, "yellow", UITheme.INK)
+	confirm_button.pressed.connect(_on_pool_dialog_confirm.bind(overlay))
+	actions.add_child(confirm_button)
+	return margin
+
+
+## 分配二次确认（不可逆）：确认后写 characters[id].total_exp 并刷新面板。
+func _on_pool_dialog_confirm(overlay: Control) -> void:
+	var picker := overlay.find_child("PoolCharacterPicker", true, false) as OptionButton
+	var spin := overlay.find_child("PoolAmountSpin", true, false) as SpinBox
+	if picker == null or spin == null or picker.selected < 0:
+		_close_exp_pool_dialog(overlay)
+		return
+	var character_id := ""
+	var metadata = picker.get_item_metadata(picker.selected)
+	if metadata is String:
+		character_id = str(metadata)
+	var amount := int(spin.value)
+	_close_exp_pool_dialog(overlay)
+	if character_id.is_empty() or amount <= 0 or not _profile.can_allocate_exp_pool(character_id):
+		return
+	var display_name := character_id
+	for character_data in _owned:
+		if str(character_data.character_id) == character_id:
+			display_name = character_data.display_name
+	var dialog := ConfirmationDialog.new()
+	dialog.dialog_text = "将 %d 点经验分配给「%s」？\n分配后不可撤销（立即计入该武将经验）。" % [amount, display_name]
+	dialog.ok_button_text = "确认分配"
+	dialog.cancel_button_text = "取消"
+	dialog.confirmed.connect(_apply_exp_pool_allocation.bind(character_id, amount, dialog))
+	# Godot 4 取消信号名为 canceled（v0.32.2 修复）。
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.close_requested.connect(dialog.queue_free)
+	add_child(dialog)
+	dialog.popup_centered()
+
+
+func _apply_exp_pool_allocation(character_id: String, amount: int, dialog: ConfirmationDialog) -> void:
+	dialog.queue_free()
+	if not _profile.allocate_exp_pool(character_id, amount):
+		_refresh_exp_pool(GameFlow.get_character_level(_profile, _selected_id))
+		return
+	ProfileStore.save_profile(_profile)
+	_refresh()
+
+
+func _close_exp_pool_dialog(overlay: Control) -> void:
+	if overlay != null and is_instance_valid(overlay):
+		overlay.queue_free()
+	if _exp_pool_dialog == overlay:
+		_exp_pool_dialog = null
 
 func _on_promote_pressed(promotion: PromotionData) -> void:
 	if promotion == null:

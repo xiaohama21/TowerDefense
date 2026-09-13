@@ -4,20 +4,19 @@ extends VBoxContainer
 ## v0.37.11 顶栏资源胶囊移除 + 类目收敛 + 类型配色/方块图标 + 类型分组排序 + 滚动兜底）：
 ## 标题 + 持有种类计数 + 类目筛选 chips + 道具卡片网格（类型色方块图标 + 名称 + 类型徽标 +
 ## 描述 + ×数量金色，点选金框）+ 底部说明条（选中物品完整描述 + 持有计数）；
-## 附测试发放"练兵令 ×10"与"测试遗物 ×1（各）"（仅测试辅助，不影响正式数值与结算）。
+## 附测试发放"测试遗物 ×1（各）"（仅测试辅助，不影响正式数值与结算；练兵令已随 0.8.15.0 删除）。
 signal back_requested
 
-const EXP_SCROLL_ID := "exp_scroll"
 ## 测试发放的局内遗物（v0.19.0，CHARACTERS.md 4.8）：全部 5 件各 1。
 const TEST_RELIC_IDS: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 
 ## 类目顺序与 ItemData.ItemType 枚举一致（追加在末尾，勿改中间顺序）。
 const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品", "遗物"]
-## 筛选 chips 展示的类型（v0.37.11 收敛；货币/抽奖券/碎片随系统下线不生成——
-## 金币不入库存、求贤令 v0.30.0 库存隐藏、升星碎片 v0.30.0 移除，只保留有内容的类目）。
+## 筛选 chips 展示的类型（v0.37.11 收敛 / ✅ 0.8.15.0 二次收敛；货币/抽奖券/碎片随系统下线不生成——
+## 金币不入库存、求贤令 v0.30.0 库存隐藏、升星碎片 v0.30.0 移除；**消耗品类目随练兵令删除清空**
+## （0.8.15.0：exp_scroll 道具删除、发放入口移除），只保留有内容的类目）。
 const FILTER_TYPES: Array[int] = [
 	ItemData.ItemType.PROMOTION_MATERIAL,
-	ItemData.ItemType.CONSUMABLE,
 	ItemData.ItemType.RELIC,
 ]
 ## 方块图标渐变 key（概念图 .tile.*，索引 = ItemData.ItemType；avatar_gradient_colors 取色）。
@@ -112,14 +111,6 @@ func _build_ui() -> void:
 	grant_hint.add_theme_font_size_override("font_size", 14)
 	grant_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	grant_row.add_child(grant_hint)
-	var grant_button := Button.new()
-	grant_button.text = "获得练兵令 ×10"
-	grant_button.custom_minimum_size = Vector2(160, 40)
-	grant_button.focus_mode = Control.FOCUS_NONE
-	grant_button.add_theme_font_size_override("font_size", 14)
-	UITheme.apply_kenney_rect_button(grant_button, "grey", UITheme.LIGHT_BODY)
-	grant_button.pressed.connect(_on_grant_exp_scroll)
-	grant_row.add_child(grant_button)
 	var relic_grant_button := Button.new()
 	relic_grant_button.text = "获得测试遗物 ×1（各）"
 	relic_grant_button.custom_minimum_size = Vector2(180, 40)
@@ -259,13 +250,6 @@ func _show_detail(item_id: String) -> void:
 	count_cap.add_theme_font_size_override("font_size", 12)
 	count_cap.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	count_box.add_child(count_cap)
-
-
-func _on_grant_exp_scroll() -> void:
-	var profile := ProfileStore.get_profile()
-	profile.add_item(EXP_SCROLL_ID, 10)
-	ProfileStore.save_profile()
-	_refresh()
 
 
 func _on_grant_test_relics() -> void:

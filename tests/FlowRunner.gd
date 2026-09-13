@@ -282,7 +282,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		auto_next_wave_check.set_pressed(false)
 		_check(not GameFlow.is_gameplay_flag_enabled("auto_next_wave"),
 			"取消勾选应清除自动下一波标志")
-	# 背包页签（v0.15.1）：查看道具 + 测试发放练兵令。
+	# 背包页签（v0.15.1 / ✅ 0.8.15.0）：查看道具 + 测试发放测试遗物（练兵令已删除）。
 	var inventory_panel := hub.get_node("HubPanel/Columns/Content/InventoryPanel")
 	_show_hub_panel(hub, &"inventory")
 	_check(inventory_panel.visible and not settings_panel.visible, "点击背包应切换内容区")
@@ -304,24 +304,26 @@ func _test_hub(profile: PlayerProfile) -> void:
 		for child in inventory_filter_row.get_children():
 			if child is Button:
 				filter_texts.append((child as Button).text)
-	_check(filter_texts == ["全部", "材料", "消耗品", "遗物"],
-		"背包类目 chips 应收敛为 全部/材料/消耗品/遗物，实际 %s" % [filter_texts])
+	_check(filter_texts == ["全部", "材料", "遗物"],
+		"背包类目 chips 应收敛为 全部/材料/遗物（消耗品随练兵令删除清空，0.8.15.0），实际 %s" % [filter_texts])
 	var inventory_scroll := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
 	_check(inventory_scroll != null, "背包网格应包在 GridScroll 滚动容器内")
 	if inventory_scroll != null and inventory_scroll.get_child_count() > 0:
 		_check(inventory_scroll.get_child(0) is GridContainer, "GridScroll 内应含道具网格")
 	var grant_button: Button = null
+	var legacy_scroll_button := false
 	for button in _collect_buttons(inventory_panel):
-		if button.text == "获得练兵令 ×10":
+		if button.text == "获得测试遗物 ×1（各）":
 			grant_button = button
-			break
-	_check(grant_button != null, "背包面板应含测试发放按钮")
+		if "练兵令" in button.text:
+			legacy_scroll_button = true
+	_check(not legacy_scroll_button, "背包面板不应再有练兵令发放入口（0.8.15.0 删除）")
+	_check(grant_button != null, "背包面板应含测试遗物发放按钮")
 	if grant_button != null:
 		grant_button.pressed.emit()
 		await get_tree().process_frame
-		_check(int(profile.items.get("exp_scroll", 0)) == 10, "测试发放应写入 10 枚练兵令")
-	# 空类目（遗物未发放前为空）：网格空态 + 底部说明条提示；切回全部恢复卡片。
-	inventory_panel._on_category_pressed(int(inventory_panel.FILTER_TYPES[2]))
+		_check(int(profile.items.get("wolf_tooth", 0)) == 1, "测试发放应写入测试遗物库存")	# 空类目（新档尚无材料）：网格空态 + 底部说明条提示；切回全部恢复卡片。
+	inventory_panel._on_category_pressed(int(inventory_panel.FILTER_TYPES[0]))
 	await get_tree().process_frame
 	var empty_cards := 0
 	var empty_grid := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
@@ -360,6 +362,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 			clear_button = button
 			break
 	_check(clear_button != null, "地图面板底部操作条应有一键通关按钮")
+	var owned_before_clear := profile.get_owned_character_ids().size()
 	map_panel._on_difficulty_changed(true, Difficulty.HARD)
 	_check(int(map_panel.get("_selected_difficulty")) == Difficulty.HARD,
 		"选择困难应更新地图面板所选难度")
@@ -375,6 +378,94 @@ func _test_hub(profile: PlayerProfile) -> void:
 		var s01_diffs: Dictionary = s01_entry.get("difficulties", {})
 		_check(s01_diffs.has(Difficulty.key_name(Difficulty.HARD)),
 			"一键通关应按所选困难难度写档")
+		# 经验池注入（✅ 0.8.15 / NUMBERS 10.14）：测试工具按「全部已拥有武将出战、无击杀经验」口径。
+		_check(profile.get_exp_pool() == 25 * owned_before_clear,
+			"一键通关应按 roundi(participant_xp 50 × 出战 %d × 50%%) 注入经验池（实际 %d）" % [owned_before_clear, profile.get_exp_pool()])
+		# 养成面板「直接升级」：池内经验充足 → 二次确认 → 消耗差额升 1 级（不可逆）。
+		_show_hub_panel(hub, &"develop")
+		await get_tree().process_frame
+		var target_id := str(develop_panel.get("_selected_id"))
+		_check(not target_id.is_empty(), "养成面板应默认选中一名武将")
+		var level_before := GameFlow.get_character_level(profile, target_id)
+		var cost_expected := LevelCurve.exp_total_for_level(level_before + 1) - profile.get_character_exp(target_id)
+		var pool_before := profile.get_exp_pool()
+		var level_button: Button = null
+		for button in _collect_buttons(develop_panel):
+			if button.text == "直接升级":
+				level_button = button
+		var allocate_button: Button = null
+		for button in _collect_buttons(develop_panel):
+			if button.text == "分配 ▸":
+				allocate_button = button
+		_check(allocate_button != null and not allocate_button.disabled,
+			"池内余额充足且武将未满级时「分配 ▸」应可用")
+		_check(level_button != null and not level_button.disabled, "池内经验充足时「直接升级」应可用")
+		if level_button != null:
+			level_button.pressed.emit()
+			await get_tree().process_frame
+			var confirm: ConfirmationDialog = null
+			for child in develop_panel.get_children():
+				if child is ConfirmationDialog:
+					confirm = child
+			_check(confirm != null, "「直接升级」应先弹二次确认（不可逆操作）")
+			if confirm != null:
+				confirm.confirmed.emit()
+				await get_tree().process_frame
+				await get_tree().process_frame
+				_check(GameFlow.get_character_level(profile, target_id) == level_before + 1,
+					"确认后应提升 1 级（%d → %d）" % [level_before, level_before + 1])
+				_check(profile.get_exp_pool() == pool_before - cost_expected,
+					"直接升级应消耗池内经验 %d（余额 %d → %d）" % [cost_expected, pool_before, profile.get_exp_pool()])
+		# 经验池「分配」弹窗端到端（✅ 0.8.15 / B-064 回归）：下拉文本是「姓名 · LvN」，
+		# 确认时必须用 item metadata 取武将 id（曾用文本解析 → 取到姓名 → 「分配」静默无反应）。
+		if allocate_button != null:
+			var pool_before_alloc := profile.get_exp_pool()
+			allocate_button.pressed.emit()
+			await get_tree().process_frame
+			var pool_overlay: Control = develop_panel.get("_exp_pool_dialog")
+			_check(pool_overlay != null, "「分配 ▸」应打开经验池分配弹窗")
+			if pool_overlay != null:
+				var pool_picker := pool_overlay.find_child("PoolCharacterPicker", true, false) as OptionButton
+				var pool_spin := pool_overlay.find_child("PoolAmountSpin", true, false) as SpinBox
+				_check(pool_picker != null and pool_spin != null, "分配弹窗应含武将下拉与数量输入")
+				if pool_picker != null and pool_spin != null:
+					var assign_index := -1
+					for candidate in pool_picker.item_count:
+						if not pool_picker.is_item_disabled(candidate):
+							assign_index = candidate
+							break
+					_check(assign_index >= 0, "分配弹窗应含未满级可选武将")
+					if assign_index >= 0:
+						pool_picker.select(assign_index)
+						var assign_id := str(pool_picker.get_item_metadata(assign_index))
+						_check(not assign_id.is_empty() and profile.characters.has(assign_id),
+							"下拉项 metadata 应为武将 id（实际「%s」）" % assign_id)
+						var assign_amount := mini(30, profile.get_exp_pool())
+						pool_spin.value = assign_amount
+						var assign_exp_before := profile.get_character_exp(assign_id)
+						var pool_confirm_button: Button = null
+						for button in _collect_buttons(pool_overlay):
+							if button.text == "分配":
+								pool_confirm_button = button
+						_check(pool_confirm_button != null, "分配弹窗应有「分配」按钮")
+						if pool_confirm_button != null:
+							pool_confirm_button.pressed.emit()
+							await get_tree().process_frame
+							var pool_confirm: ConfirmationDialog = null
+							for child in develop_panel.get_children():
+								if child is ConfirmationDialog:
+									pool_confirm = child
+							_check(pool_confirm != null, "分配应先弹二次确认（不可逆操作）")
+							if pool_confirm != null:
+								pool_confirm.confirmed.emit()
+								await get_tree().process_frame
+								await get_tree().process_frame
+								_check(profile.get_exp_pool() == pool_before_alloc - assign_amount,
+									"分配应扣减经验池余额（%d → %d）" % [pool_before_alloc, profile.get_exp_pool()])
+								_check(profile.get_character_exp(assign_id) == assign_exp_before + assign_amount,
+									"分配应把 %d 点经验计入武将「%s」" % [assign_amount, assign_id])
+		_show_hub_panel(hub, &"map")
+		await get_tree().process_frame
 
 	# 难度两档化（v0.31.2）+ 出征直达编队（v0.33.1）：难度切换仅标准/困难；
 	# 出征点击直接发 stage_selected——v0.31.2 确认弹窗已删除，防误触确认收敛到编队页。

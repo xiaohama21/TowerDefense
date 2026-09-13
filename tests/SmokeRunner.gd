@@ -71,13 +71,75 @@ func _legacy_slot_cells(build_manager: Node, stage_data: StageData) -> Array[Vec
 	return result
 
 
+## 经验池（✅ 0.8.15.0 / DESIGN_REVIEW §12.6.1 / NUMBERS 10.14 / CHARACTERS 4.4）回归：
+## ① 注入 = roundi((击杀经验总量 + participant_xp × 出战人数) × 50%)，含难度倍率、纯增量；
+## ② 失败 / 放弃作废；③ 池内分配仅限已拥有且未满级、余额不足拒绝、不可逆；
+## ④ 「直接升级」消耗 = 升级到下一级差额；⑤ 练兵令（exp_scroll）整体删除防线。
+func _test_exp_pool_0815() -> void:
+	var session := BattleSession.create("ch01_s01", ["guan_yu", "liu_bei", "zhang_fei", "huang_zhong"])
+	session.add_kill_xp_base(527)
+	_check(session.get_pending_exp_pool() == 0, "未结算前不应写入经验池注入")
+	_check(session.finalize_exp_pool_injection(50) == 364,
+		"注入应为 roundi((527 + 50×4) × 0.5) = 364")
+	session.finalize_exp_pool_injection(50)
+	_check(session.get_pending_exp_pool() == 364, "重复结算应保持同一定值（幂等）")
+	_check(session.pending_xp_by_character.is_empty(), "注入不应扣减 / 改写武将所得经验（纯增量）")
+	# 难度口径：上报的是按 reward_mult 缩放后的击杀经验（困难 ×1.6），participant_xp 不缩放。
+	var hard_session := BattleSession.create("ch01_s01", ["guan_yu"])
+	hard_session.add_kill_xp_base(int(round(527 * 1.6)))
+	_check(hard_session.finalize_exp_pool_injection(50) == 447,
+		"困难注入应含 reward_mult ×1.6：roundi((843 + 50) × 0.5) = 447")
+	# 失败 / 放弃作废：注入量与基数一并清空（沿用现有结算语义）。
+	var fail_session := BattleSession.create("ch01_s01", ["guan_yu"])
+	fail_session.add_kill_xp_base(500)
+	fail_session.finalize_exp_pool_injection(60)
+	fail_session.mark_discarded()
+	_check(fail_session.get_pending_exp_pool() == 0 and fail_session.kill_xp_base == 0,
+		"失败 / 放弃应作废经验池注入与基数")
+	# 池内分配（不可逆）：未拥有 / 满级 / 余额不足一律拒绝。
+	var profile := PlayerProfile.new()
+	profile.add_exp_pool(1000)
+	_check(profile.get_exp_pool() == 1000, "结算注入应累计经验池余额")
+	_check(not profile.allocate_exp_pool("guan_yu", 100), "未拥有武将不可分配经验池")
+	profile.unlock_character("guan_yu")
+	_check(profile.can_allocate_exp_pool("guan_yu"), "已拥有且未满级武将应可分配")
+	_check(profile.allocate_exp_pool("guan_yu", 300), "余额充足时分配应成功")
+	_check(profile.get_character_exp("guan_yu") == 300 and profile.get_exp_pool() == 700,
+		"分配应扣池并写入 characters[id].total_exp")
+	_check(not profile.allocate_exp_pool("guan_yu", 800), "余额不足应拒绝分配")
+	_check(profile.get_exp_pool() == 700, "拒绝分配不应改动余额（无部分写入）")
+	# 「直接升级」：消耗 = 升级到下一级所需差额（300 exp = Lv4 → Lv5 门槛 340，差额 40）。
+	_check(profile.exp_pool_level_up_cost("guan_yu") == 40,
+		"Lv4（300 exp）直接升级消耗应为 40（Lv5 门槛 340 − 300）")
+	_check(profile.level_up_with_exp_pool("guan_yu"), "池内经验充足时应直接升级成功")
+	_check(GameFlow.get_character_level(profile, "guan_yu") == 5 and profile.get_exp_pool() == 660,
+		"直接升级应消耗池内经验并提升 1 级")
+	profile.add_character_exp("guan_yu",
+		LevelCurve.exp_total_for_level(LevelCurve.max_level()) - profile.get_character_exp("guan_yu"))
+	_check(GameFlow.get_character_level(profile, "guan_yu") == LevelCurve.max_level(),
+		"测试前置：该武将应已满级")
+	_check(not profile.can_allocate_exp_pool("guan_yu"), "满级武将不可分配经验池")
+	_check(not profile.allocate_exp_pool("guan_yu", 10), "满级武将分配应被拒绝（30 级封顶不产池经验）")
+	_check(profile.exp_pool_level_up_cost("guan_yu") == 0, "满级武将直接升级消耗应为 0（按钮禁用依据）")
+	# 练兵令删除防线（0.8.15.0）：道具资源 / 目录 / 存档残留三处均不得存在。
+	_check(not ResourceLoader.exists("res://resources/items/exp_scroll.tres"), "练兵令道具资源应已删除")
+	var item_paths := _collect_resource_paths("res://resources/items")
+	var has_exp_scroll := false
+	for path in item_paths:
+		if path.get_file().get_basename() == "exp_scroll":
+			has_exp_scroll = true
+	_check(not has_exp_scroll, "道具目录不应残留练兵令资源")
+	var legacy := PlayerProfile.from_dict({"schema_version": 5, "items": {"exp_scroll": 5, "yellow_turban_cloth": 2}})
+	_check(int(legacy.items.get("exp_scroll", 0)) == 0, "加载旧档不应保留练兵令数量（防御性清理）")
+	_check(int(legacy.items.get("yellow_turban_cloth", 0)) == 2, "防御性清理不应影响其他道具")
+
+
+
 func _run() -> void:
 	_check_resource_integrity()
-	# 测试消耗品（v0.15.1）：练兵令应为 CONSUMABLE 且可加载。
-	var exp_scroll := load("res://resources/items/exp_scroll.tres") as ItemData
-	_check(exp_scroll != null and exp_scroll.item_type == ItemData.ItemType.CONSUMABLE,
-		"练兵令应为可用的消耗品道具")
-	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（由消耗品改列，原消耗品类仅余测试练兵令）。
+	# 经验池（✅ 0.8.15 / NUMBERS 10.14）：注入定值 / 分配 / 直接升级 / 练兵令删除防线。
+	_test_exp_pool_0815()
+	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（消耗品练兵令已随 0.8.15.0 删除）。
 	for relic_id in ["wolf_tooth", "iron_shield", "provision_bag", "scout_eye", "war_drums"]:
 		var relic_item := load("res://resources/items/%s.tres" % relic_id) as ItemData
 		_check(relic_item != null and relic_item.item_type == ItemData.ItemType.RELIC,
@@ -2268,7 +2330,7 @@ func _run() -> void:
 		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
 
 	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 4, "信物重构后存档 schema 应为 v4（碎片清理 + 双槽迁移）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 5, "经验池重构后存档 schema 应为 v5（exp_pool + 练兵令清理；v4 = 碎片清理 + 双槽迁移）")
 	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
 	var c14_exclusive_count := 0
 	var c14_optional: Array[RelicData] = []

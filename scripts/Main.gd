@@ -461,6 +461,8 @@ func _on_victory():
 			battle_session.get_deployed_character_ids(),
 			stage_data.participant_xp
 		)
+		# 经验池注入定值（✅ 0.8.15 / NUMBERS 10.14）：纯增量、不扣武将所得，随战局提交写档。
+		battle_session.finalize_exp_pool_injection(stage_data.participant_xp)
 		if battle_session.mark_victory({
 			"remaining_lives": GameManager.lives,
 			"completed_waves": GameManager.current_wave,
