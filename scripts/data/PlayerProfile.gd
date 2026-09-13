@@ -4,7 +4,13 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 5
+const CURRENT_SCHEMA_VERSION: int = 6
+## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
+const SUPPLY_MAX_LEVEL: int = 3
+const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
+const BASE_SUPPLY_SLOTS: int = 2
+## 基础 4 件军需默认解锁（✅ 0.8.16；旧档迁移 / 读档均按此补「已解锁 + L1」）。
+const BASE_SUPPLY_IDS: Array[String] = ["repair", "fire_attack", "war_drum", "slow_down"]
 ## v2（阶段 8·提交 6，职业级转职树落地）：旧档角色绑定转职路径作废，
 ## 统一按职业级转职树重新转职——加载迁移时清空所有 promotion_path（v0.28 拍板）。
 ## v3（阶段 8·提交 8 延伸·v0.33.1）：新增出战编队持久记忆 squad_character_ids / squad_relic_ids——
@@ -15,6 +21,9 @@ const CURRENT_SCHEMA_VERSION: int = 5
 ## v5（阶段 8·提交 15 / 0.8.15.0 经验池重构，SAVE_DATA 8）：新增 `exp_pool`（经验池余额：
 ## 胜利结算额外注入、池内自由分配写入武将 total_exp；旧档迁移补 0、幂等）；
 ## `items.exp_scroll`（练兵令）残留数量随本次迁移清理（道具整体删除）。
+## v6（阶段 8·提交 16 / 0.8.16.0 军功 + 军需重构，SAVE_DATA 8）：新增 `military_merit`（军功余额）、
+## `supply_unlocks`（已解锁军需）、`supply_levels`（强化等级 L1~L3）、`supply_loadout_ids`（局外选带）；
+## 旧档迁移：军功补 0、基础 4 件补「已解锁 + L1」、选带补空（均幂等，不覆盖已有值）。
 
 var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}
@@ -26,6 +35,14 @@ var tech_points: int = 0
 var tech_unlocks: Array[String] = []
 ## 经验池余额（✅ 0.8.15 / NUMBERS 10.14）：只由胜利结算注入，不产出金币 / 材料 / 科技点。
 var exp_pool: int = 0
+## 军功余额（✅ 0.8.16 / NUMBERS 10.15）：击杀掉落累积（困难 ×1.5），用于军需解锁 / 强化。
+var military_merit: int = 0
+## 军需解锁（✅ 0.8.16）：已解锁军需 id（基础 4 件默认解锁；解锁不可逆）。
+var supply_unlocks: Array[String] = []
+## 军需强化等级（✅ 0.8.16）：id → 等级 1~3；未解锁的 id 不出现在表内。
+var supply_levels: Dictionary = {}
+## 局外选带（✅ 0.8.16）：出征携带的军需 id（≤ 槽位上限 = 2 + 科技「军府调度」1）。
+var supply_loadout_ids: Array[String] = []
 var last_committed_run_id: String = ""
 var squad_character_ids: Array[String] = []
 var squad_relic_ids: Array[String] = []
@@ -34,6 +51,9 @@ var squad_relic_ids: Array[String] = []
 func _init(initial_data: Dictionary = {}) -> void:
 	if not initial_data.is_empty():
 		load_dict(initial_data)
+	else:
+		# 与「空档 / 旧档读入」同语义（✅ 0.8.16）：裸档也落实基础 4 件军需「已解锁 + L1」。
+		_ensure_base_supplies()
 
 
 static func from_dict(data: Dictionary) -> PlayerProfile:
@@ -59,6 +79,11 @@ func load_dict(data: Dictionary) -> void:
 	tech_points = _coerce_non_negative_int(source.get("tech_points", 0))
 	tech_unlocks = _normalize_string_array(source.get("tech_unlocks", []))
 	exp_pool = _coerce_non_negative_int(source.get("exp_pool", 0))
+	military_merit = _coerce_non_negative_int(source.get("military_merit", 0))
+	supply_unlocks = _normalize_string_array(source.get("supply_unlocks", []))
+	supply_levels = _normalize_supply_levels(source.get("supply_levels", {}))
+	supply_loadout_ids = _normalize_string_array(source.get("supply_loadout_ids", []))
+	_ensure_base_supplies()
 	gacha_state = _normalize_dictionary(source.get("gacha_state", {}))
 	last_committed_run_id = str(source.get("last_committed_run_id", ""))
 	squad_character_ids = _normalize_string_array(source.get("squad_character_ids", []))
@@ -75,6 +100,10 @@ func to_dict() -> Dictionary:
 		"tech_points": tech_points,
 		"tech_unlocks": tech_unlocks.duplicate(),
 		"exp_pool": exp_pool,
+		"military_merit": military_merit,
+		"supply_unlocks": supply_unlocks.duplicate(),
+		"supply_levels": supply_levels.duplicate(true),
+		"supply_loadout_ids": supply_loadout_ids.duplicate(),
 		"gacha_state": gacha_state.duplicate(true),
 		"last_committed_run_id": last_committed_run_id,
 		"squad_character_ids": squad_character_ids.duplicate(),
@@ -97,6 +126,10 @@ func copy_from(other: PlayerProfile) -> void:
 	tech_points = other.tech_points
 	tech_unlocks = other.tech_unlocks.duplicate()
 	exp_pool = other.exp_pool
+	military_merit = other.military_merit
+	supply_unlocks = other.supply_unlocks.duplicate()
+	supply_levels = other.supply_levels.duplicate(true)
+	supply_loadout_ids = other.supply_loadout_ids.duplicate()
 	gacha_state = other.gacha_state.duplicate(true)
 	last_committed_run_id = other.last_committed_run_id
 	squad_character_ids = other.squad_character_ids.duplicate()
@@ -272,6 +305,125 @@ func level_up_with_exp_pool(character_id: String) -> bool:
 	return cost > 0 and allocate_exp_pool(character_id, cost)
 
 
+## ============ 军功与军需（✅ 0.8.16 / NUMBERS 10.15） ============
+
+func get_military_merit() -> int:
+	return military_merit
+
+
+## 军功入账（胜利结算纯增量；失败 / 退出 / 崩溃不进此路径）。
+func add_military_merit(amount: int) -> int:
+	military_merit += maxi(amount, 0)
+	return military_merit
+
+
+## 军功消费（解锁 / 强化）：余额不足返回 false 且不改动任何状态。
+func spend_military_merit(amount: int) -> bool:
+	if amount <= 0 or military_merit < amount:
+		return false
+	military_merit -= amount
+	return true
+
+
+func is_supply_unlocked(supply_id: String) -> bool:
+	return supply_unlocks.has(supply_id.strip_edges())
+
+
+## 强化等级：未解锁返回 0；已解锁返回 1~SUPPLY_MAX_LEVEL。
+func get_supply_level(supply_id: String) -> int:
+	var key := supply_id.strip_edges()
+	if key.is_empty() or not supply_unlocks.has(key):
+		return 0
+	return clampi(_coerce_non_negative_int(supply_levels.get(key, 1)), 1, SUPPLY_MAX_LEVEL)
+
+
+## 解锁军需（不可逆）：已解锁 / 军功不足返回 false 且不改动。
+func unlock_supply(supply_id: String, cost: int) -> bool:
+	var key := supply_id.strip_edges()
+	if key.is_empty() or supply_unlocks.has(key):
+		return false
+	if not spend_military_merit(cost):
+		return false
+	supply_unlocks.append(key)
+	supply_levels[key] = 1
+	return true
+
+
+## 强化军需（不可逆）：L1→L2 = 150 / L2→L3 = 300；未解锁 / 满级 / 军功不足返回 false。
+func upgrade_supply(supply_id: String) -> bool:
+	var key := supply_id.strip_edges()
+	var level := get_supply_level(key)
+	if level <= 0 or level >= SUPPLY_MAX_LEVEL:
+		return false
+	if not spend_military_merit(supply_upgrade_cost(level)):
+		return false
+	supply_levels[key] = level + 1
+	return true
+
+
+## 强化到下一级所需军功（level = 当前等级）：L1→L2 = 150、L2→L3 = 300；满级 / 非法返回 0。
+static func supply_upgrade_cost(level: int) -> int:
+	if level <= 0 or level >= SUPPLY_MAX_LEVEL:
+		return 0
+	return SUPPLY_UPGRADE_COSTS[level]
+
+
+func get_supply_loadout() -> Array[String]:
+	return supply_loadout_ids.duplicate()
+
+
+## 局外选带（✅ 0.8.16）：仅已解锁可入带、去重、不得超过槽位上限；
+## 含未解锁 / 重复 / 超限一律返回 false 且不改动任何状态。
+func set_supply_loadout(supply_ids: Array, slot_limit: int) -> bool:
+	var limit := maxi(slot_limit, 0)
+	var next: Array[String] = []
+	for value in supply_ids:
+		var key := str(value).strip_edges()
+		if key.is_empty() or not supply_unlocks.has(key) or next.has(key):
+			return false
+		next.append(key)
+	if next.size() > limit:
+		return false
+	supply_loadout_ids = next
+	return true
+
+
+## 点卡片切换选带态：已在带 → 移除；未在带 → 追加（已满槽返回 false 并拒绝，不改动）。
+func toggle_supply_loadout(supply_id: String, slot_limit: int) -> bool:
+	var key := supply_id.strip_edges()
+	if key.is_empty() or not supply_unlocks.has(key):
+		return false
+	var next := supply_loadout_ids.duplicate()
+	if next.has(key):
+		next.erase(key)
+	else:
+		if next.size() >= maxi(slot_limit, 0):
+			return false
+		next.append(key)
+	supply_loadout_ids = next
+	return true
+
+
+## 基础 4 件军需默认「已解锁 + L1」（读档 / 迁移共用；幂等、不覆盖已有等级）。
+func _ensure_base_supplies() -> void:
+	for supply_id in BASE_SUPPLY_IDS:
+		if not supply_unlocks.has(supply_id):
+			supply_unlocks.append(supply_id)
+		if not supply_levels.has(supply_id):
+			supply_levels[supply_id] = 1
+
+
+func _normalize_supply_levels(value) -> Dictionary:
+	var result: Dictionary = {}
+	if value is Dictionary:
+		for key in value.keys():
+			var supply_id := str(key).strip_edges()
+			if supply_id.is_empty():
+				continue
+			result[supply_id] = clampi(_coerce_non_negative_int(value[key]), 1, SUPPLY_MAX_LEVEL)
+	return result
+
+
 ## 科技点（阶段 4）：通关获取，科技树消费。
 func add_tech_points(amount: int) -> void:
 	tech_points += maxi(amount, 0)
@@ -406,6 +558,12 @@ func apply_battle_session(session: Object) -> bool:
 		var pending_pool: int = _coerce_non_negative_int(session.get_pending_exp_pool())
 		if pending_pool > 0:
 			add_exp_pool(pending_pool)
+
+	# 军功（✅ 0.8.16 / NUMBERS 10.15）：胜利结算写档（失败 / 放弃 / 崩溃不进此路径）。
+	if session.has_method("get_pending_merit"):
+		var pending_merit: int = _coerce_non_negative_int(session.get_pending_merit())
+		if pending_merit > 0:
+			add_military_merit(pending_merit)
 
 	# 科技点（GDD modules/NUMBERS.md 10.7，v0.14.1）：随战局提交写档。
 	if session.has_method("get_pending_tech_points"):

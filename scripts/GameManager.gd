@@ -77,7 +77,8 @@ func enemy_died(
 	source_character_id: String = "",
 	damage_contributors: Dictionary = {},
 	is_boss: bool = false,
-	is_summon: bool = false
+	is_summon: bool = false,
+	merit: int = 0
 ):
 	gold += int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 	if kill_xp > 0:
@@ -85,6 +86,7 @@ func enemy_died(
 		kill_xp = int(round(kill_xp * Difficulty.reward_mult(GameFlow.selected_difficulty)))
 		_report_kill_xp_base(kill_xp)
 		_distribute_kill_xp(kill_xp, source_character_id, damage_contributors)
+	_report_merit(merit)
 	if not source_character_id.strip_edges().is_empty():
 		enemy_killed_by_character.emit(source_character_id.strip_edges())
 	# 连击（P0 4.1 拍板）：Boss 不计入普通连击，召唤物计入。
@@ -130,6 +132,15 @@ func _report_kill_xp_base(amount: int) -> void:
 	if active_battle_session == null or amount <= 0:
 		return
 	active_battle_session.add_kill_xp_base(amount)
+
+
+## 军功上报（✅ 0.8.16 / NUMBERS 10.15）：逐敌固定值 × 难度 merit_mult（困难 ×1.5、与击杀经验
+## reward_mult ×1.6 分账）累计至战局；**累计精确值、结算 roundi 取整**（全章 1242 → 困难 1863，
+## 逐笔取整会放大到 2228）；与经验同一结算通道（胜利写档、失败 / 退出 / 崩溃不带出）。
+func _report_merit(amount: int) -> void:
+	if active_battle_session == null or amount <= 0:
+		return
+	active_battle_session.add_merit_scaled(amount, Difficulty.merit_mult(GameFlow.selected_difficulty))
 
 
 func _add_session_xp(character_id: String, amount: int) -> void:

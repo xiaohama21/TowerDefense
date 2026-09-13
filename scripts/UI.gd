@@ -406,12 +406,18 @@ func show_status(message: String, duration: float = 1.5) -> void:
 		status_label.visible = false
 
 
+## 战局是否已结束（全部波次完成 / 基地生命归零）：结算开始后禁购买 · 使用军需（✅ 0.8.16，
+## Main 军需面板唯一判定入口——原 `ui.game_finished` 属性在 UI.gd 中并不存在，见 BUGS B-067）。
+func is_game_finished() -> bool:
+	return GameManager.current_wave >= GameManager.total_waves or GameManager.lives <= 0
+
+
 func _refresh_action_buttons() -> void:
 	if not is_instance_valid(next_wave_button):
 		return
 
 	var all_waves_completed := GameManager.current_wave >= GameManager.total_waves
-	var game_finished := all_waves_completed or GameManager.lives <= 0
+	var game_finished := is_game_finished()
 	next_wave_button.disabled = (
 		GameManager.is_wave_active
 		or game_finished

@@ -680,6 +680,14 @@ func gain_support_pulse(allies: Array) -> void:
 	GameManager.add_support_contribution(character_id, ally_keys)
 
 
+## 固定加怒（军需「犒军」，✅ 0.8.16 / NUMBERS 10.15）：不吃月幕倍率与科技 rage_gain_pct，
+## 直接加至上限（与常规积怒 gain_rage 分账，避免军需被动态加成放大）。
+func grant_rage_flat(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	rage = minf(rage + amount, _max_rage)
+
+
 func gain_rage(amount: float) -> void:
 	if amount <= 0.0:
 		return

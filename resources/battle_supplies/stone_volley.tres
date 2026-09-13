@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BattleSupplyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/BattleSupplyData.gd" id="1_supply"]
+
+[resource]
+script = ExtResource("1_supply")
+supply_id = &"stone_volley"
+display_name = "掷石齐射"
+description = "全军掷石齐射：全场敌人各受物理伤害（军需独立来源、按护甲结算）。"
+merit_unlock_cost = 340
+level_costs = [70, 70, 70]
+level_max_uses = [1, 1, 1]
+level_instant_physical = [60, 85, 110]

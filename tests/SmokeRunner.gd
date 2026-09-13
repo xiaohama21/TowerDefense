@@ -134,11 +134,209 @@ func _test_exp_pool_0815() -> void:
 	_check(int(legacy.items.get("yellow_turban_cloth", 0)) == 2, "防御性清理不应影响其他道具")
 
 
+## 军功 + 军需重构（✅ 0.8.16.0 / DESIGN_REVIEW §12.6.2 / NUMBERS 10.15 / SAVE_DATA 8 / STATS_PIPELINE v0.7）回归：
+## ① 军功逐敌档位表（步卒 / 弓手 1、轻骑 / 祭酒 2、精英 3、Boss 25、终 Boss 张角 40）；
+## ② 各关合计 71 / 90 / 129 / 144 / 145 / 208 / 167 / 288 = 全章 1242，困难精确 ×1.5 = 1863
+##   （精确累计、结算 roundi 取整——逐笔取整会把 1~3 军功放大成 2/5，全章偏到 2228）；
+## ③ 与经验同通道：胜利写档、失败 / 放弃作废（mark_discarded / clear_pending_rewards 清零）；
+## ④ 军需 6 件目录 · 逐级费用 / 限次 / 幅度 / 解锁 340·425 / 强化 150·300；
+## ⑤ 军需带（基础 2 槽 + 科技「军府调度」1）与 schema v6。
+func _test_merit_supply_0816() -> void:
+	var merit_by_enemy := {
+		"yellow_turban_soldier": 1, "yellow_turban_archer": 1,
+		"yellow_turban_cavalry": 2, "yellow_turban_sorcerer": 2,
+		"yellow_turban_sergeant": 3, "yellow_turban_berserker": 3,
+		"yellow_turban_elite_sergeant": 3, "yellow_turban_heavy_berserker": 3,
+		"yellow_turban_stealth_assassin": 3, "yellow_turban_stealth_healer": 3,
+		"yellow_turban_armor_aura_caster": 3,
+		"yellow_turban_general": 25, "yellow_turban_rebel_general": 25,
+		"yellow_turban_heaven_general": 40,
+	}
+	for enemy_key in merit_by_enemy:
+		var enemy_data := load("res://resources/enemies/yellow_turban/%s.tres" % enemy_key) as EnemyData
+		_check(enemy_data != null and enemy_data.merit_reward == int(merit_by_enemy[enemy_key]),
+			"敌人 %s 军功应为 %d（NUMBERS 10.15 档位表）" % [enemy_key, int(merit_by_enemy[enemy_key])])
+
+	# 各关合计（不含 Boss 召唤物）与困难精确 ×1.5：同一遍扫描同时累计基础值与困难值。
+	var expected_stage_merit := {
+		"ch01_s01": 71, "ch01_s02": 90, "ch01_s03": 129, "ch01_s04": 144,
+		"ch01_s05": 145, "ch01_s06": 208, "ch01_s07": 167, "ch01_s08": 288,
+	}
+	var chapter_merit := 0
+	var hard_session := BattleSession.create("smoke_merit_chapter", ["guan_yu"])
+	var hard_mult := Difficulty.merit_mult(Difficulty.HARD)
+	for stage_key in expected_stage_merit:
+		var merit_stage := load("res://resources/stages/chapter_01/%s.tres" % stage_key) as StageData
+		if merit_stage == null:
+			_check(false, "军功用例关卡应可加载: %s" % stage_key)
+			continue
+		var stage_merit := 0
+		for merit_wave in merit_stage.waves:
+			for merit_group in merit_wave.spawn_groups:
+				if merit_group == null or merit_group.enemy == null:
+					continue
+				var merit_data := merit_group.enemy.resolved()
+				var merit_count := int(merit_group.count)
+				stage_merit += merit_data.merit_reward * merit_count
+				hard_session.add_merit_scaled(merit_data.merit_reward * merit_count, hard_mult)
+		chapter_merit += stage_merit
+		_check(stage_merit == int(expected_stage_merit[stage_key]),
+			"%s 军功合计应为 %d（NUMBERS 10.15）" % [stage_key, int(expected_stage_merit[stage_key])])
+	_check(chapter_merit == 1242, "全章军功应为 1242（71 波 / 813 出怪）")
+	_check(hard_session.get_pending_merit() == 1863,
+		"困难全章军功应为精确 ×1.5 = 1863（逐笔取整会放大到 2228）")
+
+	# 作废语义：与经验同通道——失败 / 退出 / 崩溃不带出。
+	var discard_session := BattleSession.create("smoke_merit_discard", ["guan_yu"])
+	discard_session.add_merit_scaled(40, 1.5)
+	_check(discard_session.get_pending_merit() == 60, "军功应含难度倍率（终 Boss 档 40 × 1.5 = 60）")
+	discard_session.mark_discarded()
+	_check(discard_session.get_pending_merit() == 0, "失败 / 退出应作废本局军功（不带出）")
+	var clear_session := BattleSession.create("smoke_merit_clear", ["guan_yu"])
+	clear_session.add_merit(7)
+	clear_session.clear_pending_rewards()
+	_check(clear_session.get_pending_merit() == 0, "clear_pending_rewards 应清零军功暂存")
+
+	# 写档链路：胜利 → apply_battle_session 写 military_merit；消费 / 余额不足拒绝。
+	var merit_profile := PlayerProfile.new()
+	merit_profile.unlock_character("guan_yu")
+	var victory_session := BattleSession.create("ch01_s01", ["guan_yu"])
+	victory_session.add_merit_scaled(100, 1.5)
+	victory_session.mark_victory({"difficulty": "normal"})
+	_check(merit_profile.apply_battle_session(victory_session), "胜利战局应可应用到档案（含军功）")
+	_check(merit_profile.get_military_merit() == 150, "胜利结算应把军功写入档案（100 × 1.5 = 150）")
+	_check(not merit_profile.spend_military_merit(200), "军功余额不足应拒绝消费")
+	_check(merit_profile.get_military_merit() == 150, "拒绝消费不应改动军功余额")
+	_check(merit_profile.spend_military_merit(150) and merit_profile.get_military_merit() == 0,
+		"军功应可用于消费（解锁 / 强化）")
+
+	# 军需目录与逐级数值（NUMBERS 10.15 表）：费用 / 限次 / 幅度 / 解锁。
+	var catalog := BattleSupplyData.load_catalog()
+	_check(catalog.size() == 6, "军需池应为 6 件")
+	var expected_supply_order: Array[String] = [
+		"repair", "fire_attack", "war_drum", "slow_down", "stone_volley", "reward_army",
+	]
+	var catalog_order: Array[String] = []
+	for catalog_item in catalog:
+		catalog_order.append(str(catalog_item.supply_id))
+	_check(catalog_order == expected_supply_order,
+		"军需目录顺序应为 修整 / 火攻 / 擂鼓 / 缓兵 / 掷石齐射 / 犒军（固定展示顺序）")
+	for catalog_item in catalog:
+		var supply_id := str(catalog_item.supply_id)
+		match supply_id:
+			"repair":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 60
+					and catalog_item.cost_at(2) == 55 and catalog_item.cost_at(3) == 50
+					and catalog_item.max_uses_at(1) == 1 and catalog_item.max_uses_at(3) == 2
+					and catalog_item.heal_at(1) == 10 and catalog_item.heal_at(2) == 12
+					and catalog_item.heal_at(3) == 14,
+					"修整应为 60/55/50 金 · 限 1/1/2 · 生命 +10/12/14（基础已解锁）")
+			"fire_attack":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 80
+					and catalog_item.cost_at(3) == 70 and catalog_item.max_uses_at(2) == 1
+					and catalog_item.instant_magic_at(1) == 50 and catalog_item.instant_magic_at(3) == 80
+					and catalog_item.burn_dps_at(1) == 25 and catalog_item.burn_dps_at(3) == 40
+					and is_equal_approx(catalog_item.duration_at(1), 3.0),
+					"火攻应为 80/75/70 金 · 限 1 · 立即 50/65/80 魔法 + 灼烧 25/32/40 ×3s")
+			"war_drum":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 50
+					and catalog_item.cost_at(3) == 40 and catalog_item.max_uses_at(1) == 2
+					and catalog_item.max_uses_at(3) == 3
+					and is_equal_approx(catalog_item.attack_speed_bonus_at(1), 0.30)
+					and is_equal_approx(catalog_item.attack_speed_bonus_at(3), 0.45)
+					and is_equal_approx(catalog_item.duration_at(1), 8.0),
+					"擂鼓应为 50/45/40 金 · 限 2/2/3 · 攻速 +30/37/45% ×8s")
+			"slow_down":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 40
+					and catalog_item.cost_at(3) == 32 and catalog_item.max_uses_at(1) == 2
+					and is_equal_approx(catalog_item.slow_factor_at(1), 0.60)
+					and is_equal_approx(catalog_item.slow_factor_at(2), 0.53)
+					and is_equal_approx(catalog_item.slow_factor_at(3), 0.45)
+					and is_equal_approx(catalog_item.duration_at(1), 5.0)
+					and is_equal_approx(catalog_item.duration_at(3), 7.0),
+					"缓兵应为 40/36/32 金 · 限 2 · 减速 40/47/55%（时长 5/6/7s）")
+			"stone_volley":
+				_check(catalog_item.merit_unlock_cost == 340 and catalog_item.cost_at(1) == 70
+					and catalog_item.cost_at(3) == 70 and catalog_item.max_uses_at(3) == 1
+					and catalog_item.is_physical_strike()
+					and catalog_item.instant_physical_at(1) == 60
+					and catalog_item.instant_physical_at(2) == 85
+					and catalog_item.instant_physical_at(3) == 110,
+					"掷石齐射应为 70 金 · 限 1 · 全场各 60/85/110 物理（解锁 340）")
+			"reward_army":
+				_check(catalog_item.merit_unlock_cost == 425 and catalog_item.cost_at(1) == 50
+					and catalog_item.max_uses_at(1) == 1 and catalog_item.rage_gain_at(1) == 20
+					and catalog_item.rage_gain_at(2) == 28 and catalog_item.rage_gain_at(3) == 36,
+					"犒军应为 50 金 · 限 1 · 怒气 +20/28/36（解锁 425）")
+			_:
+				_check(false, "军需目录出现未登记条目: %s" % supply_id)
+
+	# 解锁 / 强化（不可逆、封顶 L3）与军需带槽位（基础 2 + 科技「军府调度」1 → 3）。
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "存档 schema 应为 v6（0.8.16 军功 + 军需）")
+	_check(PlayerProfile.SUPPLY_MAX_LEVEL == 3 and PlayerProfile.BASE_SUPPLY_SLOTS == 2,
+		"军需强化上限应为 3 级、军需带基础槽位应为 2")
+	_check(PlayerProfile.supply_upgrade_cost(1) == 150 and PlayerProfile.supply_upgrade_cost(2) == 300
+		and PlayerProfile.supply_upgrade_cost(3) == 0,
+		"强化费用应为 L1→L2 = 150 / L2→L3 = 300 / 满级 0")
+	var supply_profile := PlayerProfile.new()
+	_check(supply_profile.is_supply_unlocked("repair") and supply_profile.is_supply_unlocked("fire_attack")
+		and supply_profile.is_supply_unlocked("war_drum") and supply_profile.is_supply_unlocked("slow_down")
+		and supply_profile.get_supply_level("repair") == 1,
+		"基础 4 件军需应默认「已解锁 + L1」（裸档与读档同语义）")
+	_check(not supply_profile.is_supply_unlocked("stone_volley")
+		and not supply_profile.is_supply_unlocked("reward_army")
+		and supply_profile.get_supply_level("stone_volley") == 0,
+		"掷石齐射 / 犒军应默认未解锁（等级 0）")
+	_check(not supply_profile.unlock_supply("stone_volley", 340), "军功不足时解锁应被拒绝")
+	_check(not supply_profile.is_supply_unlocked("stone_volley"), "解锁失败不应写入解锁状态")
+	supply_profile.add_military_merit(1000)
+	_check(supply_profile.unlock_supply("stone_volley", 340)
+		and supply_profile.get_military_merit() == 660
+		and supply_profile.get_supply_level("stone_volley") == 1,
+		"解锁掷石齐射应扣 340 军功并置 L1")
+	_check(supply_profile.upgrade_supply("stone_volley")
+		and supply_profile.get_supply_level("stone_volley") == 2
+		and supply_profile.get_military_merit() == 510,
+		"强化 L1→L2 应扣 150 军功")
+	_check(supply_profile.upgrade_supply("stone_volley")
+		and supply_profile.get_supply_level("stone_volley") == 3
+		and supply_profile.get_military_merit() == 210,
+		"强化 L2→L3 应扣 300 军功")
+	_check(not supply_profile.upgrade_supply("stone_volley"), "满级军需不应再强化（不可逆且封顶）")
+	# 选带：仅已解锁、去重、不得超槽位；toggle 语义 = 再点移出。
+	_check(supply_profile.toggle_supply_loadout("repair", 2), "已解锁军需应可入带")
+	_check(supply_profile.toggle_supply_loadout("repair", 2), "再次点击应把该件移出军需带")
+	_check(supply_profile.get_supply_loadout().is_empty(), "移出后军需带应为空")
+	_check(not supply_profile.toggle_supply_loadout("reward_army", 2), "未解锁军需不可入带")
+	_check(supply_profile.toggle_supply_loadout("repair", 2)
+		and supply_profile.toggle_supply_loadout("stone_volley", 2),
+		"两件已解锁军需应可入带（基础 2 槽）")
+	_check(not supply_profile.toggle_supply_loadout("fire_attack", 2), "超槽位应拒绝入带")
+	_check(supply_profile.get_supply_loadout().size() == 2, "拒绝入带不应改动军需带")
+	_check(not supply_profile.set_supply_loadout(["repair", "repair"], 3), "重复条目应被拒绝")
+	_check(not supply_profile.set_supply_loadout(["repair", "reward_army"], 3), "含未解锁条目应被拒绝")
+	_check(supply_profile.set_supply_loadout(["repair", "stone_volley", "fire_attack"], 3),
+		"科技「军府调度」+1 时应可带 3 件")
+	# 科技「军府调度」（strat_supply_3）：将略 tier 3、前置 strat_supply_2、效果 +1 槽。
+	var has_supply_tech := false
+	for tech_item in TechTree.get_items():
+		if str(tech_item.id) == "strat_supply_3":
+			has_supply_tech = true
+			_check(str(tech_item.requires) == "strat_supply_2"
+				and int(tech_item.effect.get("supply_slot_bonus", 0)) == 1,
+				"「军府调度」应为将略 tier 3 / 前置 strat_supply_2 / 军需带 +1 槽")
+	_check(has_supply_tech, "科技树应含「军府调度」（strat_supply_3，0.8.16 新增）")
+	var slot_bonuses := TechTree.get_tech_bonuses(supply_profile)
+	_check(int(slot_bonuses.get("supply_slot_bonus", 0)) == 0,
+		"未解锁「军府调度」时槽位加成为 0（加成键默认存在）")
+
 
 func _run() -> void:
 	_check_resource_integrity()
 	# 经验池（✅ 0.8.15 / NUMBERS 10.14）：注入定值 / 分配 / 直接升级 / 练兵令删除防线。
 	_test_exp_pool_0815()
+	# 军功 + 军需（✅ 0.8.16 / NUMBERS 10.15）：军功档位与合计 / 军需目录 · 解锁强化 · 选带 / schema v6。
+	_test_merit_supply_0816()
 	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（消耗品练兵令已随 0.8.15.0 删除）。
 	for relic_id in ["wolf_tooth", "iron_shield", "provision_bag", "scout_eye", "war_drums"]:
 		var relic_item := load("res://resources/items/%s.tres" % relic_id) as ItemData
@@ -248,9 +446,9 @@ func _run() -> void:
 		var merged2 := overridden.resolved()
 		_check(merged2.max_hp == 300 and merged2.armor == 0, "显式字段应覆盖模板值")
 
-	# 阶段 6 提交 2（v0.18.0）+ 阶段 8 提交 3：科技树配置化——四类分页、31 项、加成汇总来自配置。
+	# 阶段 6 提交 2（v0.18.0）+ 阶段 8 提交 3 / 16：科技树配置化——四类分页、32 项、加成汇总来自配置。
 	var tech_items := TechTree.get_items()
-	_check(tech_items.size() == 31, "科技树配置应含 31 项（军略15/后勤5/工事3/将略8）")
+	_check(tech_items.size() == 32, "科技树配置应含 32 项（军略15/后勤5/工事3/将略9，0.8.16 新增「军府调度」）")
 	_check(TechTree.get_categories() == ["军略", "后勤", "工事", "将略"], "科技树应为四类分页（军略/后勤/工事/将略）")
 	_check(TechTree.get_items_by_category("军略").size() == 15, "军略分类应含 15 项（职业强化）")
 	# 独立临时档案验证加成，避免解锁污染共享存档（后续伤害断言不受 +6% 影响）。
@@ -607,16 +805,26 @@ func _run() -> void:
 		# 生效，隔离后续用例。
 		await get_tree().process_frame
 
-	# 局内军需（阶段 8 提交 1，NUMBERS.md 10.9）：四件资源齐全、效果数值已配置。
+	# 局内军需（✅ 0.8.16 重构 / NUMBERS.md 10.15）：6 件资源齐全、逐级（L1~L3）数值已配置。
 	var supply_repair := load("res://resources/battle_supplies/repair.tres") as BattleSupplyData
 	var supply_fire := load("res://resources/battle_supplies/fire_attack.tres") as BattleSupplyData
 	var supply_drum := load("res://resources/battle_supplies/war_drum.tres") as BattleSupplyData
 	var supply_slow := load("res://resources/battle_supplies/slow_down.tres") as BattleSupplyData
-	_check(supply_repair != null and supply_fire != null and supply_drum != null and supply_slow != null, "四件军需资源应可加载")
-	if supply_repair != null and supply_fire != null and supply_drum != null and supply_slow != null:
-		_check(supply_repair.is_valid() and supply_fire.is_valid() and supply_drum.is_valid() and supply_slow.is_valid(), "军需资源配置应有效")
-		_check(supply_repair.heal_amount == 10 and supply_fire.burn_dps > 0 and supply_drum.attack_speed_bonus > 0.0
-			and supply_slow.slow_factor < 1.0, "军需效果数值应已配置")
+	var supply_stone := load("res://resources/battle_supplies/stone_volley.tres") as BattleSupplyData
+	var supply_rage := load("res://resources/battle_supplies/reward_army.tres") as BattleSupplyData
+	_check(supply_repair != null and supply_fire != null and supply_drum != null
+		and supply_slow != null and supply_stone != null and supply_rage != null, "六件军需资源应可加载")
+	if supply_repair != null and supply_fire != null and supply_drum != null \
+			and supply_slow != null and supply_stone != null and supply_rage != null:
+		_check(supply_repair.is_valid() and supply_fire.is_valid() and supply_drum.is_valid()
+			and supply_slow.is_valid() and supply_stone.is_valid() and supply_rage.is_valid(),
+			"军需资源配置应有效")
+		_check(supply_repair.heal_at(1) == 10 and supply_repair.heal_at(3) == 14
+			and supply_fire.instant_magic_at(1) == 50 and supply_fire.burn_dps_at(3) == 40
+			and is_equal_approx(supply_drum.attack_speed_bonus_at(1), 0.30)
+			and is_equal_approx(supply_slow.slow_factor_at(3), 0.45)
+			and supply_stone.instant_physical_at(3) == 110 and supply_rage.rage_gain_at(2) == 28,
+			"军需逐级效果数值应已配置（NUMBERS 10.15）")
 	# 灼烧（火攻）：每秒 burn_dps 持续扣血，25/s × 3s = 75。
 	var burn_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
 	_check(burn_target != null, "灼烧用例应能生成敌人")
@@ -629,6 +837,73 @@ func _run() -> void:
 		var burn_dealt := burn_target.max_hp - burn_target.current_hp
 		_check(abs(burn_dealt - 75) <= 1, "灼烧 3 秒应造成约 75 点伤害（实际 %d）" % burn_dealt)
 		burn_target.die(false)
+
+	# 军功上报链路（✅ 0.8.16 / NUMBERS 10.15）：击杀 → GameManager._report_merit → 战局，含难度倍率。
+	var merit_session := BattleSession.create("smoke_merit_stage", ["guan_yu"])
+	GameManager.set_battle_session(merit_session)
+	GameFlow.selected_difficulty = Difficulty.NORMAL
+	var merit_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	_check(merit_enemy != null, "军功用例应能生成敌人")
+	if merit_enemy != null:
+		merit_enemy.take_damage(9999, "guan_yu")
+		_check(merit_session.get_pending_merit() == 1, "击杀步卒应上报 1 军功（标准 ×1.0）")
+	GameFlow.selected_difficulty = Difficulty.HARD
+	var hard_merit_session := BattleSession.create("smoke_merit_hard", ["guan_yu"])
+	GameManager.set_battle_session(hard_merit_session)
+	for _merit_index in range(2):
+		var hard_merit_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if hard_merit_enemy != null:
+			hard_merit_enemy.take_damage(9999, "guan_yu")
+	_check(hard_merit_session.get_pending_merit() == 3,
+		"困难击杀 2 名步卒应累计 roundi(1.5 × 2) = 3（精确累计，逐笔取整会得 4）")
+	GameFlow.selected_difficulty = Difficulty.NORMAL
+	GameManager.set_battle_session(null)
+
+	# 掷石齐射（✅ 0.8.16 / STATS_PIPELINE v0.7）：军需独立来源物理直伤，按护甲结算、不经塔任何桶。
+	if supply_stone != null:
+		var strike_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if strike_target != null:
+			strike_target.set_process(false)
+			var strike_hp_before := strike_target.current_hp
+			main._apply_battle_supply(supply_stone, 1)
+			_check(strike_hp_before - strike_target.current_hp == 60,
+				"掷石齐射 L1 应对 0 甲目标造成 60 物理伤害（实为 %d）" % (strike_hp_before - strike_target.current_hp))
+			strike_target.die(false)
+		var armored_data := load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData
+		var armored_target := enemy_manager.spawn_enemy_from_data(armored_data) as Enemy
+		if armored_target != null:
+			armored_target.set_process(false)
+			var armored_hp_before := armored_target.current_hp
+			main._apply_battle_supply(supply_stone, 1)
+			_check(armored_hp_before - armored_target.current_hp == 52,
+				"掷石齐射应按护甲结算（8 甲：60 ×(1 − 8/58) ≈ 52，实为 %d）"
+					% (armored_hp_before - armored_target.current_hp))
+			armored_target.die(false)
+	# 犒军（✅ 0.8.16 / STATS_PIPELINE v0.7）：直接加怒固定值——不吃科技 rage_gain_pct、不吃月幕倍率。
+	if supply_rage != null and tower_manager.get_child_count() > 0:
+		var rage_tower := tower_manager.get_child(0) as Tower
+		if rage_tower != null:
+			rage_tower.rage = 0.0
+			rage_tower._tech_rage_gain_pct = 0.5
+			main._apply_battle_supply(supply_rage, 1)
+			_check(is_equal_approx(rage_tower.rage, 20.0),
+				"犒军 L1 应直接 +20 怒气（不吃科技怒气%% 与月幕倍率，实为 %.1f）" % rage_tower.rage)
+			rage_tower._tech_rage_gain_pct = 0.0
+			rage_tower.rage = 0.0
+	# 满生命禁修整（NUMBERS 10.15 边界规则）：满血使用被拒、次数不消耗；非满血正常生效。
+	if supply_repair != null:
+		main._supply_purchased["repair"] = 1
+		GameManager.lives = GameManager.starting_lives
+		var full_lives := GameManager.lives
+		main._use_battle_supply("repair")
+		_check(GameManager.lives == full_lives and main._supply_uses_left("repair") == 1,
+			"满生命时修整应被拒绝（次数不消耗）")
+		var wounded_lives := maxi(GameManager.starting_lives - 12, 1)
+		GameManager.lives = wounded_lives
+		main._use_battle_supply("repair")
+		_check(GameManager.lives == wounded_lives + 10, "非满生命时修整应 +10 基地生命")
+		main._supply_purchased.erase("repair")
+		GameManager.lives = GameManager.starting_lives
 
 	# 等级曲线（GDD modules/NUMBERS.md 10.1）
 	_check(LevelCurve.exp_total_for_level(10) == 1440, "10 级累计经验应为 1440")
@@ -2330,7 +2605,7 @@ func _run() -> void:
 		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
 
 	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 5, "经验池重构后存档 schema 应为 v5（exp_pool + 练兵令清理；v4 = 碎片清理 + 双槽迁移）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "存档 schema 应为 v6（0.8.16 军功 + 军需；v5 = 经验池 / 练兵令清理，v4 = 碎片清理 + 双槽迁移）")
 	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
 	var c14_exclusive_count := 0
 	var c14_optional: Array[RelicData] = []

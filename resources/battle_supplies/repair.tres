@@ -6,7 +6,8 @@
 script = ExtResource("1_supply")
 supply_id = &"repair"
 display_name = "修整"
-description = "紧急修整城防，基地生命 +10。"
-cost = 60
-max_uses = 1
-heal_amount = 10
+description = "紧急修整城防，立即回复基地生命（购买入带，点击带内条目使用）。"
+merit_unlock_cost = 0
+level_costs = [60, 55, 50]
+level_max_uses = [1, 1, 2]
+level_heal = [10, 12, 14]

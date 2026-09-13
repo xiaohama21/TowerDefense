@@ -30,6 +30,8 @@ func _run() -> void:
 	var profile := _test_unlock_logic()
 	# 各测试函数含 await，必须逐个等待，否则 _finish 会在断言执行前提前退出。
 	await _test_hub(profile)
+	# 军需处（✅ 0.8.16）：侧栏第 4 入口、解锁 / 强化、选带。
+	await _test_supply_depot(profile)
 	await _test_encyclopedia(profile)
 	await _test_squad_select_screen()
 	await _test_battle_entry()
@@ -133,6 +135,93 @@ func _collect_buttons(root: Node) -> Array[Button]:
 	return buttons
 
 
+## 军需处（✅ 0.8.16 / UI_LAYOUT §16 / NUMBERS 10.15 / SAVE_DATA 8）：大厅侧栏第 4 个入口、
+## 6 件卡片解锁 / 强化（军功扣费、写档即时生效）、右栏选带切换与超槽位拒绝。
+func _test_supply_depot(profile: PlayerProfile) -> void:
+	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
+	add_child(hub)
+	await get_tree().process_frame
+
+	var depot := hub.get_node_or_null("HubPanel/Columns/Content/SupplyDepotPanel")
+	_check(depot != null and not depot.visible, "大厅默认不应显示军需处面板")
+	var sidebar_box := hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox")
+	var nav_texts: Array[String] = []
+	var supply_button: Button = null
+	for child in _collect_buttons(sidebar_box):
+		var button := child as Button
+		nav_texts.append(button.text)
+		if button.text == "军需":
+			supply_button = button
+	_check(supply_button != null, "大厅侧栏应含「军需」入口")
+	_check(nav_texts.size() == 8 and nav_texts[3] == "军需",
+		"「军需」应为侧栏第 4 个功能按钮（地图 / 养成 / 科技 / 军需 / 背包 / 设置 / 百科 + 返回主菜单）")
+	if supply_button == null or depot == null:
+		hub.queue_free()
+		await get_tree().process_frame
+		return
+	supply_button.pressed.emit()
+	await get_tree().process_frame
+	_check(depot.visible, "点击「军需」后应显示军需处面板")
+	_check(ProfileStore.get_profile() == profile, "军需处用例应作用于当前档案")
+
+	# 解锁 → 强化（军功扣费 + 卡片状态刷新 + 写档）。
+	profile.add_military_merit(1000)
+	depot._refresh()
+	var cards: Dictionary = depot._cards
+	_check(cards.size() == 6, "军需处应展示 6 件军需卡片")
+	if not cards.has("stone_volley"):
+		hub.queue_free()
+		await get_tree().process_frame
+		return
+	var stone_card: Dictionary = cards["stone_volley"]
+	var stone_level_chip := stone_card["level"] as Label
+	var stone_action := stone_card["action"] as Button
+	_check(stone_level_chip.text == "未解锁", "未解锁军需卡片应显示「未解锁」chip")
+	_check(stone_action.text == "解锁 · 340 军功" and not stone_action.disabled,
+		"军功充足时未解锁卡片按钮应为「解锁 · 340 军功」且可点")
+	stone_action.pressed.emit()
+	await get_tree().process_frame
+	_check(profile.is_supply_unlocked("stone_volley") and profile.get_supply_level("stone_volley") == 1,
+		"点「解锁」应即时写档：掷石齐射已解锁并置 L1")
+	_check(profile.get_military_merit() == 660, "解锁应扣 340 军功")
+	_check(stone_level_chip.text == "L1", "解锁后卡片应显示 L1 chip")
+	_check(stone_action.text == "强化 · 150 军功", "L1 卡片按钮应为「强化 · 150 军功」")
+	stone_action.pressed.emit()
+	await get_tree().process_frame
+	_check(profile.get_supply_level("stone_volley") == 2 and profile.get_military_merit() == 510,
+		"点「强化」应扣 150 军功并把等级提升到 L2")
+	_check(stone_action.text == "强化 · 300 军功", "L2 卡片按钮应为「强化 · 300 军功」")
+
+	# 选带：点卡片切换选带态（基础 2 槽 = 未点科技「军府调度」），超槽位拒绝并提示。
+	var slot_count := depot.get("_slot_count_label") as Label
+	_check(slot_count != null and slot_count.text == "0 / 2",
+		"军需带计数应为 0 / 2（未解锁科技「军府调度」）")
+	depot._on_card_pressed("repair")
+	await get_tree().process_frame
+	var loadout_after_repair := profile.get_supply_loadout()
+	_check(loadout_after_repair.size() == 1 and loadout_after_repair.has("repair"),
+		"点卡片应把修整加入军需带（写档）")
+	_check(slot_count.text == "1 / 2", "军需带计数应刷新为 1 / 2")
+	depot._on_card_pressed("fire_attack")
+	await get_tree().process_frame
+	_check(profile.get_supply_loadout().size() == 2 and slot_count.text == "2 / 2", "第二件应可入带")
+	depot._on_card_pressed("stone_volley")
+	await get_tree().process_frame
+	var loadout_full := profile.get_supply_loadout()
+	_check(loadout_full.size() == 2 and not loadout_full.has("stone_volley"),
+		"超槽位应拒绝入带且不改动军需带")
+	var status_label := depot.get("_status_label") as Label
+	_check(status_label != null and status_label.text.contains("军需带已满"), "超槽位应提示「军需带已满」")
+	depot._on_slot_pressed(0)
+	await get_tree().process_frame
+	var loadout_after_slot := profile.get_supply_loadout()
+	_check(loadout_after_slot.size() == 1 and loadout_after_slot.has("fire_attack"),
+		"点槽位应把该件移出军需带")
+	_check(slot_count.text == "1 / 2", "移出后计数应回到 1 / 2")
+	hub.queue_free()
+	await get_tree().process_frame
+
+
 ## 游戏大厅（GDD v0.10.1）：左侧功能面板 + 内容区页签切换；
 ## 地图面板含章节预留占位与关卡解锁；养成面板等级/材料不足时转职禁用。
 func _test_hub(profile: PlayerProfile) -> void:
@@ -141,7 +230,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 
 	var sidebar_buttons := _collect_buttons(hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 7, "大厅侧栏应有 6 个功能入口 + 返回主菜单（v0.34 百科入列）")
+	_check(sidebar_buttons.size() == 8, "大厅侧栏应有 7 个功能入口 + 返回主菜单（v0.34 百科入列、0.8.16 军需入列）")
 	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
 	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 
@@ -830,6 +919,46 @@ func _test_battle_entry() -> void:
 	main._on_wave_completed()
 	_check(not GameManager.is_wave_active and GameManager.current_wave == 2,
 		"关闭自动下一波后，波次结束应停在等待手动开启")
+
+	# 局内军需（✅ 0.8.16 / NUMBERS 10.15 / UI_LAYOUT §10）：局外选带 → 局内列表 = 已选带件 + 未解锁件；
+	# 购买入带不立即生效 → 点带内条目择时使用 → 未使用结算作废（不写档、不返还）。
+	var battle_profile := ProfileStore.get_profile()
+	battle_profile.add_military_merit(1000)
+	_check(battle_profile.unlock_supply("stone_volley", 340), "用例前置：应可解锁掷石齐射")
+	_check(battle_profile.set_supply_loadout(["repair", "stone_volley"], 2), "用例前置：应可写入军需带（2 槽）")
+	main._load_battle_supplies()
+	var belt: Array[String] = main._supply_belt
+	_check(belt.size() == 2 and belt.has("repair") and belt.has("stone_volley"),
+		"局内军需带应取自局外选带（修整 + 掷石齐射）")
+	var supply_ids: Array[String] = main._supply_list_ids()
+	_check(supply_ids.has("reward_army"), "未解锁军需应以锁定态出现在局内列表（示意）")
+	_check(not supply_ids.has("fire_attack"), "已解锁但未选带的军需不应出现在局内列表")
+	# 修整需先压低基地生命（NUMBERS 10.15 边界规则：满血禁修整——满血使用会被拒绝且不消耗次数）。
+	GameManager.lives = maxi(GameManager.starting_lives - 12, 1)
+	GameManager.gold = 500
+	main._buy_battle_supply(load("res://resources/battle_supplies/repair.tres") as BattleSupplyData)
+	_check(GameManager.gold == 440, "购买修整应扣 L1 费用 60 金币（无科技折扣）")
+	var lives_before_supply := GameManager.lives
+	_check(main._is_supply_purchased("repair") and main._supply_uses_left("repair") == 1,
+		"购买应入带（次数 = 强化后限次 1）且不立即生效")
+	_check(GameManager.lives == lives_before_supply, "购买入带不应立即产生效果")
+	main._use_supply_from_belt(0)
+	_check(GameManager.lives == lives_before_supply + 10, "点击带内条目使用修整应恢复 10 点基地生命")
+	_check(main._supply_uses_left("repair") == 0, "使用后剩余次数应减 1")
+	main._use_battle_supply("repair")
+	_check(GameManager.lives == lives_before_supply + 10, "次数用尽后不应再次生效")
+	# 结算开始后禁止购买（面板按钮路径：结算中灰显 + 处理器拦截）。
+	GameManager.current_wave = GameManager.total_waves
+	main._on_supply_card_pressed("stone_volley")
+	main._on_supply_action_pressed()
+	_check(not main._is_supply_purchased("stone_volley"), "结算开始后不应再通过面板按钮购买入带")
+	GameManager.current_wave = 2
+	# 未使用作废：局内购买状态只存在于本局，重开一局即清空且不改动局外军需带记忆。
+	main._load_battle_supplies()
+	_check(not main._is_supply_purchased("repair"), "重开一局应清空局内购买（未使用结算作废、不返还）")
+	var loadout_after_battle := battle_profile.get_supply_loadout()
+	_check(loadout_after_battle.size() == 2 and loadout_after_battle.has("repair")
+		and loadout_after_battle.has("stone_volley"), "局内购买 / 使用不应改动局外军需带记忆")
 
 	main.queue_free()
 	await get_tree().process_frame

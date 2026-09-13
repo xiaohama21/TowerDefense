@@ -419,6 +419,39 @@ func _migrate_v4_to_v5(old_data: Dictionary) -> Dictionary:
 	return data
 
 
+## v5 → v6（阶段 8·提交 16 / 0.8.16.0 军功 + 军需重构，SAVE_DATA 8）：**新增军功与军需档案**——
+## ① `military_merit` 缺失时补 0（非负整数化；已有值保留，幂等）；
+## ② `supply_unlocks` 补基础 4 件（修整 / 火攻 / 擂鼓 / 缓兵；已有解锁保留、去重）；
+## ③ `supply_levels` 为基础件补 L1（已有等级保留并夹取 1~3，幂等）；
+## ④ `supply_loadout_ids` 缺失时补空数组（不预填，选带由玩家在军需处决定）。
+func _migrate_v5_to_v6(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	data["military_merit"] = _coerce_non_negative_int(data.get("military_merit", 0))
+	var unlocks: Array = []
+	if data.get("supply_unlocks", []) is Array:
+		unlocks = data.get("supply_unlocks", []).duplicate()
+	for supply_id in PlayerProfile.BASE_SUPPLY_IDS:
+		if not unlocks.has(supply_id):
+			unlocks.append(supply_id)
+	data["supply_unlocks"] = unlocks
+	var levels: Dictionary = {}
+	if data.get("supply_levels", {}) is Dictionary:
+		levels = data.get("supply_levels", {}).duplicate(true)
+	for supply_id in PlayerProfile.BASE_SUPPLY_IDS:
+		var current := _coerce_non_negative_int(levels.get(supply_id, 0))
+		if current > 0:
+			levels[supply_id] = clampi(current, 1, PlayerProfile.SUPPLY_MAX_LEVEL)
+		else:
+			levels[supply_id] = 1
+	data["supply_levels"] = levels
+	var loadout: Array = []
+	if data.get("supply_loadout_ids", []) is Array:
+		loadout = data.get("supply_loadout_ids", []).duplicate()
+	data["supply_loadout_ids"] = loadout
+	data["schema_version"] = 6
+	return data
+
+
 func _coerce_non_negative_int(value) -> int:
 	var number := 0
 	match typeof(value):
@@ -463,6 +496,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			4:
 				data = _migrate_v4_to_v5(data)
 				version = 5
+				migrated = true
+			5:
+				data = _migrate_v5_to_v6(data)
+				version = 6
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

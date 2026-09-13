@@ -16,5 +16,6 @@ special_behavior_id = &"fast_charger"
 damage_to_base = 4
 currency_reward = 25
 kill_xp = 22
+merit_reward = 3
 body_color = Color(0.42, 0.32, 0.58, 1)
 body_size = Vector2(30, 32)

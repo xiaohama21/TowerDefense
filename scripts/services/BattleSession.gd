@@ -30,6 +30,11 @@ var kill_xp_base: int = 0
 ## 经验池注入量（✅ 0.8.15）：胜利结算时按 finalize_exp_pool_injection() 定值，
 ## 随战局提交写入存档 exp_pool；失败 / 放弃 / 崩溃作废。
 var pending_exp_pool: int = 0
+## 军功暂存（✅ 0.8.16 / NUMBERS 10.15）：击杀结算按难度 merit_mult **精确累计**（困难 ×1.5），
+## 读取 / 写档时 roundi 取整——全章 1242 → 困难 1863（若逐笔取整则被放大到 2228，1~3 的小整数
+## 逐笔取整额外偏 +19.6%，与 NUMBERS 10.15「×1.5」难度杠杆不符）；
+## 胜利结算由 PlayerProfile.apply_battle_session 写档；失败 / 放弃 / 崩溃清零不带出。
+var pending_merit_exact: float = 0.0
 var result: Dictionary = {}
 var status: String = STATUS_IN_PROGRESS
 var started_at_unix: int = 0
@@ -80,6 +85,7 @@ func load_dict(data: Dictionary) -> void:
 	pending_tech_points = _coerce_non_negative_int(data.get("pending_tech_points", 0))
 	kill_xp_base = _coerce_non_negative_int(data.get("kill_xp_base", 0))
 	pending_exp_pool = _coerce_non_negative_int(data.get("pending_exp_pool", 0))
+	pending_merit_exact = float(_coerce_non_negative_int(data.get("pending_merit", 0)))
 	result = data.get("result", {}).duplicate(true) if data.get("result", {}) is Dictionary else {}
 	status = _normalize_status(str(data.get("status", STATUS_IN_PROGRESS)))
 	started_at_unix = _coerce_non_negative_int(data.get("started_at_unix", 0))
@@ -99,6 +105,7 @@ func to_dict() -> Dictionary:
 		"pending_tech_points": pending_tech_points,
 		"kill_xp_base": kill_xp_base,
 		"pending_exp_pool": pending_exp_pool,
+		"pending_merit": get_pending_merit(),
 		"result": result.duplicate(true),
 		"status": status,
 		"started_at_unix": started_at_unix,
@@ -241,6 +248,24 @@ func get_pending_exp_pool() -> int:
 	return pending_exp_pool
 
 
+## 军功累计（✅ 0.8.16 / NUMBERS 10.15）：GameManager.enemy_died 按难度 merit_mult 缩放后逐笔上报
+## （困难 ×1.5、与击杀经验 ×1.6 分账）；内部累计精确值、读取时 roundi 取整（见 pending_merit_exact 注释）。
+func add_merit_scaled(base_amount: int, multiplier: float) -> int:
+	if not can_accumulate_rewards() or base_amount <= 0:
+		return get_pending_merit()
+	pending_merit_exact += float(base_amount) * maxf(multiplier, 0.0)
+	return get_pending_merit()
+
+
+## 固定值加军功（不吃难度倍率；用例 / 调试入口）。
+func add_merit(amount: int) -> int:
+	return add_merit_scaled(amount, 1.0)
+
+
+func get_pending_merit() -> int:
+	return roundi(pending_merit_exact)
+
+
 ## 科技点暂存（GDD modules/NUMBERS.md 10.7）：通关后随战局提交写档。
 func add_tech_points(amount: int) -> int:
 	if not can_accumulate_rewards() or amount <= 0:
@@ -317,6 +342,7 @@ func mark_discarded() -> bool:
 	pending_tech_points = 0
 	kill_xp_base = 0
 	pending_exp_pool = 0
+	pending_merit_exact = 0.0
 	return true
 
 
@@ -328,6 +354,7 @@ func clear_pending_rewards() -> void:
 	pending_tech_points = 0
 	kill_xp_base = 0
 	pending_exp_pool = 0
+	pending_merit_exact = 0.0
 
 
 static func _generate_run_id() -> String:

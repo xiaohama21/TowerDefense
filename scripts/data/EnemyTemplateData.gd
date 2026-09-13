@@ -4,7 +4,7 @@ class_name EnemyTemplateData
 
 ## 敌人模板（GDD modules/ENEMIES.md，v0.18.0 阶段 6 试点）：新章节敌人的派生基准。
 ## `EnemyData.template` 引用模板后，自身字段为 0/空哨兵时继承模板值（resolved() 合并）。
-## 哨兵约定：max_hp/move_speed/damage_to_base/currency_reward/kill_xp=0、
+## 哨兵约定：max_hp/move_speed/damage_to_base/currency_reward/kill_xp/merit_reward=0、
 ## armor=-1、special_behavior_id/tags 为空、body_color 全透明、body_size 零向量 = 继承。
 
 @export var template_id: StringName
@@ -28,6 +28,8 @@ class_name EnemyTemplateData
 @export_category("Rewards (0 = 未覆盖)")
 @export_range(0, 99999, 1) var currency_reward: int = 0
 @export_range(0, 99999, 1) var kill_xp: int = 0
+## 军功掉落（✅ 0.8.16 / NUMBERS 10.15）：0 = 未覆盖。
+@export_range(0, 99999, 1) var merit_reward: int = 0
 
 @export_category("Presentation (空 = 未覆盖)")
 @export var body_color: Color = Color(0, 0, 0, 0)

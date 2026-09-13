@@ -7,7 +7,7 @@ extends Control
 
 const NAV_DEFS := [
 	[&"map", "地图选择"], [&"develop", "武将养成"], [&"tech", "科技树"],
-	[&"inventory", "背包"], [&"settings", "设置"], [&"encyclopedia", "百科"],
+	[&"supply", "军需"], [&"inventory", "背包"], [&"settings", "设置"], [&"encyclopedia", "百科"],
 ]
 
 const MapPanelScript := preload("res://scripts/ui_screens/panels/MapPanel.gd")
@@ -16,6 +16,7 @@ const SettingsPanelScript := preload("res://scripts/ui_screens/panels/SettingsPa
 const TechPanelScript := preload("res://scripts/ui_screens/panels/TechPanel.gd")
 const InventoryPanelScript := preload("res://scripts/ui_screens/panels/InventoryPanel.gd")
 const EncyclopediaPanelScript := preload("res://scripts/ui_screens/panels/EncyclopediaPanel.gd")
+const SupplyDepotPanelScript := preload("res://scripts/ui_screens/panels/SupplyDepotPanel.gd")
 
 ## 概念图色板（src/ui_hub_map.html）
 const HUB_PANEL := Color("#f2faff")
@@ -125,6 +126,7 @@ func _build_hub() -> void:
 	_panels[&"map"] = _make_panel("MapPanel", MapPanelScript)
 	_panels[&"develop"] = _make_panel("DevelopPanel", DevelopPanelScript)
 	_panels[&"tech"] = _make_panel("TechPanel", TechPanelScript)
+	_panels[&"supply"] = _make_panel("SupplyDepotPanel", SupplyDepotPanelScript)
 	_panels[&"inventory"] = _make_panel("InventoryPanel", InventoryPanelScript)
 	_panels[&"settings"] = _make_panel("SettingsPanel", SettingsPanelScript)
 	_panels[&"encyclopedia"] = _make_panel("EncyclopediaPanel", EncyclopediaPanelScript)

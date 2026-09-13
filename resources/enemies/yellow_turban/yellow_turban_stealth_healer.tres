@@ -21,5 +21,6 @@ special_params = {
 damage_to_base = 3
 currency_reward = 25
 kill_xp = 26
+merit_reward = 3
 body_color = Color(0.42, 0.62, 0.55, 1)
 body_size = Vector2(32, 34)

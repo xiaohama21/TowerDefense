@@ -14,6 +14,8 @@ const PHASE_FLASH_DURATION: float = 0.9
 @export var armor: int = 0
 @export var reward: int = 10
 @export var kill_xp: int = 0
+## 军功掉落（✅ 0.8.16 / NUMBERS 10.15）：由 EnemyManager 从 EnemyData 传入，击杀结算上报。
+@export var merit_reward: int = 0
 @export var damage_to_base: int = 1
 @export var enemy_id: StringName = &""
 ## 显示名（v0.15.0 Boss 演出横幅使用，由 EnemyManager 从 EnemyData 传入）。
@@ -433,7 +435,8 @@ func die(give_reward: bool) -> void:
 			last_damage_source_character_id,
 			damage_contributors,
 			tags.has(&"boss"),
-			is_summon
+			is_summon,
+			merit_reward
 		)
 
 	queue_free()

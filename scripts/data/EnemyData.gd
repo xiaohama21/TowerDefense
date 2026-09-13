@@ -30,6 +30,8 @@ class_name EnemyData
 @export_category("Rewards")
 @export_range(0, 99999, 1) var currency_reward: int = 10
 @export_range(0, 99999, 1) var kill_xp: int = 8
+## 军功掉落（✅ 0.8.16 / NUMBERS 10.15）：击杀结算与经验同通道逐敌固定值（困难 ×1.5）。
+@export_range(0, 99999, 1) var merit_reward: int = 0
 
 @export_category("Presentation")
 @export var body_color: Color = Color.WHITE
@@ -59,6 +61,8 @@ func resolved() -> EnemyData:
 		copy.currency_reward = template.currency_reward
 	if copy.kill_xp <= 0:
 		copy.kill_xp = template.kill_xp
+	if copy.merit_reward <= 0:
+		copy.merit_reward = template.merit_reward
 	if copy.special_behavior_id.is_empty():
 		copy.special_behavior_id = template.special_behavior_id
 	# 附加行为（✅ 0.8.13.4）：模板有值时继承（自身已配则不覆盖）。
