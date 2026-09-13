@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=51 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=58 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -12,213 +12,253 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="4_e3"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_berserker.tres" id="4_e4"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_stealth_assassin.tres" id="4_e5"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_rebel_general.tres" id="4_e6"]
 
 [ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
 [ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
 
-[sub_resource type="Resource" id="EnemySpawnData_w1_0"]
+[sub_resource type="Resource" id="E_s06_w01_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 8
 spawn_interval = 0.65
 
-[sub_resource type="Resource" id="WaveData_1"]
+[sub_resource type="Resource" id="W_s06_w01"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w01"
 wave_number = 1
-spawn_groups = [SubResource("EnemySpawnData_w1_0")]
+spawn_groups = [SubResource("E_s06_w01_0")]
 preparation_time = 0.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="EnemySpawnData_w2_0"]
+[sub_resource type="Resource" id="E_s06_w03_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 8
 spawn_interval = 0.6
 
-[sub_resource type="Resource" id="EnemySpawnData_w2_1"]
+[sub_resource type="Resource" id="E_s06_w03_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e1")
 count = 3
 spawn_interval = 0.9
 
-[sub_resource type="Resource" id="EnemySpawnData_obs_0"]
+[sub_resource type="Resource" id="E_s06_w02_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 4
 spawn_interval = 0.6
 
-[sub_resource type="Resource" id="EnemySpawnData_obs_1"]
+[sub_resource type="Resource" id="E_s06_w02_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e5")
 count = 2
 spawn_interval = 2.0
 
-[sub_resource type="Resource" id="WaveData_obs"]
+[sub_resource type="Resource" id="W_s06_w02"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w02"
 wave_number = 2
-spawn_groups = [SubResource("EnemySpawnData_obs_0"), SubResource("EnemySpawnData_obs_1")]
+spawn_groups = [SubResource("E_s06_w02_0"), SubResource("E_s06_w02_1")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="WaveData_2"]
+[sub_resource type="Resource" id="W_s06_w03"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w03"
 wave_number = 3
-spawn_groups = [SubResource("EnemySpawnData_w2_0"), SubResource("EnemySpawnData_w2_1")]
+spawn_groups = [SubResource("E_s06_w03_0"), SubResource("E_s06_w03_1")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="EnemySpawnData_w3_0"]
+[sub_resource type="Resource" id="E_s06_w04_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e2")
 count = 4
 spawn_interval = 0.9
 
-[sub_resource type="Resource" id="EnemySpawnData_w3_1"]
+[sub_resource type="Resource" id="E_s06_w04_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 8
 spawn_interval = 0.55
 
-[sub_resource type="Resource" id="WaveData_3"]
+[sub_resource type="Resource" id="W_s06_w04"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w04"
 wave_number = 4
-spawn_groups = [SubResource("EnemySpawnData_w3_0"), SubResource("EnemySpawnData_w3_1")]
+spawn_groups = [SubResource("E_s06_w04_0"), SubResource("E_s06_w04_1")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="EnemySpawnData_w4_0"]
+[sub_resource type="Resource" id="E_s06_w05_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e3")
 count = 2
 spawn_interval = 0.0
 
-[sub_resource type="Resource" id="EnemySpawnData_w4_1"]
+[sub_resource type="Resource" id="E_s06_w05_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 10
 spawn_interval = 0.5
 
-[sub_resource type="Resource" id="WaveData_4"]
+[sub_resource type="Resource" id="W_s06_w05"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w05"
 wave_number = 5
-spawn_groups = [SubResource("EnemySpawnData_w4_0"), SubResource("EnemySpawnData_w4_1")]
+spawn_groups = [SubResource("E_s06_w05_0"), SubResource("E_s06_w05_1")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="EnemySpawnData_w5_0"]
+[sub_resource type="Resource" id="E_s06_w06_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e4")
 count = 3
 spawn_interval = 1.1
 
-[sub_resource type="Resource" id="EnemySpawnData_w5_1"]
+[sub_resource type="Resource" id="E_s06_w06_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e2")
 count = 4
 spawn_interval = 0.9
 
-[sub_resource type="Resource" id="WaveData_5"]
+[sub_resource type="Resource" id="W_s06_w06"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w06"
 wave_number = 6
-spawn_groups = [SubResource("EnemySpawnData_w5_0"), SubResource("EnemySpawnData_w5_1")]
+spawn_groups = [SubResource("E_s06_w06_0"), SubResource("E_s06_w06_1")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="EnemySpawnData_w6_0"]
+[sub_resource type="Resource" id="E_s06_w07_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e1")
 count = 5
 spawn_interval = 0.7
 
-[sub_resource type="Resource" id="EnemySpawnData_w6_1"]
+[sub_resource type="Resource" id="E_s06_w07_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e2")
 count = 4
 spawn_interval = 0.9
 
-[sub_resource type="Resource" id="EnemySpawnData_w6_2"]
+[sub_resource type="Resource" id="E_s06_w07_2"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 8
 spawn_interval = 0.5
 
-[sub_resource type="Resource" id="WaveData_6"]
+[sub_resource type="Resource" id="W_s06_w07"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w07"
 wave_number = 7
-spawn_groups = [SubResource("EnemySpawnData_w6_0"), SubResource("EnemySpawnData_w6_1"), SubResource("EnemySpawnData_w6_2")]
+spawn_groups = [SubResource("E_s06_w07_0"), SubResource("E_s06_w07_1"), SubResource("E_s06_w07_2")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
 
-[sub_resource type="Resource" id="EnemySpawnData_w7_0"]
+[sub_resource type="Resource" id="E_s06_w10_boss"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e6")
+count = 1
+spawn_interval = 0.0
+
+[sub_resource type="Resource" id="E_s06_w10_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e3")
 count = 2
 spawn_interval = 0.0
 
-[sub_resource type="Resource" id="EnemySpawnData_w7_1"]
+[sub_resource type="Resource" id="E_s06_w10_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e4")
 count = 3
 spawn_interval = 1.1
 
-[sub_resource type="Resource" id="EnemySpawnData_w7_2"]
+[sub_resource type="Resource" id="E_s06_w10_2"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e1")
 count = 4
 spawn_interval = 0.8
 
-[sub_resource type="Resource" id="EnemySpawnData_w7_3"]
+[sub_resource type="Resource" id="E_s06_w10_3"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 8
 spawn_interval = 0.5
 
-[sub_resource type="Resource" id="WaveData_7"]
+[sub_resource type="Resource" id="W_s06_w10"]
 script = ExtResource("2_wave")
-wave_id = &"ch01_s06_w09"
-wave_number = 9
-spawn_groups = [SubResource("EnemySpawnData_w7_0"), SubResource("EnemySpawnData_w7_1"), SubResource("EnemySpawnData_w7_2"), SubResource("EnemySpawnData_w7_3")]
+wave_id = &"ch01_s06_w10"
+wave_number = 10
+spawn_groups = [SubResource("E_s06_w10_boss"), SubResource("E_s06_w10_0"), SubResource("E_s06_w10_1"), SubResource("E_s06_w10_2"), SubResource("E_s06_w10_3")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = true
 
-[sub_resource type="Resource" id="EnemySpawnData_w09_0"]
+[sub_resource type="Resource" id="E_s06_w08_0"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e5")
 count = 3
 spawn_interval = 1.8
 
-[sub_resource type="Resource" id="EnemySpawnData_w09_1"]
+[sub_resource type="Resource" id="E_s06_w08_1"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e1")
 count = 4
 spawn_interval = 0.8
 
-[sub_resource type="Resource" id="EnemySpawnData_w09_2"]
+[sub_resource type="Resource" id="E_s06_w08_2"]
 script = ExtResource("3_spawn")
 enemy = ExtResource("4_e0")
 count = 8
 spawn_interval = 0.55
 
-[sub_resource type="Resource" id="WaveData_8"]
+[sub_resource type="Resource" id="W_s06_w08"]
 script = ExtResource("2_wave")
 wave_id = &"ch01_s06_w08"
 wave_number = 8
-spawn_groups = [SubResource("EnemySpawnData_w09_0"), SubResource("EnemySpawnData_w09_1"), SubResource("EnemySpawnData_w09_2")]
+spawn_groups = [SubResource("E_s06_w08_0"), SubResource("E_s06_w08_1"), SubResource("E_s06_w08_2")]
+preparation_time = 2.0
+completion_currency = 10
+is_boss_wave = false
+
+[sub_resource type="Resource" id="E_s06_w09_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e5")
+count = 4
+spawn_interval = 1.8
+
+[sub_resource type="Resource" id="E_s06_w09_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e4")
+count = 2
+spawn_interval = 1.1
+
+[sub_resource type="Resource" id="E_s06_w09_2"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e2")
+count = 4
+spawn_interval = 0.9
+
+[sub_resource type="Resource" id="E_s06_w09_3"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 10
+spawn_interval = 0.5
+
+[sub_resource type="Resource" id="W_s06_w09"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s06_w09"
+wave_number = 9
+spawn_groups = [SubResource("E_s06_w09_0"), SubResource("E_s06_w09_1"), SubResource("E_s06_w09_2"), SubResource("E_s06_w09_3")]
 preparation_time = 2.0
 completion_currency = 10
 is_boss_wave = false
@@ -268,7 +308,7 @@ build_slot_count = 10
 max_inbattle_upgrade_level = 3
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
-waves = [SubResource("WaveData_1"), SubResource("WaveData_obs"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6"), SubResource("WaveData_8"), SubResource("WaveData_7")]
+waves = [SubResource("W_s06_w01"), SubResource("W_s06_w02"), SubResource("W_s06_w03"), SubResource("W_s06_w04"), SubResource("W_s06_w05"), SubResource("W_s06_w06"), SubResource("W_s06_w07"), SubResource("W_s06_w08"), SubResource("W_s06_w09"), SubResource("W_s06_w10")]
 dialogue = SubResource("DialogueData_1")
 theme = &"grass"
 path_points = [Vector2(-40, 600), Vector2(40, 600), Vector2(600, 600), Vector2(600, 200), Vector2(1000, 200), Vector2(1000, 600), Vector2(1240, 600), Vector2(1320, 600)]

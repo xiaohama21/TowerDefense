@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_rebel_general"
+display_name = "黄巾地公将军·张宝"
+description = "地公将军张宝，以术法符咒布阵下曲阳，术法所及，塔阵受制。"
+tags = [&"yellow_turban", &"boss"]
+max_hp = 4200
+move_speed = 28.0
+armor = 18
+damage_to_base = 8
+currency_reward = 80
+kill_xp = 120
+special_behavior_id = &"summon_guard"
+extra_behavior_ids = [&"healer_aura", &"seal_domain"]
+special_params = {
+"healer_aura": {
+"amount": 25,
+"interval": 3.0,
+"radius": 160.0
+},
+"seal_domain": {
+"duration": 3.5,
+"interval": 2.5,
+"radius": 180.0,
+"speed_multiplier": 0.75
+},
+"max_summons": 4,
+"summon_count": 2,
+"summon_enemy_id": &"yellow_turban_stealth_assassin",
+"summon_guard_min_hp_ratio": 0.5,
+"summon_interval": 9.0
+}
+body_color = Color(0.32, 0.24, 0.44, 1)
+body_size = Vector2(56, 56)

@@ -15,6 +15,9 @@ class_name EnemyData
 @export_range(-1, 9999, 1) var armor: int = 0
 @export_range(0, 9999, 1) var damage_to_base: int = 1
 @export var special_behavior_id: StringName
+## 附加行为（B.3.2，✅ 0.8.13.4 多行为支持）：主行为之外的行为 ID 列表——
+## EnemyManager 按「主行为 + 附加行为」逐个调度，每个行为独立冷却（张宝 = healer_aura / seal_domain）。
+@export var extra_behavior_ids: Array[StringName] = []
 ## 隐匿状态（NUMBERS 10.16，✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；
 ## 无差别范围/区域效果仍可命中。模板侧同名字段为 true 时一并继承。
 @export var stealth: bool = false
@@ -58,6 +61,9 @@ func resolved() -> EnemyData:
 		copy.kill_xp = template.kill_xp
 	if copy.special_behavior_id.is_empty():
 		copy.special_behavior_id = template.special_behavior_id
+	# 附加行为（✅ 0.8.13.4）：模板有值时继承（自身已配则不覆盖）。
+	if copy.extra_behavior_ids.is_empty():
+		copy.extra_behavior_ids = template.extra_behavior_ids.duplicate()
 	copy.stealth = copy.stealth or template.stealth
 	# 特殊行为参数（✅ 0.8.13.2）：模板键为底、派生资源逐键覆盖（缺键继承）。
 	var merged_params := template.special_params.duplicate()

@@ -57,12 +57,15 @@
 |---|---|---|---|
 | `none` | 默认沿路径推进 | 全部现有敌人 | 已实现（默认行为） |
 | `fast_charger` | 高速推进、漏怪伤害更高 | 黄巾轻骑 | ✅ 已配置（v0.19.0：`yellow_turban_cavalry.tres` 补 `special_behavior_id`；数值已体现：145 速 / 漏 2 血） |
-| `healer_aura` | 每 2s 治疗周围 120px 友军 15 点（**参数可被 `special_params` 覆盖**：隐方士 = 2.5s / 20 / 140px，✅ 0.8.13.2） | 黄巾祭酒 / 黄巾隐方士 | ✅ 已建（v0.11.3，EnemyManager 执行） |
-| `summon_guard` | 每 8s 召唤 2 名步卒；**有岔路自岔路入口进场，无岔路时在 Boss 身后 60px 沿主路出现**（降级口径，✅ 0.8.13.3 s03 首用）；**数量上限未实装**（随阶段 9 Boss 模板补齐） | 黄巾渠帅张梁（s03 / s08） | ✅ 已建（v0.11.3；s08 岔路试点需 `StageData.fork_path_points`，s03 走主路降级） |
+| `healer_aura` | 每 2s 治疗周围 120px 友军 15 点（**参数可被 `special_params` 覆盖**：隐方士 = 2.5s / 20 / 140px，✅ 0.8.13.2；张宝 = 3.0s / 25 / 160px，✅ 0.8.13.4） | 黄巾祭酒 / 黄巾隐方士 / 张宝（s06） | ✅ 已建（v0.11.3，EnemyManager 执行） |
+| `summon_guard` | **参数化召唤**（✅ 0.8.13.4）：`special_params` 支持 `summon_enemy_id`（缺省黄巾步卒）/ `summon_count`（缺省 2）/ `summon_interval`（缺省 8s）/ `max_summons`（缺省 0 = 无上限）/ `summon_guard_min_hp_ratio`（缺省 0 = 无门控）；**有岔路自岔路入口进场，无岔路时在 Boss 身后 60px 沿主路出现**（降级口径，✅ 0.8.13.3 s03 首用）；召唤物 `is_summon` 标记（连击口径不变） | 黄巾渠帅张梁（s03，无上限维持复用不改）/ 张宝（s06：夜行刺 ×2 / 9s / **上限 4** / P2 门控 0.5） | ✅ 已建（v0.11.3；参数化与**召唤上限 ✅ 0.8.13.4 实装**） |
 | `armor_aura` | **为半径内友军（含自身）加甲**：+N 甲（同源取最大、不叠加）、每 `interval` 秒刷新、窗口过期自动失效（施法者阵亡 / 离开半径即恢复原甲）；先加甲后算减伤（NUMBERS 10.17） | 精锐伍长（+6 / 140px）/ 黄巾符祭（+6 / 160px） | ✅ 0.8.13.2 已实装（`EnemyManager._apply_armor_aura`，参数来自 `EnemyData.special_params`） |
+| `seal_domain` | **术法压制领域**（✅ 0.8.13.4 新增）：每 `interval` 秒对半径内**塔**施加减攻速状态（`special_params`：`radius` 180px / `speed_multiplier` 0.75 / `interval` 2.5s / `duration` 3.5s）；塔侧 `Tower.apply_attack_speed_debuff`，与友方 buff 同桶求和、**总失败下限 -50%**（`TEAM_DEBUFF_SLOW_CAP`），窗口过期自动恢复；表现 = 塔身紫色压制光环 + 印记 | 张宝（s06）——「远程术法直伤」降级口径（现无塔生命 / 敌人攻击塔系统，见 DESIGN_REVIEW §12.1） | ✅ 0.8.13.4 已实装（`EnemyManager._apply_seal_domain`） |
 | `stealth` | **隐匿状态**（字段 `EnemyData.stealth`，非 `special_behavior_id`）：不可被“以单位为目标”的攻击选中；**无差别范围/区域效果可命中**；无目标框、不显示血条 | 黄巾夜行刺 / 黄巾隐方士 | ✅ 0.8.13.1 已落地 |
 | `suicide` | 到点自爆造成范围伤害 | 【远期】 | 未排期 |
 | `swarm` | 分裂/召唤小怪 | 【远期】 | 未排期 |
+
+**多行为支持（✅ 0.8.13.4）**：`EnemyData.special_behavior_id`（主行为）之外新增 `extra_behavior_ids`（附加行为数组，`Enemy.extra_behavior_ids` 同名同步）；`EnemyManager` 按「主行为 + 附加行为」逐个调度，**每个行为独立冷却**（`Enemy.get_special_cooldown(behavior_id)` / `set_special_cooldown`，生成时统一 1.5s 首延迟）；行为参数优先读 `special_params[<behavior_id>]` 嵌套字典、缺键回退扁平键与 `BalanceData`；`special_params["<behavior_id>_min_hp_ratio"]` 为可选**血量门控**（HP 比例高于该值时不触发、不消耗冷却——用于阶段行为，张宝 P2 召唤）。**登记者**：张宝（s06）= 主 `summon_guard` + 附加 `healer_aura` / `seal_domain`。
 
 ### B.3.3 职业大招行为（`ultimate_id`，v0.11.2 数值生效；演出 ✅ v0.15.0 职业专属视觉 / v0.16.0 音效）
 

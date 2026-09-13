@@ -521,7 +521,7 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button:
 				enemy_cards += 1
 				enemy_min_width = minf(enemy_min_width, (child as Button).size.x)
-	_check(enemy_cards == 12, "敌人图鉴应展示第一章全部 12 种敌人（0.8.13.1 夜行刺 + 0.8.13.2 四类新精英）")
+	_check(enemy_cards == 13, "敌人图鉴应展示第一章全部 13 种敌人（0.8.13.4 中 Boss 张宝）")
 	_check(enemy_min_width >= 100.0, "敌人卡应横向铺满左列 2 列网格（B-023）")
 	var all_text := ""
 	var labels: Array[Label] = []
@@ -539,6 +539,11 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	# 0.8.13.3：张梁落位 s03 Boss → 出现关卡升为多关（首现 s03，明细按关号升序）。
 	_check(general_stage_ids.has("ch01_s03") and general_stage_ids[0] == "ch01_s03",
 		"黄巾渠帅·张梁应出现在 s03 且为首现关卡（多关登场）")
+	# 0.8.13.4：张宝落位 s06 中 Boss（出现关卡反查 + 术法压制文案入口）。
+	var zhang_bao_stage_ids: Array[String] = []
+	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_rebel_general"):
+		zhang_bao_stage_ids.append(str(entry.get("stage_id", "")))
+	_check(zhang_bao_stage_ids == ["ch01_s06"], "黄巾地公将军·张宝应仅出现在 s06（中 Boss，0.8.13.4）")
 
 	# 只读不变式：模拟器调参 + 全量浏览后存档文件不变。
 	var after_save := ""

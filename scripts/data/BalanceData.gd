@@ -45,6 +45,11 @@ class_name BalanceData
 @export_range(0.0, 60.0, 0.1) var armor_aura_duration: float = 3.0
 @export_range(0.0, 120.0, 0.1) var summon_interval: float = 8.0
 @export_range(1, 99, 1) var summon_count: int = 2
+# 术法压制（seal_domain，✅ 0.8.13.4 / NUMBERS 10.20）：缺省值，可被 EnemyData.special_params 覆盖。
+@export_range(0.0, 60.0, 0.1) var seal_domain_interval: float = 2.5
+@export_range(0.0, 9999.0, 1.0) var seal_domain_radius: float = 180.0
+@export_range(0.05, 1.0, 0.01) var seal_domain_speed_multiplier: float = 0.75
+@export_range(0.0, 60.0, 0.1) var seal_domain_duration: float = 3.5
 
 
 func is_valid() -> bool:

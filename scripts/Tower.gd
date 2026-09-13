@@ -78,6 +78,8 @@ var assigned_slot: Node = null
 var rage: float = 0.0
 ## 局内同类增益总上限（P0 3.2 拍板）：加法叠加但设上限，倍率 ≤ +100%。
 const TEAM_BUFF_MULTIPLIER_CAP: float = 2.0
+## 攻速减益总失败下限（✅ 0.8.13.4 seal_domain）：敌方术法压制最多 -50%（攻击间隔最多 ×2）。
+const TEAM_DEBUFF_SLOW_CAP: float = 0.5
 ## 最终攻速倍率下限（P0 3.2 拍板）：攻速间隔最快为 0.55 × 当前基础间隔。
 const ATTACK_SPEED_FLOOR: float = 0.55
 ## 常驻光环伤害桶上限（STATS_PIPELINE 增益档次 1，v0.31.6 拍板 +50% 初稿）：
@@ -523,6 +525,9 @@ func _process(_delta: float) -> void:
 	# 已建塔保持自动模式，满怒见敌即放，表现为「没点击就释放/持续释放」。
 	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
 	_sync_quick_cast_area()
+	# 术法压制标记呼吸动画（✅ 0.8.13.4 seal_domain）：仅被压制的塔每帧重绘。
+	if attack_speed_buff < 0.999:
+		queue_redraw()
 	var passive := BehaviorRegistry.is_passive_behavior(_behavior_id)
 	if not passive and not _is_target_in_range(target):
 		target = find_target()
@@ -1076,6 +1081,14 @@ func apply_attack_speed_buff(source_id: String, multiplier: float, duration: flo
 	queue_redraw()
 
 
+## 攻速减益（seal_domain，✅ 0.8.13.4）：敌方术法压制——与友方增益同桶求和，
+## 总量下限 -50%（TEAM_DEBUFF_SLOW_CAP）；窗口过期由 _process 自动移除并恢复原攻速。
+func apply_attack_speed_debuff(source_id: String, multiplier: float, duration: float) -> void:
+	_apply_buff_source(source_id, minf(multiplier - 1.0, 0.0), 0.0, duration)
+	_rebuild_attack_timer()
+	queue_redraw()
+
+
 func apply_team_buff(source_id: String, speed_multiplier: float, damage_multiplier: float, duration: float) -> void:
 	_apply_buff_source(source_id, speed_multiplier - 1.0, damage_multiplier - 1.0, duration)
 	_rebuild_attack_timer()
@@ -1086,21 +1099,29 @@ func _apply_buff_source(source_id: String, speed_add: float, damage_add: float, 
 	if source_id.is_empty() or duration <= 0.0:
 		return
 	var entry: Dictionary = _buff_sources.get(source_id, {"speed_add": 0.0, "damage_add": 0.0, "time_left": 0.0})
-	entry["speed_add"] = maxf(float(entry["speed_add"]), speed_add)
-	entry["damage_add"] = maxf(float(entry["damage_add"]), damage_add)
+	entry["speed_add"] = _merge_buff_value(float(entry["speed_add"]), speed_add)
+	entry["damage_add"] = _merge_buff_value(float(entry["damage_add"]), damage_add)
 	entry["time_left"] = maxf(float(entry["time_left"]), duration)
 	_buff_sources[source_id] = entry
 	_recalc_team_buff()
 
 
-## 汇总 buff：各来源加法求和后 clamp 总上限（+100%），到期来源由 _process 移除。
+## 同来源合并（✅ 0.8.13.4 seal_domain）：正值取最大（增益不重复叠加）、负值取最小（减益取更强）。
+static func _merge_buff_value(existing: float, incoming: float) -> float:
+	if incoming < 0.0:
+		return minf(existing, incoming)
+	return maxf(existing, incoming)
+
+
+## 汇总 buff：各来源加法求和后 clamp（正值上限 +100% / 负值下限 -50%，✅ 0.8.13.4 seal_domain），
+## 到期来源由 _process 移除。
 func _recalc_team_buff() -> void:
 	var total_speed := 0.0
 	var total_damage := 0.0
 	for entry in _buff_sources.values():
 		total_speed += float(entry.get("speed_add", 0.0))
 		total_damage += float(entry.get("damage_add", 0.0))
-	attack_speed_buff = 1.0 + clampf(total_speed, 0.0, TEAM_BUFF_MULTIPLIER_CAP - 1.0)
+	attack_speed_buff = 1.0 + clampf(total_speed, -TEAM_DEBUFF_SLOW_CAP, TEAM_BUFF_MULTIPLIER_CAP - 1.0)
 	damage_buff = 1.0 + clampf(total_damage, 0.0, TEAM_BUFF_MULTIPLIER_CAP - 1.0)
 
 
@@ -1298,6 +1319,8 @@ func _draw() -> void:
 	_draw_character_skill_cooldown()
 	if _ult_visual_time > 0.0:
 		_draw_ultimate_visual()
+	if attack_speed_buff < 0.999:
+		_draw_seal_domain_mark()
 	if is_selected:
 		_draw_range()
 		# 选中环（v0.19.2）：塔身外金色光圈，强化选中反馈。
@@ -1305,6 +1328,13 @@ func _draw() -> void:
 
 
 ## 技能扩散环（v0.16.0）：半径随进度放大、颜色淡出。
+## 术法压制标记（seal_domain，✅ 0.8.13.4）：被减攻速时塔身紫色虚环 + 顶部印记（呼吸脉动）。
+func _draw_seal_domain_mark() -> void:
+	var pulse := 0.72 + 0.28 * sin(float(Time.get_ticks_msec()) * 0.006)
+	draw_arc(Vector2.ZERO, 26.0, 0.0, TAU, 28, Color(0.62, 0.4, 0.95, 0.5 * pulse), 2.5, true)
+	draw_circle(Vector2(0.0, -30.0), 5.0, Color(0.62, 0.4, 0.95, 0.85))
+
+
 func _draw_skill_flash() -> void:
 	var t := 1.0 - _skill_flash / 0.4
 	var radius := lerpf(10.0, 40.0, t)

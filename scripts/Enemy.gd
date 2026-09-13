@@ -29,7 +29,16 @@ var velocity_dir: Vector2 = Vector2.RIGHT
 # 特殊行为（GDD modules/BEHAVIORS.md B.3.2）：healer_aura / summon_guard 等，
 # 由 EnemyManager 按 ID 执行；cooldown 为行为计时器。
 var special_behavior_id: StringName = &""
-var special_cooldown: float = 0.0
+## 附加行为（✅ 0.8.13.4 多行为支持）：主行为之外的行为 ID 列表，与主行为分别独立冷却。
+var extra_behavior_ids: Array[StringName] = []
+## 行为冷却表（✅ 0.8.13.4）：behavior_id -> 剩余秒数；每行为独立计时。
+var special_cooldowns: Dictionary = {}
+
+func get_special_cooldown(behavior_id: StringName) -> float:
+	return float(special_cooldowns.get(behavior_id, 0.0))
+
+func set_special_cooldown(behavior_id: StringName, value: float) -> void:
+	special_cooldowns[behavior_id] = value
 ## 特殊行为参数（B.3.2，✅ 0.8.13.2）：EnemyManager 从 EnemyData.special_params 写入，
 ## armor_aura / healer_aura 按 key 读取（缺省回退 BalanceData）。
 var special_params: Dictionary = {}
@@ -37,6 +46,8 @@ var special_params: Dictionary = {}
 var slow_factor: float = 1.0
 ## 召唤物标记（阶段 8 提交 2）：连击计入召唤物（P1 4.1 拍板），由召唤方设置。
 var is_summon: bool = false
+## 已召唤数量（✅ 0.8.13.4 召唤上限）：max_summons 上限计数（张宝 = 4）。
+var summoned_count: int = 0
 ## 隐匿状态（✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；范围/无差别区域可命中。
 ## 由 EnemyManager 依 EnemyData.stealth 写入；能否被某塔选中见 is_visible_to()。
 var stealth: bool = false
