@@ -111,7 +111,8 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.8); }
 </style>
 <style>
-/* ---------- 军需面板（概念稿 v0.1）：遮罩自顶栏下开始 → 战斗不暂停；白面亮蓝弹窗 = 大厅弹窗同款 ---------- */
+/* ---------- 军需面板 v0.2（2026-09-13 按 UI_LAYOUT v0.20.48 §10 重画）：购买入带 → 择时使用 ---------- */
+/* 遮罩自顶栏下缘起 → 战斗不暂停；白面亮蓝弹窗 = 大厅弹窗同款 */
 .b-supply.open { box-shadow:0 0 0 3px rgba(255,204,0,.55), 0 0 0 5px rgba(255,204,0,.18); }
 .spl-mask { position:absolute; left:0; top:94px; width:1280px; height:626px; z-index:5;
   background:rgba(10,18,30,.45); display:flex; align-items:center; justify-content:center; }
@@ -130,15 +131,31 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 .spl-title .close { margin-left:auto; width:30px; height:30px; border:0; border-radius:50%; cursor:pointer;
   background:rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; }
 .spl-title .close img { width:14px; height:14px; }
-.spl-body { padding:13px 20px 14px; display:flex; gap:14px; }
-/* 左列：军需卡列表（行式可纵向扩展，超高滚动兜底） */
+/* 带位区（标题下方单行：军需带小标 + 槽位圆卡 ≤3） */
+.sup-belt { flex:none; display:flex; align-items:center; gap:10px; padding:9px 20px 0; }
+.sup-belt .blabel { font-size:13.5px; color:#1b4d78; letter-spacing:1.5px; white-space:nowrap; }
+.sup-belt .bhint { margin-left:auto; font-size:11px; color:#7d9cb4; letter-spacing:.5px; }
+.slot { display:flex; align-items:center; gap:9px; height:58px; padding:0 13px 0 9px; background:#fff;
+  border:2px solid #d7e9f5; border-radius:14px; box-shadow:0 2px 5px rgba(30,90,130,.07); min-width:152px; }
+.slot .ic { width:40px; height:40px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg,#fff,#f0f6fb); border:2px dashed #9cbed9; }
+.slot .ic svg { width:22px; height:22px; }
+.slot .sn { font-size:15px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+.slot .sv { font-size:10.5px; color:#6b93ad; margin-top:1px; letter-spacing:.5px; white-space:nowrap; }
+.slot .cnt { margin-left:6px; font-size:15px; color:#0e9f58; letter-spacing:.5px; white-space:nowrap; }
+.slot .cnt.wait { font-size:11.5px; color:#9fb3c4; }
+.slot.empty { border:2px dashed #c3d2dd; background:rgba(238,246,251,.8); box-shadow:none; }
+.slot.empty .ic { border-color:#dbe6ee; background:rgba(240,247,252,.9); }
+.slot.empty .sn { color:#9fb3c4; }
+.spl-body { padding:10px 20px 12px; display:flex; gap:14px; }
+/* 左列：军需卡列表（行式卡；列表 = 已选带件 + 未解锁锁定示意，可纵向扩展 / 超高滚动兜底） */
 .sup-list { width:476px; flex:none; display:flex; flex-direction:column; gap:8px; }
 .sup-card { display:flex; align-items:center; gap:11px; padding:8px 12px; background:#fff;
   border:2px solid #d7e9f5; border-radius:13px; min-width:0; box-shadow:0 2px 5px rgba(30,90,130,.07); }
 .sup-card.hot { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 3px rgba(255,204,0,.35); }
 .sup-card.off { background:#eef3f7; border-color:#d9e3ea; }
 .sup-card.off .sname, .sup-card.off .sdesc { color:#9fb3c4; }
-.sup-ico { width:44px; height:44px; flex:none; border-radius:12px; display:flex; align-items:center; justify-content:center;
+.sup-ico { width:44px; height:44px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center;
   background:linear-gradient(180deg,#fff,#f0f6fb); border:2px dashed #9cbed9; }
 .sup-ico svg { width:24px; height:24px; }
 .sup-card.off .sup-ico { border-color:#c3d2dd; background:#e4ebf1; }
@@ -157,17 +174,30 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 .stag { font-size:10.5px; padding:1px 8px; border-radius:7px; letter-spacing:.5px; white-space:nowrap; }
 .stag.avail { color:#14538a; background:#e1f1fb; }
 .stag.hot { color:#8a6d00; background:#fff3c4; }
+.stag.done { color:#0e7a3c; background:#dff4e7; }
 .stag.off { color:#7d8fa0; background:#d9e4ec; }
-/* 右列：详情卡 */
-.sup-detail { flex:1; min-width:0; background:#fff; border:2px solid #d7e9f5; border-radius:14px;
+/* 按钮四态图例（概念稿注记条） */
+.sup-legend { margin-top:auto; display:flex; align-items:center; gap:7px;
+  background:#eef6fb; border:1px dashed #bfdcef; border-radius:10px; padding:6px 10px; }
+.sup-legend .lt { font-size:11px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+.lbtn { height:32px; padding:0 13px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:13px; letter-spacing:.5px;
+  border-image-slice:24 fill; border-image-width:16px; border-image-repeat:round; cursor:default;
+  display:flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap; }
+.lbtn img { width:16px; height:16px; object-fit:contain; }
+.lbtn.buy { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+.lbtn.buy b { font-weight:normal; color:#b8860b; }
+.lbtn.grey { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#8b9aa6; }
+/* 右列：详情预览卡 */
+.sup-detail { width:372px; flex:none; background:#fff; border:2px solid #d7e9f5; border-radius:14px;
   padding:13px 15px 14px; display:flex; flex-direction:column; gap:9px; }
 .sup-dhead { display:flex; align-items:center; gap:11px; }
-.sup-big { width:54px; height:54px; flex:none; border-radius:14px; display:flex; align-items:center; justify-content:center;
+.sup-big { width:54px; height:54px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center;
   background:linear-gradient(180deg,#fff,#f0f6fb); border:2px dashed #9cbed9; }
 .sup-big svg { width:30px; height:30px; }
 .sup-dname { font-size:20px; color:#1b4d78; letter-spacing:1px; }
 .sup-dtags { display:flex; gap:6px; margin-top:5px; }
 .sup-desc { font-size:13px; color:#33566f; line-height:1.7; letter-spacing:.5px; }
+.sup-desc b { color:#1b4d78; font-weight:normal; }
 .sup-fx { display:flex; gap:8px; }
 .sup-fx .fxbox { flex:1; background:#f3f9fd; border:1.5px dashed #bfdcef; border-radius:11px;
   padding:6px 4px 7px; text-align:center; }
@@ -184,7 +214,7 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   display:flex; align-items:center; justify-content:center; gap:8px; width:190px; flex:none; }
 .sup-buyrow .buy img { width:22px; height:22px; object-fit:contain; }
 .sup-buyrow .buy b { font-weight:normal; color:#b8860b; font-size:18px; }
-.sup-foot { flex:none; margin:0 20px 13px; font-size:11.5px; color:#33566f; background:#eef6fb;
+.sup-foot { flex:none; margin:0 20px 12px; font-size:11.5px; color:#33566f; background:#eef6fb;
   border:1px dashed #bfdcef; border-radius:10px; padding:6px 14px; line-height:1.7; letter-spacing:.5px; }
 .sup-foot b { color:#b8860b; font-weight:normal; }
 .sup-foot .dim { color:#7d9cb4; }
@@ -248,81 +278,83 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 
   <div class="spacer"></div>
 
-  <div class="bken b-start">开始第 3 波</div>
+  <div class="spacer"></div>
+
   <div class="bken b-supply open"><span class="supply-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
       <path d="M6.5 9.5h11l-1 9a2.2 2.2 0 0 1-2.2 2H9.7a2.2 2.2 0 0 1-2.2-2z"/><path d="M8.5 9.5V7a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>军需</div>
-  <div class="bken b-ghost">暂停</div>
   <div class="bken b-ghost">设置</div>
-  <div class="bken b-ghost">重开</div>
-  <div class="bken b-exit">退出</div>
+  <div class="bken b-ghost" style="width:132px">自动开波：关</div>
 </div>
-
-<script>
-window.addEventListener('load',function(){
-  var bad=[];
-  document.querySelectorAll('.bar *,.bar').forEach(function(el){
-    if(el.scrollWidth>el.clientWidth+1){ bad.push((el.className.baseVal!==undefined?el.className.baseVal:el.className)+'@'+el.scrollWidth+'/'+el.clientWidth); }
-  });
-  document.title = bad.length? 'OVERFLOW '+bad.slice(0,10).join(','): 'OK';
-});
-</script>
 <div class="spl-mask">
   <div class="spl-panel">
     <div class="spl-title">
       <h2>军需</h2>
-      <span class="who">即买即用 · 战斗不暂停</span>
+      <span class="who">购买入带 · 择时使用</span>
       <span class="gold"><img src="icons_battle/coin_crop.png" alt=""><span class="v">100</span></span>
       <button class="close"><img src="kenney_ui_pack/PNG/Blue/Default/icon_cross.png" alt="✕"></button>
     </div>
+    <!-- 带位区：局外选带 ≤3 槽；已购 = ✓ + 剩余次数（点击即使用） -->
+    <div class="sup-belt">
+      <span class="blabel">军需带</span>
+      <div class="slot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span><span class="sn">修整</span><div class="sv">点击使用</div></span><span class="cnt">✓ 1</span></div>
+      <div class="slot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c1.9 2.3 3.6 4 3.6 6.4a3.6 3.6 0 0 1-7.2 0c0-2.4 1.7-4.1 3.6-6.4z"/><path d="M12 21c-2.9 0-4.8-1.8-4.8-4.1 0-2.3 4.8-5.4 4.8-5.4s4.8 3.1 4.8 5.4c0 2.3-1.9 4.1-4.8 4.1z"/></svg></span><span><span class="sn">火攻</span><div class="sv">待购买</div></span><span class="cnt wait">未购买</span></div>
+      <div class="slot empty"><span class="ic"></span><span class="sn">空</span></div>
+      <span class="bhint">点击带内条目 = 使用（不弹二次确认）</span>
+    </div>
     <div class="spl-body">
       <div class="sup-list">
-        <!-- 修整：基地生命已满 → 禁用 -->
-        <div class="sup-card off">
+        <!-- 已购：✓ + 剩余次数 -->
+        <div class="sup-card">
           <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
           <span class="sup-info"><span class="sup-row1"><span class="sname">修整</span></span><div class="sdesc">紧急修整城防，基地生命 +10</div></span>
-          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">60</span></span><span class="stag off">基地生命已满</span></span>
+          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">60</span></span><span class="stag done">已购 · 剩余 1 / 1</span></span>
         </div>
-        <!-- 火攻：可购买 -->
-        <div class="sup-card">
-          <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c1.9 2.3 3.6 4 3.6 6.4a3.6 3.6 0 0 1-7.2 0c0-2.4 1.7-4.1 3.6-6.4z"/><path d="M12 21c-2.9 0-4.8-1.8-4.8-4.1 0-2.3 4.8-5.4 4.8-5.4s4.8 3.1 4.8 5.4c0 2.3-1.9 4.1-4.8 4.1z"/></svg></span>
-          <span class="sup-info"><span class="sup-row1"><span class="sname">火攻</span></span><div class="sdesc">引燃全场敌军：立即造成 50 伤害并灼烧 3 秒</div></span>
-          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">80</span></span><span class="stag avail">限 1 次</span></span>
-        </div>
-        <!-- 擂鼓：悬停 / 选中演示 -->
+        <!-- 选中（悬停预览 / 点击固定） -->
         <div class="sup-card hot">
-          <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="8.5" rx="3.4"/><path d="M4.5 11.5c0-2 3.3-3.6 7.5-3.6s7.5 1.6 7.5 3.6"/><path d="M12 3.2v2.6M8.4 4.4l1.7 1.6M15.6 4.4l-1.7 1.6"/></svg></span>
-          <span class="sup-info"><span class="sup-row1"><span class="sname">擂鼓</span></span><div class="sdesc">擂响战鼓，全队攻速 +30%，持续 8 秒</div></span>
-          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">50</span></span><span class="stag hot">悬停预览中</span></span>
+          <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c1.9 2.3 3.6 4 3.6 6.4a3.6 3.6 0 0 1-7.2 0c0-2.4 1.7-4.1 3.6-6.4z"/><path d="M12 21c-2.9 0-4.8-1.8-4.8-4.1 0-2.3 4.8-5.4 4.8-5.4s4.8 3.1 4.8 5.4c0 2.3-1.9 4.1-4.8 4.1z"/></svg></span>
+          <span class="sup-info"><span class="sup-row1"><span class="sname">火攻</span></span><div class="sdesc">引燃全场敌军：立即 50 魔法伤害 + 灼烧 25 / 秒</div></span>
+          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">80</span></span><span class="stag hot">已选带 · 未购买</span></span>
         </div>
-        <!-- 缓兵：可购买 -->
-        <div class="sup-card">
-          <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h10M7 20.5h10"/><path d="M7 3.5c2.6 2.1 2.6 5.4 0 7.5s-2.6 5.4 0 7.5M17 3.5c-2.6 2.1-2.6 5.4 0 7.5s2.6 5.4 0 7.5"/></svg></span>
-          <span class="sup-info"><span class="sup-row1"><span class="sname">缓兵</span></span><div class="sdesc">广布疑兵，全场敌军减速 40%，持续 5 秒</div></span>
-          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">40</span></span><span class="stag avail">限 2 次</span></span>
+        <!-- 未解锁：锁图标 + 灰关 + 「未解锁」tag（不可选带） -->
+        <div class="sup-card off">
+          <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9" rx="2.2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>
+          <span class="sup-info"><span class="sup-row1"><span class="sname">掷石齐射</span></span><div class="sdesc">全场敌人各受 60 物理伤害（军需处解锁 340 军功）</div></span>
+          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">70</span></span><span class="stag off">未解锁</span></span>
         </div>
-        <div class="sup-foot" style="margin:0;">提示：军需列表可<b>纵向扩展</b>（超高滚动兜底）；虚线圆 = 军需图标占位（待美术）。</div>
+        <div class="sup-card off">
+          <span class="sup-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9" rx="2.2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>
+          <span class="sup-info"><span class="sup-row1"><span class="sname">犒军</span></span><div class="sdesc">全队怒气 +20（军需处解锁 425 军功）</div></span>
+          <span class="sup-right"><span class="sup-cost"><img src="icons_battle/coin_crop.png" alt=""><span class="cv">50</span></span><span class="stag off">未解锁</span></span>
+        </div>
+        <div class="sup-legend">
+          <span class="lt">按钮四态</span>
+          <div class="lbtn buy">购买 <img src="icons_battle/coin_crop.png" alt=""><b>80</b></div>
+          <div class="lbtn buy">使用</div>
+          <div class="lbtn grey">已用尽</div>
+          <div class="lbtn grey">未解锁</div>
+        </div>
       </div>
       <div class="sup-detail">
         <div class="sup-dhead">
-          <span class="sup-big"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="8.5" rx="3.4"/><path d="M4.5 11.5c0-2 3.3-3.6 7.5-3.6s7.5 1.6 7.5 3.6"/><path d="M12 3.2v2.6M8.4 4.4l1.7 1.6M15.6 4.4l-1.7 1.6"/></svg></span>
-          <div><div class="sup-dname">擂鼓</div>
-          <div class="sup-dtags"><span class="stag hot">悬停 / 选中</span><span class="stag avail">限 2 次 · 未使用</span></div></div>
+          <span class="sup-big"><svg viewBox="0 0 24 24" fill="none" stroke="#7fa3c2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c1.9 2.3 3.6 4 3.6 6.4a3.6 3.6 0 0 1-7.2 0c0-2.4 1.7-4.1 3.6-6.4z"/><path d="M12 21c-2.9 0-4.8-1.8-4.8-4.1 0-2.3 4.8-5.4 4.8-5.4s4.8 3.1 4.8 5.4c0 2.3-1.9 4.1-4.8 4.1z"/></svg></span>
+          <div><div class="sup-dname">火攻</div>
+          <div class="sup-dtags"><span class="stag avail">已选带 · 未购买</span><span class="stag avail">限 1 次</span></div></div>
         </div>
-        <div class="sup-desc">擂响战鼓，全军士气大振：出战武将<b>攻速 +30%</b>，持续 <b>8 秒</b>。</div>
+        <div class="sup-desc">引燃全场敌军：立即造成 <b>50 魔法伤害</b>，并附加 <b>灼烧 25 / 秒</b>，持续 <b>3 秒</b>。</div>
         <div class="sup-fx">
-          <div class="fxbox"><div class="k">效果</div><div class="f">攻速 +30%</div><div class="u">全队武将</div></div>
-          <div class="fxbox"><div class="k">持续</div><div class="f">8 秒</div><div class="u">购买后即时生效</div></div>
-          <div class="fxbox"><div class="k">剩余</div><div class="f">2 / 2</div><div class="u">本局可用次数</div></div>
+          <div class="fxbox"><div class="k">效果</div><div class="f">50 魔法</div><div class="u">全场敌军</div></div>
+          <div class="fxbox"><div class="k">持续</div><div class="f">灼烧 3 秒</div><div class="u">25 / 秒</div></div>
+          <div class="fxbox"><div class="k">剩余</div><div class="f">1 / 1</div><div class="u">本局可用次数</div></div>
         </div>
-        <div class="sup-rule">同类增益<b>不叠加</b>：再次购买只刷新持续时间；满生命时「修整」禁用；结算开始后关闭购买。</div>
+        <div class="sup-rule">购买<b>不立即生效</b>：先入「军需带」，点击带内条目才触发；同类增益不叠加、只刷新时长；对 Boss 生效但有抗性折减；结算开始后关闭购买。</div>
         <div class="sup-buyrow">
-          <span class="hint">悬停卡片 = 右侧即时预览<br>点击 = 固定选择，再按购买立即生效</span>
+          <span class="hint">购买 = 入带（无二次确认）<br>未使用结算作废、不返还</span>
           <div class="spacer"></div>
-          <button class="buy">购买 <img src="icons_battle/coin_crop.png" alt=""><b>50</b></button>
+          <button class="buy">购买 <img src="icons_battle/coin_crop.png" alt=""><b>80</b></button>
         </div>
       </div>
     </div>
-    <div class="sup-foot"><b>交互说明：</b>鼠标<b>悬停</b>军需卡片 → 右侧即时预览详情；<b>点击</b> → 金框固定选中后可购买。军需<b>不暂停</b>战斗（顶栏照常运行）；金币不足按钮置灰、限购次数用尽卡片关闭；虚线圆 = 图标占位，待美术补充。</div>
+    <div class="sup-foot"><b>口径：</b>购买入带<b>不立即生效</b>、点击带内条目<b>择时使用</b>；<b>未使用结算作废</b>、不返还；军需不暂停战斗、结算开始后关闭购买。 <span class="dim">列表 = 已选带件 + 未解锁示意（局外未选带的不出现）；图标为虚线圆占位（待美术）。</span></div>
   </div>
 </div>
 </body>
