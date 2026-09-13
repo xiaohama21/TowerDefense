@@ -847,11 +847,14 @@ func _on_instant_clear() -> void:
 		return
 	var profile := ProfileStore.get_profile()
 	var first_clear := not profile.stage_progress.has(str(stage.stage_id))
-	var session := BattleSession.new(str(stage.stage_id))
+	var session := BattleSession.new(str(stage.stage_id), profile.get_owned_character_ids())
 	for character_id in profile.get_owned_character_ids():
 		session.add_xp(character_id, 100)
 	GameFlow.collect_stage_rewards(session, stage, first_clear)
 	GameFlow.award_tech_points(session, first_clear)
+	# 经验池注入（✅ 0.8.15 / NUMBERS 10.14）：测试工具按「全部已拥有武将出战、无击杀经验」
+	# 口径定值，便于在正式结算之外验证经验池 UI（公式与正式结算同源）。
+	session.finalize_exp_pool_injection(stage.participant_xp)
 	session.mark_victory({
 		"remaining_lives": 20,
 		"completed_waves": stage.waves.size(),

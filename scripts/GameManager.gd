@@ -83,6 +83,7 @@ func enemy_died(
 	if kill_xp > 0:
 		_wave_kill_xp_total += kill_xp
 		kill_xp = int(round(kill_xp * Difficulty.reward_mult(GameFlow.selected_difficulty)))
+		_report_kill_xp_base(kill_xp)
 		_distribute_kill_xp(kill_xp, source_character_id, damage_contributors)
 	if not source_character_id.strip_edges().is_empty():
 		enemy_killed_by_character.emit(source_character_id.strip_edges())
@@ -121,6 +122,14 @@ func _distribute_kill_xp(kill_xp: int, last_hitter_id: String, contributors: Dic
 		if participant_id == last_id:
 			amount += remainder
 		_add_session_xp(participant_id, amount)
+
+
+## 经验池注入基数上报（✅ 0.8.15 / NUMBERS 10.14）：按难度倍率结算后的击杀经验逐笔累计，
+## 供 BattleSession.finalize_exp_pool_injection() 在胜利结算时定值（不含落后补正增量）。
+func _report_kill_xp_base(amount: int) -> void:
+	if active_battle_session == null or amount <= 0:
+		return
+	active_battle_session.add_kill_xp_base(amount)
 
 
 func _add_session_xp(character_id: String, amount: int) -> void:

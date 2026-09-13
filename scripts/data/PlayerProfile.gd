@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 4
+const CURRENT_SCHEMA_VERSION: int = 5
 ## v2（阶段 8·提交 6，职业级转职树落地）：旧档角色绑定转职路径作废，
 ## 统一按职业级转职树重新转职——加载迁移时清空所有 promotion_path（v0.28 拍板）。
 ## v3（阶段 8·提交 8 延伸·v0.33.1）：新增出战编队持久记忆 squad_character_ids / squad_relic_ids——
@@ -12,6 +12,9 @@ const CURRENT_SCHEMA_VERSION: int = 4
 ## v4（阶段 8·提交 14 / 0.8.14.0 信物重构，SAVE_DATA 8）：`characters[id].shards` 碎片字段删除；
 ## 信物双槽化——旧 `relic` 迁移为 `relic_exclusive`（专属槽占位、不参与计算），
 ## 生效位改 `relic_optional`（可选槽 = Boss 签名信物）。
+## v5（阶段 8·提交 15 / 0.8.15.0 经验池重构，SAVE_DATA 8）：新增 `exp_pool`（经验池余额：
+## 胜利结算额外注入、池内自由分配写入武将 total_exp；旧档迁移补 0、幂等）；
+## `items.exp_scroll`（练兵令）残留数量随本次迁移清理（道具整体删除）。
 
 var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}
@@ -21,6 +24,8 @@ var relics: Array[String] = []
 var gacha_state: Dictionary = {}
 var tech_points: int = 0
 var tech_unlocks: Array[String] = []
+## 经验池余额（✅ 0.8.15 / NUMBERS 10.14）：只由胜利结算注入，不产出金币 / 材料 / 科技点。
+var exp_pool: int = 0
 var last_committed_run_id: String = ""
 var squad_character_ids: Array[String] = []
 var squad_relic_ids: Array[String] = []
@@ -48,9 +53,12 @@ func load_dict(data: Dictionary) -> void:
 	characters = _normalize_characters(source.get("characters", {}))
 	stage_progress = _normalize_dictionary(source.get("stage_progress", {}))
 	items = _normalize_dictionary(source.get("items", {}))
+	# v5（0.8.15.0 防御性）：练兵令整体删除——旧档若残留（正式迁移在 SaveManager）就地清理。
+	items.erase("exp_scroll")
 	relics = _normalize_string_array(source.get("relics", []))
 	tech_points = _coerce_non_negative_int(source.get("tech_points", 0))
 	tech_unlocks = _normalize_string_array(source.get("tech_unlocks", []))
+	exp_pool = _coerce_non_negative_int(source.get("exp_pool", 0))
 	gacha_state = _normalize_dictionary(source.get("gacha_state", {}))
 	last_committed_run_id = str(source.get("last_committed_run_id", ""))
 	squad_character_ids = _normalize_string_array(source.get("squad_character_ids", []))
@@ -66,6 +74,7 @@ func to_dict() -> Dictionary:
 		"relics": relics.duplicate(),
 		"tech_points": tech_points,
 		"tech_unlocks": tech_unlocks.duplicate(),
+		"exp_pool": exp_pool,
 		"gacha_state": gacha_state.duplicate(true),
 		"last_committed_run_id": last_committed_run_id,
 		"squad_character_ids": squad_character_ids.duplicate(),
@@ -87,6 +96,7 @@ func copy_from(other: PlayerProfile) -> void:
 	relics = other.relics.duplicate()
 	tech_points = other.tech_points
 	tech_unlocks = other.tech_unlocks.duplicate()
+	exp_pool = other.exp_pool
 	gacha_state = other.gacha_state.duplicate(true)
 	last_committed_run_id = other.last_committed_run_id
 	squad_character_ids = other.squad_character_ids.duplicate()
@@ -211,6 +221,55 @@ func _set_character_relic_slot(character_id: String, slot: String, relic_id: Str
 	entry["relic_exclusive" if slot == "exclusive" else "relic_optional"] = relic_id.strip_edges()
 	characters[key] = entry
 	return true
+
+
+## 经验池（✅ 0.8.15 / CHARACTERS 4.4 / NUMBERS 10.14）——
+## 余额读取。
+func get_exp_pool() -> int:
+	return exp_pool
+
+
+## 注入经验池（胜利结算纯增量；数值由 BattleSession.finalize_exp_pool_injection 定值）。
+func add_exp_pool(amount: int) -> int:
+	exp_pool += maxi(amount, 0)
+	return exp_pool
+
+
+## 该武将是否可分配经验池（仅限已拥有、未满级；满级不可分配 —— CHARACTERS 4.4）。
+func can_allocate_exp_pool(character_id: String) -> bool:
+	var key := character_id.strip_edges()
+	if key.is_empty() or not characters.has(key):
+		return false
+	return LevelCurve.level_from_total_exp(get_character_exp(key)) < LevelCurve.max_level()
+
+
+## 分配经验池（不可逆）：余额不足 / 未拥有 / 满级一律拒绝（返回 false 且不改动任何状态），
+## 成功即扣池并写入 characters[id].total_exp。写档由调用方（ProfileStore.save_profile）负责。
+func allocate_exp_pool(character_id: String, amount: int) -> bool:
+	var key := character_id.strip_edges()
+	if amount <= 0 or exp_pool < amount:
+		return false
+	if not can_allocate_exp_pool(key):
+		return false
+	exp_pool -= amount
+	add_character_exp(key, amount)
+	return true
+
+
+## 「直接升级」消耗（✅ 0.8.15）：升级到下一级所需经验差额；未拥有 / 已满级返回 0。
+func exp_pool_level_up_cost(character_id: String) -> int:
+	var key := character_id.strip_edges()
+	if not can_allocate_exp_pool(key):
+		return 0
+	var total := get_character_exp(key)
+	var level := LevelCurve.level_from_total_exp(total)
+	return maxi(LevelCurve.exp_total_for_level(level + 1) - total, 0)
+
+
+## 经验池「直接升级」（+1 级）：消耗 = 升级到下一级所需差额；余额不足 / 满级返回 false。
+func level_up_with_exp_pool(character_id: String) -> bool:
+	var cost := exp_pool_level_up_cost(character_id)
+	return cost > 0 and allocate_exp_pool(character_id, cost)
 
 
 ## 科技点（阶段 4）：通关获取，科技树消费。
@@ -341,6 +400,12 @@ func apply_battle_session(session: Object) -> bool:
 		var amount := _coerce_non_negative_int(pending_loot[item_key])
 		if not item_id.is_empty() and amount > 0:
 			add_item(item_id, amount)
+
+	# 经验池注入（✅ 0.8.15）：胜利结算定值，纯增量写档（失败 / 放弃 / 崩溃不进此路径）。
+	if session.has_method("get_pending_exp_pool"):
+		var pending_pool: int = _coerce_non_negative_int(session.get_pending_exp_pool())
+		if pending_pool > 0:
+			add_exp_pool(pending_pool)
 
 	# 科技点（GDD modules/NUMBERS.md 10.7，v0.14.1）：随战局提交写档。
 	if session.has_method("get_pending_tech_points"):

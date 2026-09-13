@@ -404,6 +404,35 @@ func _migrate_v3_to_v4(old_data: Dictionary) -> Dictionary:
 	return data
 
 
+## v4 → v5（阶段 8·提交 15 / 0.8.15.0 经验池重构，SAVE_DATA 8）：**新增经验池余额 + 练兵令残留清理**——
+## ① `exp_pool` 缺失时补 0（非负整数化；已有值保留，幂等）；
+## ② `items.exp_scroll` 整体删除（练兵令道具废止），残留数量清零并移除键。
+func _migrate_v4_to_v5(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	data["exp_pool"] = _coerce_non_negative_int(data.get("exp_pool", 0))
+	var items: Dictionary = {}
+	if data.get("items", {}) is Dictionary:
+		items = data.get("items", {}).duplicate(true)
+	items.erase("exp_scroll")
+	data["items"] = items
+	data["schema_version"] = 5
+	return data
+
+
+func _coerce_non_negative_int(value) -> int:
+	var number := 0
+	match typeof(value):
+		TYPE_INT:
+			number = value
+		TYPE_FLOAT:
+			number = int(value)
+		TYPE_STRING:
+			number = int(value) if str(value).is_valid_int() else 0
+		_:
+			number = 0
+	return maxi(number, 0)
+
+
 ## Migration entry point. Add one version step at a time as schemas evolve.
 func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	var data := raw_data.duplicate(true)
@@ -430,6 +459,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			3:
 				data = _migrate_v3_to_v4(data)
 				version = 4
+				migrated = true
+			4:
+				data = _migrate_v4_to_v5(data)
+				version = 5
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

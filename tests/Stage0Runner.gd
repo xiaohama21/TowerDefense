@@ -71,6 +71,7 @@ func _run() -> void:
 	_test_save_manager_corruption_fallback()
 	_test_save_migration_v1_to_v2()
 	_test_save_migration_v3_to_v4()
+	_test_save_migration_v4_to_v5()
 	_restore_profile_files()
 	_finish()
 
@@ -448,6 +449,73 @@ func _test_save_migration_v3_to_v4() -> void:
 		"v3→v4 迁移器应幂等：不应清空玩家已装配的可选槽信物")
 	_check(str(twice.get("characters", {}).get("guan_yu", {}).get("relic_exclusive", "")) == "relic_guanyu_blade",
 		"v3→v4 迁移器重复执行不应覆盖专属槽占位")
+
+
+func _test_save_migration_v4_to_v5() -> void:
+	# 阶段 8·提交 15（0.8.15.0 / v0.37.42）经验池重构：schema v4→v5——
+	# ① 新增 exp_pool（缺失补 0、非负整数化、幂等）；② items.exp_scroll（练兵令）残留清理。
+	if not ResourceLoader.exists(SAVE_MANAGER_PATH):
+		return
+	var script := load(SAVE_MANAGER_PATH) as Script
+	_check(script != null, "SaveManager.gd 无法加载")
+	if script == null:
+		return
+	var manager = script.new()
+	if not manager.has_method("_migrate_to_current"):
+		return
+	var old_data := {
+		"schema_version": 4,
+		"characters": {"guan_yu": {"total_exp": 120, "relic_exclusive": "", "relic_optional": ""}},
+		"items": {"yellow_turban_cloth": 12, "exp_scroll": 7, "wolf_tooth": 1},
+		"stage_progress": {},
+		"gacha_state": {},
+		"squad_character_ids": [],
+		"squad_relic_ids": [],
+	}
+	var migrated: Dictionary = manager._migrate_to_current(old_data)
+	_check(bool(migrated.get("ok", false)), "v4 存档迁移应成功")
+	if not bool(migrated.get("ok", false)):
+		return
+	_check(bool(migrated.get("migrated", false)), "v4 存档应标记为已迁移")
+	var migrated_data: Dictionary = migrated.get("data", {})
+	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
+		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 5, "PlayerProfile schema 应为 v5（0.8.15.0）")
+	_check(int(migrated_data.get("exp_pool", -1)) == 0, "v4→v5 迁移应补 exp_pool = 0")
+	var items: Dictionary = migrated_data.get("items", {})
+	_check(not items.has("exp_scroll"), "v4→v5 迁移应清理 items.exp_scroll 残留（练兵令删除）")
+	_check(int(items.get("yellow_turban_cloth", 0)) == 12, "迁移不应影响其他道具数量")
+	_check(int(items.get("wolf_tooth", 0)) == 1, "迁移不应影响遗物库存")
+	var idempotent: Dictionary = manager._migrate_to_current(migrated_data)
+	_check(bool(idempotent.get("ok", false)) and not bool(idempotent.get("migrated", false)),
+		"v5 存档重复迁移应为幂等（不重复迁移）")
+	var kept := migrated_data.duplicate(true)
+	kept["exp_pool"] = 480
+	var twice: Dictionary = manager._migrate_v4_to_v5(kept)
+	_check(int(twice.get("exp_pool", 0)) == 480, "v4→v5 迁移器应幂等：不应清空玩家已有经验池余额")
+	var negative: Dictionary = manager._migrate_v4_to_v5({"schema_version": 4, "items": {"exp_scroll": 3}, "exp_pool": -20})
+	_check(int(negative.get("exp_pool", -1)) == 0, "非法负值经验池应归零（非负整数化）")
+	# 经验池写档链路：BattleSession 定值 → apply_battle_session 写 exp_pool。
+	var session := BattleSession.create("ch01_s01", ["guan_yu", "liu_bei", "zhang_fei", "huang_zhong"])
+	session.add_kill_xp_base(527)
+	_check(session.finalize_exp_pool_injection(50) == 364, "注入定值应为 roundi((527 + 200) × 0.5) = 364")
+	session.add_participation_xp(session.get_deployed_character_ids(), 50)
+	session.mark_victory({"difficulty": "normal"})
+	var profile := PlayerProfile.new()
+	profile.unlock_character("guan_yu")
+	_check(profile.apply_battle_session(session), "胜利战局应可应用到档案")
+	_check(profile.get_exp_pool() == 364, "提交胜利战局应把注入量写入 exp_pool")
+	_check(profile.get_character_exp("guan_yu") == 50,
+		"提交胜利战局应照发武将自身所得（参与经验 50，纯增量不扣减）")
+	var defeat := BattleSession.create("ch01_s01", ["guan_yu"])
+	defeat.add_kill_xp_base(500)
+	defeat.finalize_exp_pool_injection(60)
+	defeat.mark_defeat({"remaining_lives": 0})
+	var defeat_profile := PlayerProfile.new()
+	defeat_profile.unlock_character("guan_yu")
+	_check(not defeat_profile.apply_battle_session(defeat), "失败战局不得应用（经验池不写档）")
+	_check(defeat_profile.get_exp_pool() == 0, "失败战局不应写经验池")
+
 
 
 func _load_first_script(paths: Array) -> Script:

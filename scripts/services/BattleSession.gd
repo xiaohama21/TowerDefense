@@ -24,6 +24,12 @@ var pending_unlocks: Array[String] = []
 var pending_relics: Array[String] = []
 ## 科技点（v0.14.1）：通关后写入存档 tech_points（首通+2/重复+1，按难度材料倍率）。
 var pending_tech_points: int = 0
+## 经验池注入基数（✅ 0.8.15 / NUMBERS 10.14）：本局实际发出的击杀经验总量
+## （GameManager 按难度 reward_mult 结算后的值逐笔累计；不含落后补正增量）。
+var kill_xp_base: int = 0
+## 经验池注入量（✅ 0.8.15）：胜利结算时按 finalize_exp_pool_injection() 定值，
+## 随战局提交写入存档 exp_pool；失败 / 放弃 / 崩溃作废。
+var pending_exp_pool: int = 0
 var result: Dictionary = {}
 var status: String = STATUS_IN_PROGRESS
 var started_at_unix: int = 0
@@ -72,6 +78,8 @@ func load_dict(data: Dictionary) -> void:
 	pending_unlocks = _normalize_string_array(data.get("pending_unlocks", []))
 	pending_relics = _normalize_string_array(data.get("pending_relics", []))
 	pending_tech_points = _coerce_non_negative_int(data.get("pending_tech_points", 0))
+	kill_xp_base = _coerce_non_negative_int(data.get("kill_xp_base", 0))
+	pending_exp_pool = _coerce_non_negative_int(data.get("pending_exp_pool", 0))
 	result = data.get("result", {}).duplicate(true) if data.get("result", {}) is Dictionary else {}
 	status = _normalize_status(str(data.get("status", STATUS_IN_PROGRESS)))
 	started_at_unix = _coerce_non_negative_int(data.get("started_at_unix", 0))
@@ -89,6 +97,8 @@ func to_dict() -> Dictionary:
 		"pending_unlocks": pending_unlocks.duplicate(),
 		"pending_relics": pending_relics.duplicate(),
 		"pending_tech_points": pending_tech_points,
+		"kill_xp_base": kill_xp_base,
+		"pending_exp_pool": pending_exp_pool,
 		"result": result.duplicate(true),
 		"status": status,
 		"started_at_unix": started_at_unix,
@@ -205,6 +215,32 @@ func get_pending_relics() -> Array[String]:
 	return pending_relics.duplicate()
 
 
+## 击杀经验基数累计（✅ 0.8.15）：GameManager.enemy_died 按难度倍率缩放后逐笔上报，
+## 作为经验池注入公式的「本局击杀经验总量」项。
+func add_kill_xp_base(amount: int) -> int:
+	if not can_accumulate_rewards() or amount <= 0:
+		return kill_xp_base
+	kill_xp_base += amount
+	return kill_xp_base
+
+
+## 经验池注入定值（✅ 0.8.15 / NUMBERS 10.14）：胜利结算窗口内调用一次——
+## 注入 = roundi((击杀经验总量 + participant_xp × 出战人数) × 50%)，四舍五入取整；
+## 不扣减武将自身所得（纯增量）；非胜利窗口调用返回当前值不做修改。
+func finalize_exp_pool_injection(participant_xp: int) -> int:
+	if not can_accumulate_rewards():
+		return pending_exp_pool
+	var per_member := _coerce_non_negative_int(participant_xp)
+	var headcount := deployed_character_ids.size()
+	var total := kill_xp_base + per_member * headcount
+	pending_exp_pool = roundi(total * 0.5)
+	return pending_exp_pool
+
+
+func get_pending_exp_pool() -> int:
+	return pending_exp_pool
+
+
 ## 科技点暂存（GDD modules/NUMBERS.md 10.7）：通关后随战局提交写档。
 func add_tech_points(amount: int) -> int:
 	if not can_accumulate_rewards() or amount <= 0:
@@ -279,6 +315,8 @@ func mark_discarded() -> bool:
 	pending_unlocks.clear()
 	pending_relics.clear()
 	pending_tech_points = 0
+	kill_xp_base = 0
+	pending_exp_pool = 0
 	return true
 
 
@@ -288,6 +326,8 @@ func clear_pending_rewards() -> void:
 	pending_unlocks.clear()
 	pending_relics.clear()
 	pending_tech_points = 0
+	kill_xp_base = 0
+	pending_exp_pool = 0
 
 
 static func _generate_run_id() -> String:
