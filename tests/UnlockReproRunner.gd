@@ -55,6 +55,32 @@ func _run() -> void:
 	_check(saved_quick, "一键路径提交应成功")
 	_check(quick_profile.has_character("zhang_fei"), "一键路径提交后应解锁张飞")
 
+	# 0.8.14 信物重构：s08 首通信物按难度分派（标准 → 天公雷诏；困难 → 太平要术·残卷）；
+	# 各难度各 1 件、每件仅获取 1 次（add_relic 去重）。
+	var s08 := GameFlow.load_stage_data(&"ch01_s08")
+	_check(s08 != null, "s08 应可加载")
+	if s08 != null:
+		GameFlow.selected_difficulty = Difficulty.NORMAL
+		var normal_session := BattleSession.new("ch01_s08")
+		GameFlow.collect_stage_rewards(normal_session, s08, true)
+		var normal_relics := normal_session.get_pending_relics()
+		_check(normal_relics.size() == 1 and normal_relics.has("relic_tiangong_leizhao"),
+			"标准难度 s08 首通应掉落天公雷诏（实际 %s）" % str(normal_relics))
+		GameFlow.selected_difficulty = Difficulty.HARD
+		var hard_session := BattleSession.new("ch01_s08")
+		GameFlow.collect_stage_rewards(hard_session, s08, true)
+		var hard_relics := hard_session.get_pending_relics()
+		_check(hard_relics.size() == 1 and hard_relics.has("relic_taiping_yaoshu"),
+			"困难难度 s08 首通应掉落太平要术·残卷（实际 %s）" % str(hard_relics))
+		var relic_profile := ProfileStore.create_new_profile(false)
+		relic_profile.add_relic("relic_taiping_yaoshu")
+		var added_again := false
+		for relic_id in hard_session.get_pending_relics():
+			added_again = relic_profile.add_relic(str(relic_id)) or added_again
+		_check(not added_again and relic_profile.relics.size() == 1,
+			"已持有信物不应重复入档（每件仅 1 次）")
+		GameFlow.selected_difficulty = Difficulty.NORMAL
+
 	_finish()
 
 

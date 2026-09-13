@@ -306,28 +306,56 @@ func get_battle_loadout(profile: PlayerProfile, character_id: String) -> Diction
 	}
 
 
-## 该武将当前装备的信物（characters[id].relic 指向 RelicData 资源）。
+## 该武将当前**生效**的信物 = 可选槽（characters[id].relic_optional，GDD 4.8 双槽，
+## ✅ 0.8.14）：专属槽已锁住占位、不参与计算（占位展示见 get_exclusive_relic）。
 func get_equipped_relic(profile: PlayerProfile, character_id: String) -> RelicData:
 	if profile == null:
 		return null
-	var equipped: String = str(profile.get_character(character_id).get("relic", ""))
-	if equipped.is_empty():
+	return load_relic_data(profile.get_character_relic_id(character_id, "optional"))
+
+
+## 该武将专属槽的占位信物（characters[id].relic_exclusive；本版锁住、不参与计算，仅展示）。
+func get_exclusive_relic(profile: PlayerProfile, character_id: String) -> RelicData:
+	if profile == null:
 		return null
-	var path: String = RELIC_RESOURCE_DIR + "/" + equipped + ".tres"
+	return load_relic_data(profile.get_character_relic_id(character_id, "exclusive"))
+
+
+## 信物定义读取（relic_id → RelicData；空或缺失返回 null）。
+func load_relic_data(relic_id: String) -> RelicData:
+	var key := relic_id.strip_edges()
+	if key.is_empty():
+		return null
+	var path: String = RELIC_RESOURCE_DIR + "/" + key + ".tres"
 	if ResourceLoader.exists(path):
 		return load(path) as RelicData
 	return null
 
 
-## 该武将对应的信物定义（未拥有也可查询，用于图鉴与兑换）。
+## 该武将对应的专属信物定义（未拥有也可查询，用于图鉴与养成页专属槽展示）。
 func get_relic_for_character(character_id: String) -> RelicData:
 	for entry in ResourceLoader.list_directory(RELIC_RESOURCE_DIR):
 		if entry.ends_with(".tres"):
 			var rpath: String = RELIC_RESOURCE_DIR + "/" + entry
 			var relic := load(rpath) as RelicData
-			if relic != null and relic.character_id == StringName(character_id):
+			if relic != null and not relic.is_optional_slot() and relic.character_id == StringName(character_id):
 				return relic
 	return null
+
+
+## 可选槽信物目录（Boss 签名信物 = 通用件，✅ 0.8.14）：养成面板 / 图鉴共用唯一来源。
+func get_optional_relics() -> Array[RelicData]:
+	var result: Array[RelicData] = []
+	for entry in ResourceLoader.list_directory(RELIC_RESOURCE_DIR):
+		if not entry.ends_with(".tres"):
+			continue
+		var relic := load(RELIC_RESOURCE_DIR + "/" + entry) as RelicData
+		if relic != null and relic.is_optional_slot() and relic.is_valid():
+			result.append(relic)
+	result.sort_custom(func(a: RelicData, b: RelicData) -> bool:
+		return str(a.relic_id) < str(b.relic_id)
+	)
+	return result
 
 
 func get_acquisition_text(character_id: String) -> String:
@@ -427,8 +455,11 @@ func collect_stage_rewards(session: BattleSession, stage: StageData, first_clear
 		for character_id in stage.first_clear_unlock_character_ids:
 			session.add_unlock(str(character_id))
 		rewards = stage.first_clear_rewards
-		if stage.first_clear_relic != null:
-			session.add_relic(str(stage.first_clear_relic.relic_id))
+		# Boss 签名信物按难度分派（NUMBERS 10.13 / DROPS_GACHA 7.2）：标准 → 天公雷诏、
+		# 困难 → 太平要术·残卷；add_relic 去重保证每件仅获取 1 次、不补发。
+		var first_clear_relic := stage.first_clear_relic_hard if selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
+		if first_clear_relic != null:
+			session.add_relic(str(first_clear_relic.relic_id))
 	else:
 		rewards = stage.repeat_clear_rewards
 		for drop in stage.probability_drops:

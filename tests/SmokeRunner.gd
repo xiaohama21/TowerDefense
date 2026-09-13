@@ -2240,33 +2240,122 @@ func _run() -> void:
 		_check(is_equal_approx(speed_tower.attack_timer.wait_time, 0.55), "攻速间隔下限应为基础间隔×0.55")
 		speed_tower.queue_free()
 
-	# 阶段 8 提交 2（P0 3.3）：结算转盘——奖池 5~7 件、≥150 金抽 1 次、结果入档（隔离存档）。
+	# 阶段 8 提交 2（P0 3.3）：结算转盘——≥150 金抽 1 次、结果入档（隔离存档）；
+	# ✅ 0.8.14（v0.37.41）：碎片条目随信物重构删除（奖池 6 → 4 条）。
 	_check(SettlementWheel.MIN_REMAINING_GOLD == 150, "转盘门槛应为剩余金币 ≥150（仅一次）")
-	_check(SettlementWheel.POOL.size() >= 5 and SettlementWheel.POOL.size() <= 7, "转盘奖池应为 5~7 件道具")
+	_check(SettlementWheel.POOL.size() == 4, "转盘奖池应为 4 件（碎片条目已随 0.8.14 删除）")
+	var wheel_kinds_ok := true
+	for wheel_entry in SettlementWheel.POOL:
+		if str(wheel_entry.get("kind", "")) == "shards":
+			wheel_kinds_ok = false
+	_check(wheel_kinds_ok, "转盘奖池不应残留碎片条目")
 	var wheel_profile := ProfileStore.get_profile()
 	var wheel_roll := SettlementWheel.roll(wheel_profile)
 	_check(not wheel_roll.is_empty(), "转盘应能抽取奖励")
 	var wheel_kind := str(wheel_roll.get("kind", ""))
-	_check(["item", "shards", "tech_points"].has(wheel_kind), "转盘奖励类型应合法")
+	_check(["item", "tech_points"].has(wheel_kind), "转盘奖励类型应合法（碎片类型已删除）")
+	_check(not wheel_roll.has("character_id"), "转盘结果不应再携带碎片武将字段")
 	var wheel_amount_before := 0
-	if wheel_kind == "shards":
-		var wheel_char := str(wheel_roll.get("character_id", ""))
-		_check(not wheel_char.is_empty(), "碎片奖励应指定武将")
-		wheel_amount_before = int(wheel_profile.get_character(wheel_char).get("shards", 0))
-	elif wheel_kind == "item":
+	if wheel_kind == "item":
 		wheel_amount_before = int(wheel_profile.items.get(str(wheel_roll.get("item_id", "")), 0))
 	else:
 		wheel_amount_before = wheel_profile.tech_points
 	_check(ProfileStore.commit_settlement_reward(wheel_roll), "转盘结果应能入账（隔离存档）")
-	if wheel_kind == "shards":
-		var wheel_char2 := str(wheel_roll.get("character_id", ""))
-		_check(int(wheel_profile.get_character(wheel_char2).get("shards", 0))
-			== wheel_amount_before + int(wheel_roll.get("amount", 0)), "碎片入账数量应正确")
-	elif wheel_kind == "item":
+	if wheel_kind == "item":
 		_check(int(wheel_profile.items.get(str(wheel_roll.get("item_id", "")), 0))
 			== wheel_amount_before + int(wheel_roll.get("amount", 0)), "道具入账数量应正确")
 	else:
 		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
+
+	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 4, "信物重构后存档 schema 应为 v4（碎片清理 + 双槽迁移）")
+	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
+	var c14_exclusive_count := 0
+	var c14_optional: Array[RelicData] = []
+	for c14_relic_path in _collect_resource_paths("res://resources/relics"):
+		var c14_relic := load(c14_relic_path) as RelicData
+		_check(c14_relic != null and c14_relic.is_valid(), "信物资源应有效: %s" % c14_relic_path)
+		if c14_relic == null:
+			continue
+		if c14_relic.is_optional_slot():
+			c14_optional.append(c14_relic)
+		else:
+			c14_exclusive_count += 1
+			_check(not c14_relic.character_id.is_empty(), "专属槽信物应绑定武将: %s" % c14_relic_path)
+	_check(c14_exclusive_count == 3, "旧 3 件专属信物应保留为专属槽占位数据（不删除）")
+	_check(c14_optional.size() == 2, "可选槽应有 2 件 Boss 签名信物")
+	var c14_tiangong := GameFlow.load_relic_data("relic_tiangong_leizhao")
+	var c14_taiping := GameFlow.load_relic_data("relic_taiping_yaoshu")
+	_check(c14_tiangong != null and is_equal_approx(c14_tiangong.magic_damage_bonus, 0.12)
+			and is_zero_approx(c14_tiangong.damage_bonus) and c14_tiangong.character_id.is_empty(),
+			"天公雷诏应为通用件·术法伤害 +12%（不叠全伤害）")
+	_check(c14_taiping != null and c14_taiping.level_bonus == 5 and c14_taiping.character_id.is_empty(),
+			"太平要术·残卷应为通用件·+5 等级成长等效")
+	_check(GameFlow.get_optional_relics().size() == 2, "可选槽信物目录应可枚举 2 件")
+	# ② s08 首通信物按难度分派（标准 → 天公雷诏；困难 → 残卷；各 1 件、每件仅 1 次）
+	var c14_s08 := load("res://resources/stages/chapter_01/ch01_s08.tres") as StageData
+	_check(c14_s08 != null and c14_s08.first_clear_relic != null
+			and str(c14_s08.first_clear_relic.relic_id) == "relic_tiangong_leizhao",
+			"s08 标准难度首通应掉落天公雷诏（替换原关羽信物）")
+	_check(c14_s08 != null and c14_s08.first_clear_relic_hard != null
+			and str(c14_s08.first_clear_relic_hard.relic_id) == "relic_taiping_yaoshu",
+			"s08 困难难度首通应掉落太平要术·残卷")
+	# ③ 残卷 = 等级 +5 成长等效（compute_stats_at 同源，突破 30 级上限）
+	var c14_guan_yu := GameFlow.load_character_data("guan_yu")
+	_check(c14_guan_yu != null, "应能读取关羽数据")
+	if c14_guan_yu != null and c14_taiping != null:
+		var c14_lv10 := c14_guan_yu.compute_stats_at(10, null, 0, null)
+		var c14_lv15 := c14_guan_yu.compute_stats_at(15, null, 0, null)
+		var c14_carry := c14_guan_yu.compute_stats_at(10, null, 0, c14_taiping)
+		_check(int(c14_carry.damage) == int(c14_lv15.damage) and int(c14_carry.damage) > int(c14_lv10.damage),
+			"太平要术·残卷应等效 +5 级成长（伤害）")
+		var c14_lv30 := c14_guan_yu.compute_stats_at(30, null, 0, null)
+		var c14_lv35 := c14_guan_yu.compute_stats_at(30, null, 0, c14_taiping)
+		_check(int(c14_lv35.damage) > int(c14_lv30.damage)
+				and int(c14_lv35.damage) == int(c14_guan_yu.compute_stats_at(35, null, 0, null).damage),
+			"残卷应突破 30 级上限（等效上限 35）")
+	# ④ 天公雷诏仅魔法类型生效（STATS_PIPELINE v0.6 §1.3 类型条件增伤）
+	var c14_tower: Tower = tower_manager.build_tower(Vector2(300, 640), guan_yu, null,
+		{"level": 1, "relic": c14_tiangong})
+	_check(c14_tower != null, "应能建造天公雷诏探针塔")
+	if c14_tower != null:
+		c14_tower.set_process(false)
+		var c14_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if c14_enemy != null:
+			c14_enemy.set_process(false)
+			var c14_base := c14_tower.damage
+			var c14_phys_damage := c14_tower.finalize_damage(c14_base, c14_enemy)
+			var c14_magic_damage := c14_tower.finalize_damage(c14_base, c14_enemy, DamageTypes.MAGIC)
+			_check(c14_magic_damage == int(round(c14_phys_damage * 1.12)),
+				"天公雷诏应在魔法类型伤害上 +12%")
+			_check(c14_tower.finalize_damage(c14_base, c14_enemy, DamageTypes.TRUE) == c14_phys_damage,
+				"天公雷诏不应作用于真实 / 物理类型（缺省 = 本塔普攻类型）")
+			c14_enemy.queue_free()
+		c14_tower.queue_free()
+	# ⑤ 双槽装配：可选槽 = 生效位；专属槽 = 锁定占位（不参与计算）
+	var c14_profile := PlayerProfile.new()
+	c14_profile.ensure_character("guan_yu")
+	c14_profile.add_relic("relic_guanyu_blade")
+	c14_profile.add_relic("relic_tiangong_leizhao")
+	_check(not c14_profile.get_character("guan_yu").has("shards"), "武将条目不应再含碎片字段（schema v4）")
+	_check(c14_profile.get_character_relic_id("guan_yu", "optional").is_empty(), "新档可选槽默认为空")
+	_check(c14_profile.set_character_relic("guan_yu", "relic_tiangong_leizhao"), "可选槽应可装配已持有信物")
+	_check(c14_profile.get_character_relic_id("guan_yu", "optional") == "relic_tiangong_leizhao",
+			"可选槽应记录装配信物（relic_optional）")
+	_check(c14_profile.set_character_exclusive_relic("guan_yu", "relic_guanyu_blade"), "专属槽应可写入占位数据")
+	_check(c14_profile.get_character_relic_id("guan_yu", "exclusive") == "relic_guanyu_blade",
+			"专属槽应记录占位信物（relic_exclusive）")
+	_check(not c14_profile.set_character_relic("guan_yu", "relic_taiping_yaoshu"), "未持有信物不应可装配")
+	var c14_loadout := GameFlow.get_battle_loadout(c14_profile, "guan_yu")
+	var c14_loadout_relic: RelicData = c14_loadout.get("relic", null)
+	_check(c14_loadout_relic != null and str(c14_loadout_relic.relic_id) == "relic_tiangong_leizhao",
+			"战斗 loadout 信物应取可选槽（专属槽占位不生效）")
+	# ⑥ 碎片残留防线：Debug 发放 / 存档 API / 转盘奖池均不应残留碎片
+	var c14_debug_source := FileAccess.get_file_as_string("res://scripts/DebugPanel.gd")
+	_check(not c14_debug_source.contains("碎片"), "Debug 面板不应残留碎片发放入口")
+	var c14_profile_source := FileAccess.get_file_as_string("res://scripts/data/PlayerProfile.gd")
+	_check(not c14_profile_source.contains("add_character_shards")
+			and not c14_profile_source.contains("spend_shards"), "存档层不应残留碎片 API")
 
 	# 阶段 8 提交 3：地图校验器——第一章 8 关布局全部通过（道路/禁建不重叠、通路完整、覆盖区与职业位达标）。
 	var map_issues: Array[String] = []

@@ -1225,22 +1225,31 @@ func _promotion_skill_text(promotion: PromotionData) -> String:
 	return "、".join(parts) if not parts.is_empty() else "无"
 
 
+## 信物页签（GDD 4.8 双槽，✅ 0.8.14 / v0.1.15）：专属槽锁定占位 + 可选槽
+## （Boss 签名信物 = 通用件：获取难度 / 效果 / 持有与装备态）；碎片兑换口径已删除。
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
-	var relic := GameFlow.get_relic_for_character(str(character.character_id))
-	if relic == null:
+	_relic_tab.add_child(_make_body_label("专属信物槽（未开放 · 锁定占位，不参与计算）", UITheme.LIGHT_GOLD_TEXT))
+	var exclusive := GameFlow.get_relic_for_character(str(character.character_id))
+	if exclusive == null:
 		_relic_tab.add_child(_make_body_label("该武将暂无专属信物", UITheme.LIGHT_LOCK))
+	else:
+		_relic_tab.add_child(_make_body_label("· %s —— %s" % [exclusive.display_name, exclusive.description]))
+		_relic_tab.add_child(_make_body_label("效果：%s" % exclusive.effect_summary(), UITheme.LIGHT_ACCENT))
+	_relic_tab.add_child(_make_body_label("可选信物槽（Boss 签名信物 · 通用件，可自由装卸）", UITheme.LIGHT_GOLD_TEXT))
+	var profile := GameFlow.get_profile()
+	var equipped_id := profile.get_character_relic_id(str(character.character_id), "optional") if profile != null else ""
+	var relics := GameFlow.get_optional_relics()
+	if relics.is_empty():
+		_relic_tab.add_child(_make_body_label("暂无通用信物", UITheme.LIGHT_LOCK))
 		return
-	_relic_tab.add_child(_make_body_label("%s（%d 碎片兑换）" % [relic.display_name, relic.shard_cost], UITheme.LIGHT_GOLD_TEXT))
-	_relic_tab.add_child(_make_body_label("效果：%s" % relic.description))
-	var effects: Array[String] = []
-	if relic.damage_bonus > 0.0:
-		effects.append("伤害 +%d%%" % int(round(relic.damage_bonus * 100)))
-	if relic.range_bonus > 0.0:
-		effects.append("射程 +%d%%" % int(round(relic.range_bonus * 100)))
-	if relic.attack_interval_factor != 1.0:
-		effects.append("攻速 %s%d%%" % ["+" if relic.attack_interval_factor < 1.0 else "-", int(abs((1.0 - relic.attack_interval_factor) * 100))])
-	_relic_tab.add_child(_make_body_label("数值：%s" % ("；".join(effects) if not effects.is_empty() else "无"), UITheme.LIGHT_ACCENT))
+	for relic in relics:
+		var owned := profile != null and profile.has_relic(str(relic.relic_id))
+		var state := "已装备" if owned and equipped_id == str(relic.relic_id) else ("已持有" if owned else "未持有")
+		_relic_tab.add_child(_make_body_label("· %s（%s）\n　效果：%s\n　获取：%s" % [
+			relic.display_name, state, relic.effect_summary(),
+			relic.acquisition_hint if not relic.acquisition_hint.is_empty() else "—",
+		]))
 
 
 func _refresh_trait_tab(character: CharacterData) -> void:

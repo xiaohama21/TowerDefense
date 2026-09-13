@@ -144,7 +144,8 @@ static func _ult_cavalry_breaker(tower: Tower) -> bool:
 	if target == null or not tower.is_target_valid(target):
 		return false
 	var hp_before := target.current_hp
-	tower.deal_damage(target, tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target), DamageTypes.TRUE)
+	# 真实伤害：类型随判决传给 finalize_damage，信物·类型条件增伤（魔法）不参与。
+	tower.deal_damage(target, tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target, DamageTypes.TRUE), DamageTypes.TRUE)
 	if hp_before > 0 and target.current_hp <= 0:
 		tower.gain_rage(tower.kill_rage_refund())
 	tower.play_attack_flash()
@@ -199,7 +200,7 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 	for enemy in tower.enemies_in_range():
 		var aoe_radius := tower.ultimate_aoe_radius(LOB_EXPLOSION_RADIUS + 30.0) * tower.get_battle_rank_aoe_multiplier()
 		if enemy.global_position.distance_to(center) <= aoe_radius:
-			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), DamageTypes.MAGIC)
+			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC)
 			enemy.apply_slow(0.6, 2.0)
 			# 奇门（天师，提交 7）：大招落点命中敌人施加易伤（同类不叠加、时长刷新）。
 			SkillRegistry.apply_mystic_gate(tower, enemy)

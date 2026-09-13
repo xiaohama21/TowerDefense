@@ -545,7 +545,7 @@ static func _cast_burn_camp(tower: Tower) -> bool:
 	var burn_duration := character_param(tower, &"char_burn_camp", "burn_duration", 3.0)
 	for enemy in tower.enemies_in_range():
 		if enemy.global_position.distance_to(center) <= aoe_radius:
-			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_burn_camp", "mult", 1.5))), enemy), DamageTypes.MAGIC)
+			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_burn_camp", "mult", 1.5))), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC)
 			enemy.apply_burn(burn_dps, burn_duration)
 	tower.spawn_float_text(get_character_skill_name(&"char_burn_camp"), Color(1.0, 0.55, 0.3))
 	tower.play_skill_effect(Color(1.0, 0.55, 0.3))

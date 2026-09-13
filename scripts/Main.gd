@@ -538,12 +538,6 @@ func _format_settlement_reward(result: Dictionary) -> String:
 				GameFlow.get_item_display_name(str(result.get("item_id", ""))),
 				int(result.get("amount", 0)),
 			]
-		"shards":
-			var character := GameFlow.load_character_data(str(result.get("character_id", "")))
-			return "%s 碎片 ×%d" % [
-				character.display_name if character != null else "武将",
-				int(result.get("amount", 0)),
-			]
 		"tech_points":
 			return "科技点 ×%d" % int(result.get("amount", 0))
 		_:

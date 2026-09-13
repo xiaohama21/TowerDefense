@@ -255,8 +255,9 @@ func finish_defeat(session: BattleSession, defeat_result: Dictionary = {}) -> bo
 	return discard_session(session)
 
 
-## 结算转盘入账（阶段 8 提交 2）：胜利结算页抽奖结果直接写档（物品/碎片/科技点）。
+## 结算转盘入账（阶段 8 提交 2）：胜利结算页抽奖结果直接写档（物品/科技点）。
 ## 失败作废由"仅胜利结算页出现转盘"保证；单次入账由 UI 单次点击保证（同 run 不重复出现）。
+## v0.8.14：碎片条目随信物重构删除（奖池 6 → 4 条）。
 func commit_settlement_reward(result: Dictionary) -> bool:
 	if not result is Dictionary or result.is_empty():
 		return false
@@ -264,8 +265,6 @@ func commit_settlement_reward(result: Dictionary) -> bool:
 	match str(result.get("kind", "")):
 		"item":
 			candidate.add_item(str(result.get("item_id", "")), int(result.get("amount", 0)))
-		"shards":
-			candidate.add_character_shards(str(result.get("character_id", "")), int(result.get("amount", 0)))
 		"tech_points":
 			candidate.add_tech_points(int(result.get("amount", 0)))
 		_:
@@ -377,6 +376,34 @@ func _migrate_v2_to_v3(old_data: Dictionary) -> Dictionary:
 	return data
 
 
+## v3 → v4（阶段 8·提交 14 / 0.8.14.0 信物重构，SAVE_DATA 8）：**碎片字段清理 + 信物双槽迁移**——
+## ① characters[id].shards 删除（兑换 / 转盘产出 / 保底折算 / Debug 发放全链废止）；
+## ② 旧 characters[id].relic（原生效信物）迁移为 **relic_exclusive**（专属槽占位，本版锁住、
+##    不参与计算），生效位改 **relic_optional**（空 = 未装备；Boss 签名信物由玩家自主装配）。
+## 幂等：字段已存在时保留现值，不覆盖。
+func _migrate_v3_to_v4(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var characters: Dictionary = {}
+	if data.get("characters", {}) is Dictionary:
+		characters = data.get("characters", {}).duplicate(true)
+	for character_id in characters.keys():
+		var entry = characters[character_id]
+		if not entry is Dictionary:
+			continue
+		entry = entry.duplicate(true)
+		entry.erase("shards")
+		var legacy_relic := str(entry.get("relic", ""))
+		entry.erase("relic")
+		if not entry.has("relic_exclusive"):
+			entry["relic_exclusive"] = legacy_relic
+		if not entry.has("relic_optional"):
+			entry["relic_optional"] = ""
+		characters[character_id] = entry
+	data["schema_version"] = 4
+	data["characters"] = characters
+	return data
+
+
 ## Migration entry point. Add one version step at a time as schemas evolve.
 func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	var data := raw_data.duplicate(true)
@@ -399,6 +426,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			2:
 				data = _migrate_v2_to_v3(data)
 				version = 3
+				migrated = true
+			3:
+				data = _migrate_v3_to_v4(data)
+				version = 4
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

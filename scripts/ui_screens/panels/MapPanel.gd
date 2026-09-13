@@ -559,7 +559,7 @@ func _chip_style(bg: Color, margin_h: float, margin_v: float) -> StyleBoxFlat:
 	return style
 
 
-## 首通奖励紧凑文案（卡片奖励行用）：解锁 X · 道具×N · 信物 X。
+## 首通奖励紧凑文案（卡片奖励行用）：解锁 X · 道具×N · 信物 X（双档各 1 件时标注难度）。
 func _reward_compact_text(stage: StageData) -> String:
 	var parts: Array[String] = []
 	for character_id in stage.first_clear_unlock_character_ids:
@@ -569,8 +569,13 @@ func _reward_compact_text(stage: StageData) -> String:
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue
 		parts.append("%s×%d" % [reward.item.display_name, reward.amount])
+	var relic_names: Array[String] = []
 	if stage.first_clear_relic != null:
-		parts.append("信物 %s" % stage.first_clear_relic.display_name)
+		relic_names.append(stage.first_clear_relic.display_name)
+	if stage.first_clear_relic_hard != null:
+		relic_names.append("%s（困难）" % stage.first_clear_relic_hard.display_name)
+	if not relic_names.is_empty():
+		parts.append("信物 %s" % " / ".join(relic_names))
 	if parts.is_empty():
 		return "—"
 	return " · ".join(parts)
@@ -732,8 +737,11 @@ func _refresh_reward_chips(stage: StageData) -> void:
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue
 		_detail_rewards.add_child(_make_reward_chip("%s ×%d" % [reward.item.display_name, reward.amount], CHIP_BLUE))
-	if stage.first_clear_relic != null:
-		_detail_rewards.add_child(_make_reward_chip("信物 · %s" % stage.first_clear_relic.display_name, CHIP_BLUE))
+	# ✅ 0.8.14：Boss 签名信物按当前所选难度展示（各难度各 1 件）——避免两枚信物胶囊
+	# 叠高右列触发 B-054 越界；难度切换时由 _on_difficulty_changed 重刷。
+	var first_clear_relic := stage.first_clear_relic_hard if _selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
+	if first_clear_relic != null:
+		_detail_rewards.add_child(_make_reward_chip("信物 · %s" % first_clear_relic.display_name, CHIP_BLUE))
 
 
 func _make_reward_chip(text: String, bg: Color) -> Label:
@@ -818,6 +826,8 @@ func _on_difficulty_changed(pressed: bool, difficulty: int) -> void:
 		_selected_difficulty = difficulty
 		if _selected_stage != null:
 			_detail_difficulty_chip.text = "难度 · %s" % Difficulty.name(_selected_difficulty)
+			# ✅ 0.8.14：首通信物随难度不同（标准 / 困难各 1 件），同步重刷奖励胶囊。
+			_refresh_reward_chips(_selected_stage)
 		for i in _difficulty_buttons.size():
 			UITheme.apply_kenney_rect_button(_difficulty_buttons[i], "blue" if i == difficulty else "grey",
 				Color.WHITE if i == difficulty else NAV_BODY)

@@ -4,11 +4,14 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 3
+const CURRENT_SCHEMA_VERSION: int = 4
 ## v2（阶段 8·提交 6，职业级转职树落地）：旧档角色绑定转职路径作废，
 ## 统一按职业级转职树重新转职——加载迁移时清空所有 promotion_path（v0.28 拍板）。
 ## v3（阶段 8·提交 8 延伸·v0.33.1）：新增出战编队持久记忆 squad_character_ids / squad_relic_ids——
 ## 「确认出战」写入玩家档案，再次出征自动预填（旧档迁移为空数组，不预填）。
+## v4（阶段 8·提交 14 / 0.8.14.0 信物重构，SAVE_DATA 8）：`characters[id].shards` 碎片字段删除；
+## 信物双槽化——旧 `relic` 迁移为 `relic_exclusive`（专属槽占位、不参与计算），
+## 生效位改 `relic_optional`（可选槽 = Boss 签名信物）。
 
 var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}
@@ -124,9 +127,9 @@ func unlock_character(character_id: String, initial_data: Dictionary = {}) -> bo
 	var entry := initial_data.duplicate(true)
 	entry["total_exp"] = _coerce_non_negative_int(entry.get("total_exp", 0))
 	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
-	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0))
 	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
-	entry["relic"] = str(entry.get("relic", ""))
+	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
+	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
 	return true
 
@@ -152,29 +155,23 @@ func add_character_exp(character_id: String, amount: int) -> int:
 	var new_exp := _coerce_non_negative_int(entry.get("total_exp", 0)) + amount
 	entry["total_exp"] = new_exp
 	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
-	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0))
 	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
-	entry["relic"] = str(entry.get("relic", ""))
+	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
+	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
 	return new_exp
 
 
-func add_character_shards(character_id: String, amount: int) -> int:
-	var key := character_id.strip_edges()
-	if key.is_empty() or amount <= 0:
-		return 0
-	ensure_character(key)
-	var entry = characters.get(key, {}).duplicate(true)
-	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0)) + amount
-	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
-	entry["relic"] = str(entry.get("relic", ""))
-	characters[key] = entry
-	return entry["shards"]
-
-
-## 武将当前星级（升星系统，GDD 4.8）。
+## 武将当前星级（升星系统，GDD 4.8；升星自 v0.30.0 暂时移除，字段保留）。
 func get_character_stars(character_id: String) -> int:
 	return _coerce_non_negative_int(get_character(character_id).get("stars", 0))
+
+
+## 武将某槽位已装配的信物 ID（GDD 4.8 双槽）：
+## "optional" = 可选槽（生效位，Boss 签名信物）/ "exclusive" = 专属槽（本版锁住占位）。
+func get_character_relic_id(character_id: String, slot: String = "optional") -> String:
+	var key := "relic_exclusive" if slot == "exclusive" else "relic_optional"
+	return str(get_character(character_id).get(key, ""))
 
 
 ## 信物持有/装备（GDD 4.8）。
@@ -190,8 +187,17 @@ func has_relic(relic_id: String) -> bool:
 	return relics.has(relic_id.strip_edges())
 
 
-## 装备信物（仅限已持有的信物；空串为卸下）。
+## 装备可选信物槽（characters[id].relic_optional；仅限已持有的信物，空串为卸下）。
 func set_character_relic(character_id: String, relic_id: String) -> bool:
+	return _set_character_relic_slot(character_id, "optional", relic_id)
+
+
+## 装配专属信物槽（characters[id].relic_exclusive，占位存储；本版不参与计算，无 UI 入口）。
+func set_character_exclusive_relic(character_id: String, relic_id: String) -> bool:
+	return _set_character_relic_slot(character_id, "exclusive", relic_id)
+
+
+func _set_character_relic_slot(character_id: String, slot: String, relic_id: String) -> bool:
 	var key := character_id.strip_edges()
 	if key.is_empty():
 		return false
@@ -202,52 +208,7 @@ func set_character_relic(character_id: String, relic_id: String) -> bool:
 	if not entry is Dictionary:
 		return false
 	entry = entry.duplicate(true)
-	entry["relic"] = relic_id.strip_edges()
-	characters[key] = entry
-	return true
-
-
-## 消耗指定武将的碎片（信物兑换等）。不足时返回 false。
-func spend_shards(character_id: String, amount: int) -> bool:
-	var key := character_id.strip_edges()
-	if key.is_empty() or amount <= 0 or not has_character(key):
-		return false
-	var entry = characters.get(key, {})
-	if not entry is Dictionary:
-		return false
-	var shards := _coerce_non_negative_int(entry.get("shards", 0))
-	if shards < amount:
-		return false
-	entry = entry.duplicate(true)
-	entry["shards"] = shards - amount
-	entry["total_exp"] = _coerce_non_negative_int(entry.get("total_exp", 0))
-	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
-	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
-	entry["relic"] = str(entry.get("relic", ""))
-	characters[key] = entry
-	return true
-
-
-## 升星（碎片逐星消耗 20/40/80/160）。返回是否成功。
-func promote_character_star(character_id: String) -> bool:
-	var key := character_id.strip_edges()
-	if key.is_empty() or not has_character(key):
-		return false
-	var stars := get_character_stars(key)
-	if stars >= 5:
-		return false
-	var cost: int = [20, 40, 80, 160][stars]
-	if _coerce_non_negative_int(get_character(key).get("shards", 0)) < cost:
-		return false
-	ensure_character(key)
-	var entry = characters.get(key, {})
-	if not entry is Dictionary:
-		return false
-	entry = entry.duplicate(true)
-	entry["shards"] = _coerce_non_negative_int(entry.get("shards", 0)) - cost
-	entry["stars"] = stars + 1
-	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
-	entry["relic"] = str(entry.get("relic", ""))
+	entry["relic_exclusive" if slot == "exclusive" else "relic_optional"] = relic_id.strip_edges()
 	characters[key] = entry
 	return true
 
@@ -432,9 +393,15 @@ func _normalize_characters(value) -> Dictionary:
 			normalized = {}
 		normalized["total_exp"] = _coerce_non_negative_int(normalized.get("total_exp", 0))
 		normalized["promotion_path"] = _normalize_string_array(normalized.get("promotion_path", []))
-		normalized["shards"] = _coerce_non_negative_int(normalized.get("shards", 0))
 		normalized["stars"] = _coerce_non_negative_int(normalized.get("stars", 0))
-		normalized["relic"] = str(normalized.get("relic", ""))
+		# v4（0.8.14）：碎片字段删除；旧 relic 键就地迁移为专属槽占位（防御性，正式迁移在 SaveManager）。
+		normalized.erase("shards")
+		var legacy_relic := str(normalized.get("relic", ""))
+		normalized.erase("relic")
+		if not normalized.has("relic_exclusive"):
+			normalized["relic_exclusive"] = legacy_relic
+		normalized["relic_exclusive"] = str(normalized.get("relic_exclusive", ""))
+		normalized["relic_optional"] = str(normalized.get("relic_optional", ""))
 		output[character_id] = normalized
 	return output
 
