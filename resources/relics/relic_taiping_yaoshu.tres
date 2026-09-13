@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/RelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"relic_taiping_yaoshu"
+display_name = "太平要术·残卷"
+description = "残卷所载导引之法，可助将领速成。"
+slot = &"optional"
+character_id = &""
+acquisition_hint = "困难难度 · 广宗决战首通必掉（唯一）"
+damage_bonus = 0.0
+magic_damage_bonus = 0.0
+level_bonus = 5
+range_bonus = 0.0
+attack_interval_factor = 1.0

@@ -101,12 +101,17 @@ func is_valid() -> bool:
 ## 按等级与转职计算实战属性（GDD modules/NUMBERS.md 10.2）：
 ## 伤害/射程为加法成长后乘转职倍率，攻速为 interval 直接乘转职倍率（越小越快）。
 ## 战斗建造与养成界面共用此实现，保证两处所见一致。
+## 信物（✅ 0.8.14 双槽）：仅可选槽信物入参——level_bonus 参与成长项步数（等级成长等效），
+## range_bonus / attack_interval_factor 各自生效；类型条件增伤在 Tower.finalize_damage。
 func compute_stats_at(level: int, promotion: PromotionData = null, stars: int = 0, relic: RelicData = null, battle_rank: int = 0) -> Dictionary:
 	var effective_level := maxi(level, 1)
 	var promo_damage := promotion.damage_multiplier if promotion != null else 1.0
 	var promo_range := promotion.range_multiplier if promotion != null else 1.0
 	var promo_interval := promotion.attack_interval_multiplier if promotion != null else 1.0
-	var level_steps := effective_level - 1
+	# 信物·等级成长等效（✅ 0.8.14，NUMBERS 10.13 太平要术·残卷）：按 等级 + level_bonus
+	# 计算成长项（突破 30 级上限、等效上限 35），不改写存档等级 / 经验表。
+	var relic_level_bonus := relic.level_bonus if relic != null else 0
+	var level_steps := effective_level - 1 + relic_level_bonus
 	# 升星（GDD 4.8）：成长系数 +5%/星（不加直接数值）。
 	var star_growth := damage_growth_per_level * (1.0 + 0.05 * clampi(stars, 0, 5))
 	var relic_range := relic.range_bonus if relic != null else 0.0

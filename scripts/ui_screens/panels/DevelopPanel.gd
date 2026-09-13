@@ -140,8 +140,9 @@ var _promotion_buttons: Array[Button] = []
 var _promotion_overlay: Control
 var _promotion_tree_box: VBoxContainer
 var _promotion_rail_box: VBoxContainer
+## 信物页签：专属槽锁定占位标签 + 可选槽（Boss 签名信物）列表容器（✅ 0.8.14 双槽）。
 var _relic_label: Label
-var _relic_button: Button
+var _relic_optional_box: VBoxContainer
 var _trait_label: Label
 var _exp_scroll_label: Label
 var _exp_scroll_button: Button
@@ -1154,20 +1155,24 @@ func _close_promotion_overlay() -> void:
 
 # ============ 信物 / 特性 页签 ============
 
+## 信物页签（GDD 4.8 双槽，✅ 0.8.14 / UI_LAYOUT v0.20.46 §6）：
+## 上段 = 专属信物槽（绑定武将，本版锁住占位、不参与计算）；下段 = 可选信物槽
+## （Boss 签名信物 = 通用件，列表卡 + 装备 / 卸下）。碎片兑换入口随碎片整体删除移除。
 func _build_relic_tab() -> void:
 	var page := _make_tab_page("信物")
 	_relic_label = Label.new()
-	_relic_label.add_theme_font_size_override("font_size", 16)
+	_relic_label.add_theme_font_size_override("font_size", 15)
 	_relic_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_relic_label)
-	_relic_button = Button.new()
-	_relic_button.custom_minimum_size = Vector2(220, 44)
-	_relic_button.focus_mode = Control.FOCUS_NONE
-	_relic_button.add_theme_font_size_override("font_size", 16)
-	UITheme.apply_kenney_rect_button(_relic_button, "blue", Color.WHITE)
-	_relic_button.pressed.connect(_on_relic_pressed)
-	page.add_child(_relic_button)
+	var optional_title := Label.new()
+	optional_title.text = "可选信物槽（Boss 签名信物 · 通用件，可自由装卸）"
+	optional_title.add_theme_font_size_override("font_size", 15)
+	optional_title.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+	page.add_child(optional_title)
+	_relic_optional_box = VBoxContainer.new()
+	_relic_optional_box.add_theme_constant_override("separation", 10)
+	page.add_child(_relic_optional_box)
 
 
 ## 特性页（预留）：展示现有常驻特性，阶段 9 升阶特性接入后挂载分支选择。
@@ -2010,46 +2015,80 @@ func _apply_promotion(promotion: PromotionData, dialog: ConfirmationDialog) -> v
 	_refresh()
 
 
-## 信物（GDD 4.8）：碎片兑换 + 装备/卸下；建造时经 loadout 生效。
+## 信物页签刷新（GDD 4.8 双槽，✅ 0.8.14）：
+## 专属槽 = 锁定占位展示（不参与计算）；可选槽 = 通用信物列表 + 装备 / 卸下。
 func _refresh_relic(character: CharacterData) -> void:
-	var relic := GameFlow.get_relic_for_character(_selected_id)
-	if relic == null:
-		_relic_label.text = "信物：暂未开放"
-		_relic_button.visible = false
-		return
-	var owned := _profile.has_relic(str(relic.relic_id))
-	var equipped: String = str(_profile.get_character(_selected_id).get("relic", ""))
-	if owned:
-		var is_equipped := equipped == str(relic.relic_id)
-		_relic_label.text = "信物：%s —— %s%s" % [
-			relic.display_name, relic.description, "（已装备）" if is_equipped else "（未装备）",
+	var exclusive := GameFlow.get_relic_for_character(_selected_id)
+	if exclusive == null:
+		_relic_label.text = "专属信物槽（未开放）：该武将暂无专属信物"
+	else:
+		_relic_label.text = "专属信物槽（未开放）：%s —— %s\n效果：%s（锁定占位，本版不参与计算）" % [
+			exclusive.display_name, exclusive.description, exclusive.effect_summary(),
 		]
-		_relic_button.text = "卸下信物" if is_equipped else "装备信物"
-		_relic_button.visible = true
-		_relic_button.disabled = false
-	else:
-		var shards: int = int(_profile.get_character(_selected_id).get("shards", 0))
-		_relic_label.text = "信物：%s（%s）· 碎片 %d 兑换" % [relic.display_name, relic.description, relic.shard_cost]
-		_relic_button.text = "碎片兑换"
-		_relic_button.visible = true
-		_relic_button.disabled = shards < relic.shard_cost
-
-
-func _on_relic_pressed() -> void:
-	var relic := GameFlow.get_relic_for_character(_selected_id)
-	if relic == null:
+	for child in _relic_optional_box.get_children():
+		_relic_optional_box.remove_child(child)
+		child.queue_free()
+	var optional_relics := GameFlow.get_optional_relics()
+	if optional_relics.is_empty():
+		_relic_optional_box.add_child(_make_relic_line("暂无通用信物", UITheme.LIGHT_LOCK))
 		return
-	if _profile.has_relic(str(relic.relic_id)):
-		var equipped: String = str(_profile.get_character(_selected_id).get("relic", ""))
-		var next_relic := "" if equipped == str(relic.relic_id) else str(relic.relic_id)
-		_profile.set_character_relic(_selected_id, next_relic)
-	else:
-		if not _profile.spend_shards(_selected_id, relic.shard_cost):
-			return
-		_profile.add_relic(str(relic.relic_id))
-		_profile.set_character_relic(_selected_id, str(relic.relic_id))
+	var equipped_id := _profile.get_character_relic_id(_selected_id, "optional")
+	for relic in optional_relics:
+		_relic_optional_box.add_child(_build_optional_relic_row(relic, equipped_id))
+
+
+## 可选槽信物行（UI_LAYOUT v0.20.46 §6：卡片 = 名称 + 效果摘要 + 获取/持有态 + 右侧装配按钮）。
+func _build_optional_relic_row(relic: RelicData, equipped_id: String) -> PanelContainer:
+	var card := PanelContainer.new()
+	var style := UITheme.light_card_style()
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 8.0
+	style.content_margin_bottom = 8.0
+	card.add_theme_stylebox_override("panel", style)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	var text_box := VBoxContainer.new()
+	text_box.add_theme_constant_override("separation", 2)
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(text_box)
+	var owned := _profile.has_relic(str(relic.relic_id))
+	var is_equipped := owned and equipped_id == str(relic.relic_id)
+	text_box.add_child(_make_relic_line(
+		"%s%s" % [relic.display_name, "（已装备）" if is_equipped else ("（未持有）" if not owned else "")],
+		UITheme.LIGHT_GOLD_TEXT if owned else UITheme.LIGHT_LOCK))
+	text_box.add_child(_make_relic_line("效果：%s" % relic.effect_summary(), UITheme.LIGHT_ACCENT, 13))
+	if not relic.acquisition_hint.is_empty():
+		text_box.add_child(_make_relic_line("获取：%s" % relic.acquisition_hint, UITheme.LIGHT_MUTED, 13))
+	var action := Button.new()
+	action.custom_minimum_size = Vector2(132, 40)
+	action.focus_mode = Control.FOCUS_NONE
+	action.add_theme_font_size_override("font_size", 15)
+	action.text = "卸下" if is_equipped else "装备"
+	action.disabled = not owned
+	UITheme.apply_kenney_rect_button(action, "blue", Color.WHITE)
+	action.pressed.connect(_on_optional_relic_pressed.bind(str(relic.relic_id), is_equipped))
+	row.add_child(action)
+	return card
+
+
+## 可选槽装配 / 卸下：写入 characters[id].relic_optional 并即时存盘。
+func _on_optional_relic_pressed(relic_id: String, is_equipped: bool) -> void:
+	if relic_id.is_empty():
+		return
+	_profile.set_character_relic(_selected_id, "" if is_equipped else relic_id)
 	ProfileStore.save_profile(_profile)
 	_refresh()
+
+
+func _make_relic_line(text_value: String, color: Color, font_size: int = 15) -> Label:
+	var label := Label.new()
+	label.text = text_value
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return label
 
 
 ## 特性页：展示现有常驻特性（CHARACTERS.md 4.7），阶段 9 升阶特性接入后挂载分支选择。

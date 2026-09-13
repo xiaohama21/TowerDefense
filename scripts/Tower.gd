@@ -114,6 +114,9 @@ var _min_range: float = 0.0
 var _trait_id: StringName = StringName()
 var _trait_params: Dictionary = {}
 var _relic_damage_bonus: float = 0.0
+## 信物·类型条件增伤（✅ 0.8.14，NUMBERS 10.13 天公雷诏）：仅指定伤害类型生效
+## （当前 = 魔法），与 _relic_damage_bonus 同层、各自独立乘算。
+var _relic_magic_damage_bonus: float = 0.0
 ## 科技树军事分支加成（GDD 10.7，v0.14.1）：全武将伤害 +%，入编队加成伤害桶
 ## （档次 2，提交 10）与职业分支/羁绊层内加法，不再独立乘算。
 var _tech_damage_bonus: float = 0.0
@@ -268,8 +271,9 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_base_attack_cooldown = attack_cooldown
 	_base_range = range_radius
 	_min_range = stats.min_range
-	# 信物全伤害加成（finalize_damage 管线使用，v0.13）
+	# 信物全伤害加成 + 类型条件增伤（finalize_damage 管线使用；v0.13 / ✅ 0.8.14）
 	_relic_damage_bonus = relic.damage_bonus if relic != null else 0.0
+	_relic_magic_damage_bonus = relic.magic_damage_bonus if relic != null else 0.0
 	# 科技树军事分支（finalize_damage 管线使用，v0.14.1）
 	_tech_damage_bonus = float(TechTree.get_tech_bonuses(ProfileStore.get_profile()).get("damage_pct", 0)) / 100.0
 	_bond_damage_bonus = GameFlow.get_squad_bond_damage_bonus(GameFlow.squad_character_ids)
@@ -1022,7 +1026,10 @@ func get_consecutive_hits() -> int:
 ## 虎贲军旗收敛进 _aura_damage_bonus 加法桶，只乘一次 (1+clamp(Σ,0,+50%))。
 ## 提交 10（档次 2）：科技全局/科技职业分支/羁绊由首行三连乘收敛为编队加成伤害桶
 ## 层内加法，只乘一次 (1+clamp(Σ,0,+30%))；信物（L1）与局内遗物（L3）仍跨层乘算。
-func finalize_damage(base: int, target: Enemy) -> int:
+## damage_type（✅ 0.8.14）：本次伤害类型；缺省 = 本塔普攻类型。信物·类型条件增伤
+## （天公雷诏 魔法 +12%）仅在该类型匹配时入乘区——调用方按实发伤害类型传参，
+## 与 Tower.deal_damage 的类型解析保持同源。
+func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"") -> int:
 	# 常驻光环桶惰性刷新（提交 7）：拆塔/建塔后结算前自愈，避免缓存过期。
 	_ensure_aura_fresh()
 	var formation_bonus := clampf(
@@ -1030,7 +1037,9 @@ func finalize_damage(base: int, target: Enemy) -> int:
 		0.0,
 		FORMATION_DAMAGE_CAP
 	)
-	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + formation_bonus) * (1.0 + _battle_relic_damage_bonus)
+	var resolved_type := damage_type if DamageTypes.is_valid(damage_type) else get_attack_damage_type()
+	var relic_type_bonus := _relic_magic_damage_bonus if resolved_type == DamageTypes.MAGIC else 0.0
+	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + relic_type_bonus) * (1.0 + formation_bonus) * (1.0 + _battle_relic_damage_bonus)
 	value *= 1.0 + _aura_damage_bonus
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	value *= BehaviorRegistry.get_trait_damage_multiplier(self, target)

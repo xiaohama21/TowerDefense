@@ -12,11 +12,11 @@
 
 | 字段 | 内容 |
 |---|---|
-| `schema_version` | 存档版本，迁移用（当前 v3，v0.33.1 起：新增 `squad_character_ids` / `squad_relic_ids` 编队记忆；v2→v3 迁移旧档补空数组；**0.8.14 / 0.8.15 / 0.8.16 各自落地时按需升版并迁移**——碎片字段清理 / `exp_pool` / 军功 + 军需字段） |
-| `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`promotion_path`（转职历史）、`shards`（碎片；**随信物重构删除**——2026-09-09 定稿、排期 0.8.14 清理迁移）、`stars`（星级，✅ v0.13）、`relic`（装备信物，✅ v0.13；0.8.14 起扩展双槽装配映射） |
+| `schema_version` | 存档版本，迁移用（**当前 v4**，0.8.14.0 起：碎片字段清理（`characters[id].shards` 删除）+ 信物双槽迁移（旧 `relic` → `relic_exclusive` 占位、新增 `relic_optional`）——v3 旧档自动迁移、幂等；v0.33.1 起 v3 含 `squad_character_ids` / `squad_relic_ids` 编队记忆；0.8.15 / 0.8.16 落地时按需再升版——`exp_pool` / 军功 + 军需字段） |
+| `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`promotion_path`（转职历史）、`stars`（星级，✅ v0.13；**`shards` 已随 0.8.14 删除**——schema v4 迁移清理）、`relic_exclusive`（专属信物槽：**锁住占位、不参与计算**；旧档 `relic` 值迁移至此）、`relic_optional`（可选信物槽：Boss 签名信物生效位，✅ 0.8.14） |
 | `stage_progress` | 关卡完成记录（首通/重复、成绩；v0.14.1 起按难度分键 `difficulties`：normal/hard（v0.31.2 移除 easy，旧档 easy 键忽略），解锁读取上一档通关记录） |
 | `items` | 道具数量字典（✅ v0.15.1 新增测试道具 `exp_scroll` 练兵令，经背包发放，不进掉落表；✅ v0.19.0 局内遗物库存复用本字典，`relic_id` 即 item_id；✅ v0.33.1 遗物改**永久使用**——数量 ≥1 即解锁、选带/结算均不消耗；**`exp_scroll` 随 0.8.15 删除**——发放按钮 / 使用行移除、旧档残留数量清理） |
-| `relics` | 已获信物列表（✅ v0.13；2026-09-09 重构定稿：Boss 签名信物按 s08 难度首通唯一获取，可选槽装配映射随 0.8.14 实现） |
+| `relics` | 已获信物列表（✅ v0.13；**✅ 0.8.14 落地**：Boss 签名信物按 s08 难度首通唯一获取、`add_relic` 去重保证「每件仅 1 次」；旧 3 件专属信物保留于列表但仅作占位、不参与计算） |
 | `tech_points` / `tech_unlocks` | 科技点余额与已解锁科技（✅ v0.14/v0.14.1；发放=首通+2/重复+1 × 难度材料倍率，胜利提交时经 `BattleSession.pending_tech_points` 写入） |
 | `gacha_state` | 抽奖状态（✅ v0.14.1 启用：保底计数/总抽数；求贤令数量存 `items.gacha_token`） |
 | `last_committed_run_id` | 防重复提交（一场战斗只结算一次） |

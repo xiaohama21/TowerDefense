@@ -70,6 +70,7 @@ func _run() -> void:
 	_test_battle_session_contract()
 	_test_save_manager_corruption_fallback()
 	_test_save_migration_v1_to_v2()
+	_test_save_migration_v3_to_v4()
 	_restore_profile_files()
 	_finish()
 
@@ -394,6 +395,60 @@ func _test_save_migration_v1_to_v2() -> void:
 		var idempotent: Dictionary = manager._migrate_to_current(migrated_data)
 		_check(bool(idempotent.get("ok", false)) and not bool(idempotent.get("migrated", false)),
 			"v2 存档重复迁移应为幂等（不重复迁移）")
+
+func _test_save_migration_v3_to_v4() -> void:
+	# 阶段 8·提交 14（0.8.14.0 / v0.37.41）信物重构：schema v3→v4——
+	# ① 碎片字段清理（characters[id].shards 删除）；② 信物双槽迁移
+	# （旧 relic → relic_exclusive 专属槽占位、新增 relic_optional 生效位）。
+	if not ResourceLoader.exists(SAVE_MANAGER_PATH):
+		return
+	var script := load(SAVE_MANAGER_PATH) as Script
+	_check(script != null, "SaveManager.gd 无法加载")
+	if script == null:
+		return
+	var manager = script.new()
+	if not manager.has_method("_migrate_to_current"):
+		return
+	var old_data := {
+		"schema_version": 3,
+		"characters": {
+			"guan_yu": {"total_exp": 100, "stars": 0, "shards": 60, "relic": "relic_guanyu_blade"},
+			"liu_bei": {"total_exp": 50, "shards": 20},
+		},
+		"items": {},
+		"stage_progress": {},
+		"gacha_state": {},
+		"squad_character_ids": ["guan_yu"],
+		"squad_relic_ids": [],
+	}
+	var migrated: Dictionary = manager._migrate_to_current(old_data)
+	_check(bool(migrated.get("ok", false)), "v3 存档迁移应成功")
+	if not bool(migrated.get("ok", false)):
+		return
+	_check(bool(migrated.get("migrated", false)), "v3 存档应标记为已迁移")
+	var migrated_data: Dictionary = migrated.get("data", {})
+	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
+		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
+	var chars: Dictionary = migrated_data.get("characters", {})
+	_check(not chars.get("guan_yu", {}).has("shards"), "v3→v4 迁移应删除碎片字段")
+	_check(not chars.get("liu_bei", {}).has("shards"), "v3→v4 迁移应删除全部武将碎片字段")
+	_check(str(chars.get("guan_yu", {}).get("relic_exclusive", "")) == "relic_guanyu_blade",
+		"旧 relic 应迁移为专属槽占位 relic_exclusive")
+	_check(str(chars.get("guan_yu", {}).get("relic_optional", "")) == "", "可选槽迁移后应为空（生效位）")
+	_check(not chars.get("guan_yu", {}).has("relic"), "旧 relic 键应被移除")
+	_check(str(chars.get("liu_bei", {}).get("relic_exclusive", "")) == "", "无信物武将应补空专属槽字段")
+	_check(migrated_data.get("squad_character_ids", []) == ["guan_yu"], "迁移应保留编队记忆字段")
+	var idempotent: Dictionary = manager._migrate_to_current(migrated_data)
+	_check(bool(idempotent.get("ok", false)) and not bool(idempotent.get("migrated", false)),
+		"v4 存档重复迁移应为幂等（不重复迁移）")
+	var equipped := migrated_data.duplicate(true)
+	equipped["characters"]["guan_yu"]["relic_optional"] = "relic_tiangong_leizhao"
+	var twice: Dictionary = manager._migrate_v3_to_v4(equipped)
+	_check(str(twice.get("characters", {}).get("guan_yu", {}).get("relic_optional", "")) == "relic_tiangong_leizhao",
+		"v3→v4 迁移器应幂等：不应清空玩家已装配的可选槽信物")
+	_check(str(twice.get("characters", {}).get("guan_yu", {}).get("relic_exclusive", "")) == "relic_guanyu_blade",
+		"v3→v4 迁移器重复执行不应覆盖专属槽占位")
+
 
 func _load_first_script(paths: Array) -> Script:
 	for path in paths:
