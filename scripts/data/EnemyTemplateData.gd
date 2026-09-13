@@ -18,6 +18,12 @@ class_name EnemyTemplateData
 @export_range(-1, 9999, 1) var armor: int = -1
 @export_range(0, 9999, 1) var damage_to_base: int = 0
 @export var special_behavior_id: StringName
+## 附加行为（B.3.2，✅ 0.8.13.4）：空 = 未覆盖；模板有值时派生资源继承（B-062 补齐）。
+@export var extra_behavior_ids: Array[StringName] = []
+## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：true 且派生资源未开启时继承（OR 合并）。
+@export var stealth: bool = false
+## 特殊行为参数（B.3.2，✅ 0.8.13.2）：空字典 = 未覆盖，逐键继承派生资源的覆盖值。
+@export var special_params: Dictionary = {}
 
 @export_category("Rewards (0 = 未覆盖)")
 @export_range(0, 99999, 1) var currency_reward: int = 0

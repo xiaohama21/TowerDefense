@@ -173,7 +173,7 @@ func _run() -> void:
 		derived.body_color = Color(0, 0, 0, 0)
 		derived.body_size = Vector2.ZERO
 		var merged := derived.resolved()
-		_check(merged != derived and merged.max_hp == 180 and merged.move_speed == 145.0 and merged.armor == 20,
+		_check(merged != derived and merged.max_hp == 180 and merged.move_speed == 145.0 and merged.armor == 32,
 			"模板派生应继承血量/速度/护甲")
 		_check(merged.currency_reward == 14 and merged.kill_xp == 12 and merged.damage_to_base == 2,
 			"模板派生应继承奖励与漏怪伤害")
@@ -520,11 +520,14 @@ func _run() -> void:
 				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
 				spear_tower.target = melee_target
 				spear_tower.attack()
-				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）
+				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）；
+				# 轻骑重标甲 2（NUMBERS 10.12 / 0.8.13.0）：物理减伤 2/52。
 				var benevolence := 1.08
+				var melee_base := int(round(spear_tower.damage * 1.15 * benevolence))
+				var melee_expected := int(round(float(melee_base) * (1.0 - 2.0 / 52.0)))
 				_check(
-					melee_target.current_hp == melee_target.max_hp - int(round(spear_tower.damage * 1.15 * benevolence)),
-					"虎贲近战直伤应含 15% 骑兵克制与 8% 仁德光环"
+					melee_target.current_hp == melee_target.max_hp - melee_expected,
+					"虎贲近战直伤应含 15% 骑兵克制、8% 仁德光环与轻骑甲 2 减伤"
 				)
 				_check(spear_tower.is_swinging(), "近战攻击应触发挥击动作而非枪口闪光")
 				melee_target.die(false)
@@ -639,6 +642,716 @@ func _run() -> void:
 		BehaviorRegistry.get_profession_counter(&"cavalry", [&"cavalry"] as Array[StringName]), 1.0
 	), "其他职业不应触发虎贲克制")
 
+	# 伤害类型与护甲结算（NUMBERS 10.12，✅ 0.8.13.0；§4.4 算例逐条）。
+	var armor_probe_data := EnemyData.new()
+	armor_probe_data.enemy_id = &"smoke_armor_probe"
+	armor_probe_data.display_name = "护甲算例桩"
+	armor_probe_data.max_hp = 100000
+	armor_probe_data.move_speed = 0.0
+	armor_probe_data.currency_reward = 0
+	var armor_probe := enemy_manager.spawn_enemy_from_data(armor_probe_data) as Enemy
+	if armor_probe != null:
+		armor_probe.set_process(false)
+		armor_probe.armor = 0
+		var probe_before := armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 1000, "护甲算例：无甲 1000 伤害应满伤")
+		armor_probe.armor = 10
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 833, "护甲算例：甲 10 物理应 ×(1−10/60) = 833")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.MAGIC)
+		_check(probe_before - armor_probe.current_hp == 909, "护甲算例：甲 10 魔法应 ×(1−5/55) = 909")
+		armor_probe.armor = 20
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 714, "护甲算例：甲 20 物理应 ×(1−20/70) = 714")
+		armor_probe.armor = 30
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000)
+		_check(probe_before - armor_probe.current_hp == 625, "护甲算例：甲 30 物理应 ×(1−30/80) = 625")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.20, "b": 0.25}, 0)
+		_check(probe_before - armor_probe.current_hp == 735, "护甲算例：甲 30 + 双源穿甲 20%/25% 乘算应 = 735")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.20}, 0)
+		_check(probe_before - armor_probe.current_hp == 676, "护甲算例：同源取最高（20%）不连乘应 = 676")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.20}, 4)
+		_check(probe_before - armor_probe.current_hp == 714, "护甲算例：固定穿透在百分比之后（24−4=20）应 = 714")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.PHYSICAL, {"a": 0.5}, 0)
+		_check(probe_before - armor_probe.current_hp == 704, "护甲算例：单源穿甲应 clamp ≤30%（甲 30 → 21）应 = 704")
+		probe_before = armor_probe.current_hp
+		armor_probe.take_damage(1000, "", DamageTypes.TRUE)
+		_check(probe_before - armor_probe.current_hp == 1000, "护甲算例：真实伤害应无视护甲与减伤")
+		armor_probe.queue_free()
+
+	# 0.8.13.1（NUMBERS 10.12 / ENEMIES 5.5.5）：第一章全敌甲值表逐敌断言。
+	# B-059 回归护栏：黄巾力士 .tres 曾因 armor 键重复（10 后跟旧 0）静默回退为 0。
+	var c13_armor_table := {
+		"yellow_turban_soldier": 0,
+		"yellow_turban_archer": 0,
+		"yellow_turban_cavalry": 2,
+		"yellow_turban_sorcerer": 4,
+		"yellow_turban_sergeant": 8,
+		"yellow_turban_berserker": 10,
+		"yellow_turban_general": 20,
+		"yellow_turban_stealth_assassin": 0,
+	}
+	for c13_armor_id in c13_armor_table:
+		var c13_armor_enemy := load("res://resources/enemies/yellow_turban/%s.tres" % c13_armor_id) as EnemyData
+		_check(c13_armor_enemy != null, "第一章敌人数据应可加载: %s" % c13_armor_id)
+		if c13_armor_enemy != null:
+			var c13_armor_expected := int(c13_armor_table[c13_armor_id])
+			_check(c13_armor_enemy.armor == c13_armor_expected,
+				"%s 甲值应为 %d（实为 %d，B-059）" % [c13_armor_id, c13_armor_expected, c13_armor_enemy.armor])
+
+	# 隐匿与破隐（NUMBERS 10.16，✅ 0.8.13.1）：索敌过滤 / 三条破隐来源 / 范围盲压双路径。
+	var c13_stealth_data := load("res://resources/enemies/yellow_turban/yellow_turban_stealth_assassin.tres") as EnemyData
+	_check(c13_stealth_data != null and c13_stealth_data.stealth, "夜行刺应配置 stealth = true")
+	if c13_stealth_data != null:
+		_check(c13_stealth_data.max_hp == 260 and is_equal_approx(c13_stealth_data.move_speed, 100.0)
+			and c13_stealth_data.armor == 0 and c13_stealth_data.damage_to_base == 4
+			and c13_stealth_data.currency_reward == 25 and c13_stealth_data.kill_xp == 22,
+			"夜行刺数值应按 NUMBERS 10.16（260HP / 100 速 / 0 甲 / 漏 4 / 25 金 / 22 经验）")
+		var c13_probe := enemy_manager.spawn_enemy_from_data(c13_stealth_data) as Enemy
+		_check(c13_probe != null and c13_probe.is_stealthed(), "夜行刺生成后应处于隐匿")
+		GameManager.gold = 9999
+		var c13_watch: Tower = tower_manager.build_tower(Vector2(64, 704), guan_yu, null, {"level": 1})
+		if c13_probe != null and c13_watch != null:
+			c13_watch.set_process(false)
+			c13_probe.set_process(false)
+			c13_probe.global_position = c13_watch.global_position + Vector2(80, 0)
+			_check(not c13_watch.reveals_stealth(), "未破隐的塔不应持有破隐")
+			_check(not c13_probe.is_visible_to(c13_watch), "隐匿单位对未破隐的塔应不可见")
+			_check(c13_watch.find_target() == null, "未破隐的塔不应选中隐匿单位（find_target 过滤）")
+			_check(c13_watch.enemies_in_range().has(c13_probe),
+				"范围查询 enemies_in_range 应仍包含隐匿单位（范围盲压双路径）")
+			# 破隐来源 2：限时全图（诸葛亮·借东风）。
+			c13_watch.apply_stealth_reveal_buff("char_borrow_wind", 5.0)
+			_check(c13_watch.reveals_stealth(), "限时破隐 buff 应使塔持有破隐")
+			_check(c13_probe.is_visible_to(c13_watch), "持破隐的塔应可见隐匿单位")
+			_check(c13_watch.find_target() == c13_probe, "持破隐的塔应能选中隐匿单位")
+			c13_probe.refresh_stealth_reveal()
+			_check(c13_probe.is_revealed(), "进入破隐覆盖后隐匿单位应现形")
+			c13_watch.queue_free()
+		if c13_probe != null:
+			c13_probe.queue_free()
+		# 破隐来源 1：黄忠固有（trait_params.reveal_stealth，覆盖 = 自身射程）。
+		var c13_sentry_data := load("res://resources/characters/huang_zhong.tres") as CharacterData
+		_check(c13_sentry_data != null
+			and float(c13_sentry_data.trait_params.get("reveal_stealth", 0.0)) > 0.0,
+			"黄忠应配置固有破隐特性参数（trait_params.reveal_stealth）")
+		var c13_sentry: Tower = tower_manager.build_tower(Vector2(320, 704), c13_sentry_data, null, {"level": 1})
+		if c13_sentry != null:
+			c13_sentry.set_process(false)
+			_check(c13_sentry.has_inherent_reveal() and c13_sentry.reveals_stealth(),
+				"黄忠塔应带固有破隐（has_inherent_reveal / reveals_stealth）")
+			c13_sentry.queue_free()
+		# 破隐来源 2 数据面：借东风暴露 reveal_stealth 参数（SkillRegistry 读取）。
+		var c13_zhuge := load("res://resources/characters/zhuge_liang.tres") as CharacterData
+		_check(c13_zhuge != null
+			and float(c13_zhuge.character_skill_params.get("reveal_stealth", 0.0)) > 0.0,
+			"诸葛亮·借东风应暴露 reveal_stealth 参数")
+	# 破隐来源 3：貂蝉局内 3 阶光环（半径 = 舞娘射程）——走真实升阶路径，
+	# 不手动调 refresh_aura_damage_bonus()，守卫「升阶即时刷新光环」（BUGS B-060）。
+	var c13_dancer_data := load("res://resources/characters/diao_chan.tres") as CharacterData
+	var c13_dancer: Tower = tower_manager.build_tower(Vector2(560, 704), c13_dancer_data, null, {"level": 1})
+	var c13_ally: Tower = tower_manager.build_tower(Vector2(640, 704), liu_bei, null, {"level": 1})
+	if c13_dancer != null and c13_ally != null:
+		c13_dancer.set_process(false)
+		c13_ally.set_process(false)
+		_check(not c13_ally.reveals_stealth(), "2 阶及以下的舞娘不应提供破隐光环")
+		var c13_rank_start := c13_dancer.battle_rank
+		var c13_upgraded := true
+		while c13_dancer.battle_rank < Tower.DANCER_REVEAL_RANK:
+			if not tower_manager.upgrade_tower(c13_dancer, stage_data):
+				c13_upgraded = false
+				break
+		_check(c13_upgraded and c13_dancer.battle_rank == Tower.DANCER_REVEAL_RANK,
+			"舞娘应能由 %d 阶升到 %d 阶破隐档" % [c13_rank_start, Tower.DANCER_REVEAL_RANK])
+		_check(c13_dancer.reveals_stealth(), "3 阶舞娘自身应持有破隐（升阶即时刷新光环，B-060）")
+		_check(c13_ally.reveals_stealth(), "3 阶舞娘射程内的友方应获得破隐（升阶即时刷新光环，B-060）")
+		c13_dancer.queue_free()
+		c13_ally.queue_free()
+
+
+
+	# 0.8.13.2（NUMBERS 10.17）：第一章新精英四类数值 + 甲光环（armor_aura）机制。
+	var c132_new_table := {
+		"yellow_turban_heavy_berserker": {"hp": 640, "speed": 42.0, "armor": 22, "leak": 3, "gold": 25, "xp": 30},
+		"yellow_turban_elite_sergeant": {"hp": 420, "speed": 62.0, "armor": 8, "leak": 3, "gold": 25, "xp": 32},
+		"yellow_turban_stealth_healer": {"hp": 240, "speed": 58.0, "armor": 2, "leak": 3, "gold": 25, "xp": 26},
+		"yellow_turban_armor_aura_caster": {"hp": 260, "speed": 50.0, "armor": 6, "leak": 3, "gold": 25, "xp": 24},
+	}
+	for c132_id in c132_new_table:
+		var c132_data := load("res://resources/enemies/yellow_turban/%s.tres" % c132_id) as EnemyData
+		_check(c132_data != null, "0.8.13.2 新精英应可加载: %s" % c132_id)
+		if c132_data == null:
+			continue
+		var c132_exp: Dictionary = c132_new_table[c132_id]
+		_check(c132_data.max_hp == int(c132_exp["hp"])
+			and is_equal_approx(c132_data.move_speed, float(c132_exp["speed"]))
+			and c132_data.armor == int(c132_exp["armor"])
+			and c132_data.damage_to_base == int(c132_exp["leak"])
+			and c132_data.currency_reward == int(c132_exp["gold"])
+			and c132_data.kill_xp == int(c132_exp["xp"]),
+			"%s 数值应按 NUMBERS 10.17（HP 640/420/240/260 组）" % c132_id)
+		if c132_id == "yellow_turban_stealth_healer":
+			_check(c132_data.stealth and c132_data.special_behavior_id == &"healer_aura"
+				and int(c132_data.special_params.get("amount", 0)) == 20
+				and is_equal_approx(float(c132_data.special_params.get("radius", 0.0)), 140.0)
+				and is_equal_approx(float(c132_data.special_params.get("interval", 0.0)), 2.5),
+				"隐方士应以 special_params 覆盖 healer_aura（2.5s / 20 / 140px，B.3.2）")
+		elif c132_id == "yellow_turban_elite_sergeant":
+			_check(c132_data.special_behavior_id == &"armor_aura"
+				and int(c132_data.special_params.get("armor_bonus", 0)) == 6
+				and is_equal_approx(float(c132_data.special_params.get("radius", 0.0)), 140.0),
+				"精锐伍长应配置军阵光环 armor_aura +6 / 140px")
+		elif c132_id == "yellow_turban_armor_aura_caster":
+			_check(c132_data.special_behavior_id == &"armor_aura"
+				and int(c132_data.special_params.get("armor_bonus", 0)) == 6
+				and is_equal_approx(float(c132_data.special_params.get("radius", 0.0)), 160.0),
+				"符祭应配置 armor_aura +6 / 160px")
+
+	# 甲光环口径（NUMBERS 10.17）：先加甲后算减伤 / 同源取最大 / 窗口过期恢复 / 半径内覆盖。
+	var c132_aura_probe_data := EnemyData.new()
+	c132_aura_probe_data.enemy_id = &"smoke_armor_aura_probe"
+	c132_aura_probe_data.display_name = "甲光环算例桩"
+	c132_aura_probe_data.max_hp = 100000
+	c132_aura_probe_data.move_speed = 0.0
+	c132_aura_probe_data.currency_reward = 0
+	c132_aura_probe_data.armor = 8
+	var c132_aura_probe := enemy_manager.spawn_enemy_from_data(c132_aura_probe_data) as Enemy
+	if c132_aura_probe != null:
+		c132_aura_probe.set_process(false)
+		_check(c132_aura_probe.get_effective_armor() == 8, "无光环时有效甲应等于基础甲")
+		c132_aura_probe.apply_armor_aura_bonus(6, 3.0)
+		_check(c132_aura_probe.get_effective_armor() == 14 and c132_aura_probe.get_armor_aura_bonus() == 6,
+			"光环生效时有效甲应为 8 + 6 = 14")
+		var c132_aura_before := c132_aura_probe.current_hp
+		c132_aura_probe.take_damage(1000)
+		_check(c132_aura_before - c132_aura_probe.current_hp == 781,
+			"加甲后物理减伤应按有效甲 14 计（×(1−14/64) = 781）")
+		c132_aura_probe.apply_armor_aura_bonus(3, 3.0)
+		_check(c132_aura_probe.get_armor_aura_bonus() == 6, "同源较弱光环不应覆盖（取最大）")
+		c132_aura_probe.apply_armor_aura_bonus(8, 3.0)
+		_check(c132_aura_probe.get_armor_aura_bonus() == 8, "同源更强光环应取最大值")
+		# 窗口过期：另起短窗口桩（同源刷新取「更晚到期」，长窗口桩无法被缩短）。
+		var c132_aura_expire := enemy_manager.spawn_enemy_from_data(c132_aura_probe_data) as Enemy
+		if c132_aura_expire != null:
+			c132_aura_expire.set_process(false)
+			c132_aura_expire.apply_armor_aura_bonus(6, 0.05)
+			_check(c132_aura_expire.get_effective_armor() == 14, "短窗口光环应先生效")
+			await get_tree().create_timer(0.12).timeout
+			_check(c132_aura_expire.get_armor_aura_bonus() == 0 and c132_aura_expire.get_effective_armor() == 8,
+				"光环窗口过期应恢复基础甲（施法者阵亡 / 离开半径无需额外清理）")
+			c132_aura_expire.queue_free()
+		c132_aura_probe.queue_free()
+
+	# 甲光环半径覆盖（EnemyManager._apply_armor_aura）：含自身、覆盖半径内友军、不打半径外。
+	var c132_aura_source := enemy_manager.spawn_enemy_from_data(
+		load("res://resources/enemies/yellow_turban/yellow_turban_elite_sergeant.tres") as EnemyData) as Enemy
+	var c132_aura_near := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	var c132_aura_far := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if c132_aura_source != null and c132_aura_near != null and c132_aura_far != null:
+		for c132_aura_unit in [c132_aura_source, c132_aura_near, c132_aura_far]:
+			c132_aura_unit.set_process(false)
+		c132_aura_source.global_position = Vector2(240, 240)
+		c132_aura_near.global_position = Vector2(340, 240)
+		c132_aura_far.global_position = Vector2(640, 240)
+		enemy_manager._apply_armor_aura(c132_aura_source)
+		_check(c132_aura_source.get_armor_aura_bonus() == 6, "甲光环应覆盖施法者自身")
+		_check(c132_aura_near.get_armor_aura_bonus() == 6, "甲光环应覆盖 140px 内友军")
+		_check(c132_aura_far.get_armor_aura_bonus() == 0, "甲光环不应覆盖 140px 外敌人")
+		c132_aura_source.queue_free()
+		c132_aura_near.queue_free()
+		c132_aura_far.queue_free()
+
+	# 各关波次预算（NUMBERS 10.18 / STAGES §7）：新增波插在验收波之前、编号两位补位、验收波保持末位。
+	var c132_wave_counts := {
+		"ch01_s01": 6, "ch01_s02": 7, "ch01_s03": 8, "ch01_s04": 9,
+		"ch01_s05": 9, "ch01_s06": 10, "ch01_s07": 10, "ch01_s08": 12,
+	}
+	var c132_stage_enemy_ids := {
+		"ch01_s03": ["yellow_turban_elite_sergeant"],
+		"ch01_s05": ["yellow_turban_heavy_berserker"],
+		"ch01_s06": ["yellow_turban_stealth_assassin"],
+		"ch01_s07": ["yellow_turban_armor_aura_caster", "yellow_turban_stealth_healer"],
+		"ch01_s08": ["yellow_turban_heavy_berserker", "yellow_turban_elite_sergeant",
+			"yellow_turban_stealth_assassin", "yellow_turban_armor_aura_caster", "yellow_turban_stealth_healer", "yellow_turban_heaven_general"],
+	}
+	for c132_stage_id in c132_wave_counts:
+		var c132_stage := load("res://resources/stages/chapter_01/%s.tres" % c132_stage_id) as StageData
+		_check(c132_stage != null, "0.8.13.2 关卡应可加载: %s" % c132_stage_id)
+		if c132_stage == null:
+			continue
+		var c132_expected_waves := int(c132_wave_counts[c132_stage_id])
+		_check(c132_stage.waves.size() == c132_expected_waves,
+			"%s 应有 %d 波（NUMBERS 10.18）" % [c132_stage_id, c132_expected_waves])
+		var c132_numbers_ok := true
+		var c132_seen_enemy_ids := {}
+		for c132_wave_index in range(c132_stage.waves.size()):
+			var c132_wave: WaveData = c132_stage.waves[c132_wave_index]
+			if c132_wave.wave_number != c132_wave_index + 1 \
+					or str(c132_wave.wave_id) != "%s_w%02d" % [c132_stage_id, c132_wave_index + 1]:
+				c132_numbers_ok = false
+			for c132_group in c132_wave.spawn_groups:
+				if c132_group != null and c132_group.enemy != null:
+					c132_seen_enemy_ids[str(c132_group.enemy.enemy_id)] = true
+		_check(c132_numbers_ok, "%s 波次应从 1 连续编号且 wave_id 两位补位" % c132_stage_id)
+		_check(c132_stage.waves[c132_stage.waves.size() - 1].is_boss_wave,
+			"%s 验收波应保持在末位（is_boss_wave）" % c132_stage_id)
+		for c132_enemy_id in c132_stage_enemy_ids.get(c132_stage_id, []):
+			_check(c132_seen_enemy_ids.has(c132_enemy_id), "%s 波次中应出现 %s" % [c132_stage_id, c132_enemy_id])
+		# 波次完成奖口径（NUMBERS 5.3）：s01~s03 = 0，s04~s08 = 10——新增波不得引入新经济来源。
+		var c132_stage_number := int(c132_stage_id.substr(6, 2))
+		var c132_cc_expected := 10 if c132_stage_number >= 4 else 0
+		var c132_cc_ok := true
+		for c132_wave in c132_stage.waves:
+			if c132_wave.completion_currency != c132_cc_expected:
+				c132_cc_ok = false
+		_check(c132_cc_ok, "%s 波次完成奖应统一为 %d（NUMBERS 5.3）" % [c132_stage_id, c132_cc_expected])
+
+	# 0.8.13.3 s03 Boss 波（张梁复用不改）：新增 w07 前哨压力波，原 w07 验收编成顺延为 w08 Boss 验收波。
+	# 口径见 NUMBERS 10.18·10.19 / STAGES §7 / ENEMIES 5.5.5；s03 未配岔路 → 召唤护卫走主路降级。
+	var c133_s03 := load("res://resources/stages/chapter_01/ch01_s03.tres") as StageData
+	_check(c133_s03 != null, "0.8.13.3 s03 关卡应可加载")
+	if c133_s03 != null:
+		_check(c133_s03.waves.size() == 8, "s03 应为 8 波（0.8.13.3 +1 Boss 波，NUMBERS 10.18）")
+		var c133_last: WaveData = c133_s03.waves[c133_s03.waves.size() - 1]
+		_check(str(c133_last.wave_id) == "ch01_s03_w08" and c133_last.wave_number == 8,
+			"s03 末波应为 w08（wave_id 两位补位 / 编号连续）")
+		_check(c133_last.is_boss_wave, "s03 末波应保持 Boss/验收波标记")
+		var c133_general_groups := 0
+		for c133_group in c133_last.spawn_groups:
+			if c133_group != null and c133_group.enemy != null \
+					and str(c133_group.enemy.enemy_id) == "yellow_turban_general":
+				c133_general_groups += 1
+		_check(c133_general_groups == 1, "s03 末波应含 1 组黄巾渠帅·张梁")
+		# w07 前哨压力波：精锐伍长 ×2（军阵光环压力，衔接 w06 观察波）。
+		var c133_w07: WaveData = c133_s03.waves[6]
+		var c133_elite_total := 0
+		for c133_group in c133_w07.spawn_groups:
+			if c133_group != null and c133_group.enemy != null \
+					and str(c133_group.enemy.enemy_id) == "yellow_turban_elite_sergeant":
+				c133_elite_total += int(c133_group.count)
+		_check(str(c133_w07.wave_id) == "ch01_s03_w07" and not c133_w07.is_boss_wave \
+				and c133_elite_total == 2, "s03 w07 应为精锐伍长 ×2 前哨压力波")
+		_check(c133_s03.fork_path_points.is_empty(), "s03 应沿用主路（岔路试点仅 s08）")
+		# 张梁数值锚点（复用不改）：数值/行为与 ENEMIES 5.5.5 / NUMBERS 10.19 一致。
+		var c133_general := load("res://resources/enemies/yellow_turban/yellow_turban_general.tres") as EnemyData
+		_check(c133_general != null and c133_general.max_hp == 3000 and c133_general.armor == 20 \
+				and c133_general.damage_to_base == 10 and c133_general.currency_reward == 100 \
+				and c133_general.kill_xp == 150 and c133_general.tags.has(&"boss") \
+				and c133_general.special_behavior_id == &"summon_guard",
+			"张梁应保持复用不改（3000HP / 甲 20 / 漏 10 / 金 100 / 经验 150 / summon_guard / boss）")
+		# 召唤护卫（无岔路降级）：护卫标记召唤物 + 自 Boss 身后 60px 沿主路入场。
+		if c133_general != null:
+			_check(enemy_manager.fork_path == null, "冒烟场景（s01）应无岔路（主路降级用例前置）")
+			var c133_boss := enemy_manager.spawn_enemy_from_data(c133_general) as Enemy
+			_check(c133_boss != null, "张梁应可在冒烟场景生成")
+			if c133_boss != null:
+				c133_boss.set_process(false)
+				c133_boss.progress = 200.0
+				var c133_before: Array[int] = []
+				for c133_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+					c133_before.append(c133_node.get_instance_id())
+				enemy_manager._summon_guards(c133_boss)
+				var c133_guards: Array[Enemy] = []
+				for c133_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+					if not c133_before.has(c133_node.get_instance_id()):
+						c133_guards.append(c133_node as Enemy)
+				var c133_summon_count := int(GameBalance.get_balance().summon_count)
+				_check(c133_guards.size() == c133_summon_count,
+					"张梁应召唤 %d 名护卫（BalanceData.summon_count）" % c133_summon_count)
+				var c133_guards_ok := not c133_guards.is_empty()
+				for c133_guard in c133_guards:
+					if c133_guard == null or not c133_guard.is_summon \
+							or not is_equal_approx(c133_guard.progress, 140.0):
+						c133_guards_ok = false
+				_check(c133_guards_ok, "无岔路时护卫应标记召唤物并出现在 Boss 身后 60px（主路）")
+				for c133_guard in c133_guards:
+					if c133_guard != null:
+						c133_guard.queue_free()
+				c133_boss.queue_free()
+
+	# 0.8.13.4 中 Boss 张宝与 s06/s07 Boss 波（NUMBERS 10.20 / STAGES §7 / ENEMIES 5.5.5）。
+	# 波次：s06/s07 各 10 波；s06 w10 = 张宝 + 原验收（Boss 波）；s07 w09 双源压力波、w10 验收顺延。
+	var c134_s06 := load("res://resources/stages/chapter_01/ch01_s06.tres") as StageData
+	_check(c134_s06 != null and c134_s06.waves.size() == 10, "s06 应为 10 波（0.8.13.4 +1，NUMBERS 10.18）")
+	if c134_s06 != null:
+		var c134_s06_last: WaveData = c134_s06.waves[9]
+		_check(str(c134_s06_last.wave_id) == "ch01_s06_w10" and c134_s06_last.wave_number == 10 \
+				and c134_s06_last.is_boss_wave,
+			"s06 末波应为 w10 Boss 验收（wave_id 两位补位 / is_boss_wave 保留）")
+		var c134_zb_groups := 0
+		for c134_group in c134_s06_last.spawn_groups:
+			if c134_group != null and c134_group.enemy != null \
+					and str(c134_group.enemy.enemy_id) == "yellow_turban_rebel_general":
+				c134_zb_groups += 1
+		_check(c134_zb_groups == 1, "s06 末波应含 1 组黄巾地公将军·张宝")
+		if not c134_s06_last.spawn_groups.is_empty():
+			var c134_first_group: EnemySpawnData = c134_s06_last.spawn_groups[0]
+			_check(c134_first_group != null and c134_first_group.enemy != null \
+					and str(c134_first_group.enemy.enemy_id) == "yellow_turban_rebel_general",
+				"张宝应为 s06 末波首发组（delay 0，塔优先索敌）")
+		var c134_s06_w09: WaveData = c134_s06.waves[8]
+		var c134_w09_stealth := 0
+		for c134_group in c134_s06_w09.spawn_groups:
+			if c134_group != null and c134_group.enemy != null and c134_group.enemy.stealth:
+				c134_w09_stealth += int(c134_group.count)
+		_check(str(c134_s06_w09.wave_id) == "ch01_s06_w09" and not c134_s06_w09.is_boss_wave \
+				and c134_w09_stealth == 4,
+			"s06 w09 应为夜行刺 ×4 隐匿压力波（实为 %d 隐匿）" % c134_w09_stealth)
+
+	var c134_s07 := load("res://resources/stages/chapter_01/ch01_s07.tres") as StageData
+	_check(c134_s07 != null and c134_s07.waves.size() == 10, "s07 应为 10 波（0.8.13.4 +1，NUMBERS 10.18）")
+	if c134_s07 != null:
+		var c134_s07_last: WaveData = c134_s07.waves[9]
+		_check(str(c134_s07_last.wave_id) == "ch01_s07_w10" and c134_s07_last.wave_number == 10 \
+				and c134_s07_last.is_boss_wave,
+			"s07 末波应为 w10 验收顺延（is_boss_wave 保留、无 Boss）")
+		var c134_s07_w09: WaveData = c134_s07.waves[8]
+		var c134_s07_kinds := {}
+		for c134_group in c134_s07_w09.spawn_groups:
+			if c134_group != null and c134_group.enemy != null:
+				c134_s07_kinds[str(c134_group.enemy.enemy_id)] = true
+		_check(str(c134_s07_w09.wave_id) == "ch01_s07_w09" and not c134_s07_w09.is_boss_wave \
+				and c134_s07_kinds.has("yellow_turban_armor_aura_caster") \
+				and c134_s07_kinds.has("yellow_turban_stealth_healer") \
+				and c134_s07_kinds.has("yellow_turban_stealth_assassin"),
+			"s07 w09 应为符祭 / 隐方士 / 夜行刺双源压力波")
+
+	# 张宝数值锚点（NUMBERS 10.20 / ENEMIES 5.5.5）：HP 4200 重标（草案 2200~2800 作废）。
+	var c134_zhang_bao := load("res://resources/enemies/yellow_turban/yellow_turban_rebel_general.tres") as EnemyData
+	_check(c134_zhang_bao != null and c134_zhang_bao.max_hp == 4200 and c134_zhang_bao.armor == 18 \
+			and is_equal_approx(c134_zhang_bao.move_speed, 28.0) and c134_zhang_bao.damage_to_base == 8 \
+			and c134_zhang_bao.currency_reward == 80 and c134_zhang_bao.kill_xp == 120 \
+			and c134_zhang_bao.tags.has(&"boss") and c134_zhang_bao.special_behavior_id == &"summon_guard",
+		"张宝数值应按 NUMBERS 10.20（4200HP / 速 28 / 甲 18 / 漏 8 / 金 80 / 经验 120 / boss）")
+	if c134_zhang_bao != null:
+		_check(c134_zhang_bao.extra_behavior_ids.has(&"healer_aura") \
+				and c134_zhang_bao.extra_behavior_ids.has(&"seal_domain"),
+			"张宝应为多行为（附加 healer_aura / seal_domain）")
+		# 模板合并（B-062）：附加行为字段随模板合并安全读取（EnemyTemplateData 已补齐）。
+		var c134_template := load("res://resources/enemy_templates/heavy_cavalry.tres") as EnemyTemplateData
+		if c134_template != null:
+			var c134_derived := EnemyData.new()
+			c134_derived.template = c134_template
+			c134_derived.extra_behavior_ids = [&"probe_multi_behavior"]
+			var c134_resolved := c134_derived.resolved()
+			_check(c134_resolved != null and c134_resolved.extra_behavior_ids.has(&"probe_multi_behavior"),
+				"模板派生应保留派生资源的附加行为（B-062：resolved 不得因模板字段缺失中断）")
+			var c134_plain := EnemyData.new()
+			c134_plain.template = c134_template
+			var c134_plain_resolved := c134_plain.resolved()
+			_check(c134_plain_resolved != null and c134_plain_resolved.extra_behavior_ids.is_empty(),
+				"模板派生未覆盖附加行为时应为空（B-062）")
+		var c134_boss := enemy_manager.spawn_enemy_from_data(c134_zhang_bao) as Enemy
+		_check(c134_boss != null, "张宝应可在冒烟场景生成")
+		if c134_boss != null:
+			c134_boss.set_process(false)
+			# 多行为调度：主行为 + 附加行为 = 3 条独立冷却。
+			var c134_ids: Array[StringName] = enemy_manager.get_behavior_ids_for(c134_boss)
+			_check(c134_ids.size() == 3 and c134_ids.has(&"summon_guard") \
+					and c134_ids.has(&"healer_aura") and c134_ids.has(&"seal_domain"),
+				"张宝应调度 3 条独立行为（summon_guard + healer_aura + seal_domain）")
+			_check(c134_boss.get_special_cooldown(&"healer_aura") > 0.0 \
+					and c134_boss.get_special_cooldown(&"seal_domain") > 0.0 \
+					and c134_boss.get_special_cooldown(&"healer_aura") == c134_boss.get_special_cooldown(&"seal_domain"),
+				"多行为应各自独立初始化冷却")
+			# P2 门控（summon_guard_min_hp_ratio = 0.5）：HP >50% 拦截、≤50% 解锁。
+			c134_boss.current_hp = c134_boss.max_hp
+			_check(not enemy_manager._behavior_phase_ready(c134_boss, &"summon_guard"),
+				"张宝 HP >50% 时召唤行为应被阶段门控拦截")
+			c134_boss.current_hp = int(c134_boss.max_hp * 0.5)
+			_check(enemy_manager._behavior_phase_ready(c134_boss, &"summon_guard"),
+				"张宝 HP ≤50% 时召唤行为应解锁（P2）")
+			# 召唤参数化 + 上限：夜行刺 ×2 / 上限 4（无岔路时自身后 60px 沿主路出现）。
+			c134_boss.progress = 200.0
+			enemy_manager._summon_guards(c134_boss)
+			var c134_summoned: Array[Enemy] = []
+			for c134_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				var c134_e := c134_node as Enemy
+				if c134_e != null and c134_e.is_summon and c134_e.enemy_id == &"yellow_turban_stealth_assassin":
+					c134_summoned.append(c134_e)
+			_check(c134_summoned.size() == 2, "张宝首次召唤应为夜行刺 ×2（special_params.summon_enemy_id）")
+			var c134_summons_ok := c134_summoned.size() == 2
+			for c134_e in c134_summoned:
+				if not c134_e.stealth or not is_equal_approx(c134_e.progress, 140.0):
+					c134_summons_ok = false
+			_check(c134_summons_ok, "夜行刺召唤物应隐匿并出现在张宝身后 60px（无岔路主路降级）")
+			enemy_manager._summon_guards(c134_boss)
+			enemy_manager._summon_guards(c134_boss)
+			var c134_total := 0
+			for c134_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				var c134_e := c134_node as Enemy
+				if c134_e != null and c134_e.is_summon and c134_e.enemy_id == &"yellow_turban_stealth_assassin":
+					c134_total += 1
+			_check(c134_total == 4 and c134_boss.summoned_count == 4,
+				"张宝召唤应受 max_summons = 4 上限（实为 %d）" % c134_total)
+			for c134_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				var c134_e := c134_node as Enemy
+				if c134_e != null and c134_e.is_summon:
+					c134_e.queue_free()
+			# 术法压制（seal_domain）：范围内塔攻速 ×0.75、同桶下限 -50%、窗口过期恢复。
+			var c134_tower: Tower = tower_manager.build_tower(Vector2(64, 704), guan_yu, null, {"level": 1})
+			_check(c134_tower != null, "术法压制用例应能建塔")
+			if c134_tower != null:
+				c134_tower.set_process(false)
+				c134_boss.global_position = c134_tower.global_position + Vector2(80, 0)
+				enemy_manager._apply_seal_domain(c134_boss)
+				_check(is_equal_approx(c134_tower.attack_speed_buff, 0.75),
+					"术法压制应使半径内塔攻速 ×0.75（实为 %.3f）" % c134_tower.attack_speed_buff)
+				c134_tower.apply_attack_speed_debuff("probe_seal", 0.4, 5.0)
+				_check(is_equal_approx(c134_tower.attack_speed_buff, 0.5),
+					"多源减益总量应受 -50% 下限（TEAM_DEBUFF_SLOW_CAP）")
+				c134_tower.apply_attack_speed_debuff("probe_seal", 0.9, 5.0)
+				_check(is_equal_approx(c134_tower.attack_speed_buff, 0.5),
+					"同源减益刷新应取更强方向（不因较弱刷新而回撤）")
+				c134_tower.apply_attack_speed_buff("probe_buff", 1.6, 5.0)
+				_check(is_equal_approx(c134_tower.attack_speed_buff, 0.75),
+					"增益与减益应同桶求和（-85% 与 +60% → clamp -25%）")
+				c134_tower._process(10.0)
+				_check(is_equal_approx(c134_tower.attack_speed_buff, 1.0),
+					"减益窗口过期后塔攻速应自动恢复 1.0")
+				c134_tower.queue_free()
+			c134_boss.queue_free()
+	# 0.8.13.5 终 Boss 张角：s08 = 12 波（w11 张梁前置 Boss 波保留 + w12 张角终 Boss 验收波），
+	# 三阶段召唤档案（步卒 → 轻骑 → 夜行刺）+ 阶段推进表现 / 输出窗口 + 难度机制旋钮（NUMBERS 10.21~10.23）。
+	var c135_s08 := load("res://resources/stages/chapter_01/ch01_s08.tres") as StageData
+	_check(c135_s08 != null and c135_s08.waves.size() == 12, "s08 应为 12 波（0.8.13.5 +1，NUMBERS 10.21）")
+	if c135_s08 != null:
+		var c135_w11: WaveData = c135_s08.waves[10]
+		_check(str(c135_w11.wave_id) == "ch01_s08_w11" and c135_w11.is_boss_wave,
+			"s08 w11 应保留张梁前置 Boss 波（is_boss_wave / 编成不变）")
+		var c135_w11_general := 0
+		for c135_group in c135_w11.spawn_groups:
+			if (c135_group != null and c135_group.enemy != null
+					and str(c135_group.enemy.enemy_id) == "yellow_turban_general"):
+				c135_w11_general += 1
+		_check(c135_w11_general == 1, "s08 w11 应含 1 组黄巾渠帅·张梁")
+		var c135_w12: WaveData = c135_s08.waves[11]
+		_check(str(c135_w12.wave_id) == "ch01_s08_w12" and c135_w12.wave_number == 12
+				and c135_w12.is_boss_wave,
+			"s08 末波应为 w12 终 Boss 验收波（wave_id 两位补位 / is_boss_wave）")
+		var c135_w12_kinds := {}
+		var c135_w12_total := 0
+		for c135_group in c135_w12.spawn_groups:
+			if c135_group != null and c135_group.enemy != null:
+				c135_w12_kinds[str(c135_group.enemy.enemy_id)] = true
+				c135_w12_total += int(c135_group.count)
+		_check(c135_w12_total == 15 and c135_w12_kinds.has("yellow_turban_heaven_general")
+				and c135_w12_kinds.has("yellow_turban_armor_aura_caster")
+				and c135_w12_kinds.has("yellow_turban_stealth_assassin")
+				and c135_w12_kinds.has("yellow_turban_soldier"),
+			"s08 w12 应为 张角 ×1 + 符祭 ×2 + 夜行刺 ×2 + 步卒 ×10（共 15）")
+
+	var c135_zhang_jiao := load("res://resources/enemies/yellow_turban/yellow_turban_heaven_general.tres") as EnemyData
+	_check(c135_zhang_jiao != null and c135_zhang_jiao.max_hp == 8000
+			and is_equal_approx(c135_zhang_jiao.move_speed, 26.0) and c135_zhang_jiao.armor == 30
+			and c135_zhang_jiao.damage_to_base == 12 and c135_zhang_jiao.currency_reward == 120
+			and c135_zhang_jiao.kill_xp == 200 and c135_zhang_jiao.tags.has(&"boss")
+			and c135_zhang_jiao.special_behavior_id == &"summon_guard",
+		"张角数值应按 NUMBERS 10.21（8000HP / 速 26 / 甲 30 / 漏 12 / 金 120 / 经验 200 / boss）")
+	if c135_zhang_jiao != null:
+		_check(c135_zhang_jiao.extra_behavior_ids.has(&"armor_aura")
+				and c135_zhang_jiao.extra_behavior_ids.has(&"healer_aura")
+				and c135_zhang_jiao.extra_behavior_ids.has(&"seal_domain"),
+			"张角应为 4 条行为（summon_guard + armor_aura / healer_aura / seal_domain）")
+		var c135_hero := enemy_manager.spawn_enemy_from_data(c135_zhang_jiao) as Enemy
+		_check(c135_hero != null, "张角应可在冒烟场景生成")
+		if c135_hero != null:
+			c135_hero.set_process(false)
+			# 三阶段档案：取「门控 ≥ 当前 HP 比例」中最紧一档（P1 1.0 / P2 0.66 / P3 0.33）。
+			c135_hero.current_hp = c135_hero.max_hp
+			_check(enemy_manager._active_summon_profile_index(c135_hero) == 0
+					and str(enemy_manager._active_summon_profile(c135_hero).get("enemy_id", "")) == "yellow_turban_soldier",
+				"张角满血应命中 P1 档案（步卒 ×2 / 9s / 上限 4）")
+			c135_hero.current_hp = int(c135_hero.max_hp * 0.6)
+			_check(enemy_manager._active_summon_profile_index(c135_hero) == 1
+					and str(enemy_manager._active_summon_profile(c135_hero).get("enemy_id", "")) == "yellow_turban_cavalry",
+				"张角 HP 60% 应命中 P2 档案（轻骑 ×2 / 8s）")
+			c135_hero.current_hp = int(c135_hero.max_hp * 0.2)
+			_check(enemy_manager._active_summon_profile_index(c135_hero) == 2
+					and str(enemy_manager._active_summon_profile(c135_hero).get("enemy_id", "")) == "yellow_turban_stealth_assassin",
+				"张角 HP 20% 应命中 P3 档案（夜行刺 ×2 / 7s）")
+			# 首帧命中不播表现、不推进阶段（-1 → 0 为档案初始化）。
+			c135_hero.current_hp = c135_hero.max_hp
+			enemy_manager._maybe_advance_phase(c135_hero)
+			_check(c135_hero.summon_profile_index == 0 and c135_hero.phase_index == 1
+					and c135_hero.summoned_count == 0,
+				"张角阶段初始化应命中 P1 且不推进阶段表现（summon_profile_index -1 → 0）")
+			# P1 布阵：步卒 ×2 / 9.0s 冷却 / 阶段内上限 4（逐阶段独立配额）。
+			c135_hero.progress = 200.0
+			var c135_p1_ids: Array[int] = []
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				c135_p1_ids.append(c135_node.get_instance_id())
+			enemy_manager._summon_guards(c135_hero)
+			var c135_p1_new: Array[Enemy] = []
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				if not c135_p1_ids.has(c135_node.get_instance_id()):
+					c135_p1_new.append(c135_node as Enemy)
+			var c135_p1_ok := c135_p1_new.size() == 2
+			for c135_e in c135_p1_new:
+				if (c135_e == null or not c135_e.is_summon
+						or c135_e.enemy_id != &"yellow_turban_soldier"
+						or not is_equal_approx(c135_e.progress, 140.0)):
+					c135_p1_ok = false
+			_check(c135_p1_ok and c135_hero.summoned_count == 2
+					and is_equal_approx(c135_hero.get_special_cooldown(&"summon_guard"), 9.0),
+				"张角 P1 首次召唤应为步卒 ×2（档案 1 / 9.0s 冷却 / Boss 身后 60px）")
+			enemy_manager._summon_guards(c135_hero)
+			enemy_manager._summon_guards(c135_hero)
+			_check(c135_hero.summoned_count == 4, "张角 P1 召唤应受档案上限 4 约束（逐阶段独立配额）")
+			# P1 → P2：重置配额 + 阶段表现 + 下一发召唤压后 3.0s 输出窗口。
+			c135_hero.set_special_cooldown(&"summon_guard", 0.0)
+			c135_hero.current_hp = int(c135_hero.max_hp * 0.6)
+			enemy_manager._maybe_advance_phase(c135_hero)
+			_check(c135_hero.summon_profile_index == 1 and c135_hero.phase_index == 2
+					and c135_hero.summoned_count == 0 and c135_hero._phase_flash_left > 0.0
+					and is_equal_approx(c135_hero.get_special_cooldown(&"summon_guard"), 3.0),
+				"张角 HP 跌破 66% 应推进 P2：重置配额 / 阶段表现 + 阶段点 / 下一发召唤压后 3.0s")
+			var c135_p2_ids: Array[int] = []
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				c135_p2_ids.append(c135_node.get_instance_id())
+			enemy_manager._summon_guards(c135_hero)
+			var c135_p2_new: Array[Enemy] = []
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				if not c135_p2_ids.has(c135_node.get_instance_id()):
+					c135_p2_new.append(c135_node as Enemy)
+			var c135_p2_ok := c135_p2_new.size() == 2
+			for c135_e in c135_p2_new:
+				if c135_e == null or c135_e.enemy_id != &"yellow_turban_cavalry":
+					c135_p2_ok = false
+			_check(c135_p2_ok and is_equal_approx(c135_hero.get_special_cooldown(&"summon_guard"), 8.0),
+				"张角 P2 召唤应为轻骑 ×2（档案 2 / 8.0s 冷却）")
+			# P2 → P3：狂雷阶段（术法压制 + 隐匿亲卫）。
+			c135_hero.set_special_cooldown(&"summon_guard", 0.0)
+			c135_hero.current_hp = int(c135_hero.max_hp * 0.2)
+			enemy_manager._maybe_advance_phase(c135_hero)
+			_check(c135_hero.summon_profile_index == 2 and c135_hero.phase_index == 3
+					and is_equal_approx(c135_hero.get_special_cooldown(&"summon_guard"), 3.0),
+				"张角 HP 跌破 33% 应推进 P3（阶段点 3 / 重置配额 / 3.0s 输出窗口）")
+			var c135_p3_ids: Array[int] = []
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				c135_p3_ids.append(c135_node.get_instance_id())
+			enemy_manager._summon_guards(c135_hero)
+			var c135_p3_new: Array[Enemy] = []
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				if not c135_p3_ids.has(c135_node.get_instance_id()):
+					c135_p3_new.append(c135_node as Enemy)
+			var c135_p3_ok := c135_p3_new.size() == 2
+			for c135_e in c135_p3_new:
+				if (c135_e == null or not c135_e.stealth
+						or c135_e.enemy_id != &"yellow_turban_stealth_assassin"):
+					c135_p3_ok = false
+			_check(c135_p3_ok and is_equal_approx(c135_hero.get_special_cooldown(&"summon_guard"), 7.0),
+				"张角 P3 召唤应为隐匿夜行刺 ×2（档案 3 / 7.0s 冷却）")
+			for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+				var c135_e := c135_node as Enemy
+				if c135_e != null and c135_e.is_summon:
+					c135_e.queue_free()
+			c135_hero.queue_free()
+
+	# 难度机制旋钮（NUMBERS 10.23）：标准 1.0/1.0，困难「间隔 ×0.85 / 效果 ×1.25」（含三阶段档案间隔）。
+	_check(is_equal_approx(Difficulty.mechanic_interval_mult(Difficulty.NORMAL), 1.0)
+			and is_equal_approx(Difficulty.mechanic_effect_mult(Difficulty.NORMAL), 1.0)
+			and is_equal_approx(Difficulty.mechanic_interval_mult(Difficulty.HARD), 0.85)
+			and is_equal_approx(Difficulty.mechanic_effect_mult(Difficulty.HARD), 1.25),
+		"难度机制旋钮应按 NUMBERS 10.23 落库（标准 1.0/1.0 / 困难 0.85/1.25）")
+	var c135_hard := enemy_manager.spawn_enemy_from_data(c135_zhang_jiao) as Enemy
+	_check(c135_hard != null, "机制旋钮用例应能生成张角")
+	if c135_hard != null:
+		c135_hard.set_process(false)
+		c135_hard.current_hp = c135_hard.max_hp
+		enemy_manager._maybe_advance_phase(c135_hard)
+		_check(is_equal_approx(enemy_manager._mechanic_interval_mult(), 1.0)
+				and is_equal_approx(enemy_manager._mechanic_effect_mult(), 1.0),
+			"标准难度机制旋钮应为 1.0 / 1.0（不缩放）")
+		_check(is_equal_approx(enemy_manager._behavior_interval(c135_hard, &"seal_domain", "interval", 0.0), 2.0),
+			"标准难度下术法压制间隔应保持档案值 2.0s")
+		GameFlow.selected_difficulty = Difficulty.HARD
+		_check(is_equal_approx(enemy_manager._mechanic_interval_mult(), 0.85)
+				and is_equal_approx(enemy_manager._mechanic_effect_mult(), 1.25),
+			"困难档机制旋钮应生效（间隔 ×0.85 / 效果 ×1.25）")
+		_check(is_equal_approx(enemy_manager._behavior_interval(c135_hard, &"seal_domain", "interval", 0.0), 1.7),
+			"困难档术法压制间隔应缩短为 1.7s（2.0 × 0.85）")
+		enemy_manager._apply_armor_aura(c135_hard)
+		_check(c135_hard.get_armor_aura_bonus() == 8, "困难档甲光环加成应为 +8（+6 × 1.25 取整）")
+		enemy_manager._summon_guards(c135_hard)
+		_check(is_equal_approx(c135_hard.get_special_cooldown(&"summon_guard"), 7.65),
+			"困难档张角 P1 召唤冷却应为 9.0 × 0.85 = 7.65s")
+		var c135_tower: Tower = tower_manager.build_tower(Vector2(128, 704), guan_yu, null, {"level": 1})
+		_check(c135_tower != null, "机制旋钮用例应能建塔（术法压制幅度）")
+		if c135_tower != null:
+			c135_tower.set_process(false)
+			c135_hard.global_position = c135_tower.global_position + Vector2(80, 0)
+			enemy_manager._apply_seal_domain(c135_hard)
+			_check(is_equal_approx(c135_tower.attack_speed_buff, 0.5625),
+				"困难档术法压制幅度应为 ×0.5625（差额 ×1.25，实为 %.4f）" % c135_tower.attack_speed_buff)
+			c135_tower.queue_free()
+		GameFlow.selected_difficulty = Difficulty.NORMAL
+		for c135_node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+			var c135_e := c135_node as Enemy
+			if c135_e != null and c135_e.is_summon:
+				c135_e.queue_free()
+		c135_hard.queue_free()
+
+	# 全章数值基准（NUMBERS 10.22，0.8.13.5 断言化）：波数 / 出怪数 / 血池 / 物理等效血池（标准难度）。
+	var c135_baseline := {
+		"ch01_s01": [6, 62, 6470.0, 6549.0],
+		"ch01_s02": [7, 80, 8250.0, 8333.0],
+		"ch01_s03": [8, 93, 13220.0, 14687.0],
+		"ch01_s04": [9, 95, 12870.0, 13713.0],
+		"ch01_s05": [9, 91, 18220.0, 21433.0],
+		"ch01_s06": [10, 126, 21740.0, 24234.0],
+		"ch01_s07": [10, 120, 16610.0, 17478.0],
+		"ch01_s08": [12, 146, 34350.0, 42988.0],
+	}
+	var c135_total_waves := 0
+	var c135_total_spawns := 0
+	var c135_total_raw := 0.0
+	var c135_total_phys := 0.0
+	for c135_stage_id in c135_baseline:
+		var c135_stage := load("res://resources/stages/chapter_01/%s.tres" % c135_stage_id) as StageData
+		var c135_expected: Array = c135_baseline[c135_stage_id]
+		if c135_stage == null:
+			_check(false, "全章基准关卡应可加载: %s" % c135_stage_id)
+			continue
+		var c135_spawns := 0
+		var c135_raw := 0.0
+		var c135_phys := 0.0
+		for c135_wave in c135_stage.waves:
+			for c135_group in c135_wave.spawn_groups:
+				if c135_group == null or c135_group.enemy == null:
+					continue
+				var c135_data := c135_group.enemy.resolved()
+				var c135_count := int(c135_group.count)
+				var c135_hp := float(c135_data.max_hp) * float(c135_count)
+				var c135_armor := float(c135_data.armor)
+				c135_spawns += c135_count
+				c135_raw += c135_hp
+				c135_phys += c135_hp / (1.0 - c135_armor / (c135_armor + 50.0))
+		c135_total_waves += c135_stage.waves.size()
+		c135_total_spawns += c135_spawns
+		c135_total_raw += c135_raw
+		c135_total_phys += c135_phys
+		_check(c135_stage.waves.size() == int(c135_expected[0])
+				and c135_spawns == int(c135_expected[1])
+				and is_equal_approx(c135_raw, float(c135_expected[2]))
+				and absf(c135_phys - float(c135_expected[3])) <= 1.0,
+			"%s 数值基准应匹配 NUMBERS 10.22（%d 波 / %d 怪 / 血池 %.0f / 物理等效 %.0f）" % [
+				c135_stage_id, int(c135_expected[0]), int(c135_expected[1]),
+				float(c135_expected[2]), float(c135_expected[3])])
+	_check(c135_total_waves == 71 and c135_total_spawns == 813
+			and is_equal_approx(c135_total_raw, 131730.0)
+			and absf(c135_total_phys - 149416.0) <= 1.0,
+		"全章合计应为 71 波 / 813 怪 / 血池 131730 / 物理等效 149416（NUMBERS 10.22）")
+
 	# 击杀经验归属（GDD 4.4）：步卒 kill_xp=8，关羽最后一击应得 50%+均分 = 6，
 	# 刘备参与伤害应得均分 = 2。
 	var xp_session := BattleSession.new("smoke_xp_stage")
@@ -682,7 +1395,7 @@ func _run() -> void:
 		rage_target.global_position = rage_tower.global_position + Vector2(120, 0)
 		rage_tower.target = rage_target
 		rage_tower.attack()
-		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 伤害×0.1（武生对精英 +25% → 80 伤）")
+		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 面板伤害×0.1（武生 +25% → 80；怒气按打甲前口径，甲值不减怒）")
 		rage_tower.rage = 100.0
 		var ult_target := enemy_manager.spawn_enemy_from_data(load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData) as Enemy
 		ult_target.set_process(false)
@@ -1339,8 +2052,8 @@ func _run() -> void:
 		green_kill.current_hp = green_kill.max_hp
 		green_tower.target = green_kill
 		_check(green_tower.cast_character_skill(), "青龙偃月应能释放")
-		_check(is_equal_approx(green_tower.get_character_skill_cooldown_left(), 12.0),
-			"青龙偃月击杀应返 6s 冷却（18-6=12）")
+		_check(is_equal_approx(green_tower.get_character_skill_cooldown_left(), 13.0),
+			"青龙偃月击杀应返 5s 冷却（18-5=13）")
 		var green_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
 		green_tank.set_process(false)
 		green_tank.global_position = green_tower.global_position + Vector2(60, 0)
@@ -1348,8 +2061,8 @@ func _run() -> void:
 		green_tower.refund_character_skill_cooldown(999.0)
 		var green_before := green_tank.current_hp
 		_check(green_tower.cast_character_skill(), "青龙偃月应能再次释放")
-		_check(green_before - green_tank.current_hp == int(round(green_tower.damage * 2.5)),
-			"青龙偃月应造成 2.5× 普攻伤害")
+		_check(green_before - green_tank.current_hp == int(round(green_tower.damage * 2.0)) * 3,
+			"青龙偃月应造成 3 段 × 2.0× 真实伤害（不分摊）")
 		green_tank.queue_free()
 		green_tower.queue_free()
 	# 张飞·当阳桥（A/CD22）：范围内敌人恐惧 1s（反向行军、移速不变）→ 结束后
@@ -1564,6 +2277,32 @@ func _run() -> void:
 			map_issues.clear()
 	_check(map_issues.is_empty(), "地图校验器不应有遗留问题")
 
+	# 0.8.13.1：s06 新增观察波（教学节奏，STAGES §7）——第 2 波 = 步卒观察 + 夜行刺演示；
+	# 0.8.13.2：再 +1 隐匿混编波（9 波，验收波顺延末位）。
+	var c13_s06 := load("res://resources/stages/chapter_01/ch01_s06.tres") as StageData
+	_check(c13_s06 != null and c13_s06.waves.size() == 10, "s06 应有 10 波（观察波 + 隐匿混编 + 张宝 Boss 验收）")
+	if c13_s06 != null and c13_s06.waves.size() >= 2:
+		var c13_wave_numbers_ok := true
+		for c13_wave_index in range(c13_s06.waves.size()):
+			if c13_s06.waves[c13_wave_index].wave_number != c13_wave_index + 1:
+				c13_wave_numbers_ok = false
+		_check(c13_wave_numbers_ok, "s06 波次编号应从 1 连续到 10")
+		var c13_obs := c13_s06.waves[1]
+		_check(str(c13_obs.wave_id) == "ch01_s06_w02" and c13_obs.wave_number == 2,
+			"观察波应位于第 2 位（wave_id = ch01_s06_w02）")
+		var c13_obs_soldiers := 0
+		var c13_obs_stealth := 0
+		for c13_group in c13_obs.spawn_groups:
+			if c13_group == null or c13_group.enemy == null:
+				continue
+			if c13_group.enemy.stealth:
+				c13_obs_stealth += c13_group.count
+			elif str(c13_group.enemy.enemy_id) == "yellow_turban_soldier":
+				c13_obs_soldiers += c13_group.count
+		_check(c13_obs_soldiers == 4 and c13_obs_stealth == 2,
+			"观察波应为 4 步卒 + 2 夜行刺（实为 %d 步卒 + %d 隐匿）" % [c13_obs_soldiers, c13_obs_stealth])
+
+
 	# 阶段 8 提交 8 延伸·修复 7（v0.33.7 / 0.8.8.7，BUGS B-022）：角色图鉴数据完整性——
 	# 初始武将获取方式（unlock_stage_id 空 =「初始解锁」）、9 名武将特性数据齐全、观星射程实算。
 	_check(GameFlow.get_acquisition_text("guan_yu") == "初始解锁"
@@ -1620,6 +2359,9 @@ func _check_resource_integrity() -> void:
 	var stages: Dictionary = {}
 	var items: Dictionary = {}
 	for path in _collect_resource_paths("res://resources"):
+		var duplicate_key := _duplicate_resource_key(path)
+		if not duplicate_key.is_empty():
+			_check(false, "资源存在重复键（后者静默胜出，BUGS B-059）: %s -> %s" % [path, duplicate_key])
 		var resource := load(path) as Resource
 		if resource == null:
 			_check(false, "资源加载失败: %s" % path)
@@ -1688,6 +2430,31 @@ func _check_resource_integrity() -> void:
 		for next_id in promotion.next_promotion_ids:
 			_check(promotions.has(str(next_id)),
 				"转职 %s 引用了不存在的后续转职 %s" % [promotion_id, next_id])
+
+
+
+## B-059 回归护栏：`.tres` 的 `[resource]` 主段落不得出现重复键（Godot 静默取
+## 后者胜出——黄巾力士 armor = 10 后跟旧 armor = 0 即被回退为 0）。返回首个重复键名。
+func _duplicate_resource_key(path: String) -> String:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return ""
+	var keys: Array[String] = []
+	var in_resource_section := false
+	while not file.eof_reached():
+		var trimmed := file.get_line().strip_edges()
+		if trimmed.begins_with("["):
+			in_resource_section = trimmed == "[resource]"
+			continue
+		if not in_resource_section or not trimmed.contains("="):
+			continue
+		var key := trimmed.split("=", true, 1)[0].strip_edges()
+		if keys.has(key):
+			file.close()
+			return key
+		keys.append(key)
+	file.close()
+	return ""
 
 
 func _collect_resource_paths(dir_path: String) -> Array[String]:

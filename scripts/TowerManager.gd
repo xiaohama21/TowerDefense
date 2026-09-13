@@ -46,8 +46,12 @@ func upgrade_tower(tower: Tower, stage_data: StageData) -> bool:
 	var cost := maxi(ceili(tower.get_upgrade_cost(stage_data.upgrade_cost_factor) * (1.0 - discount)), 1)
 	if GameManager.gold < cost:
 		return false
+
 	GameManager.gold -= cost
 	tower.apply_battle_rank(cost)
+	# 破隐光环即时刷新（NUMBERS 10.16 / BUGS B-060）：貂蝉升到 3 阶须立刻提供破隐，
+	# 与建塔 / 拆塔同口径走光环事件刷新，不能等伤害结算期的 0.25s 惰性扫描。
+	_refresh_aura_all()
 	return true
 
 

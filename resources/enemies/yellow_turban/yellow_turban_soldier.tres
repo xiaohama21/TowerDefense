@@ -10,6 +10,7 @@ description = "黄巾军的基础步战单位。"
 tags = [&"yellow_turban", &"infantry"]
 max_hp = 100
 move_speed = 80.0
+armor = 0
 damage_to_base = 1
 currency_reward = 10
 kill_xp = 8

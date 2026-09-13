@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_armor_aura_caster"
+display_name = "黄巾符祭"
+description = "执符祭天的术士，为友军披上符甲；先斩符祭，或改以魔法绕甲。"
+tags = [&"yellow_turban", &"caster"]
+max_hp = 260
+move_speed = 50.0
+armor = 6
+special_behavior_id = &"armor_aura"
+special_params = {
+"armor_bonus": 6,
+"radius": 160.0
+}
+damage_to_base = 3
+currency_reward = 25
+kill_xp = 24
+body_color = Color(0.72, 0.55, 0.25, 1)
+body_size = Vector2(34, 36)

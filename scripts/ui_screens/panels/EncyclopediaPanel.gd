@@ -2,7 +2,7 @@ extends Control
 
 ## 游戏百科（ENCYCLOPEDIA.md v0.1.9 概念终版对齐）：只读信息中心——
 ## 武将图鉴（9 将全量 + 基础/技能/转职/信物/特性页签 + 数值模拟器）与
-## 敌人图鉴（章节选择 + 7 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
+## 敌人图鉴（章节选择 + 14 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
 ## 布局规范 UI_LAYOUT.md §12（v0.20.19）；卡片副行口径 = 职业名/定位 · 打法词（概念字典）。禁止面板间散落私有文案漂移。
 
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
@@ -14,10 +14,17 @@ const ENEMY_ORDER: Array[String] = [
 	"yellow_turban_soldier",
 	"yellow_turban_cavalry",
 	"yellow_turban_sergeant",
+	"yellow_turban_elite_sergeant",
 	"yellow_turban_archer",
 	"yellow_turban_berserker",
+	"yellow_turban_heavy_berserker",
 	"yellow_turban_sorcerer",
+	"yellow_turban_armor_aura_caster",
+	"yellow_turban_stealth_assassin",
+	"yellow_turban_stealth_healer",
 	"yellow_turban_general",
+	"yellow_turban_rebel_general",
+	"yellow_turban_heaven_general",
 ]
 
 ## 敌人定位标签（UI 短词口径，概念 ui_encyclopedia_enemy.html 卡片副行第一段 / 头部 chip1；
@@ -26,10 +33,17 @@ const ENEMY_LOCATIONS := {
 	"yellow_turban_soldier": "炮灰",
 	"yellow_turban_cavalry": "快速",
 	"yellow_turban_sergeant": "精英",
+	"yellow_turban_elite_sergeant": "精英",
 	"yellow_turban_archer": "远程",
 	"yellow_turban_berserker": "坦克",
+	"yellow_turban_heavy_berserker": "坦克",
 	"yellow_turban_sorcerer": "支援",
+	"yellow_turban_armor_aura_caster": "支援",
+	"yellow_turban_stealth_assassin": "隐匿",
+	"yellow_turban_stealth_healer": "隐匿",
 	"yellow_turban_general": "Boss",
+	"yellow_turban_rebel_general": "Boss",
+	"yellow_turban_heaven_general": "Boss",
 }
 
 ## 敌人打法词（卡片副行第二段；概念图文案，对应特殊行为/数值基调）。
@@ -37,10 +51,17 @@ const ENEMY_TACTIC_SUB := {
 	"yellow_turban_soldier": "近战",
 	"yellow_turban_cavalry": "机动",
 	"yellow_turban_sergeant": "头目",
+	"yellow_turban_elite_sergeant": "军阵",
 	"yellow_turban_archer": "高漏伤",
 	"yellow_turban_berserker": "高血量",
+	"yellow_turban_heavy_berserker": "中甲",
 	"yellow_turban_sorcerer": "治疗光环",
+	"yellow_turban_armor_aura_caster": "甲光环",
+	"yellow_turban_stealth_assassin": "隐匿突袭",
+	"yellow_turban_stealth_healer": "隐匿治疗",
 	"yellow_turban_general": "召唤",
+	"yellow_turban_rebel_general": "术法",
+	"yellow_turban_heaven_general": "三阶段",
 }
 
 ## 武将图鉴概念顺序（概念 ui_encyclopedia.html 列表卡顺序，不再按资源 id 字典序排位）。
@@ -94,10 +115,17 @@ const ENEMY_AVATAR_GRADIENTS := {
 	"yellow_turban_soldier": [Color("#e7c34f"), Color("#c08a16")],
 	"yellow_turban_cavalry": [Color("#e08d4f"), Color("#b45a17")],
 	"yellow_turban_sergeant": [Color("#d75f4f"), Color("#a62e20")],
+	"yellow_turban_elite_sergeant": [Color("#c94a3a"), Color("#8c1f18")],
 	"yellow_turban_archer": [Color("#7fbf6a"), Color("#3f8f34")],
 	"yellow_turban_berserker": [Color("#8f7fbf"), Color("#5c46a6")],
+	"yellow_turban_heavy_berserker": [Color("#8f9fd0"), Color("#4f5fa6")],
 	"yellow_turban_sorcerer": [Color("#5fb8d9"), Color("#2b80a8")],
+	"yellow_turban_armor_aura_caster": [Color("#d9b45f"), Color("#a8791f")],
+	"yellow_turban_stealth_assassin": [Color("#5f6fd9"), Color("#2b3a8f")],
+	"yellow_turban_stealth_healer": [Color("#5fd0a8"), Color("#25806a")],
 	"yellow_turban_general": [Color("#7a6a9e"), Color("#44366b")],
+	"yellow_turban_rebel_general": [Color("#a87fd9"), Color("#6a3fa8")],
+	"yellow_turban_heaven_general": [Color("#8a4fd0"), Color("#3d1a6b")],
 }
 
 ## 当前章节阵营展示名（第一章=黄巾军；后续章节落地时随章节数据切换）。
@@ -105,31 +133,34 @@ const CHAPTER_FACTION := "黄巾军"
 
 ## 敌人特殊行为玩家向文案（BEHAVIORS.md B.3.2，勿直出 special_behavior_id）。
 const ENEMY_BEHAVIOR_HINTS := {
-	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点",
-	&"summon_guard": "每 8s 自岔路召唤 2 名步卒（广宗决战分叉试点）",
+	&"fast_charger": "高速推进，漏怪时造成更高基地伤害（轻骑 / 夜行刺）",
+	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点（隐方士 = 2.5s / 140px / 20 点；张宝 = 3.0s / 160px / 25 点；张角 P2 = 2.5s / 200px / 45 点）",
+	&"armor_aura": "为周围友军（含自身）加甲 +6，持续刷新（精锐伍长 140px / 符祭 160px / 张角 180px）",
+	&"summon_guard": "召唤援军（张梁 = 步卒 / 张宝 = 隐匿夜行刺·上限 4 / 张角 = 三阶段档案：步卒 → 轻骑 → 隐匿夜行刺·逐阶段上限 4）：自身后沿主路出现（有岔路时自岔路进场）",
+	&"seal_domain": "术法压制：周期性降低周围防御塔攻速（张宝 = 180px / -25%；张角 P3 = 240px / -35%）",
 }
 
 ## 职业大招玩家向文案（CHARACTERS.md 4.6 表）。
 const ULTIMATE_HINTS := {
-	&"ultimate_cavalry_breaker": "对当前目标造成高额单体伤害；若击杀则返还 50% 怒气",
-	&"ultimate_tiger_guard_sweep": "破阵：范围内敌人受到 1.5× 普攻伤害并击退，附近友方攻速提升",
-	&"ultimate_archer_volley": "快速连射 3~5 箭，优先锁定低血量敌人",
-	&"ultimate_strategist_blaze": "大范围法术伤害并施加减速",
+	&"ultimate_cavalry_breaker": "对当前目标造成 3× 真实伤害（无视护甲）；若击杀则返还 50% 怒气",
+	&"ultimate_tiger_guard_sweep": "破阵：范围内敌人受到 1.5× 物理伤害并击退，附近友方攻速提升",
+	&"ultimate_archer_volley": "快速连射 4 支物理箭（0.8×），优先锁定低血量敌人",
+	&"ultimate_strategist_blaze": "大范围魔法伤害并施加减速",
 	&"ultimate_dancer_encourage": "范围内友方攻速与伤害提升，持续数秒",
-	&"ultimate_catapult_barrage": "快速连发抛射轰击目标区域",
+	&"ultimate_catapult_barrage": "3 连发物理抛射轰击目标区域",
 }
 
 ## 角色专属技能玩家向文案（CHARACTER_SKILLS.md §2 效果草案）。
 const CHARACTER_SKILL_HINTS := {
-	&"char_green_dragon": "对当前目标造成 2.5× 普攻伤害；击杀则冷却 -6s",
+	&"char_green_dragon": "3 段 × 2.0× 真实伤害（不分摊、无视护甲）；段内溢血转下一目标，每击杀冷却 -5s",
 	&"char_dangyang_roar": "范围内敌人恐惧 1s（反向行军）→ 减速 60% 持续 2s",
 	&"char_carry_people": "全队攻速 +15% 持续 5s（每波一次）",
-	&"char_dingjun": "2.5× 单体伤害；未击杀则目标被「定军」标记 5s：受该塔普攻伤害 +15%",
+	&"char_dingjun": "命中射程内最多 3 个目标，各 2.0× 物理伤害；未击杀者被「定军」标记 4s：受该塔普攻伤害 +15%",
 	&"char_moon_dance": "全队怒气 +10（自身 +15）",
-	&"char_burn_camp": "目标区域 1.5× 范围伤害 + 灼烧 3s（每秒 0.25×）",
-	&"char_seven_charges": "对射程内所有敌人造成 1× 范围伤害 + 自身攻速 +30% 持续 3s",
+	&"char_burn_camp": "目标区域 1.5× 魔法伤害 + 灼烧 3s（每秒 0.25× 魔法）",
+	&"char_seven_charges": "对射程内所有敌人造成 1× 物理伤害 + 自身攻速 +30% 持续 3s",
 	&"char_death_fight": "自身攻速 +30%（常驻，仅触发一次）",
-	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s",
+	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s；期间**全图破隐**（可锁定隐匿单位）",
 }
 
 ## 概念图 .dhead 底部 2px 虚线分隔（StyleBoxFlat 不支持 dashed，_draw 手绘横虚线）。
@@ -1394,6 +1425,11 @@ func _refresh_enemy_detail() -> void:
 	if not enemy.special_behavior_id.is_empty():
 		behavior_text = str(ENEMY_BEHAVIOR_HINTS.get(enemy.special_behavior_id, "说明随版本完善"))
 	body.add_child(_make_labeled_card("特殊行为", behavior_text))
+	# ②′ 隐匿机制卡（NUMBERS 10.16，✅ 0.8.13.1）：隐匿单位补破隐反制说明。
+	if enemy.stealth:
+		body.add_child(_make_labeled_card("隐匿机制",
+			"无目标框、不显示血条，不可被「以单位为目标」的攻击选中；范围 / 无差别区域效果仍可命中。"
+			+ "破隐来源：黄忠（固有）/ 诸葛亮·借东风（全图 8s）/ 貂蝉 3 阶光环（半径 = 射程）"))
 
 	# ③ 各档难度面板（概念 .diffrow，随 difficulty_presets 自动扩档）
 	var diff_row := HBoxContainer.new()
@@ -1445,7 +1481,7 @@ func _refresh_enemy_detail() -> void:
 
 	# ④ 口径注脚（概念 .foot）
 	body.add_child(_make_body_label(
-		"难度口径：仅生命随难度倍率缩放（当前 %d 档 = 标准 / 困难，随难度档位自动扩展）；速度 / 护甲 / 漏怪伤害不随难度变化。" % Difficulty.count(),
+		"难度口径：生命随难度倍率缩放（当前 %d 档 = 标准 / 困难，随难度档位自动扩展）；困难档另叠加机制行为倍率（间隔 ×0.85 / 效果 ×1.25）；速度 / 护甲 / 漏怪伤害不随难度变化。" % Difficulty.count(),
 		UITheme.LIGHT_MUTED, 12))
 
 	# ⑤ 出现关卡明细（头部右侧已给摘要；多关登场补全量列表，单关已在头部展示不重复）

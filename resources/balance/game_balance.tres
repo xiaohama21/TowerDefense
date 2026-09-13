@@ -9,12 +9,16 @@ exp_growth_per_level = 15
 max_level = 30
 difficulty_presets = [{
 "key": "normal",
+"mechanic_effect_mult": 1.0,
+"mechanic_interval_mult": 1.0,
 "name": "标准",
 "enemy_hp_mult": 1.0,
 "reward_mult": 1.0,
 "material_mult": 1.0
 }, {
 "key": "hard",
+"mechanic_effect_mult": 1.25,
+"mechanic_interval_mult": 0.85,
 "name": "困难",
 "enemy_hp_mult": 1.4,
 "reward_mult": 1.6,
@@ -28,5 +32,10 @@ rage_gain_per_damage = 0.1
 healer_interval = 2.0
 healer_amount = 15
 healer_radius = 120.0
+armor_constant = 50.0
+armor_aura_interval = 1.5
+armor_aura_radius = 140.0
+armor_aura_bonus = 6
+armor_aura_duration = 3.0
 summon_interval = 8.0
 summon_count = 2

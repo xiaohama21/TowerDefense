@@ -17,7 +17,7 @@ class_name BattleSupplyData
 @export_category("Effects (NUMBERS.md 10.9)")
 ## 修整：基地生命回复量（0 = 无效）。
 @export_range(0, 999, 1) var heal_amount: int = 0
-## 火攻：全场敌人立即伤害 + 灼烧（burn_dps/秒，持续 effect_duration）。
+## 火攻：全场敌人立即魔法伤害 + 灼烧（burn_dps/秒，持续 effect_duration；归魔法，NUMBERS 10.12）。
 @export_range(0, 9999, 1) var instant_damage: int = 0
 @export_range(0, 999, 1) var burn_dps: int = 0
 ## 擂鼓：全队攻速加成（0.3 = +30%）；缓兵：全场减速因子（0.6 = 减速 40%）。

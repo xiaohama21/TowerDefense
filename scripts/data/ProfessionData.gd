@@ -32,6 +32,9 @@ enum AttackPattern {
 @export_range(0.01, 10.0, 0.01) var attack_interval_multiplier: float = 1.0
 ## 最小射程（px，v0.11 投石车引入）：目标距离小于该值时无法攻击，0 表示无限制。
 @export_range(0.0, 2000.0, 1.0) var min_range: float = 0.0
+## 普攻伤害类型（NUMBERS 10.12，✅ 0.8.13.0）：物理 / 魔法（DamageTypes 常量值）；
+## 技能 / 大招按语义在调用点显式标注，真伤清单见 NUMBERS 10.12。
+@export var attack_damage_type: StringName = &"physical"
 @export var behavior_id: StringName
 
 @export_category("Ultimate & Rage (阶段 3 字段，v0.11.1 先行铺设)")

@@ -57,11 +57,19 @@
 |---|---|---|---|
 | `none` | 默认沿路径推进 | 全部现有敌人 | 已实现（默认行为） |
 | `fast_charger` | 高速推进、漏怪伤害更高 | 黄巾轻骑 | ✅ 已配置（v0.19.0：`yellow_turban_cavalry.tres` 补 `special_behavior_id`；数值已体现：145 速 / 漏 2 血） |
-| `healer_aura` | 每 2s 治疗周围 120px 友军 15 点 | 黄巾祭酒 | ✅ 已建（v0.11.3，EnemyManager 执行） |
-| `summon_guard` | 每 8s 自岔路召唤 2 名步卒（分叉试点） | 黄巾渠帅张梁 | ✅ 已建（v0.11.3，需 StageData.fork_path_points） |
-| `armor_aura` | 为周围敌人加护甲 | 黄巾祭酒变体 | 阶段 4+ |
+| `healer_aura` | 每 2s 治疗周围 120px 友军 15 点（**参数可被 `special_params` 覆盖**：隐方士 = 2.5s / 20 / 140px，✅ 0.8.13.2；张宝 = 3.0s / 25 / 160px，✅ 0.8.13.4；**张角 P2 峰值 = 2.5s / 45 / 200px**，✅ 0.8.13.5） | 黄巾祭酒 / 黄巾隐方士 / 张宝（s06）/ 张角（s08 P2） | ✅ 已建（v0.11.3，EnemyManager 执行） |
+| `summon_guard` | **参数化召唤**（✅ 0.8.13.4）：`special_params` 支持 `summon_enemy_id`（缺省黄巾步卒）/ `summon_count`（缺省 2）/ `summon_interval`（缺省 8s）/ `max_summons`（缺省 0 = 无上限）/ `summon_guard_min_hp_ratio`（缺省 0 = 无门控）；**有岔路自岔路入口进场，无岔路时在 Boss 身后 60px 沿主路出现**（降级口径，✅ 0.8.13.3 s03 首用）；召唤物 `is_summon` 标记（连击口径不变）。**三阶段档案 `summon_profiles`（✅ 0.8.13.5）**：数组项 = `{min_hp_ratio, enemy_id, count, interval, max_summons}`，按 HP 比例**命中「门控 ≥ 当前 HP 比例」中最紧的一档**（HP 越低推进越深）——命中项变化即**推进阶段**（重置该阶段召唤配额、播阶段推进表现、下一发召唤压后 ≥3.0s 作切换输出窗口） | 黄巾渠帅张梁（s03，无上限维持复用不改）/ 张宝（s06：夜行刺 ×2 / 9s / **上限 4** / P2 门控 0.5）/ **张角（s08：三阶段档案 步卒 ×2·9s → 轻骑 ×2·8s → 夜行刺 ×2·7s，逐阶段上限 4 / 合计 12，门控 1.0 / 0.66 / 0.33）** | ✅ 已建（v0.11.3；参数化 + **召唤上限 ✅ 0.8.13.4** + **三阶段档案 ✅ 0.8.13.5**） |
+| `armor_aura` | **为半径内友军（含自身）加甲**：+N 甲（同源取最大、不叠加）、每 `interval` 秒刷新、窗口过期自动失效（施法者阵亡 / 离开半径即恢复原甲）；先加甲后算减伤（NUMBERS 10.17） | 精锐伍长（+6 / 140px）/ 黄巾符祭（+6 / 160px）/ **张角（+6 / 180px·2.5s·窗口 4.0s，P1 布阵常驻）** | ✅ 0.8.13.2 已实装（`EnemyManager._apply_armor_aura`，参数来自 `EnemyData.special_params`） |
+| `seal_domain` | **术法压制领域**（✅ 0.8.13.4 新增）：每 `interval` 秒对半径内**塔**施加减攻速状态（`special_params`：`radius` 180px / `speed_multiplier` 0.75 / `interval` 2.5s / `duration` 3.5s）；塔侧 `Tower.apply_attack_speed_debuff`，与友方 buff 同桶求和、**总失败下限 -50%**（`TEAM_DEBUFF_SLOW_CAP`），窗口过期自动恢复；表现 = 塔身紫色压制光环 + 印记 | 张宝（s06）——「远程术法直伤」降级口径（现无塔生命 / 敌人攻击塔系统，见 DESIGN_REVIEW §12.1）；**张角（s08 P3「狂雷」= 终端强化：2.0s / 240px / ×0.65 / 窗口 3.0s）** | ✅ 0.8.13.4 已实装（`EnemyManager._apply_seal_domain`） |
+| `stealth` | **隐匿状态**（字段 `EnemyData.stealth`，非 `special_behavior_id`）：不可被“以单位为目标”的攻击选中；**无差别范围/区域效果可命中**；无目标框、不显示血条 | 黄巾夜行刺 / 黄巾隐方士 | ✅ 0.8.13.1 已落地 |
 | `suicide` | 到点自爆造成范围伤害 | 【远期】 | 未排期 |
 | `swarm` | 分裂/召唤小怪 | 【远期】 | 未排期 |
+
+**多行为支持（✅ 0.8.13.4）**：`EnemyData.special_behavior_id`（主行为）之外新增 `extra_behavior_ids`（附加行为数组，`Enemy.extra_behavior_ids` 同名同步）；`EnemyManager` 按「主行为 + 附加行为」逐个调度，**每个行为独立冷却**（`Enemy.get_special_cooldown(behavior_id)` / `set_special_cooldown`，生成时统一 1.5s 首延迟）；行为参数优先读 `special_params[<behavior_id>]` 嵌套字典、缺键回退扁平键与 `BalanceData`；`special_params["<behavior_id>_min_hp_ratio"]` 为可选**血量门控**（HP 比例高于该值时不触发、不消耗冷却——用于阶段行为，张宝 P2 召唤）。**登记者**：张宝（s06）= 主 `summon_guard` + 附加 `healer_aura` / `seal_domain`；**张角（s08，✅ 0.8.13.5）= 主 `summon_guard`（三阶段档案）+ 附加 `armor_aura` / `healer_aura` / `seal_domain`（4 条独立行为 = P1 布阵 / P2 唤雨 / P3 狂雷）**。
+
+**三阶段推进（✅ 0.8.13.5 张角）**：`special_params.summon_profiles` 定义「HP 门控 → 召唤档案」阶梯；`EnemyManager._maybe_advance_phase` 每帧校验当前命中档案，**命中项变化当帧推进阶段**——①重置该阶段召唤配额（`Enemy.summoned_count`，逐阶段独立上限）；②`Enemy.phase_index` +1 并触发**阶段推进表现**（金色扩散环 0.9s + 头顶阶段点，`Enemy.trigger_phase_advance`）；③下一发召唤冷却压后到 ≥ `PHASE_SWITCH_WINDOW`（3.0s）作**阶段切换输出窗口**（Boss 模板 §5.5.4「切换时给玩家安全输出时间」）。附加行为的阶段门控（`<behavior_id>_min_hp_ratio`）与档案门控共用同一组阈值（张角 = 66% / 33%）——**行为只增不减**：P2 起同时具备 P1 的甲光环，P3 起叠加术法压制。**控制抗性递增 / Boss 专属登场演出**仍随阶段 9（ENEMIES 5.5.4）。
+
+**难度机制旋钮（✅ 0.8.13.5 / NUMBERS 10.23）**：行为调度读取 `difficulty_presets` 的两个键——`mechanic_interval_mult`（困难 ×0.85：全部行为冷却 ×该倍率，含三阶段档案各档间隔）与 `mechanic_effect_mult`（困难 ×1.25：治疗量 / 甲光环加成取整，术法压制减益差额 ×1.25）；**半径不缩放**（空间覆盖可预期）、**不分难度改 HP**（守 PLAN §0），塔侧减益仍受总失败下限 −50% 约束。应用点唯一：`EnemyManager._behavior_interval` / `_mechanic_effect_mult`。
 
 ### B.3.3 职业大招行为（`ultimate_id`，v0.11.2 数值生效；演出 ✅ v0.15.0 职业专属视觉 / v0.16.0 音效）
 
@@ -130,19 +138,21 @@
 4. **验证**：`tests/SmokeRunner.gd` 的资源完整性扫描保证配置无断链；为新行为补最小冒烟用例（参照 4.4 经验归属用例的写法）。
 5. **回写**：若行为改变了战斗结论（如新的结算规则），同步总纲与相关模块文档。
 
-### B.3.5 战斗扩充登记（2026-09-09 拍板，排期 阶段 8·提交 13 = 0.8.13.x）
+### B.3.5 战斗扩充登记（2026-09-09 拍板；✅ 伤害类型 0.8.13.0 / 隐匿 0.8.13.1 / 甲光环 0.8.13.2 均已落地）
 
 **敌人特殊行为（对 B.3.2 的补充）**：
 
-- `stealth`（隐匿）：隐匿是**状态**，不可被"以单位为目标"的攻击选中（普攻/单体/需选目标技能与自动大招需破隐）；无目标框、不显示血条；**无差别范围/区域效果可命中隐匿**。实现：`EnemyData` 隐匿状态 + `Tower` 索敌过滤 + "绑定单位 vs 无差别区域"双路径（0.8.13.1）。
-- `armor_aura`（甲光环）：由 B.3.2 的"阶段 4+"提前至 0.8.13.2 实装（黄巾符祭，为周围友军 +6 甲）。
+- `stealth`（隐匿）：隐匿是**状态**，不可被"以单位为目标"的攻击选中（普攻/单体/需选目标技能与自动大招需破隐）；无目标框、不显示血条；**无差别范围/区域效果可命中隐匿**。实现：`EnemyData` 隐匿状态 + `Tower` 索敌过滤 + "绑定单位 vs 无差别区域"双路径（✅ 0.8.13.1 已落地）。
+- `armor_aura`（甲光环）：由 B.3.2 的"阶段 4+"提前至 0.8.13.2 实装（✅ 精锐伍长 +6 甲 / 140px、黄巾符祭 +6 甲 / 160px）：半径内友军（含自身）每 `interval` 秒刷新 +N 甲，被覆盖单位写 `duration` 窗口、过期自动恢复（施法者阵亡 / 离开半径无需清理）；**先加甲后算减伤**（有效甲唯一出口 `Enemy.get_effective_armor()`），同源取最大（不叠加）。参数走 `EnemyData.special_params`（缺省回退 BalanceData：+6 / 140px / 1.5s / 3.0s），结算口径见 NUMBERS 10.17。
 
 **破隐来源（"可授予 flag"聚合到塔）**：
 
-- 黄忠固有（弓箭手·哨戒，对隐匿自动可见）。
-- 诸葛亮·借东风期间全图破隐（观星）。
-- 舞娘（貂蝉）局内升到 3 阶后，其作用范围内友军单位获得破隐（光环按帧刷新）。
+- 黄忠固有（弓箭手·哨戒，对隐匿自动可见）——✅ 0.8.13.1：`trait_params.reveal_stealth = 1.0`，覆盖半径 = 自身射程。
+- 诸葛亮·借东风期间全图破隐（观星）——✅ 0.8.13.1：`reveal_stealth` 参数 + `Tower.apply_stealth_reveal_buff`，全图、随技能时长 8s。
+- 舞娘（貂蝉）局内升到 3 阶后，其作用范围内友军单位获得破隐（光环按帧刷新）——✅ 0.8.13.1：`battle_rank ≥ 3` 的友方舞娘、半径 = 其射程，0.25s 光环扫描刷新。
 - 转职"哨戒线"/科技"瞭望"【远期】。
 - **军需不加破隐**（2026-09-09 拍板）。
 
-**伤害类型（`take_damage` 分流，见 NUMBERS 10.12）**：物理/魔法/真实 三类；真伤来源 = 关羽·青龙偃月、骑兵大招。所有伤害描述标注伤害类型。
+**隐匿落地细节（✅ 0.8.13.1）**：数据 = `EnemyData.stealth` → `Enemy.stealth`（`EnemyManager` 生成时写入）；索敌 = `Tower.find_target()` / `Tower.is_target_valid()` 按 `Enemy.is_visible_to(tower)` 过滤（普攻 / 单体技能 / 自动大招同源）；**范围路径不过滤**（`Tower.enemies_in_range()` / `EnemyManager.get_alive_enemies()` 仍含隐匿单位，军需火攻 / 焚营 / 区域大招可命中）；破隐 = `Tower.reveals_stealth()`（固有特性 ∪ 借东风 buff ∪ 舞娘 3 阶光环；舞娘光环随建塔 / 拆塔 / 升阶事件即时刷新 `_refresh_aura_all()`，伤害结算期另有 0.25s 惰性扫描兜底，BUGS B-060）；表现 = 隐匿期半透明“虚影”+ 头顶虚线警示环、隐藏血条，进入破隐覆盖或被范围命中播“现形”闪光 + 预警音效；教学 = s06 观察波（4 步卒 + 2 夜行刺）+ 漏怪提示引导（每局一次）。数值见 NUMBERS 10.16。
+
+**伤害类型（`take_damage` 分流，见 NUMBERS 10.12）**：物理/魔法/真实 三类；真伤来源 = 关羽·青龙偃月、骑兵大招。所有伤害描述标注伤害类型。 ✅ 0.8.13.0 已落地：`DamageTypes` 常量与 `Enemy.take_damage` 类型 / 穿透参数；普攻类型由 `ProfessionData.attack_damage_type` 决定（术士 = 魔法）；灼烧 / 焚营 / 术法区域 = 魔法；青龙偃月改 3 段 × 2.0 真伤（溢血转下一目标、每击杀 -5s）、骑兵大招改 3× 真伤；图鉴 / 军需描述同步标注类型。

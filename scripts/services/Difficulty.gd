@@ -47,3 +47,15 @@ static func reward_mult(difficulty: int) -> float:
 ## 材料/科技点倍率。
 static func material_mult(difficulty: int) -> float:
 	return float(_preset(difficulty).get("material_mult", 1.0))
+
+
+## 机制行为间隔倍率（✅ 0.8.13.5 / NUMBERS 10.23）：<1 = 机制兵施放更快
+## （困难 ×0.85：召唤 / 治疗 / 甲光环 / 术法压制更频繁）。缺省 1.0 = 不缩放。
+static func mechanic_interval_mult(difficulty: int) -> float:
+	return float(_preset(difficulty).get("mechanic_interval_mult", 1.0))
+
+
+## 机制行为效果倍率（✅ 0.8.13.5 / NUMBERS 10.23）：治疗量 / 甲光环加成 / 术法压制幅度
+## （困难 ×1.25）。半径不随该倍率变化——空间覆盖保持可预期；缺省 1.0 = 不缩放。
+static func mechanic_effect_mult(difficulty: int) -> float:
+	return float(_preset(difficulty).get("mechanic_effect_mult", 1.0))

@@ -521,7 +521,7 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button:
 				enemy_cards += 1
 				enemy_min_width = minf(enemy_min_width, (child as Button).size.x)
-	_check(enemy_cards == 7, "敌人图鉴应展示第一章全部 7 种敌人")
+	_check(enemy_cards == 14, "敌人图鉴应展示第一章全部 14 种敌人（0.8.13.5 终 Boss 张角）")
 	_check(enemy_min_width >= 100.0, "敌人卡应横向铺满左列 2 列网格（B-023）")
 	var all_text := ""
 	var labels: Array[Label] = []
@@ -536,6 +536,21 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_general"):
 		general_stage_ids.append(str(entry.get("stage_id", "")))
 	_check(general_stage_ids.has("ch01_s08"), "黄巾渠帅·张梁应出现在 s08")
+	# 0.8.13.3：张梁落位 s03 Boss → 出现关卡升为多关（首现 s03，明细按关号升序）。
+	_check(general_stage_ids.has("ch01_s03") and general_stage_ids[0] == "ch01_s03",
+		"黄巾渠帅·张梁应出现在 s03 且为首现关卡（多关登场）")
+	# 0.8.13.4：张宝落位 s06 中 Boss（出现关卡反查 + 术法压制文案入口）。
+	var zhang_bao_stage_ids: Array[String] = []
+	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_rebel_general"):
+		zhang_bao_stage_ids.append(str(entry.get("stage_id", "")))
+	_check(zhang_bao_stage_ids == ["ch01_s06"], "黄巾地公将军·张宝应仅出现在 s06（中 Boss，0.8.13.4）")
+
+	# 0.8.13.5：张角 = s08 终 Boss（出现关卡反查 + 三阶段词条入口）。
+	var heaven_stage_ids: Array[String] = []
+	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_heaven_general"):
+		heaven_stage_ids.append(str(entry.get("stage_id", "")))
+	_check(heaven_stage_ids == ["ch01_s08"], "黄巾天公将军·张角应仅出现在 s08（终 Boss，0.8.13.5）")
+	_check(all_text.contains("三阶段"), "敌人图鉴应含张角「三阶段」词条说明")
 
 	# 只读不变式：模拟器调参 + 全量浏览后存档文件不变。
 	var after_save := ""
@@ -698,7 +713,7 @@ func _test_battle_entry() -> void:
 	_check(grid_bg.theme_name == &"fire", "s02 应应用火攻主题")
 	_check(main.get_node_or_null("BuildSlots") == null, "v0.33.3 起战场不应生成 BuildSlots 节点")
 	_check(get_tree().get_nodes_in_group("build_slots").is_empty(), "v0.33.3 起战场不应生成建造位")
-	_check(GameManager.total_waves == 6, "s02 应有 6 波敌人")
+	_check(GameManager.total_waves == 7, "s02 应有 7 波敌人（0.8.13.2 +1）")
 
 	# 退出导航（v0.15.2）：顶栏退出弹确认框（确认后回游戏大厅，不直接退出）。
 	var exit_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/ExitButton") as Button

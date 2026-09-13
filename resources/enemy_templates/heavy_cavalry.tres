@@ -6,11 +6,11 @@
 script = ExtResource("1_template")
 template_id = &"heavy_cavalry"
 display_name = "高护甲骑兵模板"
-description = "第二章董卓铁骑派生基准：高血量、高护甲（护甲减算 v0.7 已就绪）、高速。"
+description = "第二章董卓铁骑派生基准：高血量、高护甲（重甲档 32，护甲类型化 C=50 / 0.8.13.0）、高速。"
 tags = [&"cavalry"]
 max_hp = 180
 move_speed = 145.0
-armor = 20
+armor = 32
 damage_to_base = 2
 currency_reward = 14
 kill_xp = 12

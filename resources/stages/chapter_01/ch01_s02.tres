@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_soldier"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="5_cavalry"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="6_sergeant"]
+[ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_archer.tres" id="4_e0"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="7_item_amount"]
 [ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
 
@@ -107,12 +108,33 @@ is_boss_wave = false
 
 [sub_resource type="Resource" id="WaveData_6"]
 script = ExtResource("2_wave")
-wave_id = &"ch01_s02_w06"
-wave_number = 6
+wave_id = &"ch01_s02_w07"
+wave_number = 7
 spawn_groups = [SubResource("EnemySpawnData_soldier_12"), SubResource("EnemySpawnData_sergeant_1")]
 preparation_time = 2.5
 completion_currency = 0
 is_boss_wave = true
+
+[sub_resource type="Resource" id="EnemySpawnData_w07_0"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_soldier")
+count = 10
+spawn_interval = 0.55
+
+[sub_resource type="Resource" id="EnemySpawnData_w07_1"]
+script = ExtResource("3_spawn")
+enemy = ExtResource("4_e0")
+count = 3
+spawn_interval = 1.1
+
+[sub_resource type="Resource" id="WaveData_7"]
+script = ExtResource("2_wave")
+wave_id = &"ch01_s02_w06"
+wave_number = 6
+spawn_groups = [SubResource("EnemySpawnData_w07_0"), SubResource("EnemySpawnData_w07_1")]
+preparation_time = 2.0
+completion_currency = 0
+is_boss_wave = false
 
 [sub_resource type="Resource" id="ItemAmountData_cloth"]
 script = ExtResource("7_item_amount")
@@ -153,7 +175,7 @@ build_slot_count = 10
 max_inbattle_upgrade_level = 3
 upgrade_cost_factor = 0.8
 sell_refund_ratio = 0.6
-waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_6")]
+waves = [SubResource("WaveData_1"), SubResource("WaveData_2"), SubResource("WaveData_3"), SubResource("WaveData_4"), SubResource("WaveData_5"), SubResource("WaveData_7"), SubResource("WaveData_6")]
 dialogue = SubResource("DialogueData_1")
 theme = &"fire"
 path_points = [Vector2(-40, 120), Vector2(40, 120), Vector2(520, 120), Vector2(520, 520), Vector2(920, 520), Vector2(920, 200), Vector2(1240, 200), Vector2(1320, 200)]

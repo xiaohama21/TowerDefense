@@ -104,7 +104,7 @@ static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
 	## 近战直伤 + 武器挥击表现；伤害走结算管线（克制/特性/增益）。
 	var damage := tower.finalize_damage(tower.damage, target)
-	target.take_damage(damage, tower.character_id)
+	tower.deal_damage(target, damage)
 	tower.notify_attack_damage_dealt(target, damage)
 	tower.play_melee_hit()
 
@@ -144,7 +144,7 @@ static func _ult_cavalry_breaker(tower: Tower) -> bool:
 	if target == null or not tower.is_target_valid(target):
 		return false
 	var hp_before := target.current_hp
-	target.take_damage(tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target), tower.character_id)
+	tower.deal_damage(target, tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target), DamageTypes.TRUE)
 	if hp_before > 0 and target.current_hp <= 0:
 		tower.gain_rage(tower.kill_rage_refund())
 	tower.play_attack_flash()
@@ -157,7 +157,7 @@ static func _ult_tiger_guard_sweep(tower: Tower) -> bool:
 	if enemies.is_empty():
 		return false
 	for enemy in enemies:
-		enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 1.5 * tower.ultimate_power())), enemy), tower.character_id)
+		tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * 1.5 * tower.ultimate_power())), enemy))
 		enemy.progress = maxf(enemy.progress - 40.0, 0.0)
 	# 激励段强度乘转职大招倍率（NUMBERS 10.5：大招效果 × ultimate_multiplier，提交 8）。
 	var power_mult := tower.get_battle_rank_buff_power_multiplier() * tower.ultimate_effect_power()
@@ -199,7 +199,7 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 	for enemy in tower.enemies_in_range():
 		var aoe_radius := tower.ultimate_aoe_radius(LOB_EXPLOSION_RADIUS + 30.0) * tower.get_battle_rank_aoe_multiplier()
 		if enemy.global_position.distance_to(center) <= aoe_radius:
-			enemy.take_damage(tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), tower.character_id)
+			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy), DamageTypes.MAGIC)
 			enemy.apply_slow(0.6, 2.0)
 			# 奇门（天师，提交 7）：大招落点命中敌人施加易伤（同类不叠加、时长刷新）。
 			SkillRegistry.apply_mystic_gate(tower, enemy)

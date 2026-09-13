@@ -30,12 +30,26 @@ class_name BalanceData
 @export_range(0, 999, 1) var rage_gain_per_hit: int = 4
 @export_range(0.0, 10.0, 0.1) var rage_gain_per_damage: float = 0.1
 
+@export_category("Combat (NUMBERS.md 10.12)")
+## 护甲减伤常数 C：m = armor_f / (armor_f + C)；无保底，真实伤害跳过全部护甲步骤（✅ 0.8.13.0）。
+@export_range(1.0, 500.0, 1.0) var armor_constant: float = 50.0
+
 @export_category("Enemy Special Behaviors (BEHAVIORS.md B.3.2)")
 @export_range(0.0, 60.0, 0.1) var healer_interval: float = 2.0
 @export_range(0, 9999, 1) var healer_amount: int = 15
 @export_range(0.0, 9999.0, 1.0) var healer_radius: float = 120.0
+# 甲光环（armor_aura，✅ 0.8.13.2 / NUMBERS 10.17）：缺省值，可被 EnemyData.special_params 覆盖。
+@export_range(0.0, 60.0, 0.1) var armor_aura_interval: float = 1.5
+@export_range(0.0, 9999.0, 1.0) var armor_aura_radius: float = 140.0
+@export_range(0, 999, 1) var armor_aura_bonus: int = 6
+@export_range(0.0, 60.0, 0.1) var armor_aura_duration: float = 3.0
 @export_range(0.0, 120.0, 0.1) var summon_interval: float = 8.0
 @export_range(1, 99, 1) var summon_count: int = 2
+# 术法压制（seal_domain，✅ 0.8.13.4 / NUMBERS 10.20）：缺省值，可被 EnemyData.special_params 覆盖。
+@export_range(0.0, 60.0, 0.1) var seal_domain_interval: float = 2.5
+@export_range(0.0, 9999.0, 1.0) var seal_domain_radius: float = 180.0
+@export_range(0.05, 1.0, 0.01) var seal_domain_speed_multiplier: float = 0.75
+@export_range(0.0, 60.0, 0.1) var seal_domain_duration: float = 3.5
 
 
 func is_valid() -> bool:

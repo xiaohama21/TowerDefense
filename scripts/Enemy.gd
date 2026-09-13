@@ -3,6 +3,11 @@ extends PathFollow2D
 class_name Enemy
 
 const ENEMY_GROUP: StringName = &"enemies"
+## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：破隐扫描周期与现形闪光时长。
+const STEALTH_SCAN_INTERVAL: float = 0.25
+const REVEAL_FLASH_DURATION: float = 0.7
+## 阶段推进表现（三阶段 Boss，✅ 0.8.13.5 张角）：金色扩散环时长。
+const PHASE_FLASH_DURATION: float = 0.9
 
 @export var speed: float = 100.0
 @export var max_hp: int = 100
@@ -26,11 +31,50 @@ var velocity_dir: Vector2 = Vector2.RIGHT
 # 特殊行为（GDD modules/BEHAVIORS.md B.3.2）：healer_aura / summon_guard 等，
 # 由 EnemyManager 按 ID 执行；cooldown 为行为计时器。
 var special_behavior_id: StringName = &""
-var special_cooldown: float = 0.0
+## 附加行为（✅ 0.8.13.4 多行为支持）：主行为之外的行为 ID 列表，与主行为分别独立冷却。
+var extra_behavior_ids: Array[StringName] = []
+## 行为冷却表（✅ 0.8.13.4）：behavior_id -> 剩余秒数；每行为独立计时。
+var special_cooldowns: Dictionary = {}
+
+func get_special_cooldown(behavior_id: StringName) -> float:
+	return float(special_cooldowns.get(behavior_id, 0.0))
+
+func set_special_cooldown(behavior_id: StringName, value: float) -> void:
+	special_cooldowns[behavior_id] = value
+
+
+## 阶段推进（✅ 0.8.13.5 张角三阶段）：金色扩散环 + 阶段点一次性表现，
+## 由 EnemyManager 在召唤档案切换时调用（阶段差异可感知，BEHAVIORS B.3.2）。
+func trigger_phase_advance() -> void:
+	phase_index += 1
+	_phase_flash_left = PHASE_FLASH_DURATION
+	queue_redraw()
+## 特殊行为参数（B.3.2，✅ 0.8.13.2）：EnemyManager 从 EnemyData.special_params 写入，
+## armor_aura / healer_aura 按 key 读取（缺省回退 BalanceData）。
+var special_params: Dictionary = {}
 # 减速 debuff（术士大招/张飞咆哮/诸葛亮光环等）：取最强因子，倒计时归零解除。
 var slow_factor: float = 1.0
 ## 召唤物标记（阶段 8 提交 2）：连击计入召唤物（P1 4.1 拍板），由召唤方设置。
 var is_summon: bool = false
+## 已召唤数量（✅ 0.8.13.4 召唤上限）：max_summons 上限计数（张宝 = 4）；
+## 三阶段 Boss（✅ 0.8.13.5）按阶段档案重置，配额逐阶段独立。
+var summoned_count: int = 0
+## 召唤档案序号（✅ 0.8.13.5 张角三阶段）：special_params.summon_profiles 的当前命中项，
+## -1 = 尚未初始化（EnemyManager 按 HP 比例推进）。
+var summon_profile_index: int = -1
+## 当前阶段序号（1 起，阶段推进时 +1）：阶段表现与测试锚点（P1/P2/P3）。
+var phase_index: int = 1
+var _phase_flash_left: float = 0.0
+## 隐匿状态（✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；范围/无差别区域可命中。
+## 由 EnemyManager 依 EnemyData.stealth 写入；能否被某塔选中见 is_visible_to()。
+var stealth: bool = false
+var _stealth_revealed: bool = false
+var _stealth_scan_tick: float = 0.0
+var _reveal_flash_left: float = 0.0
+## 护甲光环（armor_aura，✅ 0.8.13.2）：EnemyManager 周期刷新写入，窗口过期自动失效
+## （施法者阵亡 / 离开半径无需额外清理）；先加甲后算减伤（NUMBERS 10.17）。
+var _armor_aura_bonus: int = 0
+var _armor_aura_until_ms: int = -1
 var _slow_time_left: float = 0.0
 ## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
 var burn_dps: int = 0
@@ -80,6 +124,10 @@ func _ready() -> void:
 			hp_bar.modulate = Color(1.0, 0.85, 0.4)
 			hp_bar.visible = true
 	update_hp_bar()
+	_refresh_stealth_visual()
+	if stealth:
+		# 隐匿登场预警（音效；虚影由 _draw 表达）。
+		SfxLibrary.play(&"alert", -8.0)
 	queue_redraw()
 
 
@@ -89,8 +137,18 @@ func _process(delta: float) -> void:
 
 	if _hit_flash_left > 0.0:
 		_hit_flash_left = maxf(_hit_flash_left - delta, 0.0)
-		if _hit_flash_left <= 0.0 and body:
-			body.modulate = Color.WHITE
+		if _hit_flash_left <= 0.0:
+			_apply_body_modulate()
+
+	# 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：0.25s 扫描破隐覆盖 + 现形闪光衰减。
+	if stealth:
+		_stealth_scan_tick = maxf(_stealth_scan_tick - delta, 0.0)
+		if _stealth_scan_tick <= 0.0:
+			_stealth_scan_tick = STEALTH_SCAN_INTERVAL
+			refresh_stealth_reveal()
+	if _reveal_flash_left > 0.0:
+		_reveal_flash_left = maxf(_reveal_flash_left - delta, 0.0)
+		queue_redraw()
 
 	if _slow_time_left > 0.0:
 		_slow_time_left = maxf(_slow_time_left - delta, 0.0)
@@ -103,7 +161,7 @@ func _process(delta: float) -> void:
 		if _burn_acc >= 1.0:
 			var tick := int(_burn_acc)
 			_burn_acc -= tick
-			take_damage(tick)
+			take_damage(tick, "", DamageTypes.MAGIC)
 
 	if not marks.is_empty():
 		var expired_marks: Array[String] = []
@@ -131,6 +189,11 @@ func _process(delta: float) -> void:
 			_fear_follow_slow_duration = 0.0
 		queue_redraw()
 
+	# 阶段推进表现（✅ 0.8.13.5 张角三阶段）：扩散环衰减，结束即停重绘。
+	if _phase_flash_left > 0.0:
+		_phase_flash_left = maxf(_phase_flash_left - delta, 0.0)
+		queue_redraw()
+
 	# 眩晕（震地，提交 7）：期间停止移动、进度不推进；Boss 控制抗性折减随阶段 9 统一落地。
 	if _stun_time_left > 0.0:
 		_stun_time_left = maxf(_stun_time_left - delta, 0.0)
@@ -148,6 +211,7 @@ func _process(delta: float) -> void:
 			velocity_dir = delta_pos.normalized()
 
 	if progress_ratio >= 1.0 - 0.0001:
+		GameManager.last_leak_was_stealth = stealth
 		GameManager.enemy_reached_base(damage_to_base)
 		die(false)
 
@@ -215,7 +279,105 @@ func get_vulnerability_multiplier() -> float:
 	return 1.0 + _vulnerability_bonus
 
 
-func take_damage(amount: int, source_character_id: String = "") -> void:
+## ============ 隐匿与破隐（NUMBERS 10.16，✅ 0.8.13.1） ============
+
+## 是否处于隐匿（数据字段口径；能否被某塔选中见 is_visible_to）。
+func is_stealthed() -> bool:
+	return stealth
+
+
+## 对指定塔是否可见：非隐匿恒可见；隐匿需该塔持有破隐（Tower.reveals_stealth）。
+func is_visible_to(tower) -> bool:
+	if not stealth:
+		return true
+	return tower != null and is_instance_valid(tower) and tower.reveals_stealth()
+
+
+## 当前是否已现形（表现口径：虚影 vs 正常 + 血条）。
+func is_revealed() -> bool:
+	return not stealth or _stealth_revealed
+
+
+## 0.25s 低频扫描（✅ 0.8.13.1）：任一“持破隐且自身在其射程内”的塔覆盖即现形；
+## 破隐不做一次性现形——离开覆盖自动恢复隐匿（NUMBERS 10.16）。
+func refresh_stealth_reveal() -> void:
+	if not stealth:
+		return
+	var revealed := false
+	for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var tower := node as Tower
+		if tower == null or not is_instance_valid(tower) or not tower.reveals_stealth():
+			continue
+		if global_position.distance_to(tower.global_position) <= tower.range_radius:
+			revealed = true
+			break
+	_set_stealth_revealed(revealed)
+
+
+func _set_stealth_revealed(value: bool) -> void:
+	if value == _stealth_revealed:
+		return
+	_stealth_revealed = value
+	if value:
+		_reveal_flash_left = REVEAL_FLASH_DURATION
+		SfxLibrary.play(&"skill", -16.0)
+	_refresh_stealth_visual()
+
+
+## 虚影透明度：隐匿且未现形 = 半透明（保留行进警示）。
+func _ghost_alpha() -> float:
+	return 0.4 if (stealth and not _stealth_revealed) else 1.0
+
+
+## 体色统一出口（受击闪光 × 虚影透明度）。
+func _apply_body_modulate() -> void:
+	if body == null:
+		return
+	var tint := Color(1.0, 0.45, 0.4) if _hit_flash_left > 0.0 else Color(1.0, 1.0, 1.0)
+	tint.a = _ghost_alpha()
+	body.modulate = tint
+
+
+func _refresh_stealth_visual() -> void:
+	_apply_body_modulate()
+	update_hp_bar()
+	queue_redraw()
+
+
+## ============ 护甲光环（armor_aura，NUMBERS 10.17，✅ 0.8.13.2） ============
+
+## 写入光环加成（同源取最大、窗口取更晚到期；到期判定见 get_armor_aura_bonus）。
+func apply_armor_aura_bonus(value: int, duration: float) -> void:
+	if value <= 0 or duration <= 0.0:
+		return
+	_armor_aura_bonus = maxi(_armor_aura_bonus, value)
+	_armor_aura_until_ms = maxi(_armor_aura_until_ms, Time.get_ticks_msec() + int(round(duration * 1000.0)))
+
+
+## 当前生效的护甲光环加成（窗口过期即 0）。
+func get_armor_aura_bonus() -> int:
+	if _armor_aura_until_ms >= 0 and Time.get_ticks_msec() < _armor_aura_until_ms:
+		return _armor_aura_bonus
+	_armor_aura_bonus = 0
+	return 0
+
+
+## 有效甲值唯一出口（基础甲 + 生效中光环）：结算 / 调试统一读此值。
+func get_effective_armor() -> int:
+	return maxi(armor + get_armor_aura_bonus(), 0)
+
+
+## 伤害入口（NUMBERS 10.12，✅ 0.8.13.0 护甲模型替换）：
+## damage_type = 物理 / 魔法 / 真实（DamageTypes）；pen_ratios = 百分比穿甲
+## （{来源 key: 比值}，同源取最高由调用方聚合、跨源乘算、单源 ≤30%）；
+## pen_flat = 固定穿透（百分比之后扣减）。
+func take_damage(
+	amount: int,
+	source_character_id: String = "",
+	damage_type: StringName = DamageTypes.PHYSICAL,
+	pen_ratios: Dictionary = {},
+	pen_flat: int = 0
+) -> void:
 	if is_dead or amount <= 0:
 		return
 	var source_id := source_character_id.strip_edges()
@@ -226,19 +388,38 @@ func take_damage(amount: int, source_character_id: String = "") -> void:
 	var scaled := int(round(float(amount) * get_vulnerability_multiplier()))
 	if scaled <= 0:
 		return
-	# 护甲减算保留 10% 伤害下限，高护甲也不完全免伤（GDD 5.5）。
-	var effective := maxi(scaled - armor, ceili(scaled * 0.1))
+	# 护甲结算（类型系数 → 百分比穿甲 → 固定穿透 → 比值减伤）；真实伤害恒满伤。
+	var effective := _apply_armor(scaled, damage_type, pen_ratios, pen_flat)
+	if effective <= 0:
+		return
 	current_hp = maxi(current_hp - effective, 0)
 	if not source_id.is_empty():
 		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
 	_hit_flash_left = 0.12
-	if body:
-		body.modulate = Color(1.0, 0.45, 0.4)
+	_apply_body_modulate()
 	update_hp_bar()
 
 	if current_hp <= 0:
 		die(true)
 
+
+## 护甲结算唯一实现（NUMBERS 10.12，✅ 0.8.13.0）：
+## 1) 类型系数 armor_eff = max(armor × f_type, 0)；2) 百分比穿甲跨来源乘算 Π(1 − pᵢ)、
+## 单源 ≤30%；3) 固定穿透后置；4) 减伤 m = armor_f / (armor_f + C)，无保底；
+## 真实伤害（f_type = 0）恒为满伤。勿在调用侧另写护甲公式。
+func _apply_armor(amount: int, damage_type: StringName, pen_ratios: Dictionary, pen_flat: int) -> int:
+	# 光环加甲（✅ 0.8.13.2）：先加甲再走类型系数 → 穿甲 → 固定穿透（NUMBERS 10.17）。
+	var armor_eff := maxf(float(get_effective_armor()) * DamageTypes.armor_factor(damage_type), 0.0)
+	if armor_eff <= 0.0:
+		return amount
+	var remaining := 1.0
+	for key in pen_ratios:
+		var ratio := clampf(float(pen_ratios[key]), 0.0, DamageTypes.MAX_PENETRATION_RATIO)
+		remaining *= 1.0 - ratio
+	var armor_final := maxf(armor_eff * remaining - maxf(float(pen_flat), 0.0), 0.0)
+	var constant := maxf(GameBalance.get_balance().armor_constant, 1.0)
+	var reduction := armor_final / (armor_final + constant)
+	return maxi(int(round(float(amount) * (1.0 - reduction))), 0)
 
 func die(give_reward: bool) -> void:
 	if is_dead:
@@ -269,7 +450,8 @@ func heal(amount: int) -> void:
 func update_hp_bar() -> void:
 	if hp_bar:
 		# 满血隐藏、受击后显示（v0.12.2 优化：减少画面杂乱）
-		hp_bar.visible = current_hp < max_hp
+		# 隐匿未现形时同样隐藏血条（✅ 0.8.13.1）。
+		hp_bar.visible = current_hp < max_hp and is_revealed()
 		hp_bar.max_value = max_hp
 		hp_bar.value = current_hp
 
@@ -320,6 +502,33 @@ func _draw() -> void:
 				Vector2(cos(angle) * 8.0, -half.y - 16.0 + sin(angle) * 3.0),
 				2.4, Color(1.0, 0.85, 0.35, 0.95)
 			)
+	# 隐匿表现（✅ 0.8.13.1）：未现形 = 淡蓝虚线警示环；现形瞬间 = 青色扩散环。
+	if stealth:
+		if not _stealth_revealed:
+			var dash_radius := half.length() + 9.0
+			var segments := 12
+			for i in range(segments):
+				if i % 2 == 1:
+					continue
+				var a0 := float(i) / float(segments) * TAU
+				var a1 := (float(i) + 0.6) / float(segments) * TAU
+				draw_arc(Vector2.ZERO, dash_radius, a0, a1, 3, Color(0.62, 0.72, 0.95, 0.55), 1.6)
+		if _reveal_flash_left > 0.0:
+			var reveal_t := _reveal_flash_left / REVEAL_FLASH_DURATION
+			draw_arc(Vector2.ZERO, half.length() + 10.0 + (1.0 - reveal_t) * 14.0, 0.0, TAU, 26,
+				Color(0.55, 0.9, 1.0, reveal_t * 0.8), 2.0)
+	# 阶段推进表现（✅ 0.8.13.5 张角三阶段）：金色扩散环 + 阶段点（头顶 HP 条下方）。
+	if _phase_flash_left > 0.0:
+		var phase_t := _phase_flash_left / PHASE_FLASH_DURATION
+		draw_arc(Vector2.ZERO, half.length() + 12.0 + (1.0 - phase_t) * 28.0, 0.0, TAU, 32,
+			Color(1.0, 0.84, 0.38, phase_t * 0.85), 2.6)
+	if phase_index > 1:
+		var pip_y := -half.y - 20.0
+		var pip_start := -(float(phase_index - 1) * 7.0) * 0.5
+		for pip in range(phase_index):
+			draw_circle(Vector2(pip_start + float(pip) * 7.0, pip_y), 2.2,
+				Color(1.0, 0.84, 0.38, 0.9))
+
 	# 恐惧表现（当阳桥，v0.35.2 / 0.8.10.1）：紫色呼吸圆环（与眩晕小星区分）。
 	if _fear_time_left > 0.0:
 		var pulse := 0.5 + 0.5 * sin(_fear_pulse * 7.0)

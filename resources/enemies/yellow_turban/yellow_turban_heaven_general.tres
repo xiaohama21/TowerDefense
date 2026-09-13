@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/EnemyData.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = &"yellow_turban_heaven_general"
+display_name = "黄巾天公将军·张角"
+description = "天公将军张角，以三卷天书布阵广宗——布阵、唤雨、狂雷，术法所及，塔阵受制。"
+tags = [&"yellow_turban", &"boss"]
+max_hp = 8000
+move_speed = 26.0
+armor = 30
+damage_to_base = 12
+special_behavior_id = &"summon_guard"
+extra_behavior_ids = [&"armor_aura", &"healer_aura", &"seal_domain"]
+special_params = {
+"armor_aura": {
+"armor_bonus": 6,
+"duration": 4.0,
+"interval": 2.5,
+"radius": 180.0
+},
+"healer_aura": {
+"amount": 45,
+"interval": 2.5,
+"radius": 200.0
+},
+"healer_aura_min_hp_ratio": 0.66,
+"seal_domain": {
+"duration": 3.0,
+"interval": 2.0,
+"radius": 240.0,
+"speed_multiplier": 0.65
+},
+"seal_domain_min_hp_ratio": 0.33,
+"summon_profiles": [{
+"count": 2,
+"enemy_id": &"yellow_turban_soldier",
+"interval": 9.0,
+"max_summons": 4,
+"min_hp_ratio": 1.0
+}, {
+"count": 2,
+"enemy_id": &"yellow_turban_cavalry",
+"interval": 8.0,
+"max_summons": 4,
+"min_hp_ratio": 0.66
+}, {
+"count": 2,
+"enemy_id": &"yellow_turban_stealth_assassin",
+"interval": 7.0,
+"max_summons": 4,
+"min_hp_ratio": 0.33
+}]
+}
+currency_reward = 120
+kill_xp = 200
+body_color = Color(0.44, 0.22, 0.52, 1)
+body_size = Vector2(60, 60)

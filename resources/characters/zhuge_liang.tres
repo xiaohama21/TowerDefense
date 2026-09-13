@@ -23,7 +23,8 @@ character_skill_params = {
 "cooldown": 30.0,
 "team_speed_bonus": 0.2,
 "bullet_speed_bonus": 0.5,
-"duration": 8.0
+"duration": 8.0,
+"reveal_stealth": 1.0
 }
 trait_id = &"trait_star_gazer"
 trait_params = {

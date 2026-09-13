@@ -8,6 +8,8 @@ const MIX_RATE := 22050
 const PLAYER_POOL_SIZE := 10
 const SFX_IDS: Array[StringName] = [
 	&"attack", &"skill", &"ultimate", &"kill", &"build", &"victory", &"defeat",
+	# 隐匿登场预警（✅ 0.8.13.1，NUMBERS 10.16）：夜行刺等隐匿单位进场提示音。
+	&"alert",
 ]
 
 var _players: Array[AudioStreamPlayer] = []
@@ -57,6 +59,8 @@ func _synthesize(sfx_id: StringName) -> AudioStreamWAV:
 			return _triplet([523.0, 659.0, 784.0], 0.5, 0.28)
 		&"defeat":
 			return _triplet([330.0, 247.0, 165.0], 0.6, 0.28)
+		&"alert":
+			return _triplet([392.0, 587.0], 0.30, 0.24)
 	return _tone(440.0, 440.0, 0.1, 0.2)
 
 
