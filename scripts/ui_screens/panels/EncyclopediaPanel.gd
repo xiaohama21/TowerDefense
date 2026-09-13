@@ -2,7 +2,7 @@ extends Control
 
 ## 游戏百科（ENCYCLOPEDIA.md v0.1.9 概念终版对齐）：只读信息中心——
 ## 武将图鉴（9 将全量 + 基础/技能/转职/信物/特性页签 + 数值模拟器）与
-## 敌人图鉴（章节选择 + 12 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
+## 敌人图鉴（章节选择 + 14 敌双列网格 + 各档难度面板 + 出现关卡反查）。不写档、不改存档。
 ## 布局规范 UI_LAYOUT.md §12（v0.20.19）；卡片副行口径 = 职业名/定位 · 打法词（概念字典）。禁止面板间散落私有文案漂移。
 
 const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
@@ -24,6 +24,7 @@ const ENEMY_ORDER: Array[String] = [
 	"yellow_turban_stealth_healer",
 	"yellow_turban_general",
 	"yellow_turban_rebel_general",
+	"yellow_turban_heaven_general",
 ]
 
 ## 敌人定位标签（UI 短词口径，概念 ui_encyclopedia_enemy.html 卡片副行第一段 / 头部 chip1；
@@ -42,6 +43,7 @@ const ENEMY_LOCATIONS := {
 	"yellow_turban_stealth_healer": "隐匿",
 	"yellow_turban_general": "Boss",
 	"yellow_turban_rebel_general": "Boss",
+	"yellow_turban_heaven_general": "Boss",
 }
 
 ## 敌人打法词（卡片副行第二段；概念图文案，对应特殊行为/数值基调）。
@@ -59,6 +61,7 @@ const ENEMY_TACTIC_SUB := {
 	"yellow_turban_stealth_healer": "隐匿治疗",
 	"yellow_turban_general": "召唤",
 	"yellow_turban_rebel_general": "术法",
+	"yellow_turban_heaven_general": "三阶段",
 }
 
 ## 武将图鉴概念顺序（概念 ui_encyclopedia.html 列表卡顺序，不再按资源 id 字典序排位）。
@@ -122,6 +125,7 @@ const ENEMY_AVATAR_GRADIENTS := {
 	"yellow_turban_stealth_healer": [Color("#5fd0a8"), Color("#25806a")],
 	"yellow_turban_general": [Color("#7a6a9e"), Color("#44366b")],
 	"yellow_turban_rebel_general": [Color("#a87fd9"), Color("#6a3fa8")],
+	"yellow_turban_heaven_general": [Color("#8a4fd0"), Color("#3d1a6b")],
 }
 
 ## 当前章节阵营展示名（第一章=黄巾军；后续章节落地时随章节数据切换）。
@@ -130,10 +134,10 @@ const CHAPTER_FACTION := "黄巾军"
 ## 敌人特殊行为玩家向文案（BEHAVIORS.md B.3.2，勿直出 special_behavior_id）。
 const ENEMY_BEHAVIOR_HINTS := {
 	&"fast_charger": "高速推进，漏怪时造成更高基地伤害（轻骑 / 夜行刺）",
-	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点（隐方士 = 2.5s / 140px / 20 点；张宝 = 3.0s / 160px / 25 点）",
-	&"armor_aura": "为周围友军（含自身）加甲 +6，持续刷新（精锐伍长 140px / 符祭 160px）",
-	&"summon_guard": "召唤援军（张梁 = 步卒 / 张宝 = 隐匿夜行刺·上限 4）：自身后沿主路出现（有岔路时自岔路进场）",
-	&"seal_domain": "术法压制：周期性降低周围 180px 内防御塔 25% 攻速（张宝）",
+	&"healer_aura": "每 2s 治疗周围 120px 友军 15 点（隐方士 = 2.5s / 140px / 20 点；张宝 = 3.0s / 160px / 25 点；张角 P2 = 2.5s / 200px / 45 点）",
+	&"armor_aura": "为周围友军（含自身）加甲 +6，持续刷新（精锐伍长 140px / 符祭 160px / 张角 180px）",
+	&"summon_guard": "召唤援军（张梁 = 步卒 / 张宝 = 隐匿夜行刺·上限 4 / 张角 = 三阶段档案：步卒 → 轻骑 → 隐匿夜行刺·逐阶段上限 4）：自身后沿主路出现（有岔路时自岔路进场）",
+	&"seal_domain": "术法压制：周期性降低周围防御塔攻速（张宝 = 180px / -25%；张角 P3 = 240px / -35%）",
 }
 
 ## 职业大招玩家向文案（CHARACTERS.md 4.6 表）。
@@ -1477,7 +1481,7 @@ func _refresh_enemy_detail() -> void:
 
 	# ④ 口径注脚（概念 .foot）
 	body.add_child(_make_body_label(
-		"难度口径：仅生命随难度倍率缩放（当前 %d 档 = 标准 / 困难，随难度档位自动扩展）；速度 / 护甲 / 漏怪伤害不随难度变化。" % Difficulty.count(),
+		"难度口径：生命随难度倍率缩放（当前 %d 档 = 标准 / 困难，随难度档位自动扩展）；困难档另叠加机制行为倍率（间隔 ×0.85 / 效果 ×1.25）；速度 / 护甲 / 漏怪伤害不随难度变化。" % Difficulty.count(),
 		UITheme.LIGHT_MUTED, 12))
 
 	# ⑤ 出现关卡明细（头部右侧已给摘要；多关登场补全量列表，单关已在头部展示不重复）

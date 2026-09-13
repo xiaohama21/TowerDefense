@@ -6,6 +6,8 @@ const ENEMY_GROUP: StringName = &"enemies"
 ## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：破隐扫描周期与现形闪光时长。
 const STEALTH_SCAN_INTERVAL: float = 0.25
 const REVEAL_FLASH_DURATION: float = 0.7
+## 阶段推进表现（三阶段 Boss，✅ 0.8.13.5 张角）：金色扩散环时长。
+const PHASE_FLASH_DURATION: float = 0.9
 
 @export var speed: float = 100.0
 @export var max_hp: int = 100
@@ -39,6 +41,14 @@ func get_special_cooldown(behavior_id: StringName) -> float:
 
 func set_special_cooldown(behavior_id: StringName, value: float) -> void:
 	special_cooldowns[behavior_id] = value
+
+
+## 阶段推进（✅ 0.8.13.5 张角三阶段）：金色扩散环 + 阶段点一次性表现，
+## 由 EnemyManager 在召唤档案切换时调用（阶段差异可感知，BEHAVIORS B.3.2）。
+func trigger_phase_advance() -> void:
+	phase_index += 1
+	_phase_flash_left = PHASE_FLASH_DURATION
+	queue_redraw()
 ## 特殊行为参数（B.3.2，✅ 0.8.13.2）：EnemyManager 从 EnemyData.special_params 写入，
 ## armor_aura / healer_aura 按 key 读取（缺省回退 BalanceData）。
 var special_params: Dictionary = {}
@@ -46,8 +56,15 @@ var special_params: Dictionary = {}
 var slow_factor: float = 1.0
 ## 召唤物标记（阶段 8 提交 2）：连击计入召唤物（P1 4.1 拍板），由召唤方设置。
 var is_summon: bool = false
-## 已召唤数量（✅ 0.8.13.4 召唤上限）：max_summons 上限计数（张宝 = 4）。
+## 已召唤数量（✅ 0.8.13.4 召唤上限）：max_summons 上限计数（张宝 = 4）；
+## 三阶段 Boss（✅ 0.8.13.5）按阶段档案重置，配额逐阶段独立。
 var summoned_count: int = 0
+## 召唤档案序号（✅ 0.8.13.5 张角三阶段）：special_params.summon_profiles 的当前命中项，
+## -1 = 尚未初始化（EnemyManager 按 HP 比例推进）。
+var summon_profile_index: int = -1
+## 当前阶段序号（1 起，阶段推进时 +1）：阶段表现与测试锚点（P1/P2/P3）。
+var phase_index: int = 1
+var _phase_flash_left: float = 0.0
 ## 隐匿状态（✅ 0.8.13.1）：不可被“以单位为目标”的攻击选中；范围/无差别区域可命中。
 ## 由 EnemyManager 依 EnemyData.stealth 写入；能否被某塔选中见 is_visible_to()。
 var stealth: bool = false
@@ -170,6 +187,11 @@ func _process(delta: float) -> void:
 				apply_slow(_fear_follow_slow_factor, _fear_follow_slow_duration)
 			_fear_follow_slow_factor = 0.0
 			_fear_follow_slow_duration = 0.0
+		queue_redraw()
+
+	# 阶段推进表现（✅ 0.8.13.5 张角三阶段）：扩散环衰减，结束即停重绘。
+	if _phase_flash_left > 0.0:
+		_phase_flash_left = maxf(_phase_flash_left - delta, 0.0)
 		queue_redraw()
 
 	# 眩晕（震地，提交 7）：期间停止移动、进度不推进；Boss 控制抗性折减随阶段 9 统一落地。
@@ -495,6 +517,18 @@ func _draw() -> void:
 			var reveal_t := _reveal_flash_left / REVEAL_FLASH_DURATION
 			draw_arc(Vector2.ZERO, half.length() + 10.0 + (1.0 - reveal_t) * 14.0, 0.0, TAU, 26,
 				Color(0.55, 0.9, 1.0, reveal_t * 0.8), 2.0)
+	# 阶段推进表现（✅ 0.8.13.5 张角三阶段）：金色扩散环 + 阶段点（头顶 HP 条下方）。
+	if _phase_flash_left > 0.0:
+		var phase_t := _phase_flash_left / PHASE_FLASH_DURATION
+		draw_arc(Vector2.ZERO, half.length() + 12.0 + (1.0 - phase_t) * 28.0, 0.0, TAU, 32,
+			Color(1.0, 0.84, 0.38, phase_t * 0.85), 2.6)
+	if phase_index > 1:
+		var pip_y := -half.y - 20.0
+		var pip_start := -(float(phase_index - 1) * 7.0) * 0.5
+		for pip in range(phase_index):
+			draw_circle(Vector2(pip_start + float(pip) * 7.0, pip_y), 2.2,
+				Color(1.0, 0.84, 0.38, 0.9))
+
 	# 恐惧表现（当阳桥，v0.35.2 / 0.8.10.1）：紫色呼吸圆环（与眩晕小星区分）。
 	if _fear_time_left > 0.0:
 		var pulse := 0.5 + 0.5 * sin(_fear_pulse * 7.0)

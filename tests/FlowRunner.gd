@@ -521,7 +521,7 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			if child is Button:
 				enemy_cards += 1
 				enemy_min_width = minf(enemy_min_width, (child as Button).size.x)
-	_check(enemy_cards == 13, "敌人图鉴应展示第一章全部 13 种敌人（0.8.13.4 中 Boss 张宝）")
+	_check(enemy_cards == 14, "敌人图鉴应展示第一章全部 14 种敌人（0.8.13.5 终 Boss 张角）")
 	_check(enemy_min_width >= 100.0, "敌人卡应横向铺满左列 2 列网格（B-023）")
 	var all_text := ""
 	var labels: Array[Label] = []
@@ -544,6 +544,13 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_rebel_general"):
 		zhang_bao_stage_ids.append(str(entry.get("stage_id", "")))
 	_check(zhang_bao_stage_ids == ["ch01_s06"], "黄巾地公将军·张宝应仅出现在 s06（中 Boss，0.8.13.4）")
+
+	# 0.8.13.5：张角 = s08 终 Boss（出现关卡反查 + 三阶段词条入口）。
+	var heaven_stage_ids: Array[String] = []
+	for entry in GameFlow.get_enemy_stage_entries("yellow_turban_heaven_general"):
+		heaven_stage_ids.append(str(entry.get("stage_id", "")))
+	_check(heaven_stage_ids == ["ch01_s08"], "黄巾天公将军·张角应仅出现在 s08（终 Boss，0.8.13.5）")
+	_check(all_text.contains("三阶段"), "敌人图鉴应含张角「三阶段」词条说明")
 
 	# 只读不变式：模拟器调参 + 全量浏览后存档文件不变。
 	var after_save := ""
