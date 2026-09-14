@@ -32,7 +32,7 @@ const LIVES_COLOR_OK := Color("#0e9f58")
 const LIVES_COLOR_LOW := Color("#e5484d")
 const LIVES_LOW_RATIO := 0.3
 ## 建造卡立绘头像（0.8.11.1）：character_id → 圆形透明 PNG（SpineSprite Idle 首帧截取，
-## 素材与 D69 试点同口径本地存放不入库）；无条目/缺素材回退概念色占位圆。
+## 素材随仓库入库 / 0.8.16.2·ART_ASSETS §5.8）；无条目/缺素材回退概念色占位圆。
 const CHARACTER_AVATAR_TEXTURES := {
 	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a_avatar.png",
 }

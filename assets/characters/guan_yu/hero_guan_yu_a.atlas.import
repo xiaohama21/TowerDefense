@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://b6y1dthqdcs6d"
+path="res://.godot/imported/hero_guan_yu_a.atlas-c5400f6457a22db7ec8948f98438292b.spatlas"
+
+[deps]
+
+source_file="res://assets/characters/guan_yu/hero_guan_yu_a.atlas"
+dest_files=["res://.godot/imported/hero_guan_yu_a.atlas-c5400f6457a22db7ec8948f98438292b.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

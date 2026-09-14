@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
-> 文档版本：v0.14（2026-09-12）
+> 文档版本：v0.15（2026-09-14）
+> v0.15 变更（2026-09-14，**Spine 素材与运行时入库（跨环境同步）**，程序 0.8.16.1 → **0.8.16.2**，用户 2026-09-14 拍板「入库吧，方便不同环境代码同步」/ GDD v0.37.47 / UI_LAYOUT v0.20.52 / ART_PROMPTS v0.12 / BUGS v0.54 B-076）：**①入库范围（撤销 v0.11「素材不入库」约定）**——`assets/characters/`（关羽 A 套 11 文件 ≈0.5MB：`hero_guan_yu_a.spine-json` 269KB / `.png` 87KB / `.atlas` / `-data-res.tres` / 圆形与圆角方卡头像 + 各 `.import`）、`assets/spine_test/`（spineboy 官方对照 7 文件 ≈0.48MB）、`bin/`（spine-godot GDExtension 运行时 ≈5.3MB = `.gdextension` + `.uid` + Windows 三档 DLL），合计 23 文件 ≈6.2MB；`.gitignore` 对应三行移除并留「勿再加回」注记；**②效果**——新克隆 / 换机环境不再缺素材与运行时（此前 `Tower._setup_spine_visual()` / `UI.CHARACTER_AVATAR_TEXTURES` 代码在位但素材被忽略 → 关羽塔 / 建造卡头像 / 拖拽虚影静默回退程序化绘制与占位圆）；**③运行边界**——`.gdextension` 声明 macos / ios / linux / android / web 全平台路径、**仓库实供仅 Windows 三档库**（其余平台条目保留待补，该平台 clone 仍回退程序化绘制、行为与入库前一致）；`bin/` 与 `assets/characters/` 随导出包、`assets/spine_test/*` 由 `export_presets.cfg` exclude_filter 排除；**④授权口径不变**——D69 包「仅供学习研究、不得商用」警示保留（§6），入库不等于可商用；**⑤回归**——PackVerify 新增「关羽 spine 素材与运行时」用例（素材 4 文件 + 注册表 + 头像可载入 + 运行时在位 + Windows 下 `SpineSprite` 类注册），PackVerify / Smoke / Flow 全绿。
 > v0.14 变更（2026-09-12，光标视觉系统落地 / GDD v0.37.34 / UI_LAYOUT v0.20.45，程序 0.8.11.14 → **0.8.12.0**，用户 2026-09-08 拍板「按你推荐来」的方案实施）：**光标素材入库（阶段 8·提交 12）**——①§2 目录树 `ui/cursors/` 由「预留」转**已入库**（9 枚 × {32px, `_2x` 64px} = 18 个 PNG）；②§3 新增「鼠标光标（Kenney Cursor Pack，调色定稿 B）」台账（图标映射 + 复现脚本）；③§6 许可行更新——源图子集由 6 图扩为 **9 图 ×2 尺寸**（`Outline/Default` + `Outline/Double`，随 `docs/ui_concept/src/kenney_cursor_pack/` 归档并在 `src/README.md` 素材清单登记，完整包 728 个 PNG = `Outline/Basic` × `Default/Double` 各 182 未入库）；④素材形态 = 源图按灰度明度线性映射双色重着色（芯 `#cdeffb` ≈PALE / 描边 `#14538a` =STROKE，配方见 UI_LAYOUT §15），形状 / 描边结构 / 透明度逐像素保留。
 > 文档版本：v0.13（2026-09-12）
 > v0.13 变更（2026-09-12，文档同步勘误 / GDD v0.37.33，纯文档，程序 0.8.11.14 不变）：**§7 变更记录补登 v0.10~v0.12 漏登条目**（档头变更行早已记录，记录小节此前停在 v0.9），并顺补本 v0.13 条目。
@@ -48,8 +49,10 @@ assets/
 │   ├── themes/             # 预留：主题底图/瓦片（grass/fire/night…）
 │   ├── terrain/            # 预留：禁建地形（山/河/城墙等）
 │   └── landmarks/          # 预留：基地/出入口等标志物
-├── characters/             # 角色素材：武将 spine 动画试点（guan_yu，见 §5）
-└── spine_test/             # 开发对照素材：官方 spine 4.x spineboy 样例（保留，见 §5.5）
+├── characters/             # 角色素材：武将 spine 动画（guan_yu；v0.15 已入库，见 §5）
+└── spine_test/             # 开发对照素材：官方 spine 4.x spineboy 样例（v0.15 已入库 · 导出排除，见 §5.5）
+
+bin/                        # 仓库根：spine-godot GDExtension 运行时（v0.15 已入库，Windows 三档 DLL，见 §5.8）
 ```
 
 ## 3. UI 素材台账（✅ 已入库）
@@ -132,7 +135,7 @@ assets/
    - 全动画冒烟：`tools/check_all_anims.gd`（headless 逐动画 `set_animation`，返回非空 track 即通过）；
    - 静态渲染比对：SpineSprite 首帧截图 vs 源 png 序列同动作帧（关羽试点 Idle/Attack_A 轮廓几乎逐像素一致）；
    - 朝向抽检：默认朝向与源素材一致（关羽骑马姿态**固定朝左**），镜像验收见 6。
-5. **对照素材（用户拍板保留）**：`assets/spine_test/spineboy/` = 官方 spine 4.x 样例（spine-rt 4.3 运行时 examples 子集），用于区分「素材数据问题」与「运行时问题」；不入游戏资源表、不参与打包。
+5. **对照素材（用户拍板保留）**：`assets/spine_test/spineboy/` = 官方 spine 4.x 样例（spine-rt 4.3 运行时 examples 子集），用于区分「素材数据问题」与「运行时问题」；**v0.15 随仓库入库**（`export_presets.cfg` exclude_filter 增 `assets/spine_test/*`，不随导出包分发）、不参与游戏资源表。
 6. **人物朝向（2026-09-07 拍板定稿：方案 A 节点翻转）**：试点素材固定朝左，游戏内人物需能镜像朝右。已拍板（用户）：
    - **实现方式 = 方案 A 节点翻转**：SpineSprite 所在节点 `scale.x = -facing × 基准缩放`（facing 为世界方向：-1 朝左 = 素材原样取 +基准；+1 朝右 = 镜像取 -基准）——素材与动画零改动；弹道/技能方向按现有 `_aim_angle` 全角度旋转、与身体朝向解耦，不受翻转影响；
    - **判定规则**：Tower 增 `facing`（1 右 / -1 左，默认 -1 与素材朝左一致），随 `_update_aim()` 按目标相对塔的水平分量刷新；目标在正上/正下（|dx| 小于阈值）保持原朝向防抖；
@@ -151,9 +154,16 @@ assets/
    - **试点判定**：战斗实机截图（Idle 朝左 / 攻击朝右）交用户验收；观感不达标即清空注册表一键回退程序化绘制。
    - **实现明细（v0.7 / 0.8.10.33；v0.8 / 0.8.11.0 更新）**：Tower 内 SPINE_CHARACTERS 注册表 + SPINE_BASE_SCALE 0.33 / SPINE_Y_OFFSET 8 / SPINE_FACE_SWITCH_EPS 6；`apply_character` 末尾 `_setup_spine_visual()` 动态 add_child SpineSprite（skeleton_data_res 指向 data-res.tres）；`_update_aim` 按目标水平分量刷 `_facing`（±1），`scale.x = -facing × 0.33`；`play_melee_hit` / `play_attack_flash` 触发 Attack_A（get_track(0) 判重 + is_complete() 回落 Idle，动画名经 get_name() 读取）；spine 激活时 _draw 跳过身体/武器/挥击弧/枪口闪，**底座圆盘改贴地淡阴影**（_draw_base spine 分支：scale(1.55,0.5) 椭圆 alpha 0.16，消除脚下「内圈」），怒气条移至脚下（y=48，胶囊化见 UI_LAYOUT v0.20.22）、技能冷却环外扩（r=40）；素材缺失 / SpineSprite 类不存在 → 静默回退程序化绘制；
    - **实测（2026-09-07 首验；2026-09-08 v0.8 复验）**：Smoke 全绿；实机战斗（s01 关羽塔 + 黄巾兵/骑兵）验证——部署后 Idle(loop)、挥击瞬间 Attack_A(once)、播完回落 Idle；目标在塔左 → facing=-1（素材原样朝左）、目标在塔右 → facing=+1（scale.x=-0.33 镜像朝右）均正常；v0.8 尺寸 0.33 / 底座阴影 / 怒气条 / 冷却环 / 虚影头像见 build/spine_pilot/c11_{probe,battle_*}.png（gitignored，提交 11 验收截图）。
-   - **卡头像素材（v0.9 / 0.8.11.1）**：SpineSprite Idle 首帧 SubViewport 透明截图 → bbox 裁切 → 圆形 `hero_guan_yu_a_avatar.png` 与圆角方 `_avatar_square.png` 两尺寸（各 ≈60KB，`assets/characters/guan_yu/`，.import 已生成）——**素材本地存放不入库**（gitignore），UI 注册表 `CHARACTER_AVATAR_TEXTURES` 数据驱动（character_id → 路径），缺素材回退概念色占位圆；其余角色沿用「每角色截图 + 注册」流程；
+   - **卡头像素材（v0.9 / 0.8.11.1）**：SpineSprite Idle 首帧 SubViewport 透明截图 → bbox 裁切 → 圆形 `hero_guan_yu_a_avatar.png` 与圆角方 `_avatar_square.png` 两尺寸（各 ≈60KB，`assets/characters/guan_yu/`，.import 已生成）——**素材 v0.15 起随仓库入库**（此前本地存放 / gitignore，见 §5.8），UI 注册表 `CHARACTER_AVATAR_TEXTURES` 数据驱动（character_id → 路径），缺素材回退概念色占位圆；其余角色沿用「每角色截图 + 注册」流程；
    - **拖拽虚影实塔化（v0.9 / 0.8.11.1）**：BuildManager 虚影 = 实塔同款 Tower——spine 角色直接显示 sprite（SpineSprite 转 PROCESS_MODE_ALWAYS 播 Idle）/ 程序化回退画身体+武器；虚影态（`set_ghost_mode`）跳过怒气条/冷却环/大招/选中圈、保留射程圈；半透明绿/红染色由 BuildManager modulate 控制；
    - **怒气条位置修订（v0.9 / 0.8.11.1）**：spine 塔条位 y48 → **y30**（胶囊 38×10 收进格内，普通塔 y28；冷却环 r40 不变）。
+8. **素材与运行时入库（v0.15 ✅ 落地，程序 0.8.16.2；撤销 v0.11「素材不入库」约定）**：用户 2026-09-14 拍板「入库吧，方便不同环境代码同步」——入库前素材只在本地磁盘，新克隆 / 换机环境关羽塔 / 建造卡头像 / 拖拽虚影全部静默回退程序化绘制与占位圆（BUGS B-076）：
+   - **`assets/characters/`（11 文件 ≈0.5MB）**：关羽 A 套 `hero_guan_yu_a.spine-json` / `.png` / `.atlas` / `-data-res.tres` + 两枚卡头像 + 各自 `.import`（`.import` 随素材入库为仓库惯例，如字体）；
+   - **`assets/spine_test/`（7 文件 ≈0.48MB）**：spineboy 官方对照样例，**导出排除**（`export_presets.cfg` exclude_filter `assets/spine_test/*`）；
+   - **`bin/`（5 文件 ≈5.3MB）**：`spine_godot_extension.gdextension` + `.uid` + Windows 三档 DLL（editor / template_debug / template_release）——运行时缺失时 `Tower` 侧 `ClassDB.class_exists(&"SpineSprite")` 判定为假，自动回退程序化绘制；
+   - **平台现状**：`.gdextension` 声明 macos / ios / linux（x86_64·arm64·rv64）/ android（x86_64·arm64）/ web（threads·nothreads）路径，**仓库当前只供 Windows 三档库**；其余平台条目保留（该平台 clone 触发缺库告警并回退，与入库前一致），补库另排期；
+   - **回归护栏**：PackVerify 增「关羽 spine 素材与运行时」用例（素材 4 文件 + `Tower.SPINE_CHARACTERS` 注册表路径 + `UI.CHARACTER_AVATAR_TEXTURES` 头像可载入 + `bin/` 运行时在位 + Windows 下 `SpineSprite` 类已注册）——素材再被排除 / 漏提交即红；
+   - **回退开关不变**：清空 `Tower.SPINE_CHARACTERS` 注册表即回退程序化绘制；授权约束见 §6（入库 ≠ 可商用）。
 
 ## 6. 来源与许可登记
 
@@ -162,7 +172,7 @@ assets/
 | Kenney UI Pack 切片 | kenney.nl | CC0 | 全部 UI 按钮/图标；概念图 HTML 所需 17 图子集随 docs/ui_concept/src/kenney_ui_pack 归档（仅设计复现用，完整包按官方 CC0 可随时重下） |
 | Kenney Cursor Pack 切片（光标） | kenney.nl（https://kenney.nl/assets/cursor-pack ） | CC0 | 光标视觉系统素材（**v0.14 已入库**，程序 0.8.12.0）：`Outline/Default`(32px) + `Outline/Double`(64px) 原图经 `tools/prep_cursors.py` 按定稿配色 B 重着色（配方见 UI_LAYOUT §15）；源图 9 图 ×2 尺寸子集随 docs/ui_concept/src/kenney_cursor_pack 归档（`src/README.md` 登记；完整包 728 个 PNG 未入库） |
 | 站酷快乐体 2016 修订版 | 站酷（ZCOOL） | 免费商用 | 字体；使用声明随原压缩包存档 |
-| D69《315 套 Q 版卡通角色 spine 动画》 | 冰糖撞果冻店铺（下载链接见包内免责声明） | ⚠️ 包内声明「仅供学习研究、不得商用，请购买正版」 | 角色 spine 试点（序号 097 关羽）；商用前需购正版授权，当前仅作开发期试点 |
+| D69《315 套 Q 版卡通角色 spine 动画》 | 冰糖撞果冻店铺（下载链接见包内免责声明） | ⚠️ 包内声明「仅供学习研究、不得商用，请购买正版」 | 角色 spine 试点（序号 097 关羽）；商用前需购正版授权，当前仅作开发期试点；**v0.15（2026-09-14 用户拍板）素材随仓库入库**（跨环境同步，传播限于本仓库开发协作，包内声明约束不变） |
 | 通用 HUD 图徽（波次旗帜 / 金币 / 基地生命 / 伤害类型 / 攻速） | 外部 AI 生成（Leonardo，本地目录 `F:\godotProject\leonardo.ai\通用HUD\`） | 以来源为准（自生成素材） | 局内 HUD 图标集（见 §3）；设计源 + 抠透明脚本随 `docs/ui_concept/src/icons_battle/` 归档，运行时入库目录 `assets/ui/icons/` 预留 |
 
 ## 7. 变更记录
@@ -181,3 +191,4 @@ assets/
 - v0.12（2026-09-11，2026-09-12 补登）：§3 台账新增「通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集」，程序 0.8.11.13 不变。
 - v0.13（2026-09-12）：§7 变更记录补登 v0.10~v0.12 漏登条目（同顶部 changelog）。
 - v0.14（2026-09-12）：光标素材入库——§2 `assets/ui/cursors/` 落地 9 枚 ×2 尺寸、§3 新增光标台账、§6 许可更新（程序 0.8.12.0，见档头 v0.14 变更行与 UI_LAYOUT §15）。
+- v0.15（2026-09-14）：Spine 素材与运行时入库（撤销 v0.11「素材不入库」）——`assets/characters/` / `assets/spine_test/` / `bin/` 23 文件 ≈6.2MB 随仓库同步、对照样例导出排除、PackVerify 增护栏用例（程序 0.8.16.2，见档头 v0.15 变更行与 §5.8）。

@@ -16,10 +16,8 @@ Thumbs.db
 # Release build artifacts
 build/
 
-# Spine 试点素材与运行时（本地开发用不入库；见 docs/modules/ART_ASSETS.md §5）
-assets/characters/
-assets/spine_test/
-bin/
+# Spine 素材与运行时（2026-09-14 / ART_ASSETS v0.15 起随仓库入库，便于跨环境同步——勿再加回忽略；
+# 授权口径见 docs/modules/ART_ASSETS.md §5.8·§6；本地一次性探针仍见下方 tools/ 段）
 # Spine 本地一次性探针（不入库；固化管线工具 = tools/spine_upgrade_38_to_43.py / tools/check_all_anims.gd）
 tools/check_guan_yu_tres.gd
 tools/check_guan_yu_tres.gd.uid

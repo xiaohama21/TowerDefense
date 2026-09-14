@@ -9,3 +9,9 @@
 *.cfg text eol=lf
 *.json text eol=lf
 *.import text eol=lf
+
+# Spine 素材 / 运行时（ART_ASSETS §5.8，2026-09-14 入库）：图集与数据按原字节入库、禁止行尾归一化
+# （atlas / spine-json 由转换器产出、字节敏感；PNG / DLL 由 text=auto 自动判为二进制，无需显式）
+*.atlas -text
+*.spine-json -text
+*.gdextension text eol=lf
