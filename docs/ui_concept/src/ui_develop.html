@@ -35,21 +35,50 @@
   .base .lvlbig { margin-left:auto; text-align:right; }
   .base .lvlbig .n { font-size:26px; color:#2eaadc; line-height:1; }
   .base .lvlbig .t { font-size:12px; color:#7d9cb4; letter-spacing:2px; }
-  .expbar { margin-top:11px; height:14px; background:#e3eef6; border-radius:8px; overflow:hidden; position:relative; }
+  .expbar { margin-top:9px; height:14px; background:#e3eef6; border-radius:8px; overflow:hidden; position:relative; }
   .expbar i { display:block; height:100%; width:80%; background:linear-gradient(180deg,#63d9a4,#2fb47b); border-radius:8px; }
-  .expbar span { position:absolute; right:8px; top:0; font-size:10px; color:#fff; line-height:14px; letter-spacing:1px; text-shadow:0 1px 1px rgba(0,0,0,.25); }
-  .statrow { display:flex; gap:8px; margin-top:11px; }
+  .expbar span { position:absolute; right:8px; top:0; font-size:10.5px; color:#1b4d78; line-height:14px; letter-spacing:1px; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+  .statrow { display:flex; gap:8px; margin-top:9px; }
   .stat { flex:1; text-align:center; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:9px; padding:6px 4px 5px; }
   .stat .k { font-size:11.5px; color:#7d9cb4; letter-spacing:1px; }
   .stat .v { font-size:17px; color:#14538a; margin-top:1px; }
   .stat .v b { font-weight:normal; color:#b8860b; }
+  /* 经验池行（v0.17 融入经验池设定）：余额胶囊 = 悬停说明锚点 +「分配 ▸」+「直接升级」+ 不可逆注脚 */
+  .poolrow { position:relative; display:flex; align-items:center; gap:8px; margin-top:9px; }
+  .poolchip { display:inline-flex; align-items:center; gap:6px; padding:1px 10px 2px; border-radius:9px; flex:none;
+    background:#fff6d8; border:2px dashed #e8b33c; font-size:13.5px; color:#8a6d00; letter-spacing:1px; white-space:nowrap; }
+  .poolchip b { font-size:15px; color:#b8860b; font-weight:normal; }
+  .poolchip .q { width:15px; height:15px; border-radius:50%; background:#e8b33c; color:#fff;
+    font-size:10px; line-height:15px; text-align:center; letter-spacing:0; }
+  .pbtn { height:32px; padding:0 15px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:13px;
+    letter-spacing:1px; border-image-slice:24 fill; border-image-width:16px; border-image-repeat:round; cursor:default;
+    flex:none; white-space:nowrap; }
+  .pbtn.grey { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .pbtn.dim { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#8c9187; }
+  .poolhint { flex:1; min-width:0; font-size:11.5px; color:#7d9cb4; letter-spacing:.4px; line-height:1.4; }
+  .poolhint b { color:#b8860b; font-weight:normal; }
+  .poolhint .no { color:#c0392b; }
+  .poolhint .note { color:#b06a1f; }
+  /* 经验池悬停说明：悬停即现、移开即消失（此处为示意展开态） */
+  .pooltip { position:absolute; left:0; top:calc(100% + 9px); width:404px; z-index:9;
+    background:#fff; border:3px solid #ffcc00; border-radius:13px; padding:7px 11px 6px;
+    box-shadow:0 8px 20px rgba(30,60,90,.25); text-align:left; }
+  .pooltip::after { content:""; position:absolute; left:44px; bottom:100%;
+    border:8px solid transparent; border-bottom-color:#ffcc00; }
+  .pooltip .pt { display:flex; align-items:baseline; gap:7px; }
+  .pooltip .pt .n { font-size:14.5px; color:#1b4d78; letter-spacing:1px; }
+  .pooltip .pt .s { font-size:9.5px; color:#a8bccb; letter-spacing:.3px; margin-left:auto; }
+  .pooltip .pf { font-size:11.5px; color:#33566f; line-height:1.5; margin-top:4px; letter-spacing:.3px; }
+  .pooltip .pf b { color:#14538a; font-weight:normal; }
+  .pooltip .pl { font-size:11px; color:#5f8aa6; line-height:1.5; letter-spacing:.3px; }
+  .pooltip .pm { font-size:9.5px; color:#a8bccb; margin-top:4px; letter-spacing:.3px; }
   /* 页签 */
   .tabs { flex:1; display:flex; flex-direction:column; min-height:0; }
   .tabs .tabbar { display:flex; gap:6px; padding:10px 14px 0; }
   .tab { font-size:16px; letter-spacing:3px; padding:6px 18px 7px; border-radius:10px 10px 0 0; cursor:pointer; white-space:nowrap; }
   .tab.on { background:#e6f4fd; color:#14538a; border:2px solid #9fd0ea; border-bottom:0; }
   .tab.off { color:#9fb3c4; }
-  .tabbody { flex:1; border:2px solid #9fd0ea; border-radius:0 12px 12px 12px; background:#fff; padding:12px 14px; min-height:0; overflow:hidden; }
+  .tabbody { flex:1; border:2px solid #9fd0ea; border-radius:0 12px 12px 12px; background:#fff; padding:10px 14px 11px; min-height:0; overflow:hidden; }
   .promo { display:flex; align-items:center; gap:10px; }
   .pnode { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:9px 12px; }
   .pnode .t { font-size:13px; color:#7d9cb4; letter-spacing:1px; }
@@ -76,7 +105,7 @@
   .skrow { display:flex; gap:10px; }
   .skcard { border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:8px 10px; display:flex; flex-direction:column; gap:5px; }
   .skcard.ult, .skcard.job { flex:1; min-width:0; }
-  .skcard.role { margin-top:8px; }
+  .skcard.role { margin-top:6px; }
   .skcard .skhd { display:flex; align-items:center; gap:10px; }
   .skcard .skmeta { min-width:0; }
   .skcard .sknm { font-size:16px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
@@ -112,7 +141,6 @@
       <div class="topbar">
         <h2>武将养成</h2>
         <span class="prog gold">黄巾布 <b>×128</b></span>
-        <span class="prog">练兵令 <b>×6</b></span>
         <div class="spacer"></div>
         <span class="prog">已上阵 <b>4/4</b></span>
       </div>
@@ -141,12 +169,26 @@
               </div>
               <div class="lvlbig"><div class="n">Lv.12</div><div class="t">等级</div></div>
             </div>
-            <div class="expbar"><i></i><span>320 / 400</span></div>
+            <div class="expbar"><i style="width:41%;"></i><span>150 / 370</span></div>
             <div class="statrow">
               <div class="stat"><div class="k">伤害</div><div class="v">115</div></div>
               <div class="stat"><div class="k">攻速</div><div class="v">0.67s</div></div>
               <div class="stat"><div class="k">射程</div><div class="v">120</div></div>
               <div class="stat"><div class="k">建造费用</div><div class="v"><b>60</b></div></div>
+            </div>
+            <div class="poolrow">
+              <span class="poolchip">经验池 <b>160</b><span class="q">?</span></span>
+              <button class="pbtn grey">分配 ▸</button>
+              <button class="pbtn dim">直接升级</button>
+              <span class="poolhint">分配不可逆 · 直接升级需 <b>220</b><br><span class="note">※ 池内不足（差 <span class="no">60</span>）→ 置灰</span></span>
+              <div class="pooltip">
+                <div class="pt"><span class="n">经验池 · 获取方式</span><span class="s">悬停示意 · 移开即消失</span></div>
+                <div class="pf">胜利结算额外注入 <b>50%</b>（不扣武将自身所得）：</div>
+                <div class="pf"><b>注入 =（本局击杀经验 + 出战经验 × 出战人数）× 50%</b></div>
+                <div class="pl">· 击杀经验随难度 ×1.0 / ×1.6；出战经验不随难度变化</div>
+                <div class="pl">· 四舍五入取整；失败 / 退出 / 崩溃不注入；不可转出</div>
+                <div class="pm">例：s01 标准 →（527 + 50 × 4）× 50% = 364</div>
+              </div>
             </div>
           </div>
           <div class="panel tabs">
