@@ -70,9 +70,9 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   box-shadow:0 2px 6px rgba(0,0,0,.3); }
 .well { width:34px; height:34px; flex:none; border-radius:9px; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
-  background:rgba(6,12,10,.55); border:1px solid rgba(201,163,92,.28); }
+  background:#ffffff; border:1px solid rgba(201,163,92,.5); }
 .well img { width:100%; height:100%; object-fit:contain; }
-.well.bare img { width:30px; height:30px; }
+.well.bare img { width:34px; height:34px; }
 .pill .v { font-size:22px; letter-spacing:.5px; white-space:nowrap; }
 .v-gold { color:#ffd479; }
 .v-hp   { color:#4ec97e; }
@@ -220,9 +220,9 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
 <!-- ===== 顶栏（贴顶全宽 0..80）：关卡 + 金币 / 生命 / 波次 图标胶囊 + ☰ 菜单 ===== -->
 <div class="bar">
   <div class="stagechip">桃园起兵 · 涿郡</div>
-  <div class="pill" title="金币"><span class="well bare"><img src="icons_battle/coin.png" alt=""></span><span class="v v-gold">100</span></div>
-  <div class="pill" title="基地生命"><span class="well bare"><img src="icons_battle/base_hp.png" alt=""></span><span class="v v-hp">20</span></div>
-  <div class="pill" title="波次"><span class="well bare"><img src="icons_battle/wave_flag.png" alt=""></span><span class="v v-wave">3 / 6</span></div>
+  <div class="pill" title="金币"><span class="well bare"><img src="icons_hud/coin.png" alt=""></span><span class="v v-gold">100</span></div>
+  <div class="pill" title="基地生命"><span class="well bare"><img src="icons_hud/base_hp.png" alt=""></span><span class="v v-hp">20</span></div>
+  <div class="pill" title="波次"><span class="well bare"><img src="icons_hud/wave_flag.png" alt=""></span><span class="v v-wave">3 / 6</span></div>
   <div class="spacer"></div>
   <div class="menubtn" title="菜单（ESC）：继续 · 设置 · 重开 · 退出"><i></i></div>
   <div class="escchip">ESC</div>
@@ -251,15 +251,15 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   <div class="slots">
     <div class="slot" title="关羽 · 70 金">
       <div class="sava guan_yu">关</div>
-      <span class="costpill"><img src="icons_battle/coin.png" alt="">70</span>
+      <span class="costpill"><img src="icons_hud/coin.png" alt="">70</span>
     </div>
     <div class="slot" title="张飞 · 60 金">
       <div class="sava zhang_fei">张</div>
-      <span class="costpill"><img src="icons_battle/coin.png" alt="">60</span>
+      <span class="costpill"><img src="icons_hud/coin.png" alt="">60</span>
     </div>
     <div class="slot poor" title="刘备 · 55 金（金币不足）">
       <div class="sava liu_bei">刘</div>
-      <span class="costpill"><img src="icons_battle/coin.png" alt="">55</span>
+      <span class="costpill"><img src="icons_hud/coin.png" alt="">55</span>
     </div>
     <div class="slot empty" title="空位（本关 4 人上限未满）"></div>
   </div>
@@ -272,7 +272,7 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
     </div>
     <div class="sup" title="修整 · 未购（点击右下角金币购买）">
       <span class="sicon">修</span>
-      <span class="costpill buypill"><img src="icons_battle/coin.png" alt="">60</span>
+      <span class="costpill buypill"><img src="icons_hud/coin.png" alt="">60</span>
     </div>
     <div class="sup locked" title="第三格：科技解锁后开放">
       <span class="sicon">🔒</span>
@@ -286,15 +286,15 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   <div class="dockstrip">
     <div class="detailrow">
       <div class="slot" title="张飞"><div class="sava zhang_fei">张</div></div>
-      <div class="slot stat" title="伤害（张飞 = 物理）"><img src="icons_battle/dmg_physical.png" alt=""><b>62</b></div>
-      <div class="slot stat" title="攻速（次/秒）"><img src="icons_battle/stat_attack_speed.png" alt=""><b>0.85</b></div>
+      <div class="slot stat" title="伤害（张飞 = 物理）"><img src="icons_hud/dmg_physical.png" alt=""><b>62</b></div>
+      <div class="slot stat" title="攻速（次/秒）"><img src="icons_hud/stat_attack_speed.png" alt=""><b>0.85</b></div>
       <div class="slot" title="升阶 48 金币">
         <div class="disc up"><svg viewBox="0 0 24 24" fill="none" stroke="#4a3313" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V6"/><path d="M6 12l6-6 6 6"/></svg></div>
-        <span class="costpill"><img src="icons_battle/coin.png" alt="">48</span>
+        <span class="costpill"><img src="icons_hud/coin.png" alt="">48</span>
       </div>
       <div class="slot" title="回收 返还 36 金币">
         <div class="disc sell"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></svg></div>
-        <span class="costpill"><img src="icons_battle/coin.png" alt="">36</span>
+        <span class="costpill"><img src="icons_hud/coin.png" alt="">36</span>
       </div>
     </div>
   </div>
@@ -316,7 +316,7 @@ body { font-family:"ZCOOL-Kuaile",sans-serif; background:#214230; }
   <div><span class="h">军需槽</span>：<b>局外选带</b>（默认 2 槽、科技 +1）——局内点击<b>槽底右下金币</b>购买；已购 = 右上 ✓ + 左上剩余次数（点击使用）；<b>达限购次数 = 槽位置灰禁用</b>；锁 = 科技未解锁。</div>
   <div><span class="h">塔详情</span>：选中塔时建造位<b>整块换成同规格 5 卡</b>（头像 / 伤害 / 攻速 / 升阶 / 回收）——升阶 · 回收 = 圆盘图标 + 右下角金币费用（卡面语言同建造位）；不显示等阶、不画选中环，射程数值取消（选中即显示射程圈）。</div>
   <div><span class="h">阶级角标</span>：塔头像右下角，<b>0 阶不显示</b>、1/2/3 阶显数字（后续可换图标堆叠）；地图塔不再显示名称。</div>
-  <div>图标：伤害按攻击类型换用 <img class="mini" src="icons_battle/dmg_physical.png" alt=""> 物理 / <img class="mini" src="icons_battle/dmg_magic.png" alt=""> 魔法 / <img class="mini" src="icons_battle/dmg_true.png" alt=""> 真实；攻速 = 短剑 + 速度杠；军需 / 阶级图标待美术（现用单字与数字）。概念稿 v0.37.30 待拍板。</div>
+  <div>图标：伤害按攻击类型换用 <img class="mini" src="icons_hud/dmg_physical.png" alt=""> 物理 / <img class="mini" src="icons_hud/dmg_magic.png" alt=""> 魔法 / <img class="mini" src="icons_hud/dmg_true.png" alt=""> 真实；攻速 = 短剑 + 速度杠；军需 / 阶级图标待美术（现用单字与数字）。概念稿 v0.37.30 待拍板。</div>
 </div>
 </body>
 </html>
