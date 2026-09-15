@@ -2,6 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)；美术资产规范/入库目录/许可见 [ART_ASSETS.md](ART_ASSETS.md)；技能来源见 [SKILLS.md](SKILLS.md) 与 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)；物品/遗物/掉落来源见 [DROPS_GACHA.md](DROPS_GACHA.md)。
 > 承载总纲原章节：13「美术风格」的实现侧补充（AI 出图管线）。
+> 文档版本：v0.15（2026-09-15）
+> v0.15 变更（2026-09-15，**生命 / 军功图徽出图入库（19 → 21 枚透明符号）+ 图鉴敌人屏重渲**（纯文档·素材，程序 **0.8.16.2 不变** / GDD v0.37.51→v0.37.52 / UI_CONCEPT v0.21 / UI_LAYOUT v0.20.57 / ENCYCLOPEDIA v0.1.18 / ART_ASSETS v0.18，用户 2026-09-15 拍板「把通用资源里的爱心抠出来用作敌人生命，军功就用军工这张图」）：①**生命** = 通用资源网格图（`通用资源生命图标.jpg` 左下图）抠出的**心形** → `icons_hud/stat_hp.png`；②**军功** = 战功勋章单张（`军功.jpg`）→ `icons_hud/merit.png`；两件白底直出、**无深藏青底板**，故只走「去白底 → 归一化 160 透明画布」（不跑剥底板），原图作 `icons_battle/{stat_hp,merit}_source.jpg` 入库；③§5.5 登记扩为 **21 枚**（原「待出图」行改已出图两行）、§5.6 状态改已出图 + 单张 Prompt 保留（复现用）、§6 缺口收敛（不再列生命 / 军功）；④图鉴敌人屏两枚虚线占位（生命（基准）/ 军功）替换为图徽并重渲归档（MD5 见 UI_CONCEPT v0.21 §6）。v0.14 历史行保留。
 > 文档版本：v0.14（2026-09-15）
 > v0.14 变更（2026-09-15，**HUD 图徽底色口径校正：白底 = 抠图原料，交付件 = 透明符号**（纯文档 / 出图规范，程序 **0.8.16.2 不变** / GDD v0.37.50→v0.37.51 / UI_CONCEPT v0.20 / UI_LAYOUT v0.20.56 / ENCYCLOPEDIA v0.1.17 / ART_ASSETS v0.17，用户 2026-09-15 校正「用白底是为了好抠图，不是让你直接用白底，图是要融入当前背景的，不是无脑用白底黑底」）：v0.13「统一纯白圆角方底板」口径**作废**——①§2.2「底」行改写为「出图底 = 纯白背景（不画底板 / 边框 / 托盘）；交付件 = 抠好的**透明符号**；界面靠所在面板自身背景融合，**禁止把白底 / 黑底画进 UI、禁止图标自带底板与外框**」，`UI-STYLE` 末段 `plain white rounded-square panel background` → `plain flat pure white background with no panel or plate behind the symbol`，负面词补 `panel / plate / badge board / tile / border line` 类词，「底色跑偏」纠正条同步；②§2.3 底色行同步；③§5.1 波次旗帜、§5.2~5.4 三组整套网格图、§5.6 资源与生命网格图的 `plain white rounded-square panels` → `each on a plain flat white background (no panel, no plate)`；④§5.5 登记改写为 **19 枚透明符号** + 新增「界面落位口径」（裸符号落位、不加底槽 / 底框 / 描边，需要对比就调面板底色）；⑤§6 待办同步。概念稿重渲见 UI_CONCEPT v0.20。v0.13 历史行保留。
 > 文档版本：v0.13（2026-09-14）
@@ -368,9 +370,9 @@ A single row of 6 flat 2D game UI symbols for enemy status effects, all identica
 
 ---
 
-### 5.5 已出图登记（HUD 图徽，2026-09-11 建档；2026-09-15 透明符号口径）
+### 5.5 已出图登记（HUD 图徽，2026-09-11 建档；2026-09-15 透明符号口径 · 生命 / 军功入库）
 
-落在百科图鉴 / 局内 HUD / 军需面板 / 结算三屏等概念稿（[UI_CONCEPT.md](UI_CONCEPT.md) v0.20 / [UI_LAYOUT.md](UI_LAYOUT.md) §10 · §12 / [ART_ASSETS.md](ART_ASSETS.md) §3）。**图徽 = 抠好的透明符号**（出图用白底只为抠图方便，§2.2）——概念稿取用版 = `docs/ui_concept/src/icons_hud/`（**19 枚 160×160 透明符号**），`docs/ui_concept/src/icons_battle/` 保留立绘级原始件（金币 / 基地生命 / 波次旗帜；`coin_crop.png` / `base_hp_crop.png` 白底裁切件作历史追溯，概念稿已不引用）；抠图脚本 = `src/prep_icons_hud.py`（PIL，非 HTML/Chrome 流程；去白底残边 → 剥离深藏青底板 → 归一化 160 透明画布），运行时入库目录 `assets/ui/icons/` 预留：
+落在百科图鉴 / 局内 HUD / 军需面板 / 结算三屏等概念稿（[UI_CONCEPT.md](UI_CONCEPT.md) v0.20 / [UI_LAYOUT.md](UI_LAYOUT.md) §10 · §12 / [ART_ASSETS.md](ART_ASSETS.md) §3）。**图徽 = 抠好的透明符号**（出图用白底只为抠图方便，§2.2）——概念稿取用版 = `docs/ui_concept/src/icons_hud/`（**21 枚 160×160 透明符号**），`docs/ui_concept/src/icons_battle/` 保留立绘级原始件与白底出图原图（金币 / 基地生命 / 波次旗帜；2026-09-15 新增生命 / 军功原图 `stat_hp_source.jpg` / `merit_source.jpg`；`coin_crop.png` / `base_hp_crop.png` 白底裁切件作历史追溯，概念稿已不引用）；抠图脚本 = `src/prep_icons_hud.py`（PIL，非 HTML/Chrome 流程；去白底残边 → 剥离深藏青底板 → 归一化 160 透明画布），运行时入库目录 `assets/ui/icons/` 预留：
 
 | 图徽 | 文件（`icons_hud/` 透明符号；括号内为原始件） | 用在哪 | 对应 Prompt |
 |---|---|---|---|
@@ -380,14 +382,15 @@ A single row of 6 flat 2D game UI symbols for enemy status effects, all identica
 | 金币 | `coin.png`（原图 `icons_battle/coin.png`） | 顶栏金币胶囊 · 建造 / 升阶 / 回收 / 军需购买等全部费用胶囊 · 图鉴击杀奖励 | §5.6 单张 |
 | 基地生命 | `base_hp.png`（原图 `icons_battle/base_hp.png`） | 顶栏基地生命胶囊（≤30% 危急变红）· 图鉴「漏怪伤害」 | §5.6 单张 |
 | 波次旗帜 | `wave_flag.png`（透明符号；原始件 `icons_battle/wave_flag.png`、`wave_flag_plate.png` 深底版作历史） | 顶栏波次胶囊 · 敌人出口出怪按钮 · 波次开始横幅（同用一件） | §5.1 |
-| **待出图** | 生命（建议 `stat_hp.png`）/ 军功（建议 `merit.png`） | 图鉴「生命（基准）」/「军功」胶囊（概念稿虚线占位）· 军需处军功余额胶囊 | §5.6 单张（2026-09-14 已补提示词） |
+| 生命 | `stat_hp.png`（原图 `icons_battle/stat_hp_source.jpg` = 通用资源网格图左下图的心形） | 图鉴敌人「生命（基准）」胶囊 · 敌人生命语义标注 | §5.6 单张 |
+| 军功 | `merit.png`（原图 `icons_battle/merit_source.jpg` = 战功勋章单张） | 图鉴敌人击杀奖励「军功」胶囊 · 军需处军功余额胶囊（待落位） | §5.6 单张 |
 
 > **界面落位口径（2026-09-15 定）**：图徽一律以**裸符号**落位——顶栏胶囊 / 底栏卡片 / 图鉴属性胶囊 / 军需面板都靠**所在面板自身的背景**托底（深色顶栏直接透出深色、浅色卡片直接透出浅色），**不给图标加底槽、底框、描边或托盘**（概念稿 `.well` 已改为无底无框）。需要提高对比时调**面板**底色或加投影，而不是给图标加底。
 ---
 
 ### 5.6 资源与生命图徽（金币 / 军功 / 生命 / 基地生命；§2.2 UI 图标级）
 
-> 与 §5.2~5.4 同档（简版 UI 图标级 + **白底出图 / 透明交付**），负面词同 §2.2 负面栏。金币 / 基地生命已有出图（`icons_battle/` 立绘级原图 → `icons_hud/` 透明符号版），本节单张 Prompt 为**回填**（复现 / 重出用）；**军功 / 生命为 2026-09-14 新补待出图条目**（用户拍板 2026-09-14「补生命与军功图标提示词」）。
+> 与 §5.2~5.4 同档（简版 UI 图标级 + **白底出图 / 透明交付**），负面词同 §2.2 负面栏。金币 / 基地生命已有出图（`icons_battle/` 立绘级原图 → `icons_hud/` 透明符号版），本节单张 Prompt 为**回填**（复现 / 重出用）；**军功 / 生命 2026-09-14 补提示词、2026-09-15 已出图并入库**（用户 2026-09-15 拍板「把通用资源里的爱心抠出来用作敌人生命，军功就用军工这张图」——心形取通用资源网格图左下图、军功用战功勋章单张；单张 Prompt 保留作复现 / 重出用）。
 
 | 图徽 | 用途 | 图标符号（单符号） | 主色 |
 |---|---|---|---|
@@ -396,9 +399,9 @@ A single row of 6 flat 2D game UI symbols for enemy status effects, all identica
 | 生命 | 图鉴敌人「生命（基准）」属性胶囊 · 敌人生命值语义标注 | 饱满心形（生命值） | 朱红 |
 | 基地生命 | 顶栏基地生命胶囊（≤30% 危急变红）· 图鉴敌人「漏怪伤害」胶囊 | 城关楼（单孔城门 + 门内一颗金心） | 灰石 + 金心 |
 
-**整套网格图（推荐先出这张定调，不追加 `UI-STYLE`）**
+**整套网格图（推荐先出这张定调，不追加 `UI-STYLE`；2026-09-15 实际出图 = 2×2 网格，生命心形取左下图、军功用单独勋章图）**
 ```text
-A single row of 4 flat 2D game UI symbols for resources and life, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, each on a plain flat white background (no panel, no plate), same size, evenly spaced: a round Chinese coin with a square hole (gold-bronze), a merit medal with a short ribbon (gold with a red ribbon), a plump heart (vermilion red), a small Chinese city gate with a heart in the doorway (stone grey with a gold heart). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
+A 2x2 grid of 4 flat 2D game UI symbols for resources and life, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, each on a plain flat white background (no panel, no plate), same size, evenly spaced (top-left coin, top-right medal, bottom-left heart, bottom-right city gate): a round Chinese coin with a square hole (gold-bronze), a merit medal with a short ribbon (gold with a red ribbon), a plump heart (vermilion red), a small Chinese city gate with a heart in the doorway (stone grey with a gold heart). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
 ```
 
 **单张（符号 + 主色 + `UI-STYLE`，§2.2 逐字追加）**
@@ -407,7 +410,7 @@ A single row of 4 flat 2D game UI symbols for resources and life, all identical 
 - **生命**（2026-09-14 补）：`A plump heart, vermilion red, ` + `UI-STYLE`
 - **基地生命**（回填）：`A small Chinese city gate with a heart in the doorway, stone grey with a gold heart, ` + `UI-STYLE`
 
-> 军功为**军需（局外解锁 / 强化）货币**，与金币（局内货币）分列两条独立胶囊，勿合并；生命 / 军功待出图期间概念稿以虚线占位，出图后落 `src/icons_hud/`。
+> 军功为**军需（局外解锁 / 强化）货币**，与金币（局内货币）分列两条独立胶囊，勿合并；生命（`stat_hp.png`）/ 军功（`merit.png`）已落 `src/icons_hud/`，图鉴敌人屏两枚胶囊的虚线占位已替换为图徽。
 
 ---
 
@@ -415,7 +418,7 @@ A single row of 4 flat 2D game UI symbols for resources and life, all identical 
 
 - **生成次序建议**：① §3.1 职业技能核心 6（已建档，先定全套风格）→ ② §3.5 角色技能 9（典故辨识度最高）→ ③ §3.3 二转新技能 6 + §3.4 职业大招 6 → ④ §4 物品各分类。
 - **续补前置**：后续武将信物、新增材料/掉落、远期货币（军功/铜钱）等，先在其设计文档（CHARACTERS / DROPS_GACHA / NUMBERS）登记并定稿名称，再按对应小节模板补提示词并升本档版本。
-- **HUD 图徽续补（2026-09-15 状态）**：①§5.2 伤害 3 / §5.3 属性 7 / §5.4 状态 6 **均已出图并统一为透明符号**（`src/icons_hud/` 19 枚 = 伤害 3 + 属性 7 + 状态 6 + 金币 + 基地生命 + 波次旗帜，见 §5.5）——**白底只作出图原料**，入库件一律抠成透明符号（§2.2）；②**生命 / 军功提示词 2026-09-14 已补（§5.6）、待出图**——出图后替换图鉴 / 军需处的虚线占位；③局内仍缺图徽（军需面板条目图标 / 塔阶级角标）。
+- **HUD 图徽续补（2026-09-15 状态）**：①§5.2 伤害 3 / §5.3 属性 7 / §5.4 状态 6 + §5.6 资源与生命 4（金币 / 军功 / 生命 / 基地生命）+ 波次旗帜 **均已出图并统一为透明符号**（`src/icons_hud/` **21 枚** = 伤害 3 + 属性 7 + 状态 6 + 金币 + 基地生命 + 波次旗帜 + 生命 + 军功，见 §5.5）——**白底只作出图原料**，入库件一律抠成透明符号（§2.2）；②缺口收敛：图鉴两屏已无虚线占位，剩余缺口 = **军需条目图标 / 塔阶级角标 / 军需处军功余额落位**（军功图徽已就绪、随该屏概念稿或代码替换）。
 - **入库**：定稿图标按 [ART_ASSETS.md](ART_ASSETS.md) §2 入 `assets/ui/icons/`（技能/物品预留位），并同步 [ART_ASSETS.md](ART_ASSETS.md) §3 台账登记来源（含 AI 平台许可核实）。
 - 本档为设计/生产参考，不承载数值与机制；机制以 SKILLS / CHARACTER_SKILLS / DROPS_GACHA 为准。
 
@@ -436,4 +439,5 @@ A single row of 4 flat 2D game UI symbols for resources and life, all identical 
 - v0.11（2026-09-11）：**§5.1 波次旗帜按出图定稿 + 新增 §5.5 已出图登记**——意象「军旗 + 波次星角」→「军旗 + 旗下水浪」，用途扩至顶栏波次胶囊 / 敌人出口出怪按钮 / 波次开始横幅；登记已出图 7 枚（同顶部 changelog）。总纲 v0.37.29→v0.37.30、README 同步。程序版本号不变。
 - v0.12（2026-09-14）：**§6 落地流程「本地素材不入库」作废**——素材随仓库入库（对齐 ART_ASSETS v0.15 / BUGS B-076，0.8.16.2）。
 - v0.13（2026-09-14）：**HUD 图徽底色统一纯白圆角方底板**（§2.2 锁定风格 + `UI-STYLE` + §2.3 + §5.1~5.4 网格图同步）+ **新增 §5.6 资源与生命图徽**（补军功 / 生命提示词、回填金币 / 基地生命）+ §5.5 登记扩为 19 枚白底图徽 + §6 待办同步。总纲 v0.37.48→v0.37.49、README 同步；程序版本不变（0.8.16.2）。
+- v0.15（2026-09-15）：**生命 / 军功图徽出图入库（19 → 21 枚透明符号）**——生命 = 通用资源网格图左下图的心形（`stat_hp.png`）、军功 = 战功勋章单张（`merit.png`），白底直出、只走「去白底 → 归一化」（不跑剥底板），原图 `icons_battle/{stat_hp,merit}_source.jpg` 入库；§5.5 登记扩为 21 枚（待出图行改已出图）、§5.6 状态改已出图、§6 缺口收敛；图鉴敌人屏两枚虚线占位替换为图徽并重渲归档。总纲 v0.37.51→v0.37.52、README 同步；程序版本不变（0.8.16.2）。
 - v0.14（2026-09-15）：**HUD 图徽底色口径校正（白底 = 抠图原料 / 交付 = 透明符号）**——§2.2 锁定风格「底」行 + `UI-STYLE` + 负面词 + 纠正条改写，§2.3 底色行同步，§5.1 / §5.2~5.4 / §5.6 网格图措辞同步，§5.5 登记改 19 枚透明符号 + 新增「界面落位口径」（裸符号落位、不加底槽底框）。总纲 v0.37.50→v0.37.51、README 同步；程序版本不变（0.8.16.2）。

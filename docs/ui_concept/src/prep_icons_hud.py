@@ -8,9 +8,11 @@
 
 输入（第 1 项为个人机器路径、非仓库基线）：
   1) F:\\godotProject\\leonardo.ai\\通用HUD\\png\\*.png —— 网格图切分好的 16 枚单符号（白底已去、仍带出图时的深藏青底板）；
-  2) docs/ui_concept/src/icons_battle/{coin,base_hp,wave_flag}.png —— 立绘级原图（已是透明件，无底板）。
-输出：docs/ui_concept/src/icons_hud/*.png —— 19 枚 160x160 **透明底**符号
-  （伤害 3 / 属性 7 / 状态 6 / 金币 / 基地生命 / 波次旗帜）。
+  2) docs/ui_concept/src/icons_battle/{coin,base_hp,wave_flag}.png —— 立绘级原图（已是透明件，无底板）；
+  3) docs/ui_concept/src/icons_battle/{stat_hp,merit}_source.jpg —— 2026-09-15 新出图（纯白底原图：生命 = 通用资源网格图左下图的心形；
+     军功 = 战功勋章单张）。白底直出、**无深藏青底板**，故只走「去白底 -> 归一化」，不跑剥底板。
+输出：docs/ui_concept/src/icons_hud/*.png —— 21 枚 160x160 **透明底**符号
+  （伤害 3 / 属性 7 / 状态 6 / 金币 / 基地生命 / 波次旗帜 / 生命 / 军功）。
 
 处理链：去白底残边 -> 剥离深藏青底板（含被符号包裹的厚底块；细窄同色描线保留为细节线）-> 孤立碎点清理 -> 归一化 160 透明画布。
 运行：python prep_icons_hud.py（本机素材缺失即中止，不动仓库文件）。
@@ -34,6 +36,10 @@ FLAT = ["dmg_physical", "dmg_magic", "dmg_true",
         "stat_armor_pen", "stat_move_speed",
         "status_slow", "status_burn", "status_vulnerable", "status_stun", "status_fear", "status_knockback"]
 RES = ["coin", "base_hp", "wave_flag"]
+
+# 2026-09-15 新出图（白底直出、无深藏青底板）：生命（心形，网格图左下图）/ 军功（战功勋章）
+SRC2 = [("stat_hp", "stat_hp_source.jpg", (0, 512, 512, 1024)),
+        ("merit",   "merit_source.jpg",   None)]
 
 
 def navy(r, g, b, a):
@@ -160,6 +166,7 @@ def main():
         sys.exit("本地素材目录不存在：%s（抠图需该目录；仓库文件未改动）" % LOCAL)
     missing = [n for n in FLAT if not os.path.isfile(os.path.join(LOCAL, n + ".png"))]
     missing += [os.path.join(BATTLE, n + ".png") for n in RES if not os.path.isfile(os.path.join(BATTLE, n + ".png"))]
+    missing += [os.path.join(BATTLE, f) for _, f, _ in SRC2 if not os.path.isfile(os.path.join(BATTLE, f))]
     if missing:
         sys.exit("素材缺件：%s（未写任何文件）" % ", ".join(missing))
     os.makedirs(DST, exist_ok=True)
@@ -167,7 +174,12 @@ def main():
         fit_square(strip(key_white(Image.open(os.path.join(LOCAL, n + ".png"))))).save(os.path.join(DST, n + ".png"))
     for n in RES:
         fit_square(Image.open(os.path.join(BATTLE, n + ".png"))).save(os.path.join(DST, n + ".png"))
-    print("done", len(FLAT) + len(RES))
+    for n, f, box in SRC2:
+        src = Image.open(os.path.join(BATTLE, f))
+        if box:
+            src = src.crop(box)
+        fit_square(key_white(src)).save(os.path.join(DST, n + ".png"))
+    print("done", len(FLAT) + len(RES) + len(SRC2))
 
 
 main()

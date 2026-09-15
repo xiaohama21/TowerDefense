@@ -2,6 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
+> 文档版本：v0.18（2026-09-15）
+> v0.18 变更（2026-09-15，**生命 / 军功图徽出图入库（19 → 21 枚透明符号）**（纯文档 / 素材，程序 **0.8.16.2 不变** / GDD v0.37.51→v0.37.52 / UI_CONCEPT v0.21 / UI_LAYOUT v0.20.57 / ART_PROMPTS v0.15 / ENCYCLOPEDIA v0.1.18，用户 2026-09-15 拍板「把通用资源里的爱心抠出来用作敌人生命，军功就用军工这张图」）：§3 台账补 **`stat_hp.png`**（生命 = 心形，取自通用资源网格图 `stat_hp_source.jpg` 左下图）与 **`merit.png`**（军功 = 战功勋章，原图 `merit_source.jpg`）两行，取用版合计 **21 枚 160×160 透明符号**；二者**白底直出、无深藏青底板**，抠图脚本 `prep_icons_hud.py` 新增 `SRC2` 通道（只走「去白底 → 归一化」，不跑剥底板）；§6 许可行扩为 21 枚；概念稿重渲见 UI_CONCEPT v0.21。v0.17 历史行保留。
 > 文档版本：v0.17（2026-09-15）
 > v0.17 变更（2026-09-15，**通用 HUD 图徽改「透明符号」**（纯文档 / 素材，程序 **0.8.16.2 不变** / GDD v0.37.50→v0.37.51 / UI_CONCEPT v0.20 / UI_LAYOUT v0.20.56 / ART_PROMPTS v0.14 / ENCYCLOPEDIA v0.1.17，用户 2026-09-15 校正「用白底是为了好抠图，不是让你直接用白底，图是要融入当前背景的，不是无脑用白底黑底」）：v0.16「统一纯白圆角方底板」口径**作废**——§3 台账改写为 **19 枚 160×160 透明符号**（`docs/ui_concept/src/icons_hud/`；金币 / 基地生命 / 波次旗帜由立绘级原图重出透明版，16 枚通用图徽重跑与入库件逐字节一致），底色口径改「**出图白底 = 抠图原料 / 交付件 = 透明符号、界面裸符号落位**」；抠图脚本 `prep_icons_hud.py` 改为「去白底残边 → 剥离深藏青底板 → 归一化 160 透明画布」；§6 许可行同步（19 枚透明符号）；概念稿 7 屏同源重渲见 UI_CONCEPT v0.20。v0.16 历史行保留。
 > v0.16 变更（2026-09-14，**通用 HUD 图徽统一纯白圆角方底板**（纯文档 / 素材，程序 **0.8.16.2 不变** / GDD v0.37.48→v0.37.49 / UI_LAYOUT v0.20.54 / UI_CONCEPT v0.18 / ART_PROMPTS v0.13 / ENCYCLOPEDIA v0.1.16，用户 2026-09-14 拍板「还有个事要改一下，全部图标要都用白底」）：**§3 通用 HUD 图徽台账扩为两套**——①**取用版 = `docs/ui_concept/src/icons_hud/` 19 枚 160×160 白底图徽**（伤害 3 / 属性 7 / 状态 6 + 金币 + 基地生命 + 波次旗帜白底版），概念稿（百科两屏 / 局内 HUD v2 / 军需面板）统一改用该套，**底色口径 = 纯白圆角方底板 `#ffffff`**（圆角 30px、符号最长边 ≤116px 居中；出图规范见 ART_PROMPTS §2.2 v0.13）；②**原始件 = `docs/ui_concept/src/icons_battle/` 保留**（金币 / 基地生命 / 波次旗帜立绘级原图 + 伤害 / 攻速初版拷贝，供重制与追溯）；③复现脚本 §3 补充 `src/prep_icons_hud.py`（白底合成，PIL）；④§6 许可行同步（覆盖 19 枚白底图徽）；⑤待出图收敛为 **生命 / 军功**（提示词 ART_PROMPTS §5.6 已补）+ 军需条目图标 / 塔阶级角标。
@@ -78,7 +80,7 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 | `ui/icons/slide_*.png` | `Blue/slide_*.png` | 设置滑块/滚动条 |
 
 **语义色映射**（对齐 UITheme 语义，见 UI_LAYOUT.md 第 2 节）：黄=主行动（金语义，视觉以黄替金）、红=警示、灰=中性/禁用、蓝=信息/选中、绿=成功。按钮四态效果见 `docs/ui_concept/ui_button_states.png`。
-**通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集**（随局内 HUD v2 概念稿定稿启用 = [UI_LAYOUT.md](UI_LAYOUT.md) §10 / v0.20.41；**取用版 = `docs/ui_concept/src/icons_hud/` 19 枚透明符号（裸符号落位）、原始件 + 抠图脚本 = `docs/ui_concept/src/icons_battle/`**，运行时入库目录 = `assets/ui/icons/`（**预留，随局内 HUD v2 换肤一并落地**）；本集不含技能 / 物品图徽，后者按 [ART_PROMPTS.md](ART_PROMPTS.md) §6 另批入库）：
+**通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集**（随局内 HUD v2 概念稿定稿启用 = [UI_LAYOUT.md](UI_LAYOUT.md) §10 / v0.20.41；**取用版 = `docs/ui_concept/src/icons_hud/` 21 枚透明符号（裸符号落位）、原始件 + 抠图脚本 = `docs/ui_concept/src/icons_battle/`**，运行时入库目录 = `assets/ui/icons/`（**预留，随局内 HUD v2 换肤一并落地**）；本集不含技能 / 物品图徽，后者按 [ART_PROMPTS.md](ART_PROMPTS.md) §6 另批入库）：
 
 > **底色口径（2026-09-15 起）**：出图白底 = **抠图原料**（便于一键去背，**不是交付底**）；**交付 / 界面件 = 透明符号**（`icons_hud/` 160×160、符号占内框 88% 居中；`icons_battle/` 立绘级原始件与白底 `*_crop.png` 仅作历史追溯）。界面里**裸符号落位**、由所在面板背景托底，**不给图标加白底 / 黑底 / 底槽 / 底框**（出图规范 [ART_PROMPTS.md](ART_PROMPTS.md) §2.2 v0.14）。
 
@@ -87,11 +89,13 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 | `wave_flag.png` | 波次旗帜（透明符号） | 顶栏波次胶囊 + **地图出怪按钮** + 波次开始横幅（同用一件、裸符号落位；`icons_battle/wave_flag_plate.png` 深底版作历史） |
 | `coin.png` | 金币 | 顶栏金币胶囊 + 建造 / 升阶 / 回收 / 军需购买等**全部费用胶囊** + 图鉴击杀奖励（原始件 `icons_battle/coin.png` 立绘级） |
 | `base_hp.png` | 基地生命 | 顶栏基地生命胶囊（数值常态绿、≤30% 危急变红）+ 图鉴敌人「漏怪伤害」（原始件 `icons_battle/base_hp.png` 立绘级） |
+| `stat_hp.png` | 生命（基准） | 图鉴敌人「生命（基准）」胶囊 · 敌人生命语义标注（原图 `icons_battle/stat_hp_source.jpg` = 通用资源网格图左下图的心形，2026-09-15 入库） |
+| `merit.png` | 军功 | 图鉴敌人击杀奖励「军功」胶囊 · 大厅「军需处」军功余额胶囊（待落位）（原图 `icons_battle/merit_source.jpg` = 战功勋章单张，2026-09-15 入库） |
 | `dmg_physical.png` / `dmg_magic.png` / `dmg_true.png` | 伤害类型（物理 / 魔法 / 真实） | 图鉴属性列 + 塔详情「伤害」值图标，按攻击类型换用（口径 [NUMBERS.md](NUMBERS.md) 10.12） |
 | `stat_attack_speed.png` / `stat_range.png` / `stat_armor.png` / `stat_exp.png` / `stat_tenacity.png` / `stat_armor_pen.png` / `stat_move_speed.png` | 人物属性 7（攻速 / 射程 / 护甲 / 经验 / 韧性 / 穿甲 / 移速） | 图鉴属性胶囊 + 塔详情「攻速」值图标（风格锚点 [ART_PROMPTS.md](ART_PROMPTS.md) §5.3） |
 | `status_slow.png` / `status_burn.png` / `status_vulnerable.png` / `status_stun.png` / `status_fear.png` / `status_knockback.png` | 负面状态 6（减速 / 灼烧 / 易伤 / 眩晕 / 恐惧 / 击退） | 敌人状态条（运行时待落地；口径 [STATS_PIPELINE.md](STATS_PIPELINE.md) §6） |
 
-> 复现：①`python prep_icons_hud.py`（PIL；把 `icons_battle/` 原图 / 抠好的单符号做「**去白底残边 → 剥离深藏青底板 → 归一化**」处理，输出 `icons_hud/` 19 枚 160×160 透明符号）；②原始件仍由 `python prep_hud_icons.py` 生成（自本地 `F:\godotProject\leonardo.ai\通用HUD\*.jpg` 去白底 / 去底板裁边输出 coin / base_hp / wave_flag_plate / wave_flag；`dmg_*` 等自同目录 `png/` 直接拷入）。风格锚点 = [ART_PROMPTS.md](ART_PROMPTS.md) §5（§5.2~5.4 整套网格图 · §5.6 资源与生命）。待出图：**生命 / 军功**（提示词 §5.6 已补，落 `icons_hud/`）+ 军需条目图标 / 塔阶级角标。
+> 复现：①`python prep_icons_hud.py`（PIL；把 `icons_battle/` 原图 / 抠好的单符号做「**去白底残边 → 剥离深藏青底板 → 归一化**」处理，输出 `icons_hud/` 21 枚 160×160 透明符号：16 枚通用图徽 + 金币 / 基地生命 / 波次旗帜走「去白底 → 剥底板 → 归一化」，生命 `stat_hp_source.jpg`（网格图左下图裁剪）/ 军功 `merit_source.jpg`（白底直出、无底板）走新 `SRC2` 通道「去白底 → 归一化」）；②原始件仍由 `python prep_hud_icons.py` 生成（自本地 `F:\godotProject\leonardo.ai\通用HUD\*.jpg` 去白底 / 去底板裁边输出 coin / base_hp / wave_flag_plate / wave_flag；`dmg_*` 等自同目录 `png/` 直接拷入）。风格锚点 = [ART_PROMPTS.md](ART_PROMPTS.md) §5（§5.2~5.4 整套网格图 · §5.6 资源与生命）。缺口：**军需条目图标 / 塔阶级角标 / 军需处军功余额落位**（生命 / 军功 2026-09-15 已出图入库，提示词见 [ART_PROMPTS.md](ART_PROMPTS.md) §5.6）。
 
 **鼠标光标（Kenney Cursor Pack，调色定稿 B，v0.14 入库 = 程序 0.8.12.0）**：运行时目录 `assets/ui/cursors/`（每枚含 32px 与 `_2x` 64px 两版），鼠标形态规范与**热点实测表**见 [UI_LAYOUT.md](UI_LAYOUT.md) §15：
 
@@ -178,7 +182,7 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 | Kenney Cursor Pack 切片（光标） | kenney.nl（https://kenney.nl/assets/cursor-pack ） | CC0 | 光标视觉系统素材（**v0.14 已入库**，程序 0.8.12.0）：`Outline/Default`(32px) + `Outline/Double`(64px) 原图经 `tools/prep_cursors.py` 按定稿配色 B 重着色（配方见 UI_LAYOUT §15）；源图 9 图 ×2 尺寸子集随 docs/ui_concept/src/kenney_cursor_pack 归档（`src/README.md` 登记；完整包 728 个 PNG 未入库） |
 | 站酷快乐体 2016 修订版 | 站酷（ZCOOL） | 免费商用 | 字体；使用声明随原压缩包存档 |
 | D69《315 套 Q 版卡通角色 spine 动画》 | 冰糖撞果冻店铺（下载链接见包内免责声明） | ⚠️ 包内声明「仅供学习研究、不得商用，请购买正版」 | 角色 spine 试点（序号 097 关羽）；商用前需购正版授权，当前仅作开发期试点；**v0.15（2026-09-14 用户拍板）素材随仓库入库**（跨环境同步，传播限于本仓库开发协作，包内声明约束不变） |
-| 通用 HUD 图徽（伤害 3 / 属性 7 / 状态 6 / 波次旗帜 / 金币 / 基地生命，19 枚透明符号） | 外部 AI 生成（Leonardo，本地目录 `F:\godotProject\leonardo.ai\通用HUD\`） | 以来源为准（自生成素材） | 局内 HUD 图标集（见 §3）；取用版 `docs/ui_concept/src/icons_hud/`（透明 160×160）+ 原始件 `icons_battle/`，抠图脚本 `prep_icons_hud.py`（去白底 → 抠深藏青底板 → 归一化透明），运行时入库目录 `assets/ui/icons/` 预留 |
+| 通用 HUD 图徽（伤害 3 / 属性 7 / 状态 6 / 波次旗帜 / 金币 / 基地生命 / 生命 / 军功，21 枚透明符号） | 外部 AI 生成（Leonardo，本地目录 `F:\godotProject\leonardo.ai\通用HUD\`） | 以来源为准（自生成素材） | 局内 HUD 图标集（见 §3）；取用版 `docs/ui_concept/src/icons_hud/`（透明 160×160）+ 原始件 `icons_battle/`，抠图脚本 `prep_icons_hud.py`（去白底 → 抠深藏青底板 → 归一化透明），运行时入库目录 `assets/ui/icons/` 预留 |
 
 ## 7. 变更记录
 
@@ -197,5 +201,6 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 - v0.13（2026-09-12）：§7 变更记录补登 v0.10~v0.12 漏登条目（同顶部 changelog）。
 - v0.14（2026-09-12）：光标素材入库——§2 `assets/ui/cursors/` 落地 9 枚 ×2 尺寸、§3 新增光标台账、§6 许可更新（程序 0.8.12.0，见档头 v0.14 变更行与 UI_LAYOUT §15）。
 - v0.17（2026-09-15）：通用 HUD 图徽改**透明符号**（出图白底仅作抠图原料、界面裸符号落位、去底槽底框）——19 枚透明符号落 `docs/ui_concept/src/icons_hud/`、概念稿 7 屏同源重渲，§3 台账与 §6 许可同步（同顶部 changelog）。
+- v0.18（2026-09-15）：生命 / 军功图徽入库（19 → **21 枚透明符号**）——§3 台账补 `stat_hp.png`（心形，网格图左下图）与 `merit.png`（战功勋章）两行、复现段补 `SRC2` 白底直出通道（不跑剥底板）、§6 许可行扩至 21 枚。概念稿同源重渲见 UI_CONCEPT v0.21；程序版本不变（0.8.16.2）。
 - v0.16（2026-09-14）：通用 HUD 图徽统一纯白圆角方底板——19 枚白底图徽落 `docs/ui_concept/src/icons_hud/`、原始件留 `icons_battle/`，§3 台账与 §6 许可同步（同顶部 changelog）。
 - v0.15（2026-09-14）：Spine 素材与运行时入库（撤销 v0.11「素材不入库」）——`assets/characters/` / `assets/spine_test/` / `bin/` 23 文件 ≈6.2MB 随仓库同步、对照样例导出排除、PackVerify 增护栏用例（程序 0.8.16.2，见档头 v0.15 变更行与 §5.8）。
