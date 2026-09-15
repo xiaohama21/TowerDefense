@@ -49,6 +49,11 @@ func _ready() -> void:
 	_drag_layer.layer = DRAG_OVERLAY_LAYER
 	add_child(_drag_layer)
 
+	# 覆盖层（v0.33.3）：整屏 STOP 遮挡——拖拽期 hover 由本层接管（HUD / 战场不再显示悬停态）。
+	# 注：Godot 按住左键期间把鼠标事件与光标形状都归「被按下控件」（建造卡 = Viewport 的
+	# gui.mouse_focus），本层不收事件、也不决定光标——拖拽光标由建造卡承担（UI._set_card_cursor，
+	# B-077）、拖拽中右键取消走卡片信号（Main._on_card_drag_cancelled，B-078）；下方光标形状与
+	# gui_input 仅作防御性兜底。
 	_catcher = Control.new()
 	_catcher.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_catcher.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -163,7 +168,7 @@ func _is_point_over_battle_ui(screen_pos: Vector2) -> bool:
 	return false
 
 
-## 覆盖层吞掉拖拽期间全部鼠标事件：左键松手=放置，右键按下=取消。
+## 兜底路径：覆盖层自身收到事件时左键松手=放置、右键按下=取消（主路径见 _ready 注记）。
 func _on_catcher_gui_input(event: InputEvent) -> void:
 	if not _drag_active:
 		return

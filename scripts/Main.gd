@@ -9,6 +9,8 @@ const SUPPLY_PANEL_WIDTH := 908.0
 const SUPPLY_LIST_WIDTH := 476.0
 const SUPPLY_DETAIL_WIDTH := 372.0
 const SUPPLY_MASK_TOP := 80.0
+## 战场光标层高度（B-079）：HUD（UI 默认 layer 1）之下——HUD 控件悬停优先，战场空地由本层接管。
+const FIELD_CURSOR_LAYER: int = 0
 
 @onready var enemy_manager = $EnemyManager
 @onready var tower_manager = $TowerManager
@@ -93,6 +95,7 @@ func _ready():
 	ui.restart_pressed.connect(_on_restart_pressed)
 	ui.card_drag_began.connect(_on_card_drag_began)
 	ui.card_drag_released.connect(_on_card_drag_released)
+	ui.card_drag_cancelled.connect(_on_card_drag_cancelled)
 	ui.debug_wave_jump_requested.connect(_on_debug_wave_jump)
 	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
 	ui.tower_upgrade_requested.connect(_on_tower_upgrade_requested)
@@ -137,13 +140,19 @@ func _resolve_stage_data() -> StageData:
 ## 光标视觉系统（UI_LAYOUT §15，程序 0.8.12.0）：战场画布区准星光标（cross_large）。
 ## PASS 透传点击（塔选取走 Area2D 物理拾取）；HUD 在更高 CanvasLayer、建造拖拽覆盖层
 ## 为 STOP，各自接管自己的悬停区。
+## 注（B-079）：铺满依赖 CanvasLayer / Control 父级——直挂 Node2D 时锚点不生效（size 恒 0、
+## 永不 hover，准星光标从未出现），故本层自带 CanvasLayer（层号 < HUD）。
 func _setup_field_cursor() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "FieldCursorLayer"
+	layer.layer = FIELD_CURSOR_LAYER
+	add_child(layer)
 	var field := Control.new()
 	field.name = "FieldCursor"
 	field.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	field.mouse_filter = Control.MOUSE_FILTER_PASS
 	field.mouse_default_cursor_shape = Control.CURSOR_CROSS
-	add_child(field)
+	layer.add_child(field)
 
 
 ## 战场布局由 StageData 驱动（GDD 5.6）：路径、道路瓦片、出入口地标与建造位。
@@ -237,6 +246,11 @@ func _on_card_drag_began(character_id: String) -> void:
 ## 拖拽建造：卡片松手 → BuildManager.release_drag（可建即直建，其余取消）。
 func _on_card_drag_released(_character_id: String) -> void:
 	build_manager.release_drag()
+
+
+## 拖拽中右键取消（卡片按键路径，B-078）→ 取消拖拽，不建造不扣费。
+func _on_card_drag_cancelled() -> void:
+	build_manager.cancel_drag()
 
 
 ## 拖拽结束（放置或取消）→ UI 复位卡片按下的金色高亮。

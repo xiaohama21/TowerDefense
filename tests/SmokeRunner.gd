@@ -54,6 +54,16 @@ func _tower_at_cell(tower_manager: Node, cell: Vector2i) -> Tower:
 	return null
 
 
+## 光标用例辅助（B-077·B-078）：拖拽建造走 UI 卡片按键路径，需合成鼠标按键事件。
+func _mouse_button(button: int, pressed: bool) -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.button_index = button
+	event.pressed = pressed
+	event.position = Vector2(600, 400)
+	event.global_position = event.position
+	return event
+
+
 ## 遗留槽位坐标（v0.33.3 槽位视觉已移除，StageData.build_slots 数据废弃保留）：
 ## 转成网格坐标供拖拽用例复用原槽位布局，保持后续用例的塔位几何不变。
 func _legacy_slot_cells(build_manager: Node, stage_data: StageData) -> Array[Vector2i]:
@@ -631,6 +641,27 @@ func _run() -> void:
 			and build_manager._ghost.visible and build_manager._ghost.is_selected,
 			"拖拽时应显示带范围圈的武将虚影")
 		build_manager.cancel_drag()
+		# 拖拽光标 / 右键取消 / 战场准星（UI_LAYOUT §15，BUGS B-077·B-078·B-079）：Godot 按住左键期间
+		# 光标形状取「被按下控件链」（= 按下时的建造卡），指针下的拖拽覆盖层不参与——拖拽光标必须由
+		# 卡片承担；拖拽中右键同样只到卡片，取消须走卡片信号。
+		GameManager.gold = 9999
+		var ui := main.get_node("UI")
+		var card: Control = ui._character_cards["guan_yu"]["panel"]
+		_check(card.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND,
+			"建造卡默认应为悬停手型（UI_LAYOUT §15 卡片行）")
+		ui._on_card_gui_input(_mouse_button(MOUSE_BUTTON_LEFT, true), "guan_yu")
+		_check(build_manager.is_dragging(), "建造卡按下应开始拖拽（UI 卡片路径）")
+		_check(card.mouse_default_cursor_shape == Control.CURSOR_DRAG,
+			"拖拽期建造卡应切拖拽光标 hand_closed（B-077）")
+		ui._on_card_gui_input(_mouse_button(MOUSE_BUTTON_RIGHT, true), "guan_yu")
+		_check(not build_manager.is_dragging(), "拖拽中右键应取消拖拽（B-078）")
+		_check(card.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND,
+			"取消后建造卡光标应复位悬停手型")
+		var field_cursor := main.get_node_or_null("FieldCursorLayer/FieldCursor") as Control
+		_check(field_cursor != null and field_cursor.mouse_filter == Control.MOUSE_FILTER_PASS
+			and field_cursor.mouse_default_cursor_shape == Control.CURSOR_CROSS
+			and field_cursor.size.x >= 1280.0 and field_cursor.size.y >= 720.0,
+			"战场 FieldCursor 应铺满且为准星光标（B-079：Node2D 父级不传导锚点）")
 	var enemy_manager := main.get_node("EnemyManager")
 	# 程序化构造 EnemyData，替代旧的硬编码 spawn_enemy("boss")。
 	var boss_data := EnemyData.new()

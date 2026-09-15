@@ -10,6 +10,8 @@ signal restart_pressed
 ## 拖拽建造（v0.33.3）：武将卡片按下/松手 → Main → BuildManager 开始/结束拖拽。
 signal card_drag_began(character_id: String)
 signal card_drag_released(character_id: String)
+## 拖拽中右键取消（Godot 拖拽期鼠标事件交「被按下控件」= 卡片，覆盖层收不到，B-078）。
+signal card_drag_cancelled()
 signal debug_wave_jump_requested(wave_index: int)
 signal debug_clear_enemies_requested
 signal tower_upgrade_requested
@@ -165,6 +167,8 @@ func setup_character_bar(characters: Array) -> void:
 		var panel := PanelContainer.new()
 		panel.custom_minimum_size = Vector2(124, 68)
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		# 光标（UI_LAYOUT §15）：悬停手型；拖拽期由本卡承担拖拽光标（见 _set_card_cursor）。
+		panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		panel.gui_input.connect(_on_card_gui_input.bind(character_id))
 		character_bar.add_child(panel)
 
@@ -240,10 +244,16 @@ func _refresh_character_bar_affordance() -> void:
 
 
 ## 卡片按下 → 开始拖拽（金币不足不可拖；拖拽本身的金币校验由 BuildManager 兜底）。
+## 拖拽中右键 → 取消（Godot 按住左键期间把鼠标事件交给「被按下控件」= 本卡，覆盖层收不到）。
 func _on_card_gui_input(event: InputEvent, character_id: String) -> void:
 	if not event is InputEventMouseButton:
 		return
 	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+		if mouse_event.pressed and _held_card_id == character_id:
+			clear_card_hold()
+			card_drag_cancelled.emit()
+		return
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
 		return
 	if mouse_event.pressed:
@@ -251,19 +261,31 @@ func _on_card_gui_input(event: InputEvent, character_id: String) -> void:
 			return
 		_held_card_id = character_id
 		_apply_card_style(_character_cards.get(character_id, {}))
+		_set_card_cursor(character_id, Control.CURSOR_DRAG)
 		card_drag_began.emit(character_id)
 	elif _held_card_id == character_id:
 		clear_card_hold()
 		card_drag_released.emit(character_id)
 
 
-## 松手/取消/开始失败（Main 回调）→ 复位卡片按下的金色高亮。
+## 松手/取消/开始失败（Main 回调）→ 复位卡片按下的金色高亮与拖拽光标。
 func clear_card_hold() -> void:
 	if _held_card_id.is_empty():
 		return
+	var held_id := _held_card_id
 	_held_card_id = ""
 	for key in _character_cards.keys():
 		_apply_card_style(_character_cards[key])
+	_set_card_cursor(held_id, Control.CURSOR_POINTING_HAND)
+
+
+## 建造卡光标切换（UI_LAYOUT §15 / B-077）：Godot 按住左键期间光标形状取 `mouse_focus`——
+## 即按下时的控件（= 建造卡）而非指针下的拖拽覆盖层，故拖拽光标必须由卡片自身承担。
+func _set_card_cursor(character_id: String, shape: Control.CursorShape) -> void:
+	var entry: Dictionary = _character_cards.get(character_id, {})
+	var panel: Control = entry.get("panel")
+	if is_instance_valid(panel):
+		panel.mouse_default_cursor_shape = shape
 
 
 ## 卡片样式刷新：按住=金色高亮；金币不足=灰字 + 红边框红费用；默认=面板边框。
