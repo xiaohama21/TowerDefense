@@ -2,6 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)；美术资产规范/入库目录/许可见 [ART_ASSETS.md](ART_ASSETS.md)；技能来源见 [SKILLS.md](SKILLS.md) 与 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)；物品/遗物/掉落来源见 [DROPS_GACHA.md](DROPS_GACHA.md)。
 > 承载总纲原章节：13「美术风格」的实现侧补充（AI 出图管线）。
+> 文档版本：v0.14（2026-09-15）
+> v0.14 变更（2026-09-15，**HUD 图徽底色口径校正：白底 = 抠图原料，交付件 = 透明符号**（纯文档 / 出图规范，程序 **0.8.16.2 不变** / GDD v0.37.50→v0.37.51 / UI_CONCEPT v0.20 / UI_LAYOUT v0.20.56 / ENCYCLOPEDIA v0.1.17 / ART_ASSETS v0.17，用户 2026-09-15 校正「用白底是为了好抠图，不是让你直接用白底，图是要融入当前背景的，不是无脑用白底黑底」）：v0.13「统一纯白圆角方底板」口径**作废**——①§2.2「底」行改写为「出图底 = 纯白背景（不画底板 / 边框 / 托盘）；交付件 = 抠好的**透明符号**；界面靠所在面板自身背景融合，**禁止把白底 / 黑底画进 UI、禁止图标自带底板与外框**」，`UI-STYLE` 末段 `plain white rounded-square panel background` → `plain flat pure white background with no panel or plate behind the symbol`，负面词补 `panel / plate / badge board / tile / border line` 类词，「底色跑偏」纠正条同步；②§2.3 底色行同步；③§5.1 波次旗帜、§5.2~5.4 三组整套网格图、§5.6 资源与生命网格图的 `plain white rounded-square panels` → `each on a plain flat white background (no panel, no plate)`；④§5.5 登记改写为 **19 枚透明符号** + 新增「界面落位口径」（裸符号落位、不加底槽 / 底框 / 描边，需要对比就调面板底色）；⑤§6 待办同步。概念稿重渲见 UI_CONCEPT v0.20。v0.13 历史行保留。
 > 文档版本：v0.13（2026-09-14）
 > v0.13 变更（2026-09-14，纯文档 / 出图规范口径，程序 **0.8.16.2 不变** / GDD v0.37.48→v0.37.49，用户 2026-09-14 拍板「还有个事要改一下，全部图标要都用白底」）：**HUD 图徽底色口径 = 纯白圆角方底板（`#ffffff`）**——①§2.2 锁定风格「底」行：深藏青圆角方形面板 `#1f2430` → **纯白圆角方底板 `#ffffff`**（深藏青底板 / 无底板口径作废），内联风格串 `UI-STYLE` 末段 `plain dark navy rounded-square panel background` → `plain white rounded-square panel background`，并补「底色跑偏」纠正条；②§2.3 底色行同步；§5.2 / §5.3 / §5.4 三组「整套网格图」的深底描述 → 白底，§5.1 波次旗帜 Prompt 底板改白底（顶栏胶囊用白底版、地图出怪按钮仍用无底旗）；③**新增 §5.6「资源与生命图徽（金币 / 军功 / 生命 / 基地生命）」**——补 **军功**（战功勋章）与 **生命**（心形）两枚待出图提示词，并回填 **金币** / **基地生命** 的单张 Prompt（原 §5.5 记「单张条目待回填」）；④§5.5 已出图登记改写为 **19 枚白底图徽**（`src/icons_hud/`：伤害 3 / 属性 7 / 状态 6 / 金币 / 基地生命 / 波次旗帜白底版）+ `src/icons_battle/` 立绘级原图；⑤§6 待办同步。概念稿白底重渲见 UI_CONCEPT v0.18 / UI_LAYOUT v0.20.54 / ENCYCLOPEDIA v0.1.16 / ART_ASSETS v0.16。v0.12 历史行保留。
 > 文档版本：v0.12（2026-09-14）
@@ -63,19 +65,19 @@ text, letters, numbers, Chinese characters, calligraphy, watermark, logo, signat
 - 描边：统一深色描边（≈ `#2b2b33`），线宽 ≈ 画布短边 7%，整册一致。
 - 填色：平涂**单一主色** + 至多一处白色高光点缀；不做第二层明暗/色阶。
 - 构图：符号居中、约占画布 70%、四周等距留白；端点/转角统一圆角。
-- 底：整册同一底色 = **纯白圆角方底板 `#ffffff`**（同一圆角半径 ≈ 短边 19%、四周等距留白；**2026-09-14 起全部图标统一白底**——深藏青底板 / 无底板口径作废）。
+- 底（**出图底 = 白底，交付件 = 透明**）：出图时符号落在**纯白背景**上（`plain flat pure white background`）——**不画底板、不画托盘、不画边框**；**白底只为抠图方便**，切好的**透明符号**才是交付 / 入库件（`icons_hud/`）。界面里靠所在面板自身的背景（深色顶栏 / 浅色卡片 / 胶囊）自然融合——**禁止把白底 / 黑底 / 深藏青底板画进 UI，也禁止图标自带底板或外框**（2026-09-15 用户校正；v0.13「纯白圆角方底板」口径作废）。
 - 主色仅作"区分编码"；**除主色外的一切风格参数全部锁死**。
 
 > ⚠️ **防风格漂移核心**：不要给模型只丢"符号 + 颜色"就自由发挥（这是 5.2~5.4 上一版两张图风格差太多的根因）；必须让每条 Prompt 复用**逐字相同**的风格串。
 
 **内联风格串 `UI-STYLE`（每条单张 Prompt 末尾逐字追加，禁止改写）**
 ```text
-flat 2D game UI symbol, single bold pictogram, thick uniform dark outline, smooth anti-aliased vector edges, flat solid single-color fill with one white highlight accent, no gradient, no shadow, no 3D, no perspective, no texture, no pixelation, centered with even margin, plain white rounded-square panel background, clean high-resolution game attribute icon, 1:1 square. No text, no letters, no numbers, no watermark, no frame.
+flat 2D game UI symbol, single bold pictogram, thick uniform dark outline, smooth anti-aliased vector edges, flat solid single-color fill with one white highlight accent, no gradient, no shadow, no 3D, no perspective, no texture, no pixelation, centered with even margin, plain flat pure white background with no panel or plate behind the symbol, clean high-resolution game attribute icon, 1:1 square. No text, no letters, no numbers, no watermark, no frame.
 ```
 
 **负面词（Negative Prompt 栏整段粘贴）**
 ```text
-pixel art, pixelated, 8-bit, 16-bit, retro game, dithering, voxel, mosaic, blocky, jagged aliased edges, low resolution, text, letters, numbers, Chinese characters, watermark, logo, signature, detailed illustration, chibi character, person, scene, background scenery, radial glow, gradient, 3D render, bevel, drop shadow, painterly, texture noise, thin lines, many objects, cluttered, realistic, photo.
+pixel art, pixelated, 8-bit, 16-bit, retro game, dithering, voxel, mosaic, blocky, jagged aliased edges, low resolution, panel, plate, badge board, tile, rounded-square plate, dark navy panel, vignette, background frame, border line, text, letters, numbers, Chinese characters, watermark, logo, signature, detailed illustration, chibi character, person, scene, background scenery, radial glow, gradient, 3D render, bevel, drop shadow, painterly, texture noise, thin lines, many objects, cluttered, realistic, photo.
 ```
 
 **一致性做法（关键）**
@@ -87,13 +89,13 @@ pixel art, pixelated, 8-bit, 16-bit, retro game, dithering, voxel, mosaic, block
 > **常见跑偏与纠正**
 > - **出成像素风**：① 负面词补 `pixel art, pixelated, 8-bit, dithering, voxel, blocky`；② 换掉 Pixel Art / Retro 类 preset 与像素模型；③ 提高分辨率到 ≥1024；④ 正向补 `smooth anti-aliased vector edges, high-resolution`。
 > - **出成写实/3D**：负面词已含 `realistic, photo, 3D render`；正向强调 `flat 2D`。
-> - **底色跑偏（出成深藏青 / 无底板）**：正向强调 `plain white rounded-square panel background`（纯白圆角方底板）；提示词里若带 dark navy panel / transparent background 等词，删掉后重出。
+> - **底跑偏（出成深藏青底板 / 白圆角方底板 / 带边框）**：正向强调 `plain flat pure white background, no panel, no plate, no frame`（纯白背景、无底板无边框）；提示词里若带 dark navy panel / rounded-square panel / transparent background 等词，删掉后重出。⚠️ **白底只是抠图原料**——出图后一律抠成**透明符号**再用，界面里不得直接贴白底 / 黑底。
 > - **一组里个别不一样**：重出该张（同 seed），或用母版做 Image Guidance。
 
 ### 2.3 出图参数建议（通用）
 
 - 尺寸：1:1 方形；主体居中约占画面 60%~70%（图标最终在小尺寸 UI 槽内显示，外圈会被裁/盖）。
-- 底色：立绘级 = 深色径向渐变（贴合 UI_LAYOUT §2 深底语义）；UI 图标级 = **纯白圆角方底板 `#ffffff`**（出图规格同 `icons_hud/`，2026-09-14 起统一），**不加径向光晕**。
+- 底色：立绘级 = 深色径向渐变（贴合 UI_LAYOUT §2 深底语义）；UI 图标级 = **纯白背景**（出图底，**只为好抠图**）——交付件 = 抠好的**透明符号**（`icons_hud/` 规格 = 160×160 透明画布、符号占内框 88%），**不加径向光晕、不画底板 / 边框**；界面里由所在面板背景托底。
 - 一致性：同一模型 + 同 seed 重 roll 出一套；两档各自成套，批量前各先出 1 张定调再铺开。
 - 调优：某图反复出现同一坏毛病（如乱加字幕），单独把该词补进对应档位负面栏即可，不必加重叠。
 
@@ -292,7 +294,7 @@ pixel art, pixelated, 8-bit, 16-bit, retro game, dithering, voxel, mosaic, block
 |---|---|---|
 | 波次旗帜 | 战斗顶栏波次胶囊 · **敌人出口出怪按钮**（点击出怪）· 波次开始横幅 | 招展的军旗 + 旗下**水浪**（代"波"，2026-09-11 出图定稿） |
 
-- **波次旗帜（2026-09-11 按出图定稿修订）**：一面猎猎招展的三国军旗，旗杆下卷起一道水浪（代"波"），喻示"下一波来袭"。出图 = 扁平矢量风 + **白底圆角方底板**（2026-09-14 起与全册一致；顶栏波次胶囊用白底版 `docs/ui_concept/src/icons_hud/wave_flag.png`，地图出怪按钮用**无底旗** `docs/ui_concept/src/icons_battle/wave_flag.png`，`wave_flag_plate.png` 深底版作历史备用）。Prompt：`A single bold Three-Kingdoms war banner on a pole streaming to the right with a curling water wave beneath it, next-wave incoming call, strong simple flag silhouette, crimson and gold tones, flat 2D game UI icon with smooth anti-aliased vector edges and thick dark outline, on a plain white rounded-square panel. No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.`
+- **波次旗帜（2026-09-11 按出图定稿修订）**：一面猎猎招展的三国军旗，旗杆下卷起一道水浪（代"波"），喻示"下一波来袭"。出图 = 扁平矢量风 + **纯白背景**（白底只作抠图原料）；交付件 = **透明符号** `docs/ui_concept/src/icons_hud/wave_flag.png`（顶栏波次胶囊 / 地图出怪按钮 / 波次开始横幅**同用一件**，界面不落底板、不加底框；`wave_flag_plate.png` 深藏青底板版仅作历史追溯）。Prompt：`A single bold Three-Kingdoms war banner on a pole streaming to the right with a curling water wave beneath it, next-wave incoming call, strong simple flag silhouette, crimson and gold tones, flat 2D game UI icon with smooth anti-aliased vector edges and thick dark outline, plain flat pure white background with no panel or plate behind the symbol. No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.`
 
 ### 5.2 伤害类型（伤害数值/技能说明标注，口径 NUMBERS 10.12；§2.2 UI 图标级）
 
@@ -304,7 +306,7 @@ pixel art, pixelated, 8-bit, 16-bit, retro game, dithering, voxel, mosaic, block
 
 **整套网格图（推荐先出这张定调，不追加 `UI-STYLE`）**
 ```text
-A single row of 3 flat 2D game UI symbols for damage types, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, plain white rounded-square panels, same size, evenly spaced: crossed swords in steel grey, a rune orb in violet-blue, a radiant starburst slash in white-gold. No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
+A single row of 3 flat 2D game UI symbols for damage types, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, each on a plain flat white background (no panel, no plate), same size, evenly spaced: crossed swords in steel grey, a rune orb in violet-blue, a radiant starburst slash in white-gold. No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
 ```
 
 **单张（符号 + 主色 + `UI-STYLE`，§2.2 逐字追加）**
@@ -328,7 +330,7 @@ A single row of 3 flat 2D game UI symbols for damage types, all identical smooth
 
 **整套网格图（推荐先出这张定调，不追加 `UI-STYLE`）**
 ```text
-A single row of 7 flat 2D game UI symbols for character stats, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, plain white rounded-square panels, same size, evenly spaced: a short sword with three horizontal bars beside it (amber), a target reticle with a dotted range arc (teal), an intact armor plate (steel blue), a five-pointed star (gold), a clenched strong fist (bronze), the exact same armor plate shape cracked and split (red-orange), a boot with three speed lines (green). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
+A single row of 7 flat 2D game UI symbols for character stats, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, each on a plain flat white background (no panel, no plate), same size, evenly spaced: a short sword with three horizontal bars beside it (amber), a target reticle with a dotted range arc (teal), an intact armor plate (steel blue), a five-pointed star (gold), a clenched strong fist (bronze), the exact same armor plate shape cracked and split (red-orange), a boot with three speed lines (green). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
 ```
 
 **单张（符号 + 主色 + `UI-STYLE`，§2.2 逐字追加）**
@@ -353,7 +355,7 @@ A single row of 7 flat 2D game UI symbols for character stats, all identical smo
 
 **整套网格图（推荐先出这张定调，不追加 `UI-STYLE`）**
 ```text
-A single row of 6 flat 2D game UI symbols for enemy status effects, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, plain white rounded-square panels, same size, evenly spaced: a snowflake (ice blue), a flame (orange-red), a cracked shield with a downward arrow (magenta), a star with two orbit rings (bright yellow), a skull with two wavy fear lines (dark purple), a knockback arrow with a drag line (brown-steel). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
+A single row of 6 flat 2D game UI symbols for enemy status effects, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, each on a plain flat white background (no panel, no plate), same size, evenly spaced: a snowflake (ice blue), a flame (orange-red), a cracked shield with a downward arrow (magenta), a star with two orbit rings (bright yellow), a skull with two wavy fear lines (dark purple), a knockback arrow with a drag line (brown-steel). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
 ```
 
 **单张（符号 + 主色 + `UI-STYLE`，§2.2 逐字追加）**
@@ -366,24 +368,26 @@ A single row of 6 flat 2D game UI symbols for enemy status effects, all identica
 
 ---
 
-### 5.5 已出图登记（HUD 图徽，2026-09-11 建档；2026-09-14 白底改制）
+### 5.5 已出图登记（HUD 图徽，2026-09-11 建档；2026-09-15 透明符号口径）
 
-落在百科图鉴 / 局内 HUD / 军需面板等概念稿（[UI_CONCEPT.md](UI_CONCEPT.md) v0.18 / [UI_LAYOUT.md](UI_LAYOUT.md) §10 · §12 / [ART_ASSETS.md](ART_ASSETS.md) §3）。**2026-09-14 起全部图徽统一纯白圆角方底板**（§2.2）——概念稿取用版 = `docs/ui_concept/src/icons_hud/`（**19 枚 160×160 白底图徽**），`docs/ui_concept/src/icons_battle/` 保留最早一批立绘级原图（金币 / 基地生命 / 波次旗帜）与伤害 / 攻速初版拷入件；白底合成脚本 = `src/prep_icons_hud.py`（PIL，非 HTML/Chrome 流程），运行时入库目录 `assets/ui/icons/` 预留：
+落在百科图鉴 / 局内 HUD / 军需面板 / 结算三屏等概念稿（[UI_CONCEPT.md](UI_CONCEPT.md) v0.20 / [UI_LAYOUT.md](UI_LAYOUT.md) §10 · §12 / [ART_ASSETS.md](ART_ASSETS.md) §3）。**图徽 = 抠好的透明符号**（出图用白底只为抠图方便，§2.2）——概念稿取用版 = `docs/ui_concept/src/icons_hud/`（**19 枚 160×160 透明符号**），`docs/ui_concept/src/icons_battle/` 保留立绘级原始件（金币 / 基地生命 / 波次旗帜；`coin_crop.png` / `base_hp_crop.png` 白底裁切件作历史追溯，概念稿已不引用）；抠图脚本 = `src/prep_icons_hud.py`（PIL，非 HTML/Chrome 流程；去白底残边 → 剥离深藏青底板 → 归一化 160 透明画布），运行时入库目录 `assets/ui/icons/` 预留：
 
-| 图徽 | 文件（`icons_hud/` 白底版；括号内为原始件） | 用在哪 | 对应 Prompt |
+| 图徽 | 文件（`icons_hud/` 透明符号；括号内为原始件） | 用在哪 | 对应 Prompt |
 |---|---|---|---|
 | 伤害类型 3 | `dmg_physical.png` / `dmg_magic.png` / `dmg_true.png` | 图鉴属性列 · 塔详情伤害值 | §5.2 整套网格图 |
 | 人物属性 7 | `stat_attack_speed.png` / `stat_range` / `stat_armor` / `stat_exp` / `stat_tenacity` / `stat_armor_pen` / `stat_move_speed` | 图鉴属性胶囊 · 塔详情攻速值 | §5.3 整套网格图 |
 | 负面状态 6 | `status_slow.png` / `status_burn` / `status_vulnerable` / `status_stun` / `status_fear` / `status_knockback` | 敌人状态条（运行时待落地） | §5.4 整套网格图 |
 | 金币 | `coin.png`（原图 `icons_battle/coin.png`） | 顶栏金币胶囊 · 建造 / 升阶 / 回收 / 军需购买等全部费用胶囊 · 图鉴击杀奖励 | §5.6 单张 |
 | 基地生命 | `base_hp.png`（原图 `icons_battle/base_hp.png`） | 顶栏基地生命胶囊（≤30% 危急变红）· 图鉴「漏怪伤害」 | §5.6 单张 |
-| 波次旗帜 | `wave_flag.png`（白底版，顶栏胶囊）/ `icons_battle/wave_flag.png`（无底旗，出怪按钮 · 横幅）/ `wave_flag_plate.png`（深底备用） | 顶栏波次胶囊 · 敌人出口出怪按钮 · 波次开始横幅 | §5.1 |
+| 波次旗帜 | `wave_flag.png`（透明符号；原始件 `icons_battle/wave_flag.png`、`wave_flag_plate.png` 深底版作历史） | 顶栏波次胶囊 · 敌人出口出怪按钮 · 波次开始横幅（同用一件） | §5.1 |
 | **待出图** | 生命（建议 `stat_hp.png`）/ 军功（建议 `merit.png`） | 图鉴「生命（基准）」/「军功」胶囊（概念稿虚线占位）· 军需处军功余额胶囊 | §5.6 单张（2026-09-14 已补提示词） |
+
+> **界面落位口径（2026-09-15 定）**：图徽一律以**裸符号**落位——顶栏胶囊 / 底栏卡片 / 图鉴属性胶囊 / 军需面板都靠**所在面板自身的背景**托底（深色顶栏直接透出深色、浅色卡片直接透出浅色），**不给图标加底槽、底框、描边或托盘**（概念稿 `.well` 已改为无底无框）。需要提高对比时调**面板**底色或加投影，而不是给图标加底。
 ---
 
 ### 5.6 资源与生命图徽（金币 / 军功 / 生命 / 基地生命；§2.2 UI 图标级）
 
-> 与 §5.2~5.4 同档（简版 UI 图标级 + **纯白圆角方底板**），负面词同 §2.2 负面栏。金币 / 基地生命已有出图（`icons_battle/` 立绘级原图 → `icons_hud/` 白底图徽版），本节单张 Prompt 为**回填**（复现 / 重出用）；**军功 / 生命为 2026-09-14 新补待出图条目**（用户拍板 2026-09-14「补生命与军功图标提示词」）。
+> 与 §5.2~5.4 同档（简版 UI 图标级 + **白底出图 / 透明交付**），负面词同 §2.2 负面栏。金币 / 基地生命已有出图（`icons_battle/` 立绘级原图 → `icons_hud/` 透明符号版），本节单张 Prompt 为**回填**（复现 / 重出用）；**军功 / 生命为 2026-09-14 新补待出图条目**（用户拍板 2026-09-14「补生命与军功图标提示词」）。
 
 | 图徽 | 用途 | 图标符号（单符号） | 主色 |
 |---|---|---|---|
@@ -394,7 +398,7 @@ A single row of 6 flat 2D game UI symbols for enemy status effects, all identica
 
 **整套网格图（推荐先出这张定调，不追加 `UI-STYLE`）**
 ```text
-A single row of 4 flat 2D game UI symbols for resources and life, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, plain white rounded-square panels, same size, evenly spaced: a round Chinese coin with a square hole (gold-bronze), a merit medal with a short ribbon (gold with a red ribbon), a plump heart (vermilion red), a small Chinese city gate with a heart in the doorway (stone grey with a gold heart). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
+A single row of 4 flat 2D game UI symbols for resources and life, all identical smooth vector cartoon style with thick uniform dark outline, smooth anti-aliased edges and flat solid single-color fill, each on a plain flat white background (no panel, no plate), same size, evenly spaced: a round Chinese coin with a square hole (gold-bronze), a merit medal with a short ribbon (gold with a red ribbon), a plump heart (vermilion red), a small Chinese city gate with a heart in the doorway (stone grey with a gold heart). No pixelation. 1:1 square. No text, no letters, no numbers, no watermark, no frame, no scene.
 ```
 
 **单张（符号 + 主色 + `UI-STYLE`，§2.2 逐字追加）**
@@ -411,7 +415,7 @@ A single row of 4 flat 2D game UI symbols for resources and life, all identical 
 
 - **生成次序建议**：① §3.1 职业技能核心 6（已建档，先定全套风格）→ ② §3.5 角色技能 9（典故辨识度最高）→ ③ §3.3 二转新技能 6 + §3.4 职业大招 6 → ④ §4 物品各分类。
 - **续补前置**：后续武将信物、新增材料/掉落、远期货币（军功/铜钱）等，先在其设计文档（CHARACTERS / DROPS_GACHA / NUMBERS）登记并定稿名称，再按对应小节模板补提示词并升本档版本。
-- **HUD 图徽续补（2026-09-14 状态）**：①§5.2 伤害 3 / §5.3 属性 7 / §5.4 状态 6 **均已出图并统一白底**（`src/icons_hud/` 19 枚 = 伤害 3 + 属性 7 + 状态 6 + 金币 + 基地生命 + 波次旗帜白底版，见 §5.5）；②**生命 / 军功提示词 2026-09-14 已补（§5.6）、待出图**——出图后替换图鉴 / 军需处的虚线占位；③局内仍缺图徽（军需面板条目图标 / 塔阶级角标）。
+- **HUD 图徽续补（2026-09-15 状态）**：①§5.2 伤害 3 / §5.3 属性 7 / §5.4 状态 6 **均已出图并统一为透明符号**（`src/icons_hud/` 19 枚 = 伤害 3 + 属性 7 + 状态 6 + 金币 + 基地生命 + 波次旗帜，见 §5.5）——**白底只作出图原料**，入库件一律抠成透明符号（§2.2）；②**生命 / 军功提示词 2026-09-14 已补（§5.6）、待出图**——出图后替换图鉴 / 军需处的虚线占位；③局内仍缺图徽（军需面板条目图标 / 塔阶级角标）。
 - **入库**：定稿图标按 [ART_ASSETS.md](ART_ASSETS.md) §2 入 `assets/ui/icons/`（技能/物品预留位），并同步 [ART_ASSETS.md](ART_ASSETS.md) §3 台账登记来源（含 AI 平台许可核实）。
 - 本档为设计/生产参考，不承载数值与机制；机制以 SKILLS / CHARACTER_SKILLS / DROPS_GACHA 为准。
 
@@ -432,3 +436,4 @@ A single row of 4 flat 2D game UI symbols for resources and life, all identical 
 - v0.11（2026-09-11）：**§5.1 波次旗帜按出图定稿 + 新增 §5.5 已出图登记**——意象「军旗 + 波次星角」→「军旗 + 旗下水浪」，用途扩至顶栏波次胶囊 / 敌人出口出怪按钮 / 波次开始横幅；登记已出图 7 枚（同顶部 changelog）。总纲 v0.37.29→v0.37.30、README 同步。程序版本号不变。
 - v0.12（2026-09-14）：**§6 落地流程「本地素材不入库」作废**——素材随仓库入库（对齐 ART_ASSETS v0.15 / BUGS B-076，0.8.16.2）。
 - v0.13（2026-09-14）：**HUD 图徽底色统一纯白圆角方底板**（§2.2 锁定风格 + `UI-STYLE` + §2.3 + §5.1~5.4 网格图同步）+ **新增 §5.6 资源与生命图徽**（补军功 / 生命提示词、回填金币 / 基地生命）+ §5.5 登记扩为 19 枚白底图徽 + §6 待办同步。总纲 v0.37.48→v0.37.49、README 同步；程序版本不变（0.8.16.2）。
+- v0.14（2026-09-15）：**HUD 图徽底色口径校正（白底 = 抠图原料 / 交付 = 透明符号）**——§2.2 锁定风格「底」行 + `UI-STYLE` + 负面词 + 纠正条改写，§2.3 底色行同步，§5.1 / §5.2~5.4 / §5.6 网格图措辞同步，§5.5 登记改 19 枚透明符号 + 新增「界面落位口径」（裸符号落位、不加底槽底框）。总纲 v0.37.50→v0.37.51、README 同步；程序版本不变（0.8.16.2）。
