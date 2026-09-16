@@ -198,6 +198,74 @@ func _test_enemy_hp_bar_0816() -> void:
 		enemy.free()
 
 
+## 一击必杀血条定格（UI_LAYOUT §10 / 程序 0.8.16.5）：满血敌人被单次受击直接打死时，
+## 血量同一帧 100% → 0 并 queue_free（无「掉血但活着」的帧）→ 死亡点补播 0.50s 血条定格。
+func _test_kill_bar_flash_0816() -> void:
+	var enemy_scene := load("res://scenes/Enemy.tscn") as PackedScene
+	var data := load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres") as EnemyData
+	if data == null or enemy_scene == null:
+		_check(false, "一击必杀定格：敌人数据 / 场景应可加载")
+		return
+	var enemy := enemy_scene.instantiate() as Enemy
+	enemy.max_hp = 100
+	enemy.current_hp = 100
+	enemy.body = enemy.get_node_or_null("Body") as ColorRect
+	enemy.set_body_size(data.body_size)
+	# 判定（纯函数）：入伤前满血 + 非隐匿未现形 → 补定格；已受伤 / 隐匿 → 不补。
+	_check(enemy.should_flash_kill_bar(1.0), "满血一击必杀应补血条定格")
+	_check(not enemy.should_flash_kill_bar(0.83), "已受过伤（血条显示过）的敌人不补定格")
+	enemy.stealth = true
+	enemy._set_stealth_revealed(false)
+	_check(not enemy.should_flash_kill_bar(1.0), "隐匿未现形的一击必杀不补定格")
+	enemy.stealth = false
+	# 非致死受击不得登记定格（血条本身会显示，走常规路径）。
+	enemy.take_damage(30)
+	_check(not enemy._kill_bar_flash and not enemy.is_dead, "非致死受击不应登记定格")
+	# 满血一击必杀：走 take_damage → die() 全链路（奖励清零，避免污染后续用例的账面）。
+	enemy.current_hp = enemy.max_hp
+	enemy.reward = 0
+	enemy.kill_xp = 0
+	enemy.merit_reward = 0
+	enemy.take_damage(999)
+	_check(enemy.is_dead, "满血一击必杀应致死")
+	_check(not enemy._kill_bar_flash, "die() 应消费定格登记（测试环境不入树，不生成节点）")
+	enemy.free()
+	# 定格曲线（纯函数）：0.20s 填充打空 / 0.36s 白残影拖尾结束 / 0.35s 起淡出 / 0.50s 归零。
+	# 脚本按路径取用（headless 下全局类缓存不保证含新 class_name）。
+	var flash_script := load("res://scripts/EnemyKillBarFlash.gd") as GDScript
+	if flash_script == null:
+		_check(false, "定格脚本应可加载")
+		return
+	_check(is_equal_approx(flash_script.fill_ratio_at(0.0), 1.0), "定格 t=0 填充应为满")
+	_check(is_equal_approx(flash_script.fill_ratio_at(flash_script.FILL_DRAIN), 0.0),
+		"定格填充应在 0.20s 打空")
+	_check(is_equal_approx(flash_script.ghost_ratio_at(0.0), 1.0), "定格 t=0 残影应为满")
+	_check(is_equal_approx(flash_script.ghost_ratio_at(flash_script.GHOST_DRAIN), 0.0),
+		"定格白残影应在 0.36s 拖尾结束")
+	_check(flash_script.ghost_ratio_at(0.10) > flash_script.fill_ratio_at(0.10),
+		"定格残影应滞后于填充（白色拖尾）")
+	_check(is_equal_approx(flash_script.alpha_at(flash_script.FADE_START), 1.0),
+		"定格在 0.35s 前应保持不透明")
+	_check(is_equal_approx(flash_script.alpha_at(flash_script.DURATION), 0.0),
+		"定格结束应完全淡出")
+	_check(flash_script.DURATION > flash_script.GHOST_DRAIN
+		and flash_script.GHOST_DRAIN > flash_script.FILL_DRAIN,
+		"定格时长应满足 填充 < 残影 < 总时长")
+	# 场景与档位注入（不入树，仅验证可实例化 + setup 生效）。
+	var flash_scene := load("res://scenes/EnemyKillBarFlash.tscn") as PackedScene
+	_check(flash_scene != null, "定格场景应可加载")
+	if flash_scene == null:
+		return
+	var flash := flash_scene.instantiate() as Node2D
+	_check(flash != null and flash.z_index == 49, "定格应为 Node2D 且 z_index 49（低于飘字 50）")
+	if flash == null:
+		return
+	flash.setup(Rect2(-17.0, -33.0, 34.0, 6.0), Enemy.HpBarTier.ELITE)
+	_check(flash.bar_tier == Enemy.HpBarTier.ELITE and is_equal_approx(flash.bar_rect.size.x, 34.0),
+		"定格应可写入矩形与档位（尺寸由 Enemy 侧算好）")
+	flash.free()
+
+
 func _test_merit_supply_0816() -> void:
 	var merit_by_enemy := {
 		"yellow_turban_soldier": 1, "yellow_turban_archer": 1,
@@ -396,6 +464,8 @@ func _run() -> void:
 	_test_merit_supply_0816()
 	# 敌人血条三档（UI_LAYOUT §10 / 程序 0.8.16.4）：几何 · 居中 · 不压头带 · 掉血残影 · 满血隐藏。
 	_test_enemy_hp_bar_0816()
+	# 一击必杀血条定格（UI_LAYOUT §10 / 程序 0.8.16.5）：满血一击致死 → 死亡点补播 0.5s 血条定格。
+	_test_kill_bar_flash_0816()
 	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（消耗品练兵令已随 0.8.15.0 删除）。
 	for relic_id in ["wolf_tooth", "iron_shield", "provision_bag", "scout_eye", "war_drums"]:
 		var relic_item := load("res://resources/items/%s.tres" % relic_id) as ItemData

@@ -43,6 +43,9 @@ const HP_BAR_INK_RING := Color(0.0, 0.0, 0.0, 0.55)
 const HP_BAR_TICK := Color(0.094, 0.024, 0.039, 0.7)
 const HP_BAR_GLOSS := Color(1.0, 1.0, 1.0, 0.5)
 const HP_BAR_LOW_GLOW := Color(1.0, 0.376, 0.306, 0.34)
+## 一击必杀定格（0.8.16.5）：满血敌人被单次受击直接打死时不存在掉血帧——
+## 由 die() 在死亡点补播一段血条定格（脚本 / 场景见 scripts/EnemyKillBarFlash.gd / scenes/EnemyKillBarFlash.tscn）。
+const KILL_BAR_FLASH_SCENE_PATH: String = "res://scenes/EnemyKillBarFlash.tscn"
 
 @export var speed: float = 100.0
 @export var max_hp: int = 100
@@ -143,6 +146,8 @@ var _body_size := Vector2(40.0, 40.0)
 ## 掉血残影比例与停留计时（血条白段，见 _process）。
 var _hp_ghost_ratio: float = 1.0
 var _hp_ghost_hold: float = 0.0
+## 本次受击是否为「满血一击必杀」（die() 消费后复位，见 should_flash_kill_bar）。
+var _kill_bar_flash: bool = false
 
 func _enter_tree() -> void:
 	add_to_group(ENEMY_GROUP)
@@ -455,6 +460,8 @@ func take_damage(
 	update_hp_bar()
 
 	if current_hp <= 0:
+		# 一击必杀定格（0.8.16.5）：入伤前满血 → 玩家从未见过这条血条，死亡瞬间补一段定格。
+		_kill_bar_flash = should_flash_kill_bar(hp_ratio_before)
 		die(true)
 
 
@@ -480,6 +487,9 @@ func die(give_reward: bool) -> void:
 	if is_dead:
 		return
 	is_dead = true
+	if _kill_bar_flash:
+		_kill_bar_flash = false
+		_spawn_kill_bar_flash()
 
 	if give_reward:
 		GameManager.enemy_died(
@@ -634,88 +644,117 @@ func should_show_hp_bar() -> bool:
 	return current_hp < max_hp and is_revealed()
 
 
+## 一击必杀定格判定（0.8.16.5）：入伤前满血（= 玩家从未见过这条血条）且非隐匿未现形。
+## 已掉过血的敌人不再补（血条早已显示过，避免每次击杀都多一条血条）。
+func should_flash_kill_bar(hp_ratio_before: float) -> bool:
+	return hp_ratio_before >= 1.0 and is_revealed()
+
+
+## 一击必杀定格：死亡点放一枚短命血条（自绘 · 0.5s 自释放；纯表现、不参与战斗逻辑）。
+## 挂到当前战斗场景（与飘字同层思路），z_index 由场景给出（49 < 飘字 50）。
+func _spawn_kill_bar_flash() -> void:
+	if not is_inside_tree():
+		return
+	var host := get_tree().current_scene
+	if host == null:
+		return
+	var flash_scene := load(KILL_BAR_FLASH_SCENE_PATH) as PackedScene
+	if flash_scene == null:
+		return
+	var flash := flash_scene.instantiate()
+	flash.setup(get_hp_bar_rect(), get_hp_bar_tier())
+	host.add_child(flash)
+	flash.global_position = global_position
+
+
 func _draw_hp_bar() -> void:
 	if not should_show_hp_bar():
 		return
-	var tier := get_hp_bar_tier()
-	var rect := get_hp_bar_rect()
+	draw_hp_bar_skin(
+		self, get_hp_bar_rect(), get_hp_bar_tier(), get_hp_ratio(), _hp_ghost_ratio,
+		get_hp_ratio() <= HP_BAR_LOW_RATIO
+	)
+
+
+## 皮肤绘制（对任意 CanvasItem 通用 · 0.8.16.5 抽静态）：敌人自身血条与「一击必杀定格」共用同一套画法。
+## tier 见 HpBarTier；ratio / ghost_ratio 为 0~1 比例；low = 低血提亮 + 外发光。
+static func draw_hp_bar_skin(
+	ci: CanvasItem, rect: Rect2, tier: int, ratio: float, ghost_ratio: float, low: bool
+) -> void:
 	var bar_size := rect.size
-	var ratio := get_hp_ratio()
 	var inner_pos := rect.position + Vector2(1.0, 1.0)
 	var inner_size := bar_size - Vector2(2.0, 2.0)
-	var low := ratio <= HP_BAR_LOW_RATIO
 	# 外投影 → 槽（深墨渐变）→ 内 1px 墨圈 → 档位外框（精英白 / Boss 金）。
-	_draw_bar_capsule(rect.position + Vector2(0.0, 1.0), bar_size, HP_BAR_SHADOW)
-	_draw_bar_gradient(
-		rect.position, bar_size,
+	draw_bar_capsule(ci, rect.position + Vector2(0.0, 1.0), bar_size, HP_BAR_SHADOW)
+	draw_bar_gradient(
+		ci, rect.position, bar_size,
 		HP_BAR_SLOT_TOP, HP_BAR_SLOT_TOP.lerp(HP_BAR_SLOT_BOTTOM, 0.56), HP_BAR_SLOT_BOTTOM
 	)
-	_draw_bar_outline(rect.position, bar_size, HP_BAR_INK_RING, 1.0)
+	draw_bar_outline(ci, rect.position, bar_size, HP_BAR_INK_RING, 1.0)
 	if tier == HpBarTier.ELITE:
-		_draw_bar_outline(
-			rect.position - Vector2(1.0, 1.0), bar_size + Vector2(2.0, 2.0), HP_BAR_ELITE_FRAME, 1.0
+		draw_bar_outline(
+			ci, rect.position - Vector2(1.0, 1.0), bar_size + Vector2(2.0, 2.0),
+			HP_BAR_ELITE_FRAME, 1.0
 		)
 	elif tier == HpBarTier.BOSS:
-		_draw_bar_outline(
-			rect.position - Vector2(1.0, 1.0), bar_size + Vector2(2.0, 2.0), HP_BAR_BOSS_FRAME, 1.0
+		draw_bar_outline(
+			ci, rect.position - Vector2(1.0, 1.0), bar_size + Vector2(2.0, 2.0),
+			HP_BAR_BOSS_FRAME, 1.0
 		)
 	# 低血警示：静态外发光环（不做逐帧脉动，避免同屏敌人全体重绘）。
 	if low:
-		_draw_bar_outline(
-			rect.position - Vector2(1.5, 1.5), bar_size + Vector2(3.0, 3.0), HP_BAR_LOW_GLOW, 1.5
+		draw_bar_outline(
+			ci, rect.position - Vector2(1.5, 1.5), bar_size + Vector2(3.0, 3.0), HP_BAR_LOW_GLOW, 1.5
 		)
 	# 掉血残影：受击瞬间的旧血量白段（最窄退化为圆点）。
-	if _hp_ghost_ratio > ratio:
-		_draw_bar_capsule(
-			inner_pos,
-			Vector2(maxf(inner_size.x * _hp_ghost_ratio, inner_size.y), inner_size.y),
-			HP_BAR_GHOST
+	if ghost_ratio > ratio:
+		draw_bar_capsule(
+			ci, inner_pos,
+			Vector2(maxf(inner_size.x * ghost_ratio, inner_size.y), inner_size.y), HP_BAR_GHOST
 		)
 	# 填充：圆头 + 竖渐变（三停）+ 顶部 1px 高光。
 	var fill_size := Vector2(maxf(inner_size.x * ratio, 0.0), inner_size.y)
 	if fill_size.x > 0.0:
-		_draw_bar_gradient(
-			inner_pos, fill_size,
+		draw_bar_gradient(
+			ci, inner_pos, fill_size,
 			HP_BAR_FILL_LOW_TOP if low else HP_BAR_FILL_TOP,
 			HP_BAR_FILL_LOW_MID if low else HP_BAR_FILL_MID,
 			HP_BAR_FILL_LOW_BOTTOM if low else HP_BAR_FILL_BOTTOM
 		)
 		if fill_size.x > inner_size.y:
 			var cap := inner_size.y * 0.5
-			draw_line(
-				inner_pos + Vector2(cap, 0.5),
-				inner_pos + Vector2(fill_size.x - cap, 0.5),
+			ci.draw_line(
+				inner_pos + Vector2(cap, 0.5), inner_pos + Vector2(fill_size.x - cap, 0.5),
 				HP_BAR_GLOSS, 1.0
 			)
 	# Boss 三刻度（25 / 50 / 75%）：压在填充之上，与金框配套。
 	if tier == HpBarTier.BOSS:
 		for tick_index in range(1, 4):
 			var tick_x := inner_pos.x + inner_size.x * 0.25 * float(tick_index)
-			draw_line(
+			ci.draw_line(
 				Vector2(tick_x, inner_pos.y + 1.0),
-				Vector2(tick_x, inner_pos.y + inner_size.y - 1.0),
-				HP_BAR_TICK, 1.0
+				Vector2(tick_x, inner_pos.y + inner_size.y - 1.0), HP_BAR_TICK, 1.0
 			)
 
-
-## 实心胶囊（圆头）：矩形 + 两端圆；宽度不足两倍高时退化为圆点。
-func _draw_bar_capsule(pos: Vector2, size: Vector2, color: Color) -> void:
+## 实心胶囊（圆头）：矩形 + 两端圆；宽度不足两倍高时退化为圆点（static：敌人血条 / 定格共用）。
+static func draw_bar_capsule(ci: CanvasItem, pos: Vector2, size: Vector2, color: Color) -> void:
 	var radius := size.y * 0.5
 	if size.x <= size.y:
-		draw_circle(pos + size * 0.5, maxf(size.x * 0.5, 0.0), color)
+		ci.draw_circle(pos + size * 0.5, maxf(size.x * 0.5, 0.0), color)
 		return
-	draw_rect(Rect2(pos + Vector2(radius, 0.0), Vector2(size.x - radius * 2.0, size.y)), color)
-	draw_circle(pos + Vector2(radius, radius), radius, color)
-	draw_circle(pos + Vector2(size.x - radius, radius), radius, color)
+	ci.draw_rect(Rect2(pos + Vector2(radius, 0.0), Vector2(size.x - radius * 2.0, size.y)), color)
+	ci.draw_circle(pos + Vector2(radius, radius), radius, color)
+	ci.draw_circle(pos + Vector2(size.x - radius, radius), radius, color)
 
 
 ## 竖渐变胶囊：按顶点 y 取三停色（top → mid@56% → bottom），draw_polygon 顶点插值。
-func _draw_bar_gradient(
-	pos: Vector2, size: Vector2, top_color: Color, mid_color: Color, bottom_color: Color
+static func draw_bar_gradient(
+	ci: CanvasItem, pos: Vector2, size: Vector2,
+	top_color: Color, mid_color: Color, bottom_color: Color
 ) -> void:
 	var radius := size.y * 0.5
 	if size.x <= size.y:
-		draw_circle(pos + size * 0.5, maxf(size.x * 0.5, 0.0), mid_color)
+		ci.draw_circle(pos + size * 0.5, maxf(size.x * 0.5, 0.0), mid_color)
 		return
 	var points := PackedVector2Array()
 	var segments := 6
@@ -737,24 +776,26 @@ func _draw_bar_gradient(
 	var denom := maxf(size.y, 0.001)
 	for point in points:
 		var t := clampf((point.y - pos.y) / denom, 0.0, 1.0)
-		colors.append(_bar_gradient_color(t, top_color, mid_color, bottom_color))
-	draw_polygon(points, colors)
+		colors.append(bar_gradient_color(t, top_color, mid_color, bottom_color))
+	ci.draw_polygon(points, colors)
 
 
 ## 三停色采样（mid 停在 56%，与规格稿一致）。
-func _bar_gradient_color(t: float, top_color: Color, mid_color: Color, bottom_color: Color) -> Color:
+static func bar_gradient_color(t: float, top_color: Color, mid_color: Color, bottom_color: Color) -> Color:
 	if t <= 0.56:
 		return top_color.lerp(mid_color, clampf(t / 0.56, 0.0, 1.0))
 	return mid_color.lerp(bottom_color, clampf((t - 0.56) / 0.44, 0.0, 1.0))
 
 
 ## 胶囊描边：两段半圆 + 上下两条直线（与塔怒气条同款画法）。
-func _draw_bar_outline(pos: Vector2, size: Vector2, color: Color, width: float) -> void:
+static func draw_bar_outline(
+	ci: CanvasItem, pos: Vector2, size: Vector2, color: Color, width: float
+) -> void:
 	var radius := size.y * 0.5
 	if size.x <= size.y * 2.0:
-		draw_arc(pos + size * 0.5, maxf(size.x * 0.5, 0.1), 0.0, TAU, 20, color, width)
+		ci.draw_arc(pos + size * 0.5, maxf(size.x * 0.5, 0.1), 0.0, TAU, 20, color, width)
 		return
-	draw_arc(pos + Vector2(radius, radius), radius, PI * 0.5, PI * 1.5, 12, color, width)
-	draw_arc(pos + Vector2(size.x - radius, radius), radius, -PI * 0.5, PI * 0.5, 12, color, width)
-	draw_line(pos + Vector2(radius, 0.0), pos + Vector2(size.x - radius, 0.0), color, width)
-	draw_line(pos + Vector2(radius, size.y), pos + Vector2(size.x - radius, size.y), color, width)
+	ci.draw_arc(pos + Vector2(radius, radius), radius, PI * 0.5, PI * 1.5, 12, color, width)
+	ci.draw_arc(pos + Vector2(size.x - radius, radius), radius, -PI * 0.5, PI * 0.5, 12, color, width)
+	ci.draw_line(pos + Vector2(radius, 0.0), pos + Vector2(size.x - radius, 0.0), color, width)
+	ci.draw_line(pos + Vector2(radius, size.y), pos + Vector2(size.x - radius, size.y), color, width)
