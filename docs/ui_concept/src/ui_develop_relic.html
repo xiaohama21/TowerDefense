@@ -119,6 +119,47 @@
   .rage { margin-left:auto; flex:none; width:84px; height:16px; background:#fff; border:2px solid #ffcc00; border-radius:9px; overflow:hidden; position:relative; }
   .rage i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,#ffd75e,#ffb300); }
   .rage b { position:absolute; inset:0; text-align:center; font-size:9.5px; line-height:12px; color:#8a6d00; letter-spacing:1px; font-weight:normal; }
+
+  /* 信物页签（v0.22）：左右结构 = 左双槽位（专属锁定 / 可选未装备）+ 右信物库（悬停出明细） */
+  .pooltip { display:none; }
+  .relwrap { display:flex; gap:10px; align-items:stretch; }
+  .relslots { width:198px; flex:none; display:flex; flex-direction:column; gap:8px; }
+  .slotcard { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:7px 9px; display:flex; flex-direction:column; gap:4px; }
+  .slotcard.locked { background:#eef3f7; border-color:#d5e0e8; }
+  .slotcard.empty { border-color:#e7d9a8; background:#fffdf4; }
+  .slotcap { font-size:9.5px; color:#a8bccb; letter-spacing:1.5px; }
+  .slothd { display:flex; align-items:center; gap:8px; }
+  .slotico { width:32px; height:32px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+    font-size:15px; color:#fff; background:linear-gradient(180deg,#c3d3de,#9db4c4); }
+  .slotico.plus { background:none; border:2px dashed #cbb163; color:#b8860b; font-size:20px; }
+  .slotico.rel { background:linear-gradient(180deg,#f2c85c,#d99a1f); }
+  .slotnm { font-size:15.5px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+  .slottags { margin-top:2px; }
+  .slottags .tag { font-size:10.5px; padding:1px 7px; }
+  .sloteff { font-size:11px; color:#33566f; line-height:1.45; }
+  .sloteff b { color:#14538a; font-weight:normal; }
+  .slotft { margin-top:auto; font-size:10px; color:#a8bccb; line-height:1.45; }
+  .relpick { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .pkhd { display:flex; align-items:baseline; gap:7px; }
+  .pkhd .n { font-size:13.5px; color:#1b4d78; letter-spacing:1px; }
+  .pkhd .s { font-size:9.5px; color:#a8bccb; margin-left:auto; letter-spacing:.3px; }
+  .pkrow { display:flex; align-items:center; gap:8px; border:2px solid #d7e9f5; border-radius:10px; background:#f7fbfe; padding:3px 7px; margin-top:5px; }
+  .pkrow.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.28); }
+  .pkrow .nm { font-size:13.5px; color:#1b4d78; letter-spacing:.5px; white-space:nowrap; }
+  .pkrow .st { margin-left:auto; font-size:10.5px; color:#7d9cb4; white-space:nowrap; }
+  .pbtn.gold { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+  .pbtn.sm { height:24px; font-size:10.5px; padding:0 10px; }
+  .tip { position:relative; margin-top:9px; background:#fff; border:3px solid #ffcc00; border-radius:12px;
+    padding:6px 10px 7px; box-shadow:0 6px 16px rgba(30,60,90,.18); }
+  .tip::after { content:""; position:absolute; top:-11px; right:26px; border:8px solid transparent; border-bottom-color:#ffcc00; }
+  .tip .thd { display:flex; align-items:baseline; gap:7px; }
+  .tip .thd .n { font-size:13.5px; color:#1b4d78; letter-spacing:1px; }
+  .tip .thd .s { font-size:9.5px; color:#a8bccb; margin-left:auto; letter-spacing:.3px; }
+  .tip .tr { display:flex; gap:6px; font-size:11px; color:#33566f; line-height:1.5; }
+  .tip .tr .k { width:52px; flex:none; color:#a8bccb; letter-spacing:1px; }
+  .tip .tr b { color:#b06a1f; font-weight:normal; }
+  .relfoot { margin-top:auto; font-size:10px; color:#7d9cb4; line-height:1.45; }
+  .relfoot b { color:#b06a1f; font-weight:normal; }
 </style>
 </head>
 <body>
@@ -193,45 +234,64 @@
           </div>
           <div class="panel tabs">
             <div class="tabbar">
-              <div class="tab on">技能</div>
+              <div class="tab off">技能</div>
               <div class="tab off">转职</div>
-              <div class="tab off">信物</div>
+              <div class="tab on">信物</div>
               <div class="tab off">特性</div>
             </div>
             <div class="tabbody">
-              <div class="skrow">
-                <div class="skcard ult">
-                  <div class="skhd">
-                    <span class="ava red" style="width:36px;height:36px;font-size:16px;">破</span>
-                    <div class="skmeta">
-                      <div class="sknm">破阵</div>
-                      <div class="sktags"><span class="tag fire">怒气大招</span><span class="tag blue">虎贲 · 大招</span></div>
+              <div class="relwrap">
+                <div class="relslots">
+                  <div class="slotcard locked">
+                    <div class="slotcap">槽 1 · 专属信物</div>
+                    <div class="slothd">
+                      <span class="slotico">矛</span>
+                      <div>
+                        <div class="slotnm">蛇矛精锻</div>
+                        <div class="slottags"><span class="tag lock">专属 · 未开放</span></div>
+                      </div>
                     </div>
-                    <div class="rage"><i style="width:100%;"></i><b>满怒</b></div>
+                    <div class="sloteff">攻击间隔 <b>×0.92</b>（张飞专属）</div>
+                    <div class="slotft">锁定占位 · 不参与计算 · 后续章节实装</div>
                   </div>
-                  <div class="skfx">1.5× 普攻范围伤害 · 击退 <b>40px</b>；200px 内友方攻速 <b>+15%</b>（5s）</div>
+                  <div class="slotcard empty">
+                    <div class="slotcap">槽 2 · 可选信物</div>
+                    <div class="slothd">
+                      <span class="slotico plus">+</span>
+                      <div>
+                        <div class="slotnm">未装备</div>
+                        <div class="slottags"><span class="tag blue">空</span></div>
+                      </div>
+                    </div>
+                    <div class="sloteff">从右侧信物库选一件 → 点「装上」</div>
+                    <div class="slotft">装备后：此处显示信物名 + 「卸下」按钮</div>
+                  </div>
                 </div>
-                <div class="skcard job">
-                  <div class="skhd">
-                    <span class="ava gold" style="width:36px;height:36px;font-size:16px;">旗</span>
-                    <div class="skmeta">
-                      <div class="sknm">军旗</div>
-                      <div class="sktags"><span class="tag ok">职业技能 · 常驻光环</span></div>
-                    </div>
+                <div class="relpick">
+                  <div class="pkhd"><span class="n">信物库 · 可选槽通用件</span><span class="s">已获得 2 / 2 件（仅列已获得）</span></div>
+                  <div class="pkrow sel">
+                    <span class="ava gold" style="width:26px;height:26px;font-size:12px;">诏</span>
+                    <span class="nm">天公雷诏</span>
+                    <span class="st">可装备</span>
+                    <button class="pbtn gold sm">装上</button>
                   </div>
-                  <div class="skfx">150px 内友军伤害 <b>+4%</b>（自身不生效）</div>
+                  <div class="pkrow">
+                    <span class="ava gold" style="width:26px;height:26px;font-size:12px;">符</span>
+                    <span class="nm">太平要术·残卷</span>
+                    <span class="st">装备中 · 黄忠</span>
+                    <button class="pbtn grey sm">装备</button>
+                  </div>
+                  <div class="tip">
+                    <div class="thd"><span class="n">天公雷诏</span><span class="s">悬停示意 · 移开即消失</span></div>
+                    <div class="tr"><span class="k">类型</span><span>Boss 签名信物 · 可选槽通用件（非武将专属）</span></div>
+                    <div class="tr"><span class="k">效果</span><span>术法伤害 <b>+12%</b>（仅「魔法」伤害类型生效）</span></div>
+                    <div class="tr"><span class="k">来源</span><span>标准 · s08 广宗决战首通必掉</span></div>
+                    <div class="tr"><span class="k">归属</span><span>未装备 → 点「装上」写入「张飞」的可选槽</span></div>
+                  </div>
+                  <div class="relfoot">一件信物只挂 1 名武将 · 装上「装备中」件 → <b>二次确认：从 黄忠 处转移</b>（原槽清空）· 未获得件不入列</div>
                 </div>
               </div>
-              <div class="skcard role">
-                <div class="skhd">
-                  <span class="ava" style="width:40px;height:40px;font-size:18px;">喝</span>
-                  <div class="skmeta">
-                    <div class="sknm">当阳桥 <span class="roletype">A 主动 · CD 22s</span></div>
-                    <div class="sktags"><span class="tag blue">角色专属技能</span><span class="tag lock">不耗怒气</span></div>
-                  </div>
-                </div>
-                <div class="skfx">喝退敌军：范围内敌人击退 <b>60px</b> + 减速 <b>60%</b>（3s）</div>
-              </div>
+            </div>
 </div>
           </div>
         </div>
