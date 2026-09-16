@@ -151,6 +151,53 @@ func _test_exp_pool_0815() -> void:
 ## ③ 与经验同通道：胜利写档、失败 / 放弃作废（mark_discarded / clear_pending_rewards 清零）；
 ## ④ 军需 6 件目录 · 逐级费用 / 限次 / 幅度 / 解锁 340·425 / 强化 150·300；
 ## ⑤ 军需带（基础 2 槽 + 科技「军府调度」1）与 schema v6。
+## 敌人血条三档（UI_LAYOUT §10 / 程序 0.8.16.4「墨槽胶囊」）：普通 max(体型宽,24)×6 /
+## 精英「体型宽 + 6」×8 + 白框 / Boss 84×12 + 金框刻度；水平居中于体型、条底 = 身体顶 −10。
+## 不入树（避免污染 enemies 组）：仅用场景副本验证几何与可见规则纯计算。
+func _test_enemy_hp_bar_0816() -> void:
+	var cases := [
+		[load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres"), Enemy.HpBarTier.NORMAL, Vector2(34, 6)],
+		[load("res://resources/enemies/yellow_turban/yellow_turban_elite_sergeant.tres"), Enemy.HpBarTier.ELITE, Vector2(56, 8)],
+		[load("res://resources/enemies/yellow_turban/yellow_turban_general.tres"), Enemy.HpBarTier.BOSS, Vector2(84, 12)],
+	]
+	var enemy_scene := load("res://scenes/Enemy.tscn") as PackedScene
+	for entry in cases:
+		var data := entry[0] as EnemyData
+		if data == null or enemy_scene == null:
+			_check(false, "血条断言：敌人数据 / 场景应可加载")
+			return
+		var enemy := enemy_scene.instantiate() as Enemy
+		enemy.tags.assign(data.tags)
+		enemy.max_hp = 100
+		enemy.current_hp = 100
+		enemy.set_body_size(data.body_size)
+		# 不入树时 @onready 未就绪：手动注入 Body 引用（take_damage → _apply_body_modulate 需要）。
+		enemy.body = enemy.get_node_or_null("Body") as ColorRect
+		_check(enemy.get_hp_bar_tier() == int(entry[1]),
+			"血条档位：%s 应为 %d（实际 %d）" % [data.enemy_id, int(entry[1]), enemy.get_hp_bar_tier()])
+		var expected := entry[2] as Vector2
+		_check(enemy.get_hp_bar_size() == expected,
+			"血条尺寸：%s 应为 %s（实际 %s）" % [data.enemy_id, str(expected), str(enemy.get_hp_bar_size())])
+		var rect := enemy.get_hp_bar_rect()
+		_check(is_equal_approx(rect.position.x, -rect.size.x * 0.5),
+			"血条应水平居中于体型：%s" % data.enemy_id)
+		_check(is_equal_approx(rect.position.y + rect.size.y + 10.0, -data.body_size.y * 0.5),
+			"血条底应距身体顶 10px（不压头带，头带占 −7…−2）：%s" % data.enemy_id)
+		_check(is_equal_approx(enemy.hp_bar_top_y(), rect.position.y),
+			"眩晕三小星 / 阶段点锚点应取条顶：%s" % data.enemy_id)
+		# 可见规则（不变）：满血隐藏 → 受击显示 → 隐匿未现形隐藏。
+		_check(not enemy.should_show_hp_bar(), "满血应隐藏血条：%s" % data.enemy_id)
+		enemy.take_damage(30)
+		_check(enemy.should_show_hp_bar(), "受击后应显示血条：%s" % data.enemy_id)
+		_check(is_equal_approx(enemy._hp_ghost_ratio, 1.0) and enemy._hp_ghost_hold > 0.0,
+			"受击瞬间应留下掉血残影（旧比例 1.0 + 停留计时）：%s" % data.enemy_id)
+		enemy.stealth = true
+		enemy._set_stealth_revealed(false)
+		_check(not enemy.should_show_hp_bar(),
+			"隐匿未现形应隐藏血条：%s" % data.enemy_id)
+		enemy.free()
+
+
 func _test_merit_supply_0816() -> void:
 	var merit_by_enemy := {
 		"yellow_turban_soldier": 1, "yellow_turban_archer": 1,
@@ -347,6 +394,8 @@ func _run() -> void:
 	_test_exp_pool_0815()
 	# 军功 + 军需（✅ 0.8.16 / NUMBERS 10.15）：军功档位与合计 / 军需目录 · 解锁强化 · 选带 / schema v6。
 	_test_merit_supply_0816()
+	# 敌人血条三档（UI_LAYOUT §10 / 程序 0.8.16.4）：几何 · 居中 · 不压头带 · 掉血残影 · 满血隐藏。
+	_test_enemy_hp_bar_0816()
 	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（消耗品练兵令已随 0.8.15.0 删除）。
 	for relic_id in ["wolf_tooth", "iron_shield", "provision_bag", "scout_eye", "war_drums"]:
 		var relic_item := load("res://resources/items/%s.tres" % relic_id) as ItemData
