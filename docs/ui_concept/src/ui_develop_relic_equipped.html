@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  .body { display:flex; gap:14px; flex:1; min-height:0; margin-top:12px; }
+  /* 左：武将列表 */
+  .roster { width:402px; background:#fff; border:3px solid #d7e9f5; border-radius:14px; padding:10px; display:flex; flex-direction:column;
+    box-shadow:inset 0 1px 0 #fff, 0 3px 8px rgba(30,90,130,.08); }
+  .roster .hd { display:flex; align-items:center; gap:8px; font-size:15px; color:#33566f; letter-spacing:2px; padding:2px 4px 9px; }
+  .roster .hd .cnt { font-size:12px; color:#7d9cb4; letter-spacing:1px; }
+  .roster .grid { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5,1fr); gap:8px; min-height:0; }
+  .rcard { background:#f7fbfe; border:2px solid #d7e9f5; border-radius:12px; padding:7px 9px; display:flex; gap:9px; align-items:center;
+    min-width:0; }
+  .rcard.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.4); }
+  .rcard .ava { width:44px; height:44px; font-size:21px; }
+  .rcard .info { min-width:0; }
+  .rcard .nm { font-size:15px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rcard .sub { font-size:11.5px; color:#6b93ad; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rcard .src { font-size:10.5px; color:#a8bccb; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.5px; }
+  .rcard .sub b { color:#2eaadc; font-weight:normal; }
+  .rcard .lvl { margin-left:auto; font-size:14px; color:#2eaadc; white-space:nowrap; flex:none; }
+  .rcard.locked { background:#eef3f7; border-color:#d5e0e8; }
+  .rcard.locked .nm { color:#9fb3c4; }
+  .rcard.locked .sub { color:#a8bccb; }
+  /* 右列 */
+  .rcol { flex:1; display:flex; flex-direction:column; gap:12px; min-width:0; }
+  .base { padding:14px 16px 12px; }
+  .base .row1 { display:flex; align-items:center; gap:12px; }
+  .base .ava { width:64px; height:64px; font-size:28px; }
+  .base .who { min-width:0; }
+  .base .who .nm { font-size:24px; color:#1b4d78; letter-spacing:2px; }
+  .base .who .chips { display:flex; gap:6px; margin-top:5px; }
+  .base .lvlbig { margin-left:auto; text-align:right; }
+  .base .lvlbig .n { font-size:26px; color:#2eaadc; line-height:1; }
+  .base .lvlbig .t { font-size:12px; color:#7d9cb4; letter-spacing:2px; }
+  .expbar { margin-top:9px; height:14px; background:#e3eef6; border-radius:8px; overflow:hidden; position:relative; }
+  .expbar i { display:block; height:100%; width:80%; background:linear-gradient(180deg,#63d9a4,#2fb47b); border-radius:8px; }
+  .expbar span { position:absolute; right:8px; top:0; font-size:10.5px; color:#1b4d78; line-height:14px; letter-spacing:1px; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+  .pills { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:8px; }
+  .pill { display:flex; align-items:center; gap:6px; background:#f3f9fd; border:1px solid #d7e9f5; border-radius:999px;
+    padding:1px 10px 1px 2px; min-width:0; box-shadow:inset 0 1px 0 #fff; }
+  .pill .ic { width:23px; height:23px; flex:none; }
+  .pill .k { font-size:11px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+  .pill .v { margin-left:auto; font-size:15px; color:#14538a; }
+  .pill .v b { font-weight:normal; color:#b8860b; }
+  /* 经验池行（v0.17 融入经验池设定）：余额胶囊 = 悬停说明锚点 +「分配 ▸」+「直接升级」+ 不可逆注脚 */
+  .poolrow { position:relative; display:flex; align-items:center; gap:8px; margin-top:9px; }
+  .poolchip { display:inline-flex; align-items:center; gap:7px; padding:2px 12px 3px; border-radius:9px; flex:none;
+    background:#fff6d8; border:2px dashed #e8b33c; font-size:14px; color:#8a6d00; letter-spacing:1px; white-space:nowrap; }
+  .poolchip b { display:inline-block; min-width:58px; text-align:right; font-size:16.5px; color:#b8860b; font-weight:normal; }
+  .poolchip .q { width:16px; height:16px; border-radius:50%; background:#e8b33c; color:#fff;
+    font-size:10.5px; line-height:16px; text-align:center; letter-spacing:0; }
+  .pbtn { height:32px; padding:0 15px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:13px;
+    letter-spacing:1px; border-image-slice:24 fill; border-image-width:16px; border-image-repeat:round; cursor:default;
+    flex:none; white-space:nowrap; }
+  .pbtn.grey { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#33566f; }
+  .pbtn.dim { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#8c9187; }
+  .poolhint { flex:1; min-width:0; font-size:11.5px; color:#7d9cb4; letter-spacing:.4px; line-height:1.4; }
+  .poolhint b { color:#b8860b; font-weight:normal; }
+  .poolhint .no { color:#c0392b; }
+  .poolhint .note { color:#b06a1f; }
+  /* 经验池悬停说明：悬停即现、移开即消失（此处为示意展开态） */
+  .pooltip { position:absolute; left:0; top:calc(100% + 9px); width:404px; z-index:9;
+    background:#fff; border:3px solid #ffcc00; border-radius:13px; padding:7px 11px 6px;
+    box-shadow:0 8px 20px rgba(30,60,90,.25); text-align:left; }
+  .pooltip::after { content:""; position:absolute; left:44px; bottom:100%;
+    border:8px solid transparent; border-bottom-color:#ffcc00; }
+  .pooltip .pt { display:flex; align-items:baseline; gap:7px; }
+  .pooltip .pt .n { font-size:14.5px; color:#1b4d78; letter-spacing:1px; }
+  .pooltip .pt .s { font-size:9.5px; color:#a8bccb; letter-spacing:.3px; margin-left:auto; }
+  .pooltip .pf { font-size:11.5px; color:#33566f; line-height:1.5; margin-top:4px; letter-spacing:.3px; }
+  .pooltip .pf b { color:#14538a; font-weight:normal; }
+  .pooltip .pl { font-size:11px; color:#5f8aa6; line-height:1.5; letter-spacing:.3px; }
+  .pooltip .pm { font-size:9.5px; color:#a8bccb; margin-top:4px; letter-spacing:.3px; }
+  /* 页签 */
+  .tabs { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .tabs .tabbar { display:flex; gap:6px; padding:10px 14px 0; }
+  .tab { font-size:16px; letter-spacing:3px; padding:6px 18px 7px; border-radius:10px 10px 0 0; cursor:pointer; white-space:nowrap; }
+  .tab.on { background:#e6f4fd; color:#14538a; border:2px solid #9fd0ea; border-bottom:0; }
+  .tab.off { color:#9fb3c4; }
+  .tabbody { flex:1; border:2px solid #9fd0ea; border-radius:0 12px 12px 12px; background:#fff; padding:10px 14px 11px; min-height:0; overflow:hidden; }
+  .promo { display:flex; align-items:center; gap:10px; }
+  .pnode { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:9px 12px; }
+  .pnode .t { font-size:13px; color:#7d9cb4; letter-spacing:1px; }
+  .pnode .n { font-size:18px; color:#1b4d78; margin-top:2px; letter-spacing:1px; }
+  .pnode.done { border-color:#9ad8b4; background:#f3fbf6; }
+  .pnode.done .n { color:#11804a; }
+  .pnode.now { border-color:#ffcc00; box-shadow:0 0 0 2px rgba(255,204,0,.35); }
+  .parrow { font-size:20px; color:#9fd0ea; flex:none; }
+  .pnode .req { font-size:12px; color:#7d9cb4; margin-top:3px; letter-spacing:1px; }
+  .pnode .req b { color:#b8860b; font-weight:normal; }
+  .branch { display:flex; gap:10px; margin-top:10px; }
+  .bopt { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:8px 12px; cursor:pointer; }
+  .bopt.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.35); }
+  .bopt .t { font-size:12px; color:#7d9cb4; letter-spacing:1px; display:flex; justify-content:space-between; }
+  .bopt .n { font-size:17px; color:#1b4d78; margin-top:2px; }
+  .bopt .fx { font-size:12px; color:#6b93ad; margin-top:4px; line-height:1.5; }
+  .fx b { color:#14538a; font-weight:normal; }
+  .promo-foot { margin-top:10px; display:flex; align-items:center; gap:12px; background:#f3f9fd; border:1px dashed #bfdcef; border-radius:10px; padding:8px 12px; }
+  .promo-foot .need { font-size:13px; color:#33566f; letter-spacing:1px; }
+  .promo-foot .need b { color:#b8860b; font-weight:normal; }
+  .promo-foot .warn { font-size:12px; color:#c0392b; }
+
+  /* 技能页签 */
+  .skrow { display:flex; gap:10px; }
+  .skcard { border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:8px 10px; display:flex; flex-direction:column; gap:5px; }
+  .skcard.ult, .skcard.job { flex:1; min-width:0; }
+  .skcard.role { margin-top:6px; }
+  .skcard .skhd { display:flex; align-items:center; gap:10px; }
+  .skcard .skmeta { min-width:0; }
+  .skcard .sknm { font-size:16px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+  .skcard .roletype { font-size:11px; color:#b8860b; margin-left:5px; letter-spacing:1px; }
+  .sktags { display:flex; gap:5px; margin-top:3px; flex-wrap:wrap; }
+  .skcard .tag { font-size:11px; padding:1px 8px; }
+  .skfx { font-size:12px; color:#33566f; line-height:1.5; }
+  .skfx b { color:#14538a; font-weight:normal; }
+  .tag.fire { color:#c0392b; background:#ffe6e1; }
+  .rage { margin-left:auto; flex:none; width:84px; height:16px; background:#fff; border:2px solid #ffcc00; border-radius:9px; overflow:hidden; position:relative; }
+  .rage i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,#ffd75e,#ffb300); }
+  .rage b { position:absolute; inset:0; text-align:center; font-size:9.5px; line-height:12px; color:#8a6d00; letter-spacing:1px; font-weight:normal; }
+
+  /* 信物页签（v0.23）：左右结构「已装备态」= 左双槽位（专属锁定 / 可选已装备 + 卸下）+ 右信物库（悬停出明细） */
+  .pooltip { display:none; }
+  .relwrap { display:flex; gap:10px; align-items:stretch; }
+  .relslots { width:198px; flex:none; display:flex; flex-direction:column; gap:8px; }
+  .slotcard { flex:1; border:2px solid #d7e9f5; border-radius:12px; background:#f7fbfe; padding:7px 9px; display:flex; flex-direction:column; gap:4px; }
+  .slotcard.locked { background:#eef3f7; border-color:#d5e0e8; }
+  .slotcard.empty { border-color:#e7d9a8; background:#fffdf4; }
+  .slotcap { font-size:9.5px; color:#a8bccb; letter-spacing:1.5px; }
+  .slothd { display:flex; align-items:center; gap:8px; }
+  .slotico { width:32px; height:32px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+    font-size:15px; color:#fff; background:linear-gradient(180deg,#c3d3de,#9db4c4); }
+  .slotico.plus { background:none; border:2px dashed #cbb163; color:#b8860b; font-size:20px; }
+  .slotico.rel { background:linear-gradient(180deg,#f2c85c,#d99a1f); }
+  .slotnm { font-size:15.5px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
+  .slottags { margin-top:2px; }
+  .slottags .tag { font-size:10.5px; padding:1px 7px; }
+  .sloteff { font-size:11px; color:#33566f; line-height:1.45; }
+  .sloteff b { color:#14538a; font-weight:normal; }
+  .slotft { margin-top:auto; display:flex; align-items:center; gap:7px; font-size:10px; color:#a8bccb; line-height:1.45; }
+  .relpick { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .pkhd { display:flex; align-items:baseline; gap:7px; }
+  .pkhd .n { font-size:13.5px; color:#1b4d78; letter-spacing:1px; }
+  .pkhd .s { font-size:9.5px; color:#a8bccb; margin-left:auto; letter-spacing:.3px; }
+  .pkrow { display:flex; align-items:center; gap:8px; border:2px solid #d7e9f5; border-radius:10px; background:#f7fbfe; padding:3px 7px; margin-top:5px; }
+  .pkrow.sel { border-color:#ffcc00; background:#fffdf2; box-shadow:0 0 0 2px rgba(255,204,0,.28); }
+  .pkrow .nm { font-size:13.5px; color:#1b4d78; letter-spacing:.5px; white-space:nowrap; }
+  .pkrow .st { margin-left:auto; font-size:10.5px; color:#7d9cb4; white-space:nowrap; }
+  .pbtn.gold { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+  .pbtn.sm { height:24px; font-size:10.5px; padding:0 10px; }
+  .tip { position:relative; margin-top:9px; background:#fff; border:3px solid #ffcc00; border-radius:12px;
+    padding:6px 10px 7px; box-shadow:0 6px 16px rgba(30,60,90,.18); }
+  .tip::after { content:""; position:absolute; top:-11px; right:26px; border:8px solid transparent; border-bottom-color:#ffcc00; }
+  .tip .thd { display:flex; align-items:baseline; gap:7px; }
+  .tip .thd .n { font-size:13.5px; color:#1b4d78; letter-spacing:1px; }
+  .tip .thd .s { font-size:9.5px; color:#a8bccb; margin-left:auto; letter-spacing:.3px; }
+  .tip .tr { display:flex; gap:6px; font-size:11px; color:#33566f; line-height:1.5; }
+  .tip .tr .k { width:52px; flex:none; color:#a8bccb; letter-spacing:1px; }
+  .tip .tr b { color:#b06a1f; font-weight:normal; }
+  .relfoot { margin-top:auto; font-size:10px; color:#7d9cb4; line-height:1.45; }
+  .relfoot b { color:#b06a1f; font-weight:normal; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn active">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>武将养成</h2>
+        <div class="spacer"></div>
+        <span class="prog">已上阵 <b>4/4</b></span>
+      </div>
+      <div class="body">
+        <div class="roster">
+          <div class="hd"><span>武将列表</span><span class="cnt">9 名 · 已拥有 5 名</span></div>
+          <div class="grid">
+            <div class="rcard"><span class="ava gold">刘</span><div class="info"><div class="nm">刘备</div><div class="sub">虎贲 · 辅助</div></div><span class="lvl">Lv14</span></div>
+            <div class="rcard"><span class="ava red">关</span><div class="info"><div class="nm">关羽</div><div class="sub">骑兵</div></div><span class="lvl">Lv13</span></div>
+            <div class="rcard sel"><span class="ava">张</span><div class="info"><div class="nm">张飞</div><div class="sub">虎贲</div></div><span class="lvl">Lv12</span></div>
+            <div class="rcard"><span class="ava green">黄</span><div class="info"><div class="nm">黄忠</div><div class="sub">弓箭手</div></div><span class="lvl">Lv9</span></div>
+            <div class="rcard"><span class="ava purple">皇</span><div class="info"><div class="nm">皇甫嵩</div><div class="sub">投石车</div></div><span class="lvl">Lv8</span></div>
+            <div class="rcard locked"><span class="ava grey">貂</span><div class="info"><div class="nm">貂蝉</div><div class="sub">舞娘 · 未解锁</div><div class="src">通关 s04 东郡驰援</div></div></div>
+            <div class="rcard locked"><span class="ava grey">周</span><div class="info"><div class="nm">周仓</div><div class="sub">虎贲 · 未解锁</div><div class="src">通关 s05 宛城之围</div></div></div>
+            <div class="rcard locked"><span class="ava grey">赵</span><div class="info"><div class="nm">赵云</div><div class="sub">骑兵 · 未解锁</div><div class="src">通关 s06 下曲阳之战</div></div></div>
+            <div class="rcard locked"><span class="ava grey">诸</span><div class="info"><div class="nm">诸葛亮</div><div class="sub">术士 · 未解锁</div><div class="src">通关 s07 广宗前哨</div></div></div>
+          </div>
+        </div>
+        <div class="rcol">
+          <div class="panel base">
+            <div class="row1">
+              <span class="ava">张</span>
+              <div class="who">
+                <div class="nm">张飞</div>
+                <div class="chips"><span class="tag blue">虎贲 · 近战</span><span class="tag open">称号 · 蛇矛先锋</span></div>
+              </div>
+              <div class="lvlbig"><div class="n">Lv.12</div><div class="t">等级</div></div>
+            </div>
+            <div class="expbar"><i style="width:41%;"></i><span>150 / 370</span></div>
+            <div class="pills">
+              <div class="pill"><img class="ic" src="icons_hud/dmg_physical.png"><span class="k">伤害</span><span class="v">115</span></div>
+              <div class="pill"><img class="ic" src="icons_hud/stat_attack_speed.png"><span class="k">攻速</span><span class="v">0.67s</span></div>
+              <div class="pill"><img class="ic" src="icons_hud/stat_range.png"><span class="k">射程</span><span class="v">120</span></div>
+              <div class="pill"><img class="ic" src="icons_hud/coin.png"><span class="k">建造费用</span><span class="v"><b>60</b></span></div>
+            </div>
+            <div class="poolrow">
+              <span class="poolchip">经验池 <b>160</b><span class="q">?</span></span>
+              <button class="pbtn grey">分配 ▸</button>
+              <button class="pbtn dim">直接升级</button>
+              <span class="poolhint">分配不可逆 · 直接升级需 <b>220</b><br><span class="note">※ 池内不足（差 <span class="no">60</span>）→ 置灰</span></span>
+              <div class="pooltip">
+                <div class="pt"><span class="n">经验池 · 获取方式</span><span class="s">悬停示意 · 移开即消失</span></div>
+                <div class="pf">胜利结算额外注入 <b>50%</b>（纯增量 · 不扣武将自身所得）：</div>
+                <div class="pf"><b>注入 =（本局击杀经验总量 + 参与经验 × 出战人数）× 50%</b></div>
+                <div class="pl">· 参与经验：每名出战武将各得 50（s04 起 60），不随难度缩放</div>
+                <div class="pl">· 击杀经验随难度放大：标准 ×1.0 / 困难 ×1.6（逐敌取整）</div>
+                <div class="pl">· 基数不含落后补正；四舍五入取整；失败 / 退出 / 崩溃不注入</div>
+                <div class="pm">例：s01 标准 →（527 + 50 × 4）× 50% = 364</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel tabs">
+            <div class="tabbar">
+              <div class="tab off">技能</div>
+              <div class="tab off">转职</div>
+              <div class="tab on">信物</div>
+              <div class="tab off">特性</div>
+            </div>
+            <div class="tabbody">
+              <div class="relwrap">
+                <div class="relslots">
+                  <div class="slotcard locked">
+                    <div class="slotcap">槽 1 · 专属信物</div>
+                    <div class="slothd">
+                      <span class="slotico">矛</span>
+                      <div>
+                        <div class="slotnm">蛇矛精锻</div>
+                        <div class="slottags"><span class="tag lock">专属 · 未开放</span></div>
+                      </div>
+                    </div>
+                    <div class="sloteff">攻击间隔 <b>×0.92</b>（张飞专属）</div>
+                    <div class="slotft">锁定占位 · 不参与计算 · 后续章节实装</div>
+                  </div>
+                  <div class="slotcard rel">
+                    <div class="slotcap">槽 2 · 可选信物</div>
+                    <div class="slothd">
+                      <span class="slotico rel">诏</span>
+                      <div>
+                        <div class="slotnm">天公雷诏</div>
+                        <div class="slottags"><span class="tag ok">可选 · 已装备</span></div>
+                      </div>
+                    </div>
+                    <div class="sloteff">术法伤害 <b>+12%</b>（仅魔法类型）</div>
+                    <div class="slotft"><button class="pbtn grey sm">卸下</button><span>写入张飞 · 存盘</span></div>
+                  </div>
+                </div>
+                <div class="relpick">
+                  <div class="pkhd"><span class="n">信物库 · 可选槽通用件</span><span class="s">已获得 2 / 2 件（仅列已获得）</span></div>
+                  <div class="pkrow">
+                    <span class="ava gold" style="width:26px;height:26px;font-size:12px;">诏</span>
+                    <span class="nm">天公雷诏</span>
+                    <span class="st">装备中 · 本武将（张飞）</span>
+                    <button class="pbtn grey sm">卸下</button>
+                  </div>
+                  <div class="pkrow sel">
+                    <span class="ava gold" style="width:26px;height:26px;font-size:12px;">符</span>
+                    <span class="nm">太平要术·残卷</span>
+                    <span class="st">装备中 · 黄忠</span>
+                    <button class="pbtn grey sm">装备</button>
+                  </div>
+                  <div class="tip">
+                    <div class="thd"><span class="n">太平要术·残卷</span><span class="s">悬停示意 · 移开即消失</span></div>
+                    <div class="tr"><span class="k">类型</span><span>Boss 签名信物 · 可选槽通用件（非武将专属）</span></div>
+                    <div class="tr"><span class="k">效果</span><span>等级成长等效 <b>+5 级</b>（等效上限 35）</span></div>
+                    <div class="tr"><span class="k">来源</span><span>困难 · s08 广宗决战首通必掉</span></div>
+                    <div class="tr"><span class="k">归属</span><span>装备中 · 黄忠 → 点「装备」<b>须二次确认转移</b></span></div>
+                  </div>
+                  <div class="relfoot">一件只挂 1 名武将 · 槽内「卸下」清空本槽 · 装上「装备中」件 → <b>二次确认转移</b>（原槽清空）</div>
+                </div>
+              </div>
+            </div>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
