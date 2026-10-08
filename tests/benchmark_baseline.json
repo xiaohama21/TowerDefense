@@ -181,7 +181,7 @@
 	"bench3.elite_siege.ult_count": 7.0,
 	"bench3.elite_wusheng.dps": 198.0,
 	"bench3.elite_wusheng.ult_count": 8.0,
-	"bench3.kill_refund.dps": 504.266666666667,
+	"bench3.kill_refund.dps": 483.0,
 	"bench3.kill_refund.ult_count": 18.0,
 	"bench4.banner.dps": 190.266666666667,
 	"bench4.control.dps": 184.3,
@@ -190,6 +190,6 @@
 	"bench4.dancer_base.dps": 271.227777777778,
 	"bench4.dancer_t1.dps": 286.972222222222,
 	"bench4.rende.dps": 195.25,
-	"note": "阶段 8·提交 13 地基（0.8.13.0 伤害类型 + C=50 护甲模型）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
+	"note": "阶段 8·提交 13 地基（0.8.13.0 伤害类型 + C=50 护甲模型）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。0.8.16.6 重算：bench3.kill_refund.dps 504.266666666667 → 483.0（−4.2%）——关羽「青龙偃月」改 3 连击逐拍结算（命中帧对齐）后，每击杀 -5s 冷却的步进式返还跨过 60s 窗口边界（技能释放 11 → 10 次）；同窗普攻 9860 / 大招 9180 与新码逐项一致，非数值下调（见 BUGS B-085）。",
 	"program_version": "0.8.13.0"
 }

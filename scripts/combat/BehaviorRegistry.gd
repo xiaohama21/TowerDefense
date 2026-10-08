@@ -102,11 +102,12 @@ static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 
 
 static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
-	## 近战直伤 + 武器挥击表现；伤害走结算管线（克制/特性/增益）。
+	## 近战「起手 → 命中帧结算」（0.8.16.6 / BEHAVIORS B.3.1.1）：挥击立即播，
+	## 伤害与命中事件（怒气 / 命中钩子 / 命中特性）延迟到命中帧落地；伤害值在起手锁定
+	## （与弹道发射锁定同源）。命中帧取值与上限见 Tower.melee_hit_delay()。
 	var damage := tower.finalize_damage(tower.damage, target)
-	tower.deal_damage(target, damage)
-	tower.notify_attack_damage_dealt(target, damage)
 	tower.play_melee_hit()
+	tower.schedule_melee_hit(target, damage)
 
 
 ## 命中后特性触发（v0.11.2）：张飞咆哮按概率减速目标。
@@ -143,11 +144,14 @@ static func _ult_cavalry_breaker(tower: Tower) -> bool:
 	var target: Enemy = tower.target
 	if target == null or not tower.is_target_valid(target):
 		return false
-	var hp_before := target.current_hp
 	# 真实伤害：类型随判决传给 finalize_damage，信物·类型条件增伤（魔法）不参与。
-	tower.deal_damage(target, tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target, DamageTypes.TRUE), DamageTypes.TRUE)
-	if hp_before > 0 and target.current_hp <= 0:
-		tower.gain_rage(tower.kill_rage_refund())
+	# 命中帧结算（0.8.16.6）：spine 角色对齐 XX 首个 Effect 事件（0.267s），其余职业即时；
+	# 击杀返怒（charge）随之在命中帧结算。
+	tower.begin_ultimate_strike(
+		target,
+		tower.finalize_damage(int(round(tower.damage * 3.0 * tower.ultimate_power())), target, DamageTypes.TRUE),
+		DamageTypes.TRUE
+	)
 	tower.play_attack_flash()
 	return true
 

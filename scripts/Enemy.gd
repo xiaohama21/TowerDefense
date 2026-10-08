@@ -27,6 +27,14 @@ const HP_BAR_PHASE_OFFSET: float = 16.0
 ## 掉血残影：受击瞬间取旧比例，保持 HP_GHOST_HOLD 后按 HP_GHOST_FADE 秒回落到当前血量。
 const HP_GHOST_HOLD: float = 0.25
 const HP_GHOST_FADE: float = 0.35
+## 死亡渐隐（UI_LAYOUT §10 · 程序 0.8.16.6 / BUGS B-082）：被击杀敌人不再当帧消失——
+## 0~DEATH_FADE_FLASH 白闪 + 放大（收受击闪红），随后淡出 + 下沉 + 侧倾，播完自释放；
+## 漏怪 / 调试清场（die(false)）与无进程环境（测试木桩 / 基准桩）不演出、直接释放。
+const DEATH_FADE_DURATION: float = 0.40
+const DEATH_FADE_FLASH: float = 0.08
+const DEATH_FADE_POP: float = 0.06
+const DEATH_FADE_SINK: float = 6.0
+const DEATH_FADE_TILT: float = 0.07
 const HP_BAR_SLOT_TOP := Color(0.055, 0.082, 0.11, 1.0)
 const HP_BAR_SLOT_BOTTOM := Color(0.024, 0.035, 0.051, 1.0)
 const HP_BAR_FILL_TOP := Color(1.0, 0.545, 0.471, 1.0)
@@ -148,6 +156,10 @@ var _hp_ghost_ratio: float = 1.0
 var _hp_ghost_hold: float = 0.0
 ## 本次受击是否为「满血一击必杀」（die() 消费后复位，见 should_flash_kill_bar）。
 var _kill_bar_flash: bool = false
+## 死亡演出计时（< 0 = 不在演出；≥ 0 = 已进入死亡渐隐，见 DEATH_FADE_* 与 _advance_death_fade）。
+var _death_time: float = -1.0
+## 死亡演出起点位（PathFollow2D 在 progress 冻结时不会回写 position，可安全增量位移）。
+var _death_origin: Vector2 = Vector2.ZERO
 
 func _enter_tree() -> void:
 	add_to_group(ENEMY_GROUP)
@@ -174,6 +186,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# 死亡渐隐（0.8.16.6）：演出期间只推进演出计时，不再跑存活逻辑。
+	if _death_time >= 0.0:
+		_advance_death_fade(delta)
+		return
 	if is_dead:
 		return
 
@@ -487,6 +503,8 @@ func die(give_reward: bool) -> void:
 	if is_dead:
 		return
 	is_dead = true
+	# 死亡帧即退出索敌（塔 / 弹道 / 光环的组扫描另有 is_dead 过滤，双保险）。
+	remove_from_group(ENEMY_GROUP)
 	if _kill_bar_flash:
 		_kill_bar_flash = false
 		_spawn_kill_bar_flash()
@@ -502,7 +520,36 @@ func die(give_reward: bool) -> void:
 			merit_reward
 		)
 
+	# 死亡渐隐（UI_LAYOUT §10 · 0.8.16.6）：仅「被击杀」（give_reward）且有进程时做演出；
+	# 漏怪到达基地 / 调试清场（die(false)）与无进程环境（测试木桩、基准桩）直接释放，防尸体堆积。
+	if give_reward and is_inside_tree() and is_processing():
+		_death_time = 0.0
+		_death_origin = position
+		modulate = Color(1.0, 1.0, 1.0, 1.0)
+		queue_redraw()
+		return
 	queue_free()
+
+
+## 死亡演出推进（0.8.16.6）：白闪 + 放大 → 淡出 + 下沉 + 侧倾；播完释放。
+## 纯表现：不改血量 / 奖励 / 索敌（is_dead 与 remove_from_group 已在 die() 完成）。
+func _advance_death_fade(delta: float) -> void:
+	_death_time += delta
+	if _death_time >= DEATH_FADE_DURATION:
+		queue_free()
+		return
+	var flash_t := clampf(_death_time / DEATH_FADE_FLASH, 0.0, 1.0)
+	var fade_t := clampf(
+		(_death_time - DEATH_FADE_FLASH) / maxf(DEATH_FADE_DURATION - DEATH_FADE_FLASH, 0.001), 0.0, 1.0
+	)
+	var eased := 1.0 - (1.0 - fade_t) * (1.0 - fade_t)
+	var flash := 1.0 - flash_t
+	# 白闪 = 整体提亮（modulate 分量 > 1 即乘亮），与受击闪红（body.modulate）叠加。
+	modulate = Color(1.0 + flash * 0.6, 1.0 + flash * 0.6, 1.0 + flash * 0.6, 1.0 - eased)
+	scale = Vector2.ONE * lerpf(1.0 + DEATH_FADE_POP * (1.0 - flash_t * flash_t), 0.96, eased)
+	position = _death_origin + Vector2(0.0, DEATH_FADE_SINK * eased)
+	var tilt_sign := 1.0 if velocity_dir.x >= 0.0 else -1.0
+	rotation = DEATH_FADE_TILT * eased * tilt_sign
 
 
 ## 治疗光环目标（healer_aura）：不超过最大生命。
@@ -540,7 +587,9 @@ func _draw() -> void:
 		return
 	var half := body.size * 0.5
 	# 头顶血条（v0.20.59 / 0.8.16.4）：先画，随后的头带 / 星星 / 阶段点盖在其上。
-	_draw_hp_bar()
+	# 死亡渐隐期（0.8.16.6）跳过血条：定格由 EnemyKillBarFlash 独立补播。
+	if _death_time < 0.0:
+		_draw_hp_bar()
 	# 黄巾头带：横跨头顶的黄色布条
 	var band_rect := Rect2(
 		Vector2(-half.x * 0.72, -half.y - 7.0),
@@ -554,6 +603,9 @@ func _draw() -> void:
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 2.0, Color(0.95, 0.96, 0.97, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
+	# 死亡渐隐期（0.8.16.6）：不再绘制存活状态图标（眩晕星 / 隐匿环 / 阶段点 / 恐惧环）。
+	if _death_time >= 0.0:
+		return
 	# 眩晕表现（震地，提交 7）：头顶旋转三小星，眩晕结束自动消失（queue_redraw 由计时驱动）。
 	if _stun_time_left > 0.0:
 		var spin := _stun_pulse * 6.0

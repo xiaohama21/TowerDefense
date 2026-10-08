@@ -25,6 +25,17 @@ var _max_rage: float = 100.0
 const MELEE_SWING_DURATION := 0.22
 ## 大招演出时长（v0.15.0）。
 const ULT_VISUAL_DURATION := 0.55
+## 近战命中帧（0.8.16.6 / BEHAVIORS B.3.1.1「起手 → 命中帧结算」）：
+## spine 角色 = 素材 Attack_A 的 Effect 事件时刻；程序化角色 = 挥击弧中点。伤害在起手锁定、命中帧落地。
+const MELEE_HIT_DELAY_SPINE: float = 0.400
+const MELEE_HIT_DELAY_PROCEDURAL: float = 0.110
+## 技能连击（0.8.16.6，用户拍板「青龙偃月改为普通 3 次、合理调整攻速」）：单次挥击周期（秒）——
+## spine 时标 = Attack_A 时长 / 周期 ≈ 2.44×；3 拍合计 ≈0.90s。
+const SKILL_FLURRY_PERIOD: float = 0.30
+## spine 素材关键帧（ART_ASSETS §5.7）：Attack_A 总长 / XX 总长 / XX 首个 Effect 事件（大招命中帧）。
+const SPINE_ATTACK_A_DURATION: float = 0.733
+const SPINE_XX_DURATION: float = 0.800
+const SPINE_XX_HIT_FRAME: float = 0.267
 const MELEE_SWING_FROM := -1.35
 const MELEE_SWING_TO := 0.95
 const MELEE_SLASH_RADIUS := 38.0
@@ -204,6 +215,11 @@ var _use_spine_visual: bool = false
 ## 世界朝向（ART_ASSETS §5.6）：-1 朝左（素材原生）/ +1 朝右（镜像）。
 var _facing: int = -1
 var _spine_attack_busy: bool = false
+## 技能连击 / 大招演出剩余时长（> 0 时普攻动画不打断；见 _play_spine_attack / _update_spine_animation）。
+var _spine_cast_busy_left: float = 0.0
+## 命中帧结算队列（0.8.16.6 / BEHAVIORS B.3.1.1）：{"left": float, "action": Callable}——
+## 近战普攻 / 关羽大招 / 青龙偃月 3 连击统一经 schedule_combat_step 排队，由 _process 推进到点结算。
+var _pending_steps: Array[Dictionary] = []
 ## 拖拽虚影模式（阶段 8·提交 11 延伸 0.8.11.1）：BuildManager 拖拽占位——渲染与
 ## 实塔同款小人（spine 优先 / 程序化身体回退）+ 攻击范围圈，跳过怒气条/冷却环/
 ## 大招等战斗表现；半透明与绿/红染色由 BuildManager modulate 控制。
@@ -463,25 +479,34 @@ func _play_spine_idle() -> void:
 	if state == null:
 		return
 	state.set_animation("Idle", true, 0)
+	# 时标复位 1.0×（0.8.16.6）：避免连击加速沿用到后续普攻 / 待机。
+	_set_spine_track_time_scale(state, 1.0)
 	_spine_attack_busy = false
 
 
-func _play_spine_attack() -> void:
+func _play_spine_attack(time_scale: float = 1.0, force: bool = false) -> void:
+	## 普攻挥击（0.8.16.6 扩参）：time_scale = 播放倍速（连击加速用）；force = 连击重播（允许打断自身）。
 	if not _use_spine_visual or _spine == null:
 		return
+	if _spine_cast_busy_left > 0.0 and not force:
+		return  # 技能连击 / 大招演出期间不打断（0.8.16.6）。
 	var state: Object = _spine.get_animation_state()
 	if state == null:
 		return
 	var track: Object = state.get_track(0)
-	if track != null and not track.is_complete():
+	if not force and track != null and not track.is_complete():
 		var anim: Object = track.get_animation()
 		if anim != null and str(anim.get_name()) == "Attack_A":
 			return  # 攻击动画播放中不打断重播。
 	state.set_animation("Attack_A", false, 0)
+	_set_spine_track_time_scale(state, time_scale)
 	_spine_attack_busy = true
 
 
 func _update_spine_animation(_delta: float) -> void:
+	# 技能连击 / 大招演出计时（0.8.16.6）：期间普攻动画被抑制，计时到点后恢复正常优先级。
+	if _spine_cast_busy_left > 0.0:
+		_spine_cast_busy_left = maxf(_spine_cast_busy_left - _delta, 0.0)
 	if not _use_spine_visual or _spine == null or not _spine_attack_busy:
 		return
 	var state: Object = _spine.get_animation_state()
@@ -490,6 +515,158 @@ func _update_spine_animation(_delta: float) -> void:
 	var track: Object = state.get_track(0)
 	if track == null or track.is_complete():
 		_play_spine_idle()
+
+
+## —— 命中帧结算（0.8.16.6 / BEHAVIORS B.3.1.1）——
+
+## 入队一个延迟结算步骤（近战伤害 / 技能连击节拍 / 大招命中统一入口）。
+func schedule_combat_step(delay: float, action: Callable) -> void:
+	if not action.is_valid():
+		return
+	if delay <= 0.0:
+		action.call()
+		return
+	_pending_steps.append({"left": delay, "action": action})
+
+
+## 无进程测试环境一次性结算全部待办（SmokeRunner 用；塔 set_process(false) 时队列不会自行推进）。
+func flush_pending_combat_steps() -> void:
+	var guard := 0
+	while not _pending_steps.is_empty() and guard < 256:
+		guard += 1
+		var entry: Dictionary = _pending_steps.pop_front()
+		var action: Callable = entry["action"]
+		if action.is_valid():
+			action.call()
+
+
+func has_pending_combat_steps() -> bool:
+	return not _pending_steps.is_empty()
+
+
+## 命中帧目标解析（0.8.16.6 · BUGS B-085）：锁定目标在命中帧前被他人击杀 / 离场时，
+## 回落本塔当前索敌（射程内最靠前、可见、满足最小射程）；射程内无替代目标才落空。
+## 目的 = 相位后移不产生「伤害隐形丢失」：素材命中帧（0.40s / 0.267s）内被队友抢先
+## 击杀的敌人占比不低，直接空挥会让近战 DPS 随队友强度反向波动（违反 B.3.1.1「DPS 零改动」）。
+func resolve_hit_frame_target(victim_id: int) -> Enemy:
+	var victim := instance_from_id(victim_id) as Enemy
+	if victim != null and is_instance_valid(victim) and not victim.is_dead:
+		return victim
+	return find_target()
+
+
+func _process_pending_steps(delta: float) -> void:
+	if _pending_steps.is_empty():
+		return
+	var index := 0
+	while index < _pending_steps.size():
+		var entry: Dictionary = _pending_steps[index]
+		entry["left"] = float(entry["left"]) - delta
+		if float(entry["left"]) <= 0.0:
+			_pending_steps.remove_at(index)
+			var action: Callable = entry["action"]
+			if action.is_valid():
+				action.call()  # 到点动作可能再入队（连击下一拍），故用 while + 原地删除。
+		else:
+			index += 1
+
+
+## 近战命中帧延迟（秒）：spine 角色取素材 Attack_A Effect 事件；程序化角色取挥击弧中点；
+## 上限 = 攻击间隔 × 0.8（高攻速时不把伤害拖到下一击之后）。
+func melee_hit_delay() -> float:
+	var base := MELEE_HIT_DELAY_SPINE if _use_spine_visual else MELEE_HIT_DELAY_PROCEDURAL
+	return minf(base, maxf(attack_cooldown * 0.8, 0.02))
+
+
+## 近战普攻「起手 → 命中帧结算」：挥击立即播，伤害与命中事件（怒气 / 命中钩子 / 特性）延迟到命中帧。
+## 伤害值在起手锁定（与弹道发射锁定同源）；命中帧目标已被他人击杀 / 离场 → 回落当前索敌目标
+## （resolve_hit_frame_target；射程内无敌人则空挥，不结算、不计怒）。
+func schedule_melee_hit(target_enemy: Enemy, amount: int, damage_type: StringName = StringName()) -> void:
+	if target_enemy == null or amount <= 0:
+		return
+	# 捕获实例 ID 而非对象引用：目标在命中帧前被释放时不再产生「lambda 捕获已释放对象」噪声。
+	var victim_id := target_enemy.get_instance_id()
+	schedule_combat_step(melee_hit_delay(), func() -> void:
+		var victim := resolve_hit_frame_target(victim_id)
+		if victim == null:
+			return
+		deal_damage(victim, amount, damage_type)
+		notify_attack_damage_dealt(victim, amount)
+	)
+
+
+## 技能连击演出（0.8.16.6）：挥击动画 = Attack_A 连播 swings 次（时标按 SKILL_FLURRY_PERIOD 加速），
+## 演出期间普攻动画不打断；伤害节拍由调用方按 flurry_hit_delay(i) 逐拍入队。
+func begin_melee_flurry(swings: int) -> void:
+	var count := maxi(swings, 1)
+	_spine_cast_busy_left = maxf(_spine_cast_busy_left, float(count) * SKILL_FLURRY_PERIOD)
+	for i in range(count):
+		schedule_combat_step(float(i) * SKILL_FLURRY_PERIOD, _play_flurry_swing)
+
+
+## 连击单次挥击的时标：Attack_A 时长 / 单次周期（spine 未启用时无意义）。
+func spine_flurry_time_scale() -> float:
+	return SPINE_ATTACK_A_DURATION / maxf(SKILL_FLURRY_PERIOD, 0.01)
+
+
+## 连击第 index 拍的命中帧（自技能起手计时）：节拍起点 + 单次挥击命中帧（加速后等比提前）。
+func flurry_hit_delay(index: int) -> float:
+	var swing_hit := MELEE_HIT_DELAY_PROCEDURAL
+	if _use_spine_visual:
+		swing_hit = MELEE_HIT_DELAY_SPINE / maxf(spine_flurry_time_scale(), 0.01)
+	return float(maxi(index, 0)) * SKILL_FLURRY_PERIOD + swing_hit
+
+
+func _play_flurry_swing() -> void:
+	_melee_swing = MELEE_SWING_DURATION
+	_play_spine_attack(spine_flurry_time_scale(), true)
+	queue_redraw()
+
+
+## 大招命中帧延迟（秒）：spine 角色对齐 XX 首个 Effect 事件；其余职业即时（0，口径不变）。
+func ultimate_hit_delay() -> float:
+	return SPINE_XX_HIT_FRAME if _use_spine_visual else 0.0
+
+
+## 大招「起手 → 命中帧结算」：伤害延迟到命中帧落地，击杀返怒（charge）随之在命中帧结算。
+func begin_ultimate_strike(target_enemy: Enemy, amount: int, damage_type: StringName = StringName()) -> void:
+	if target_enemy == null or amount <= 0:
+		return
+	var victim_id := target_enemy.get_instance_id()
+	schedule_combat_step(ultimate_hit_delay(), func() -> void:
+		var victim := resolve_hit_frame_target(victim_id)
+		if victim == null:
+			return
+		var hp_before := victim.current_hp
+		deal_damage(victim, amount, damage_type)
+		if hp_before > 0 and victim.current_hp <= 0:
+			gain_rage(kill_rage_refund())
+	)
+
+
+## 大招演出（0.8.16.6）：关羽接素材 XX（0.80s）；其它角色 / 无 spine 自动跳过（仅程序化斩弧）。
+func _play_spine_ultimate() -> void:
+	if not _use_spine_visual or _spine == null:
+		return
+	var state: Object = _spine.get_animation_state()
+	if state == null:
+		return
+	var track: Object = state.get_track(0)
+	if track != null and not track.is_complete():
+		var anim: Object = track.get_animation()
+		if anim != null and str(anim.get_name()) == "XX":
+			return
+	state.set_animation("XX", false, 0)
+	_set_spine_track_time_scale(state, 1.0)
+	_spine_attack_busy = true
+	_spine_cast_busy_left = maxf(_spine_cast_busy_left, SPINE_XX_DURATION)
+
+
+## 轨道时标设置（0.8.16.6）：spine-godot 的 AnimationStateTrack.set_time_scale（1 参）。
+func _set_spine_track_time_scale(state: Object, time_scale: float) -> void:
+	var track: Object = state.get_track(0)
+	if track != null and track.has_method("set_time_scale"):
+		track.set_time_scale(time_scale)
 
 
 ## 拖拽虚影（0.8.11.1，BuildManager 调用）：进入虚影模式——spine 子节点转
@@ -632,6 +809,11 @@ func _process(_delta: float) -> void:
 
 	if attack_timer.is_stopped() and (passive or target != null):
 		attack()
+
+	# 命中帧结算队列（0.8.16.6 · BUGS B-085）：近战伤害 / 技能连击节拍 / 大招命中统一走这里，
+	# 且固定排在攻击判定之后——与原「伤害在 attack() 内即时结算」同相位（当帧积怒、下帧满怒
+	# 放大招），避免同帧先积怒后释放导致大招被外部统计（基准 / 观测）漏计。
+	_process_pending_steps(_delta)
 
 	if _attack_flash > 0.0:
 		_attack_flash = maxf(_attack_flash - _delta, 0.0)
@@ -937,6 +1119,7 @@ func spawn_float_text(text: String, color: Color = Color.WHITE, size: int = 14) 
 func play_ultimate_visual(ultimate_id: StringName) -> void:
 	_ult_visual_id = ultimate_id
 	_ult_visual_time = ULT_VISUAL_DURATION
+	_play_spine_ultimate()  # 0.8.16.6：spine 角色大招接素材 XX（其余角色内部自动跳过）。
 	queue_redraw()
 
 

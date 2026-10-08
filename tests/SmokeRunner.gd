@@ -265,6 +265,132 @@ func _test_kill_bar_flash_0816() -> void:
 		"定格应可写入矩形与档位（尺寸由 Enemy 侧算好）")
 	flash.free()
 
+## 0.8.16.6：死亡渐隐 / 近战命中帧结算 / 关羽技能 3 连击 + 大招 XX（BEHAVIORS B.3.1.1 · ART_ASSETS §5.7）。
+func _test_combat_sync_0816(main: Node) -> void:
+	var enemy_manager := main.get_node_or_null("EnemyManager")
+	var tower_manager := main.get_node_or_null("TowerManager")
+	if enemy_manager == null or tower_manager == null:
+		_check(false, "0.8.16.6 用例应能取到 EnemyManager / TowerManager")
+		return
+	var soldier := load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres") as EnemyData
+	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
+	var guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
+	_check(soldier != null and zhang_fei != null and guan_yu != null, "0.8.16.6 用例资源应可加载")
+	# ① 死亡渐隐（UI_LAYOUT §10）：被击杀敌人不立即释放——死亡帧退出敌人组，0.40s 演出后释放。
+	var fade_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if fade_enemy != null:
+		fade_enemy.set_process(true)
+		fade_enemy.reward = 0
+		fade_enemy.kill_xp = 0
+		fade_enemy.merit_reward = 0
+		fade_enemy.take_damage(9999)
+		_check(fade_enemy.is_dead, "致死打击后应进入死亡态")
+		_check(not fade_enemy.is_queued_for_deletion(), "被击杀敌人不应立即释放（有进程 → 播死亡渐隐）")
+		_check(fade_enemy._death_time >= 0.0, "被击杀敌人应进入死亡演出")
+		_check(not fade_enemy.is_in_group(Enemy.ENEMY_GROUP), "死亡帧应退出敌人组（索敌 / 波次判定不再计入）")
+		fade_enemy.set_process(false)
+		var fade_alpha_before := fade_enemy.modulate.a
+		fade_enemy._advance_death_fade(0.2)
+		_check(fade_enemy.modulate.a < fade_alpha_before, "死亡演出应逐帧淡出")
+		_check(fade_enemy._death_time > 0.0 and fade_enemy.modulate.a > 0.0, "0.40s 演出中段应仍可见")
+		fade_enemy._advance_death_fade(0.25)
+		_check(fade_enemy.is_queued_for_deletion(), "死亡演出结束应释放节点")
+	else:
+		_check(false, "死亡渐隐用例应能生成敌人")
+	# ② die(false)（漏怪 / 调试清场）不演出、直接释放。
+	var leak_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if leak_enemy != null:
+		leak_enemy.set_process(true)
+		leak_enemy.die(false)
+		_check(leak_enemy._death_time < 0.0 and leak_enemy.is_queued_for_deletion(),
+			"die(false)（漏怪 / 清场）应直接释放，不播死亡渐隐")
+	# ③ 近战命中帧结算（BEHAVIORS B.3.1.1）：排队 → 命中帧前不掉血 → flush 后结算。
+	var sync_tower: Tower = tower_manager.build_tower(Vector2(240, 640), zhang_fei, null, {"level": 10})
+	_check(sync_tower != null, "命中帧用例应能建造虎贲塔")
+	if sync_tower != null:
+		sync_tower.set_process(false)
+		var sync_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if sync_target != null:
+			sync_target.set_process(false)
+			sync_target.global_position = sync_tower.global_position + Vector2(60, 0)
+			sync_target.max_hp = 9999
+			sync_target.current_hp = 9999
+			var hp_before_swing := sync_target.current_hp
+			sync_tower.schedule_melee_hit(sync_target, 50)
+			_check(sync_tower.has_pending_combat_steps(), "近战伤害应进入命中帧队列")
+			_check(sync_target.current_hp == hp_before_swing, "命中帧前不应结算伤害")
+			sync_tower.flush_pending_combat_steps()
+			_check(sync_target.current_hp == hp_before_swing - 50, "命中帧结算应造成伤害")
+			sync_target.die(false)
+		# ③b 命中帧目标失效回落（BUGS B-085）：锁定存活目标原样返回；锁定目标已死 → 回落当前索敌。
+		var fallback_live := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if fallback_live != null:
+			fallback_live.set_process(false)
+			fallback_live.global_position = sync_tower.global_position + Vector2(70, 0)
+			fallback_live.max_hp = 9999
+			fallback_live.current_hp = 9999
+			_check(sync_tower.resolve_hit_frame_target(fallback_live.get_instance_id()) == fallback_live,
+				"锁定目标存活时命中帧应原样返回锁定目标")
+			var dead_victim_id := fallback_live.get_instance_id()
+			fallback_live.die(false)
+			var fallback_after := sync_tower.resolve_hit_frame_target(dead_victim_id)
+			_check(fallback_after == null or not fallback_after.is_dead,
+				"锁定目标已死时命中帧应回落当前索敌（不返回尸体；射程内无替代目标才落空）")
+		_check(is_equal_approx(sync_tower.melee_hit_delay(), Tower.MELEE_HIT_DELAY_PROCEDURAL),
+			"程序化近战命中帧应为挥击弧中点（0.110s）")
+		sync_tower.queue_free()
+	# ④ 关羽：3 连击节拍 + spine 映射（Attack_A 加速连播 / 大招 XX / 回落复位时标）。
+	var sync_guan: Tower = tower_manager.build_tower(Vector2(260, 640), guan_yu, null, {"level": 10})
+	_check(sync_guan != null, "关羽用例应能建造塔")
+	if sync_guan != null:
+		sync_guan.set_process(false)
+		var hit_0 := sync_guan.flurry_hit_delay(0)
+		var hit_1 := sync_guan.flurry_hit_delay(1)
+		var hit_2 := sync_guan.flurry_hit_delay(2)
+		_check(hit_0 > 0.0 and hit_0 < hit_1 and hit_1 < hit_2, "3 连击命中帧应逐拍递增")
+		_check(is_equal_approx(hit_1 - hit_0, Tower.SKILL_FLURRY_PERIOD), "连击节拍间隔应等于单次周期（0.30s）")
+		var sync_guan_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if sync_guan_target != null:
+			sync_guan_target.set_process(false)
+			sync_guan_target.global_position = sync_guan.global_position + Vector2(60, 0)
+			sync_guan_target.max_hp = 9999
+			sync_guan_target.current_hp = 9999
+			sync_guan.target = sync_guan_target
+			_check(sync_guan.cast_character_skill(), "青龙偃月应能释放（3 连击演出）")
+			_check(sync_guan._spine_cast_busy_left > 0.0, "技能连击期间应标记演出忙碌（普攻动画不打断）")
+			var guan_hp_before := sync_guan_target.current_hp
+			sync_guan.flush_pending_combat_steps()
+			_check(sync_guan_target.current_hp == guan_hp_before - int(round(sync_guan.damage * 2.0)) * 3,
+				"青龙偃月 3 连击 flush 后应造成 3 段 × 2.0× 真实伤害")
+			sync_guan_target.die(false)
+		if sync_guan._use_spine_visual:
+			_check(is_equal_approx(sync_guan.melee_hit_delay(), Tower.MELEE_HIT_DELAY_SPINE),
+				"spine 关羽命中帧应取素材 Attack_A Effect 事件（0.400s）")
+			_check(is_equal_approx(sync_guan.spine_flurry_time_scale(),
+				Tower.SPINE_ATTACK_A_DURATION / Tower.SKILL_FLURRY_PERIOD),
+				"连击时标应 = Attack_A 时长 / 单次周期（≈2.44×）")
+			var state: Object = sync_guan._spine.get_animation_state()
+			sync_guan._play_spine_attack(sync_guan.spine_flurry_time_scale(), true)
+			var track: Object = state.get_track(0)
+			_check(track != null and str(track.get_animation().get_name()) == "Attack_A",
+				"连击挥击应播素材 Attack_A")
+			_check(is_equal_approx(float(track.get_time_scale()), sync_guan.spine_flurry_time_scale()),
+				"连击挥击时标应加速播放")
+			sync_guan.play_ultimate_visual(&"ultimate_cavalry_breaker")
+			var ult_track: Object = state.get_track(0)
+			_check(ult_track != null and str(ult_track.get_animation().get_name()) == "XX",
+				"关羽大招应接素材 XX")
+			_check(is_equal_approx(sync_guan.ultimate_hit_delay(), Tower.SPINE_XX_HIT_FRAME),
+				"大招命中帧应取 XX 首个 Effect 事件（0.267s）")
+			sync_guan._play_spine_idle()
+			var idle_track: Object = state.get_track(0)
+			_check(is_equal_approx(float(idle_track.get_time_scale()), 1.0), "回落 Idle 时标应复位 1.0×")
+		sync_guan.queue_free()
+	# 无 spine 时大招保持即时结算（口径不变）。
+	if sync_guan == null or not sync_guan._use_spine_visual:
+		_check(true, "无 spine 环境：关羽沿用程序化演出（大招即时结算）")
+	await get_tree().process_frame
+	GameManager.reset_combo()  # 死亡用例推进过连击，复位避免污染后续断言
 
 func _test_merit_supply_0816() -> void:
 	var merit_by_enemy := {
@@ -679,6 +805,8 @@ func _run() -> void:
 	var tower_manager := main.get_node("TowerManager")
 	var guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
 	var liu_bei := load("res://resources/characters/liu_bei.tres") as CharacterData
+	# 0.8.16.6：死亡渐隐 + 近战命中帧结算 + 关羽技能 3 连击 / 大招 XX（主场景就绪后跑）。
+	_test_combat_sync_0816(main)
 
 	# —— 拖拽建造（v0.33.3，唯一建造方式）——
 	# 落点优先取遗留槽位坐标（保持后续用例的塔位几何），不足时回退自由空地扫描。
@@ -824,6 +952,8 @@ func _run() -> void:
 	first_tower.target = boss
 	first_tower.attack()
 	_check(first_tower.is_swinging(), "骑兵攻击应触发挥击动作（无弹道）")
+	# 命中帧结算（0.8.16.6）：伤害延迟到命中帧，无进程测试环境手动结算。
+	first_tower.flush_pending_combat_steps()
 	_check(boss.current_hp < 800, "骑兵近战攻击应对 Boss 造成伤害")
 	if is_instance_valid(boss):
 		boss.die(false)
@@ -930,6 +1060,7 @@ func _run() -> void:
 				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
 				spear_tower.target = melee_target
 				spear_tower.attack()
+				spear_tower.flush_pending_combat_steps()  # 命中帧结算（0.8.16.6）
 				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）；
 				# 轻骑重标甲 2（NUMBERS 10.12 / 0.8.13.0）：物理减伤 2/52。
 				var benevolence := 1.08
@@ -1882,6 +2013,7 @@ func _run() -> void:
 		rage_target.global_position = rage_tower.global_position + Vector2(120, 0)
 		rage_tower.target = rage_target
 		rage_tower.attack()
+		rage_tower.flush_pending_combat_steps()  # 命中帧结算（0.8.16.6）：怒气在命中帧积攒
 		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 面板伤害×0.1（武生 +25% → 80；怒气按打甲前口径，甲值不减怒）")
 		rage_tower.rage = 100.0
 		var ult_target := enemy_manager.spawn_enemy_from_data(load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData) as Enemy
@@ -1889,6 +2021,7 @@ func _run() -> void:
 		ult_target.global_position = rage_tower.global_position + Vector2(120, 0)
 		rage_tower.target = ult_target
 		_check(rage_tower._try_cast_ultimate(), "满怒应能释放大招（突击斩杀）")
+		rage_tower.flush_pending_combat_steps()  # 大招命中帧（spine XX @0.267s，0.8.16.6）
 		_check(ult_target.current_hp == 300 - 240, "斩杀应造成 3×普攻并含武生特性（240）")
 	# ===== v0.15.0 技能注册表与演出测试（GDD modules/BEHAVIORS.md B.3.5） =====
 	# 职业技能显示名查询（注册表完整性由下方 v0.28.0 断言覆盖：每职业 1 技能共 6 个）。
@@ -1937,6 +2070,7 @@ func _run() -> void:
 		charge_tower.target = charge_target
 		charge_tower.rage = 100.0
 		_check(charge_tower._try_cast_ultimate(), "满怒大招应能释放")
+		charge_tower.flush_pending_combat_steps()  # 击杀返怒在命中帧结算（0.8.16.6）
 		_check(is_equal_approx(charge_tower.rage, 50.0), "大招击杀应返怒 50（先清怒再返还）")
 		charge_tower.battle_rank = 5
 		charge_tower.rage = 100.0
@@ -1945,6 +2079,7 @@ func _run() -> void:
 		charge_target_2.global_position = charge_tower.global_position + Vector2(120, 0)
 		charge_tower.target = charge_target_2
 		_check(charge_tower._try_cast_ultimate(), "5 级满怒大招应能释放")
+		charge_tower.flush_pending_combat_steps()  # 击杀返怒在命中帧结算（0.8.16.6）
 		_check(is_equal_approx(charge_tower.rage, 55.0), "5 级 charge 击杀返怒应为 55")
 		charge_tower.queue_free()
 	# siege（皇甫嵩·霹雳车）：对精英/Boss 伤害 +10% × s。
@@ -2539,6 +2674,7 @@ func _run() -> void:
 		green_kill.current_hp = green_kill.max_hp
 		green_tower.target = green_kill
 		_check(green_tower.cast_character_skill(), "青龙偃月应能释放")
+		green_tower.flush_pending_combat_steps()  # 3 连击逐拍命中帧（0.8.16.6）
 		_check(is_equal_approx(green_tower.get_character_skill_cooldown_left(), 13.0),
 			"青龙偃月击杀应返 5s 冷却（18-5=13）")
 		var green_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
@@ -2548,6 +2684,7 @@ func _run() -> void:
 		green_tower.refund_character_skill_cooldown(999.0)
 		var green_before := green_tank.current_hp
 		_check(green_tower.cast_character_skill(), "青龙偃月应能再次释放")
+		green_tower.flush_pending_combat_steps()  # 3 连击逐拍命中帧（0.8.16.6）
 		_check(green_before - green_tank.current_hp == int(round(green_tower.damage * 2.0)) * 3,
 			"青龙偃月应造成 3 段 × 2.0× 真实伤害（不分摊）")
 		green_tank.queue_free()
