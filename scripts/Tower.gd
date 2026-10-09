@@ -7,7 +7,6 @@ const TOWER_GROUP: StringName = &"towers"
 const RANGE_FILL_COLOR := Color(0.22, 0.76, 0.88, 0.13)
 const RANGE_BORDER_COLOR := Color(0.68, 0.97, 1.0, 0.96)
 ## 选中环（v0.19.2）：金色光圈，选中塔明显可辨。
-const SELECT_RING_COLOR := Color(1.0, 0.82, 0.3)
 const RANGE_BORDER_WIDTH := 3.5
 ## 局内升阶职业化步进（阶段 8，NUMBERS.md 10.9）：默认伤害 +25%/阶、其余 0（旧行为）；
 ## 由 ProfessionData.battle_rank_* 提供，CharacterData.battle_rank_*_override 可覆盖。
@@ -81,6 +80,8 @@ var is_selected: bool = false
 
 # 局内临时状态（GDD 5.4/阶段 8）：升阶阶数（battle_rank）与总投入只存在于本局，不写入存档。
 var battle_rank: int = 0
+## 阶级角标（0.8.17.0 / UI_LAYOUT §10 v2）：局内升阶 1/2/3 阶置于头像右下的圆形小标，0 阶隐藏。
+var _rank_badge: Label = null
 var total_invested: int = 0
 var build_cost: int = 0
 var assigned_slot: Node = null
@@ -256,9 +257,43 @@ func _ready() -> void:
 	_rebuild_range_area()
 	if not display_name.is_empty():
 		name_label.text = display_name
+	# 地图塔不显示名称（0.8.17.0 / UI_LAYOUT §10 v2）：名称只在大厅 / 编队等处出现。
+	name_label.visible = false
 	selection_area.input_event.connect(_on_selection_area_input_event)
 	quick_cast_area.input_event.connect(_on_quick_cast_area_input_event)
+	_setup_battle_rank_badge()
 	queue_redraw()
+
+
+## 阶级角标（0.8.17.0 / UI_LAYOUT §10 v2）：头像右下 22px 圆标 + 升阶数（0 阶隐藏）。
+func _setup_battle_rank_badge() -> void:
+	_rank_badge = Label.new()
+	_rank_badge.name = "BattleRankBadge"
+	_rank_badge.custom_minimum_size = Vector2(22, 22)
+	_rank_badge.size = Vector2(22, 22)
+	# 角标压塔身右下角（UI_LAYOUT §10 v2 概念稿 .rank = left31/top29 于 50×74 塔框）。
+	_rank_badge.position = Vector2(14, 30)
+	_rank_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_rank_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_rank_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_rank_badge.z_index = 1
+	_rank_badge.add_theme_font_size_override("font_size", 14)
+	_rank_badge.add_theme_color_override("font_color", Color("#ffd479"))
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#14231a")
+	style.border_color = Color("#c9a35c")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(11)
+	_rank_badge.add_theme_stylebox_override("normal", style)
+	add_child(_rank_badge)
+	_refresh_battle_rank_badge()
+
+
+func _refresh_battle_rank_badge() -> void:
+	if _rank_badge == null or not is_instance_valid(_rank_badge):
+		return
+	_rank_badge.visible = battle_rank > 0
+	_rank_badge.text = str(mini(battle_rank, 9))
 
 
 ## Apply a CharacterData to this tower. Call after add_child() so all
@@ -366,6 +401,7 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_setup_spine_visual()
 	_rebuild_attack_timer()
 	_rebuild_range_area()
+	_refresh_battle_rank_badge()
 	queue_redraw()
 
 
@@ -399,6 +435,7 @@ func apply_battle_rank(spent_cost: int) -> void:
 	damage = int(round(_base_damage * CharacterData.rank_scale(_battle_rank_damage_step, battle_rank)))
 	attack_cooldown = _base_attack_cooldown / CharacterData.rank_scale(_battle_rank_attack_speed_step, battle_rank)
 	range_radius = _base_range * CharacterData.rank_scale(_battle_rank_range_step, battle_rank)
+	_refresh_battle_rank_badge()
 	_rebuild_attack_timer()
 	_rebuild_range_area()
 	queue_redraw()
@@ -1523,8 +1560,6 @@ func _draw() -> void:
 		_draw_seal_domain_mark()
 	if is_selected:
 		_draw_range()
-		# 选中环（v0.19.2）：塔身外金色光圈，强化选中反馈。
-		draw_arc(Vector2.ZERO, 30.0, 0.0, TAU, 32, SELECT_RING_COLOR, 3.0, true)
 
 
 ## 技能扩散环（v0.16.0）：半径随进度放大、颜色淡出。

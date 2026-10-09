@@ -847,11 +847,12 @@ func _test_battle_entry() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	var stage_label := main.get_node("UI/Root/TopBar/Margin/Content/StageLabel") as Label
+	var stage_label := main.get_node("UI/Root/TopBar/Margin/Content/StageChip/ChipMargin/StageLabel") as Label
 	_check(stage_label.text == "长社火攻", "战斗界面应展示 GameFlow 选中的关卡")
-	_check(main.get_node_or_null("UI/Root/TopBar/Margin/Content/ExitButton") != null,
-		"战斗顶栏应有退出按钮")
-	var character_bar := main.get_node("UI/Root/BottomBar/CharacterBar") as HBoxContainer
+	# 0.8.17.0 HUD v2：顶栏六键收敛为 ☰ 菜单（暂停 / 设置 / 重开 / 退出）。
+	_check(main.get_node_or_null("UI/Root/TopBar/Margin/Content/MenuButton") != null,
+		"战斗顶栏应有 ☰ 菜单按钮（0.8.17.0 六键收敛）")
+	var character_bar := main.get_node("UI/Root/BottomBar/DockMargin/Dock/CharacterBar") as HBoxContainer
 	_check(character_bar.get_child_count() == 1, "编队过滤后建造栏应只含出战武将")
 	# 布局回归（v0.10.2）：结算弹窗承载容器必须铺满屏幕，居中才成立。
 	var result_center := main.get_node("UI/Root/ResultCenter") as CenterContainer
@@ -895,9 +896,10 @@ func _test_battle_entry() -> void:
 	_check(get_tree().get_nodes_in_group("build_slots").is_empty(), "v0.33.3 起战场不应生成建造位")
 	_check(GameManager.total_waves == 7, "s02 应有 7 波敌人（0.8.13.2 +1）")
 
-	# 退出导航（v0.15.2）：顶栏退出弹确认框（确认后回游戏大厅，不直接退出）。
-	var exit_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/ExitButton") as Button
-	exit_button_flow.pressed.emit()
+	# 退出导航（v0.15.2 / 0.8.17.0）：☰ 菜单「退出」弹确认框（确认后回游戏大厅，不直接退出）。
+	var menu_ui_flow := main.get_node("UI")
+	var menu_button_flow := main.get_node("UI/Root/TopBar/Margin/Content/MenuButton") as MenuButton
+	menu_button_flow.get_popup().id_pressed.emit(menu_ui_flow.MENU_EXIT)
 	await get_tree().process_frame
 	var exit_dialog := get_tree().root.get_node_or_null("%s/%s" % [
 		BattleConfirmDialog.LAYER_NAME, BattleConfirmDialog.DIALOG_NAME]) as Control

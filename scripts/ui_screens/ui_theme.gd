@@ -336,3 +336,45 @@ static func style_exp_bar(bar: ProgressBar) -> void:
 	fill.set_corner_radius_all(8)
 	bar.add_theme_stylebox_override("background", bg)
 	bar.add_theme_stylebox_override("fill", fill)
+
+## 局内 HUD v2 皮肤令牌（0.8.17.0 / UI_LAYOUT §10 v0.20.41 定稿）：
+## 深墨绿底 + 暖金描边 + 米金文字；地图与道路本身不改色。
+const HUD_BG := Color("#13241b")
+const HUD_BG_DEEP := Color("#0e1b14")
+const HUD_LINE := Color("#c9a35c")
+const HUD_TEXT := Color("#f2e7cd")
+const HUD_VALUE := Color("#ffd479")
+const HUD_GREEN := Color("#4ec97e")
+const HUD_RED := Color("#ef5b52")
+const HUD_ACTION := Color("#ffcc00")
+const HUD_CARD_BG := Color(0.035, 0.071, 0.055, 0.88)
+const HUD_COST_BG := Color("#ffd479")
+const HUD_COST_TEXT := Color("#14231a")
+## 塔详情动作盘（升阶=金盘 / 回收=红盘）：上亮下深做立体，悬停提亮。
+const HUD_DISC_GOLD := Color("#ffe08a")
+const HUD_DISC_GOLD_DEEP := Color("#d9a53a")
+const HUD_DISC_RED := Color("#ff9d7d")
+const HUD_DISC_RED_DEEP := Color("#c2604f")
+
+## 通用 HUD 图徽目录（AGENTS §6「图徽优先」）：运行时就位 = assets/ui/icons/icons_hud
+## （随 PCK 导出；export_presets 排除 docs/*），开发副本 = docs/ui_concept/src/icons_hud。
+const HUD_ICON_DIR := "res://assets/ui/icons/icons_hud/"
+const HUD_ICON_DIR_FALLBACK := "res://docs/ui_concept/src/icons_hud/"
+
+static var _hud_icon_cache: Dictionary = {}
+
+
+## 图徽加载（透明符号，裸符号落位）：assets 优先、docs 兜底；缺图返回 null，
+## 调用方按 AGENTS §6 用虚线圆占位并登记 ART_PROMPTS。
+static func hud_icon(icon_name: String) -> Texture2D:
+	if _hud_icon_cache.has(icon_name):
+		return _hud_icon_cache[icon_name]
+	var texture: Texture2D = null
+	for dir in [HUD_ICON_DIR, HUD_ICON_DIR_FALLBACK]:
+		var path := "%s%s.png" % [dir, icon_name]
+		if ResourceLoader.exists(path):
+			texture = load(path) as Texture2D
+			if texture != null:
+				break
+	_hud_icon_cache[icon_name] = texture
+	return texture

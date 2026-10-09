@@ -56,6 +56,7 @@ func _run() -> void:
 	_check("全量关卡/波次/敌人资源", _stages_integrity())
 	_check("羁绊/遗物/道具/科技/数值/模板资源", _misc_integrity())
 	_check("光标素材（Kenney Cursor Pack ×2 尺寸 + 热点落点）", _cursor_assets_integrity())
+	_check("HUD 图徽素材（0.8.17.0 · assets 运行副本 = docs 源）", _hud_icon_assets_integrity())
 	_check("关羽 spine 素材与运行时（ART_ASSETS §5.8）", _spine_assets_integrity())
 	print("PACK_VERIFY_%s" % ("OK" if failures.is_empty() else "FAIL"))
 	print("DETAILS:")
@@ -197,6 +198,27 @@ func _cursor_assets_integrity() -> bool:
 				missing.append("%s hotspot(%d,%d) alpha=%.2f" % [path, int(hotspot.x), int(hotspot.y), alpha])
 	details.append("光标素材 %d 枚 ×2 尺寸，缺失/异常=%s" % [CursorIcons.HOTSPOT_32.size(), str(missing)])
 	return missing.is_empty()
+
+
+## HUD 图徽素材（UI_LAYOUT §10 v2 / 程序 0.8.17.0 · AGENTS §6）：概念稿源 docs/ui_concept/src/icons_hud/
+## 的每一枚都要有 assets/ui/icons/icons_hud/ 运行副本（export_presets 排除 docs/*，缺副本 =
+## 打包后图徽消失退虚线圆占位）；runtime 目录逐枚可载入。
+func _hud_icon_assets_integrity() -> bool:
+	var missing: Array[String] = []
+	var names: Array[String] = []
+	for entry in ResourceLoader.list_directory(UITheme.HUD_ICON_DIR_FALLBACK):
+		if entry.ends_with(".png"):
+			names.append(entry.trim_suffix(".png"))
+	names.sort()
+	for icon_name in names:
+		var runtime_path := "%s%s.png" % [UITheme.HUD_ICON_DIR, icon_name]
+		if not ResourceLoader.exists(runtime_path):
+			missing.append("缺运行副本: " + icon_name)
+			continue
+		if UITheme.hud_icon(icon_name) == null:
+			missing.append("不可载入: " + icon_name)
+	details.append("HUD 图徽 %d 枚（assets 运行副本 = docs 源），缺失/异常=%s" % [names.size(), str(missing)])
+	return not names.is_empty() and missing.is_empty()
 
 
 ## 关羽 spine 素材与运行时（ART_ASSETS §5·§5.8，程序 0.8.16.2 / BUGS B-076）：数据资源 / 图集 / 数据 /

@@ -1025,7 +1025,7 @@ func _run() -> void:
 		# 前面波次测试可能已触发结算/选中塔面板，关闭避免其全屏/面板区拦截拖拽落点。
 		var smoke_ui := main.get_node("UI")
 		smoke_ui.hide_result()
-		smoke_ui.hide_tower_panel()
+		smoke_ui.hide_tower_bar()
 		_check(build_manager.begin_drag(zhang_fei), "复位后应能开始张飞拖拽")
 		build_manager._update_drag_at(build_manager.cell_center(zhang_cell))
 		_check(build_manager._drag_valid, "张飞落点应判定可建")

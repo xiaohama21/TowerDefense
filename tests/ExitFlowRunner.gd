@@ -54,17 +54,18 @@ func _test_battle_exit() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	var exit_button := main.get_node_or_null("UI/Root/TopBar/Margin/Content/ExitButton") as Button
-	_check(exit_button != null, "战斗顶栏应有退出按钮")
-	if exit_button == null:
+	# 0.8.17.0 HUD v2：顶栏六键收敛为 ☰ 菜单，退出走菜单项。
+	var menu_button := main.get_node_or_null("UI/Root/TopBar/Margin/Content/MenuButton") as MenuButton
+	_check(menu_button != null, "战斗顶栏应有 ☰ 菜单按钮（0.8.17.0 六键收敛）")
+	if menu_button == null:
 		main.queue_free()
 		await get_tree().process_frame
 		return
 	var ui := main.get_node("UI")
-	var exit_forwarding: Array = ui.exit_pressed.get_connections()
-	_check(exit_forwarding.any(func(c: Dictionary) -> bool: return c.get("callable", Callable()).get_method() == "_on_exit_pressed"),
-		"退出按钮链路应最终绑定 _on_exit_pressed（经 UI 转发）")
-	exit_button.pressed.emit()
+	var exit_forwarding: Array = ui.menu_action_requested.get_connections()
+	_check(exit_forwarding.any(func(c: Dictionary) -> bool: return c.get("callable", Callable()).get_method() == "_on_menu_action_requested"),
+		"☰ 菜单链路应绑定 Main._on_menu_action_requested（经 UI 转发）")
+	menu_button.get_popup().id_pressed.emit(ui.MENU_EXIT)
 	await get_tree().process_frame
 
 	var exit_dialog := _find_battle_confirm()
@@ -89,14 +90,13 @@ func _test_battle_restart_confirm() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	var restart_button := main.get_node_or_null(
-		"UI/Root/TopBar/Margin/Content/RestartButton") as Button
-	_check(restart_button != null, "战斗顶栏应有重开按钮")
-	if restart_button == null:
+	var restart_menu := main.get_node_or_null("UI/Root/TopBar/Margin/Content/MenuButton") as MenuButton
+	_check(restart_menu != null, "战斗顶栏应有 ☰ 菜单按钮（0.8.17.0 六键收敛）")
+	if restart_menu == null:
 		main.queue_free()
 		await get_tree().process_frame
 		return
-	restart_button.pressed.emit()
+	restart_menu.get_popup().id_pressed.emit(main.get_node("UI").MENU_RESTART)
 	await get_tree().process_frame
 
 	var dialog := _find_battle_confirm()
