@@ -88,6 +88,7 @@ func request_wave_bonus(world_pos: Vector2, amount: int) -> void:
 	if _texture != null:
 		var icon := TextureRect.new()
 		icon.texture = _texture
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		icon.custom_minimum_size = Vector2(20.0, 20.0)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -209,6 +210,7 @@ func _acquire_coin() -> Sprite2D:
 	var coin := Sprite2D.new()
 	coin.name = "GoldCoin"
 	coin.texture = _texture
+	coin.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	coin.centered = true
 	add_child(coin)
 	_pool.append(coin)

@@ -30,7 +30,8 @@ const MENU_EXIT := 3
 ## 局内 HUD v2 皮肤（UI_LAYOUT §10 v0.20.41 定稿）：深墨绿 + 暖金；地图 / 道路不改色。
 const HUD_SLOT_SIZE := 76.0
 const HUD_SLOT_AVATAR := 46.0
-const HUD_COST_PILL := Vector2(48.0, 22.0)
+# 费用胶囊 48×21（0.8.17.2：高 22→21，图徽 15 在 21 内垂直偏移 3 = 整数像素，避免半像素采样发糊）。
+const HUD_COST_PILL := Vector2(48.0, 21.0)
 ## 手动大招模式追加第 6 卡时使用的圆盘直径（升阶 / 回收 / 大招同规格 46px，UI_LAYOUT §10）。
 const HUD_DISC_SIZE := 46.0
 ## 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：显示与真值分离——收入等 FX 落地滚动，
@@ -148,7 +149,7 @@ func _setup_hud_glyphs() -> void:
 func _apply_glyph(rect: TextureRect, icon_name: String) -> void:
 	if rect == null:
 		return
-	var texture := UITheme.hud_icon(icon_name)
+	var texture := UITheme.apply_hud_icon(rect, icon_name)
 	if texture == null:
 		push_warning("HUD 图徽缺失：%s（按 AGENTS §6 用虚线圆占位并登记 ART_PROMPTS）" % icon_name)
 		rect.visible = false
@@ -361,20 +362,22 @@ func _make_cost_pill(cost: int, affordable: bool) -> Dictionary:
 	root.add_theme_stylebox_override("panel", _make_flat_style(
 		UITheme.HUD_COST_BG if affordable else Color("#c2604f"), Color(0, 0, 0, 0), 11, 0))
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 5)
-	margin.add_theme_constant_override("margin_right", 5)
+	# 内边距口径 = 概念稿 `.costpill { padding:0 7px 0 3px }`（图徽左对齐 3px，内容 38 = 15+2+label 恰好填满）。
+	margin.add_theme_constant_override("margin_left", 3)
+	margin.add_theme_constant_override("margin_right", 7)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(margin)
 	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.alignment = BoxContainer.ALIGNMENT_BEGIN
 	row.add_theme_constant_override("separation", 2)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(row)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(13, 13)
+	# 尺寸口径 = 概念稿 docs/ui_concept/ui_battle_hud_v2.html `.costpill img {15px}`（0.8.17.2）。
+	icon.custom_minimum_size = Vector2(15, 15)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = UITheme.hud_icon("coin")
+	UITheme.apply_hud_icon(icon, "coin", 15)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
 	var label := Label.new()
@@ -796,6 +799,7 @@ func _make_glyph(icon_name: String, diameter: float) -> Control:
 	var texture := UITheme.hud_icon(icon_name)
 	if texture != null:
 		var rect := TextureRect.new()
+		rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		rect.texture = texture
 		# 先定 expand 再设尺寸：TextureRect 未忽略纹理尺寸时 minimum_size = 160px，
 		# 会把 size 钳到 160（图徽巨大化溢出卡片，0.8.17.0 目视验收修复）。

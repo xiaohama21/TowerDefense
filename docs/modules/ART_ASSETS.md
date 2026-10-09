@@ -2,7 +2,8 @@
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，界面风格见 [UI_LAYOUT.md](UI_LAYOUT.md)。
 > 承载总纲原章节：13「美术风格」行实现侧、附录「现有代码与资源映射」。
-> 文档版本：v0.20（2026-10-09）
+> 文档版本：v0.21（2026-10-09）
+> v0.21 变更（2026-10-09，**运行副本图徽导入参数：开 mipmap + 小尺寸采样口径**（程序 0.8.17.1 → **0.8.17.2** / GDD v0.37.65 / UI_LAYOUT v0.20.68 §10 / BUGS v0.62 B-091）：`assets/ui/icons/icons_hud/` 21 枚运行副本 `.import` 开 **`mipmaps/generate=true`**（≥24px 档位 `LINEAR_WITH_MIPMAPS` 收敛锯齿）；<24px 档位（费用胶囊金币 15px）改**运行时按显示尺寸 Lanczos 重采样 + 线性 1:1 落位**（`UITheme.hud_icon_sized()`，缓存复用）——160px 源直缩 15px ≈10.7×，无 mipmap 线性 = 锯齿糊斑 / mipmap 三线性 = 过软；概念稿源 `docs/ui_concept/src/icons_hud/` 参数不变（仅编辑器可见）。）
 > v0.20 变更（2026-10-09，**21 枚 HUD 图徽运行时就位（`assets/ui/icons/icons_hud/`）**（程序 0.8.16.6 → **0.8.17.0** / GDD v0.37.63 / UI_LAYOUT v0.20.66 §10 / ART_PROMPTS v0.17）：局内 HUD v2 换肤落地 = `docs/ui_concept/src/icons_hud/` 21 枚透明符号**全量复制为运行副本 `assets/ui/icons/icons_hud/`**（PNG + Godot 导入缓存 `.import`，随 PCK 导出；`export_presets.cfg` 的 `exclude_filter` 含 `docs/*`，概念稿源打包后不可用）；代码 `UITheme.hud_icon()` assets 优先 / docs 兜底、缺图回退虚线圆占位；PackVerify 新增「HUD 图徽素材」用例（运行副本 = docs 源逐枚可载入）；§3 台账 / §6 许可行同步（「预留」改「已落地」）。缺口不变：军需条目图标 / 塔阶级角标（数字圆标已落地、待图徽化）/ 怒气 / 军需限次 / 锁。
 > 文档版本：v0.19（2026-09-16）
 > v0.19 变更（2026-09-16，**关羽 spine 战斗动画扩展：普攻命中帧 / 技能「3 连击」/ 大招 XX**，程序 0.8.16.5 → **0.8.16.6**，用户 2026-09-16 反馈「关羽技能，大招都没有配置动画，现在有素材这部分为什么不做？」+ 拍板「青龙偃月是攻击 3 次，改为普通 3 次、合理调整攻速」/ GDD v0.37.58→v0.37.59 / BEHAVIORS B.3.1 / UI_LAYOUT v0.20.63 §10 / UI.md 敌人表现行 / BUGS v0.58（B-082~B-084））：§5.7 补第 9 条「战斗动画映射扩展」——素材 12 条动画由「最小集（Idle / Attack_A）」扩为 **Idle（loop）· 普攻 Attack_A（1.0×）· 技能 = Attack_A 连播 3 次（单次 0.30s ↔ 时标 ≈2.44×）· 大招 XX（1.0×）**，并按素材事件取**命中帧**（Attack_A Effect @0.400s / XX Effect @0.267s）驱动「起手 → 命中帧结算」（见 BEHAVIORS B.3.1.1）；`X` / `Critical` / `Death` / `Move` / `Stun` 等暂不接（X 保留待后续）；技能 / 大招演出期间普攻动画不打断，播完回落 Idle 且时标复位 1.0×。v0.18 历史行保留。
@@ -83,7 +84,7 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 | `ui/icons/slide_*.png` | `Blue/slide_*.png` | 设置滑块/滚动条 |
 
 **语义色映射**（对齐 UITheme 语义，见 UI_LAYOUT.md 第 2 节）：黄=主行动（金语义，视觉以黄替金）、红=警示、灰=中性/禁用、蓝=信息/选中、绿=成功。按钮四态效果见 `docs/ui_concept/ui_button_states.png`。
-**通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集**（随局内 HUD v2 概念稿定稿启用 = [UI_LAYOUT.md](UI_LAYOUT.md) §10 / v0.20.41；**取用版 = `docs/ui_concept/src/icons_hud/` 21 枚透明符号（裸符号落位）、原始件 + 抠图脚本 = `docs/ui_concept/src/icons_battle/`**，运行时入库目录 = **`assets/ui/icons/icons_hud/`（21 枚 PNG + 导入缓存，2026-10-09 / 程序 0.8.17.0 随局内 HUD v2 换肤落地）**；本集不含技能 / 物品图徽，后者按 [ART_PROMPTS.md](ART_PROMPTS.md) §6 另批入库）：
+**通用 HUD 图徽（AI 出图 · Leonardo）· 局内 HUD 图标集**（随局内 HUD v2 概念稿定稿启用 = [UI_LAYOUT.md](UI_LAYOUT.md) §10 / v0.20.41；**取用版 = `docs/ui_concept/src/icons_hud/` 21 枚透明符号（裸符号落位）、原始件 + 抠图脚本 = `docs/ui_concept/src/icons_battle/`**，运行时入库目录 = **`assets/ui/icons/icons_hud/`（21 枚 PNG + 导入缓存，2026-10-09 / 程序 0.8.17.0 随局内 HUD v2 换肤落地；导入参数 `mipmaps/generate=true`，2026-10-09 / 0.8.17.2 起；<24px 档位运行时 Lanczos 重采样见 UI_LAYOUT v0.20.68 §10）**；本集不含技能 / 物品图徽，后者按 [ART_PROMPTS.md](ART_PROMPTS.md) §6 另批入库）：
 
 > **底色口径（2026-09-15 起）**：出图白底 = **抠图原料**（便于一键去背，**不是交付底**）；**交付 / 界面件 = 透明符号**（`icons_hud/` 160×160、符号占内框 88% 居中；`icons_battle/` 立绘级原始件与白底 `*_crop.png` 仅作历史追溯）。界面里**裸符号落位**、由所在面板背景托底，**不给图标加白底 / 黑底 / 底槽 / 底框**（出图规范 [ART_PROMPTS.md](ART_PROMPTS.md) §2.2 v0.14）。
 

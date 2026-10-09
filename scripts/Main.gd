@@ -919,26 +919,28 @@ func _build_supply_bar_slot(index: int, supply_id: String) -> Control:
 ## 军需槽费用胶囊（金币图徽 + 费用；金币不足 = 红底白字）。
 func _make_supply_bar_cost_pill(cost: int, affordable: bool) -> Control:
 	var root := PanelContainer.new()
-	root.custom_minimum_size = Vector2(48, 22)
-	root.position = Vector2(25, 51)
+	# 0.8.17.2：高 21（图徽 15 垂直偏移 3 = 整数像素落位）；位置随高度保持右下 3px 内缩。
+	root.custom_minimum_size = Vector2(48, 21)
+	root.position = Vector2(25, 52)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_theme_stylebox_override("panel", _make_hud_bar_style(
 		UITheme.HUD_COST_BG if affordable else Color("#c2604f"), Color(0, 0, 0, 0), 11, 0))
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 4)
-	margin.add_theme_constant_override("margin_right", 4)
+	margin.add_theme_constant_override("margin_left", 3)
+	margin.add_theme_constant_override("margin_right", 7)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(margin)
 	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.alignment = BoxContainer.ALIGNMENT_BEGIN
 	row.add_theme_constant_override("separation", 2)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(row)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(13, 13)
+	# 尺寸口径 = 概念稿 `.costpill img {15px}`（0.8.17.2，与建造槽费用胶囊一致）。
+	icon.custom_minimum_size = Vector2(15, 15)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = UITheme.hud_icon("coin")
+	UITheme.apply_hud_icon(icon, "coin", 15)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
 	var label := Label.new()

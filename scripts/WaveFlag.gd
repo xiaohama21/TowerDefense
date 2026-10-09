@@ -24,6 +24,7 @@ var _arrow_dir := Vector2.LEFT
 func _ready() -> void:
 	z_index = 8
 	_texture = UITheme.hud_icon("wave_flag")
+	UITheme.tune_hud_icon_item(self)
 	var area := Area2D.new()
 	area.name = "WaveFlagArea"
 	area.input_event.connect(_on_area_input_event)
