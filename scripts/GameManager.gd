@@ -15,6 +15,9 @@ signal combo_changed(count: int, tier: int)
 signal wave_started(wave_index: int)
 ## 漏怪通知（阶段 8·提交 6）：敌人到达基地时发出（角色技能 B 被动触发源）。
 signal enemy_leaked(damage: int)
+## 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：击杀金币到账帧广播入账额 + 击杀点 + 档位，
+## 供表现层 FX 只读演出（GoldFx；不改经济数值，无订阅者时零开销）。
+signal gold_gain_fx(amount: int, world_pos: Vector2, tier: int)
 
 ## 连击规则（P1 4.1 拍板）：窗口 3s；召唤物计入、Boss 不计入普通连击；每波结束清零；
 ## 攻速奖励上限 +15%（tier 3）；暂停时 _process 停止计时，天然冻结连击窗口。
@@ -78,9 +81,15 @@ func enemy_died(
 	damage_contributors: Dictionary = {},
 	is_boss: bool = false,
 	is_summon: bool = false,
-	merit: int = 0
+	merit: int = 0,
+	world_pos: Vector2 = Vector2.ZERO,
+	fx_tier: int = 0
 ):
-	gold += int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
+	var credited := int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
+	gold += credited
+	# 金币获取反馈（✅ 0.8.17.1）：真实入账额随击杀点广播给表现层（只读）。
+	if credited > 0:
+		gold_gain_fx.emit(credited, world_pos, fx_tier)
 	if kill_xp > 0:
 		_wave_kill_xp_total += kill_xp
 		kill_xp = int(round(kill_xp * Difficulty.reward_mult(GameFlow.selected_difficulty)))

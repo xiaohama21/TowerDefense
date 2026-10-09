@@ -3,6 +3,8 @@ extends PathFollow2D
 class_name Enemy
 
 const ENEMY_GROUP: StringName = &"enemies"
+## 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：档位取自 tags（普通 / 精英 / Boss）。
+const GOLD_FX_SCRIPT := preload("res://scripts/GoldFx.gd")
 ## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：破隐扫描周期与现形闪光时长。
 const STEALTH_SCAN_INTERVAL: float = 0.25
 const REVEAL_FLASH_DURATION: float = 0.7
@@ -510,6 +512,11 @@ func die(give_reward: bool) -> void:
 		_spawn_kill_bar_flash()
 
 	if give_reward:
+		var fx_tier := GOLD_FX_SCRIPT.Tier.NORMAL
+		if tags.has(&"boss"):
+			fx_tier = GOLD_FX_SCRIPT.Tier.BOSS
+		elif tags.has(&"elite"):
+			fx_tier = GOLD_FX_SCRIPT.Tier.ELITE
 		GameManager.enemy_died(
 			reward,
 			kill_xp,
@@ -517,7 +524,9 @@ func die(give_reward: bool) -> void:
 			damage_contributors,
 			tags.has(&"boss"),
 			is_summon,
-			merit_reward
+			merit_reward,
+			global_position,
+			fx_tier
 		)
 
 	# 死亡渐隐（UI_LAYOUT §10 · 0.8.16.6）：仅「被击杀」（give_reward）且有进程时做演出；

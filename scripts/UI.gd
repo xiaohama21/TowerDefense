@@ -33,6 +33,17 @@ const HUD_SLOT_AVATAR := 46.0
 const HUD_COST_PILL := Vector2(48.0, 22.0)
 ## 手动大招模式追加第 6 卡时使用的圆盘直径（升阶 / 回收 / 大招同规格 46px，UI_LAYOUT §10）。
 const HUD_DISC_SIZE := 46.0
+## 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：显示与真值分离——收入等 FX 落地滚动，
+## 支出立即落真值；1.0s 无落地兜底对齐（headless = 关闭、行为同旧版）。
+const GOLD_ROLL_TIME := 0.25
+const GOLD_FX_FAILSAFE := 1.0
+var _gold_true := 0
+var _gold_display := 0
+var _gold_display_ready := false
+var _gold_fx_enabled := false
+var _gold_fx_pending := false
+var _gold_failsafe_left := 0.0
+var _gold_roll_tween: Tween = null
 
 ## 局内面板亮色化（v0.37.32）：卡片/塔面板改 Kenney 亮蓝白语言
 ## （底 #f7fbfe / 描边 #9fd0ea），与大厅、战斗顶栏（#eef8fe + #7ec8ea 细线）统一。
@@ -495,6 +506,11 @@ func is_point_over_battle_ui(screen_pos: Vector2) -> bool:
 func _process(_delta: float) -> void:
 	# UI 始终处理，暂停后仍可继续或重开游戏。
 	_refresh_wave_label()
+	if _gold_fx_pending:
+		_gold_failsafe_left = maxf(_gold_failsafe_left - _delta, 0.0)
+		if _gold_failsafe_left <= 0.0:
+			_gold_fx_pending = false
+			_roll_gold_to(_gold_true)
 	if _lives_low:
 		_lives_pulse += _delta * 5.2
 		lives_label.modulate = Color(1, 1, 1, 0.6 + 0.4 * (0.5 + 0.5 * sin(_lives_pulse)))
@@ -503,12 +519,85 @@ func _process(_delta: float) -> void:
 		_refresh_action_buttons()
 
 
-func update_gold(new_amount: int) -> void:
+func update_gold(new_amount: int, snap: bool = false) -> void:
 	# AGENTS §6 图徽优先：金币为纯数值（名词由顶栏金币图徽承载）。
-	gold_label.text = "%d" % max(new_amount, 0)
+	var clamped := maxi(new_amount, 0)
+	_gold_true = clamped
+	# 开局同步（snap）/ 无 FX（headless）/ 支出与重置：立即落真值、不滚动（§12.7 拍板 3、5）。
+	if snap or not _gold_display_ready or not _gold_fx_enabled or clamped <= _gold_display:
+		_gold_display_ready = true
+		_gold_fx_pending = false
+		_gold_failsafe_left = 0.0
+		_apply_gold_display(clamped)
+		return
+	# 收入：等待 FX 落地后滚动；1.0s 兜底对齐（防 FX 被跳过）。
+	_gold_fx_pending = true
+	_gold_failsafe_left = GOLD_FX_FAILSAFE
+
+
+## 金币 FX 开关（Main 装配 GoldFx 后调用；headless = false）。
+func set_gold_fx_enabled(enabled: bool) -> void:
+	_gold_fx_enabled = enabled
+	if not enabled:
+		_gold_fx_pending = false
+		_gold_failsafe_left = 0.0
+
+
+## FX 落地（GoldFx 回调）：数字滚动补差（0.25s 旧值 → 真值）。
+func on_gold_fx_landed() -> void:
+	if not _gold_fx_enabled:
+		return
+	_gold_fx_pending = false
+	_gold_failsafe_left = 0.0
+	_roll_gold_to(_gold_true)
+
+
+## 结算 / 战败收口：立即落真值（避免带着滚动差进结算面板）。
+func flush_gold_display() -> void:
+	_gold_fx_pending = false
+	_gold_failsafe_left = 0.0
+	if _gold_display_ready:
+		_apply_gold_display(_gold_true)
+
+
+## 金币胶囊弹跳（FX 落地）：1.0 → 1.12 → 1.0（TRANS_BACK，约 0.15s）。
+func play_gold_pill_bounce() -> void:
+	if gold_pill == null or not is_instance_valid(gold_pill):
+		return
+	gold_pill.pivot_offset = gold_pill.size * 0.5
+	var pop := create_tween()
+	pop.tween_property(gold_pill, "scale", Vector2(1.12, 1.12), 0.05) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	pop.tween_property(gold_pill, "scale", Vector2.ONE, 0.10) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _apply_gold_display(value: int) -> void:
+	if _gold_roll_tween != null and _gold_roll_tween.is_valid():
+		_gold_roll_tween.kill()
+	_gold_roll_tween = null
+	_gold_display = maxi(value, 0)
+	gold_label.text = "%d" % _gold_display
 	_refresh_tower_bar()
 	_refresh_character_bar_affordance()
-	_refresh_character_bar_affordance()
+
+
+func _roll_gold_to(target: int) -> void:
+	if target == _gold_display:
+		_apply_gold_display(target)
+		return
+	if _gold_roll_tween != null and _gold_roll_tween.is_valid():
+		_gold_roll_tween.kill()
+	_gold_roll_tween = create_tween()
+	_gold_roll_tween.tween_method(
+		_set_gold_display_value, float(_gold_display), float(target), GOLD_ROLL_TIME
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_gold_roll_tween.tween_callback(_apply_gold_display.bind(target))
+
+
+func _set_gold_display_value(value: float) -> void:
+	_gold_display = int(round(value))
+	gold_label.text = "%d" % _gold_display
 
 
 func update_lives(new_amount: int) -> void:

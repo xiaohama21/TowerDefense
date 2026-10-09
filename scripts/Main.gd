@@ -17,6 +17,10 @@ const FIELD_CURSOR_LAYER: int = 0
 ## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v0.20.41）：「开始第 N 波」按钮取消后唯一的
 ## 开波入口（Space 同效）；脚本 = scripts/WaveFlag.gd。
 const WAVE_FLAG_SCRIPT := preload("res://scripts/WaveFlag.gd")
+## 局内金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：FX 层 = CanvasLayer 2（可暂停、低于军需弹窗 50），
+## headless 不创建（回归零差异）；脚本 = scripts/GoldFx.gd。
+const GOLD_FX_SCRIPT := preload("res://scripts/GoldFx.gd")
+const GOLD_FX_LAYER := 2
 
 @onready var enemy_manager = $EnemyManager
 @onready var tower_manager = $TowerManager
@@ -57,6 +61,8 @@ var _supply_gold_label: Label = null
 var _stealth_hint_shown: bool = false
 ## 军需槽（0.8.17.0 / UI_LAYOUT §10 v2）：底栏槽位节点，常驻 3 格（未解锁第 3 格显锁）。
 var _supply_bar_slots: Array[Control] = []
+## 金币 FX 节点（✅ 0.8.17.1；headless = null，不创建任何 FX 节点）。
+var _gold_fx = null
 
 func _ready():
 	get_tree().paused = false
@@ -121,8 +127,9 @@ func _ready():
 	ui.set_stage_name(stage_data.display_name)
 	ui.setup_character_bar(_available_characters, stage_data.squad_size)
 	_load_battle_supplies()
+	_setup_gold_fx()
 
-	ui.update_gold(GameManager.gold)
+	ui.update_gold(GameManager.gold, true)
 	ui.update_lives(GameManager.lives)
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
 	ui.show_status("按住顶部武将卡片拖到空地建造：松手放置 · 右键 / ESC 取消", 4.0)
@@ -447,6 +454,7 @@ func _disconnect_game_signals() -> void:
 		[GameManager.victory, Callable(self, "_on_victory")],
 		[GameManager.boss_entered, Callable(self, "_on_boss_entered")],
 		[GameManager.enemy_leaked, Callable(self, "_on_enemy_leaked")],
+		[GameManager.gold_gain_fx, Callable(self, "_on_gold_gain_fx")],
 	]
 	for pair in callbacks:
 		var signal_ref: Signal = pair[0]
@@ -478,6 +486,10 @@ func _on_wave_completed():
 			var wave_bonus := 1.0 + float(tech_bonuses.get("wave_reward_pct", 0)) / 100.0
 			var reward := maxi(ceili(completed_wave.completion_currency * wave_bonus), 1)
 			GameManager.gold += reward
+			# 波次完成奖变体（✅ 0.8.17.1 / §12.7 拍板 6）：旗帜位置金币图徽 + 飘字。
+			if _gold_fx != null:
+				var bonus_pos: Vector2 = wave_flag.global_position if wave_flag != null else spawn_marker.global_position
+				_gold_fx.request_wave_bonus(bonus_pos, reward)
 			ui.show_status(
 				"第 %d 波完成：+%d 金币" % [completed_index + 1, reward],
 				1.2
@@ -529,6 +541,7 @@ func _on_debug_clear_enemies() -> void:
 func _on_game_over():
 	SfxLibrary.play(&"defeat", -8.0)
 	build_manager.cancel_drag()
+	ui.flush_gold_display()
 	_refresh_wave_flag()
 	if battle_session != null:
 		ProfileStore.finish_defeat(battle_session, {
@@ -540,6 +553,7 @@ func _on_game_over():
 
 func _on_victory():
 	SfxLibrary.play(&"victory", -8.0)
+	ui.flush_gold_display()
 	var saved := false
 	var xp_by_character: Dictionary = {}
 	var loot: Dictionary = {}
@@ -1006,6 +1020,32 @@ func _on_gold_changed(_new_amount: int) -> void:
 	if _battle_supply_popup != null and is_instance_valid(_battle_supply_popup):
 		_refresh_battle_supply_popup()
 	_refresh_supply_bar()
+
+
+## 金币 FX 层装配（✅ 0.8.17.1 / DESIGN_REVIEW §12.7 拍板 5）：headless 直接关闭（回归测试零差异）。
+func _setup_gold_fx() -> void:
+	if DisplayServer.get_name() == "headless":
+		ui.set_gold_fx_enabled(false)
+		return
+	var layer := CanvasLayer.new()
+	layer.name = "GoldFxLayer"
+	layer.layer = GOLD_FX_LAYER
+	layer.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(layer)
+	var fx = GOLD_FX_SCRIPT.new()
+	fx.name = "GoldFx"
+	layer.add_child(fx)
+	_gold_fx = fx
+	fx.setup(ui)
+	if not GameManager.gold_gain_fx.is_connected(_on_gold_gain_fx):
+		GameManager.gold_gain_fx.connect(_on_gold_gain_fx)
+	ui.set_gold_fx_enabled(true)
+
+
+## 击杀金币 → FX 请求（world_pos = 击杀点世界坐标；tier = GoldFx.Tier 档位）。
+func _on_gold_gain_fx(_amount: int, world_pos: Vector2, tier: int) -> void:
+	if _gold_fx != null:
+		_gold_fx.request_kill_fx(world_pos, tier)
 
 
 ## 打开军需弹窗（不暂停：波次中可战术性购买）。遮罩自顶栏下缘起，顶栏按钮行保持可见可点。
