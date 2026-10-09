@@ -9,6 +9,7 @@ exp_growth_per_level = 15
 max_level = 30
 difficulty_presets = [{
 "key": "normal",
+"merit_mult": 1.0,
 "mechanic_effect_mult": 1.0,
 "mechanic_interval_mult": 1.0,
 "name": "标准",
@@ -17,6 +18,7 @@ difficulty_presets = [{
 "material_mult": 1.0
 }, {
 "key": "hard",
+"merit_mult": 1.5,
 "mechanic_effect_mult": 1.25,
 "mechanic_interval_mult": 0.85,
 "name": "困难",

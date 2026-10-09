@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://brhxnlg0aexmh"
+path="res://.godot/imported/hero_guan_yu_a.spine-json-94408a11d4c94f9fb78e702e8adc3615.spjson"
+
+[deps]
+
+source_file="res://assets/characters/guan_yu/hero_guan_yu_a.spine-json"
+dest_files=["res://.godot/imported/hero_guan_yu_a.spine-json-94408a11d4c94f9fb78e702e8adc3615.spjson"]
+
+[params]
+

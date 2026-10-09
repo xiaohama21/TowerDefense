@@ -423,6 +423,20 @@ cost = 2
 requires = "strat_supply_1"
 effect = {"supply_discount_pct": 10}
 
+[sub_resource type="Resource" id="TechItem_32"]
+script = ExtResource("2_item")
+id = "strat_supply_3"
+branch = "将略"
+category = "将略"
+tier = 3
+name = "军府调度"
+summary = "军需带 +1 槽"
+description = "军府调度有度，出征可多带一件军需（军需带槽位 2 → 3）。"
+desc = "军需带 +1 槽"
+cost = 3
+requires = "strat_supply_2"
+effect = {"supply_slot_bonus": 1}
+
 [resource]
 script = ExtResource("1_tree")
-items = [SubResource("TechItem_1"), SubResource("TechItem_2"), SubResource("TechItem_3"), SubResource("TechItem_4"), SubResource("TechItem_5"), SubResource("TechItem_6"), SubResource("TechItem_7"), SubResource("TechItem_8"), SubResource("TechItem_9"), SubResource("TechItem_10"), SubResource("TechItem_11"), SubResource("TechItem_12"), SubResource("TechItem_13"), SubResource("TechItem_14"), SubResource("TechItem_15"), SubResource("TechItem_16"), SubResource("TechItem_17"), SubResource("TechItem_18"), SubResource("TechItem_19"), SubResource("TechItem_20"), SubResource("TechItem_21"), SubResource("TechItem_22"), SubResource("TechItem_23"), SubResource("TechItem_24"), SubResource("TechItem_25"), SubResource("TechItem_26"), SubResource("TechItem_27"), SubResource("TechItem_28"), SubResource("TechItem_29"), SubResource("TechItem_30"), SubResource("TechItem_31")]
+items = [SubResource("TechItem_1"), SubResource("TechItem_2"), SubResource("TechItem_3"), SubResource("TechItem_4"), SubResource("TechItem_5"), SubResource("TechItem_6"), SubResource("TechItem_7"), SubResource("TechItem_8"), SubResource("TechItem_9"), SubResource("TechItem_10"), SubResource("TechItem_11"), SubResource("TechItem_12"), SubResource("TechItem_13"), SubResource("TechItem_14"), SubResource("TechItem_15"), SubResource("TechItem_16"), SubResource("TechItem_17"), SubResource("TechItem_18"), SubResource("TechItem_19"), SubResource("TechItem_20"), SubResource("TechItem_21"), SubResource("TechItem_22"), SubResource("TechItem_23"), SubResource("TechItem_24"), SubResource("TechItem_25"), SubResource("TechItem_26"), SubResource("TechItem_27"), SubResource("TechItem_28"), SubResource("TechItem_29"), SubResource("TechItem_30"), SubResource("TechItem_31"), SubResource("TechItem_32")]

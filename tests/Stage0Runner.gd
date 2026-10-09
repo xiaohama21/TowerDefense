@@ -72,6 +72,7 @@ func _run() -> void:
 	_test_save_migration_v1_to_v2()
 	_test_save_migration_v3_to_v4()
 	_test_save_migration_v4_to_v5()
+	_test_save_migration_v5_to_v6()
 	_restore_profile_files()
 	_finish()
 
@@ -480,7 +481,7 @@ func _test_save_migration_v4_to_v5() -> void:
 	var migrated_data: Dictionary = migrated.get("data", {})
 	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
 		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 5, "PlayerProfile schema 应为 v5（0.8.15.0）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "PlayerProfile schema 应为 v6（0.8.16.0 军功 + 军需）")
 	_check(int(migrated_data.get("exp_pool", -1)) == 0, "v4→v5 迁移应补 exp_pool = 0")
 	var items: Dictionary = migrated_data.get("items", {})
 	_check(not items.has("exp_scroll"), "v4→v5 迁移应清理 items.exp_scroll 残留（练兵令删除）")
@@ -515,6 +516,97 @@ func _test_save_migration_v4_to_v5() -> void:
 	defeat_profile.unlock_character("guan_yu")
 	_check(not defeat_profile.apply_battle_session(defeat), "失败战局不得应用（经验池不写档）")
 	_check(defeat_profile.get_exp_pool() == 0, "失败战局不应写经验池")
+
+func _test_save_migration_v5_to_v6() -> void:
+	# 阶段 8·提交 16（0.8.16.0 / v0.37.43）军功 + 军需重构：schema v5→v6——
+	# ① military_merit 缺失补 0（非负整数化、幂等）；② supply_unlocks 补基础 4 件（保留已有、去重）；
+	# ③ supply_levels 为基础件补 L1（已有等级保留并夹取 1~3）；④ supply_loadout_ids 缺失补空（不预填）。
+	if not ResourceLoader.exists(SAVE_MANAGER_PATH):
+		return
+	var script := load(SAVE_MANAGER_PATH) as Script
+	_check(script != null, "SaveManager.gd 无法加载")
+	if script == null:
+		return
+	var manager = script.new()
+	if not manager.has_method("_migrate_to_current"):
+		return
+	var old_data := {
+		"schema_version": 5,
+		"characters": {"guan_yu": {"total_exp": 120}},
+		"items": {"yellow_turban_cloth": 12},
+		"stage_progress": {},
+		"gacha_state": {},
+		"exp_pool": 480,
+		"squad_character_ids": [],
+		"squad_relic_ids": [],
+	}
+	var migrated: Dictionary = manager._migrate_to_current(old_data)
+	_check(bool(migrated.get("ok", false)), "v5 存档迁移应成功")
+	if not bool(migrated.get("ok", false)):
+		return
+	_check(bool(migrated.get("migrated", false)), "v5 存档应标记为已迁移")
+	var migrated_data: Dictionary = migrated.get("data", {})
+	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
+		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "PlayerProfile schema 应为 v6（0.8.16 军功 + 军需）")
+	_check(int(migrated_data.get("military_merit", -1)) == 0, "v5→v6 迁移应补 military_merit = 0")
+	var unlocks: Array = migrated_data.get("supply_unlocks", [])
+	for supply_id in PlayerProfile.BASE_SUPPLY_IDS:
+		_check(unlocks.has(supply_id), "v5→v6 迁移应补基础军需「%s」已解锁" % supply_id)
+	_check(unlocks.size() == PlayerProfile.BASE_SUPPLY_IDS.size(),
+		"基础 4 件军需应各记一次（去重、无重复项）")
+	var levels: Dictionary = migrated_data.get("supply_levels", {})
+	for supply_id in PlayerProfile.BASE_SUPPLY_IDS:
+		_check(int(levels.get(supply_id, 0)) == 1, "v5→v6 迁移应补基础军需「%s」L1" % supply_id)
+	_check(Array(migrated_data.get("supply_loadout_ids", ["x"])) == Array(),
+		"v5→v6 迁移应补空军需带（不预填，选带由玩家在军需处决定）")
+	_check(int(migrated_data.get("exp_pool", -1)) == 480, "迁移不应清空玩家已有经验池余额")
+	# 幂等 + 不覆盖已有值（含已解锁的非基础件与已有强化等级）。
+	var idempotent: Dictionary = manager._migrate_to_current(migrated_data)
+	_check(bool(idempotent.get("ok", false)) and not bool(idempotent.get("migrated", false)),
+		"v6 存档重复迁移应为幂等（不重复迁移）")
+	var kept := migrated_data.duplicate(true)
+	kept["military_merit"] = 720
+	kept["supply_unlocks"] = ["repair", "stone_volley"]
+	kept["supply_levels"] = {"repair": 3, "stone_volley": 2}
+	kept["supply_loadout_ids"] = ["repair", "stone_volley"]
+	var twice: Dictionary = manager._migrate_v5_to_v6(kept)
+	_check(int(twice.get("military_merit", 0)) == 720, "v5→v6 迁移器应幂等：不应清空军功余额")
+	var twice_levels: Dictionary = twice.get("supply_levels", {})
+	_check(int(twice_levels.get("repair", 0)) == 3, "迁移不应覆盖已有强化等级（基础件 L3）")
+	_check(int(twice_levels.get("stone_volley", 0)) == 2, "迁移不应覆盖已解锁非基础件等级")
+	var twice_unlocks: Array = twice.get("supply_unlocks", [])
+	_check(twice_unlocks.has("stone_volley") and twice_unlocks.has("fire_attack"),
+		"迁移应保留已有解锁并补齐基础 4 件")
+	_check(Array(twice.get("supply_loadout_ids", [])) == Array(["repair", "stone_volley"]),
+		"迁移不应改动玩家已选军需带")
+	# 非法值：负军功归零、超上限等级夹取 L3、非数组字段降级。
+	var clamped: Dictionary = manager._migrate_v5_to_v6({
+		"schema_version": 5, "military_merit": -50,
+		"supply_unlocks": "oops", "supply_levels": {"repair": 9},
+		"supply_loadout_ids": "oops",
+	})
+	_check(int(clamped.get("military_merit", -1)) == 0, "非法负值军功应归零（非负整数化）")
+	_check(int(clamped.get("supply_levels", {}).get("repair", 0)) == PlayerProfile.SUPPLY_MAX_LEVEL,
+		"超上限强化等级应夹取到 L3")
+	_check(Array(clamped.get("supply_unlocks", [])) == Array(PlayerProfile.BASE_SUPPLY_IDS),
+		"非法解锁字段应降级为仅基础 4 件")
+	_check(Array(clamped.get("supply_loadout_ids", ["x"])) == Array(), "非法选带字段应降级为空数组")
+	# 军功写档链路：BattleSession 精确累计 → apply_battle_session 写 military_merit。
+	var session := BattleSession.create("ch01_s01", ["guan_yu"])
+	session.add_merit_scaled(71, Difficulty.merit_mult(Difficulty.HARD))
+	session.mark_victory({"difficulty": "hard"})
+	var profile := PlayerProfile.new()
+	profile.unlock_character("guan_yu")
+	_check(profile.apply_battle_session(session), "胜利战局应可应用到档案（含军功）")
+	_check(profile.get_military_merit() == 107, "困难 s01 军功应写档 107（71 × 1.5 = 106.5 → roundi）")
+	var defeat := BattleSession.create("ch01_s01", ["guan_yu"])
+	defeat.add_merit_scaled(71, 1.0)
+	defeat.mark_defeat({"remaining_lives": 0})
+	var defeat_profile := PlayerProfile.new()
+	defeat_profile.unlock_character("guan_yu")
+	_check(not defeat_profile.apply_battle_session(defeat), "失败战局不得应用（军功不写档）")
+	_check(defeat_profile.get_military_merit() == 0, "失败战局不应写军功（失败 / 退出不带出）")
 
 
 

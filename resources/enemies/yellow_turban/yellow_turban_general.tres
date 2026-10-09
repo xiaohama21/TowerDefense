@@ -14,6 +14,7 @@ armor = 20
 damage_to_base = 10
 currency_reward = 100
 kill_xp = 150
+merit_reward = 25
 special_behavior_id = &"summon_guard"
 body_color = Color(0.25, 0.2, 0.35, 1)
 body_size = Vector2(56, 56)

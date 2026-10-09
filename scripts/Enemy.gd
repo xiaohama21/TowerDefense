@@ -9,11 +9,59 @@ const REVEAL_FLASH_DURATION: float = 0.7
 ## 阶段推进表现（三阶段 Boss，✅ 0.8.13.5 张角）：金色扩散环时长。
 const PHASE_FLASH_DURATION: float = 0.9
 
+## 血条（UI_LAYOUT §10 · 程序 0.8.16.4「方案 A 墨槽胶囊」）：三档——普通 max(体型宽,24)×6 /
+## 精英「体型宽 + 6」×8 + 白框 / Boss ≥84×12 + 金框 + 三刻度（25/50/75%）。
+## 几何：中心 x = 体型中心 x（居中）；条底 = 身体顶 −10（头带占 −7…−2，故留 3px 不压模型）。
+enum HpBarTier { NORMAL, ELITE, BOSS }
+
+const HP_BAR_BOTTOM_OFFSET: float = 10.0
+const HP_BAR_MIN_WIDTH: float = 24.0
+const HP_BAR_HEIGHTS := [6.0, 8.0, 12.0]
+const HP_BAR_ELITE_WIDTH_BONUS: float = 6.0
+const HP_BAR_BOSS_MIN_WIDTH: float = 84.0
+const HP_BAR_BOSS_WIDTH_BONUS: float = 24.0
+const HP_BAR_LOW_RATIO: float = 0.30
+## 头顶避让（与血条同源）：眩晕三小星中心 = 条顶 −7；阶段点中心 = 条顶 −16。
+const HP_BAR_STUN_OFFSET: float = 7.0
+const HP_BAR_PHASE_OFFSET: float = 16.0
+## 掉血残影：受击瞬间取旧比例，保持 HP_GHOST_HOLD 后按 HP_GHOST_FADE 秒回落到当前血量。
+const HP_GHOST_HOLD: float = 0.25
+const HP_GHOST_FADE: float = 0.35
+## 死亡渐隐（UI_LAYOUT §10 · 程序 0.8.16.6 / BUGS B-082）：被击杀敌人不再当帧消失——
+## 0~DEATH_FADE_FLASH 白闪 + 放大（收受击闪红），随后淡出 + 下沉 + 侧倾，播完自释放；
+## 漏怪 / 调试清场（die(false)）与无进程环境（测试木桩 / 基准桩）不演出、直接释放。
+const DEATH_FADE_DURATION: float = 0.40
+const DEATH_FADE_FLASH: float = 0.08
+const DEATH_FADE_POP: float = 0.06
+const DEATH_FADE_SINK: float = 6.0
+const DEATH_FADE_TILT: float = 0.07
+const HP_BAR_SLOT_TOP := Color(0.055, 0.082, 0.11, 1.0)
+const HP_BAR_SLOT_BOTTOM := Color(0.024, 0.035, 0.051, 1.0)
+const HP_BAR_FILL_TOP := Color(1.0, 0.545, 0.471, 1.0)
+const HP_BAR_FILL_MID := Color(0.898, 0.282, 0.302, 1.0)
+const HP_BAR_FILL_BOTTOM := Color(0.62, 0.122, 0.169, 1.0)
+const HP_BAR_FILL_LOW_TOP := Color(1.0, 0.616, 0.525, 1.0)
+const HP_BAR_FILL_LOW_MID := Color(0.937, 0.314, 0.247, 1.0)
+const HP_BAR_FILL_LOW_BOTTOM := Color(0.647, 0.133, 0.165, 1.0)
+const HP_BAR_GHOST := Color(1.0, 0.89, 0.847, 0.78)
+const HP_BAR_ELITE_FRAME := Color(0.949, 0.969, 0.98, 0.92)
+const HP_BAR_BOSS_FRAME := Color(0.867, 0.686, 0.314, 0.95)
+const HP_BAR_SHADOW := Color(0.0, 0.0, 0.0, 0.45)
+const HP_BAR_INK_RING := Color(0.0, 0.0, 0.0, 0.55)
+const HP_BAR_TICK := Color(0.094, 0.024, 0.039, 0.7)
+const HP_BAR_GLOSS := Color(1.0, 1.0, 1.0, 0.5)
+const HP_BAR_LOW_GLOW := Color(1.0, 0.376, 0.306, 0.34)
+## 一击必杀定格（0.8.16.5）：满血敌人被单次受击直接打死时不存在掉血帧——
+## 由 die() 在死亡点补播一段血条定格（脚本 / 场景见 scripts/EnemyKillBarFlash.gd / scenes/EnemyKillBarFlash.tscn）。
+const KILL_BAR_FLASH_SCENE_PATH: String = "res://scenes/EnemyKillBarFlash.tscn"
+
 @export var speed: float = 100.0
 @export var max_hp: int = 100
 @export var armor: int = 0
 @export var reward: int = 10
 @export var kill_xp: int = 0
+## 军功掉落（✅ 0.8.16 / NUMBERS 10.15）：由 EnemyManager 从 EnemyData 传入，击杀结算上报。
+@export var merit_reward: int = 0
 @export var damage_to_base: int = 1
 @export var enemy_id: StringName = &""
 ## 显示名（v0.15.0 Boss 演出横幅使用，由 EnemyManager 从 EnemyData 传入）。
@@ -99,9 +147,19 @@ var _fear_follow_slow_duration: float = 0.0
 var _vulnerability_bonus: float = 0.0
 var _vulnerability_time_left: float = 0.0
 
-@onready var hp_bar: ProgressBar = $HpBar
 @onready var body: ColorRect = $Body
 var _hit_flash_left: float = 0.0
+## 体型（Body ColorRect 尺寸；血条宽度 / 头顶挂点均以此为准）。
+var _body_size := Vector2(40.0, 40.0)
+## 掉血残影比例与停留计时（血条白段，见 _process）。
+var _hp_ghost_ratio: float = 1.0
+var _hp_ghost_hold: float = 0.0
+## 本次受击是否为「满血一击必杀」（die() 消费后复位，见 should_flash_kill_bar）。
+var _kill_bar_flash: bool = false
+## 死亡演出计时（< 0 = 不在演出；≥ 0 = 已进入死亡渐隐，见 DEATH_FADE_* 与 _advance_death_fade）。
+var _death_time: float = -1.0
+## 死亡演出起点位（PathFollow2D 在 progress 冻结时不会回写 position，可安全增量位移）。
+var _death_origin: Vector2 = Vector2.ZERO
 
 func _enter_tree() -> void:
 	add_to_group(ENEMY_GROUP)
@@ -114,15 +172,11 @@ func _ready() -> void:
 	max_hp = maxi(max_hp, 1)
 	current_hp = max_hp
 	progress = 0
-	if hp_bar:
-		hp_bar.visible = false
-	# Boss 演出（v0.15.0）：登场信号 + 血条强化。
+	if body:
+		_body_size = body.size
+	# Boss 演出（v0.15.0）：登场信号；血条三档由 tags 判定（见 get_hp_bar_tier），绘制在 _draw。
 	if tags.has(&"boss"):
 		GameManager.boss_entered.emit(str(display_name))
-		if hp_bar:
-			hp_bar.custom_minimum_size = Vector2(84, 12)
-			hp_bar.modulate = Color(1.0, 0.85, 0.4)
-			hp_bar.visible = true
 	update_hp_bar()
 	_refresh_stealth_visual()
 	if stealth:
@@ -132,6 +186,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# 死亡渐隐（0.8.16.6）：演出期间只推进演出计时，不再跑存活逻辑。
+	if _death_time >= 0.0:
+		_advance_death_fade(delta)
+		return
 	if is_dead:
 		return
 
@@ -139,6 +197,20 @@ func _process(delta: float) -> void:
 		_hit_flash_left = maxf(_hit_flash_left - delta, 0.0)
 		if _hit_flash_left <= 0.0:
 			_apply_body_modulate()
+
+	# 掉血残影（血条白段）：停留后按比例回落到当前血量；仅回落期间重绘。
+	if _hp_ghost_ratio > get_hp_ratio():
+		if _hp_ghost_hold > 0.0:
+			_hp_ghost_hold = maxf(_hp_ghost_hold - delta, 0.0)
+		else:
+			var ghost_floor := get_hp_ratio()
+			_hp_ghost_ratio = maxf(
+				ghost_floor,
+				_hp_ghost_ratio - (_hp_ghost_ratio - ghost_floor) / HP_GHOST_FADE * delta
+			)
+		queue_redraw()
+	else:
+		_hp_ghost_ratio = get_hp_ratio()
 
 	# 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：0.25s 扫描破隐覆盖 + 现形闪光衰减。
 	if stealth:
@@ -392,7 +464,11 @@ func take_damage(
 	var effective := _apply_armor(scaled, damage_type, pen_ratios, pen_flat)
 	if effective <= 0:
 		return
+	var hp_ratio_before := get_hp_ratio()
 	current_hp = maxi(current_hp - effective, 0)
+	if get_hp_ratio() < hp_ratio_before:
+		_hp_ghost_ratio = maxf(_hp_ghost_ratio, hp_ratio_before)
+		_hp_ghost_hold = HP_GHOST_HOLD
 	if not source_id.is_empty():
 		damage_contributors[source_id] = int(damage_contributors.get(source_id, 0)) + effective
 	_hit_flash_left = 0.12
@@ -400,6 +476,8 @@ func take_damage(
 	update_hp_bar()
 
 	if current_hp <= 0:
+		# 一击必杀定格（0.8.16.5）：入伤前满血 → 玩家从未见过这条血条，死亡瞬间补一段定格。
+		_kill_bar_flash = should_flash_kill_bar(hp_ratio_before)
 		die(true)
 
 
@@ -425,6 +503,11 @@ func die(give_reward: bool) -> void:
 	if is_dead:
 		return
 	is_dead = true
+	# 死亡帧即退出索敌（塔 / 弹道 / 光环的组扫描另有 is_dead 过滤，双保险）。
+	remove_from_group(ENEMY_GROUP)
+	if _kill_bar_flash:
+		_kill_bar_flash = false
+		_spawn_kill_bar_flash()
 
 	if give_reward:
 		GameManager.enemy_died(
@@ -433,10 +516,40 @@ func die(give_reward: bool) -> void:
 			last_damage_source_character_id,
 			damage_contributors,
 			tags.has(&"boss"),
-			is_summon
+			is_summon,
+			merit_reward
 		)
 
+	# 死亡渐隐（UI_LAYOUT §10 · 0.8.16.6）：仅「被击杀」（give_reward）且有进程时做演出；
+	# 漏怪到达基地 / 调试清场（die(false)）与无进程环境（测试木桩、基准桩）直接释放，防尸体堆积。
+	if give_reward and is_inside_tree() and is_processing():
+		_death_time = 0.0
+		_death_origin = position
+		modulate = Color(1.0, 1.0, 1.0, 1.0)
+		queue_redraw()
+		return
 	queue_free()
+
+
+## 死亡演出推进（0.8.16.6）：白闪 + 放大 → 淡出 + 下沉 + 侧倾；播完释放。
+## 纯表现：不改血量 / 奖励 / 索敌（is_dead 与 remove_from_group 已在 die() 完成）。
+func _advance_death_fade(delta: float) -> void:
+	_death_time += delta
+	if _death_time >= DEATH_FADE_DURATION:
+		queue_free()
+		return
+	var flash_t := clampf(_death_time / DEATH_FADE_FLASH, 0.0, 1.0)
+	var fade_t := clampf(
+		(_death_time - DEATH_FADE_FLASH) / maxf(DEATH_FADE_DURATION - DEATH_FADE_FLASH, 0.001), 0.0, 1.0
+	)
+	var eased := 1.0 - (1.0 - fade_t) * (1.0 - fade_t)
+	var flash := 1.0 - flash_t
+	# 白闪 = 整体提亮（modulate 分量 > 1 即乘亮），与受击闪红（body.modulate）叠加。
+	modulate = Color(1.0 + flash * 0.6, 1.0 + flash * 0.6, 1.0 + flash * 0.6, 1.0 - eased)
+	scale = Vector2.ONE * lerpf(1.0 + DEATH_FADE_POP * (1.0 - flash_t * flash_t), 0.96, eased)
+	position = _death_origin + Vector2(0.0, DEATH_FADE_SINK * eased)
+	var tilt_sign := 1.0 if velocity_dir.x >= 0.0 else -1.0
+	rotation = DEATH_FADE_TILT * eased * tilt_sign
 
 
 ## 治疗光环目标（healer_aura）：不超过最大生命。
@@ -447,13 +560,9 @@ func heal(amount: int) -> void:
 	update_hp_bar()
 
 
+## 血量变化后重绘（满血隐藏 / 隐匿未现形隐藏，规则见 should_show_hp_bar）。
 func update_hp_bar() -> void:
-	if hp_bar:
-		# 满血隐藏、受击后显示（v0.12.2 优化：减少画面杂乱）
-		# 隐匿未现形时同样隐藏血条（✅ 0.8.13.1）。
-		hp_bar.visible = current_hp < max_hp and is_revealed()
-		hp_bar.max_value = max_hp
-		hp_bar.value = current_hp
+	queue_redraw()
 
 
 func set_color(color: Color) -> void:
@@ -468,11 +577,8 @@ func set_body_size(body_size: Vector2) -> void:
 	if body:
 		body.size = body_size
 		body.position = -body_size * 0.5
-	# 血条宽度随体型、位置贴头顶（v0.12.2 优化）
-	var bar := get_node_or_null("HpBar") as ProgressBar
-	if bar:
-		bar.size = Vector2(maxf(body_size.x, 24.0), 6.0)
-		bar.position = Vector2(-bar.size.x / 2.0, -body_size.y * 0.5 - 12.0)
+	# 血条随体型（宽 / 档高 / 头顶挂点见 _draw_hp_bar 与 get_hp_bar_rect）。
+	_body_size = body_size
 	queue_redraw()
 
 
@@ -480,6 +586,10 @@ func _draw() -> void:
 	if body == null:
 		return
 	var half := body.size * 0.5
+	# 头顶血条（v0.20.59 / 0.8.16.4）：先画，随后的头带 / 星星 / 阶段点盖在其上。
+	# 死亡渐隐期（0.8.16.6）跳过血条：定格由 EnemyKillBarFlash 独立补播。
+	if _death_time < 0.0:
+		_draw_hp_bar()
 	# 黄巾头带：横跨头顶的黄色布条
 	var band_rect := Rect2(
 		Vector2(-half.x * 0.72, -half.y - 7.0),
@@ -493,13 +603,17 @@ func _draw() -> void:
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 2.0, Color(0.95, 0.96, 0.97, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
+	# 死亡渐隐期（0.8.16.6）：不再绘制存活状态图标（眩晕星 / 隐匿环 / 阶段点 / 恐惧环）。
+	if _death_time >= 0.0:
+		return
 	# 眩晕表现（震地，提交 7）：头顶旋转三小星，眩晕结束自动消失（queue_redraw 由计时驱动）。
 	if _stun_time_left > 0.0:
 		var spin := _stun_pulse * 6.0
+		var stun_y := hp_bar_top_y() - HP_BAR_STUN_OFFSET
 		for i in range(3):
 			var angle := spin + float(i) * TAU / 3.0
 			draw_circle(
-				Vector2(cos(angle) * 8.0, -half.y - 16.0 + sin(angle) * 3.0),
+				Vector2(cos(angle) * 8.0, stun_y + sin(angle) * 3.0),
 				2.4, Color(1.0, 0.85, 0.35, 0.95)
 			)
 	# 隐匿表现（✅ 0.8.13.1）：未现形 = 淡蓝虚线警示环；现形瞬间 = 青色扩散环。
@@ -523,7 +637,7 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, half.length() + 12.0 + (1.0 - phase_t) * 28.0, 0.0, TAU, 32,
 			Color(1.0, 0.84, 0.38, phase_t * 0.85), 2.6)
 	if phase_index > 1:
-		var pip_y := -half.y - 20.0
+		var pip_y := hp_bar_top_y() - HP_BAR_PHASE_OFFSET
 		var pip_start := -(float(phase_index - 1) * 7.0) * 0.5
 		for pip in range(phase_index):
 			draw_circle(Vector2(pip_start + float(pip) * 7.0, pip_y), 2.2,
@@ -536,3 +650,204 @@ func _draw() -> void:
 			Vector2.ZERO, half.length() + 7.0 + pulse * 2.5, 0.0, TAU, 28,
 			Color(0.62, 0.42, 0.95, 0.45 + 0.35 * pulse), 1.8
 		)
+
+
+## ---------------------------------------------------------------
+## 血条（UI_LAYOUT §10 · 程序 0.8.16.4「方案 A · 墨槽胶囊」）
+## ---------------------------------------------------------------
+## 档位：Boss > 精英 > 普通（tags 由 EnemyManager 在 add_child 前写入）。
+func get_hp_bar_tier() -> int:
+	if tags.has(&"boss"):
+		return HpBarTier.BOSS
+	if tags.has(&"elite"):
+		return HpBarTier.ELITE
+	return HpBarTier.NORMAL
+
+
+## 血条尺寸：普通 max(体型宽, 24)×6 ｜ 精英「体型宽 + 6」×8 ｜ Boss ≥84×12。
+func get_hp_bar_size() -> Vector2:
+	var tier := get_hp_bar_tier()
+	var width := maxf(_body_size.x, HP_BAR_MIN_WIDTH)
+	if tier == HpBarTier.ELITE:
+		width += HP_BAR_ELITE_WIDTH_BONUS
+	elif tier == HpBarTier.BOSS:
+		width = maxf(HP_BAR_BOSS_MIN_WIDTH, _body_size.x + HP_BAR_BOSS_WIDTH_BONUS)
+	return Vector2(width, float(HP_BAR_HEIGHTS[tier]))
+
+
+## 血条矩形（敌人局部坐标）：水平居中于体型、条底 = 身体顶 −10；绘制与测试同源。
+func get_hp_bar_rect() -> Rect2:
+	var bar_size := get_hp_bar_size()
+	var bar_bottom := -_body_size.y * 0.5 - HP_BAR_BOTTOM_OFFSET
+	return Rect2(Vector2(-bar_size.x * 0.5, bar_bottom - bar_size.y), bar_size)
+
+
+## 条顶 y：眩晕三小星（条顶 −7）与阶段点（条顶 −16）的避让锚点。
+func hp_bar_top_y() -> float:
+	return get_hp_bar_rect().position.y
+
+
+func get_hp_ratio() -> float:
+	return clampf(float(current_hp) / float(maxi(max_hp, 1)), 0.0, 1.0)
+
+
+## 血条可见规则（不变）：满血隐藏、隐匿未现形隐藏。
+func should_show_hp_bar() -> bool:
+	return current_hp < max_hp and is_revealed()
+
+
+## 一击必杀定格判定（0.8.16.5）：入伤前满血（= 玩家从未见过这条血条）且非隐匿未现形。
+## 已掉过血的敌人不再补（血条早已显示过，避免每次击杀都多一条血条）。
+func should_flash_kill_bar(hp_ratio_before: float) -> bool:
+	return hp_ratio_before >= 1.0 and is_revealed()
+
+
+## 一击必杀定格：死亡点放一枚短命血条（自绘 · 0.5s 自释放；纯表现、不参与战斗逻辑）。
+## 挂到当前战斗场景（与飘字同层思路），z_index 由场景给出（49 < 飘字 50）。
+func _spawn_kill_bar_flash() -> void:
+	if not is_inside_tree():
+		return
+	var host := get_tree().current_scene
+	if host == null:
+		return
+	var flash_scene := load(KILL_BAR_FLASH_SCENE_PATH) as PackedScene
+	if flash_scene == null:
+		return
+	var flash := flash_scene.instantiate()
+	flash.setup(get_hp_bar_rect(), get_hp_bar_tier())
+	host.add_child(flash)
+	flash.global_position = global_position
+
+
+func _draw_hp_bar() -> void:
+	if not should_show_hp_bar():
+		return
+	draw_hp_bar_skin(
+		self, get_hp_bar_rect(), get_hp_bar_tier(), get_hp_ratio(), _hp_ghost_ratio,
+		get_hp_ratio() <= HP_BAR_LOW_RATIO
+	)
+
+
+## 皮肤绘制（对任意 CanvasItem 通用 · 0.8.16.5 抽静态）：敌人自身血条与「一击必杀定格」共用同一套画法。
+## tier 见 HpBarTier；ratio / ghost_ratio 为 0~1 比例；low = 低血提亮 + 外发光。
+static func draw_hp_bar_skin(
+	ci: CanvasItem, rect: Rect2, tier: int, ratio: float, ghost_ratio: float, low: bool
+) -> void:
+	var bar_size := rect.size
+	var inner_pos := rect.position + Vector2(1.0, 1.0)
+	var inner_size := bar_size - Vector2(2.0, 2.0)
+	# 外投影 → 槽（深墨渐变）→ 内 1px 墨圈 → 档位外框（精英白 / Boss 金）。
+	draw_bar_capsule(ci, rect.position + Vector2(0.0, 1.0), bar_size, HP_BAR_SHADOW)
+	draw_bar_gradient(
+		ci, rect.position, bar_size,
+		HP_BAR_SLOT_TOP, HP_BAR_SLOT_TOP.lerp(HP_BAR_SLOT_BOTTOM, 0.56), HP_BAR_SLOT_BOTTOM
+	)
+	draw_bar_outline(ci, rect.position, bar_size, HP_BAR_INK_RING, 1.0)
+	if tier == HpBarTier.ELITE:
+		draw_bar_outline(
+			ci, rect.position - Vector2(1.0, 1.0), bar_size + Vector2(2.0, 2.0),
+			HP_BAR_ELITE_FRAME, 1.0
+		)
+	elif tier == HpBarTier.BOSS:
+		draw_bar_outline(
+			ci, rect.position - Vector2(1.0, 1.0), bar_size + Vector2(2.0, 2.0),
+			HP_BAR_BOSS_FRAME, 1.0
+		)
+	# 低血警示：静态外发光环（不做逐帧脉动，避免同屏敌人全体重绘）。
+	if low:
+		draw_bar_outline(
+			ci, rect.position - Vector2(1.5, 1.5), bar_size + Vector2(3.0, 3.0), HP_BAR_LOW_GLOW, 1.5
+		)
+	# 掉血残影：受击瞬间的旧血量白段（最窄退化为圆点）。
+	if ghost_ratio > ratio:
+		draw_bar_capsule(
+			ci, inner_pos,
+			Vector2(maxf(inner_size.x * ghost_ratio, inner_size.y), inner_size.y), HP_BAR_GHOST
+		)
+	# 填充：圆头 + 竖渐变（三停）+ 顶部 1px 高光。
+	var fill_size := Vector2(maxf(inner_size.x * ratio, 0.0), inner_size.y)
+	if fill_size.x > 0.0:
+		draw_bar_gradient(
+			ci, inner_pos, fill_size,
+			HP_BAR_FILL_LOW_TOP if low else HP_BAR_FILL_TOP,
+			HP_BAR_FILL_LOW_MID if low else HP_BAR_FILL_MID,
+			HP_BAR_FILL_LOW_BOTTOM if low else HP_BAR_FILL_BOTTOM
+		)
+		if fill_size.x > inner_size.y:
+			var cap := inner_size.y * 0.5
+			ci.draw_line(
+				inner_pos + Vector2(cap, 0.5), inner_pos + Vector2(fill_size.x - cap, 0.5),
+				HP_BAR_GLOSS, 1.0
+			)
+	# Boss 三刻度（25 / 50 / 75%）：压在填充之上，与金框配套。
+	if tier == HpBarTier.BOSS:
+		for tick_index in range(1, 4):
+			var tick_x := inner_pos.x + inner_size.x * 0.25 * float(tick_index)
+			ci.draw_line(
+				Vector2(tick_x, inner_pos.y + 1.0),
+				Vector2(tick_x, inner_pos.y + inner_size.y - 1.0), HP_BAR_TICK, 1.0
+			)
+
+## 实心胶囊（圆头）：矩形 + 两端圆；宽度不足两倍高时退化为圆点（static：敌人血条 / 定格共用）。
+static func draw_bar_capsule(ci: CanvasItem, pos: Vector2, size: Vector2, color: Color) -> void:
+	var radius := size.y * 0.5
+	if size.x <= size.y:
+		ci.draw_circle(pos + size * 0.5, maxf(size.x * 0.5, 0.0), color)
+		return
+	ci.draw_rect(Rect2(pos + Vector2(radius, 0.0), Vector2(size.x - radius * 2.0, size.y)), color)
+	ci.draw_circle(pos + Vector2(radius, radius), radius, color)
+	ci.draw_circle(pos + Vector2(size.x - radius, radius), radius, color)
+
+
+## 竖渐变胶囊：按顶点 y 取三停色（top → mid@56% → bottom），draw_polygon 顶点插值。
+static func draw_bar_gradient(
+	ci: CanvasItem, pos: Vector2, size: Vector2,
+	top_color: Color, mid_color: Color, bottom_color: Color
+) -> void:
+	var radius := size.y * 0.5
+	if size.x <= size.y:
+		ci.draw_circle(pos + size * 0.5, maxf(size.x * 0.5, 0.0), mid_color)
+		return
+	var points := PackedVector2Array()
+	var segments := 6
+	points.append(pos + Vector2(radius, 0.0))
+	points.append(pos + Vector2(size.x - radius, 0.0))
+	for i in range(1, segments + 1):
+		var right_angle := -PI * 0.5 + PI * float(i) / float(segments)
+		points.append(pos + Vector2(
+			size.x - radius + cos(right_angle) * radius,
+			radius + sin(right_angle) * radius
+		))
+	for i in range(1, segments + 1):
+		var left_angle := PI * 0.5 + PI * float(i) / float(segments)
+		points.append(pos + Vector2(
+			radius + cos(left_angle) * radius,
+			radius + sin(left_angle) * radius
+		))
+	var colors := PackedColorArray()
+	var denom := maxf(size.y, 0.001)
+	for point in points:
+		var t := clampf((point.y - pos.y) / denom, 0.0, 1.0)
+		colors.append(bar_gradient_color(t, top_color, mid_color, bottom_color))
+	ci.draw_polygon(points, colors)
+
+
+## 三停色采样（mid 停在 56%，与规格稿一致）。
+static func bar_gradient_color(t: float, top_color: Color, mid_color: Color, bottom_color: Color) -> Color:
+	if t <= 0.56:
+		return top_color.lerp(mid_color, clampf(t / 0.56, 0.0, 1.0))
+	return mid_color.lerp(bottom_color, clampf((t - 0.56) / 0.44, 0.0, 1.0))
+
+
+## 胶囊描边：两段半圆 + 上下两条直线（与塔怒气条同款画法）。
+static func draw_bar_outline(
+	ci: CanvasItem, pos: Vector2, size: Vector2, color: Color, width: float
+) -> void:
+	var radius := size.y * 0.5
+	if size.x <= size.y * 2.0:
+		ci.draw_arc(pos + size * 0.5, maxf(size.x * 0.5, 0.1), 0.0, TAU, 20, color, width)
+		return
+	ci.draw_arc(pos + Vector2(radius, radius), radius, PI * 0.5, PI * 1.5, 12, color, width)
+	ci.draw_arc(pos + Vector2(size.x - radius, radius), radius, -PI * 0.5, PI * 0.5, 12, color, width)
+	ci.draw_line(pos + Vector2(radius, 0.0), pos + Vector2(size.x - radius, 0.0), color, width)
+	ci.draw_line(pos + Vector2(radius, size.y), pos + Vector2(size.x - radius, size.y), color, width)

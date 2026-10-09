@@ -7,15 +7,6 @@ rotates = false
 loop = false
 script = ExtResource("1_3gvst")
 
-[node name="HpBar" type="ProgressBar" parent="." unique_id=300480587]
-visible = false
-offset_left = -20.0
-offset_top = -31.0
-offset_right = 20.0
-offset_bottom = -25.0
-mouse_filter = 2
-show_percentage = false
-
 [node name="Body" type="ColorRect" parent="." unique_id=1706985235]
 offset_left = -20.0
 offset_top = -20.0

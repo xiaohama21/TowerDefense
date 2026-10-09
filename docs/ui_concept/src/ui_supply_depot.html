@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="concept_ui.css">
+<style>
+  /* ===== 军需处（SupplyDepotPanel）概念稿：大厅亮蓝骨架 + 左 6 件军需卡（3×2 / 224×178）+ 右军需带 =====
+     ===== 图徽优先：军功 / 金币 / 伤害 / 状态一律用 icons_hud 裸符号，未出图件用虚线圆占位 ===== */
+  .topbar .merit { display:flex; align-items:center; gap:5px; height:32px; padding:0 12px 0 6px;
+    background:#ffe9b0; border:2px solid #e8b33c; border-radius:12px; }
+  .topbar .merit img { width:24px; height:24px; }
+  .topbar .merit .v { font-size:17px; color:#8a6d00; letter-spacing:1px; }
+  .topbar .hint { font-size:12px; color:#7d9cb4; letter-spacing:1px; white-space:nowrap; }
+  .qbtn { display:inline-block; width:16px; height:16px; border-radius:50%; background:#e8b33c; color:#fff;
+    font-size:10.5px; line-height:16px; text-align:center; letter-spacing:0; flex:none; }
+  .i18 { width:18px; height:18px; flex:none; }
+  .ph18 { width:18px; height:18px; flex:none; border-radius:50%; border:2px dashed #9cbed9; background:#f0f6fb; }
+
+  .body { display:flex; gap:10px; flex:1; min-height:0; margin-top:12px; }
+  .supgrid { display:grid; grid-template-columns:repeat(3,224px); grid-template-rows:repeat(2,178px);
+    gap:12px; align-content:flex-start; }
+  .scard { background:#fff; border:2px solid #d7e9f5; border-radius:13px; padding:10px 11px;
+    display:flex; flex-direction:column; gap:7px; }
+  .scard.belt { border-color:#ffcc00; box-shadow:0 0 0 2px rgba(255,204,0,.4); }
+  .scard.locked { background:#eef3f7; border-color:#d5e0e8; }
+  .shd { display:flex; gap:9px; align-items:flex-start; }
+  .shd .ico { width:44px; height:44px; flex:none; border-radius:50%; border:2px dashed #9cbed9;
+    background:#f0f6fb; color:#7fa3c2; font-size:19px; display:flex; align-items:center; justify-content:center; }
+  .shd .nm { font-size:18px; color:#1b4d78; letter-spacing:1px; }
+  .scard.locked .shd .nm { color:#9fb3c4; }
+  .chips { display:flex; gap:6px; margin-top:3px; }
+  .chip { font-size:11px; letter-spacing:1px; padding:1px 8px; border-radius:8px; white-space:nowrap; }
+  .chip.blue { color:#14538a; background:#e1f1fb; }
+  .chip.ok   { color:#11804a; background:#d8f2e3; }
+  .chip.lock { color:#7d8fa0; background:#d9e4ec; }
+  .fx { display:flex; align-items:center; gap:5px; font-size:13px; color:#14538a; letter-spacing:.5px; }
+  .cost { display:flex; align-items:center; gap:5px; font-size:13px; color:#1b4d78; letter-spacing:.5px; }
+  .cost .ic { width:17px; height:17px; flex:none; }
+  .cost .ph { width:17px; height:17px; flex:none; border-radius:50%; border:2px dashed #9cbed9; }
+  .cost .sep { color:#9fc3da; }
+  .scard.locked .fx, .scard.locked .cost { color:#9fb3c4; }
+  .fx em { font-style:normal; color:#5f8aa6; font-size:11.5px; }
+  .fill { flex:1; }
+  .cbtn { height:34px; border:0; font-family:"ZCOOL-Kuaile",sans-serif; font-size:14px; letter-spacing:1px;
+    border-image-slice:24 fill; border-image-width:16px; border-image-repeat:round;
+    display:flex; align-items:center; justify-content:center; gap:5px; }
+  .cbtn img { width:18px; height:18px; }
+  .cbtn.gold { border-image-source:url("kenney_ui_pack/PNG/Yellow/Double/button_rectangle_gloss.png"); color:#22384a; }
+  .cbtn.blue { border-image-source:url("kenney_ui_pack/PNG/Blue/Double/button_rectangle_depth_flat.png"); color:#fff; }
+  .cbtn.grey { border-image-source:url("kenney_ui_pack/PNG/Grey/Double/button_rectangle_depth_flat.png"); color:#7d8fa0; }
+  .cbtn.grey .no { color:#c0392b; }
+
+  .beltcol { width:276px; flex:none; display:flex; flex-direction:column; gap:8px; }
+  .bhd { display:flex; align-items:center; gap:8px; padding:0 2px; }
+  .bhd .n { font-size:16px; color:#14538a; letter-spacing:2px; }
+  .bhd .cnt { margin-left:auto; font-size:14px; color:#7d9cb4; letter-spacing:1px; }
+  .slot { height:54px; background:#f7fbfe; border:2px solid #d7e9f5; border-radius:13px;
+    display:flex; align-items:center; gap:9px; padding:0 12px 0 9px; }
+  .slot .ico { width:38px; height:38px; flex:none; border-radius:50%; border:2px dashed #9cbed9;
+    background:#f0f6fb; color:#7fa3c2; font-size:17px; display:flex; align-items:center; justify-content:center; }
+  .slot .nm { font-size:15px; color:#1b4d78; letter-spacing:1px; }
+  .slot.empty { background:#eef6fb; border-color:#c3d2dd; }
+  .slot.empty .nm { color:#9fb3c4; }
+  .bhint { font-size:11px; color:#7d9cb4; letter-spacing:1px; line-height:1.6; padding:2px 2px 0; }
+
+  .footbar { display:flex; align-items:center; gap:10px; margin-top:8px; }
+  .ftag { font-size:12px; color:#33566f; background:#eef6fb; border-radius:12px; padding:4px 12px;
+    letter-spacing:1px; white-space:nowrap; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="hub">
+    <div class="side">
+      <div class="logo"><div class="cn">烽火连营</div><div class="en">TOWER DEFENSE · HUB</div></div>
+      <div class="nav">
+        <button class="navbtn idle">地图选择</button>
+        <button class="navbtn idle">武将养成</button>
+        <button class="navbtn idle">科技树</button>
+        <button class="navbtn active">军需</button>
+        <button class="navbtn idle">背包</button>
+        <button class="navbtn idle">设置</button>
+        <button class="navbtn idle">百科</button>
+        <button class="navbtn back">返回主菜单</button>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <h2>军需</h2>
+        <div class="spacer"></div>
+        <span class="merit"><img src="icons_hud/merit.png"><span class="v">396</span></span>
+        <span class="qbtn">?</span>
+        <span class="hint">击杀掉落 · 困难 ×1.5 · 失败 / 退出不带出</span>
+      </div>
+      <div class="body">
+        <div class="supgrid">
+          <div class="scard belt">
+            <div class="shd"><span class="ico">修</span><div><div class="nm">修整</div>
+              <div class="chips"><span class="chip blue">L2</span><span class="chip ok">✓ 已选带</span></div></div></div>
+            <div class="fx"><img class="i18" src="icons_hud/base_hp.png"><span>+12</span></div>
+            <div class="cost"><img class="ic" src="icons_hud/coin.png"><span>55</span><span class="sep">·</span><span class="ph"></span><span>1</span></div>
+            <div class="fill"></div>
+            <button class="cbtn blue">强化 · <img src="icons_hud/merit.png">300</button>
+          </div>
+          <div class="scard">
+            <div class="shd"><span class="ico">火</span><div><div class="nm">火攻</div>
+              <div class="chips"><span class="chip blue">L1</span></div></div></div>
+            <div class="fx"><img class="i18" src="icons_hud/dmg_magic.png"><span>50</span>
+              <img class="i18" src="icons_hud/status_burn.png"><span>25/s</span><em>（3s）</em></div>
+            <div class="cost"><img class="ic" src="icons_hud/coin.png"><span>80</span><span class="sep">·</span><span class="ph"></span><span>1</span></div>
+            <div class="fill"></div>
+            <button class="cbtn gold">强化 · <img src="icons_hud/merit.png">150</button>
+          </div>
+          <div class="scard belt">
+            <div class="shd"><span class="ico">擂</span><div><div class="nm">擂鼓</div>
+              <div class="chips"><span class="chip blue">L1</span><span class="chip ok">✓ 已选带</span></div></div></div>
+            <div class="fx"><img class="i18" src="icons_hud/stat_attack_speed.png"><span>+30%</span><em>（8s）</em></div>
+            <div class="cost"><img class="ic" src="icons_hud/coin.png"><span>50</span><span class="sep">·</span><span class="ph"></span><span>2</span></div>
+            <div class="fill"></div>
+            <button class="cbtn gold">强化 · <img src="icons_hud/merit.png">150</button>
+          </div>
+          <div class="scard">
+            <div class="shd"><span class="ico">缓</span><div><div class="nm">缓兵</div>
+              <div class="chips"><span class="chip blue">L3</span></div></div></div>
+            <div class="fx"><img class="i18" src="icons_hud/status_slow.png"><span>55%</span><em>（7s）</em></div>
+            <div class="cost"><img class="ic" src="icons_hud/coin.png"><span>32</span><span class="sep">·</span><span class="ph"></span><span>2</span></div>
+            <div class="fill"></div>
+            <button class="cbtn grey">已满级</button>
+          </div>
+          <div class="scard locked">
+            <div class="shd"><span class="ico">锁</span><div><div class="nm">掷石齐射</div>
+              <div class="chips"><span class="chip lock">未解锁</span></div></div></div>
+            <div class="fx"><img class="i18" src="icons_hud/dmg_physical.png"><span>全场各受物理伤害</span></div>
+            <div class="cost"><img class="ic" src="icons_hud/coin.png"><span>70</span><span class="sep">·</span><span class="ph"></span><span>1</span></div>
+            <div class="fill"></div>
+            <button class="cbtn gold">解锁 · <img src="icons_hud/merit.png">340</button>
+          </div>
+          <div class="scard locked">
+            <div class="shd"><span class="ico">锁</span><div><div class="nm">犒军</div>
+              <div class="chips"><span class="chip lock">未解锁</span></div></div></div>
+            <div class="fx"><span class="ph18"></span><span>全队怒气提升</span></div>
+            <div class="cost"><img class="ic" src="icons_hud/coin.png"><span>50</span><span class="sep">·</span><span class="ph"></span><span>1</span></div>
+            <div class="fill"></div>
+            <button class="cbtn grey">解锁 · <img src="icons_hud/merit.png" style="opacity:.55;"><span class="no">425</span></button>
+          </div>
+        </div>
+        <div class="beltcol">
+          <div class="bhd"><span class="n">军需带</span><span class="qbtn">?</span><span class="cnt">2 / 3</span></div>
+          <div class="slot"><span class="ico">修</span><span class="nm">✓ 修整</span></div>
+          <div class="slot"><span class="ico">擂</span><span class="nm">✓ 擂鼓</span></div>
+          <div class="slot empty"><span class="ico"></span><span class="nm">空</span></div>
+          <div class="bhint">点击卡片 = 加入 / 移出军需带</div>
+        </div>
+      </div>
+      <div class="footbar">
+        <span class="ftag">军需带随编队出征，局内金币购买、择时使用</span>
+        <span class="ftag">未使用结算作废、不返还</span>
+        <span class="ftag">解锁与强化不可逆，不退还</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

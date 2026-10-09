@@ -81,6 +81,8 @@ static func get_tech_bonuses(profile: PlayerProfile) -> Dictionary:
 		"start_gold": 0, "damage_pct": 0, "base_hp": 0,
 		"wave_reward_pct": 0, "sell_refund_pct": 0, "upgrade_discount_pct": 0,
 		"supply_discount_pct": 0, "rage_gain_pct": 0,
+		# 军需带槽位加成（✅ 0.8.16「军府调度」）：槽位数，不参与百分比封顶。
+		"supply_slot_bonus": 0,
 		"profession_tiger_guard_damage_pct": 0, "profession_cavalry_damage_pct": 0,
 		"profession_archer_attack_speed_pct": 0, "profession_strategist_damage_pct": 0,
 		"profession_dancer_buff_power_pct": 0, "profession_catapult_damage_pct": 0,

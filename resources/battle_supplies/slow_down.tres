@@ -6,8 +6,8 @@
 script = ExtResource("1_supply")
 supply_id = &"slow_down"
 display_name = "缓兵"
-description = "广布疑兵，全场敌军减速 40%，持续 5 秒。"
-cost = 40
-max_uses = 2
-slow_factor = 0.6
-effect_duration = 5.0
+description = "广布疑兵，全场敌军减速（对 Boss 生效但有抗性折减）。"
+level_costs = [40, 36, 32]
+level_max_uses = [2, 2, 2]
+level_slow_factor = [0.6, 0.53, 0.45]
+level_duration = [5.0, 6.0, 7.0]

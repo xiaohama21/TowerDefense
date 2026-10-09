@@ -236,23 +236,38 @@ func _card_width(chain_count: int) -> float:
 	return clampf(card_w, NODE_MIN_WIDTH, MAX_CARD_WIDTH)
 
 
-## 一行 = 层级胶囊 + 该层出现的链节点（顺序与连接行一致）。
+## 一行 = 层级胶囊 + 按链序逐列铺设的节点（v0.20.51 / B-070：稀疏层以等宽空列占位保留，
+## 节点必须与父节点同列、与层间连接竖线对齐，禁止把本层出现的节点左推压缩）。
 func _make_tier_row(category: String, chains: Array, tier: int, card_w: float) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", ROW_GAP)
 	row.add_child(_make_tier_label(tier))
 	var glyph := _tier_glyph(tier)
-	var present: Array = []
-	for chain in chains:
-		if _chain_item_at_tier(chain, tier) != null:
-			present.append(chain)
-	for chain in present:
-		var item: TechItemData = _chain_item_at_tier(chain, tier)
-		row.add_child(_make_node_button(item, glyph, card_w))
-	# 军略终极层虚线提示条（概念 .t3-note，占满本行剩余空间）。
-	if category == "军略" and tier == max_tier_of_chains(chains) and present.size() < chains.size():
+	var last_present := -1
+	for i in range(chains.size()):
+		if _chain_item_at_tier(chains[i], tier) != null:
+			last_present = i
+	# 军略终极层虚线提示条（概念 .t3-note）：从末个非空列之后接入、铺满剩余行宽。
+	var note_tail := category == "军略" and tier == max_tier_of_chains(chains) and last_present >= 0 and last_present < chains.size() - 1
+	for i in range(chains.size()):
+		if note_tail and i > last_present:
+			break
+		var item: TechItemData = _chain_item_at_tier(chains[i], tier)
+		if item != null:
+			row.add_child(_make_node_button(item, glyph, card_w))
+		else:
+			row.add_child(_make_column_spacer(card_w))
+	if note_tail:
 		row.add_child(_make_t3_note())
 	return row
+
+
+## 空列占位（与节点卡等宽、同受 ROW_GAP 间距；高度不参与行高，行高由节点卡决定）。
+func _make_column_spacer(card_w: float) -> Control:
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(card_w, 1)
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return spacer
 
 
 func max_tier_of_chains(chains: Array) -> int:

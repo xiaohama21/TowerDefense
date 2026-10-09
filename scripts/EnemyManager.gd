@@ -45,6 +45,8 @@ func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
 	enemy.tags = (enemy_data.tags as Array[StringName]).duplicate()
 	enemy.reward = enemy_data.currency_reward
 	enemy.kill_xp = enemy_data.kill_xp
+	# 军功掉落（✅ 0.8.16 / NUMBERS 10.15）：逐敌固定值（难度倍率在 GameManager 结算时应用）。
+	enemy.merit_reward = enemy_data.merit_reward
 	enemy.damage_to_base = enemy_data.damage_to_base
 	enemy.set_color(enemy_data.body_color)
 	enemy.set_body_size(enemy_data.body_size)

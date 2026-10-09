@@ -54,6 +54,16 @@ func _tower_at_cell(tower_manager: Node, cell: Vector2i) -> Tower:
 	return null
 
 
+## 光标用例辅助（B-077·B-078）：拖拽建造走 UI 卡片按键路径，需合成鼠标按键事件。
+func _mouse_button(button: int, pressed: bool) -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.button_index = button
+	event.pressed = pressed
+	event.position = Vector2(600, 400)
+	event.global_position = event.position
+	return event
+
+
 ## 遗留槽位坐标（v0.33.3 槽位视觉已移除，StageData.build_slots 数据废弃保留）：
 ## 转成网格坐标供拖拽用例复用原槽位布局，保持后续用例的塔位几何不变。
 func _legacy_slot_cells(build_manager: Node, stage_data: StageData) -> Array[Vector2i]:
@@ -134,11 +144,454 @@ func _test_exp_pool_0815() -> void:
 	_check(int(legacy.items.get("yellow_turban_cloth", 0)) == 2, "防御性清理不应影响其他道具")
 
 
+## 军功 + 军需重构（✅ 0.8.16.0 / DESIGN_REVIEW §12.6.2 / NUMBERS 10.15 / SAVE_DATA 8 / STATS_PIPELINE v0.7）回归：
+## ① 军功逐敌档位表（步卒 / 弓手 1、轻骑 / 祭酒 2、精英 3、Boss 25、终 Boss 张角 40）；
+## ② 各关合计 71 / 90 / 129 / 144 / 145 / 208 / 167 / 288 = 全章 1242，困难精确 ×1.5 = 1863
+##   （精确累计、结算 roundi 取整——逐笔取整会把 1~3 军功放大成 2/5，全章偏到 2228）；
+## ③ 与经验同通道：胜利写档、失败 / 放弃作废（mark_discarded / clear_pending_rewards 清零）；
+## ④ 军需 6 件目录 · 逐级费用 / 限次 / 幅度 / 解锁 340·425 / 强化 150·300；
+## ⑤ 军需带（基础 2 槽 + 科技「军府调度」1）与 schema v6。
+## 敌人血条三档（UI_LAYOUT §10 / 程序 0.8.16.4「墨槽胶囊」）：普通 max(体型宽,24)×6 /
+## 精英「体型宽 + 6」×8 + 白框 / Boss 84×12 + 金框刻度；水平居中于体型、条底 = 身体顶 −10。
+## 不入树（避免污染 enemies 组）：仅用场景副本验证几何与可见规则纯计算。
+func _test_enemy_hp_bar_0816() -> void:
+	var cases := [
+		[load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres"), Enemy.HpBarTier.NORMAL, Vector2(34, 6)],
+		[load("res://resources/enemies/yellow_turban/yellow_turban_elite_sergeant.tres"), Enemy.HpBarTier.ELITE, Vector2(56, 8)],
+		[load("res://resources/enemies/yellow_turban/yellow_turban_general.tres"), Enemy.HpBarTier.BOSS, Vector2(84, 12)],
+	]
+	var enemy_scene := load("res://scenes/Enemy.tscn") as PackedScene
+	for entry in cases:
+		var data := entry[0] as EnemyData
+		if data == null or enemy_scene == null:
+			_check(false, "血条断言：敌人数据 / 场景应可加载")
+			return
+		var enemy := enemy_scene.instantiate() as Enemy
+		enemy.tags.assign(data.tags)
+		enemy.max_hp = 100
+		enemy.current_hp = 100
+		enemy.set_body_size(data.body_size)
+		# 不入树时 @onready 未就绪：手动注入 Body 引用（take_damage → _apply_body_modulate 需要）。
+		enemy.body = enemy.get_node_or_null("Body") as ColorRect
+		_check(enemy.get_hp_bar_tier() == int(entry[1]),
+			"血条档位：%s 应为 %d（实际 %d）" % [data.enemy_id, int(entry[1]), enemy.get_hp_bar_tier()])
+		var expected := entry[2] as Vector2
+		_check(enemy.get_hp_bar_size() == expected,
+			"血条尺寸：%s 应为 %s（实际 %s）" % [data.enemy_id, str(expected), str(enemy.get_hp_bar_size())])
+		var rect := enemy.get_hp_bar_rect()
+		_check(is_equal_approx(rect.position.x, -rect.size.x * 0.5),
+			"血条应水平居中于体型：%s" % data.enemy_id)
+		_check(is_equal_approx(rect.position.y + rect.size.y + 10.0, -data.body_size.y * 0.5),
+			"血条底应距身体顶 10px（不压头带，头带占 −7…−2）：%s" % data.enemy_id)
+		_check(is_equal_approx(enemy.hp_bar_top_y(), rect.position.y),
+			"眩晕三小星 / 阶段点锚点应取条顶：%s" % data.enemy_id)
+		# 可见规则（不变）：满血隐藏 → 受击显示 → 隐匿未现形隐藏。
+		_check(not enemy.should_show_hp_bar(), "满血应隐藏血条：%s" % data.enemy_id)
+		enemy.take_damage(30)
+		_check(enemy.should_show_hp_bar(), "受击后应显示血条：%s" % data.enemy_id)
+		_check(is_equal_approx(enemy._hp_ghost_ratio, 1.0) and enemy._hp_ghost_hold > 0.0,
+			"受击瞬间应留下掉血残影（旧比例 1.0 + 停留计时）：%s" % data.enemy_id)
+		enemy.stealth = true
+		enemy._set_stealth_revealed(false)
+		_check(not enemy.should_show_hp_bar(),
+			"隐匿未现形应隐藏血条：%s" % data.enemy_id)
+		enemy.free()
+
+
+## 一击必杀血条定格（UI_LAYOUT §10 / 程序 0.8.16.5）：满血敌人被单次受击直接打死时，
+## 血量同一帧 100% → 0 并 queue_free（无「掉血但活着」的帧）→ 死亡点补播 0.50s 血条定格。
+func _test_kill_bar_flash_0816() -> void:
+	var enemy_scene := load("res://scenes/Enemy.tscn") as PackedScene
+	var data := load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres") as EnemyData
+	if data == null or enemy_scene == null:
+		_check(false, "一击必杀定格：敌人数据 / 场景应可加载")
+		return
+	var enemy := enemy_scene.instantiate() as Enemy
+	enemy.max_hp = 100
+	enemy.current_hp = 100
+	enemy.body = enemy.get_node_or_null("Body") as ColorRect
+	enemy.set_body_size(data.body_size)
+	# 判定（纯函数）：入伤前满血 + 非隐匿未现形 → 补定格；已受伤 / 隐匿 → 不补。
+	_check(enemy.should_flash_kill_bar(1.0), "满血一击必杀应补血条定格")
+	_check(not enemy.should_flash_kill_bar(0.83), "已受过伤（血条显示过）的敌人不补定格")
+	enemy.stealth = true
+	enemy._set_stealth_revealed(false)
+	_check(not enemy.should_flash_kill_bar(1.0), "隐匿未现形的一击必杀不补定格")
+	enemy.stealth = false
+	# 非致死受击不得登记定格（血条本身会显示，走常规路径）。
+	enemy.take_damage(30)
+	_check(not enemy._kill_bar_flash and not enemy.is_dead, "非致死受击不应登记定格")
+	# 满血一击必杀：走 take_damage → die() 全链路（奖励清零，避免污染后续用例的账面）。
+	enemy.current_hp = enemy.max_hp
+	enemy.reward = 0
+	enemy.kill_xp = 0
+	enemy.merit_reward = 0
+	enemy.take_damage(999)
+	_check(enemy.is_dead, "满血一击必杀应致死")
+	_check(not enemy._kill_bar_flash, "die() 应消费定格登记（测试环境不入树，不生成节点）")
+	enemy.free()
+	# 定格曲线（纯函数）：0.20s 填充打空 / 0.36s 白残影拖尾结束 / 0.35s 起淡出 / 0.50s 归零。
+	# 脚本按路径取用（headless 下全局类缓存不保证含新 class_name）。
+	var flash_script := load("res://scripts/EnemyKillBarFlash.gd") as GDScript
+	if flash_script == null:
+		_check(false, "定格脚本应可加载")
+		return
+	_check(is_equal_approx(flash_script.fill_ratio_at(0.0), 1.0), "定格 t=0 填充应为满")
+	_check(is_equal_approx(flash_script.fill_ratio_at(flash_script.FILL_DRAIN), 0.0),
+		"定格填充应在 0.20s 打空")
+	_check(is_equal_approx(flash_script.ghost_ratio_at(0.0), 1.0), "定格 t=0 残影应为满")
+	_check(is_equal_approx(flash_script.ghost_ratio_at(flash_script.GHOST_DRAIN), 0.0),
+		"定格白残影应在 0.36s 拖尾结束")
+	_check(flash_script.ghost_ratio_at(0.10) > flash_script.fill_ratio_at(0.10),
+		"定格残影应滞后于填充（白色拖尾）")
+	_check(is_equal_approx(flash_script.alpha_at(flash_script.FADE_START), 1.0),
+		"定格在 0.35s 前应保持不透明")
+	_check(is_equal_approx(flash_script.alpha_at(flash_script.DURATION), 0.0),
+		"定格结束应完全淡出")
+	_check(flash_script.DURATION > flash_script.GHOST_DRAIN
+		and flash_script.GHOST_DRAIN > flash_script.FILL_DRAIN,
+		"定格时长应满足 填充 < 残影 < 总时长")
+	# 场景与档位注入（不入树，仅验证可实例化 + setup 生效）。
+	var flash_scene := load("res://scenes/EnemyKillBarFlash.tscn") as PackedScene
+	_check(flash_scene != null, "定格场景应可加载")
+	if flash_scene == null:
+		return
+	var flash := flash_scene.instantiate() as Node2D
+	_check(flash != null and flash.z_index == 49, "定格应为 Node2D 且 z_index 49（低于飘字 50）")
+	if flash == null:
+		return
+	flash.setup(Rect2(-17.0, -33.0, 34.0, 6.0), Enemy.HpBarTier.ELITE)
+	_check(flash.bar_tier == Enemy.HpBarTier.ELITE and is_equal_approx(flash.bar_rect.size.x, 34.0),
+		"定格应可写入矩形与档位（尺寸由 Enemy 侧算好）")
+	flash.free()
+
+## 0.8.16.6：死亡渐隐 / 近战命中帧结算 / 关羽技能 3 连击 + 大招 XX（BEHAVIORS B.3.1.1 · ART_ASSETS §5.7）。
+func _test_combat_sync_0816(main: Node) -> void:
+	var enemy_manager := main.get_node_or_null("EnemyManager")
+	var tower_manager := main.get_node_or_null("TowerManager")
+	if enemy_manager == null or tower_manager == null:
+		_check(false, "0.8.16.6 用例应能取到 EnemyManager / TowerManager")
+		return
+	var soldier := load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres") as EnemyData
+	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
+	var guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
+	_check(soldier != null and zhang_fei != null and guan_yu != null, "0.8.16.6 用例资源应可加载")
+	# ① 死亡渐隐（UI_LAYOUT §10）：被击杀敌人不立即释放——死亡帧退出敌人组，0.40s 演出后释放。
+	var fade_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if fade_enemy != null:
+		fade_enemy.set_process(true)
+		fade_enemy.reward = 0
+		fade_enemy.kill_xp = 0
+		fade_enemy.merit_reward = 0
+		fade_enemy.take_damage(9999)
+		_check(fade_enemy.is_dead, "致死打击后应进入死亡态")
+		_check(not fade_enemy.is_queued_for_deletion(), "被击杀敌人不应立即释放（有进程 → 播死亡渐隐）")
+		_check(fade_enemy._death_time >= 0.0, "被击杀敌人应进入死亡演出")
+		_check(not fade_enemy.is_in_group(Enemy.ENEMY_GROUP), "死亡帧应退出敌人组（索敌 / 波次判定不再计入）")
+		fade_enemy.set_process(false)
+		var fade_alpha_before := fade_enemy.modulate.a
+		fade_enemy._advance_death_fade(0.2)
+		_check(fade_enemy.modulate.a < fade_alpha_before, "死亡演出应逐帧淡出")
+		_check(fade_enemy._death_time > 0.0 and fade_enemy.modulate.a > 0.0, "0.40s 演出中段应仍可见")
+		fade_enemy._advance_death_fade(0.25)
+		_check(fade_enemy.is_queued_for_deletion(), "死亡演出结束应释放节点")
+	else:
+		_check(false, "死亡渐隐用例应能生成敌人")
+	# ② die(false)（漏怪 / 调试清场）不演出、直接释放。
+	var leak_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	if leak_enemy != null:
+		leak_enemy.set_process(true)
+		leak_enemy.die(false)
+		_check(leak_enemy._death_time < 0.0 and leak_enemy.is_queued_for_deletion(),
+			"die(false)（漏怪 / 清场）应直接释放，不播死亡渐隐")
+	# ③ 近战命中帧结算（BEHAVIORS B.3.1.1）：排队 → 命中帧前不掉血 → flush 后结算。
+	var sync_tower: Tower = tower_manager.build_tower(Vector2(240, 640), zhang_fei, null, {"level": 10})
+	_check(sync_tower != null, "命中帧用例应能建造虎贲塔")
+	if sync_tower != null:
+		sync_tower.set_process(false)
+		var sync_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if sync_target != null:
+			sync_target.set_process(false)
+			sync_target.global_position = sync_tower.global_position + Vector2(60, 0)
+			sync_target.max_hp = 9999
+			sync_target.current_hp = 9999
+			var hp_before_swing := sync_target.current_hp
+			sync_tower.schedule_melee_hit(sync_target, 50)
+			_check(sync_tower.has_pending_combat_steps(), "近战伤害应进入命中帧队列")
+			_check(sync_target.current_hp == hp_before_swing, "命中帧前不应结算伤害")
+			sync_tower.flush_pending_combat_steps()
+			_check(sync_target.current_hp == hp_before_swing - 50, "命中帧结算应造成伤害")
+			sync_target.die(false)
+		# ③b 命中帧目标失效回落（BUGS B-085）：锁定存活目标原样返回；锁定目标已死 → 回落当前索敌。
+		var fallback_live := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if fallback_live != null:
+			fallback_live.set_process(false)
+			fallback_live.global_position = sync_tower.global_position + Vector2(70, 0)
+			fallback_live.max_hp = 9999
+			fallback_live.current_hp = 9999
+			_check(sync_tower.resolve_hit_frame_target(fallback_live.get_instance_id()) == fallback_live,
+				"锁定目标存活时命中帧应原样返回锁定目标")
+			var dead_victim_id := fallback_live.get_instance_id()
+			fallback_live.die(false)
+			var fallback_after := sync_tower.resolve_hit_frame_target(dead_victim_id)
+			_check(fallback_after == null or not fallback_after.is_dead,
+				"锁定目标已死时命中帧应回落当前索敌（不返回尸体；射程内无替代目标才落空）")
+		_check(is_equal_approx(sync_tower.melee_hit_delay(), Tower.MELEE_HIT_DELAY_PROCEDURAL),
+			"程序化近战命中帧应为挥击弧中点（0.110s）")
+		sync_tower.queue_free()
+	# ④ 关羽：3 连击节拍 + spine 映射（Attack_A 加速连播 / 大招 XX / 回落复位时标）。
+	var sync_guan: Tower = tower_manager.build_tower(Vector2(260, 640), guan_yu, null, {"level": 10})
+	_check(sync_guan != null, "关羽用例应能建造塔")
+	if sync_guan != null:
+		sync_guan.set_process(false)
+		var hit_0 := sync_guan.flurry_hit_delay(0)
+		var hit_1 := sync_guan.flurry_hit_delay(1)
+		var hit_2 := sync_guan.flurry_hit_delay(2)
+		_check(hit_0 > 0.0 and hit_0 < hit_1 and hit_1 < hit_2, "3 连击命中帧应逐拍递增")
+		_check(is_equal_approx(hit_1 - hit_0, Tower.SKILL_FLURRY_PERIOD), "连击节拍间隔应等于单次周期（0.30s）")
+		var sync_guan_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if sync_guan_target != null:
+			sync_guan_target.set_process(false)
+			sync_guan_target.global_position = sync_guan.global_position + Vector2(60, 0)
+			sync_guan_target.max_hp = 9999
+			sync_guan_target.current_hp = 9999
+			sync_guan.target = sync_guan_target
+			_check(sync_guan.cast_character_skill(), "青龙偃月应能释放（3 连击演出）")
+			_check(sync_guan._spine_cast_busy_left > 0.0, "技能连击期间应标记演出忙碌（普攻动画不打断）")
+			var guan_hp_before := sync_guan_target.current_hp
+			sync_guan.flush_pending_combat_steps()
+			_check(sync_guan_target.current_hp == guan_hp_before - int(round(sync_guan.damage * 2.0)) * 3,
+				"青龙偃月 3 连击 flush 后应造成 3 段 × 2.0× 真实伤害")
+			sync_guan_target.die(false)
+		if sync_guan._use_spine_visual:
+			_check(is_equal_approx(sync_guan.melee_hit_delay(), Tower.MELEE_HIT_DELAY_SPINE),
+				"spine 关羽命中帧应取素材 Attack_A Effect 事件（0.400s）")
+			_check(is_equal_approx(sync_guan.spine_flurry_time_scale(),
+				Tower.SPINE_ATTACK_A_DURATION / Tower.SKILL_FLURRY_PERIOD),
+				"连击时标应 = Attack_A 时长 / 单次周期（≈2.44×）")
+			var state: Object = sync_guan._spine.get_animation_state()
+			sync_guan._play_spine_attack(sync_guan.spine_flurry_time_scale(), true)
+			var track: Object = state.get_track(0)
+			_check(track != null and str(track.get_animation().get_name()) == "Attack_A",
+				"连击挥击应播素材 Attack_A")
+			_check(is_equal_approx(float(track.get_time_scale()), sync_guan.spine_flurry_time_scale()),
+				"连击挥击时标应加速播放")
+			sync_guan.play_ultimate_visual(&"ultimate_cavalry_breaker")
+			var ult_track: Object = state.get_track(0)
+			_check(ult_track != null and str(ult_track.get_animation().get_name()) == "XX",
+				"关羽大招应接素材 XX")
+			_check(is_equal_approx(sync_guan.ultimate_hit_delay(), Tower.SPINE_XX_HIT_FRAME),
+				"大招命中帧应取 XX 首个 Effect 事件（0.267s）")
+			sync_guan._play_spine_idle()
+			var idle_track: Object = state.get_track(0)
+			_check(is_equal_approx(float(idle_track.get_time_scale()), 1.0), "回落 Idle 时标应复位 1.0×")
+		sync_guan.queue_free()
+	# 无 spine 时大招保持即时结算（口径不变）。
+	if sync_guan == null or not sync_guan._use_spine_visual:
+		_check(true, "无 spine 环境：关羽沿用程序化演出（大招即时结算）")
+	await get_tree().process_frame
+	GameManager.reset_combo()  # 死亡用例推进过连击，复位避免污染后续断言
+
+func _test_merit_supply_0816() -> void:
+	var merit_by_enemy := {
+		"yellow_turban_soldier": 1, "yellow_turban_archer": 1,
+		"yellow_turban_cavalry": 2, "yellow_turban_sorcerer": 2,
+		"yellow_turban_sergeant": 3, "yellow_turban_berserker": 3,
+		"yellow_turban_elite_sergeant": 3, "yellow_turban_heavy_berserker": 3,
+		"yellow_turban_stealth_assassin": 3, "yellow_turban_stealth_healer": 3,
+		"yellow_turban_armor_aura_caster": 3,
+		"yellow_turban_general": 25, "yellow_turban_rebel_general": 25,
+		"yellow_turban_heaven_general": 40,
+	}
+	for enemy_key in merit_by_enemy:
+		var enemy_data := load("res://resources/enemies/yellow_turban/%s.tres" % enemy_key) as EnemyData
+		_check(enemy_data != null and enemy_data.merit_reward == int(merit_by_enemy[enemy_key]),
+			"敌人 %s 军功应为 %d（NUMBERS 10.15 档位表）" % [enemy_key, int(merit_by_enemy[enemy_key])])
+
+	# 各关合计（不含 Boss 召唤物）与困难精确 ×1.5：同一遍扫描同时累计基础值与困难值。
+	var expected_stage_merit := {
+		"ch01_s01": 71, "ch01_s02": 90, "ch01_s03": 129, "ch01_s04": 144,
+		"ch01_s05": 145, "ch01_s06": 208, "ch01_s07": 167, "ch01_s08": 288,
+	}
+	var chapter_merit := 0
+	var hard_session := BattleSession.create("smoke_merit_chapter", ["guan_yu"])
+	var hard_mult := Difficulty.merit_mult(Difficulty.HARD)
+	for stage_key in expected_stage_merit:
+		var merit_stage := load("res://resources/stages/chapter_01/%s.tres" % stage_key) as StageData
+		if merit_stage == null:
+			_check(false, "军功用例关卡应可加载: %s" % stage_key)
+			continue
+		var stage_merit := 0
+		for merit_wave in merit_stage.waves:
+			for merit_group in merit_wave.spawn_groups:
+				if merit_group == null or merit_group.enemy == null:
+					continue
+				var merit_data := merit_group.enemy.resolved()
+				var merit_count := int(merit_group.count)
+				stage_merit += merit_data.merit_reward * merit_count
+				hard_session.add_merit_scaled(merit_data.merit_reward * merit_count, hard_mult)
+		chapter_merit += stage_merit
+		_check(stage_merit == int(expected_stage_merit[stage_key]),
+			"%s 军功合计应为 %d（NUMBERS 10.15）" % [stage_key, int(expected_stage_merit[stage_key])])
+	_check(chapter_merit == 1242, "全章军功应为 1242（71 波 / 813 出怪）")
+	_check(hard_session.get_pending_merit() == 1863,
+		"困难全章军功应为精确 ×1.5 = 1863（逐笔取整会放大到 2228）")
+
+	# 作废语义：与经验同通道——失败 / 退出 / 崩溃不带出。
+	var discard_session := BattleSession.create("smoke_merit_discard", ["guan_yu"])
+	discard_session.add_merit_scaled(40, 1.5)
+	_check(discard_session.get_pending_merit() == 60, "军功应含难度倍率（终 Boss 档 40 × 1.5 = 60）")
+	discard_session.mark_discarded()
+	_check(discard_session.get_pending_merit() == 0, "失败 / 退出应作废本局军功（不带出）")
+	var clear_session := BattleSession.create("smoke_merit_clear", ["guan_yu"])
+	clear_session.add_merit(7)
+	clear_session.clear_pending_rewards()
+	_check(clear_session.get_pending_merit() == 0, "clear_pending_rewards 应清零军功暂存")
+
+	# 写档链路：胜利 → apply_battle_session 写 military_merit；消费 / 余额不足拒绝。
+	var merit_profile := PlayerProfile.new()
+	merit_profile.unlock_character("guan_yu")
+	var victory_session := BattleSession.create("ch01_s01", ["guan_yu"])
+	victory_session.add_merit_scaled(100, 1.5)
+	victory_session.mark_victory({"difficulty": "normal"})
+	_check(merit_profile.apply_battle_session(victory_session), "胜利战局应可应用到档案（含军功）")
+	_check(merit_profile.get_military_merit() == 150, "胜利结算应把军功写入档案（100 × 1.5 = 150）")
+	_check(not merit_profile.spend_military_merit(200), "军功余额不足应拒绝消费")
+	_check(merit_profile.get_military_merit() == 150, "拒绝消费不应改动军功余额")
+	_check(merit_profile.spend_military_merit(150) and merit_profile.get_military_merit() == 0,
+		"军功应可用于消费（解锁 / 强化）")
+
+	# 军需目录与逐级数值（NUMBERS 10.15 表）：费用 / 限次 / 幅度 / 解锁。
+	var catalog := BattleSupplyData.load_catalog()
+	_check(catalog.size() == 6, "军需池应为 6 件")
+	var expected_supply_order: Array[String] = [
+		"repair", "fire_attack", "war_drum", "slow_down", "stone_volley", "reward_army",
+	]
+	var catalog_order: Array[String] = []
+	for catalog_item in catalog:
+		catalog_order.append(str(catalog_item.supply_id))
+	_check(catalog_order == expected_supply_order,
+		"军需目录顺序应为 修整 / 火攻 / 擂鼓 / 缓兵 / 掷石齐射 / 犒军（固定展示顺序）")
+	for catalog_item in catalog:
+		var supply_id := str(catalog_item.supply_id)
+		match supply_id:
+			"repair":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 60
+					and catalog_item.cost_at(2) == 55 and catalog_item.cost_at(3) == 50
+					and catalog_item.max_uses_at(1) == 1 and catalog_item.max_uses_at(3) == 2
+					and catalog_item.heal_at(1) == 10 and catalog_item.heal_at(2) == 12
+					and catalog_item.heal_at(3) == 14,
+					"修整应为 60/55/50 金 · 限 1/1/2 · 生命 +10/12/14（基础已解锁）")
+			"fire_attack":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 80
+					and catalog_item.cost_at(3) == 70 and catalog_item.max_uses_at(2) == 1
+					and catalog_item.instant_magic_at(1) == 50 and catalog_item.instant_magic_at(3) == 80
+					and catalog_item.burn_dps_at(1) == 25 and catalog_item.burn_dps_at(3) == 40
+					and is_equal_approx(catalog_item.duration_at(1), 3.0),
+					"火攻应为 80/75/70 金 · 限 1 · 立即 50/65/80 魔法 + 灼烧 25/32/40 ×3s")
+			"war_drum":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 50
+					and catalog_item.cost_at(3) == 40 and catalog_item.max_uses_at(1) == 2
+					and catalog_item.max_uses_at(3) == 3
+					and is_equal_approx(catalog_item.attack_speed_bonus_at(1), 0.30)
+					and is_equal_approx(catalog_item.attack_speed_bonus_at(3), 0.45)
+					and is_equal_approx(catalog_item.duration_at(1), 8.0),
+					"擂鼓应为 50/45/40 金 · 限 2/2/3 · 攻速 +30/37/45% ×8s")
+			"slow_down":
+				_check(catalog_item.merit_unlock_cost == 0 and catalog_item.cost_at(1) == 40
+					and catalog_item.cost_at(3) == 32 and catalog_item.max_uses_at(1) == 2
+					and is_equal_approx(catalog_item.slow_factor_at(1), 0.60)
+					and is_equal_approx(catalog_item.slow_factor_at(2), 0.53)
+					and is_equal_approx(catalog_item.slow_factor_at(3), 0.45)
+					and is_equal_approx(catalog_item.duration_at(1), 5.0)
+					and is_equal_approx(catalog_item.duration_at(3), 7.0),
+					"缓兵应为 40/36/32 金 · 限 2 · 减速 40/47/55%（时长 5/6/7s）")
+			"stone_volley":
+				_check(catalog_item.merit_unlock_cost == 340 and catalog_item.cost_at(1) == 70
+					and catalog_item.cost_at(3) == 70 and catalog_item.max_uses_at(3) == 1
+					and catalog_item.is_physical_strike()
+					and catalog_item.instant_physical_at(1) == 60
+					and catalog_item.instant_physical_at(2) == 85
+					and catalog_item.instant_physical_at(3) == 110,
+					"掷石齐射应为 70 金 · 限 1 · 全场各 60/85/110 物理（解锁 340）")
+			"reward_army":
+				_check(catalog_item.merit_unlock_cost == 425 and catalog_item.cost_at(1) == 50
+					and catalog_item.max_uses_at(1) == 1 and catalog_item.rage_gain_at(1) == 20
+					and catalog_item.rage_gain_at(2) == 28 and catalog_item.rage_gain_at(3) == 36,
+					"犒军应为 50 金 · 限 1 · 怒气 +20/28/36（解锁 425）")
+			_:
+				_check(false, "军需目录出现未登记条目: %s" % supply_id)
+
+	# 解锁 / 强化（不可逆、封顶 L3）与军需带槽位（基础 2 + 科技「军府调度」1 → 3）。
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "存档 schema 应为 v6（0.8.16 军功 + 军需）")
+	_check(PlayerProfile.SUPPLY_MAX_LEVEL == 3 and PlayerProfile.BASE_SUPPLY_SLOTS == 2,
+		"军需强化上限应为 3 级、军需带基础槽位应为 2")
+	_check(PlayerProfile.supply_upgrade_cost(1) == 150 and PlayerProfile.supply_upgrade_cost(2) == 300
+		and PlayerProfile.supply_upgrade_cost(3) == 0,
+		"强化费用应为 L1→L2 = 150 / L2→L3 = 300 / 满级 0")
+	var supply_profile := PlayerProfile.new()
+	_check(supply_profile.is_supply_unlocked("repair") and supply_profile.is_supply_unlocked("fire_attack")
+		and supply_profile.is_supply_unlocked("war_drum") and supply_profile.is_supply_unlocked("slow_down")
+		and supply_profile.get_supply_level("repair") == 1,
+		"基础 4 件军需应默认「已解锁 + L1」（裸档与读档同语义）")
+	_check(not supply_profile.is_supply_unlocked("stone_volley")
+		and not supply_profile.is_supply_unlocked("reward_army")
+		and supply_profile.get_supply_level("stone_volley") == 0,
+		"掷石齐射 / 犒军应默认未解锁（等级 0）")
+	_check(not supply_profile.unlock_supply("stone_volley", 340), "军功不足时解锁应被拒绝")
+	_check(not supply_profile.is_supply_unlocked("stone_volley"), "解锁失败不应写入解锁状态")
+	supply_profile.add_military_merit(1000)
+	_check(supply_profile.unlock_supply("stone_volley", 340)
+		and supply_profile.get_military_merit() == 660
+		and supply_profile.get_supply_level("stone_volley") == 1,
+		"解锁掷石齐射应扣 340 军功并置 L1")
+	_check(supply_profile.upgrade_supply("stone_volley")
+		and supply_profile.get_supply_level("stone_volley") == 2
+		and supply_profile.get_military_merit() == 510,
+		"强化 L1→L2 应扣 150 军功")
+	_check(supply_profile.upgrade_supply("stone_volley")
+		and supply_profile.get_supply_level("stone_volley") == 3
+		and supply_profile.get_military_merit() == 210,
+		"强化 L2→L3 应扣 300 军功")
+	_check(not supply_profile.upgrade_supply("stone_volley"), "满级军需不应再强化（不可逆且封顶）")
+	# 选带：仅已解锁、去重、不得超槽位；toggle 语义 = 再点移出。
+	_check(supply_profile.toggle_supply_loadout("repair", 2), "已解锁军需应可入带")
+	_check(supply_profile.toggle_supply_loadout("repair", 2), "再次点击应把该件移出军需带")
+	_check(supply_profile.get_supply_loadout().is_empty(), "移出后军需带应为空")
+	_check(not supply_profile.toggle_supply_loadout("reward_army", 2), "未解锁军需不可入带")
+	_check(supply_profile.toggle_supply_loadout("repair", 2)
+		and supply_profile.toggle_supply_loadout("stone_volley", 2),
+		"两件已解锁军需应可入带（基础 2 槽）")
+	_check(not supply_profile.toggle_supply_loadout("fire_attack", 2), "超槽位应拒绝入带")
+	_check(supply_profile.get_supply_loadout().size() == 2, "拒绝入带不应改动军需带")
+	_check(not supply_profile.set_supply_loadout(["repair", "repair"], 3), "重复条目应被拒绝")
+	_check(not supply_profile.set_supply_loadout(["repair", "reward_army"], 3), "含未解锁条目应被拒绝")
+	_check(supply_profile.set_supply_loadout(["repair", "stone_volley", "fire_attack"], 3),
+		"科技「军府调度」+1 时应可带 3 件")
+	# 科技「军府调度」（strat_supply_3）：将略 tier 3、前置 strat_supply_2、效果 +1 槽。
+	var has_supply_tech := false
+	for tech_item in TechTree.get_items():
+		if str(tech_item.id) == "strat_supply_3":
+			has_supply_tech = true
+			_check(str(tech_item.requires) == "strat_supply_2"
+				and int(tech_item.effect.get("supply_slot_bonus", 0)) == 1,
+				"「军府调度」应为将略 tier 3 / 前置 strat_supply_2 / 军需带 +1 槽")
+	_check(has_supply_tech, "科技树应含「军府调度」（strat_supply_3，0.8.16 新增）")
+	var slot_bonuses := TechTree.get_tech_bonuses(supply_profile)
+	_check(int(slot_bonuses.get("supply_slot_bonus", 0)) == 0,
+		"未解锁「军府调度」时槽位加成为 0（加成键默认存在）")
+
 
 func _run() -> void:
 	_check_resource_integrity()
 	# 经验池（✅ 0.8.15 / NUMBERS 10.14）：注入定值 / 分配 / 直接升级 / 练兵令删除防线。
 	_test_exp_pool_0815()
+	# 军功 + 军需（✅ 0.8.16 / NUMBERS 10.15）：军功档位与合计 / 军需目录 · 解锁强化 · 选带 / schema v6。
+	_test_merit_supply_0816()
+	# 敌人血条三档（UI_LAYOUT §10 / 程序 0.8.16.4）：几何 · 居中 · 不压头带 · 掉血残影 · 满血隐藏。
+	_test_enemy_hp_bar_0816()
+	# 一击必杀血条定格（UI_LAYOUT §10 / 程序 0.8.16.5）：满血一击致死 → 死亡点补播 0.5s 血条定格。
+	_test_kill_bar_flash_0816()
 	# 遗物类目（v0.37.10 / 0.8.11.6）：5 件局内遗物物品分类=遗物（消耗品练兵令已随 0.8.15.0 删除）。
 	for relic_id in ["wolf_tooth", "iron_shield", "provision_bag", "scout_eye", "war_drums"]:
 		var relic_item := load("res://resources/items/%s.tres" % relic_id) as ItemData
@@ -248,9 +701,9 @@ func _run() -> void:
 		var merged2 := overridden.resolved()
 		_check(merged2.max_hp == 300 and merged2.armor == 0, "显式字段应覆盖模板值")
 
-	# 阶段 6 提交 2（v0.18.0）+ 阶段 8 提交 3：科技树配置化——四类分页、31 项、加成汇总来自配置。
+	# 阶段 6 提交 2（v0.18.0）+ 阶段 8 提交 3 / 16：科技树配置化——四类分页、32 项、加成汇总来自配置。
 	var tech_items := TechTree.get_items()
-	_check(tech_items.size() == 31, "科技树配置应含 31 项（军略15/后勤5/工事3/将略8）")
+	_check(tech_items.size() == 32, "科技树配置应含 32 项（军略15/后勤5/工事3/将略9，0.8.16 新增「军府调度」）")
 	_check(TechTree.get_categories() == ["军略", "后勤", "工事", "将略"], "科技树应为四类分页（军略/后勤/工事/将略）")
 	_check(TechTree.get_items_by_category("军略").size() == 15, "军略分类应含 15 项（职业强化）")
 	# 独立临时档案验证加成，避免解锁污染共享存档（后续伤害断言不受 +6% 影响）。
@@ -352,6 +805,8 @@ func _run() -> void:
 	var tower_manager := main.get_node("TowerManager")
 	var guan_yu := load("res://resources/characters/guan_yu.tres") as CharacterData
 	var liu_bei := load("res://resources/characters/liu_bei.tres") as CharacterData
+	# 0.8.16.6：死亡渐隐 + 近战命中帧结算 + 关羽技能 3 连击 / 大招 XX（主场景就绪后跑）。
+	_test_combat_sync_0816(main)
 
 	# —— 拖拽建造（v0.33.3，唯一建造方式）——
 	# 落点优先取遗留槽位坐标（保持后续用例的塔位几何），不足时回退自由空地扫描。
@@ -433,6 +888,27 @@ func _run() -> void:
 			and build_manager._ghost.visible and build_manager._ghost.is_selected,
 			"拖拽时应显示带范围圈的武将虚影")
 		build_manager.cancel_drag()
+		# 拖拽光标 / 右键取消 / 战场准星（UI_LAYOUT §15，BUGS B-077·B-078·B-079）：Godot 按住左键期间
+		# 光标形状取「被按下控件链」（= 按下时的建造卡），指针下的拖拽覆盖层不参与——拖拽光标必须由
+		# 卡片承担；拖拽中右键同样只到卡片，取消须走卡片信号。
+		GameManager.gold = 9999
+		var ui := main.get_node("UI")
+		var card: Control = ui._character_cards["guan_yu"]["panel"]
+		_check(card.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND,
+			"建造卡默认应为悬停手型（UI_LAYOUT §15 卡片行）")
+		ui._on_card_gui_input(_mouse_button(MOUSE_BUTTON_LEFT, true), "guan_yu")
+		_check(build_manager.is_dragging(), "建造卡按下应开始拖拽（UI 卡片路径）")
+		_check(card.mouse_default_cursor_shape == Control.CURSOR_DRAG,
+			"拖拽期建造卡应切拖拽光标 hand_closed（B-077）")
+		ui._on_card_gui_input(_mouse_button(MOUSE_BUTTON_RIGHT, true), "guan_yu")
+		_check(not build_manager.is_dragging(), "拖拽中右键应取消拖拽（B-078）")
+		_check(card.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND,
+			"取消后建造卡光标应复位悬停手型")
+		var field_cursor := main.get_node_or_null("FieldCursorLayer/FieldCursor") as Control
+		_check(field_cursor != null and field_cursor.mouse_filter == Control.MOUSE_FILTER_PASS
+			and field_cursor.mouse_default_cursor_shape == Control.CURSOR_CROSS
+			and field_cursor.size.x >= 1280.0 and field_cursor.size.y >= 720.0,
+			"战场 FieldCursor 应铺满且为准星光标（B-079：Node2D 父级不传导锚点）")
 	var enemy_manager := main.get_node("EnemyManager")
 	# 程序化构造 EnemyData，替代旧的硬编码 spawn_enemy("boss")。
 	var boss_data := EnemyData.new()
@@ -476,6 +952,8 @@ func _run() -> void:
 	first_tower.target = boss
 	first_tower.attack()
 	_check(first_tower.is_swinging(), "骑兵攻击应触发挥击动作（无弹道）")
+	# 命中帧结算（0.8.16.6）：伤害延迟到命中帧，无进程测试环境手动结算。
+	first_tower.flush_pending_combat_steps()
 	_check(boss.current_hp < 800, "骑兵近战攻击应对 Boss 造成伤害")
 	if is_instance_valid(boss):
 		boss.die(false)
@@ -582,6 +1060,7 @@ func _run() -> void:
 				melee_target.global_position = spear_tower.global_position + Vector2(60, 0)
 				spear_tower.target = melee_target
 				spear_tower.attack()
+				spear_tower.flush_pending_combat_steps()  # 命中帧结算（0.8.16.6）
 				# 刘备塔在场：仁德光环使其他塔伤害 +8%（v0.11.2 特性生效）；
 				# 轻骑重标甲 2（NUMBERS 10.12 / 0.8.13.0）：物理减伤 2/52。
 				var benevolence := 1.08
@@ -607,16 +1086,26 @@ func _run() -> void:
 		# 生效，隔离后续用例。
 		await get_tree().process_frame
 
-	# 局内军需（阶段 8 提交 1，NUMBERS.md 10.9）：四件资源齐全、效果数值已配置。
+	# 局内军需（✅ 0.8.16 重构 / NUMBERS.md 10.15）：6 件资源齐全、逐级（L1~L3）数值已配置。
 	var supply_repair := load("res://resources/battle_supplies/repair.tres") as BattleSupplyData
 	var supply_fire := load("res://resources/battle_supplies/fire_attack.tres") as BattleSupplyData
 	var supply_drum := load("res://resources/battle_supplies/war_drum.tres") as BattleSupplyData
 	var supply_slow := load("res://resources/battle_supplies/slow_down.tres") as BattleSupplyData
-	_check(supply_repair != null and supply_fire != null and supply_drum != null and supply_slow != null, "四件军需资源应可加载")
-	if supply_repair != null and supply_fire != null and supply_drum != null and supply_slow != null:
-		_check(supply_repair.is_valid() and supply_fire.is_valid() and supply_drum.is_valid() and supply_slow.is_valid(), "军需资源配置应有效")
-		_check(supply_repair.heal_amount == 10 and supply_fire.burn_dps > 0 and supply_drum.attack_speed_bonus > 0.0
-			and supply_slow.slow_factor < 1.0, "军需效果数值应已配置")
+	var supply_stone := load("res://resources/battle_supplies/stone_volley.tres") as BattleSupplyData
+	var supply_rage := load("res://resources/battle_supplies/reward_army.tres") as BattleSupplyData
+	_check(supply_repair != null and supply_fire != null and supply_drum != null
+		and supply_slow != null and supply_stone != null and supply_rage != null, "六件军需资源应可加载")
+	if supply_repair != null and supply_fire != null and supply_drum != null \
+			and supply_slow != null and supply_stone != null and supply_rage != null:
+		_check(supply_repair.is_valid() and supply_fire.is_valid() and supply_drum.is_valid()
+			and supply_slow.is_valid() and supply_stone.is_valid() and supply_rage.is_valid(),
+			"军需资源配置应有效")
+		_check(supply_repair.heal_at(1) == 10 and supply_repair.heal_at(3) == 14
+			and supply_fire.instant_magic_at(1) == 50 and supply_fire.burn_dps_at(3) == 40
+			and is_equal_approx(supply_drum.attack_speed_bonus_at(1), 0.30)
+			and is_equal_approx(supply_slow.slow_factor_at(3), 0.45)
+			and supply_stone.instant_physical_at(3) == 110 and supply_rage.rage_gain_at(2) == 28,
+			"军需逐级效果数值应已配置（NUMBERS 10.15）")
 	# 灼烧（火攻）：每秒 burn_dps 持续扣血，25/s × 3s = 75。
 	var burn_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
 	_check(burn_target != null, "灼烧用例应能生成敌人")
@@ -629,6 +1118,73 @@ func _run() -> void:
 		var burn_dealt := burn_target.max_hp - burn_target.current_hp
 		_check(abs(burn_dealt - 75) <= 1, "灼烧 3 秒应造成约 75 点伤害（实际 %d）" % burn_dealt)
 		burn_target.die(false)
+
+	# 军功上报链路（✅ 0.8.16 / NUMBERS 10.15）：击杀 → GameManager._report_merit → 战局，含难度倍率。
+	var merit_session := BattleSession.create("smoke_merit_stage", ["guan_yu"])
+	GameManager.set_battle_session(merit_session)
+	GameFlow.selected_difficulty = Difficulty.NORMAL
+	var merit_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	_check(merit_enemy != null, "军功用例应能生成敌人")
+	if merit_enemy != null:
+		merit_enemy.take_damage(9999, "guan_yu")
+		_check(merit_session.get_pending_merit() == 1, "击杀步卒应上报 1 军功（标准 ×1.0）")
+	GameFlow.selected_difficulty = Difficulty.HARD
+	var hard_merit_session := BattleSession.create("smoke_merit_hard", ["guan_yu"])
+	GameManager.set_battle_session(hard_merit_session)
+	for _merit_index in range(2):
+		var hard_merit_enemy := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if hard_merit_enemy != null:
+			hard_merit_enemy.take_damage(9999, "guan_yu")
+	_check(hard_merit_session.get_pending_merit() == 3,
+		"困难击杀 2 名步卒应累计 roundi(1.5 × 2) = 3（精确累计，逐笔取整会得 4）")
+	GameFlow.selected_difficulty = Difficulty.NORMAL
+	GameManager.set_battle_session(null)
+
+	# 掷石齐射（✅ 0.8.16 / STATS_PIPELINE v0.7）：军需独立来源物理直伤，按护甲结算、不经塔任何桶。
+	if supply_stone != null:
+		var strike_target := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+		if strike_target != null:
+			strike_target.set_process(false)
+			var strike_hp_before := strike_target.current_hp
+			main._apply_battle_supply(supply_stone, 1)
+			_check(strike_hp_before - strike_target.current_hp == 60,
+				"掷石齐射 L1 应对 0 甲目标造成 60 物理伤害（实为 %d）" % (strike_hp_before - strike_target.current_hp))
+			strike_target.die(false)
+		var armored_data := load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData
+		var armored_target := enemy_manager.spawn_enemy_from_data(armored_data) as Enemy
+		if armored_target != null:
+			armored_target.set_process(false)
+			var armored_hp_before := armored_target.current_hp
+			main._apply_battle_supply(supply_stone, 1)
+			_check(armored_hp_before - armored_target.current_hp == 52,
+				"掷石齐射应按护甲结算（8 甲：60 ×(1 − 8/58) ≈ 52，实为 %d）"
+					% (armored_hp_before - armored_target.current_hp))
+			armored_target.die(false)
+	# 犒军（✅ 0.8.16 / STATS_PIPELINE v0.7）：直接加怒固定值——不吃科技 rage_gain_pct、不吃月幕倍率。
+	if supply_rage != null and tower_manager.get_child_count() > 0:
+		var rage_tower := tower_manager.get_child(0) as Tower
+		if rage_tower != null:
+			rage_tower.rage = 0.0
+			rage_tower._tech_rage_gain_pct = 0.5
+			main._apply_battle_supply(supply_rage, 1)
+			_check(is_equal_approx(rage_tower.rage, 20.0),
+				"犒军 L1 应直接 +20 怒气（不吃科技怒气%% 与月幕倍率，实为 %.1f）" % rage_tower.rage)
+			rage_tower._tech_rage_gain_pct = 0.0
+			rage_tower.rage = 0.0
+	# 满生命禁修整（NUMBERS 10.15 边界规则）：满血使用被拒、次数不消耗；非满血正常生效。
+	if supply_repair != null:
+		main._supply_purchased["repair"] = 1
+		GameManager.lives = GameManager.starting_lives
+		var full_lives := GameManager.lives
+		main._use_battle_supply("repair")
+		_check(GameManager.lives == full_lives and main._supply_uses_left("repair") == 1,
+			"满生命时修整应被拒绝（次数不消耗）")
+		var wounded_lives := maxi(GameManager.starting_lives - 12, 1)
+		GameManager.lives = wounded_lives
+		main._use_battle_supply("repair")
+		_check(GameManager.lives == wounded_lives + 10, "非满生命时修整应 +10 基地生命")
+		main._supply_purchased.erase("repair")
+		GameManager.lives = GameManager.starting_lives
 
 	# 等级曲线（GDD modules/NUMBERS.md 10.1）
 	_check(LevelCurve.exp_total_for_level(10) == 1440, "10 级累计经验应为 1440")
@@ -1457,6 +2013,7 @@ func _run() -> void:
 		rage_target.global_position = rage_tower.global_position + Vector2(120, 0)
 		rage_tower.target = rage_target
 		rage_tower.attack()
+		rage_tower.flush_pending_combat_steps()  # 命中帧结算（0.8.16.6）：怒气在命中帧积攒
 		_check(is_equal_approx(rage_tower.rage, 12.0), "命中积怒应为 4 + 面板伤害×0.1（武生 +25% → 80；怒气按打甲前口径，甲值不减怒）")
 		rage_tower.rage = 100.0
 		var ult_target := enemy_manager.spawn_enemy_from_data(load("res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres") as EnemyData) as Enemy
@@ -1464,6 +2021,7 @@ func _run() -> void:
 		ult_target.global_position = rage_tower.global_position + Vector2(120, 0)
 		rage_tower.target = ult_target
 		_check(rage_tower._try_cast_ultimate(), "满怒应能释放大招（突击斩杀）")
+		rage_tower.flush_pending_combat_steps()  # 大招命中帧（spine XX @0.267s，0.8.16.6）
 		_check(ult_target.current_hp == 300 - 240, "斩杀应造成 3×普攻并含武生特性（240）")
 	# ===== v0.15.0 技能注册表与演出测试（GDD modules/BEHAVIORS.md B.3.5） =====
 	# 职业技能显示名查询（注册表完整性由下方 v0.28.0 断言覆盖：每职业 1 技能共 6 个）。
@@ -1512,6 +2070,7 @@ func _run() -> void:
 		charge_tower.target = charge_target
 		charge_tower.rage = 100.0
 		_check(charge_tower._try_cast_ultimate(), "满怒大招应能释放")
+		charge_tower.flush_pending_combat_steps()  # 击杀返怒在命中帧结算（0.8.16.6）
 		_check(is_equal_approx(charge_tower.rage, 50.0), "大招击杀应返怒 50（先清怒再返还）")
 		charge_tower.battle_rank = 5
 		charge_tower.rage = 100.0
@@ -1520,6 +2079,7 @@ func _run() -> void:
 		charge_target_2.global_position = charge_tower.global_position + Vector2(120, 0)
 		charge_tower.target = charge_target_2
 		_check(charge_tower._try_cast_ultimate(), "5 级满怒大招应能释放")
+		charge_tower.flush_pending_combat_steps()  # 击杀返怒在命中帧结算（0.8.16.6）
 		_check(is_equal_approx(charge_tower.rage, 55.0), "5 级 charge 击杀返怒应为 55")
 		charge_tower.queue_free()
 	# siege（皇甫嵩·霹雳车）：对精英/Boss 伤害 +10% × s。
@@ -2114,6 +2674,7 @@ func _run() -> void:
 		green_kill.current_hp = green_kill.max_hp
 		green_tower.target = green_kill
 		_check(green_tower.cast_character_skill(), "青龙偃月应能释放")
+		green_tower.flush_pending_combat_steps()  # 3 连击逐拍命中帧（0.8.16.6）
 		_check(is_equal_approx(green_tower.get_character_skill_cooldown_left(), 13.0),
 			"青龙偃月击杀应返 5s 冷却（18-5=13）")
 		var green_tank := enemy_manager.spawn_enemy_from_data(skill_tank) as Enemy
@@ -2123,6 +2684,7 @@ func _run() -> void:
 		green_tower.refund_character_skill_cooldown(999.0)
 		var green_before := green_tank.current_hp
 		_check(green_tower.cast_character_skill(), "青龙偃月应能再次释放")
+		green_tower.flush_pending_combat_steps()  # 3 连击逐拍命中帧（0.8.16.6）
 		_check(green_before - green_tank.current_hp == int(round(green_tower.damage * 2.0)) * 3,
 			"青龙偃月应造成 3 段 × 2.0× 真实伤害（不分摊）")
 		green_tank.queue_free()
@@ -2330,7 +2892,7 @@ func _run() -> void:
 		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
 
 	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 5, "经验池重构后存档 schema 应为 v5（exp_pool + 练兵令清理；v4 = 碎片清理 + 双槽迁移）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "存档 schema 应为 v6（0.8.16 军功 + 军需；v5 = 经验池 / 练兵令清理，v4 = 碎片清理 + 双槽迁移）")
 	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
 	var c14_exclusive_count := 0
 	var c14_optional: Array[RelicData] = []

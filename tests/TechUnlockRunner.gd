@@ -81,6 +81,29 @@ func _run() -> void:
 	_check(unlock_btn != null and unlock_btn.disabled, "解锁后按钮应禁用")
 	var bottom_label := node_btn.get_node_or_null("Content/BottomLabel") as Label
 	_check(bottom_label != null and bottom_label.text == "✓", "已解锁节点底部应显示 ✓")
+
+	# ③ 稀疏层列对齐（v0.20.51 / B-070）：将略 tier3「军府调度」必须与前置「官商合作」同列、
+	#    且不在首列；军略 tier3「百战精锐」仍在首列（终极层虚线提示条口径不变）。
+	tech._set_category("将略")
+	for i in range(3):
+		await get_tree().process_frame
+	var supply_2 := tech._node_buttons.get("strat_supply_2") as Button
+	var supply_3 := tech._node_buttons.get("strat_supply_3") as Button
+	var first_col := tech._node_buttons.get("strat_rage_1") as Button
+	_check(supply_2 != null and supply_3 != null and first_col != null, "将略节点按钮应齐备（含军府调度）")
+	if supply_2 != null and supply_3 != null and first_col != null:
+		_check(is_equal_approx(supply_3.global_position.x, supply_2.global_position.x),
+			"军府调度应与前置「官商合作」同列（x %.1f vs %.1f）" % [supply_3.global_position.x, supply_2.global_position.x])
+		_check(absf(supply_3.global_position.x - first_col.global_position.x) > 1.0,
+			"军府调度不应落在首列（x %.1f vs %.1f）" % [supply_3.global_position.x, first_col.global_position.x])
+	tech._set_category("军略")
+	for i in range(3):
+		await get_tree().process_frame
+	var mil_1 := tech._node_buttons.get("mil_dmg_1") as Button
+	var mil_3 := tech._node_buttons.get("mil_dmg_3") as Button
+	if mil_1 != null and mil_3 != null:
+		_check(is_equal_approx(mil_3.global_position.x, mil_1.global_position.x),
+			"军略「百战精锐」应仍在首列（与精兵操练同列）")
 	_finish()
 
 

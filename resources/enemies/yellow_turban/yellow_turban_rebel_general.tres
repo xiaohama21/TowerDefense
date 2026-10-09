@@ -14,6 +14,7 @@ armor = 18
 damage_to_base = 8
 currency_reward = 80
 kill_xp = 120
+merit_reward = 25
 special_behavior_id = &"summon_guard"
 extra_behavior_ids = [&"healer_aura", &"seal_domain"]
 special_params = {

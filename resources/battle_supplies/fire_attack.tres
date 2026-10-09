@@ -6,9 +6,9 @@
 script = ExtResource("1_supply")
 supply_id = &"fire_attack"
 display_name = "火攻"
-description = "引燃全场敌军：立即造成 50 点魔法伤害并灼烧 3 秒（每秒 25，魔法）。"
-cost = 80
-max_uses = 1
-instant_damage = 50
-burn_dps = 25
-effect_duration = 3.0
+description = "引燃全场敌军：立即魔法伤害并附加灼烧（对 Boss 有抗性折减）。"
+level_costs = [80, 75, 70]
+level_max_uses = [1, 1, 1]
+level_instant_magic = [50, 65, 80]
+level_burn_dps = [25, 32, 40]
+level_duration = [3.0, 3.0, 3.0]

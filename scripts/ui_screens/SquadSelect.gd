@@ -99,6 +99,8 @@ var _relic_row: HBoxContainer
 var _power_groups_box: VBoxContainer
 
 var _confirm_popup: Control
+## 军需目录缓存（✅ 0.8.16：右栏「军需带」只读展示所选军需）。
+var _supply_cache: Dictionary = {}
 var _relic_tooltip: PanelContainer
 var _relic_tooltip_box: VBoxContainer
 
@@ -761,7 +763,7 @@ func _build_power_panel() -> Panel:
 	box.add_child(groups_scroll)
 
 	var note := Label.new()
-	note.text = "仅计入已解锁科技 / 已激活羁绊 / 已选带遗物；同类效果合并累加。"
+	note.text = "仅计入已解锁科技 / 已激活羁绊 / 已选带遗物与军需；同类效果合并累加。"
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.add_theme_font_size_override("font_size", 10)
 	note.add_theme_color_override("font_color", Color("#a8bccb"))
@@ -1115,7 +1117,8 @@ func _refresh_card_texts() -> void:
 ## 口径（UI_LAYOUT §7，v0.37.20）：不做总加成折算，三组竖排明细、每行效果名 + 数值——
 ## 科技 = 已解锁条目按效果合并累加（职业限定项仅在该职业出场时列出；全局伤害 / 经济与
 ## 机制类一并列出）；羁绊 = 每条已激活羁绊一行（同队攻击 %）；遗物 = 每件已选带一行
-## （效果摘要，攻速按 (1/interval−1) 折算为 +N%）。空态组内灰字：未解锁 / 未激活 / 未选带。
+## （效果摘要，攻速按 (1/interval−1) 折算为 +N%）；军需带 = 每件已选带一行（名称 + L 等级 +
+## 摘要，✅ 0.8.16 只读展示——选带入口在大厅「军需处」）。空态组内灰字：未解锁 / 未激活 / 未选带。
 func _refresh_power_panel() -> void:
 	if _power_groups_box == null:
 		return
@@ -1197,6 +1200,50 @@ func _refresh_power_panel() -> void:
 		relic_rows += 1
 	if relic_rows == 0:
 		relic_body.add_child(_power_entry("未选带遗物", "—", true))
+
+	# ④ 军需带（✅ 0.8.16 / UI_LAYOUT §7·§16）：每件已选带一行「名称 L级 + 摘要」，**只读**
+	# （选带入口在大厅「军需处」）；空态灰字。军需槽位与解锁口径见 NUMBERS 10.15。
+	var supply_section := _power_section(Color("#2f8f6f"), "军需带")
+	var supply_body := supply_section["body"] as VBoxContainer
+	_power_groups_box.add_child(supply_section["section"] as Control)
+	var supply_rows := 0
+	if profile != null:
+		for supply_value in profile.get_supply_loadout():
+			var supply_id := str(supply_value)
+			var supply := _find_supply_data(supply_id)
+			if supply == null:
+				continue
+			var supply_level := maxi(profile.get_supply_level(supply_id), 1)
+			supply_body.add_child(_power_entry("%s L%d" % [supply.display_name, supply_level],
+				_supply_brief(supply, supply_level)))
+			supply_rows += 1
+	if supply_rows == 0:
+		supply_body.add_child(_power_entry("未选带军需", "—", true))
+
+
+## 军需目录查表（懒加载缓存，PCK 兼容；已选带件 ≤ 槽位上限，逐次 load 目录无谓）。
+func _find_supply_data(supply_id: String) -> BattleSupplyData:
+	if _supply_cache.is_empty():
+		for supply in BattleSupplyData.load_catalog():
+			_supply_cache[str(supply.supply_id)] = supply
+	return _supply_cache.get(supply_id) as BattleSupplyData
+
+
+## 军需带行摘要（一行短口径，避免右栏 254px 被长摘要挤压）。
+func _supply_brief(supply: BattleSupplyData, level: int) -> String:
+	if supply.instant_physical_at(level) > 0:
+		return "%d 物理" % supply.instant_physical_at(level)
+	if supply.rage_gain_at(level) > 0:
+		return "怒气 +%d" % supply.rage_gain_at(level)
+	if supply.heal_at(level) > 0:
+		return "生命 +%d" % supply.heal_at(level)
+	if supply.burn_dps_at(level) > 0:
+		return "%d 魔法 + 灼烧" % supply.instant_magic_at(level)
+	if supply.attack_speed_bonus_at(level) > 0.0:
+		return "攻速 +%d%%" % roundi(supply.attack_speed_bonus_at(level) * 100.0)
+	if supply.slow_factor_at(level) < 1.0:
+		return "减速 %d%%" % roundi((1.0 - supply.slow_factor_at(level)) * 100.0)
+	return "—"
 
 
 ## 扁平科技条目（键 / 行名 / 数字格式）：已解锁且 >0 时追加一行并返回 1，否则 0。

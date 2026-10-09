@@ -6,6 +6,11 @@ extends Node
 ##   Godot --headless --scene res://tools/PackVerify.tscn
 ## 输出 PACK_VERIFY_OK / PACK_VERIFY_FAIL，退出码 0 / 1。
 
+## 关羽 spine 素材 / 运行时（ART_ASSETS §5.8；扩展文件在仓库根 bin/）。
+const SPINE_EXTENSION_PATH := "res://bin/spine_godot_extension.gdextension"
+## UI.gd 无 class_name，经 preload 取建造卡头像注册表。
+const UI_SCRIPT := preload("res://scripts/UI.gd")
+
 var failures: Array[String] = []
 var details: Array[String] = []
 
@@ -51,6 +56,7 @@ func _run() -> void:
 	_check("全量关卡/波次/敌人资源", _stages_integrity())
 	_check("羁绊/遗物/道具/科技/数值/模板资源", _misc_integrity())
 	_check("光标素材（Kenney Cursor Pack ×2 尺寸 + 热点落点）", _cursor_assets_integrity())
+	_check("关羽 spine 素材与运行时（ART_ASSETS §5.8）", _spine_assets_integrity())
 	print("PACK_VERIFY_%s" % ("OK" if failures.is_empty() else "FAIL"))
 	print("DETAILS:")
 	for line in details:
@@ -190,4 +196,30 @@ func _cursor_assets_integrity() -> bool:
 			if alpha < 0.8:
 				missing.append("%s hotspot(%d,%d) alpha=%.2f" % [path, int(hotspot.x), int(hotspot.y), alpha])
 	details.append("光标素材 %d 枚 ×2 尺寸，缺失/异常=%s" % [CursorIcons.HOTSPOT_32.size(), str(missing)])
+	return missing.is_empty()
+
+
+## 关羽 spine 素材与运行时（ART_ASSETS §5·§5.8，程序 0.8.16.2 / BUGS B-076）：数据资源 / 图集 / 数据 /
+## 头像与 bin/ 运行时齐备（Windows 下 SpineSprite 类可注册）——防素材再被 .gitignore 排除、
+## 新克隆环境静默回退程序化绘制。非 Windows 平台仅校验文件在位（DLL 未供，回退为预期行为）。
+func _spine_assets_integrity() -> bool:
+	var missing: Array[String] = []
+	var base := "res://assets/characters/guan_yu/hero_guan_yu_a"
+	for path in [base + "-data-res.tres", base + ".atlas", base + ".spine-json", base + ".png"]:
+		if not FileAccess.file_exists(path):
+			missing.append("缺文件: " + path)
+	for character_id in Tower.SPINE_CHARACTERS:
+		var data_path: String = Tower.SPINE_CHARACTERS[character_id]
+		if not FileAccess.file_exists(data_path):
+			missing.append("注册表缺素材: " + data_path)
+	var avatars: Dictionary = UI_SCRIPT.CHARACTER_AVATAR_TEXTURES
+	for character_id in avatars:
+		var avatar_path: String = avatars[character_id]
+		if load(avatar_path) == null:
+			missing.append("头像载入失败: " + avatar_path)
+	if not FileAccess.file_exists(SPINE_EXTENSION_PATH):
+		missing.append("缺运行时: " + SPINE_EXTENSION_PATH)
+	elif OS.get_name() == "Windows" and not ClassDB.class_exists(&"SpineSprite"):
+		missing.append("SpineSprite 类未注册（bin/ DLL 未加载）")
+	details.append("spine 素材：关羽 4 文件 + 注册表 %d 项 + 头像 %d 枚 + 运行时 %s；缺失=%s" % [Tower.SPINE_CHARACTERS.size(), avatars.size(), SPINE_EXTENSION_PATH, str(missing)])
 	return missing.is_empty()

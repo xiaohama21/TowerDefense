@@ -403,29 +403,51 @@ static func _cast_green_dragon(tower: Tower) -> bool:
 		return false
 	var segments := maxi(int(character_param(tower, &"char_green_dragon", "segments", 3.0)), 1)
 	var per_segment := int(round(tower.damage * character_param(tower, &"char_green_dragon", "segment_mult", 2.0)))
-	var kills := 0
-	var carry := 0
-	var struck: Array[Enemy] = []
-	var current: Enemy = target
-	for _i in range(segments):
-		if current == null or current.is_dead or not tower.is_target_valid(current):
-			current = _next_green_dragon_target(tower, struck)
-		if current == null:
-			break
-		var amount := per_segment + carry
-		var hp_before := current.current_hp
-		tower.deal_damage(current, amount, DamageTypes.TRUE)
-		carry = maxi(amount - (hp_before - current.current_hp), 0)
-		if not struck.has(current):
-			struck.append(current)
-		if current.is_dead:
-			kills += 1
-			current = null
-	tower.refund_character_skill_cooldown(character_param(tower, &"char_green_dragon", "kill_cd_refund", 5.0) * kills)
+	# 3 连击演出（0.8.16.6，用户拍板「青龙偃月改为普通 3 次、合理调整攻速」）：
+	# spine 时 Attack_A 连播 segments 次（加速）+ 程序化挥击弧同步；伤害按每拍命中帧逐段结算。
+	tower.begin_melee_flurry(segments)
+	var strike := {
+		"current_id": target.get_instance_id(),
+		"carry": 0,
+		"kills": 0,
+		"struck": [] as Array[Enemy],
+	}
+	for i in range(segments):
+		var is_last := i == segments - 1
+		tower.schedule_combat_step(
+			tower.flurry_hit_delay(i),
+			func() -> void: _green_dragon_segment(tower, strike, per_segment, is_last)
+		)
 	tower.spawn_float_text(get_character_skill_name(&"char_green_dragon"), Color(0.6, 0.95, 0.75))
 	tower.play_skill_effect(Color(0.6, 0.95, 0.75))
 	SfxLibrary.play(&"skill", -7.0)
 	return true
+
+
+## 青龙偃月单拍结算（0.8.16.6）：目标失效 / 已死 → 换「射程内未被打过、路径最靠前」者；
+## 该拍无目标则空过（后续拍仍可命中新入场敌人）；末拍收尾统一结清击杀冷却返还。
+static func _green_dragon_segment(tower: Tower, strike: Dictionary, per_segment: int, is_last: bool) -> void:
+	var struck: Array[Enemy] = strike["struck"]
+	# 实例 ID 而非对象引用：拍与拍之间目标被释放时不产生「已释放实例」赋值噪声。
+	var current := instance_from_id(int(strike["current_id"])) as Enemy
+	if current == null or not is_instance_valid(current) or current.is_dead or not tower.is_target_valid(current):
+		current = _next_green_dragon_target(tower, struck)
+	if current != null:
+		var amount := per_segment + int(strike["carry"])
+		var hp_before := current.current_hp
+		tower.deal_damage(current, amount, DamageTypes.TRUE)
+		strike["carry"] = maxi(amount - (hp_before - current.current_hp), 0)
+		if not struck.has(current):
+			struck.append(current)
+		if current.is_dead:
+			strike["kills"] = int(strike["kills"]) + 1
+			strike["current_id"] = 0
+		else:
+			strike["current_id"] = current.get_instance_id()
+	if is_last:
+		tower.refund_character_skill_cooldown(
+			character_param(tower, &"char_green_dragon", "kill_cd_refund", 5.0) * int(strike["kills"])
+		)
 
 
 ## 青龙偃月后续段目标：射程内未被打过、路径进度最高者（溢血转向）。

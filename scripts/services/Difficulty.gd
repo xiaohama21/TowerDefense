@@ -44,6 +44,11 @@ static func reward_mult(difficulty: int) -> float:
 	return float(_preset(difficulty).get("reward_mult", 1.0))
 
 
+## 军功倍率（✅ 0.8.16 / NUMBERS 10.15）：困难 ×1.5，与击杀经验 reward_mult ×1.6 分账。
+static func merit_mult(difficulty: int) -> float:
+	return float(_preset(difficulty).get("merit_mult", 1.0))
+
+
 ## 材料/科技点倍率。
 static func material_mult(difficulty: int) -> float:
 	return float(_preset(difficulty).get("material_mult", 1.0))

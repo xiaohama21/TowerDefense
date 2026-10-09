@@ -485,7 +485,8 @@ func _measure_ultimate_once(entry: Dictionary) -> int:
 		_drive_bullets(VIRTUAL_DELTA)
 		if not released and tower.rage < float(tower._max_rage) - 0.5:
 			released = true
-		if released and not _has_pending_bullets(tower):
+		# 0.8.16.6 命中帧结算：近战大招不再即时落地，须等延迟队列排空（否则单发实测读 0）。
+		if released and not _has_pending_bullets(tower) and not tower.has_pending_combat_steps():
 			break
 	return _group_damage(entry)
 

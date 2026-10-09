@@ -14,5 +14,6 @@ armor = 8
 damage_to_base = 2
 currency_reward = 25
 kill_xp = 25
+merit_reward = 3
 body_color = Color(0.72, 0.25, 0.18, 1)
 body_size = Vector2(46, 46)
