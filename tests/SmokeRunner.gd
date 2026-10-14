@@ -54,6 +54,18 @@ func _tower_at_cell(tower_manager: Node, cell: Vector2i) -> Tower:
 	return null
 
 
+## 波次旗帜用例辅助（B-093）：清掉场上敌人（含死亡渐隐节点），避免污染后续用例。
+func _clear_smoke_enemies() -> void:
+	for node in get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+		var enemy := node as Enemy
+		if enemy == null:
+			continue
+		if not enemy.is_dead:
+			enemy.take_damage(9999999)
+		if is_instance_valid(enemy) and not enemy.is_queued_for_deletion():
+			enemy.queue_free()
+
+
 ## 光标用例辅助（B-077·B-078）：拖拽建造走 UI 卡片按键路径，需合成鼠标按键事件。
 func _mouse_button(button: int, pressed: bool) -> InputEventMouseButton:
 	var event := InputEventMouseButton.new()
@@ -790,11 +802,22 @@ func _run() -> void:
 	var stage_data := load("res://resources/stages/chapter_01/ch01_s01.tres") as StageData
 	_check(stage_data != null, "默认关卡数据应可加载")
 
+	# B-092 回归：autoload 残留的上一局终局态（胜利/失败退出战斗场景）不得影响新关卡初始状态——
+	# 先故意写入残留态：修复前 _setup_wave_flag 早于 GameManager.reset 执行 → 旗帜误隐藏。
+	GameManager.current_wave = 99
+	GameManager.total_waves = 99
+	GameManager.lives = 0
+	GameManager.is_wave_active = true
+
 	var main := packed.instantiate()
 	add_child(main)
 	await get_tree().process_frame
 	await get_tree().process_frame
 
+	_check(main.wave_flag != null and main.wave_flag.visible,
+		"残留终局态下新关卡开局波次旗帜应可见（B-092）")
+	_check(GameManager.current_wave == 0 and GameManager.total_waves == stage_data.waves.size(),
+		"新关卡开局应重置波次计数（B-092）")
 	_check(GameManager.gold == stage_data.starting_currency, "初始金币应来自关卡配置（starting_currency）")
 	_check(GameManager.lives == stage_data.starting_lives, "初始生命应来自关卡配置（starting_lives）")
 	# v0.33.3：建造方式唯一化为拖拽——战场不再生成建造位 / 推荐位 / 预锁位。
@@ -1005,6 +1028,58 @@ func _run() -> void:
 	GameManager.reset_combo()
 	_check(GameManager.combo_count == 0 and GameManager.combo_tier == 0, "波次结束/重开应清零连击")
 
+	# —— 波次旗帜状态机（0.8.17.3 / B-093）——
+	# 规则：仅可开波期展示 → 点击开波立即隐藏 → 波次完成重现 → 自动接波开启后（首波之后）不再展示。
+	var flag_auto_saved := GameFlow.is_gameplay_flag_enabled("auto_next_wave")
+	GameFlow.set_gameplay_flag("auto_next_wave", false)
+	GameManager.reset(9999, 20, 3)
+	# 上一段波次用例的胜利结算暂停了树；本节依赖 WaveManager._process 判定波次完成，先恢复。
+	get_tree().paused = false
+	var flag_probe_data := EnemyData.new()
+	flag_probe_data.enemy_id = &"smoke_wave_flag_probe"
+	flag_probe_data.display_name = "波次旗帜桩"
+	flag_probe_data.max_hp = 100000
+	flag_probe_data.move_speed = 0.0
+	flag_probe_data.currency_reward = 0
+	var flag_spawn := EnemySpawnData.new()
+	flag_spawn.enemy = flag_probe_data
+	flag_spawn.count = 1
+	flag_spawn.spawn_interval = 0.0
+	var flag_wave := WaveData.new()
+	flag_wave.wave_id = &"smoke_wave_flag"
+	flag_wave.wave_number = 1
+	flag_wave.spawn_groups = [flag_spawn]
+	wave_manager.configure_waves([flag_wave, flag_wave, flag_wave])
+	GameManager.current_wave = 0
+	GameManager.is_wave_active = false
+	main._refresh_wave_flag()
+	_check(main.wave_flag.visible, "空闲期波次旗帜应可见（B-093）")
+	main._try_start_wave()
+	_check(not main.wave_flag.visible, "点击开波后波次旗帜应立即隐藏（B-093）")
+	_clear_smoke_enemies()
+	for _i in range(8):
+		await get_tree().process_frame
+	_check(GameManager.current_wave == 1 and not GameManager.is_wave_active, "旗帜用例：第一波应判定完成")
+	_check(main.wave_flag.visible, "波次完成后波次旗帜应重现（B-093）")
+	GameFlow.set_gameplay_flag("auto_next_wave", true)
+	main._try_start_wave()
+	_check(not main.wave_flag.visible, "自动接波开启后开波旗帜应隐藏（B-093）")
+	_clear_smoke_enemies()
+	for _i in range(8):
+		await get_tree().process_frame
+	_check(GameManager.current_wave == 2 and GameManager.is_wave_active,
+		"自动接波应自动开始下一波（B-093）")
+	_check(not main.wave_flag.visible, "自动接波接管后旗帜不应再展示（B-093）")
+	# 收尾：恢复自动开关、场上与波次状态（保持后续用例前置条件不变）。
+	GameFlow.set_gameplay_flag("auto_next_wave", flag_auto_saved)
+	GameManager.is_wave_active = false
+	GameManager.current_wave = 0
+	_clear_smoke_enemies()
+	wave_manager.configure_waves([wave])
+	GameManager.reset(9999, 20, stage_data.waves.size())
+	main._refresh_wave_flag()
+	get_tree().paused = false
+
 	# 局内升级/回收（GDD 5.4）：费用 = 造价×0.8×次数，返还 = 总投入×0.6（向上取整）。
 	var zhang_fei := load("res://resources/characters/zhang_fei.tres") as CharacterData
 	_check(zhang_fei != null and stage_data != null, "张飞与关卡数据应可加载")
@@ -1118,6 +1193,23 @@ func _run() -> void:
 		var burn_dealt := burn_target.max_hp - burn_target.current_hp
 		_check(abs(burn_dealt - 75) <= 1, "灼烧 3 秒应造成约 75 点伤害（实际 %d）" % burn_dealt)
 		burn_target.die(false)
+
+	# B-095 回归：灼烧到期必须清零 burn_dps 与累计余量（否则后续弱灼烧会继承历史强 dps）。
+	var burn_probe := enemy_manager.spawn_enemy_from_data(soldier) as Enemy
+	_check(burn_probe != null, "灼烧到期用例应能生成敌人")
+	if burn_probe != null:
+		burn_probe.set_process(false)
+		burn_probe.current_hp = burn_probe.max_hp
+		burn_probe.apply_burn(25, 0.1)
+		burn_probe._process(0.1)
+		_check(burn_probe.burn_dps == 0 and burn_probe._burn_time_left <= 0.0,
+			"灼烧到期后 burn_dps 应清零（B-095）")
+		var burn_probe_hp := burn_probe.current_hp
+		burn_probe.apply_burn(5, 3.0)
+		_check(burn_probe.burn_dps == 5, "到期后重新施加弱灼烧不应继承历史强 dps（B-095）")
+		burn_probe._process(1.0)
+		_check(burn_probe.current_hp == burn_probe_hp - 5, "弱灼烧应按新 dps 结算（B-095）")
+		burn_probe.die(false)
 
 	# 军功上报链路（✅ 0.8.16 / NUMBERS 10.15）：击杀 → GameManager._report_merit → 战局，含难度倍率。
 	var merit_session := BattleSession.create("smoke_merit_stage", ["guan_yu"])
@@ -1347,11 +1439,21 @@ func _run() -> void:
 			_check(c13_watch.find_target() == null, "未破隐的塔不应选中隐匿单位（find_target 过滤）")
 			_check(c13_watch.enemies_in_range().has(c13_probe),
 				"范围查询 enemies_in_range 应仍包含隐匿单位（范围盲压双路径）")
+			# B-096：青龙偃月换目标必须跳过隐匿单位（无破隐时）。
+			var c13_gd_struck: Array[Enemy] = []
+			_check(SkillRegistry._next_green_dragon_target(c13_watch, c13_gd_struck) == null,
+				"青龙偃月换目标应跳过隐匿单位（B-096）")
 			# 破隐来源 2：限时全图（诸葛亮·借东风）。
 			c13_watch.apply_stealth_reveal_buff("char_borrow_wind", 5.0)
 			_check(c13_watch.reveals_stealth(), "限时破隐 buff 应使塔持有破隐")
 			_check(c13_probe.is_visible_to(c13_watch), "持破隐的塔应可见隐匿单位")
 			_check(c13_watch.find_target() == c13_probe, "持破隐的塔应能选中隐匿单位")
+			# B-097：限时破隐改战斗时钟倒计时（暂停冻结），倒计时耗尽即失效、可再次施加。
+			c13_watch._process(6.0)
+			_check(not c13_watch.reveals_stealth(), "限时破隐超过时长后应失效（B-097）")
+			_check(not c13_probe.is_visible_to(c13_watch), "破隐失效后隐匿单位应恢复不可见（B-097）")
+			c13_watch.apply_stealth_reveal_buff("char_borrow_wind", 5.0)
+			_check(c13_watch.reveals_stealth(), "重新施加限时破隐应再次生效（B-097）")
 			c13_probe.refresh_stealth_reveal()
 			_check(c13_probe.is_revealed(), "进入破隐覆盖后隐匿单位应现形")
 			c13_watch.queue_free()
@@ -1463,7 +1565,10 @@ func _run() -> void:
 			c132_aura_expire.set_process(false)
 			c132_aura_expire.apply_armor_aura_bonus(6, 0.05)
 			_check(c132_aura_expire.get_effective_armor() == 14, "短窗口光环应先生效")
-			await get_tree().create_timer(0.12).timeout
+			# B-097：窗口按战斗时钟倒计时——桩已停 process，手动 tick 两拍跨过 0.05s 窗口。
+			c132_aura_expire._process(0.03)
+			_check(c132_aura_expire.get_armor_aura_bonus() == 6, "窗口未到期应仍生效（B-097）")
+			c132_aura_expire._process(0.03)
 			_check(c132_aura_expire.get_armor_aura_bonus() == 0 and c132_aura_expire.get_effective_armor() == 8,
 				"光环窗口过期应恢复基础甲（施法者阵亡 / 离开半径无需额外清理）")
 			c132_aura_expire.queue_free()
@@ -2891,6 +2996,24 @@ func _run() -> void:
 	else:
 		_check(wheel_profile.tech_points == wheel_amount_before + int(wheel_roll.get("amount", 0)), "科技点入账数量应正确")
 
+	# B-098 回归：转盘失败 / 无可抽奖励只提示不锁定（玩家可重试）；仅成功入账才锁定单次。
+	var wheel_ui := main.get_node("UI")
+	var wheel_button := wheel_ui.get("_result_wheel_button") as Button
+	var wheel_label := wheel_ui.get("_result_wheel_label") as Label
+	_check(wheel_button != null and wheel_label != null, "转盘控件应存在")
+	if wheel_button != null and wheel_label != null:
+		wheel_ui.show_result_wheel_failure("转盘入账失败，请重试")
+		_check(not bool(wheel_ui.get("_wheel_rolled")) and not wheel_button.disabled,
+			"失败提示不应锁定转盘按钮（B-098）")
+		_check(wheel_label.visible and wheel_label.text == "转盘入账失败，请重试",
+			"失败提示应显示在转盘结果标签（B-098）")
+		wheel_ui.show_result_wheel_result("转盘奖励：测试")
+		_check(bool(wheel_ui.get("_wheel_rolled")) and wheel_button.disabled,
+			"成功入账后转盘应锁定单次（B-098）")
+		wheel_ui.hide_result()
+		wheel_button.disabled = false
+		wheel_ui.set("_wheel_rolled", false)
+
 	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
 	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "存档 schema 应为 v6（0.8.16 军功 + 军需；v5 = 经验池 / 练兵令清理，v4 = 碎片清理 + 双槽迁移）")
 	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
@@ -3041,6 +3164,12 @@ func _run() -> void:
 		_check(is_equal_approx(star_tower.range_radius, 190.0 * 1.12),
 			"诸葛亮观星射程 +12% 应生效（trait_id 先于属性计算就位，B-022）")
 		star_tower.queue_free()
+
+	# B-094 回归：reset 的同名参数不得遮蔽成员 starting_lives（死战阈值 / 修整满血 / 低血红条依赖成员值）。
+	var lives_probe := GameManager.starting_lives
+	GameManager.reset(100, 35, 3)
+	_check(GameManager.starting_lives == 35, "GameManager.reset 应写入 starting_lives 成员（B-094）")
+	GameManager.starting_lives = lives_probe
 
 	_finish()
 

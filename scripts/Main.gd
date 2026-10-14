@@ -92,6 +92,10 @@ func _ready():
 	battle_session = BattleSession.new(stage_data.stage_id)
 	GameManager.set_battle_session(battle_session)
 	wave_manager.configure_waves(stage_data.waves)
+	# 初始旗帜状态必须以本关 reset 后的数据为准（B-092）：_setup_wave_flag 早于 reset 执行，
+	# 读到的是 autoload 残留的上一局终局态（胜利/失败退出战斗场景后 current_wave 等未清），
+	# 表现为「除第一关外，地图上的波次旗帜初始不可见」。
+	_refresh_wave_flag()
 
 	# Keep autoload signal connections idempotent when the scene is reloaded.
 	_disconnect_game_signals()
@@ -201,8 +205,8 @@ func _apply_stage_layout() -> void:
 	base_marker.position = _first_in_map_point(stage_data.path_points, false)
 
 
-## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v2）：点击开波（非开波期金色光晕就绪）；
-## Space 同效（_unhandled_key_input）；自动开波开启后无需点击。
+## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v2）：点击开波（可开波期金色光晕就绪）；
+## Space 同效（_unhandled_key_input）；自动开波开启后（首波之后）无需点击、旗帜不再展示（B-093）。
 func _setup_wave_flag() -> void:
 	if wave_flag != null and is_instance_valid(wave_flag):
 		wave_flag.queue_free()
@@ -218,13 +222,16 @@ func _setup_wave_flag() -> void:
 	_refresh_wave_flag()
 
 
-## 旗帜三态刷新（开波前可点 / 波次进行中变暗 / 全波完成隐藏）：开波 · 波次完成 · 结算时调用。
+## 旗帜可见性刷新（0.8.17.3 / B-093：仅可点击开波时可见）：
+## 可开波 = 空闲且未到总波数且基地未陷落；自动接波开启后（current_wave > 0）抑制展示。
+## 开波 · 波次完成 · 结算时调用。
 func _refresh_wave_flag() -> void:
 	if wave_flag == null or not is_instance_valid(wave_flag):
 		return
 	var finished: bool = GameManager.current_wave >= GameManager.total_waves
 	var can_start: bool = not GameManager.is_wave_active and not finished and GameManager.lives > 0
-	wave_flag.set_wave_state(can_start, finished)
+	var auto_chain: bool = GameManager.current_wave > 0 and GameFlow.is_gameplay_flag_enabled("auto_next_wave")
+	wave_flag.set_wave_state(can_start, finished, auto_chain)
 
 
 func _first_in_map_road_cell(cells: Array[Vector2i], from_start: bool) -> Vector2i:
@@ -633,10 +640,10 @@ func _on_result_menu_pressed() -> void:
 func _on_result_wheel_pressed() -> void:
 	var result := SettlementWheel.roll(ProfileStore.get_profile())
 	if result.is_empty():
-		ui.show_result_wheel_result("转盘暂无可抽奖励")
+		ui.show_result_wheel_failure("转盘暂无可抽奖励")
 		return
 	if not ProfileStore.commit_settlement_reward(result):
-		ui.show_result_wheel_result("转盘入账失败，请重试")
+		ui.show_result_wheel_failure("转盘入账失败，请重试")
 		return
 	SfxLibrary.play(&"skill", -6.0)
 	ui.show_result_wheel_result("转盘奖励：%s" % _format_settlement_reward(result))

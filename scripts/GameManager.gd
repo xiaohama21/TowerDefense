@@ -258,7 +258,9 @@ func _process(delta: float) -> void:
 func reset(starting_gold: int = 100, starting_lives: int = 20, wave_count: int = 5):
 	gold = maxi(starting_gold, 0)
 	lives = maxi(starting_lives, 0)
-	starting_lives = maxi(starting_lives, 0)
+	# B-094：参数与成员同名，必须显式写 self——否则写的是参数，成员恒 20，
+	# 科技 base_hp / 铁盾加成的起始生命只影响 lives 本身（周仓死战阈值 / 修整满血 / 低血红条错用 20）。
+	self.starting_lives = maxi(starting_lives, 0)
 	total_waves = maxi(wave_count, 1)
 	_wave_first_leak_used = false
 	current_wave = 0

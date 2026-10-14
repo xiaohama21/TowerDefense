@@ -18,6 +18,7 @@ func _ready() -> void:
 	_build_background()
 	_build_stage()
 	_build_footer()
+	_build_save_incompatible_banner()
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -206,6 +207,22 @@ func _make_spacer(height: float) -> Control:
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, height)
 	return spacer
+
+
+## 高版本存档只读保护提示（0.8.17.3 / B-099）：不加载/不写盘前先告知玩家「请升级游戏」。
+func _build_save_incompatible_banner() -> void:
+	if not ProfileStore.has_newer_save():
+		return
+	var banner := Label.new()
+	banner.name = "SaveIncompatibleBanner"
+	banner.text = "检测到更高版本的存档：为避免覆盖进度，本版本不会写入存档，请升级游戏。"
+	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.anchor_right = 1.0
+	banner.offset_top = 2.0
+	banner.offset_bottom = 24.0
+	_style_label(banner, 16, Color("#ffe1b0"), 1, Color("#5a2a00"), Vector2(0, 1), 2)
+	add_child(banner)
 
 
 # ---------- 底栏：版本 + 素材署名 ----------

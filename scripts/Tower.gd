@@ -169,7 +169,8 @@ var tremor_stun_cooldowns: Dictionary = {}
 ## 常驻光环伤害桶汇总（提交 7，增益档次 1）：刘备仁德 + 虎贲军旗加算后 clamp(AURA_DAMAGE_CAP)。
 var _aura_damage_bonus: float = 0.0
 ## 破隐（NUMBERS 10.16，✅ 0.8.13.1）：三来源聚合——固有特性 / 限时全图 buff / 舞娘 3 阶光环。
-var _stealth_reveal_until_ms: int = -1
+## 限时全图 buff 剩余秒数（B-097 改战斗时钟）：随 _process 递减，暂停时冻结。
+var _stealth_reveal_time_left: float = 0.0
 var _stealth_reveal_from_aura: bool = false
 var _aura_scan_tick: float = 0.0
 ## 上次光环刷新时间戳（ms）：finalize_damage 前惰性节流刷新，保证直接 queue_free
@@ -743,6 +744,9 @@ func _process(_delta: float) -> void:
 	# 已建塔保持自动模式，满怒见敌即放，表现为「没点击就释放/持续释放」。
 	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
 	_sync_quick_cast_area()
+	# 限时破隐倒计时（B-097）：真实时钟改战斗时钟——暂停（设置/结算）时不再走表。
+	if _stealth_reveal_time_left > 0.0:
+		_stealth_reveal_time_left = maxf(_stealth_reveal_time_left - _delta, 0.0)
 	# 术法压制标记呼吸动画（✅ 0.8.13.4 seal_domain）：仅被压制的塔每帧重绘。
 	if attack_speed_buff < 0.999:
 		queue_redraw()
@@ -1209,14 +1213,14 @@ func has_inherent_reveal() -> bool:
 func apply_stealth_reveal_buff(_source_id: String, duration: float) -> void:
 	if duration <= 0.0:
 		return
-	_stealth_reveal_until_ms = maxi(_stealth_reveal_until_ms, Time.get_ticks_msec() + int(round(duration * 1000.0)))
+	_stealth_reveal_time_left = maxf(_stealth_reveal_time_left, duration)
 
 
 ## 本塔当前是否持有破隐（索敌过滤唯一出口；NUMBERS 10.16）。
 func reveals_stealth() -> bool:
 	if has_inherent_reveal() or _stealth_reveal_from_aura:
 		return true
-	return _stealth_reveal_until_ms >= 0 and Time.get_ticks_msec() < _stealth_reveal_until_ms
+	return _stealth_reveal_time_left > 0.0
 
 
 ## 舞娘 3 阶破隐光环：自身为 3 阶舞娘，或位于任一 3 阶友方舞娘射程内。

@@ -457,6 +457,10 @@ static func _next_green_dragon_target(tower: Tower, struck: Array[Enemy]) -> Ene
 	for enemy in tower.enemies_in_range():
 		if enemy == null or enemy.is_dead or struck.has(enemy):
 			continue
+		# B-096：以单位为目标的攻击一律跳过隐匿（NUMBERS 10.16）——换目标与结算段同口径，
+		# 仅持有破隐（黄忠固有 / 借东风 / 舞娘光环）才可选隐匿单位。
+		if not enemy.is_visible_to(tower):
+			continue
 		if enemy.progress_ratio > best_progress:
 			best_progress = enemy.progress_ratio
 			best = enemy

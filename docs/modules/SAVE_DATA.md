@@ -8,6 +8,7 @@
 ## 8. 存档与数据模型
 
 - 存档文件：`user://profile.json`（主档）+ `.bak` 备份 + `.tmp` 原子写（`SaveManager` 已实现，损坏自动隔离并恢复备份）。
+- **高版本存档只读保护（✅ 0.8.17.3 / B-099）**：磁盘主档 / 备份 `schema_version` 高于当前游戏时进入**只读兼容**——不隔离、不备份回落、不写盘；内存返回新档并把 `last_load_source` 标为 `incompatible`，写盘入口（`save_profile` / `commit_*`）一律拒绝；主菜单顶部提示「检测到更高版本的存档…请升级游戏」（`has_newer_save()` 只读探测），玩家新版进度原样保留。
 - 存档结构（`PlayerProfile`）：
 
 | 字段 | 内容 |
@@ -29,4 +30,4 @@
 - **结算流程（已实现，禁止改动核心语义）**：`BattleSession`（会话内 pending：经验 / 掉落 / 解锁 / 信物 / **科技点** / 难度标记；✅ 0.8.15.0 起 + 经验池注入（`kill_xp_base` 累计 + 结算 `finalize_exp_pool_injection()`）；✅ 0.8.16.0 起 + 军功（击杀掉落累计、困难 ×1.5、失败不带出））→ 胜利 `mark_victory` → `PlayerProfile.apply_battle_session()`（写经验 / 掉落 / 解锁 / 关卡进度 / 科技点 / 难度通关记录；✅ 0.8.15.0 起一并写 `exp_pool`，✅ 0.8.16.0 起 + `military_merit`）→ `SaveManager.save_profile()`（原子写）；局内遗物**永久使用**（✅ v0.33.1：选带与结算均不消耗库存，v0.22.0“胜利扣库存各 1 件”作废，见 BUGS B-019）。
 - 失败/放弃：`mark_defeat` / `abandon` / `mark_discarded`，pending 数据清空，**不写入任何成长**。
 - **局内临时状态**：怒气、大招就绪、特性触发、局内塔升级等级（见 modules/STAGES.md 5.4）、**军需带**（局内购买 / 使用次数 / 未使用作废，✅ 0.8.16）等**只存在于本局**，不写入存档；存档只持久化等级经验、转职路径、信物、道具、军功与军需解锁 / 强化 / 选带、关卡进度。
-- **契约测试**：`tests/Stage0Runner.tscn` 覆盖存档事务（原子写、损坏恢复、非法结算拒绝）；改动本模块后必须重跑。
+- **契约测试**：`tests/Stage0Runner.tscn` 覆盖存档事务（原子写、损坏恢复、非法结算拒绝、**高版本只读保护**——主/备份字节不变、无隔离、来源 `incompatible`、写盘被拒，B-099）；改动本模块后必须重跑。

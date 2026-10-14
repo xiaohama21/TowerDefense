@@ -73,6 +73,7 @@ func _run() -> void:
 	_test_save_migration_v3_to_v4()
 	_test_save_migration_v4_to_v5()
 	_test_save_migration_v5_to_v6()
+	_test_save_version_too_new_protection()
 	_restore_profile_files()
 	_finish()
 
@@ -358,6 +359,51 @@ func _test_save_manager_corruption_fallback() -> void:
 		defeat_session.mark_defeat()
 		_check(not manager.commit_victory(defeat_session, commit_profile), "失败战局不可通过胜利接口提交")
 		_check(commit_profile.get_character_exp("commit_probe") == 41, "失败战局不应改变永久经验")
+
+
+func _test_save_version_too_new_protection() -> void:
+	# B-099：版本高于当前游戏的存档必须原样保护——不隔离、不回落、不写盘（只读兼容模式）。
+	if not ResourceLoader.exists(SAVE_MANAGER_PATH):
+		_check(false, "SaveManager.gd 不存在")
+		return
+	var script := load(SAVE_MANAGER_PATH) as Script
+	if script == null:
+		_check(false, "SaveManager.gd 无法加载")
+		return
+	var manager = script.new()
+	if manager == null or not manager.has_method("configure_paths"):
+		_check(false, "SaveManager 应可实例化并支持隔离存档槽")
+		return
+	manager.configure_paths(_profile_file, _profile_backup_file, _profile_temp_file)
+	var future := {
+		"schema_version": PlayerProfile.CURRENT_SCHEMA_VERSION + 1,
+		"characters": {}, "stage_progress": {}, "items": {}, "gacha_state": {},
+	}
+	var file := FileAccess.open(_profile_file, FileAccess.WRITE)
+	_check(file != null, "高版本存档用例应能写入桩档案")
+	if file == null:
+		return
+	file.store_string(JSON.stringify(future))
+	file.close()
+	var primary_before := _read_bytes(_profile_file)
+	var backup_before := _read_bytes(_profile_backup_file)
+	_check(not primary_before.is_empty(), "高版本存档桩应成功落盘")
+	_check(bool(manager.has_newer_save()), "has_newer_save 应识别更高版本存档（B-099）")
+
+	var loaded = manager.load_profile() if manager.has_method("load_profile") else null
+	_check(loaded != null, "高版本存档应返回可用（只读）内存档案")
+	_check(manager.last_load_source == "incompatible", "高版本存档加载来源应标记 incompatible（B-099）")
+	_check(String(manager.get("last_corrupt_path")) == "", "高版本存档不得被隔离（B-099）")
+	_check(manager.has_method("is_write_blocked") and bool(manager.is_write_blocked()),
+		"高版本存档应进入只读兼容并阻断写盘（B-099）")
+	_check(_read_bytes(_profile_file) == primary_before, "主档字节不得被改动（B-099）")
+	_check(_read_bytes(_profile_backup_file) == backup_before, "备份字节不得被改动（B-099）")
+	var save_blocked: bool = manager.save_profile(loaded) if manager.has_method("save_profile") else true
+	_check(not bool(save_blocked), "只读兼容应拒绝写盘（B-099）")
+	_check(_read_bytes(_profile_file) == primary_before, "写盘被拒后主档字节仍不得变化（B-099）")
+	# 清理桩文件；其余恢复由 _restore_profile_files() 快照兜底。
+	if FileAccess.file_exists(_profile_file):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(_profile_file))
 
 
 func _test_save_migration_v1_to_v2() -> void:

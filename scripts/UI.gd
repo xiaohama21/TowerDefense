@@ -1197,6 +1197,15 @@ func show_result_wheel_result(text: String) -> void:
 	_result_wheel_label.visible = true
 
 
+## 转盘失败 / 无可抽奖励（0.8.17.3 / B-098）：只提示、不锁定——玩家可直接重试；
+## 单次锁定仅由成功入账（show_result_wheel_result）触发。
+func show_result_wheel_failure(text: String) -> void:
+	if _wheel_rolled:
+		return
+	_result_wheel_label.text = text
+	_result_wheel_label.visible = true
+
+
 func hide_result() -> void:
 	_result_center.visible = false
 	_result_panel.visible = false
