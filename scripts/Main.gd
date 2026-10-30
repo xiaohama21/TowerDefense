@@ -9,8 +9,18 @@ const SUPPLY_PANEL_WIDTH := 908.0
 const SUPPLY_LIST_WIDTH := 476.0
 const SUPPLY_DETAIL_WIDTH := 372.0
 const SUPPLY_MASK_TOP := 80.0
+## 底栏军需槽常驻格数（0.8.17.0 / UI_LAYOUT §10 v2 概念稿）：2 格默认 + 第 3 格（科技「军府调度」
+## 解锁）——未解锁时仍占位显锁，让玩家看到科技收益。
+const SUPPLY_SLOT_SLOTS := 3
 ## 战场光标层高度（B-079）：HUD（UI 默认 layer 1）之下——HUD 控件悬停优先，战场空地由本层接管。
 const FIELD_CURSOR_LAYER: int = 0
+## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v0.20.41）：「开始第 N 波」按钮取消后唯一的
+## 开波入口（Space 同效）；脚本 = scripts/WaveFlag.gd。
+const WAVE_FLAG_SCRIPT := preload("res://scripts/WaveFlag.gd")
+## 局内金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：FX 层 = CanvasLayer 2（可暂停、低于军需弹窗 50），
+## headless 不创建（回归零差异）；脚本 = scripts/GoldFx.gd。
+const GOLD_FX_SCRIPT := preload("res://scripts/GoldFx.gd")
+const GOLD_FX_LAYER := 2
 
 @onready var enemy_manager = $EnemyManager
 @onready var tower_manager = $TowerManager
@@ -25,6 +35,8 @@ var battle_session: BattleSession
 var stage_data: StageData
 var _available_characters: Array[CharacterData] = []
 var _selected_tower: Tower = null
+## 出口波次旗帜（0.8.17.0）：位置 = 出怪点沿路径方向偏移，箭头指向出怪点。
+var wave_flag: Node2D = null
 ## 战斗内设置弹窗（v0.19.2）：打开时暂停，关闭后恢复。
 var _settings_popup: CanvasLayer = null
 var _was_paused_before_settings: bool = false
@@ -47,6 +59,10 @@ var _supply_pinned: bool = false
 var _supply_gold_label: Label = null
 ## 隐匿漏怪提示（✅ 0.8.13.1）：每局最多提示一次，引导补破隐来源。
 var _stealth_hint_shown: bool = false
+## 军需槽（0.8.17.0 / UI_LAYOUT §10 v2）：底栏槽位节点，常驻 3 格（未解锁第 3 格显锁）。
+var _supply_bar_slots: Array[Control] = []
+## 金币 FX 节点（✅ 0.8.17.1；headless = null，不创建任何 FX 节点）。
+var _gold_fx = null
 
 func _ready():
 	get_tree().paused = false
@@ -57,6 +73,7 @@ func _ready():
 		return
 
 	_apply_stage_layout()
+	_setup_wave_flag()
 	_setup_field_cursor()
 	_ensure_initial_profile()
 	_available_characters = _load_available_characters(ProfileStore.get_profile())
@@ -75,6 +92,10 @@ func _ready():
 	battle_session = BattleSession.new(stage_data.stage_id)
 	GameManager.set_battle_session(battle_session)
 	wave_manager.configure_waves(stage_data.waves)
+	# 初始旗帜状态必须以本关 reset 后的数据为准（B-092）：_setup_wave_flag 早于 reset 执行，
+	# 读到的是 autoload 残留的上一局终局态（胜利/失败退出战斗场景后 current_wave 等未清），
+	# 表现为「除第一关外，地图上的波次旗帜初始不可见」。
+	_refresh_wave_flag()
 
 	# Keep autoload signal connections idempotent when the scene is reloaded.
 	_disconnect_game_signals()
@@ -89,10 +110,7 @@ func _ready():
 	GameManager.enemy_leaked.connect(_on_enemy_leaked)
 
 	wave_manager.wave_completed.connect(_on_wave_completed)
-	ui.next_wave_pressed.connect(_on_next_wave_pressed)
-	ui.pause_pressed.connect(_on_pause_pressed)
-	ui.settings_pressed.connect(_on_settings_pressed)
-	ui.restart_pressed.connect(_on_restart_pressed)
+	ui.menu_action_requested.connect(_on_menu_action_requested)
 	ui.card_drag_began.connect(_on_card_drag_began)
 	ui.card_drag_released.connect(_on_card_drag_released)
 	ui.card_drag_cancelled.connect(_on_card_drag_cancelled)
@@ -100,22 +118,22 @@ func _ready():
 	ui.debug_clear_enemies_requested.connect(_on_debug_clear_enemies)
 	ui.tower_upgrade_requested.connect(_on_tower_upgrade_requested)
 	ui.tower_sell_requested.connect(_on_tower_sell_requested)
-	ui.battle_supply_pressed.connect(_on_battle_supply_pressed)
+	ui.supply_popup_requested.connect(_on_battle_supply_pressed)
 	ui.ultimate_cast_requested.connect(_on_ultimate_cast_requested)
 	ui.result_next_pressed.connect(_on_result_next_pressed)
 	ui.result_retry_pressed.connect(_on_result_retry_pressed)
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
 	ui.result_wheel_pressed.connect(_on_result_wheel_pressed)
-	ui.exit_pressed.connect(_on_exit_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
 	build_manager.drag_finished.connect(_on_drag_finished)
 	tower_manager.tower_created.connect(_on_tower_created)
 
 	ui.set_stage_name(stage_data.display_name)
-	ui.setup_character_bar(_available_characters)
+	ui.setup_character_bar(_available_characters, stage_data.squad_size)
 	_load_battle_supplies()
+	_setup_gold_fx()
 
-	ui.update_gold(GameManager.gold)
+	ui.update_gold(GameManager.gold, true)
 	ui.update_lives(GameManager.lives)
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
 	ui.show_status("按住顶部武将卡片拖到空地建造：松手放置 · 右键 / ESC 取消", 4.0)
@@ -185,6 +203,35 @@ func _apply_stage_layout() -> void:
 
 	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
 	base_marker.position = _first_in_map_point(stage_data.path_points, false)
+
+
+## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v2）：点击开波（可开波期金色光晕就绪）；
+## Space 同效（_unhandled_key_input）；自动开波开启后（首波之后）无需点击、旗帜不再展示（B-093）。
+func _setup_wave_flag() -> void:
+	if wave_flag != null and is_instance_valid(wave_flag):
+		wave_flag.queue_free()
+	wave_flag = WAVE_FLAG_SCRIPT.new()
+	wave_flag.name = "WaveFlag"
+	add_child(wave_flag)
+	var direction := Vector2.RIGHT
+	var points: Array[Vector2] = stage_data.path_points
+	if points.size() >= 2:
+		direction = (points[1] - points[0]).normalized()
+	wave_flag.configure(spawn_marker.position, direction)
+	wave_flag.start_requested.connect(_on_next_wave_pressed)
+	_refresh_wave_flag()
+
+
+## 旗帜可见性刷新（0.8.17.3 / B-093：仅可点击开波时可见）：
+## 可开波 = 空闲且未到总波数且基地未陷落；自动接波开启后（current_wave > 0）抑制展示。
+## 开波 · 波次完成 · 结算时调用。
+func _refresh_wave_flag() -> void:
+	if wave_flag == null or not is_instance_valid(wave_flag):
+		return
+	var finished: bool = GameManager.current_wave >= GameManager.total_waves
+	var can_start: bool = not GameManager.is_wave_active and not finished and GameManager.lives > 0
+	var auto_chain: bool = GameManager.current_wave > 0 and GameFlow.is_gameplay_flag_enabled("auto_next_wave")
+	wave_flag.set_wave_state(can_start, finished, auto_chain)
 
 
 func _first_in_map_road_cell(cells: Array[Vector2i], from_start: bool) -> Vector2i:
@@ -280,7 +327,7 @@ func _on_tower_quick_cast_requested(tower: Tower) -> void:
 	if tower.cast_ultimate_manual():
 		ui.show_status("%s 释放大招！" % tower.display_name, 1.0)
 		if tower == _selected_tower:
-			ui.show_tower_panel(tower, stage_data)
+			ui.show_tower_bar(tower, stage_data)
 	else:
 		ui.show_status("%s：范围内暂无目标" % tower.display_name)
 
@@ -292,10 +339,10 @@ func _on_tower_selection_changed(tower: Tower) -> void:
 		if _selected_tower != null and is_instance_valid(_selected_tower) and _selected_tower != tower:
 			_selected_tower.set_selected(false)
 		_selected_tower = tower
-		ui.show_tower_panel(tower, stage_data)
+		ui.show_tower_bar(tower, stage_data)
 	elif _selected_tower == tower:
 		_selected_tower = null
-		ui.hide_tower_panel()
+		ui.hide_tower_bar()
 
 
 func _on_tower_upgrade_requested() -> void:
@@ -303,7 +350,7 @@ func _on_tower_upgrade_requested() -> void:
 		return
 	if tower_manager.upgrade_tower(_selected_tower, stage_data):
 		ui.show_status("升阶成功")
-		ui.show_tower_panel(_selected_tower, stage_data)
+		ui.show_tower_bar(_selected_tower, stage_data)
 		SfxLibrary.play(&"build", -12.0)
 	elif _selected_tower.battle_rank >= stage_data.max_inbattle_upgrade_level:
 		ui.show_status("已达到本关升阶上限")
@@ -318,7 +365,7 @@ func _on_tower_sell_requested() -> void:
 	if tower_manager.sell_tower(_selected_tower, stage_data):
 		ui.show_status("已回收，返还 %d 金币" % refund)
 		_selected_tower = null
-		ui.hide_tower_panel()
+		ui.hide_tower_bar()
 
 
 ## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（黄忠固有 /
@@ -344,10 +391,36 @@ func _on_ultimate_cast_requested() -> void:
 	_try_cast_selected_ultimate()
 
 
-## R 键释放大招（v0.15.0，仅手动模式且选中塔）。
+## 键盘入口（0.8.17.0）：R = 释放大招（v0.15.0，仅手动模式且选中塔）；
+## Space = 开波（同出口波次旗帜，UI_LAYOUT §10 v2）；ESC = 取消拖拽 / 打开 ☰ 菜单。
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
-		_try_cast_selected_ultimate()
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	match (event as InputEventKey).keycode:
+		KEY_R:
+			_try_cast_selected_ultimate()
+		KEY_ESCAPE:
+			if build_manager.is_dragging():
+				build_manager.cancel_drag()
+				ui.clear_card_hold()
+			else:
+				ui.open_menu()
+		KEY_SPACE:
+			if ui.is_dialogue_active():
+				return
+			_try_start_wave()
+
+
+## ☰ 菜单动作路由（0.8.17.0 / UI_LAYOUT §10 v2）：继续 / 设置 / 重开 / 退出。
+func _on_menu_action_requested(action_id: int) -> void:
+	if action_id == ui.MENU_RESUME:
+		_on_pause_pressed()
+	elif action_id == ui.MENU_SETTINGS:
+		_on_settings_pressed()
+	elif action_id == ui.MENU_RESTART:
+		_on_restart_pressed()
+	elif action_id == ui.MENU_EXIT:
+		_on_exit_pressed()
 
 
 func _try_cast_selected_ultimate() -> void:
@@ -355,7 +428,7 @@ func _try_cast_selected_ultimate() -> void:
 		return
 	if _selected_tower.cast_ultimate_manual():
 		ui.show_status("%s 释放大招！" % _selected_tower.display_name, 1.0)
-		ui.show_tower_panel(_selected_tower, stage_data)
+		ui.show_tower_bar(_selected_tower, stage_data)
 	else:
 		ui.show_status("怒气未满或范围内无目标")
 
@@ -388,6 +461,7 @@ func _disconnect_game_signals() -> void:
 		[GameManager.victory, Callable(self, "_on_victory")],
 		[GameManager.boss_entered, Callable(self, "_on_boss_entered")],
 		[GameManager.enemy_leaked, Callable(self, "_on_enemy_leaked")],
+		[GameManager.gold_gain_fx, Callable(self, "_on_gold_gain_fx")],
 	]
 	for pair in callbacks:
 		var signal_ref: Signal = pair[0]
@@ -399,13 +473,14 @@ func _on_next_wave_pressed():
 	_try_start_wave()
 
 
-## 波次开启（v0.15.3）：手动按钮与"自动开启下一波"共用；
+## 波次开启（v0.15.3；0.8.17.0 起入口 = 出口波次旗帜 / Space）：
 ## 空闲且未到总波数时才会真正开波（自动模式在最后一波胜利后不会误开）。
 func _try_start_wave() -> void:
 	if not GameManager.is_wave_active and GameManager.current_wave < GameManager.total_waves:
 		ui.hide_message()
 		wave_manager.start_wave(GameManager.current_wave)
 		ui.update_wave(GameManager.current_wave, GameManager.total_waves)
+		_refresh_wave_flag()
 
 func _on_wave_completed():
 	# 波次完成奖励（阶段 8 提交 2）：部分关卡启用 completion_currency（每波 10~20 金）。
@@ -418,11 +493,16 @@ func _on_wave_completed():
 			var wave_bonus := 1.0 + float(tech_bonuses.get("wave_reward_pct", 0)) / 100.0
 			var reward := maxi(ceili(completed_wave.completion_currency * wave_bonus), 1)
 			GameManager.gold += reward
+			# 波次完成奖变体（✅ 0.8.17.1 / §12.7 拍板 6）：旗帜位置金币图徽 + 飘字。
+			if _gold_fx != null:
+				var bonus_pos: Vector2 = wave_flag.global_position if wave_flag != null else spawn_marker.global_position
+				_gold_fx.request_wave_bonus(bonus_pos, reward)
 			ui.show_status(
 				"第 %d 波完成：+%d 金币" % [completed_index + 1, reward],
 				1.2
 			)
 	GameManager.wave_completed()
+	_refresh_wave_flag()
 	if GameFlow.is_gameplay_flag_enabled("auto_next_wave"):
 		_try_start_wave()
 
@@ -456,26 +536,33 @@ func _on_debug_wave_jump(wave_index: int) -> void:
 	ui.hide_message()
 	wave_manager.start_wave(wave_index)
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
+	_refresh_wave_flag()
 	ui.show_status("调试：已开始第 %d 波" % (wave_index + 1))
 
 
 func _on_debug_clear_enemies() -> void:
 	wave_manager.debug_clear_enemies()
+	_refresh_wave_flag()
 	ui.show_status("调试：已清空场上敌人", 1.5)
 
 func _on_game_over():
 	SfxLibrary.play(&"defeat", -8.0)
 	build_manager.cancel_drag()
+	ui.flush_gold_display()
+	_refresh_wave_flag()
 	if battle_session != null:
 		ProfileStore.finish_defeat(battle_session, {
 			"remaining_lives": GameManager.lives,
 			"completed_waves": GameManager.current_wave,
 		})
 	ui.show_result({"victory": false})
+	_refresh_battle_supply_popup()
+	_refresh_supply_bar()
 	get_tree().paused = true
 
 func _on_victory():
 	SfxLibrary.play(&"victory", -8.0)
+	ui.flush_gold_display()
 	var saved := false
 	var xp_by_character: Dictionary = {}
 	var loot: Dictionary = {}
@@ -512,6 +599,9 @@ func _on_victory():
 		"next_stage_name": _next_stage_display_name(),
 		"remaining_gold": GameManager.gold,
 	})
+	_refresh_wave_flag()
+	_refresh_battle_supply_popup()
+	_refresh_supply_bar()
 	get_tree().paused = true
 
 
@@ -554,10 +644,10 @@ func _on_result_menu_pressed() -> void:
 func _on_result_wheel_pressed() -> void:
 	var result := SettlementWheel.roll(ProfileStore.get_profile())
 	if result.is_empty():
-		ui.show_result_wheel_result("转盘暂无可抽奖励")
+		ui.show_result_wheel_failure("转盘暂无可抽奖励")
 		return
 	if not ProfileStore.commit_settlement_reward(result):
-		ui.show_result_wheel_result("转盘入账失败，请重试")
+		ui.show_result_wheel_failure("转盘入账失败，请重试")
 		return
 	SfxLibrary.play(&"skill", -6.0)
 	ui.show_result_wheel_result("转盘奖励：%s" % _format_settlement_reward(result))
@@ -710,6 +800,7 @@ func _load_battle_supplies() -> void:
 	_supply_belt = _resolve_supply_belt()
 	var list_ids := _supply_list_ids()
 	_supply_selected_id = list_ids[0] if not list_ids.is_empty() else ""
+	_refresh_supply_bar()
 
 
 func _resolve_supply_belt() -> Array[String]:
@@ -745,6 +836,176 @@ func _supply_slot_limit() -> int:
 	return PlayerProfile.BASE_SUPPLY_SLOTS + int(tech_bonuses.get("supply_slot_bonus", 0))
 
 
+## ===== 底栏军需槽（0.8.17.0 / UI_LAYOUT §10 v2） =====
+
+## 军需槽刷新（槽数 = 军需带上限 2 + 科技 1 → 3）：空槽 = 虚线圆；
+## 待购 = 虚线圆 + 费用胶囊（点击购买）；已购 = 金框 + ✓ + 剩余次数（点击使用）。
+## 左键 = 购买 / 使用；右键 = 打开军需面板（完整购买 · 使用 · 详情入口，不暂停）。
+func _refresh_supply_bar() -> void:
+	if ui == null or not is_instance_valid(ui.supply_bar):
+		return
+	for child in ui.supply_bar.get_children():
+		child.queue_free()
+	_supply_bar_slots.clear()
+	var unlocked := _supply_slot_limit()
+	for index in range(SUPPLY_SLOT_SLOTS):
+		var slot := _build_supply_bar_slot(index, _supply_bar_slot_id(index) if index < unlocked else "")
+		if index >= unlocked:
+			_set_supply_bar_slot_locked(slot)
+		elif ui.is_game_finished():
+			slot.modulate = Color(1, 1, 1, 0.45)
+			slot.mouse_default_cursor_shape = Control.CURSOR_ARROW
+			slot.tooltip_text = "结算已开始 · 右键可查看"
+		ui.supply_bar.add_child(slot)
+		_supply_bar_slots.append(slot)
+
+
+## 未解锁槽（科技「军府调度」扩到 3 槽 / UI_LAYOUT §10 v2 概念稿第三格）：虚线占位 + 暗化，
+## 点击不响应（tooltip 指路科技）。锁图徽待美术（AGENTS §6：缺图先虚线圆占位 + ART_PROMPTS 登记）。
+func _set_supply_bar_slot_locked(slot: Control) -> void:
+	slot.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	slot.tooltip_text = "第 3 槽：科技「军府调度」解锁后开放"
+	slot.modulate = Color(1, 1, 1, 0.45)
+
+
+func _supply_bar_slot_id(index: int) -> String:
+	if index < 0 or index >= _supply_belt.size():
+		return ""
+	return str(_supply_belt[index])
+
+
+func _build_supply_bar_slot(index: int, supply_id: String) -> Control:
+	var slot := PanelContainer.new()
+	slot.custom_minimum_size = Vector2(76, 76)
+	slot.mouse_filter = Control.MOUSE_FILTER_STOP
+	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	slot.gui_input.connect(_on_supply_bar_slot_gui_input.bind(index))
+	var body := Control.new()
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(body)
+	var dim_line := Color(UITheme.HUD_LINE.r, UITheme.HUD_LINE.g, UITheme.HUD_LINE.b, 0.4)
+	var supply := _find_battle_supply(supply_id)
+	if supply == null:
+		slot.add_theme_stylebox_override("panel", _make_hud_bar_style(Color(0, 0, 0, 0), dim_line))
+		var empty := DashedPill.new()
+		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		empty.setup(Color(0, 0, 0, 0), dim_line, 12.0)
+		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		body.add_child(empty)
+		slot.tooltip_text = "空槽：在军需处选带后可携带 · 右键打开军需"
+		return slot
+
+	var purchased := _is_supply_purchased(supply_id)
+	var left := _supply_uses_left(supply_id)
+	var highlight := purchased and left > 0
+	slot.add_theme_stylebox_override("panel", _make_hud_bar_style(
+		Color(0.16, 0.26, 0.19, 0.92) if highlight else UITheme.HUD_CARD_BG,
+		UITheme.HUD_LINE if highlight else Color(UITheme.HUD_LINE.r, UITheme.HUD_LINE.g, UITheme.HUD_LINE.b, 0.45)))
+	# 军需图标待美术（ART_PROMPTS §4/§6）：按 AGENTS §6 虚线圆占位 + 名称首字示意。
+	var icon := _make_supply_icon(44)
+	var icon_text := icon.get_meta("icon_text", null) as Label
+	if icon_text != null:
+		icon_text.text = _supply_glyph(supply)
+		icon_text.add_theme_color_override("font_color", UITheme.HUD_TEXT)
+	icon.position = Vector2(16, 4)
+	icon.size = Vector2(44, 44)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_child(icon)
+	if purchased:
+		var mark := Label.new()
+		mark.text = "✓ %d" % left
+		mark.add_theme_font_size_override("font_size", 13)
+		mark.add_theme_color_override("font_color",
+			UITheme.HUD_GREEN if left > 0 else Color(UITheme.HUD_TEXT.r, UITheme.HUD_TEXT.g, UITheme.HUD_TEXT.b, 0.5))
+		mark.position = Vector2(4, 52)
+		mark.size = Vector2(68, 20)
+		mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		body.add_child(mark)
+		slot.tooltip_text = "%s：点击使用（剩余 %d 次）· 右键打开军需" % [supply.display_name, left]
+	else:
+		var cost := _supply_paid_cost(supply)
+		var affordable: bool = GameManager.gold >= cost and not ui.is_game_finished() and not _is_supply_heal_blocked(supply)
+		body.add_child(_make_supply_bar_cost_pill(cost, affordable))
+		slot.tooltip_text = "购买「%s」：%d 金币入带 · 右键打开军需" % [supply.display_name, cost]
+	return slot
+
+
+## 军需槽费用胶囊（金币图徽 + 费用；金币不足 = 红底白字）。
+func _make_supply_bar_cost_pill(cost: int, affordable: bool) -> Control:
+	var root := PanelContainer.new()
+	# 0.8.17.2：高 21（图徽 15 垂直偏移 3 = 整数像素落位）；位置随高度保持右下 3px 内缩。
+	root.custom_minimum_size = Vector2(48, 21)
+	root.position = Vector2(25, 52)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_theme_stylebox_override("panel", _make_hud_bar_style(
+		UITheme.HUD_COST_BG if affordable else Color("#c2604f"), Color(0, 0, 0, 0), 11, 0))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 3)
+	margin.add_theme_constant_override("margin_right", 7)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(margin)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_BEGIN
+	row.add_theme_constant_override("separation", 2)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(row)
+	var icon := TextureRect.new()
+	# 尺寸口径 = 概念稿 `.costpill img {15px}`（0.8.17.2，与建造槽费用胶囊一致）。
+	icon.custom_minimum_size = Vector2(15, 15)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	UITheme.apply_hud_icon(icon, "coin", 15)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	var label := Label.new()
+	label.text = str(cost)
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", UITheme.HUD_COST_TEXT if affordable else Color.WHITE)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(label)
+	return root
+
+
+## 军需槽输入：左键 = 购买 / 使用；右键 = 打开军需面板（不暂停）。
+func _on_supply_bar_slot_gui_input(event: InputEvent, index: int) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+	if index >= _supply_slot_limit():
+		return
+	if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+		_on_battle_supply_pressed()
+		return
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if ui != null and ui.is_game_finished():
+		return
+	var supply_id := _supply_bar_slot_id(index)
+	if supply_id.is_empty():
+		_on_battle_supply_pressed()
+		return
+	if _is_supply_purchased(supply_id):
+		_use_battle_supply(supply_id)
+		return
+	var supply := _find_battle_supply(supply_id)
+	if supply != null:
+		_buy_battle_supply(supply)
+
+
+## HUD v2 槽底（深墨绿 + 暖金描边；bg 透明 = 虚线占位槽）。
+func _make_hud_bar_style(bg: Color, border: Color, radius: int = 12, border_width: int = 2) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(radius)
+	style.anti_aliasing = true
+	return style
+
 func _find_battle_supply(supply_id: String) -> BattleSupplyData:
 	return _supply_by_id.get(supply_id) as BattleSupplyData
 
@@ -777,6 +1038,33 @@ func _is_supply_purchased(supply_id: String) -> bool:
 func _on_gold_changed(_new_amount: int) -> void:
 	if _battle_supply_popup != null and is_instance_valid(_battle_supply_popup):
 		_refresh_battle_supply_popup()
+	_refresh_supply_bar()
+
+
+## 金币 FX 层装配（✅ 0.8.17.1 / DESIGN_REVIEW §12.7 拍板 5）：headless 直接关闭（回归测试零差异）。
+func _setup_gold_fx() -> void:
+	if DisplayServer.get_name() == "headless":
+		ui.set_gold_fx_enabled(false)
+		return
+	var layer := CanvasLayer.new()
+	layer.name = "GoldFxLayer"
+	layer.layer = GOLD_FX_LAYER
+	layer.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(layer)
+	var fx = GOLD_FX_SCRIPT.new()
+	fx.name = "GoldFx"
+	layer.add_child(fx)
+	_gold_fx = fx
+	fx.setup(ui)
+	if not GameManager.gold_gain_fx.is_connected(_on_gold_gain_fx):
+		GameManager.gold_gain_fx.connect(_on_gold_gain_fx)
+	ui.set_gold_fx_enabled(true)
+
+
+## 击杀金币 → FX 请求（world_pos = 击杀点世界坐标；tier = GoldFx.Tier 档位）。
+func _on_gold_gain_fx(_amount: int, world_pos: Vector2, tier: int) -> void:
+	if _gold_fx != null:
+		_gold_fx.request_kill_fx(world_pos, tier)
 
 
 ## 打开军需弹窗（不暂停：波次中可战术性购买）。遮罩自顶栏下缘起，顶栏按钮行保持可见可点。
@@ -786,7 +1074,6 @@ func _on_battle_supply_pressed() -> void:
 	_supply_card_nodes.clear()
 	_supply_slot_nodes.clear()
 	_supply_detail_nodes.clear()
-	_set_supply_button_highlight(true)
 	var popup := CanvasLayer.new()
 	popup.layer = 50
 	popup.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -805,14 +1092,6 @@ func _on_battle_supply_pressed() -> void:
 	_refresh_battle_supply_popup()
 
 
-## 开启态顶栏「军需」按钮金色高亮（UI_LAYOUT §10）。
-func _set_supply_button_highlight(active: bool) -> void:
-	if ui == null or not is_instance_valid(ui.supply_button):
-		return
-	if active:
-		UITheme.apply_kenney_rect_button(ui.supply_button, "yellow", UITheme.INK, 6.0)
-	else:
-		UITheme.apply_kenney_rect_button(ui.supply_button, "blue", Color.WHITE, 6.0)
 
 
 func _build_supply_panel() -> Control:
@@ -1007,7 +1286,16 @@ func _build_supply_list() -> Control:
 	list.custom_minimum_size = Vector2(SUPPLY_LIST_WIDTH - 6.0, 0)
 	list.add_theme_constant_override("separation", 8)
 	scroll.add_child(list)
-	for supply_id in _supply_list_ids():
+	var list_ids := _supply_list_ids()
+	if list_ids.is_empty():
+		var empty := Label.new()
+		empty.name = "SupplyEmptyState"
+		empty.text = "尚未选带，请在出征前完成选带。"
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty.add_theme_font_size_override("font_size", 16)
+		empty.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		list.add_child(empty)
+	for supply_id in list_ids:
 		var card := _build_supply_card(supply_id)
 		list.add_child(card)
 	return scroll
@@ -1071,7 +1359,7 @@ func _build_supply_card(supply_id: String) -> Control:
 	card.add_child(button)
 	_supply_card_nodes[supply_id] = {
 		"root": card, "style": style, "icon": icon, "icon_text": icon.get_meta("icon_text", null),
-		"name": name_label, "desc": desc_label, "cost": cost_label, "tag": tag_label,
+		"name": name_label, "desc": desc_label, "cost": cost_label, "tag": tag_label, "button": button,
 	}
 	return card
 
@@ -1211,7 +1499,7 @@ func _build_supply_detail() -> Control:
 		"tag_a": tag_a, "tag_b": tag_b, "desc": desc,
 		"fx0": fx_values[0], "fx1": fx_values[1], "fx2": fx_values[2],
 		"fxu0": fx_units[0], "fxu1": fx_units[1], "fxu2": fx_units[2],
-		"rule": rule, "button": action,
+		"rule": rule, "button": action, "fx_row": fx_row, "hint": hint,
 	}
 	return card
 
@@ -1259,6 +1547,7 @@ func _refresh_battle_supply_popup() -> void:
 
 
 func _refresh_supply_belt() -> void:
+	var settlement_started: bool = ui != null and ui.is_game_finished()
 	for index in range(_supply_slot_nodes.size()):
 		var slot := _supply_slot_nodes[index]
 		if slot == null or not is_instance_valid(slot):
@@ -1272,6 +1561,7 @@ func _refresh_supply_belt() -> void:
 		var sub_label := meta.get("sub") as Label
 		var count_label := meta.get("count") as Label
 		var style := meta.get("style") as StyleBoxFlat
+		slot.modulate = Color(1, 1, 1, 0.55) if settlement_started else Color.WHITE
 		if supply == null or supply_id.is_empty():
 			icon_text.text = ""
 			name_label.text = "空"
@@ -1283,11 +1573,19 @@ func _refresh_supply_belt() -> void:
 			button.disabled = true
 			button.tooltip_text = "空槽：在军需处选带后可携带"
 			continue
-		var level := maxi(_supply_level(supply_id), 1)
 		var left := _supply_uses_left(supply_id)
 		icon_text.text = _supply_glyph(supply)
 		name_label.text = supply.display_name
-		if not _is_supply_purchased(supply_id):
+		if settlement_started:
+			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
+			sub_label.text = "结算中"
+			count_label.text = ""
+			style.bg_color = Color("#eef3f7")
+			style.border_color = Color("#d9e3ea")
+			button.disabled = true
+			button.mouse_default_cursor_shape = Control.CURSOR_ARROW
+			button.tooltip_text = "结算已开始，无法使用军需"
+		elif not _is_supply_purchased(supply_id):
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 			sub_label.text = "待购买"
 			count_label.text = "未购买"
@@ -1298,12 +1596,12 @@ func _refresh_supply_belt() -> void:
 			button.tooltip_text = "先在右侧详情卡购买入带"
 		elif left > 0:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-			sub_label.text = "点击使用"
+			sub_label.text = "已满" if _is_supply_heal_blocked(supply) else "点击使用"
 			count_label.text = "✓ %d" % left
 			count_label.add_theme_color_override("font_color", Color("#0e9f58"))
 			style.bg_color = Color.WHITE
 			style.border_color = UITheme.LIGHT_PANEL_BORDER
-			button.disabled = false
+			button.disabled = _is_supply_heal_blocked(supply)
 			button.tooltip_text = "点击使用「%s」（剩余 %d 次）" % [supply.display_name, left]
 		else:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
@@ -1317,6 +1615,7 @@ func _refresh_supply_belt() -> void:
 
 
 func _refresh_supply_cards() -> void:
+	var settlement_started: bool = ui != null and ui.is_game_finished()
 	for supply_id in _supply_card_nodes.keys():
 		var nodes: Dictionary = _supply_card_nodes[supply_id]
 		var supply := _find_battle_supply(supply_id)
@@ -1331,13 +1630,19 @@ func _refresh_supply_cards() -> void:
 		var tag_label := nodes["tag"] as Label
 		var style := nodes["style"] as StyleBoxFlat
 		var icon_text := nodes["icon_text"] as Label
+		var button := nodes["button"] as Button
+		button.disabled = settlement_started
+		button.mouse_default_cursor_shape = Control.CURSOR_ARROW if settlement_started else Control.CURSOR_POINTING_HAND
 		var paid := _supply_paid_cost(supply)
 		icon_text.text = "锁" if locked else _supply_glyph(supply)
 		name_label.text = supply.display_name
 		desc_label.text = supply.summary_at(display_level)
 		cost_label.text = "%d 金 · 限 %d" % [paid, supply.max_uses_at(display_level)]
-		var gray := locked
-		if locked:
+		var gray := locked or settlement_started
+		if settlement_started:
+			tag_label.text = "结算中"
+			_style_supply_tag(tag_label, UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG)
+		elif locked:
 			tag_label.text = "未解锁"
 			_style_supply_tag(tag_label, UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG)
 		elif _is_supply_purchased(supply_id):
@@ -1359,7 +1664,7 @@ func _refresh_supply_cards() -> void:
 		cost_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_GOLD_TEXT)
 		style.bg_color = Color("#eef3f7") if gray else Color.WHITE
 		style.border_color = Color("#d9e3ea") if gray else UITheme.LIGHT_PANEL_BORDER
-		if supply_id == _supply_selected_id:
+		if supply_id == _supply_selected_id and not settlement_started:
 			style.border_color = UITheme.LIGHT_GOLD_SELECT
 
 
@@ -1370,7 +1675,15 @@ func _style_supply_tag(label: Label, fg: Color, bg: Color) -> void:
 
 func _render_supply_detail(supply_id: String) -> void:
 	var supply := _find_battle_supply(supply_id)
-	if supply == null or _supply_detail_nodes.is_empty():
+	if _supply_detail_nodes.is_empty():
+		return
+	for key in ["fx_row", "rule", "hint", "tag_a", "tag_b"]:
+		(_supply_detail_nodes[key] as Control).visible = supply != null
+	if supply == null:
+		for key in ["icon_text", "name", "tag_a", "tag_b", "desc", "fx0", "fx1", "fx2", "fxu0", "fxu1", "fxu2"]:
+			(_supply_detail_nodes[key] as Label).text = ""
+		(_supply_detail_nodes["name"] as Label).text = "未选带"
+		_refresh_supply_action_button()
 		return
 	var level := maxi(_supply_level(supply_id), 1)
 	var locked := _supply_level(supply_id) <= 0
@@ -1379,7 +1692,6 @@ func _render_supply_detail(supply_id: String) -> void:
 	var tag_a := _supply_detail_nodes.get("tag_a") as Label
 	var tag_b := _supply_detail_nodes.get("tag_b") as Label
 	var desc := _supply_detail_nodes.get("desc") as Label
-	var button := _supply_detail_nodes.get("button") as Button
 	if icon_text != null:
 		icon_text.text = "锁" if locked else _supply_glyph(supply)
 	if name_label != null:
@@ -1461,22 +1773,26 @@ func _is_supply_heal_blocked(supply: BattleSupplyData) -> bool:
 func _refresh_supply_action_button() -> void:
 	var supply := _find_battle_supply(_supply_selected_id)
 	var button := _supply_detail_nodes.get("button") as Button
-	if supply == null or button == null or not is_instance_valid(button):
+	if button == null or not is_instance_valid(button):
 		return
-	var settlement_started: bool = ui != null and ui.is_game_finished()
-	if _supply_level(_supply_selected_id) <= 0:
-		button.text = "未解锁"
+	if supply == null:
+		button.text = "未选带"
 		_set_supply_action_state(button, "grey", false)
 		return
+	var settlement_started: bool = ui != null and ui.is_game_finished()
 	if settlement_started:
 		button.text = "结算中"
 		_set_supply_action_state(button, "grey", false)
 		return
+	if _supply_level(_supply_selected_id) <= 0:
+		button.text = "未解锁"
+		_set_supply_action_state(button, "grey", false)
+		return
+	if _is_supply_heal_blocked(supply):
+		button.text = "已满"
+		_set_supply_action_state(button, "grey", false)
+		return
 	if _is_supply_purchased(_supply_selected_id):
-		if _is_supply_heal_blocked(supply):
-			button.text = "生命已满"
-			_set_supply_action_state(button, "grey", false)
-			return
 		if _supply_uses_left(_supply_selected_id) <= 0:
 			button.text = "已用尽"
 			_set_supply_action_state(button, "grey", false)
@@ -1504,7 +1820,7 @@ func _supply_is_in_belt(supply_id: String) -> bool:
 
 ## 悬停卡片 = 右侧即时预览（已固定选中则不再跟随）。
 func _on_supply_card_hover(supply_id: String) -> void:
-	if _supply_pinned:
+	if _supply_pinned or (ui != null and ui.is_game_finished()):
 		return
 	_supply_selected_id = supply_id
 	_render_supply_detail(supply_id)
@@ -1513,6 +1829,8 @@ func _on_supply_card_hover(supply_id: String) -> void:
 
 ## 点击卡片 = 金框固定选中（悬停移开不丢）。
 func _on_supply_card_pressed(supply_id: String) -> void:
+	if ui != null and ui.is_game_finished():
+		return
 	_supply_pinned = true
 	_supply_selected_id = supply_id
 	_render_supply_detail(supply_id)
@@ -1535,7 +1853,17 @@ func _on_supply_action_pressed() -> void:
 ## 购买入带（✅ 0.8.16 / NUMBERS 10.15）：支付 = 强化后费用 ×（1 − 科技 supply_discount_pct）
 ## 向上取整；**不立即生效**、无二次确认；次数 = 强化后限次；未使用结算作废、不返还。
 func _buy_battle_supply(supply: BattleSupplyData) -> void:
+	if supply == null:
+		return
+	if ui != null and ui.is_game_finished():
+		ui.show_status("结算已开始，无法购买军需")
+		return
 	var supply_id := str(supply.supply_id)
+	if _supply_level(supply_id) <= 0:
+		return
+	if _is_supply_heal_blocked(supply):
+		ui.show_status("已满，无需修整。")
+		return
 	if not _supply_is_in_belt(supply_id):
 		ui.show_status("该军需未随军需带出征，请先在军需处选带")
 		return
@@ -1550,6 +1878,7 @@ func _buy_battle_supply(supply: BattleSupplyData) -> void:
 	var uses := supply.max_uses_at(level)
 	_supply_purchased[supply_id] = uses
 	ui.show_status("%s：已入军需带（%d 金币 · 可用 %d 次）" % [supply.display_name, paid, uses])
+	_refresh_supply_bar()
 	_refresh_battle_supply_popup()
 	SfxLibrary.play(&"skill", -8.0)
 
@@ -1577,17 +1906,21 @@ func _use_battle_supply(supply_id: String) -> void:
 		return
 	_supply_purchased[supply_id] = left - 1
 	_apply_battle_supply(supply, maxi(_supply_level(supply_id), 1))
+	_refresh_supply_bar()
 	_refresh_battle_supply_popup()
 	SfxLibrary.play(&"skill", -8.0)
 
 
 ## 军需效果应用（NUMBERS 10.15，按强化等级取值）：修整 / 火攻 / 擂鼓 / 缓兵 / 掷石齐射 / 犒军。
 func _apply_battle_supply(supply: BattleSupplyData, level: int) -> void:
+	if supply == null or (ui != null and ui.is_game_finished()):
+		return
 	var supply_name := supply.display_name
 	var heal := supply.heal_at(level)
 	if heal > 0:
-		GameManager.lives += heal
-		ui.show_status("%s：基地生命 +%d" % [supply_name, heal])
+		var recovered := mini(heal, maxi(GameManager.starting_lives - GameManager.lives, 0))
+		GameManager.lives += recovered
+		ui.show_status("已恢复 %d 点。" % recovered)
 	var magic := supply.instant_magic_at(level)
 	var burn := supply.burn_dps_at(level)
 	if magic > 0 or burn > 0:
@@ -1646,4 +1979,4 @@ func _close_battle_supply_popup() -> void:
 	_supply_detail_nodes.clear()
 	_supply_gold_label = null
 	_supply_pinned = false
-	_set_supply_button_highlight(false)
+	_refresh_supply_bar()

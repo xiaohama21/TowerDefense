@@ -3,6 +3,8 @@ extends PathFollow2D
 class_name Enemy
 
 const ENEMY_GROUP: StringName = &"enemies"
+## 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：档位取自 tags（普通 / 精英 / Boss）。
+const GOLD_FX_SCRIPT := preload("res://scripts/GoldFx.gd")
 ## 隐匿（NUMBERS 10.16，✅ 0.8.13.1）：破隐扫描周期与现形闪光时长。
 const STEALTH_SCAN_INTERVAL: float = 0.25
 const REVEAL_FLASH_DURATION: float = 0.7
@@ -122,7 +124,8 @@ var _reveal_flash_left: float = 0.0
 ## 护甲光环（armor_aura，✅ 0.8.13.2）：EnemyManager 周期刷新写入，窗口过期自动失效
 ## （施法者阵亡 / 离开半径无需额外清理）；先加甲后算减伤（NUMBERS 10.17）。
 var _armor_aura_bonus: int = 0
-var _armor_aura_until_ms: int = -1
+## 甲光环剩余窗口（秒，B-097 改战斗时钟）：随 _process 递减，暂停时冻结。
+var _armor_aura_time_left: float = 0.0
 var _slow_time_left: float = 0.0
 ## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
 var burn_dps: int = 0
@@ -227,6 +230,10 @@ func _process(delta: float) -> void:
 		if _slow_time_left <= 0.0:
 			slow_factor = 1.0
 
+	# 甲光环窗口倒计时（B-097）：真实时钟改战斗时钟，暂停（设置/结算）时不再走表。
+	if _armor_aura_time_left > 0.0:
+		_armor_aura_time_left = maxf(_armor_aura_time_left - delta, 0.0)
+
 	if _burn_time_left > 0.0:
 		_burn_time_left = maxf(_burn_time_left - delta, 0.0)
 		_burn_acc += float(burn_dps) * delta
@@ -234,6 +241,10 @@ func _process(delta: float) -> void:
 			var tick := int(_burn_acc)
 			_burn_acc -= tick
 			take_damage(tick, "", DamageTypes.MAGIC)
+		# B-095：到期必须清零 dps 与余量——否则后续弱灼烧会继承历史强 dps（maxi 刷新语义）。
+		if _burn_time_left <= 0.0:
+			burn_dps = 0
+			_burn_acc = 0.0
 
 	if not marks.is_empty():
 		var expired_marks: Array[String] = []
@@ -423,12 +434,12 @@ func apply_armor_aura_bonus(value: int, duration: float) -> void:
 	if value <= 0 or duration <= 0.0:
 		return
 	_armor_aura_bonus = maxi(_armor_aura_bonus, value)
-	_armor_aura_until_ms = maxi(_armor_aura_until_ms, Time.get_ticks_msec() + int(round(duration * 1000.0)))
+	_armor_aura_time_left = maxf(_armor_aura_time_left, duration)
 
 
 ## 当前生效的护甲光环加成（窗口过期即 0）。
 func get_armor_aura_bonus() -> int:
-	if _armor_aura_until_ms >= 0 and Time.get_ticks_msec() < _armor_aura_until_ms:
+	if _armor_aura_time_left > 0.0:
 		return _armor_aura_bonus
 	_armor_aura_bonus = 0
 	return 0
@@ -510,6 +521,11 @@ func die(give_reward: bool) -> void:
 		_spawn_kill_bar_flash()
 
 	if give_reward:
+		var fx_tier := GOLD_FX_SCRIPT.Tier.NORMAL
+		if tags.has(&"boss"):
+			fx_tier = GOLD_FX_SCRIPT.Tier.BOSS
+		elif tags.has(&"elite"):
+			fx_tier = GOLD_FX_SCRIPT.Tier.ELITE
 		GameManager.enemy_died(
 			reward,
 			kill_xp,
@@ -517,7 +533,9 @@ func die(give_reward: bool) -> void:
 			damage_contributors,
 			tags.has(&"boss"),
 			is_summon,
-			merit_reward
+			merit_reward,
+			global_position,
+			fx_tier
 		)
 
 	# 死亡渐隐（UI_LAYOUT §10 · 0.8.16.6）：仅「被击杀」（give_reward）且有进程时做演出；

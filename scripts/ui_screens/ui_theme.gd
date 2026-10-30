@@ -336,3 +336,90 @@ static func style_exp_bar(bar: ProgressBar) -> void:
 	fill.set_corner_radius_all(8)
 	bar.add_theme_stylebox_override("background", bg)
 	bar.add_theme_stylebox_override("fill", fill)
+
+## 局内 HUD v2 皮肤令牌（0.8.17.0 / UI_LAYOUT §10 v0.20.41 定稿）：
+## 深墨绿底 + 暖金描边 + 米金文字；地图与道路本身不改色。
+const HUD_BG := Color("#13241b")
+const HUD_BG_DEEP := Color("#0e1b14")
+const HUD_LINE := Color("#c9a35c")
+const HUD_TEXT := Color("#f2e7cd")
+const HUD_VALUE := Color("#ffd479")
+const HUD_GREEN := Color("#4ec97e")
+const HUD_RED := Color("#ef5b52")
+const HUD_ACTION := Color("#ffcc00")
+const HUD_CARD_BG := Color(0.035, 0.071, 0.055, 0.88)
+const HUD_COST_BG := Color("#ffd479")
+const HUD_COST_TEXT := Color("#14231a")
+## 塔详情动作盘（升阶=金盘 / 回收=红盘）：上亮下深做立体，悬停提亮。
+const HUD_DISC_GOLD := Color("#ffe08a")
+const HUD_DISC_GOLD_DEEP := Color("#d9a53a")
+const HUD_DISC_RED := Color("#ff9d7d")
+const HUD_DISC_RED_DEEP := Color("#c2604f")
+
+## 通用 HUD 图徽目录（AGENTS §6「图徽优先」）：运行时就位 = assets/ui/icons/icons_hud
+## （随 PCK 导出；export_presets 排除 docs/*），开发副本 = docs/ui_concept/src/icons_hud。
+const HUD_ICON_DIR := "res://assets/ui/icons/icons_hud/"
+const HUD_ICON_DIR_FALLBACK := "res://docs/ui_concept/src/icons_hud/"
+
+static var _hud_icon_cache: Dictionary = {}
+static var _hud_icon_sized_cache: Dictionary = {}
+
+
+## 图徽加载（透明符号，裸符号落位）：assets 优先、docs 兜底；缺图返回 null，
+## 调用方按 AGENTS §6 用虚线圆占位并登记 ART_PROMPTS。
+static func hud_icon(icon_name: String) -> Texture2D:
+	if _hud_icon_cache.has(icon_name):
+		return _hud_icon_cache[icon_name]
+	var texture: Texture2D = null
+	for dir in [HUD_ICON_DIR, HUD_ICON_DIR_FALLBACK]:
+		var path := "%s%s.png" % [dir, icon_name]
+		if ResourceLoader.exists(path):
+			texture = load(path) as Texture2D
+			if texture != null:
+				break
+	_hud_icon_cache[icon_name] = texture
+	return texture
+
+
+## 图徽落位（0.8.17.2）：< 24px 小档位（160px 源直缩 ≈10.7×，无 mipmap 线性 = 锯齿糊斑、
+## mipmap 三线性 = 过软）按显示尺寸 Lanczos 重采样后线性 1:1 落位；其余档位 LINEAR_WITH_MIPMAPS（纹理侧 mipmaps 已开）。
+## 仍是「裸符号落位」不加底槽。
+static func apply_hud_icon(rect: TextureRect, icon_name: String, display_px: int = 0) -> Texture2D:
+	if rect == null:
+		return null
+	# 小图徽（< 24px）：mipmap 三线性在此档位过软偏糊——先按显示尺寸 Lanczos 重采样、
+	# 再 1:1 线性落位，观感对齐概念稿 `.costpill img {15px}`（0.8.17.2）。
+	if display_px > 0 and display_px < 24:
+		var small := hud_icon_sized(icon_name, display_px)
+		rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		rect.texture = small
+		return small
+	rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var texture := hud_icon(icon_name)
+	rect.texture = texture
+	return texture
+
+
+## 按显示尺寸一次性高质量重采样（缓存复用；只服务小图徽档位）。
+static func hud_icon_sized(icon_name: String, display_px: int) -> Texture2D:
+	var source := hud_icon(icon_name)
+	if source == null or display_px <= 0:
+		return source
+	var key := "%s@%d" % [icon_name, display_px]
+	if _hud_icon_sized_cache.has(key):
+		return _hud_icon_sized_cache[key]
+	var image: Image = source.get_image()
+	if image == null:
+		_hud_icon_sized_cache[key] = source
+		return source
+	var resized := image.duplicate() as Image
+	resized.resize(display_px, display_px, Image.INTERPOLATE_LANCZOS)
+	var texture := ImageTexture.create_from_image(resized)
+	_hud_icon_sized_cache[key] = texture
+	return texture
+
+
+## 自定义 _draw / Sprite2D 等 CanvasItem 图徽过滤（同一口径）。
+static func tune_hud_icon_item(item: CanvasItem) -> void:
+	if item != null:
+		item.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS

@@ -14,6 +14,8 @@ const TEMP_PATH: String = "user://profile.json.tmp"
 const LOAD_SOURCE_PRIMARY: String = "primary"
 const LOAD_SOURCE_BACKUP: String = "backup"
 const LOAD_SOURCE_NEW: String = "new"
+## 只读兼容（B-099）：磁盘上是更高版本游戏的存档，本次运行不加载其内容、也绝不写盘。
+const LOAD_SOURCE_INCOMPATIBLE: String = "incompatible"
 
 var profile: PlayerProfile
 var save_path: String = PROFILE_PATH
@@ -22,6 +24,7 @@ var temp_path: String = TEMP_PATH
 var last_load_source: String = ""
 var last_error: String = ""
 var last_corrupt_path: String = ""
+var _writes_blocked: bool = false
 
 
 func _ready() -> void:
@@ -67,6 +70,19 @@ func get_temp_path() -> String:
 	return temp_path
 
 
+## 只读探测（B-099）：主档或备份是否为「版本高于当前游戏」的存档；不加载、不写盘、不改状态。
+## 主菜单入口用它决定是否提示「请升级游戏」（真正的加载保护在 load_profile）。
+func has_newer_save() -> bool:
+	for path in [save_path, backup_path]:
+		if _file_declares_newer_schema(str(path)):
+			return true
+	return false
+
+
+func is_write_blocked() -> bool:
+	return _writes_blocked
+
+
 func get_profile() -> PlayerProfile:
 	if profile == null:
 		return load_profile()
@@ -86,9 +102,11 @@ func create_new_profile(save_immediately: bool = true) -> PlayerProfile:
 
 ## Load order: primary -> backup -> a fresh profile. A corrupt primary is
 ## quarantined before a recovered or fresh profile is written back.
+## B-099：版本高于当前游戏的存档走「只读兼容」——不隔离、不回落、不写盘，保护玩家新版进度。
 func load_profile() -> PlayerProfile:
 	last_error = ""
 	last_corrupt_path = ""
+	_writes_blocked = false
 
 	var primary_result := _read_profile_file(save_path)
 	if primary_result.ok:
@@ -98,9 +116,14 @@ func load_profile() -> PlayerProfile:
 			push_warning("档案迁移成功，但写回新版档案失败：%s" % last_error)
 		profile_loaded.emit(profile, last_load_source)
 		return profile
+	if bool(primary_result.get("version_too_new", false)):
+		return _enter_incompatible_mode()
 
 	var primary_existed := FileAccess.file_exists(save_path)
 	var backup_result := _read_profile_file(backup_path)
+	# 备份是更高版本存档时同样只读保护：主档损坏也不得隔离/回落，否则会动玩家新版进度。
+	if bool(backup_result.get("version_too_new", false)):
+		return _enter_incompatible_mode()
 	if backup_result.ok:
 		if primary_existed:
 			last_corrupt_path = _quarantine_file(save_path)
@@ -125,6 +148,17 @@ func load_profile() -> PlayerProfile:
 	return profile
 
 
+## 只读兼容模式（B-099）：返回内存新档并阻断全部写盘——不隔离、不备份回落、不改动玩家新版存档；
+## 主菜单用 has_newer_save 提示「请升级游戏」，原进度原样保留。
+func _enter_incompatible_mode() -> PlayerProfile:
+	_writes_blocked = true
+	profile = PlayerProfile.new()
+	last_load_source = LOAD_SOURCE_INCOMPATIBLE
+	last_error = "存档版本高于当前游戏版本：已启用只读保护，本次运行不会写入或覆盖存档"
+	profile_loaded.emit(profile, last_load_source)
+	return profile
+
+
 ## Compatibility name used by callers that do not care whether a profile was
 ## loaded from disk or created for the first time.
 func load_or_create_profile() -> PlayerProfile:
@@ -139,6 +173,8 @@ func load_or_create() -> PlayerProfile:
 ## primary as backup, then replace the primary. The in-memory profile is only
 ## updated after the file transaction succeeds.
 func save_profile(profile_to_save: PlayerProfile = null) -> bool:
+	if _writes_blocked:
+		return _fail_readonly("存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档")
 	var source := profile_to_save if profile_to_save != null else profile
 	if source == null:
 		source = PlayerProfile.new()
@@ -473,7 +509,7 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	if version < 0:
 		return {"ok": false, "error": "schema_version 无效"}
 	if version > PlayerProfile.CURRENT_SCHEMA_VERSION:
-		return {"ok": false, "error": "存档版本高于当前游戏版本"}
+		return {"ok": false, "error": "存档版本高于当前游戏版本", "version_too_new": true}
 	var migrated := false
 	while version < PlayerProfile.CURRENT_SCHEMA_VERSION:
 		match version:
@@ -571,6 +607,21 @@ func _read_schema_version(data: Dictionary) -> int:
 	return -1
 
 
+## 只读探测辅助（B-099）：文件是否能解析为 JSON 且 schema 高于当前游戏；不触碰磁盘内容。
+func _file_declares_newer_schema(path: String) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return false
+	var text := file.get_as_text()
+	file.close()
+	var parsed = JSON.parse_string(text)
+	if not parsed is Dictionary:
+		return false
+	return _read_schema_version(parsed) > PlayerProfile.CURRENT_SCHEMA_VERSION
+
+
 func _validate_current_shape(data: Dictionary) -> bool:
 	if _read_schema_version(data) != PlayerProfile.CURRENT_SCHEMA_VERSION:
 		return false
@@ -625,6 +676,14 @@ func _quarantine_file(path: String) -> String:
 		push_warning("无法隔离损坏档案 %s（错误码 %d）" % [path, move_error])
 		return ""
 	return quarantine_path
+
+
+## 只读兼容下的写盘拒绝（B-099）：不算存档损坏，只提示、不重复刷 error 级日志。
+func _fail_readonly(reason: String) -> bool:
+	last_error = reason
+	save_failed.emit(reason)
+	push_warning("SaveManager: %s" % reason)
+	return false
 
 
 func _fail(reason: String) -> bool:

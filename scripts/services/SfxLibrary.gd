@@ -10,6 +10,8 @@ const SFX_IDS: Array[StringName] = [
 	&"attack", &"skill", &"ultimate", &"kill", &"build", &"victory", &"defeat",
 	# 隐匿登场预警（✅ 0.8.13.1，NUMBERS 10.16）：夜行刺等隐匿单位进场提示音。
 	&"alert",
+	# 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：击杀金币簇起飞提示音。
+	&"coin",
 ]
 
 var _players: Array[AudioStreamPlayer] = []
@@ -27,8 +29,8 @@ func _ready() -> void:
 		_cache[sfx_id] = _synthesize(sfx_id)
 
 
-## 播放指定音效（id 未合成过则忽略，保证测试/旧存档安全）。
-func play(sfx_id: StringName, volume_db: float = -10.0) -> void:
+## 播放指定音效（id 未合成过则忽略，保证测试/旧存档安全；pitch_scale 供金币音 ±5% 微变）。
+func play(sfx_id: StringName, volume_db: float = -10.0, pitch_scale: float = 1.0) -> void:
 	var stream: AudioStreamWAV = _cache.get(sfx_id)
 	if stream == null:
 		return
@@ -36,6 +38,7 @@ func play(sfx_id: StringName, volume_db: float = -10.0) -> void:
 	_pool_index = (_pool_index + 1) % _players.size()
 	player.stream = stream
 	player.volume_db = volume_db
+	player.pitch_scale = pitch_scale
 	player.play()
 
 
@@ -61,6 +64,8 @@ func _synthesize(sfx_id: StringName) -> AudioStreamWAV:
 			return _triplet([330.0, 247.0, 165.0], 0.6, 0.28)
 		&"alert":
 			return _triplet([392.0, 587.0], 0.30, 0.24)
+		&"coin":
+			return _triplet([988.0, 1319.0], 0.14, 0.22)
 	return _tone(440.0, 440.0, 0.1, 0.2)
 
 
