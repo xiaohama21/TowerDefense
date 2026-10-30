@@ -556,6 +556,8 @@ func _on_game_over():
 			"completed_waves": GameManager.current_wave,
 		})
 	ui.show_result({"victory": false})
+	_refresh_battle_supply_popup()
+	_refresh_supply_bar()
 	get_tree().paused = true
 
 func _on_victory():
@@ -598,6 +600,8 @@ func _on_victory():
 		"remaining_gold": GameManager.gold,
 	})
 	_refresh_wave_flag()
+	_refresh_battle_supply_popup()
+	_refresh_supply_bar()
 	get_tree().paused = true
 
 
@@ -848,6 +852,10 @@ func _refresh_supply_bar() -> void:
 		var slot := _build_supply_bar_slot(index, _supply_bar_slot_id(index) if index < unlocked else "")
 		if index >= unlocked:
 			_set_supply_bar_slot_locked(slot)
+		elif ui.is_game_finished():
+			slot.modulate = Color(1, 1, 1, 0.45)
+			slot.mouse_default_cursor_shape = Control.CURSOR_ARROW
+			slot.tooltip_text = "结算已开始 · 右键可查看"
 		ui.supply_bar.add_child(slot)
 		_supply_bar_slots.append(slot)
 
@@ -917,7 +925,7 @@ func _build_supply_bar_slot(index: int, supply_id: String) -> Control:
 		slot.tooltip_text = "%s：点击使用（剩余 %d 次）· 右键打开军需" % [supply.display_name, left]
 	else:
 		var cost := _supply_paid_cost(supply)
-		var affordable: bool = GameManager.gold >= cost and not ui.is_game_finished()
+		var affordable: bool = GameManager.gold >= cost and not ui.is_game_finished() and not _is_supply_heal_blocked(supply)
 		body.add_child(_make_supply_bar_cost_pill(cost, affordable))
 		slot.tooltip_text = "购买「%s」：%d 金币入带 · 右键打开军需" % [supply.display_name, cost]
 	return slot
@@ -973,6 +981,8 @@ func _on_supply_bar_slot_gui_input(event: InputEvent, index: int) -> void:
 		_on_battle_supply_pressed()
 		return
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if ui != null and ui.is_game_finished():
 		return
 	var supply_id := _supply_bar_slot_id(index)
 	if supply_id.is_empty():
@@ -1276,7 +1286,16 @@ func _build_supply_list() -> Control:
 	list.custom_minimum_size = Vector2(SUPPLY_LIST_WIDTH - 6.0, 0)
 	list.add_theme_constant_override("separation", 8)
 	scroll.add_child(list)
-	for supply_id in _supply_list_ids():
+	var list_ids := _supply_list_ids()
+	if list_ids.is_empty():
+		var empty := Label.new()
+		empty.name = "SupplyEmptyState"
+		empty.text = "尚未选带，请在出征前完成选带。"
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty.add_theme_font_size_override("font_size", 16)
+		empty.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		list.add_child(empty)
+	for supply_id in list_ids:
 		var card := _build_supply_card(supply_id)
 		list.add_child(card)
 	return scroll
@@ -1340,7 +1359,7 @@ func _build_supply_card(supply_id: String) -> Control:
 	card.add_child(button)
 	_supply_card_nodes[supply_id] = {
 		"root": card, "style": style, "icon": icon, "icon_text": icon.get_meta("icon_text", null),
-		"name": name_label, "desc": desc_label, "cost": cost_label, "tag": tag_label,
+		"name": name_label, "desc": desc_label, "cost": cost_label, "tag": tag_label, "button": button,
 	}
 	return card
 
@@ -1480,7 +1499,7 @@ func _build_supply_detail() -> Control:
 		"tag_a": tag_a, "tag_b": tag_b, "desc": desc,
 		"fx0": fx_values[0], "fx1": fx_values[1], "fx2": fx_values[2],
 		"fxu0": fx_units[0], "fxu1": fx_units[1], "fxu2": fx_units[2],
-		"rule": rule, "button": action,
+		"rule": rule, "button": action, "fx_row": fx_row, "hint": hint,
 	}
 	return card
 
@@ -1528,6 +1547,7 @@ func _refresh_battle_supply_popup() -> void:
 
 
 func _refresh_supply_belt() -> void:
+	var settlement_started: bool = ui != null and ui.is_game_finished()
 	for index in range(_supply_slot_nodes.size()):
 		var slot := _supply_slot_nodes[index]
 		if slot == null or not is_instance_valid(slot):
@@ -1541,6 +1561,7 @@ func _refresh_supply_belt() -> void:
 		var sub_label := meta.get("sub") as Label
 		var count_label := meta.get("count") as Label
 		var style := meta.get("style") as StyleBoxFlat
+		slot.modulate = Color(1, 1, 1, 0.55) if settlement_started else Color.WHITE
 		if supply == null or supply_id.is_empty():
 			icon_text.text = ""
 			name_label.text = "空"
@@ -1552,11 +1573,19 @@ func _refresh_supply_belt() -> void:
 			button.disabled = true
 			button.tooltip_text = "空槽：在军需处选带后可携带"
 			continue
-		var level := maxi(_supply_level(supply_id), 1)
 		var left := _supply_uses_left(supply_id)
 		icon_text.text = _supply_glyph(supply)
 		name_label.text = supply.display_name
-		if not _is_supply_purchased(supply_id):
+		if settlement_started:
+			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
+			sub_label.text = "结算中"
+			count_label.text = ""
+			style.bg_color = Color("#eef3f7")
+			style.border_color = Color("#d9e3ea")
+			button.disabled = true
+			button.mouse_default_cursor_shape = Control.CURSOR_ARROW
+			button.tooltip_text = "结算已开始，无法使用军需"
+		elif not _is_supply_purchased(supply_id):
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 			sub_label.text = "待购买"
 			count_label.text = "未购买"
@@ -1567,12 +1596,12 @@ func _refresh_supply_belt() -> void:
 			button.tooltip_text = "先在右侧详情卡购买入带"
 		elif left > 0:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-			sub_label.text = "点击使用"
+			sub_label.text = "已满" if _is_supply_heal_blocked(supply) else "点击使用"
 			count_label.text = "✓ %d" % left
 			count_label.add_theme_color_override("font_color", Color("#0e9f58"))
 			style.bg_color = Color.WHITE
 			style.border_color = UITheme.LIGHT_PANEL_BORDER
-			button.disabled = false
+			button.disabled = _is_supply_heal_blocked(supply)
 			button.tooltip_text = "点击使用「%s」（剩余 %d 次）" % [supply.display_name, left]
 		else:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
@@ -1586,6 +1615,7 @@ func _refresh_supply_belt() -> void:
 
 
 func _refresh_supply_cards() -> void:
+	var settlement_started: bool = ui != null and ui.is_game_finished()
 	for supply_id in _supply_card_nodes.keys():
 		var nodes: Dictionary = _supply_card_nodes[supply_id]
 		var supply := _find_battle_supply(supply_id)
@@ -1600,13 +1630,19 @@ func _refresh_supply_cards() -> void:
 		var tag_label := nodes["tag"] as Label
 		var style := nodes["style"] as StyleBoxFlat
 		var icon_text := nodes["icon_text"] as Label
+		var button := nodes["button"] as Button
+		button.disabled = settlement_started
+		button.mouse_default_cursor_shape = Control.CURSOR_ARROW if settlement_started else Control.CURSOR_POINTING_HAND
 		var paid := _supply_paid_cost(supply)
 		icon_text.text = "锁" if locked else _supply_glyph(supply)
 		name_label.text = supply.display_name
 		desc_label.text = supply.summary_at(display_level)
 		cost_label.text = "%d 金 · 限 %d" % [paid, supply.max_uses_at(display_level)]
-		var gray := locked
-		if locked:
+		var gray := locked or settlement_started
+		if settlement_started:
+			tag_label.text = "结算中"
+			_style_supply_tag(tag_label, UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG)
+		elif locked:
 			tag_label.text = "未解锁"
 			_style_supply_tag(tag_label, UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG)
 		elif _is_supply_purchased(supply_id):
@@ -1628,7 +1664,7 @@ func _refresh_supply_cards() -> void:
 		cost_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_GOLD_TEXT)
 		style.bg_color = Color("#eef3f7") if gray else Color.WHITE
 		style.border_color = Color("#d9e3ea") if gray else UITheme.LIGHT_PANEL_BORDER
-		if supply_id == _supply_selected_id:
+		if supply_id == _supply_selected_id and not settlement_started:
 			style.border_color = UITheme.LIGHT_GOLD_SELECT
 
 
@@ -1639,7 +1675,15 @@ func _style_supply_tag(label: Label, fg: Color, bg: Color) -> void:
 
 func _render_supply_detail(supply_id: String) -> void:
 	var supply := _find_battle_supply(supply_id)
-	if supply == null or _supply_detail_nodes.is_empty():
+	if _supply_detail_nodes.is_empty():
+		return
+	for key in ["fx_row", "rule", "hint", "tag_a", "tag_b"]:
+		(_supply_detail_nodes[key] as Control).visible = supply != null
+	if supply == null:
+		for key in ["icon_text", "name", "tag_a", "tag_b", "desc", "fx0", "fx1", "fx2", "fxu0", "fxu1", "fxu2"]:
+			(_supply_detail_nodes[key] as Label).text = ""
+		(_supply_detail_nodes["name"] as Label).text = "未选带"
+		_refresh_supply_action_button()
 		return
 	var level := maxi(_supply_level(supply_id), 1)
 	var locked := _supply_level(supply_id) <= 0
@@ -1648,7 +1692,6 @@ func _render_supply_detail(supply_id: String) -> void:
 	var tag_a := _supply_detail_nodes.get("tag_a") as Label
 	var tag_b := _supply_detail_nodes.get("tag_b") as Label
 	var desc := _supply_detail_nodes.get("desc") as Label
-	var button := _supply_detail_nodes.get("button") as Button
 	if icon_text != null:
 		icon_text.text = "锁" if locked else _supply_glyph(supply)
 	if name_label != null:
@@ -1730,22 +1773,26 @@ func _is_supply_heal_blocked(supply: BattleSupplyData) -> bool:
 func _refresh_supply_action_button() -> void:
 	var supply := _find_battle_supply(_supply_selected_id)
 	var button := _supply_detail_nodes.get("button") as Button
-	if supply == null or button == null or not is_instance_valid(button):
+	if button == null or not is_instance_valid(button):
 		return
-	var settlement_started: bool = ui != null and ui.is_game_finished()
-	if _supply_level(_supply_selected_id) <= 0:
-		button.text = "未解锁"
+	if supply == null:
+		button.text = "未选带"
 		_set_supply_action_state(button, "grey", false)
 		return
+	var settlement_started: bool = ui != null and ui.is_game_finished()
 	if settlement_started:
 		button.text = "结算中"
 		_set_supply_action_state(button, "grey", false)
 		return
+	if _supply_level(_supply_selected_id) <= 0:
+		button.text = "未解锁"
+		_set_supply_action_state(button, "grey", false)
+		return
+	if _is_supply_heal_blocked(supply):
+		button.text = "已满"
+		_set_supply_action_state(button, "grey", false)
+		return
 	if _is_supply_purchased(_supply_selected_id):
-		if _is_supply_heal_blocked(supply):
-			button.text = "生命已满"
-			_set_supply_action_state(button, "grey", false)
-			return
 		if _supply_uses_left(_supply_selected_id) <= 0:
 			button.text = "已用尽"
 			_set_supply_action_state(button, "grey", false)
@@ -1773,7 +1820,7 @@ func _supply_is_in_belt(supply_id: String) -> bool:
 
 ## 悬停卡片 = 右侧即时预览（已固定选中则不再跟随）。
 func _on_supply_card_hover(supply_id: String) -> void:
-	if _supply_pinned:
+	if _supply_pinned or (ui != null and ui.is_game_finished()):
 		return
 	_supply_selected_id = supply_id
 	_render_supply_detail(supply_id)
@@ -1782,6 +1829,8 @@ func _on_supply_card_hover(supply_id: String) -> void:
 
 ## 点击卡片 = 金框固定选中（悬停移开不丢）。
 func _on_supply_card_pressed(supply_id: String) -> void:
+	if ui != null and ui.is_game_finished():
+		return
 	_supply_pinned = true
 	_supply_selected_id = supply_id
 	_render_supply_detail(supply_id)
@@ -1804,7 +1853,17 @@ func _on_supply_action_pressed() -> void:
 ## 购买入带（✅ 0.8.16 / NUMBERS 10.15）：支付 = 强化后费用 ×（1 − 科技 supply_discount_pct）
 ## 向上取整；**不立即生效**、无二次确认；次数 = 强化后限次；未使用结算作废、不返还。
 func _buy_battle_supply(supply: BattleSupplyData) -> void:
+	if supply == null:
+		return
+	if ui != null and ui.is_game_finished():
+		ui.show_status("结算已开始，无法购买军需")
+		return
 	var supply_id := str(supply.supply_id)
+	if _supply_level(supply_id) <= 0:
+		return
+	if _is_supply_heal_blocked(supply):
+		ui.show_status("已满，无需修整。")
+		return
 	if not _supply_is_in_belt(supply_id):
 		ui.show_status("该军需未随军需带出征，请先在军需处选带")
 		return
@@ -1854,11 +1913,14 @@ func _use_battle_supply(supply_id: String) -> void:
 
 ## 军需效果应用（NUMBERS 10.15，按强化等级取值）：修整 / 火攻 / 擂鼓 / 缓兵 / 掷石齐射 / 犒军。
 func _apply_battle_supply(supply: BattleSupplyData, level: int) -> void:
+	if supply == null or (ui != null and ui.is_game_finished()):
+		return
 	var supply_name := supply.display_name
 	var heal := supply.heal_at(level)
 	if heal > 0:
-		GameManager.lives += heal
-		ui.show_status("%s：基地生命 +%d" % [supply_name, heal])
+		var recovered := mini(heal, maxi(GameManager.starting_lives - GameManager.lives, 0))
+		GameManager.lives += recovered
+		ui.show_status("已恢复 %d 点。" % recovered)
 	var magic := supply.instant_magic_at(level)
 	var burn := supply.burn_dps_at(level)
 	if magic > 0 or burn > 0:

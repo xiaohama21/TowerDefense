@@ -461,32 +461,45 @@ func _populate_info_card(character: CharacterData, level: int, stats, progress) 
 	_exp_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	bar_row.add_child(_exp_label)
 
-	# 四统计格（伤害/攻速/射程/建造费用）
+	# 基础属性用现有图徽 + 数值；名称与量纲说明收在 tooltip（B-102）。
 	var stat_row := _info_node("StatRow") as HBoxContainer
 	for child in stat_row.get_children():
+		stat_row.remove_child(child)
 		child.queue_free()
+	var damage_type := character.profession.attack_damage_type if character.profession != null else DamageTypes.PHYSICAL
+	if not DamageTypes.is_valid(damage_type):
+		damage_type = DamageTypes.PHYSICAL
 	var stat_values := [
-		["伤害", str(int(stats.damage)), false],
-		["攻速", "%.2fs" % stats.attack_interval, false],
-		["射程", str(int(stats.range)), false],
-		["建造费用", str(character.build_cost), true],
+		["dmg_%s" % damage_type, str(int(stats.damage)), false, "%s伤害" % DamageTypes.display_name(damage_type)],
+		["stat_attack_speed", "%.2fs" % stats.attack_interval, false, "攻击间隔（s）"],
+		["stat_range", str(int(stats.range)), false, "射程（px）"],
+		["coin", str(character.build_cost), true, "建造费用"],
 	]
 	for stat_def in stat_values:
 		var pill := PanelContainer.new()
+		pill.name = "Stat_%s" % stat_def[0]
+		pill.tooltip_text = stat_def[3]
 		pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		pill.add_theme_stylebox_override("panel", _stat_pill_style())
-		var pill_box := VBoxContainer.new()
-		pill_box.add_theme_constant_override("separation", 0)
+		var pill_box := HBoxContainer.new()
+		pill_box.add_theme_constant_override("separation", 8)
 		pill.add_child(pill_box)
-		var key := Label.new()
-		key.text = stat_def[0]
-		key.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		key.add_theme_font_size_override("font_size", 12)
-		key.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-		pill_box.add_child(key)
+		var icon := TextureRect.new()
+		icon.name = "StatIcon"
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(24, 24)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon.tooltip_text = stat_def[3]
+		UITheme.apply_hud_icon(icon, stat_def[0], 24)
+		pill_box.add_child(icon)
 		var value := Label.new()
+		value.name = "StatValue"
 		value.text = stat_def[1]
-		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		value.add_theme_font_size_override("font_size", 17)
 		value.add_theme_color_override("font_color",
 			UITheme.LIGHT_GOLD_TEXT if stat_def[2] else UITheme.LIGHT_INK)
@@ -500,6 +513,8 @@ func _stat_pill_style() -> StyleBoxFlat:
 	style.border_color = UITheme.LIGHT_PANEL_BORDER
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(9)
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
 	style.content_margin_top = 5.0
 	style.content_margin_bottom = 5.0
 	return style
@@ -577,6 +592,7 @@ func _find_roster_count() -> Label:
 ## 列表卡内容层（概念图 .rcard：头像圆 + 姓名/职业两行 + 右对齐 Lv；锁定卡含来源）。
 func _make_roster_content(character: CharacterData, level: int, locked: bool) -> Control:
 	var content := HBoxContainer.new()
+	content.name = "CardContent"
 	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	content.offset_left = 9.0
 	content.offset_right = -9.0
@@ -585,8 +601,10 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 	content.add_theme_constant_override("separation", 9)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var avatar_char := character.display_name.left(1)
-	content.add_child(UITheme.avatar_label(avatar_char,
-		"grey" if locked else AVATAR_COLORS[abs(hash(avatar_char)) % AVATAR_COLORS.size()], 44.0, 20))
+	var avatar := UITheme.avatar_label(avatar_char,
+		"grey" if locked else AVATAR_COLORS[abs(hash(avatar_char)) % AVATAR_COLORS.size()], 44.0, 20)
+	avatar.name = "CardAvatar"
+	content.add_child(avatar)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 2)
@@ -2294,14 +2312,9 @@ func _apply_promotion(promotion: PromotionData, dialog: ConfirmationDialog) -> v
 
 ## 信物页签刷新（GDD 4.8 双槽，✅ 0.8.14）：
 ## 专属槽 = 锁定占位展示（不参与计算）；可选槽 = 通用信物列表 + 装备 / 卸下。
-func _refresh_relic(character: CharacterData) -> void:
-	var exclusive := GameFlow.get_relic_for_character(_selected_id)
-	if exclusive == null:
-		_relic_label.text = "专属信物槽（未开放）：该武将暂无专属信物"
-	else:
-		_relic_label.text = "专属信物槽（未开放）：%s —— %s\n效果：%s（锁定占位，本版不参与计算）" % [
-			exclusive.display_name, exclusive.description, exclusive.effect_summary(),
-		]
+func _refresh_relic(_character: CharacterData) -> void:
+	_relic_label.text = "未开放"
+	_relic_label.tooltip_text = "专属信物槽暂未开放。"
 	for child in _relic_optional_box.get_children():
 		_relic_optional_box.remove_child(child)
 		child.queue_free()

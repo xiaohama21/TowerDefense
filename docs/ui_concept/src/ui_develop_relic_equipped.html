@@ -132,6 +132,7 @@
   .slothd { display:flex; align-items:center; gap:8px; }
   .slotico { width:32px; height:32px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
     font-size:15px; color:#fff; background:linear-gradient(180deg,#c3d3de,#9db4c4); }
+  .slotico.placeholder { background:none; border:1.5px dashed #a8bfd0; box-shadow:none; }
   .slotico.plus { background:none; border:2px dashed #cbb163; color:#b8860b; font-size:20px; }
   .slotico.rel { background:linear-gradient(180deg,#f2c85c,#d99a1f); }
   .slotnm { font-size:15.5px; color:#1b4d78; letter-spacing:1px; white-space:nowrap; }
@@ -214,10 +215,10 @@
             </div>
             <div class="expbar"><i style="width:41%;"></i><span>150 / 370</span></div>
             <div class="pills">
-              <div class="pill"><img class="ic" src="icons_hud/dmg_physical.png"><span class="k">伤害</span><span class="v">115</span></div>
-              <div class="pill"><img class="ic" src="icons_hud/stat_attack_speed.png"><span class="k">攻速</span><span class="v">0.67s</span></div>
-              <div class="pill"><img class="ic" src="icons_hud/stat_range.png"><span class="k">射程</span><span class="v">120</span></div>
-              <div class="pill"><img class="ic" src="icons_hud/coin.png"><span class="k">建造费用</span><span class="v"><b>60</b></span></div>
+              <div class="pill" title="物理伤害"><img class="ic" src="icons_hud/dmg_physical.png"><span class="v">115</span></div>
+              <div class="pill" title="攻击间隔（s）"><img class="ic" src="icons_hud/stat_attack_speed.png"><span class="v">0.67s</span></div>
+              <div class="pill" title="射程（px）"><img class="ic" src="icons_hud/stat_range.png"><span class="v">120</span></div>
+              <div class="pill" title="建造费用"><img class="ic" src="icons_hud/coin.png"><span class="v"><b>60</b></span></div>
             </div>
             <div class="poolrow">
               <span class="poolchip">经验池 <b>160</b><span class="q">?</span></span>
@@ -245,17 +246,8 @@
             <div class="tabbody">
               <div class="relwrap">
                 <div class="relslots">
-                  <div class="slotcard locked">
-                    <div class="slotcap">槽 1 · 专属信物</div>
-                    <div class="slothd">
-                      <span class="slotico">矛</span>
-                      <div>
-                        <div class="slotnm">蛇矛精锻</div>
-                        <div class="slottags"><span class="tag lock">专属 · 未开放</span></div>
-                      </div>
-                    </div>
-                    <div class="sloteff">攻击间隔 <b>×0.92</b>（张飞专属）</div>
-                    
+                  <div class="slotcard locked" title="专属信物槽暂未开放。">
+                    <div class="slothd"><span class="slotico placeholder"></span><div class="slotnm">未开放</div></div>
                   </div>
                   <div class="slotcard rel">
                     <div class="slotcap">槽 2 · 可选信物</div>

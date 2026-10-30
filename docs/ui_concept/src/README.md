@@ -10,7 +10,7 @@
 - 共享样式 `concept_ui.css`（v3 视觉语言：背景渐变 / 面板 / 按钮九宫格 / 滚动条 / 头像占位），旧首页两版自带内联样式。
 - 字体与 Kenney 素材均在包内相对引用，整个 `src/` 目录可整体拷走使用。
 
-## 2. PNG ↔ HTML 映射（23 屏）
+## 2. PNG ↔ HTML 映射（24 屏）
 
 | 归档 PNG（docs/ui_concept/） | 源码 HTML | 内容 |
 |---|---|---|
@@ -73,5 +73,9 @@
 1. 改稿 = 编辑 HTML → 重渲 PNG → 给用户确认 → 覆盖 `docs/ui_concept/ui_*.png` → 同步 `UI_CONCEPT.md` / `UI_LAYOUT.md` 版本与 changelog（文档先行）。
 2. 新增屏幕：复制同风格 HTML 起稿；新增 Kenney 素材时同步补进 `kenney_ui_pack/` 并在本 README 清单登记。
 3. 本目录是**设计复现基线**，不是运行时资源；游戏内素材归 `assets/`（见 `docs/modules/ART_ASSETS.md`）。
-4. `.gitignore` 忽略 `*.import`——Godot 编辑器打开项目时为本目录字体/PNG 生成的导入缓存不入库。
+4. 字体／PNG 的 `*.import` 导入设置随仓库提交；生成缓存位于 `.godot/`，由 `.gitignore` 排除。
 5. `ui_cursor_palette` 例外：PIL 脚本生成（见 §2 / §4），不入 HTML 映射流程。
+
+### 2026-10-30：0.8.17.4 养成概念稿同步
+
+五张 `ui_develop` 系基础四格去重复名词，说明放 title；两张信物稿未开放专属槽只留虚线圆与「未开放」，隐藏旧件名称／效果。沿用 1280×720／1×／4000ms 基线并以独立 Chrome 用户目录重渲，MD5 见 UI_CONCEPT v0.26 的同源重渲验收表。

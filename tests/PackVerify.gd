@@ -2,8 +2,8 @@ extends Node
 
 ## 打包产物验证场景（PackVerify）：模拟"全新机器、无 Godot 环境、首次运行"——
 ## 无存档创建新档、初始武将发放、编队角色链路（SquadSelect 同款）与全量资源完整性。
-## 用法（开发态或打包 exe 均可）：
-##   Godot --headless --scene res://tools/PackVerify.tscn
+## 开发态用法（正式包排除 tests；独立包另验证默认启动与包内资源）：
+##   Godot --headless --scene res://tests/PackVerify.tscn
 ## 输出 PACK_VERIFY_OK / PACK_VERIFY_FAIL，退出码 0 / 1。
 
 ## 关羽 spine 素材 / 运行时（ART_ASSETS §5.8；扩展文件在仓库根 bin/）。
@@ -46,6 +46,7 @@ func _scan_tres_ids(dir_path: String) -> Array[String]:
 
 
 func _run() -> void:
+	_check("项目与 Windows 导出版本一致（0.8.17.4）", _release_version_integrity())
 	_check("全新环境：user:// 下无存档", not FileAccess.file_exists(ProfileStore.get_profile_path()))
 	_check("开始游戏：创建新档成功", GameFlow.start_new_game())
 	var profile := ProfileStore.get_profile()
@@ -66,6 +67,23 @@ func _run() -> void:
 		print("FAILURES:")
 		for line in failures:
 			print("  " + line)
+
+
+## 开发态检查发布配置；发布包不包含 export_presets.cfg，PE 版本由实际导出验证。
+func _release_version_integrity() -> bool:
+	var version := str(ProjectSettings.get_setting("application/config/version", ""))
+	if version.is_empty():
+		return false
+	if not FileAccess.file_exists("res://export_presets.cfg"):
+		return true
+	var presets := ConfigFile.new()
+	if presets.load("res://export_presets.cfg") != OK:
+		return false
+	var export_name := str(presets.get_value("preset.0", "export_path", "")).get_file()
+	var file_version := str(presets.get_value("preset.0.options", "application/file_version", ""))
+	var product_version := str(presets.get_value("preset.0.options", "application/product_version", ""))
+	details.append("发布版本：项目=%s / 文件=%s / PE=%s·%s" % [version, export_name, file_version, product_version])
+	return export_name == "FengHuoLianYing_v%s.exe" % version and file_version == version and product_version == version
 
 
 func _initial_characters_idempotent(profile: PlayerProfile) -> bool:

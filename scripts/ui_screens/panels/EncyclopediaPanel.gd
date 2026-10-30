@@ -1229,13 +1229,10 @@ func _promotion_skill_text(promotion: PromotionData) -> String:
 ## （Boss 签名信物 = 通用件：获取难度 / 效果 / 持有与装备态）；碎片兑换口径已删除。
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
-	_relic_tab.add_child(_make_body_label("专属信物槽（未开放 · 锁定占位，不参与计算）", UITheme.LIGHT_GOLD_TEXT))
-	var exclusive := GameFlow.get_relic_for_character(str(character.character_id))
-	if exclusive == null:
-		_relic_tab.add_child(_make_body_label("该武将暂无专属信物", UITheme.LIGHT_LOCK))
-	else:
-		_relic_tab.add_child(_make_body_label("· %s —— %s" % [exclusive.display_name, exclusive.description]))
-		_relic_tab.add_child(_make_body_label("效果：%s" % exclusive.effect_summary(), UITheme.LIGHT_ACCENT))
+	var exclusive_state := _make_body_label("未开放", UITheme.LIGHT_LOCK)
+	exclusive_state.name = "ExclusiveRelicState"
+	exclusive_state.tooltip_text = "专属信物槽暂未开放。"
+	_relic_tab.add_child(exclusive_state)
 	_relic_tab.add_child(_make_body_label("可选信物槽（Boss 签名信物 · 通用件，可自由装卸）", UITheme.LIGHT_GOLD_TEXT))
 	var profile := GameFlow.get_profile()
 	var equipped_id := profile.get_character_relic_id(str(character.character_id), "optional") if profile != null else ""
