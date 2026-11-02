@@ -1,9 +1,9 @@
 extends Node
 
-## 阶段 8·提交 10 数值基准测试（GDD 阶段 8·提交 10 / modules/STATS_PIPELINE.md §10）：
+## 阶段 9·提交 1 品阶数值基准（modules/STATS_PIPELINE.md）：
 ## headless 确定性虚拟时钟模拟——固定 delta 步进、同一 seed、3 次采样取均值；
 ## 与战斗数值同源（走真实 Tower/Enemy/Bullet 节点与 _process/_physics_process，
-## 不另抄任何数值公式）。首次运行生成 tests/benchmark_baseline.json，
+## 不另抄任何数值公式）。首次运行生成 tests/benchmark_rank_baseline.json，
 ## 后续与快照对比（±3% 容差）防平衡回退；断言失败以非零退出码结束。
 
 const TOWER_SCENE := preload("res://scenes/Tower.tscn")
@@ -15,32 +15,14 @@ const WINDOW_TICKS: int = int(60.0 / VIRTUAL_DELTA)
 const WINDOW_SECONDS: float = 60.0
 const SAMPLES: int = 3
 const BASELINE_TOLERANCE: float = 0.03
-const BASELINE_PATH := "res://tests/benchmark_baseline.json"
+const BASELINE_PATH := "res://tests/benchmark_rank_baseline.json"
 
 const CHARACTER_DIR := "res://resources/characters/"
-const PROMOTION_DIR := "res://resources/promotions/"
 
 ## 每行（y 复用 3 条 Path2D）组数；相邻列间距 1500px 防跨组溅射/弹道串扰。
 const ROW_GROUPS: int = 3
 const COL_SPACING: float = 1500.0
 const ROW_SPACING: float = 600.0
-
-## SKILLS.md 4.1 转职等效 DPS 预算（以未转职为基准、不链式相乘）。
-const BUDGET_T1: Vector2 = Vector2(1.20, 1.33)
-const BUDGET_T2_STRONG: Vector2 = Vector2(1.44, 1.59)
-const BUDGET_T2_NEWSKILL: Vector2 = Vector2(1.39, 1.44)
-
-## 档次 3 条件增伤登记（STATS_PIPELINE §9.1）：单项预算 ≤+30%（1.30 倍）。
-const CONDITIONAL_BUDGET_MAX: float = 1.30
-
-## 基准 1 行级豁免（提交 10 拍板，2026-09-04）：
-## ①archer|3 连弩线：单体窗继承稳射保底、连矢无价值，普攻允许上浮至 ×1.66
-##   （AOE 主战场由基准 2 验收）；②catapult|2 破城线：单体窗无精英标签 +
-##   min_range 近身弱点，普攻比偏低属口径现象，仅警告不 FAIL（精英窗基准 3 验收）。
-const BENCH1_BUDGET_OVERRIDES := {
-	"archer|3": Vector2(1.39, 1.66),
-}
-const BENCH1_WARN_ONLY: Array[String] = ["catapult|2"]
 
 var failures: Array[String] = []
 var warnings: Array[String] = []
@@ -62,66 +44,6 @@ const STRATEGIST_CHAR := "zhuge_liang"
 const DANCER_CHAR := "diao_chan"
 const CATAPULT_CHAR := "huang_fu_song"
 const LIUBEI_CHAR := "liu_bei"
-
-## 转职配置（display 名 / promo 文件基名）；promo 为空 = 未转职。
-const TIER1 := 1
-const TIER2_STRONG := 2
-const TIER2_NEW := 3
-
-func _promo_path(base: String) -> String:
-	return PROMOTION_DIR + base + ".tres"
-
-## 职业配置行：{char, 未转/一转/强化线(A)/新技能线(B)}
-const PROFESSION_ROWS := {
-	&"cavalry": {
-		"char": "guan_yu",
-		"t1": "cavalry_iron_rider",
-		"a": "cavalry_heavy_armor",
-		"b": "cavalry_swift_raider",
-	},
-	&"tiger_guard": {
-		"char": "zhang_fei",
-		"t1": "tiger_guard_army",
-		"a": "tiger_guard_vanguard",
-		"b": "tiger_guard_guard",
-	},
-	&"archer": {
-		"char": "huang_zhong",
-		"t1": "archer_strong_bow",
-		"a": "archer_piercing_cloud",
-		"b": "archer_crossbow",
-	},
-	&"strategist": {
-		"char": "zhuge_liang",
-		"t1": "strategist_mage",
-		"a": "strategist_sage",
-		"b": "strategist_heavenly_master",
-	},
-	&"catapult": {
-		"char": "huang_fu_song",
-		"t1": "catapult_thunder",
-		"a": "catapult_city_breaker",
-		"b": "catapult_earthquake",
-	},
-	&"dancer": {
-		"char": "diao_chan",
-		"t1": "dancer_master",
-		"a": "dancer_phoenix",
-		"b": "dancer_echo",
-	},
-}
-
-## 各配置显示名（报告用）。
-func _promo_name(row: Dictionary, cfg: int) -> String:
-	match cfg:
-		TIER1:
-			return row["t1"]
-		TIER2_STRONG:
-			return row["a"]
-		TIER2_NEW:
-			return row["b"]
-	return "base"
-
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -149,92 +71,15 @@ func _run() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	if not OS.get_environment("BENCH_DEBUG").is_empty():
-		await _debug_probe()
-		get_tree().quit(0)
-		return
-
 	_baseline = _load_baseline()
 	seed(20260904)
-	await _run_benchmark_1()
-	await _run_benchmark_2()
-	await _run_benchmark_3()
-	await _run_benchmark_4()
+	await _run_rank_benchmarks()
+	await _run_support_benchmarks()
 	_run_bucket_asserts()
 	_finish()
 
 
 ## 临时调试探针（BENCH_DEBUG=1 时运行）：复现「打几下就停」场景。
-func _debug_probe() -> void:
-	var scenarios: Array[Dictionary] = [
-		{"name": "b1 布局 关羽未转", "char": "guan_yu", "promo": "", "count": 1,
-			"hp": 100000, "armor": 0, "tags": [] as Array[StringName], "respawn": 0},
-		{"name": "b3 布局 张飞 cavalry 桩", "char": "zhang_fei", "promo": "", "count": 1,
-			"hp": 100000, "armor": 0, "tags": [&"cavalry"] as Array[StringName], "respawn": 0},
-		{"name": "b4 布局 control", "char": "guan_yu", "promo": "", "count": 1,
-			"hp": 100000, "armor": 0, "tags": [] as Array[StringName], "respawn": 0},
-	]
-	for sc in scenarios:
-		seed(20260904)
-		var group := _make_group(sc["char"], sc["promo"], sc["count"], sc["hp"], sc["armor"],
-			sc["tags"], sc["respawn"])
-		if sc["name"] == "b4 布局 control":
-			group = _make_support_group("", "")
-		if group.is_empty():
-			print("DEBUG %s 建组失败" % sc["name"])
-			continue
-		_simulate_window([group])
-		var tower: Tower = group["tower"]
-		var total := _group_damage(group)
-		var dummy: Enemy = group["dummies"][0]
-		print("DEBUG %s | damage=%d dps=%.1f ult=%d rage=%.1f target_valid=%s attack_timer_stopped=%s wait=%.3f 桩hp=%d/%d" % [
-			sc["name"], total, float(total) / 60.0, int(group["ult_count"]),
-			tower.rage, str(tower.is_target_valid(dummy)), str(tower.attack_timer.is_stopped()),
-			tower.attack_timer.wait_time, dummy.current_hp, dummy.max_hp,
-		])
-		await _teardown_window()
-
-	# 暖场：重复 teardown 后（模拟 B1/B2 的窗交替）再跑 B3 并行，定位跨窗残留。
-	for warm in range(3):
-		seed(20260904)
-		var warm_group := _make_group("guan_yu", "", 1, 100000, 0, [] as Array[StringName])
-		_simulate_window([warm_group])
-		await _teardown_window()
-	print("DEBUG 暖场完成，开始 B3 并行（第 2 次）")
-	await _debug_b3_parallel("B3并行-暖场后")
-
-
-
-
-func _debug_b3_parallel(tag: String) -> void:
-	seed(20260904)
-	var specs: Array = [
-		{"key": "elite_wusheng", "char": "guan_yu", "promo": "", "hp": 100000, "armor": 15,
-			"tags": [&"yellow_turban", &"elite"] as Array[StringName], "respawn": 0},
-		{"key": "cavalry_counter", "char": "zhang_fei", "promo": "", "hp": 100000, "armor": 0,
-			"tags": [&"yellow_turban", &"cavalry"] as Array[StringName], "respawn": 0},
-		{"key": "elite_siege", "char": "huang_fu_song", "promo": "catapult_thunder", "hp": 100000,
-			"armor": 15, "tags": [&"yellow_turban", &"elite"] as Array[StringName], "respawn": 0},
-		{"key": "kill_refund", "char": "guan_yu", "promo": "cavalry_iron_rider", "hp": 300, "armor": 0,
-			"tags": [&"yellow_turban", &"elite"] as Array[StringName], "respawn": 300},
-	]
-	var groups: Array = []
-	for spec in specs:
-		var group := _make_group(spec["char"], spec["promo"], 1, spec["hp"], spec["armor"],
-			spec["tags"], spec["respawn"])
-		if not group.is_empty():
-			group["_key"] = spec["key"]
-			groups.append(group)
-	_simulate_window(groups)
-	for group in groups:
-		print("DEBUG %s %s | damage=%d dps=%.1f ult=%d 桩数=%d" % [
-			tag, str(group["_key"]), _group_damage(group), float(_group_damage(group)) / 60.0,
-			int(group["ult_count"]), group["dummies"].size(),
-		])
-	await _teardown_window()
-
-
-## 战斗环境：3 条横向直线 Path2D（桩按行分 y）、一个 TowerManager。
 func _build_environment() -> void:
 	_paths.clear()
 	_tower_manager = TOWER_MANAGER_SCRIPT.new()
@@ -263,14 +108,10 @@ func _origin_for_col() -> Vector2:
 	return Vector2(x, y)
 
 
-func _build_tower(character_base: String, promo_base: String, origin: Vector2) -> Tower:
+func _build_tower(character_base: String, rank: int, origin: Vector2) -> Tower:
 	var character_data := load(CHARACTER_DIR + character_base + ".tres") as CharacterData
 	_check(character_data != null, "角色资源可加载：" + character_base)
-	var loadout := {"level": 10}
-	if not promo_base.is_empty():
-		var promo := load(PROMOTION_DIR + promo_base + ".tres") as PromotionData
-		_check(promo != null, "转职资源可加载：" + promo_base)
-		loadout["promotion"] = promo
+	var loadout := {"level": CharacterRank.LEVELS[clampi(rank, 0, 5)], "rank": rank}
 	var tower: Tower = _tower_manager.build_tower(origin, character_data, null, loadout)
 	_check(tower != null, "基准塔可建造：" + character_base)
 	if tower != null:
@@ -311,7 +152,7 @@ func _dummy_x_for_tower(tower: Tower, origin: Vector2) -> float:
 ## 一组 = 塔 + 若干木桩。respawn_hp > 0 时击杀循环补桩（击杀返怒验证）。
 func _make_group(
 	character_base: String,
-	promo_base: String,
+	rank: int,
 	dummy_count: int,
 	dummy_hp: int,
 	dummy_armor: int,
@@ -321,7 +162,7 @@ func _make_group(
 	var row := _layout_col % ROW_GROUPS
 	var origin := _origin_for_col()
 	var path: Node = _paths[row]
-	var tower := _build_tower(character_base, promo_base, origin)
+	var tower := _build_tower(character_base, rank, origin)
 	if tower == null:
 		return {}
 	# 防回归（B-026）：塔/桩几何必须落在 Path2D 长度（20000）内，否则 PathFollow2D
@@ -513,151 +354,7 @@ func _teardown_window() -> void:
 	_build_environment()
 
 
-## ============ 基准 1：单体木桩 DPS（5 输出职业 × 4 配置；舞娘行见基准 4） ============
-## 断言口径（提交 10 拍板，2026-09-04）：预算对照 SKILLS.md 4.1「等效 DPS」表，以
-## **普攻 DPS（不含大招，含职业技能）** 为准——大招次数受怒气-伤害耦合（命中+伤害折算
-## 积怒，GDD 4.6/10.6）随伤害加成放大，属设计内建，只报告不 FAIL；大招单发倍率单独
-## 对照 damage_multiplier × ultimate_multiplier（±5%）。行级豁免见 BENCH1_BUDGET_OVERRIDES /
-## BENCH1_WARN_ONLY（连弩单体含稳射上浮 ×1.66；破城单体口径仅警告，精英窗见基准 3）。
-func _run_benchmark_1() -> void:
-	_bench_report.append("【基准 1】单体木桩 DPS：60s 虚拟窗 ×3 采样均值（等级 10 / 未升阶 / 全加成归零；")
-	_bench_report.append("  木桩 HP10 万无甲无标签；普攻/大招/总 DPS 分列：大招 = 单发实测 × 主窗释放次数 ÷60（合成口径，注明）")
-	_bench_report.append("  预算断言以普攻(不含大招) DPS 为准（SKILLS 4.1 等效 DPS 口径）；大招次数增量只报告、单发倍率单独断言")
-	var professions: Array[StringName] = [&"cavalry", &"tiger_guard", &"archer", &"strategist", &"catapult"]
-	var key_rows: Array[String] = []
-	var mean: Dictionary = {}
-	for _sample in range(SAMPLES):
-		seed(20260904)
-		var specs: Array = []
-		for profession in professions:
-			var row: Dictionary = PROFESSION_ROWS[profession]
-			for cfg in [0, TIER1, TIER2_STRONG, TIER2_NEW]:
-				var key := "%s|%d" % [profession, cfg]
-				if not key_rows.has(key):
-					key_rows.append(key)
-				var promo := ""
-				match cfg:
-					TIER1:
-						promo = row["t1"]
-					TIER2_STRONG:
-						promo = row["a"]
-					TIER2_NEW:
-						promo = row["b"]
-				var group := _make_group(
-					String(row["char"]), promo, 1, 100000, 0,
-					[] as Array[StringName]
-				)
-				if not group.is_empty():
-					specs.append({"key": key, "group": group})
-		var all_groups: Array = []
-		for spec in specs:
-			all_groups.append(spec["group"])
-		_simulate_window(all_groups)
-		for spec in specs:
-			var group: Dictionary = spec["group"]
-			var dps := float(_group_damage(group)) / WINDOW_SECONDS
-			var ult_count := int(group["ult_count"])
-			if not mean.has(spec["key"]):
-				mean[spec["key"]] = {"dps": [], "ult": []}
-			mean[spec["key"]]["dps"].append(dps)
-			mean[spec["key"]]["ult"].append(ult_count)
-		await _teardown_window()
-
-	# 大招单发实测（独立窗，普攻/角色技能禁用；每配置 1 塔 1 桩）。
-	var ult_once: Dictionary = {}
-	for key in key_rows:
-		var parts := key.split("|")
-		var row: Dictionary = PROFESSION_ROWS[parts[0]]
-		var cfg := int(parts[1])
-		var promo := ""
-		match cfg:
-			TIER1:
-				promo = row["t1"]
-			TIER2_STRONG:
-				promo = row["a"]
-			TIER2_NEW:
-				promo = row["b"]
-		var group := _make_group(String(row["char"]), promo, 1, 100000, 0, [] as Array[StringName])
-		if group.is_empty():
-			continue
-		# 大招单发测量前禁用角色技能自动释放，防 2.5× 技能伤污染单发口径。
-		var tower: Tower = group["tower"]
-		tower._char_skill_ready = false
-		tower._char_skill_cooldown_left = 9999.0
-		ult_once[key] = _measure_ultimate_once(group)
-		await _teardown_window()
-
-	var out: Dictionary = {}
-	_bench_report.append("职业    配置             总 DPS      普攻 DPS*   大招 DPS*  大招次数 单发伤害  普攻vs未转  总vs未转")
-	for key in key_rows:
-		var parts := key.split("|")
-		var profession: StringName = parts[0]
-		var cfg := int(parts[1])
-		var row: Dictionary = PROFESSION_ROWS[profession]
-		var dps_vals: Array = mean[key]["dps"]
-		var ult_vals: Array = mean[key]["ult"]
-		var dps := _avg(dps_vals)
-		var ult_count := _avg_float(ult_vals)
-		var once := float(ult_once.get(key, 0.0))
-		var ult_dps := once * ult_count / WINDOW_SECONDS
-		var normal_dps := dps - ult_dps
-		var base_key := "%s|0" % profession
-		var base_dps := 0.0
-		var base_normal := 0.0
-		var base_ult := 0.0
-		if mean.has(base_key):
-			base_dps = _avg(mean[base_key]["dps"])
-			base_ult = _avg_float(mean[base_key]["ult"])
-			base_normal = base_dps - float(ult_once.get(base_key, 0.0)) * base_ult / WINDOW_SECONDS
-		var normal_ratio := 1.0
-		var total_ratio := 1.0
-		if cfg != 0 and base_normal > 0.0 and base_dps > 0.0:
-			normal_ratio = normal_dps / base_normal
-			total_ratio = dps / base_dps
-		var once_ratio := 1.0
-		if cfg != 0 and float(ult_once.get(base_key, 0.0)) > 0.0:
-			once_ratio = once / float(ult_once[base_key])
-		out[key] = {
-			"dps": dps, "normal_dps": normal_dps, "ult_dps": ult_dps,
-			"ult_count": ult_count, "ult_once": once,
-			"normal_ratio": normal_ratio, "total_ratio": total_ratio,
-			"ult_once_ratio": once_ratio,
-		}
-		var cfg_name := "未转"
-		match cfg:
-			TIER1:
-				cfg_name = "一转·" + str(row["t1"])
-			TIER2_STRONG:
-				cfg_name = "二转A·" + str(row["a"])
-			TIER2_NEW:
-				cfg_name = "二转B·" + str(row["b"])
-		_bench_report.append("%-8s %-16s %9.1f %9.1f %9.1f %6.1f %8.1f  %s   %s" % [
-			profession, cfg_name, dps, normal_dps, ult_dps, ult_count, once,
-			("×%.3f" % normal_ratio) if cfg != 0 else "基准",
-			("×%.3f" % total_ratio) if cfg != 0 else "基准",
-		])
-		_assert_tier_budget(profession, cfg, normal_ratio, key)
-		_assert_ult_once_budget(cfg, key, once_ratio, row)
-		if cfg != 0 and base_ult > 0.0 and ult_count > base_ult * 1.5:
-			warnings.append("基准 1 %s 大招次数 %.1f/60s（基础 %.1f，×%.2f）：怒气-伤害耦合放大，总比 ×%.3f 高于普攻比 ×%.3f，属设计内建（10.6），留意后期膨胀" % [
-				key, ult_count, base_ult, ult_count / base_ult, total_ratio, normal_ratio,
-			])
-	# 基线快照与容差回归。
-	for key in key_rows:
-		_regress_check("bench1.%s.dps" % key, out[key]["dps"])
-	_baseline_data["bench1"] = {}
-	for key in key_rows:
-		_baseline_data["bench1"][key] = {
-			"dps": out[key]["dps"], "normal_dps": out[key]["normal_dps"],
-			"ult_dps": out[key]["ult_dps"], "ult_count": out[key]["ult_count"],
-			"ult_once": out[key]["ult_once"],
-			"normal_ratio": out[key]["normal_ratio"],
-			"total_ratio": out[key]["total_ratio"],
-			"ult_once_ratio": out[key]["ult_once_ratio"],
-		}
-	_check(key_rows.size() == 20, "基准 1 应产出 5 职业 × 4 配置 = 20 行")
-	_bench_report.append("")
-
+## 六阶品阶、单体与三目标输出，各 60s × 3 次固定随机种子。
 func _avg(values: Array) -> float:
 	if values.is_empty():
 		return 0.0
@@ -671,357 +368,12 @@ func _avg_float(values: Array) -> float:
 	return _avg(values)
 
 
-## SKILLS 4.1 预算断言（基准 1，普攻口径不含大招；行级豁免见 BENCH1_*）。
-## 一转 ×1.2~1.33 / 二转强化 ×1.44~1.59 / 二转新技 ×1.39~1.44；容差 ±5%。
-func _assert_tier_budget(profession: StringName, cfg: int, normal_ratio: float, key: String) -> void:
-	if cfg == 0 or normal_ratio <= 0.0:
-		return
-	var budget := Vector2.ZERO
-	var label := ""
-	match cfg:
-		TIER1:
-			budget = BUDGET_T1
-			label = "一转预算 ×1.20~1.33"
-		TIER2_STRONG:
-			budget = BUDGET_T2_STRONG
-			label = "二转强化预算 ×1.44~1.59"
-		TIER2_NEW:
-			budget = BUDGET_T2_NEWSKILL
-			label = "二转新技预算 ×1.39~1.44"
-	if BENCH1_BUDGET_OVERRIDES.has(key):
-		budget = BENCH1_BUDGET_OVERRIDES[key]
-		label += "（连弩单体含稳射上浮 ×1.66）"
-	var ok := normal_ratio >= budget.x * 0.95 and normal_ratio <= budget.y * 1.05
-	if BENCH1_WARN_ONLY.has(key):
-		# 破城线：单体窗口径缺陷（无精英标签/min_range 近身弱点），仅警告不 FAIL，
-		# 精英价值由基准 3（elite_siege）与基准 2（AOE 效率）验收。
-		if not ok:
-			warnings.append("基准 1 %s 普攻比值 ×%.3f 偏离 %s（单体口径仅警告；精英/AOE 由基准 2/3 验收）" % [key, normal_ratio, label])
-		return
-	_check(ok, "基准 1 %s 普攻比值 ×%.3f 应在%s 内" % [key, normal_ratio, label])
-	if not ok:
-		warnings.append("基准 1 %s 普攻比值 ×%.3f 超出 %s，建议平衡审查" % [key, normal_ratio, label])
-
-
-## 大招单发倍率断言（基准 1，拍板 2026-09-04）：大招 = 普攻 ×N×ultimate_power，
-## 单发比值理论值 = promotion.damage_multiplier × ultimate_multiplier（特性等条件乘区
-## 同乘于基础与转职两侧抵消），容差 ±5%（整数取整 <1%）。
-func _assert_ult_once_budget(cfg: int, key: String, once_ratio: float, row: Dictionary) -> void:
-	if cfg == 0 or once_ratio <= 0.0:
-		return
-	var promo := ""
-	match cfg:
-		TIER1:
-			promo = row["t1"]
-		TIER2_STRONG:
-			promo = row["a"]
-		TIER2_NEW:
-			promo = row["b"]
-	var multipliers := _promo_ult_multipliers(promo)
-	var expected := multipliers.x * multipliers.y
-	var ok := once_ratio >= expected * 0.95 and once_ratio <= expected * 1.05
-	_check(ok, "基准 1 %s 大招单发比值 ×%.3f 应 ≈ damage×%.2f×ult×%.2f=×%.3f（±5%%）" % [
-		key, once_ratio, multipliers.x, multipliers.y, expected,
-	])
-	if not ok:
-		warnings.append("基准 1 %s 大招单发比值 ×%.3f 偏离理论 ×%.3f，建议平衡审查" % [key, once_ratio, expected])
-
-
-func _promo_ult_multipliers(promo_base: String) -> Vector2:
-	## 返回 (damage_multiplier, ultimate_multiplier)；未转职 = (1,1)。
-	if promo_base.is_empty():
-		return Vector2(1.0, 1.0)
-	var promo := load(PROMOTION_DIR + promo_base + ".tres") as PromotionData
-	if promo == null:
-		return Vector2(1.0, 1.0)
-	return Vector2(promo.damage_multiplier, promo.ultimate_multiplier)
-
-
-## ============ 基准 2：3 目标 AOE DPS（聚团 40px，主目标 progress 最远） ============
-func _run_benchmark_2() -> void:
-	_bench_report.append("【基准 2】3 目标 AOE DPS（木桩聚团 40px；与基准 1 同配置单体窗对比 AOE 效率）")
-	var professions: Array[StringName] = [&"tiger_guard", &"archer", &"strategist", &"catapult"]
-	var mean: Dictionary = {}
-	var key_rows: Array[String] = []
-	for _sample in range(SAMPLES):
-		seed(20260904)
-		var specs: Array = []
-		for profession in professions:
-			var row: Dictionary = PROFESSION_ROWS[profession]
-			for cfg in [0, TIER1, TIER2_STRONG, TIER2_NEW]:
-				var key := "%s|%d" % [profession, cfg]
-				if not key_rows.has(key):
-					key_rows.append(key)
-				var promo := ""
-				match cfg:
-					TIER1:
-						promo = row["t1"]
-					TIER2_STRONG:
-						promo = row["a"]
-					TIER2_NEW:
-						promo = row["b"]
-				var group := _make_group(
-					String(row["char"]), promo, 3, 100000, 0,
-					[] as Array[StringName]
-				)
-				if not group.is_empty():
-					specs.append({"key": key, "group": group})
-					if not mean.has(key):
-						mean[key] = []
-		var all_groups: Array = []
-		for spec in specs:
-			all_groups.append(spec["group"])
-		_simulate_window(all_groups)
-		for spec in specs:
-			var key: String = spec["key"]
-			mean[key].append(float(_group_damage(spec["group"])) / WINDOW_SECONDS)
-		await _teardown_window()
-
-	_bench_report.append("职业    配置             3 目标 DPS  AOE 效率(÷单体)  说明")
-	for profession in professions:
-		var row: Dictionary = PROFESSION_ROWS[profession]
-		for cfg in [0, TIER1, TIER2_STRONG, TIER2_NEW]:
-			var key := "%s|%d" % [profession, cfg]
-			if not mean.has(key) or mean[key].is_empty():
-				continue
-			var aoe_dps := _avg(mean[key])
-			var single_key := key
-			var single_dps := 0.0
-			if _baseline_data.has("bench1") and _baseline_data["bench1"].has(single_key):
-				single_dps = float(_baseline_data["bench1"][single_key]["dps"])
-			else:
-				# 兜底：从已采集的基准 1 实时结果取（同一次运行内先执行基准 1）。
-				single_dps = 0.0
-			var eff := aoe_dps / single_dps if single_dps > 0.0 else 0.0
-			var cfg_name := "未转"
-			match cfg:
-				TIER1:
-					cfg_name = "一转·" + str(row["t1"])
-				TIER2_STRONG:
-					cfg_name = "二转A·" + str(row["a"])
-				TIER2_NEW:
-					cfg_name = "二转B·" + str(row["b"])
-			_bench_report.append("%-8s %-16s %10.1f  %8.2f×" % [profession, cfg_name, aoe_dps, eff])
-			_baseline_data["bench2"] = _baseline_data.get("bench2", {})
-			_baseline_data["bench2"][key] = {"dps": aoe_dps}
-			_regress_check("bench2.%s.dps" % key, aoe_dps)
-	# AOE 能力防御性断言：3 目标窗单体职业不倒退、范围职业显著放大（数据供平衡讨论，
-	# 不做硬区间，防章节内容差异造成的假失败）。
-	var catapult_base := 0.0
-	var single_base := 0.0
-	if mean.has("catapult|0") and not mean["catapult|0"].is_empty():
-		catapult_base = _avg(mean["catapult|0"])
-	if _baseline_data.has("bench1") and _baseline_data["bench1"].has("catapult|0"):
-		single_base = float(_baseline_data["bench1"]["catapult|0"]["dps"])
-	if single_base > 0.0 and catapult_base > 0.0:
-		_check(catapult_base > single_base * 1.5, "投石车普攻爆散在 3 目标窗应显著高于单体窗（AOE 定位）")
-	_bench_report.append("")
-
-
-## ============ 基准 3：精英/Boss DPS 与机制（高甲精英 / cavalry 克制 / 破城 / 击杀返怒循环） ============
-func _run_benchmark_3() -> void:
-	_bench_report.append("【基准 3】精英/Boss DPS：精英桩（高甲 armor15 + elite 标签）/ 克制桩（cavalry 标签）/")
-	_bench_report.append("  击杀返怒循环桩（HP300 击杀自动补桩）；对照取基准 1 同配置普通桩数据")
-	var specs: Array = [
-		{"key": "elite_wusheng", "char": "guan_yu", "promo": "", "hp": 100000, "armor": 15,
-			"tags": [&"yellow_turban", &"elite"] as Array[StringName], "respawn": 0},
-		{"key": "cavalry_counter", "char": "zhang_fei", "promo": "", "hp": 100000, "armor": 0,
-			"tags": [&"yellow_turban", &"cavalry"] as Array[StringName], "respawn": 0},
-		{"key": "elite_siege", "char": "huang_fu_song", "promo": "catapult_thunder", "hp": 100000,
-			"armor": 15, "tags": [&"yellow_turban", &"elite"] as Array[StringName], "respawn": 0},
-		{"key": "kill_refund", "char": "guan_yu", "promo": "cavalry_iron_rider", "hp": 300, "armor": 0,
-			"tags": [&"yellow_turban", &"elite"] as Array[StringName], "respawn": 300},
-	]
-	var mean: Dictionary = {}
-	var ult_mean: Dictionary = {}
-	for _sample in range(SAMPLES):
-		seed(20260904)
-		var groups: Array = []
-		for spec in specs:
-			var group := _make_group(
-				spec["char"], spec["promo"], 1, spec["hp"], spec["armor"],
-				spec["tags"], spec["respawn"]
-			)
-			if not group.is_empty():
-				group["_key"] = spec["key"]
-				groups.append(group)
-		_simulate_window(groups)
-		for group in groups:
-			var key: String = group["_key"]
-			if not mean.has(key):
-				mean[key] = []
-				ult_mean[key] = []
-			mean[key].append(float(_group_damage(group)) / WINDOW_SECONDS)
-			ult_mean[key].append(float(group["ult_count"]))
-		await _teardown_window()
-
-	_bench_report.append("场景                  DPS        大招次数/60s   对照普通桩 DPS(基准1)  说明")
-	_run_conditional_asserts()
-	for spec in specs:
-		var key: String = spec["key"]
-		if not mean.has(key) or mean[key].is_empty():
-			continue
-		var dps := _avg(mean[key])
-		var ults := _avg_float(ult_mean[key])
-		_baseline_data["bench3"] = _baseline_data.get("bench3", {})
-		_baseline_data["bench3"][key] = {"dps": dps, "ult_count": ults}
-		_regress_check("bench3.%s.dps" % key, dps)
-		# 对照普通桩：关羽未转 = cavalry|0；张飞未转 = tiger_guard|0；
-		# 皇甫嵩破城 = catapult|1；铁骑击杀窗对照 = cavalry|1（高 HP 无返怒）。
-		var single_key := ""
-		var note := ""
-		match key:
-			"elite_wusheng":
-				single_key = "cavalry|0"
-				note = "武圣 +25% vs 高甲减伤"
-			"cavalry_counter":
-				single_key = "tiger_guard|0"
-				note = "虎贲克制 cavalry +15%"
-			"elite_siege":
-				single_key = "catapult|1"
-				note = "破城对精英 +10%×s"
-			"kill_refund":
-				single_key = "cavalry|1"
-				note = "大招击杀返怒 50% 循环"
-		var single := 0.0
-		if _baseline_data.has("bench1") and _baseline_data["bench1"].has(single_key):
-			single = float(_baseline_data["bench1"][single_key]["dps"])
-		var ref := ""
-		if single > 0.0:
-			ref = "×%.2f 普通桩" % (dps / single)
-		else:
-			ref = "—"
-		_bench_report.append("%-22s %10.1f  %12.1f   %28s  %s" % [key, dps, ults, ref, note])
-	# 击杀返怒循环：低 HP 击杀窗大招次数应显著高于高 HP 无击杀对照（返怒 50%）。
-	var kill_ult := _avg_float(ult_mean.get("kill_refund", []))
-	var base_ult := 0.0
-	if _baseline_data.has("bench1") and _baseline_data["bench1"].has("cavalry|1"):
-		base_ult = float(_baseline_data["bench1"]["cavalry|1"]["ult_count"])
-	_check(base_ult > 0.0 and kill_ult > base_ult * 1.3,
-		"击杀返怒循环应显著提高大招频率（实测 %.1f 次 vs 对照 %.1f 次）" % [kill_ult, base_ult])
-	_bench_report.append("")
-
-
-## 档次 3 条件增伤登记快检（STATS_PIPELINE §9.1）：单项预算 ≤+30%，实测乘区报告。
-func _run_conditional_asserts() -> void:
-	_bench_report.append("  条件乘区登记快检（单项预算 ≤ ×1.30）：")
-	# 通用探针：每场景独立塔 + 普通桩/条件桩各一，同一塔 finalize_damage 比值
-	# （finalize 只计算不结算，桩位仅需存在；百步叠层直接置计数、定军直接施加标记，
-	# 避免角色技能 2.5× 伤害污染探针）。
-	var probes: Array[Dictionary] = [
-		{"label": "武圣·精英", "char": "guan_yu", "promo": "", "tags": [&"elite"] as Array[StringName],
-			"expect": 1.25},
-		{"label": "周仓·高血", "char": "zhou_wei", "promo": "", "tags": [] as Array[StringName],
-			"expect": 1.30},
-		{"label": "百步·3层", "char": "huang_zhong", "promo": "", "tags": [] as Array[StringName],
-			"expect": 1.30},
-		{"label": "火攻·范围", "char": "huang_fu_song", "promo": "", "tags": [] as Array[StringName],
-			"expect": 1.15},
-		{"label": "破城·精英", "char": "huang_fu_song", "promo": "catapult_thunder",
-			"tags": [&"elite"] as Array[StringName], "expect": 1.10},
-		{"label": "定军·标记", "char": "huang_zhong", "promo": "", "tags": [] as Array[StringName],
-			"expect": 1.15},
-	]
-	for probe in probes:
-		var origin := _origin_for_col()
-		var path: Node = _paths[_row_for_col()]
-		var tower := _build_tower(probe["char"], probe["promo"], origin)
-		if tower == null:
-			continue
-		var label: String = probe["label"]
-		var normal_dummy := _spawn_dummy(path, origin.x + 120.0, 100000, 0, [] as Array[StringName])
-		var cond_dummy := _spawn_dummy(
-			path, origin.x + 200.0, 100000, 0, probe["tags"]
-		)
-		var probe_base := tower.damage * 10
-		var base_damage := tower.finalize_damage(probe_base, normal_dummy)
-		if label == "百步·3层":
-			tower._consecutive_hits = 3
-		# 定军标记：直接施加（技能 cast 含 2.5× 伤害会污染探针）。
-		if label == "定军·标记":
-			cond_dummy.apply_mark(tower.character_id, 5.0)
-		var after := tower.finalize_damage(probe_base, cond_dummy)
-		var ratio := float(after) / float(base_damage) if base_damage > 0 else 1.0
-		var budget_ok := ratio <= CONDITIONAL_BUDGET_MAX + 0.001 and ratio >= 0.99
-		_bench_report.append("    %-12s ×%.3f（预算 ≤×1.30）%s" % [label, ratio, "OK" if budget_ok else "超出预算!"])
-		_check(budget_ok, "条件增伤登记快检 %s 实测 ×%.3f 应 ≤×1.30 且 ≥×0.99" % [label, ratio])
-		await _teardown_window()
-
-
-## ============ 基准 4：支援贡献团队收益（1 输出 + 1 支援 vs 单输出对照） ============
-func _run_benchmark_4() -> void:
-	_bench_report.append("【基准 4】支援贡献：关羽(未转,等级10) + 支援塔 vs 单关羽对照窗；")
-	_bench_report.append("  伤害口径=关羽 damage_contributors（支援塔自身伤害不入账）；等效输出塔 = 提升 ÷ 单塔 DPS")
-	# 每采样 7 个独立窗：舞娘大招全图、虎贲破阵激励 200px，支援窗之间互不干扰必须分窗。
-	var windows: Array[Dictionary] = [
-		{"key": "control", "support": "", "support_promo": "", "label": "对照：单关羽"},
-		{"key": "dancer_base", "support": "diao_chan", "support_promo": "", "label": "貂蝉·未转（光环+月下舞）"},
-		{"key": "dancer_t1", "support": "diao_chan", "support_promo": "dancer_master", "label": "貂蝉·舞师"},
-		{"key": "dancer_a", "support": "diao_chan", "support_promo": "dancer_phoenix", "label": "貂蝉·凤仪"},
-		{"key": "dancer_b", "support": "diao_chan", "support_promo": "dancer_echo", "label": "貂蝉·绕梁"},
-		{"key": "banner", "support": "zhang_fei", "support_promo": "tiger_guard_army", "label": "张飞·虎贲军（军旗）"},
-		{"key": "rende", "support": "liu_bei", "support_promo": "", "label": "刘备（仁德）"},
-	]
-	var mean: Dictionary = {}
-	for _sample in range(SAMPLES):
-		seed(20260904)
-		for win in windows:
-			var key: String = win["key"]
-			var group := _make_support_group(
-				win["support"], win["support_promo"]
-			)
-			if group.is_empty():
-				continue
-			var groups: Array = [group]
-			if group.has("support_tower") and group["support_tower"] != null:
-				groups.append({
-					"tower": group["support_tower"], "dummies": [],
-					"character_id": String(group["support_tower"].character_id),
-					"remaining": 0.0, "ult_count": 0,
-					"respawn_hp": 0, "respawn_timer": 0.0,
-				})
-			_simulate_window(groups)
-			if not mean.has(key):
-				mean[key] = []
-			mean[key].append(float(_group_damage(group)) / WINDOW_SECONDS)
-			await _teardown_window()
-
-	var control := _avg(mean.get("control", [0.0]))
-	_bench_report.append("支援组               关羽 DPS    提升 %     等效输出塔   说明")
-	for win in windows:
-		var key: String = win["key"]
-		if not mean.has(key) or mean[key].is_empty():
-			continue
-		var dps := _avg(mean[key])
-		var lift := (dps - control) / control if control > 0.0 else 0.0
-		_baseline_data["bench4"] = _baseline_data.get("bench4", {})
-		_baseline_data["bench4"][key] = {"dps": dps}
-		_regress_check("bench4.%s.dps" % key, dps)
-		var label: String = win["label"]
-		_bench_report.append("%-22s %10.1f  %6.2f%%   %s  %s" % [
-			label, dps, lift * 100.0,
-			("+%.2f 座" % lift) if lift > 0.0 else "0.00 座", "",
-		])
-		if key != "control":
-			_check(dps > control * 1.01,
-				"基准 4 %s 关羽 DPS %.1f 应高于对照 %.1f（增益为正）" % [label, dps, control])
-	# 舞娘转职行不得倒退（光环强度不随转职，转职收益来自大招效果倍率）。
-	var base_dancer := _avg(mean.get("dancer_base", [0.0]))
-	for tier_key in ["dancer_t1", "dancer_a", "dancer_b"]:
-		var tier_dps := _avg(mean.get(tier_key, [0.0]))
-		if base_dancer > 0.0:
-			_check(tier_dps >= base_dancer * 0.97,
-				"舞娘转职行 %s 团队收益不得倒退（%.1f vs 基准 %.1f）" % [tier_key, tier_dps, base_dancer])
-	_bench_report.append("")
-
-
-## 支援组：输出塔（关羽·未转）在 origin，支援塔置于输出塔上方 80px（aura/军旗范围覆盖）。
-func _make_support_group(support_char: String, support_promo: String) -> Dictionary:
+## 支援贡献使用真实增益与伤害链路。
+func _make_support_group(support_char: String, support_rank: int) -> Dictionary:
 	var row_index := _layout_col % ROW_GROUPS
 	var origin := _origin_for_col()
 	var path: Node = _paths[row_index]
-	var row: Dictionary = PROFESSION_ROWS[&"cavalry"]
-	var out_tower := _build_tower(String(row["char"]), "", origin)
+	var out_tower := _build_tower("guan_yu", 0, origin)
 	if out_tower == null:
 		return {}
 	var dummy_x := _dummy_x_for_tower(out_tower, origin)
@@ -1034,7 +386,7 @@ func _make_support_group(support_char: String, support_promo: String) -> Diction
 			"remaining": 0.0, "ult_count": 0,
 			"respawn_hp": 0, "respawn_timer": 0.0, "path": path,
 		}
-	var support_tower := _build_tower(support_char, support_promo, origin + Vector2(0, -80.0))
+	var support_tower := _build_tower(support_char, support_rank, origin + Vector2(0, -80.0))
 	_check(support_tower != null, "支援塔可建造：" + support_char)
 	return {
 		"tower": out_tower, "dummies": [dummy],
@@ -1050,7 +402,7 @@ func _run_bucket_asserts() -> void:
 	_bench_report.append("【档位收口断言】编队桶收敛（档 2）+ 跨层乘算保留 + 攻速下限（L5）")
 	var origin := _origin_for_col()
 	var path: Node = _paths[_row_for_col()]
-	var tower := _build_tower("guan_yu", "", origin)
+	var tower := _build_tower("guan_yu", 0, origin)
 	_check(tower != null, "档位收口探针塔可建造")
 	if tower != null:
 		var dummy := _spawn_dummy(path, origin.x + 120.0, 100000, 0, [] as Array[StringName])
@@ -1084,7 +436,7 @@ func _run_bucket_asserts() -> void:
 
 	# 攻速下限（L5）：临时桶 +100% 后仍触底 ATTACK_SPEED_FLOOR = 0.55 × 基础间隔。
 	var origin2 := _origin_for_col()
-	var tower2 := _build_tower("guan_yu", "", origin2)
+	var tower2 := _build_tower("guan_yu", 0, origin2)
 	_check(tower2 != null, "攻速下限探针塔可建造")
 	if tower2 != null:
 		var floor_wait := tower2.attack_cooldown * Tower.ATTACK_SPEED_FLOOR
@@ -1132,8 +484,8 @@ func _save_baseline() -> void:
 		push_error("无法写入基线快照：" + BASELINE_PATH)
 		return
 	var payload := {
-		"program_version": "0.8.13.0",
-		"note": "阶段 8·提交 13 地基（0.8.13.0 伤害类型 + C=50 护甲模型）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
+		"program_version": "0.9.1.0",
+		"note": "阶段 9·提交 1（六阶品阶、百分比成长与暴击）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
 	}
 	for key in flat:
 		payload[key] = flat[key]
@@ -1158,15 +510,15 @@ func _finish() -> void:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	print("")
-	print("==================== 数值基准报告（阶段 8·提交 13 地基 / 0.8.13.0） ====================")
+	print("==================== 数值基准报告（阶段 9·提交 1 / 0.9.1.0） ====================")
 	for line in _bench_report:
 		print(line)
 	print("=======================================================================")
 	if failures.is_empty() and _baseline.is_empty():
 		_save_baseline()
 	elif failures.is_empty() and not _baseline.is_empty():
-		_bench_report.append("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_baseline.json 后重跑。")
-		print("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_baseline.json 后重跑。")
+		_bench_report.append("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_rank_baseline.json 后重跑。")
+		print("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_rank_baseline.json 后重跑。")
 	if not warnings.is_empty():
 		print("警告（不阻塞）：")
 		for w in warnings:
@@ -1184,3 +536,44 @@ func _finish() -> void:
 
 
 
+
+## Real Tower/Enemy/Bullet simulation: every rank and attack pattern, single and AoE.
+func _run_rank_benchmarks() -> void:
+	for count in [1, 3]:
+		for character_id in ["guan_yu", "zhang_fei", "huang_zhong", "huang_fu_song", "zhuge_liang", "zhao_yun", "zhou_wei"]:
+			var prior := 0.0
+			for rank in range(6):
+				var samples: Array = []
+				for sample in range(SAMPLES):
+					seed(20261030 + sample)
+					var group := _make_group(character_id, rank, count, 1000000, 20, [] as Array[StringName])
+					_simulate_window([group])
+					samples.append(float(_group_damage(group)) / WINDOW_SECONDS)
+					await _teardown_window()
+				var dps := _avg(samples)
+				var key := "%s.%d.%d" % [character_id, rank, count]
+				_baseline_data[key] = dps
+				_regress_check(key, dps)
+				_check(dps > 0.0 and dps >= prior * 0.99, "品阶 DPS 递进：%s %.2f vs %.2f" % [key, dps, prior])
+				prior = dps
+				_bench_report.append("%s DPS %.2f" % [key, dps])
+
+func _run_support_benchmarks() -> void:
+	var control := 0.0
+	for support in ["", "liu_bei", "diao_chan"]:
+		var group := _make_support_group(support, 0)
+		var groups: Array = [group]
+		if group.has("support_tower"):
+			groups.append({"tower": group["support_tower"], "dummies": [], "character_id": support, "remaining": 0.0, "ult_count": 0, "respawn_hp": 0, "respawn_timer": 0.0})
+		seed(20261030)
+		_simulate_window(groups)
+		var dps := float(_group_damage(group)) / WINDOW_SECONDS
+		if support.is_empty():
+			control = dps
+		else:
+			_check(dps > control, "支援应提高团队输出：" + support)
+		var key: String = "support." + ("control" if support.is_empty() else support)
+		_baseline_data[key] = dps
+		_regress_check(key, dps)
+		_bench_report.append("%s DPS %.2f" % [key, dps])
+		await _teardown_window()

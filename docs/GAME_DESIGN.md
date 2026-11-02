@@ -1,5 +1,9 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
+> 文档版本：v0.37.69（2026-10-30）
+> 0.9.1.0 验收（2026-11-02）：Rank／PackVerify／Smoke／Flow／ExitFlow／Stage0／TechUnlock／UnlockRepro／GoldFx／MapEditor／SupplyState／DevelopRefresh／Benchmark 共 13 项通过，基准 failures=0／warnings=0；补验品阶事务、物理／魔法攻击图徽及养成刷新，八张窗口截图归档。Windows 独立 release／交付 Spine DLL／包内六阶与 100 级资源／首关开波验证通过，PE 版本 0.9.1.0；B-103~B-111 已登记。
+> v0.37.69 变更（阶段 9·提交 1，程序 0.9.1.0 / GDD v0.37.69）：启动品阶与属性底层重构：六阶手动进阶、100 级连续经验曲线、逐将百分比成长与差异项、普攻独立暴击、转职全链删除、黄巾布折算及三材料掉落；schema v7 保存旧档裸面板成长守护。SKILLS v0.13 / STATS_PIPELINE v0.8 / UI_LAYOUT v0.20.71 / ENCYCLOPEDIA v0.1.20 / ART_PROMPTS v0.18 / UI_CONCEPT v0.27。2026-11-02 完成开发与验收，在 0.9.1 分支交付。
+
 > 版本：v0.37.68（2026-10-26）
 > 0.8.17.4 验收（2026-10-30）：五项当前回归、Windows release 独立启动／Spine DLL／包内资源与首关开波通过，PE 版本一致；五张养成概念稿基础图徽与未开放专属槽同步重渲。2026-10-29 全套 13 项已通过，基准保留既有 2 条警告。
 > v0.37.68 变更（2026-10-26，阶段 8·提交 17 修复位 **0.8.17.4**）：审查收口——养成刷新回归维护、军需空态／结算只读／修整回血夹取（B-071~B-074、B-100~B-102）、Windows 导出版本同步；正文当前循环与 UI／美术状态校正；阶段 9／10 接口按推荐路线定稿（军功商店、分提交 schema 台账、旧档成长守护、首次隐匿反制、连续经验曲线、新手酒馆候选、战场美术优先）。详见 DESIGN_REVIEW §12.10；UI_LAYOUT v0.20.70 / BUGS v0.64 / ART_ASSETS v0.22 / UI_CONCEPT v0.26 / ENCYCLOPEDIA v0.1.19。
@@ -270,16 +274,16 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 
 | 文档 | 职责 | 承载原章节 |
 |---|---|---|
-| [modules/CHARACTERS.md](modules/CHARACTERS.md) | 角色（塔）系统：概念、获取、经验升级、转职、怒气大招、特性 | 4.1、4.3~4.7 |
+| [modules/CHARACTERS.md](modules/CHARACTERS.md) | 角色（塔）系统：概念、获取、经验升级、品阶与成长守护、怒气大招、过渡特性 | 4.1、4.3~4.7 |
 | [modules/PROFESSIONS.md](modules/PROFESSIONS.md) | 职业系统：职业表、职业资源清单、新增职业规则 | 4.2 |
 | [modules/STAGES.md](modules/STAGES.md) | 关卡：结构、波次模板、局内升级回收、布局规范、第一章规划 | 5.1、5.2、5.4、5.6、6 |
 | [modules/ENEMIES.md](modules/ENEMIES.md) | 敌人：维度、特殊行为、第一章敌人表 | 5.5 |
 | [modules/BEHAVIORS.md](modules/BEHAVIORS.md) | 动作模组：行为注册表架构、行为规格清单、新增行为流程 | 4.6/4.7 实现侧、5.5 行为侧、原附录行为注册表 |
-| [modules/NUMBERS.md](modules/NUMBERS.md) | 数值基调：经济、经验曲线、成长、转职消耗、怒气数值 | 5.3、10 |
+| [modules/NUMBERS.md](modules/NUMBERS.md) | 数值基调：经济、经验曲线、成长、品阶消耗、暴击与技能增幅、怒气数值 | 5.3、10 |
 | [modules/DROPS_GACHA.md](modules/DROPS_GACHA.md) | 掉落与抽奖 | 7 |
 | [modules/SAVE_DATA.md](modules/SAVE_DATA.md) | 存档与数据模型 | 8 |
 | [modules/UI.md](modules/UI.md) | UI 与表现 | 9 |
-| [modules/SKILLS.md](modules/SKILLS.md) | 职业技能：职业池、转职授予对照、档位规则 | 4.5 技能侧 |
+| [modules/SKILLS.md](modules/SKILLS.md) | 旧职业技能规格归档；转职授予已删除，过渡大招执行器 | 4.5 技能侧 |
 | [modules/CHARACTER_SKILLS.md](modules/CHARACTER_SKILLS.md) | 角色技能：武将差异化、A 主动/B 被动、触发钩子 | 4.5 角色技能侧（v0.27.2 新增） |
 | [modules/ENCYCLOPEDIA.md](modules/ENCYCLOPEDIA.md) | 游戏百科：武将/敌人图鉴、数值模拟器 | 阶段 8 提交 9 |
 | [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) | 界面排版规范：网格、页签、语义色板 | 9 实现侧 |
@@ -321,7 +325,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 						   └─ 解锁下一关（按 prerequisite_stage_ids）
 				 └─ 养成界面（武将详情）
 					  ├─ 升级（消耗经验自动结算）
-					  ├─ 转职（满足等级 + 消耗材料）
+					  ├─ 进阶（满足等级 + 消耗三材料）
 					  └─ 经验池分配／科技／信物／军需准备（求贤入口停用，碎片已删除）
 ```
 
@@ -445,7 +449,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 - **验收标准**：背包可见遗物库存；编队可勾选最多 2 件；出征后开局金币/基地生命/塔属性带加成；遗物永久使用——选带不扣库存（v0.33.1 起）。
 - **不做**：遗物随机词条/数值随机；遗物掉落进概率掉落表；更多章节遗物。
 
-### 阶段 8：玩法打磨 —— ✅ 提交 5~17 已完成（当前程序 0.8.17.4；下列保留分次交付记录）（提交 5 v0.29.0 / 0.8.5.0 及延伸 0.8.5.1~0.8.5.6；提交 6 v0.31.0 / 0.8.6.0 及延伸 0.8.6.1~0.8.6.2；提交 7 v0.32.0 / 0.8.7.0 及延伸 0.8.7.1（v0.32.1）~0.8.7.2（v0.32.2）；提交 8 v0.33.0 / 0.8.8.0 及延伸 0.8.8.1（v0.33.1）~0.8.8.8（v0.33.8）；提交 9 v0.34.0 / 0.8.9.0 及延伸 0.8.9.1（v0.34.1）~0.8.9.3（v0.34.3）；提交 10 v0.35.0 / 0.8.10.0（数值基准测试）及延伸 0.8.10.1~0.8.10.33；提交 11 v0.37.1 / 0.8.11.0（局内表现与建造交互打磨）及延伸 0.8.11.1（v0.37.3，顶部遮挡/怒气条/头像素材三项，见下））
+### 阶段 8：玩法打磨 —— ✅ 提交 5~17 已完成（阶段末程序 0.8.17.4；下列保留分次交付记录）（提交 5 v0.29.0 / 0.8.5.0 及延伸 0.8.5.1~0.8.5.6；提交 6 v0.31.0 / 0.8.6.0 及延伸 0.8.6.1~0.8.6.2；提交 7 v0.32.0 / 0.8.7.0 及延伸 0.8.7.1（v0.32.1）~0.8.7.2（v0.32.2）；提交 8 v0.33.0 / 0.8.8.0 及延伸 0.8.8.1（v0.33.1）~0.8.8.8（v0.33.8）；提交 9 v0.34.0 / 0.8.9.0 及延伸 0.8.9.1（v0.34.1）~0.8.9.3（v0.34.3）；提交 10 v0.35.0 / 0.8.10.0（数值基准测试）及延伸 0.8.10.1~0.8.10.33；提交 11 v0.37.1 / 0.8.11.0（局内表现与建造交互打磨）及延伸 0.8.11.1（v0.37.3，顶部遮挡/怒气条/头像素材三项，见下））
 
 - **目标**：让"局内金币循环 + 局外养成"形成爽感闭环——金币有更多用途、地图更自由、科技树更有深度、战斗节奏有正反馈；本阶段只做玩法/交互打磨，不改动已定稿的养成主链（转职/信物/遗物；升星系统与求贤令抽将已随 v0.30.0（提交 5 延伸）暂时移除）。
 - **提交 1（✅ v0.21.0）——局内升阶 + 军需**：
@@ -528,10 +532,10 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 - **验收标准**：局内金币始终有明确用途（建造/升阶/军需/转盘）；任意关卡空地皆可建、推荐位不再硬限制；科技树四页签浏览顺畅、成语命名一目了然；一场胜利局可稳定触发军需购买与连击奖励；转盘（≥150 金抽 1 次）结果正确入账、失败作废；遗物永久使用，选带与结算均不扣库存（v0.33.1 起）；**界面排版符合 UI_LAYOUT.md v0.20.70（地图 2×4 无滚动条、养成页签化、语义色板统一）**。
 - **不做**：觉醒开发；第二~七章内容；正式美术替换；局外金币化。
 
-### 阶段 9：武将养成体系重构（2026-10-09 拍板，待开发；提交 9·1~9·7 = 0.9.1 ~ 0.9.7，紧随 0.8.17；9·8 战场视觉样板随后收口）
+### 阶段 9：武将养成体系重构（2026-10-09 拍板，9·1 已完成；提交 9·1~9·7 = 0.9.1 ~ 0.9.7，紧随 0.8.17；9·8 战场视觉样板随后收口）
 
 - **目标**：武将养成体系整体重构——删转职（职业收敛为攻击方式模板）+ 技能统一 3 技能（被动Ⅰ / 被动Ⅱ / 大招）+ 阵营 + **武将品阶**（等级上限 100、每 20 级一阶、6 阶白~红）+ 属性底层（攻击力与伤害分离 / 暴击 / 技能增幅 / 词条 A~I）+ 双套装备 12 件（删打造 · 图纸 → 关卡掉落 + 元宝商店）+ 元宝 / 军功双商店 + 主公等级 + 天赋树 + 技能升级。完整方案 = [proposals/CHARACTER_SYSTEM_REFACTOR_PLAN.md](proposals/CHARACTER_SYSTEM_REFACTOR_PLAN.md) **v1.1（定稿，T-1~T-34 全线采纳）**；拍板记录 = [DESIGN_REVIEW_AND_DECISIONS.md](DESIGN_REVIEW_AND_DECISIONS.md) **§12.8**。
-- **提交拆分（稿 §14）**：9·1 品阶 + 转职删除（属性底层 / 存档 schema v7 / 旧档迁移）→ 9·2 技能重构（3 技能 + 被动解锁 + 技能升级）→ 9·3 装备（武器槽 + 双套 12 件 + 掉落）→ 9·4 商店 + 主公等级（元宝 / 货档 / 刷新）→ 9·5 天赋（3 大树 / 40 点）→ 9·6 阵营（字段 + 图鉴筛选）→ 9·7 平衡实测与收尾（数值校准 / 图徽补齐 / 文档回写 / 全量回归 + 真机一局）；体量最大者按修复位 `0.9.1.1 …` 整数顺延拆分（AGENTS §4 禁字母后缀）。
+- **提交拆分（稿 §14）**：9·1 ✅ 品阶 + 转职删除（属性底层 / 存档 schema v7 / 旧档迁移）→ 9·2 技能重构（3 技能 + 被动解锁 + 技能升级）→ 9·3 装备（武器槽 + 双套 12 件 + 掉落）→ 9·4 商店 + 主公等级（元宝 / 货档 / 刷新）→ 9·5 天赋（3 大树 / 40 点）→ 9·6 阵营（字段 + 图鉴筛选）→ 9·7 平衡实测与收尾（数值校准 / 图徽补齐 / 文档回写 / 全量回归 + 真机一局）；体量最大者按修复位 `0.9.1.1 …` 整数顺延拆分（AGENTS §4 禁字母后缀）。
 - **说明**：原「阶段 9：升阶特性与分支」（v0.20.1 设计定稿）**已被本次重构拍板取代**——转职 / 特性系统整体删除，原 3 阶 · 5 阶局内特性与分支不再开发（局内 `battle_rank` 三阶数值步进保留）；原挂在本阶段的两项附加项（敌人 / Boss 设计模板回填、Boss 控制抗性递增）**不在本次重构范围，顺延另行排期**（设计依据保留见 DESIGN_REVIEW §5.3 / §5.4）。
 - **审查收口**：完整方案 v1.1 已统一军功商店／分提交 schema／旧档成长守护／黄忠基础破隐／连续经验曲线；9·8 = 战场视觉样板（初始武将、普通敌人与 Boss、一个地图主题），先文档和素材尺度验收再开分支，随后进入阶段 10。详见 DESIGN_REVIEW §12.10。
 - **验收标准**：完整方案 v1.1 逐提交落地（每提交对应模块文档先行 + 迁移用例 + 回归全绿）；0.9.7 实测收敛（等级长尾曲线 / 掉落与商店价格 / 天赋强度 / DPS 三围口径）。
@@ -555,7 +559,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 
 - ✅ 内容一律走 `.tres` 配置；❌ 禁止在脚本里硬编码角色/敌人/关卡数值。
 - ✅ 经验/掉落/解锁必须通关后才提交；❌ 禁止任何"失败也保留成长"的旁路。
-- ✅ 每个阶段结束可完整游玩；❌ 禁止开发未排期的【远期】内容（后续章节、尚未排期的系统）；现有二转保留至阶段 9 对应删除提交。
+- ✅ 每个阶段结束可完整游玩；❌ 禁止开发未排期的【远期】内容（后续章节、尚未排期的系统）；转职在 0.9.1 删除；旧特性与角色技能保留到 0.9.2 完成三技能替换。
 - ✅ 抽奖只加速、不卡主线；❌ 禁止让概率阻断必需反制；阶段 10 酒馆用新手定向候选保证基础功能获取。
 - ✅ 挑战目标只作结算附加项；❌ 禁止因未达成挑战目标而锁定内容或卡主线进度。
 - ✅ 新增敌人/角色先建数据再写行为；❌ 禁止为单角色硬编码攻击逻辑。
@@ -603,15 +607,14 @@ resources/
   characters/                       # 刘备/关羽/张飞/周仓/赵云（虎贲骑兵系）、黄忠（弓手）、
                                     # 皇甫嵩（投石车）、貂蝉（舞娘）、诸葛亮（术士）——共 9 名
   professions/                      # cavalry / tiger_guard(虎贲，原 pikeman) / archer / strategist / dancer / catapult
-  promotions/                       # 职业转职树 6 棵（v0.28 重构：6 职业 × 一转 + 二转 2 分支，见 CHARACTERS.md 4.5）
   enemies/yellow_turban/            # 步卒 / 轻骑 / 伍长 / 弓手 / 力士 / 祭酒(healer_aura) / 渠帅(summon_guard)
-  items/                            # 黄巾布（求贤令 gacha_token 暂时移除、资源保留）
+  items/                            # 将印／精铁／乌木／技能书与遗物（求贤令资源保留、入口停用）
   stages/chapter_01/                # ch01_s01~s08 全八关（布局 + 波次 + 开场剧情；s08 含分叉路径、v0.14.1 建造位结构化试点）
 scenes/
   MainMenu / GameHub / SquadSelect      # 流程界面（GameHub 为大厅：地图/养成/科技/设置页签，代码构建 UI）
   Main / UI / Tower / Bullet / Enemy / BuildSlot  # 战斗场景
 scripts/
-  data/        # CharacterData（含 compute_stats_at）/ ProfessionData / PromotionData /
+  data/        # CharacterData（含 compute_stats_at）/ ProfessionData / CharacterRank / LegacyCharacterGrowth /
                # LevelCurve（等级曲线）/ DialogueData / DialogueLineData / EnemyData /
                # StageData（布局/局内经济/剧情/主题/分叉/建造位）/ BuildSlotData / WaveData / EnemySpawnData /
                # ChapterData / ItemData / ItemAmountData / PlayerProfile
@@ -620,9 +623,9 @@ scripts/
   ui_screens/  # MainMenu / GameHub / SquadSelect + panels/（MapPanel / DevelopPanel / TechPanel / SettingsPanel）
   *.gd         # GameManager / BuildManager / TowerManager / Main / Tower /
                # Enemy / Bullet / UI / BuildSlot / GridBackground / WaveManager / EnemyManager
-tests/         # SmokeRunner / FlowRunner / Stage0Runner / VisualPreviewRunner
+tests/         # RankRunner / RankPreviewRunner / BenchmarkRunner / SmokeRunner / FlowRunner / Stage0Runner 等
 ```
 
-行为 ID 注册表：`behavior_id`（职业攻击）、`special_behavior_id`（敌人特殊行为）、`ultimate_id`（职业大招）、`trait_id`（角色特性）统一由行为注册表（脚本按 ID 分发）驱动，禁止在战斗脚本中硬编码。**架构、规格清单与新增流程见 [modules/BEHAVIORS.md](modules/BEHAVIORS.md)**（阶段 1 已落地最小注册表：职业攻击行为分发 + 枪兵克制）。
+行为 ID 注册表：`behavior_id`（职业攻击）、`special_behavior_id`（敌人特殊行为）、`ultimate_id`（武将显式绑定大招）、`trait_id`（角色特性）统一由行为注册表（脚本按 ID 分发）驱动，禁止在战斗脚本中硬编码。**架构、规格清单与新增流程见 [modules/BEHAVIORS.md](modules/BEHAVIORS.md)**（阶段 1 已落地最小注册表：职业攻击行为分发 + 枪兵克制）。
 
 > 维护约定：本文档更新时同步递增版本号并记录变更；模块文档各自维护细节内容，跨模块/结构性变更须回写本文档。资源 ID 命名遵循现有 `snake_case` 风格（如 `ch01_s02`、`yellow_turban_archer`）。

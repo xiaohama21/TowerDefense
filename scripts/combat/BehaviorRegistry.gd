@@ -95,7 +95,7 @@ static func _attack_single_target_bullet(tower: Tower, target: Enemy) -> void:
 	## 由子弹命中结算后回调 Tower.notify_attack_damage_dealt（目标死亡/丢失则整发作废）。
 	var bullet := tower.instantiate_bullet(target)
 	if bullet != null:
-		bullet.damage = tower.finalize_damage(tower.damage, target)
+		bullet.damage = tower.finalize_damage(tower.damage, target, &"", false)
 		bullet.counts_as_attack = true
 	# 弹道类攻击表现：枪口闪光（近战类由各自执行器触发挥击表现）。
 	tower.play_attack_flash()
@@ -105,7 +105,7 @@ static func _attack_melee_swing(tower: Tower, target: Enemy) -> void:
 	## 近战「起手 → 命中帧结算」（0.8.16.6 / BEHAVIORS B.3.1.1）：挥击立即播，
 	## 伤害与命中事件（怒气 / 命中钩子 / 命中特性）延迟到命中帧落地；伤害值在起手锁定
 	## （与弹道发射锁定同源）。命中帧取值与上限见 Tower.melee_hit_delay()。
-	var damage := tower.finalize_damage(tower.damage, target)
+	var damage := tower.finalize_damage(tower.damage, target, &"", false)
 	tower.play_melee_hit()
 	tower.schedule_melee_hit(target, damage)
 
@@ -128,7 +128,7 @@ static func _attack_lob_aoe(tower: Tower, target: Enemy) -> void:
 	var bullet := tower.instantiate_bullet(target)
 	if bullet == null:
 		return
-	bullet.damage = tower.finalize_damage(tower.damage, target)
+	bullet.damage = tower.finalize_damage(tower.damage, target, &"", false)
 	bullet.counts_as_attack = true
 	var flight_time := tower.global_position.distance_to(target.global_position) / maxf(bullet.speed, 1.0)
 	var predicted := target.global_position + target.velocity_dir * target.speed * flight_time
@@ -163,7 +163,7 @@ static func _ult_tiger_guard_sweep(tower: Tower) -> bool:
 		return false
 	for enemy in enemies:
 		tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * 1.5 * tower.ultimate_power())), enemy))
-		enemy.progress = maxf(enemy.progress - 40.0, 0.0)
+		enemy.progress = maxf(enemy.progress - 40.0 * tower.skill_output_multiplier(), 0.0)
 	# 激励段强度乘转职大招倍率（NUMBERS 10.5：大招效果 × ultimate_multiplier，提交 8）。
 	var power_mult := tower.get_battle_rank_buff_power_multiplier() * tower.ultimate_effect_power()
 	var duration_mult := tower.get_battle_rank_buff_duration_multiplier()
@@ -205,7 +205,7 @@ static func _ult_strategist_blaze(tower: Tower) -> bool:
 		var aoe_radius := tower.ultimate_aoe_radius(LOB_EXPLOSION_RADIUS + 30.0) * tower.get_battle_rank_aoe_multiplier()
 		if enemy.global_position.distance_to(center) <= aoe_radius:
 			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * 2.0 * tower.ultimate_power())), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC)
-			enemy.apply_slow(0.6, 2.0)
+			enemy.apply_slow(maxf(1.0 - 0.4 * tower.skill_output_multiplier(), 0.0), 2.0 * tower.skill_output_multiplier())
 			# 奇门（天师，提交 7）：大招落点命中敌人施加易伤（同类不叠加、时长刷新）。
 			SkillRegistry.apply_mystic_gate(tower, enemy)
 	tower.play_attack_flash()

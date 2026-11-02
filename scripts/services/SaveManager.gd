@@ -488,6 +488,32 @@ func _migrate_v5_to_v6(old_data: Dictionary) -> Dictionary:
 	return data
 
 
+## schema v7: preserve legacy bare progression, never preallocate future systems.
+func _migrate_v6_to_v7(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var characters: Dictionary = data.get("characters", {}).duplicate(true) if data.get("characters", {}) is Dictionary else {}
+	for character_id in characters:
+		var entry = characters[character_id]
+		if not entry is Dictionary:
+			continue
+		entry = entry.duplicate(true)
+		entry["total_exp"] = _coerce_non_negative_int(entry.get("total_exp", 0))
+		if not entry.has("rank"):
+			entry["rank"] = CharacterRank.for_level(mini(LevelCurve.level_from_total_exp(entry["total_exp"]), 30))
+		if not entry.has("growth_guard"):
+			entry["growth_guard"] = LegacyCharacterGrowth.guard_for(str(character_id), entry)
+		entry.erase("promotion_path")
+		entry.erase("stars")
+		characters[character_id] = entry
+	var items: Dictionary = data.get("items", {}).duplicate(true) if data.get("items", {}) is Dictionary else {}
+	if items.has("yellow_turban_cloth"):
+		items["general_seal"] = _coerce_non_negative_int(items.get("general_seal", 0)) + _coerce_non_negative_int(items["yellow_turban_cloth"])
+		items.erase("yellow_turban_cloth")
+	data["characters"] = characters
+	data["items"] = items
+	data["schema_version"] = 7
+	return data
+
 func _coerce_non_negative_int(value) -> int:
 	var number := 0
 	match typeof(value):
@@ -536,6 +562,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			5:
 				data = _migrate_v5_to_v6(data)
 				version = 6
+				migrated = true
+			6:
+				data = _migrate_v6_to_v7(data)
+				version = 7
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

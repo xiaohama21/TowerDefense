@@ -15,7 +15,6 @@ range_multiplier = 1.3
 attack_interval_multiplier = 0.95
 behavior_id = &"single_target_precision"
 attack_damage_type = &"physical"
-ultimate_id = &"ultimate_archer_volley"
 rage_gain_mode = &"hit+damage"
 battle_rank_damage_step = 0.12
 battle_rank_attack_speed_step = 0.2

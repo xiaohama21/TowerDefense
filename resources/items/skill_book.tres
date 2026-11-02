@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = &"skill_book"
+display_name = "技能升级书"
+description = "解锁技能后可用于强化。"
+item_type = 4
+tags = [&"chapter_01"]
+max_stack = 9999

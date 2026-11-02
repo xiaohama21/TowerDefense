@@ -7,15 +7,15 @@ class_name SettlementWheel
 ## v0.8.14：碎片条目随信物重构删除（奖池 6 → 4 条）。
 
 const MIN_REMAINING_GOLD: int = 150
-const CLOTH_ID := "yellow_turban_cloth"
 
 ## 奖池（权重）：黄巾布×2 30 / ×5 20 / 科技点×1 5 / 黄巾布×10 5
 ## （求贤令条目随抽将暂时移除 v0.30.0；碎片×10·×20 条目随 0.8.14 删除）。
 const POOL: Array[Dictionary] = [
-	{"kind": "item", "item_id": CLOTH_ID, "amount": 2, "weight": 30},
-	{"kind": "item", "item_id": CLOTH_ID, "amount": 5, "weight": 20},
+	{"kind": "item", "item_id": "general_seal", "amount": 2, "weight": 30},
+	{"kind": "item", "item_id": "refined_iron", "amount": 3, "weight": 20},
 	{"kind": "tech_points", "amount": 1, "weight": 5},
-	{"kind": "item", "item_id": CLOTH_ID, "amount": 10, "weight": 5},
+	{"kind": "item", "item_id": "general_seal", "amount": 6, "weight": 5},
+	{"kind": "item", "item_id": "skill_book", "amount": 1, "weight": 10},
 ]
 
 

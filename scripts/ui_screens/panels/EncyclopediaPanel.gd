@@ -291,7 +291,7 @@ var _selected_enemy_id: String = ""
 
 ## 模拟器状态（只读假设视图，不写档）。
 var _sim_level: int = 1
-var _sim_promotion: PromotionData = null
+var _sim_rank: int = 0
 var _sim_battle_rank: int = 0
 
 var _character_button: Button
@@ -314,15 +314,14 @@ var _count_chip: Label
 var _tab_container: TabContainer
 var _base_tab: VBoxContainer
 var _skill_tab: VBoxContainer
-var _promotion_tab: VBoxContainer
 var _relic_tab: VBoxContainer
-var _trait_tab: VBoxContainer
 var _sim_level_num: Label
 var _sim_minus_button: Button
 var _sim_plus_button: Button
-var _sim_promotion_option: OptionButton
+var _sim_rank_option: OptionButton
 var _sim_rank_buttons: Dictionary = {}
 var _sim_result_values: Dictionary = {}
+var _sim_attack_icon: ConceptIcon
 var _detail_scroll_content: VBoxContainer
 
 
@@ -386,7 +385,7 @@ func _build_ui() -> void:
 	_count_chip.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_count_chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_count_chip)
-	var readonly_tag := UITheme.tag_label("只读信息 · 不写存档", Color("#14538a"), UITheme.LIGHT_BLUE_SOFT, 13)
+	var readonly_tag := UITheme.tag_label("可自由预览", Color("#14538a"), UITheme.LIGHT_BLUE_SOFT, 13)
 	readonly_tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(readonly_tag)
 
@@ -687,6 +686,9 @@ func _rebuild_left_list() -> void:
 			button.add_child(_make_left_card_content(
 				character.display_name.left(1), _avatar_color_key(character),
 				_character_card_text(character)))
+			var badge := ConceptIcon.new("", 22)
+			badge.set_rank(ProfileStore.get_profile().get_character_rank(str(character_id)))
+			button.get_child(0).add_child(badge)
 			grid.add_child(button)
 			_character_buttons[str(character_id)] = button
 	else:
@@ -789,9 +791,7 @@ func _build_character_detail() -> void:
 
 	_base_tab = _make_tab("基础")
 	_skill_tab = _make_tab("技能")
-	_promotion_tab = _make_tab("转职")
 	_relic_tab = _make_tab("信物")
-	_trait_tab = _make_tab("特性")
 
 
 func _make_tab(tab_name: String) -> VBoxContainer:
@@ -874,17 +874,17 @@ func _build_simulator(parent: PanelContainer) -> void:
 	promo_group.add_theme_constant_override("separation", 7)
 	row1.add_child(promo_group)
 	var promo_caption := Label.new()
-	promo_caption.text = "转职"
+	promo_caption.text = ""
 	promo_caption.add_theme_font_size_override("font_size", 13)
 	promo_caption.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	promo_caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	promo_group.add_child(promo_caption)
-	_sim_promotion_option = OptionButton.new()
-	_sim_promotion_option.custom_minimum_size = Vector2(200, 34)
-	_sim_promotion_option.focus_mode = Control.FOCUS_NONE
-	_apply_pick_style(_sim_promotion_option)
-	_sim_promotion_option.item_selected.connect(func(_index: int) -> void: _on_sim_changed())
-	promo_group.add_child(_sim_promotion_option)
+	_sim_rank_option = OptionButton.new()
+	_sim_rank_option.custom_minimum_size = Vector2(120, 34)
+	_sim_rank_option.focus_mode = Control.FOCUS_NONE
+	_apply_pick_style(_sim_rank_option)
+	_sim_rank_option.item_selected.connect(func(_index: int) -> void: _on_sim_changed())
+	promo_group.add_child(_sim_rank_option)
 
 	var rank_group := HBoxContainer.new()
 	rank_group.name = "RankRow"
@@ -918,18 +918,19 @@ func _build_simulator(parent: PanelContainer) -> void:
 	equal_label.add_theme_color_override("font_color", Color("#9fd0ea"))
 	equal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row2.add_child(equal_label)
-	for result_key in ["伤害", "攻速", "射程"]:
+	for result_key in ["伤害", "攻速", "射程", "暴击率", "暴击伤害", "技能增幅"]:
 		var res_card := PanelContainer.new()
-		res_card.custom_minimum_size = Vector2(86, 0)
+		res_card.custom_minimum_size = Vector2(66, 0)
 		res_card.add_theme_stylebox_override("panel", _sim_result_style())
 		var res_box := VBoxContainer.new()
 		res_box.add_theme_constant_override("separation", 1)
 		res_card.add_child(res_box)
-		var res_caption := Label.new()
-		res_caption.text = result_key
-		res_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		res_caption.add_theme_font_size_override("font_size", 11)
-		res_caption.add_theme_color_override("font_color", Color("#8a6d00"))
+		var res_caption := CenterContainer.new()
+		var icon_id: String = {"伤害": "dmg_physical", "攻速": "stat_attack_speed", "射程": "stat_range", "暴击率": "stat_crit_rate", "暴击伤害": "stat_crit_damage", "技能增幅": "stat_skill_amp"}[result_key]
+		var result_icon := ConceptIcon.new(icon_id, 20, "攻击力" if result_key == "伤害" else result_key)
+		if result_key == "伤害":
+			_sim_attack_icon = result_icon
+		res_caption.add_child(result_icon)
 		res_box.add_child(res_caption)
 		var res_value := Label.new()
 		res_value.name = "SimValue%s" % result_key
@@ -943,18 +944,6 @@ func _build_simulator(parent: PanelContainer) -> void:
 	var row2_spacer := Control.new()
 	row2_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row2.add_child(row2_spacer)
-	var note_box := VBoxContainer.new()
-	note_box.add_theme_constant_override("separation", 3)
-	row2.add_child(note_box)
-	var note_tag := UITheme.tag_label("预览不影响存档", UITheme.TAG_OK_FG, UITheme.TAG_OK_BG, 12)
-	note_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	note_box.add_child(note_tag)
-	var note_sub := Label.new()
-	note_sub.text = "数值与战斗实算一致（含特性与升阶乘区）"
-	note_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	note_sub.add_theme_font_size_override("font_size", 11)
-	note_sub.add_theme_color_override("font_color", Color("#a4b8c8"))
-	note_box.add_child(note_sub)
 
 
 func _make_step_button(text_value: String) -> Button:
@@ -991,34 +980,12 @@ func _sim_result_style() -> StyleBoxFlat:
 	return style
 
 
-func _fill_promotion_options(character: CharacterData) -> void:
-	_sim_promotion_ids.clear()
-	_sim_promotion_option.clear()
-	_sim_promotion_option.add_item("初始（未转职）", 0)
-	var index := 1
-	var seen: Dictionary = {}
-	var queue: Array[String] = []
-	for root_id in character.promotion_ids:
-		queue.append(str(root_id))
-	while not queue.is_empty():
-		var promotion_id: String = queue.pop_front()
-		if seen.has(promotion_id):
-			continue
-		seen[promotion_id] = true
-		var promotion := GameFlow.load_promotion_data(promotion_id)
-		if promotion == null:
-			continue
-		_sim_promotion_option.add_item(promotion.display_name, index)
-		_sim_promotion_ids[index] = promotion
-		index += 1
-		for next_id in promotion.next_promotion_ids:
-			queue.append(str(next_id))
-	_sim_promotion = null
-	_sim_promotion_option.select(0)
-
-
-var _sim_promotion_ids: Dictionary = {}
-
+func _fill_rank_options(_character: CharacterData) -> void:
+	_sim_rank_option.clear()
+	for r in range(6):
+		_sim_rank_option.add_icon_item(ConceptIcon.rank_texture(r), "Lv%d" % CharacterRank.LEVELS[r], r)
+	_sim_rank_option.select(0)
+	_sim_rank = 0
 
 func _select_character(character_id: String) -> void:
 	_selected_character_id = character_id
@@ -1027,7 +994,7 @@ func _select_character(character_id: String) -> void:
 	if _mode != &"character":
 		_switch_mode(&"character")
 	_sync_selected_buttons()
-	_fill_promotion_options(GameFlow.load_character_data(character_id))
+	_fill_rank_options(GameFlow.load_character_data(character_id))
 	_refresh_character_detail()
 
 
@@ -1052,9 +1019,8 @@ func _refresh_character_detail() -> void:
 		acquisition_label.text = GameFlow.get_acquisition_text(_selected_character_id)
 	_refresh_base_tab(character)
 	_refresh_skill_tab(character)
-	_refresh_promotion_tab(character)
 	_refresh_relic_tab(character)
-	_refresh_trait_tab(character)
+	_append_trait_summary(character)
 	_on_sim_changed()
 
 
@@ -1105,16 +1071,22 @@ func _refresh_base_tab(character: CharacterData) -> void:
 		role_desc = "%s——%s" % [profession.display_name, profession.description]
 	_base_tab.add_child(_make_irow("职业定位 · ", role_desc))
 	_base_tab.add_child(_make_irow("等级上限 · ",
-		"1 ~ %d（随章节推进逐步开放；经验由通关与击杀获得）" % LevelCurve.max_level()))
-	var baseline := character.compute_stats_at(1, null, 0, null)
-	var stat_row := HBoxContainer.new()
+		"1 ~ %d（经验由通关、击杀与经验池分配获得）" % LevelCurve.max_level()))
+	var baseline := character.compute_stats_at(1)
+	var stat_row := GridContainer.new()
+	stat_row.columns = 4
 	stat_row.name = "BaseStatRow"
-	stat_row.add_theme_constant_override("separation", 8)
+	stat_row.add_theme_constant_override("h_separation", 8)
+	stat_row.add_theme_constant_override("v_separation", 8)
 	_base_tab.add_child(stat_row)
-	stat_row.add_child(_stat_pill_box("伤害（Lv1）", str(int(baseline.damage))))
+	var attack_type := character.profession.attack_damage_type if character.profession != null else DamageTypes.PHYSICAL
+	stat_row.add_child(_stat_pill_box("攻击力（Lv1）", str(int(baseline.attack)), false, "dmg_" + str(attack_type)))
 	stat_row.add_child(_stat_pill_box("攻速", "%.2fs" % float(baseline.attack_interval)))
 	stat_row.add_child(_stat_pill_box("射程", str(int(baseline.range))))
 	stat_row.add_child(_stat_pill_box("建造费用", str(character.build_cost), true))
+	stat_row.add_child(_stat_pill_box("暴击率", "%.1f%%" % (float(baseline.crit_rate) * 100.0)))
+	stat_row.add_child(_stat_pill_box("暴击伤害", "%.1f%%" % (float(baseline.crit_damage) * 100.0)))
+	stat_row.add_child(_stat_pill_box("技能增幅", "+%.1f%%" % (float(baseline.skill_amp) * 100.0)))
 	_base_tab.add_child(_make_irow("角色简介 · ", character.description))
 	_base_tab.add_child(_make_irow("获取方式 · ",
 		GameFlow.get_acquisition_text(str(character.character_id)), UITheme.TAG_OK_FG))
@@ -1141,19 +1113,17 @@ func _make_irow(key_text: String, value_text: String, value_color: Color = UIThe
 
 
 ## 统计格（概念 .stat：浅蓝胶囊，k 11px + v 16px；gold=金色数值如建造费用）。
-func _stat_pill_box(key_text: String, value_text: String, gold: bool = false) -> PanelContainer:
+func _stat_pill_box(key_text: String, value_text: String, gold: bool = false, icon_override: String = "") -> PanelContainer:
 	var pill := PanelContainer.new()
 	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pill.add_theme_stylebox_override("panel", _stat_pill())
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 1)
 	pill.add_child(box)
-	var key := Label.new()
-	key.text = key_text
-	key.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	key.add_theme_font_size_override("font_size", 11)
-	key.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-	box.add_child(key)
+	var icon_id: String = {"伤害（Lv1）": "dmg_physical", "攻速": "stat_attack_speed", "射程": "stat_range", "建造费用": "coin", "暴击率": "stat_crit_rate", "暴击伤害": "stat_crit_damage", "技能增幅": "stat_skill_amp", "生命（基准）": "stat_hp", "速度": "stat_move_speed", "护甲": "stat_armor", "漏怪伤害": "base_hp", "击杀奖励": "coin"}.get(key_text, "")
+	var center := CenterContainer.new()
+	center.add_child(ConceptIcon.new(icon_override if not icon_override.is_empty() else icon_id, 22, key_text))
+	box.add_child(center)
 	var value := Label.new()
 	value.text = value_text
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1176,57 +1146,14 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	else:
 		_skill_tab.add_child(_make_body_label("角色专属技能：无", UITheme.LIGHT_LOCK))
 	_skill_tab.add_child(_make_body_label("——", UITheme.LIGHT_LOCK))
-	var ultimate_id := character.ultimate_override_id
-	if ultimate_id.is_empty() and character.profession != null:
-		ultimate_id = character.profession.ultimate_id
+	var ultimate_id := character.ultimate_id
 	if not ultimate_id.is_empty():
-		_skill_tab.add_child(_make_body_label("职业大招：%s（怒气满 100 释放）" % BehaviorRegistry.ultimate_display_name(ultimate_id), UITheme.LIGHT_GOLD_TEXT))
+		_skill_tab.add_child(_make_body_label("大招：%s（怒气满 100 释放）" % BehaviorRegistry.ultimate_display_name(ultimate_id), UITheme.LIGHT_GOLD_TEXT))
 		_skill_tab.add_child(_make_body_label("效果：%s" % ULTIMATE_HINTS.get(ultimate_id, "说明随版本完善"), UITheme.LIGHT_BODY))
 	else:
-		_skill_tab.add_child(_make_body_label("职业大招：无", UITheme.LIGHT_LOCK))
+		_skill_tab.add_child(_make_body_label("大招：无", UITheme.LIGHT_LOCK))
 
 
-func _refresh_promotion_tab(character: CharacterData) -> void:
-	_clear_tab(_promotion_tab)
-	var nodes: Array[PromotionData] = []
-	var seen: Dictionary = {}
-	var queue: Array[String] = []
-	for root_id in character.promotion_ids:
-		queue.append(str(root_id))
-	while not queue.is_empty():
-		var promotion_id: String = queue.pop_front()
-		if seen.has(promotion_id):
-			continue
-		seen[promotion_id] = true
-		var promotion := GameFlow.load_promotion_data(promotion_id)
-		if promotion == null:
-			continue
-		nodes.append(promotion)
-		for next_id in promotion.next_promotion_ids:
-			queue.append(str(next_id))
-	if nodes.is_empty():
-		_promotion_tab.add_child(_make_body_label("该武将暂无转职路线", UITheme.LIGHT_LOCK))
-		return
-	_promotion_tab.add_child(_make_body_label("职业级转职树（同职业角色共享；预览任选不校验材料/等级）", UITheme.LIGHT_GOLD_TEXT))
-	for node in nodes:
-		var requirement := "等级 ≥ %d" % node.required_level
-		var skills_text := _promotion_skill_text(node)
-		var block := _make_body_label("· %s（%s）\n　%s\n　授予：%s\n　预览条件：%s" % [
-			node.display_name, requirement, node.description, skills_text, requirement,
-		])
-		_promotion_tab.add_child(block)
-	_promotion_tab.add_child(_make_body_label("档位口径：职业技能档位系数 s = 1 + 0.1 × min(局内升阶/5, 4)（仅职业技能适用，上限 +40%）", UITheme.LIGHT_MUTED, 13))
-
-
-func _promotion_skill_text(promotion: PromotionData) -> String:
-	var parts: Array[String] = []
-	for skill_id in promotion.granted_skill_ids:
-		parts.append(SkillRegistry.get_skill_name(skill_id))
-	return "、".join(parts) if not parts.is_empty() else "无"
-
-
-## 信物页签（GDD 4.8 双槽，✅ 0.8.14 / v0.1.15）：专属槽锁定占位 + 可选槽
-## （Boss 签名信物 = 通用件：获取难度 / 效果 / 持有与装备态）；碎片兑换口径已删除。
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
 	var exclusive_state := _make_body_label("未开放", UITheme.LIGHT_LOCK)
@@ -1249,16 +1176,14 @@ func _refresh_relic_tab(character: CharacterData) -> void:
 		]))
 
 
-func _refresh_trait_tab(character: CharacterData) -> void:
-	_clear_tab(_trait_tab)
+func _append_trait_summary(character: CharacterData) -> void:
 	var hints := DevelopPanelScript.TRAIT_HINTS
 	var trait_id := character.trait_id
 	if trait_id.is_empty():
-		_trait_tab.add_child(_make_body_label("该武将暂无特性", UITheme.LIGHT_LOCK))
+		_skill_tab.add_child(_make_body_label("该武将暂无特性", UITheme.LIGHT_LOCK))
 		return
 	var hint_text: String = str(hints.get(trait_id, "说明随版本完善"))
-	_trait_tab.add_child(_make_body_label("特性（常驻被动）：%s" % hint_text, UITheme.LIGHT_GOLD_TEXT))
-	_trait_tab.add_child(_make_body_label("数据同源：与武将养成页签/局内表现共用字典，不在此另存文案。", UITheme.LIGHT_MUTED, 13))
+	_skill_tab.add_child(_make_body_label("特性（常驻被动）：%s" % hint_text, UITheme.LIGHT_GOLD_TEXT))
 
 
 ## ============ 模拟器 ============
@@ -1308,16 +1233,18 @@ func _on_sim_changed() -> void:
 		_sim_minus_button.disabled = _sim_level <= 1
 		_sim_plus_button.disabled = _sim_level >= LevelCurve.max_level()
 	_sync_rank_buttons()
-	var selected: int = _sim_promotion_option.selected if _sim_promotion_option != null else 0
-	if selected > 0:
-		_sim_promotion = _sim_promotion_ids.get(selected, null) as PromotionData
-	else:
-		_sim_promotion = null
-	var stats := character.compute_stats_at(_sim_level, _sim_promotion, 0, null, _sim_battle_rank)
+	_sim_rank = maxi(_sim_rank_option.selected, 0)
+	var stats := character.compute_stats_at(_sim_level, _sim_rank, null, _sim_battle_rank)
+	var attack_type := character.profession.attack_damage_type if character.profession != null else DamageTypes.PHYSICAL
+	if _sim_attack_icon != null:
+		UITheme.apply_hud_icon(_sim_attack_icon, "dmg_" + str(attack_type), 20)
 	var preview_range := float(stats.range) * character.get_static_range_multiplier()
 	_set_sim_result("伤害", str(int(stats.damage)))
 	_set_sim_result("攻速", "%.2fs" % float(stats.attack_interval))
 	_set_sim_result("射程", str(int(preview_range)))
+	_set_sim_result("暴击率", "%.1f%%" % (float(stats.crit_rate) * 100.0))
+	_set_sim_result("暴击伤害", "%.1f%%" % (float(stats.crit_damage) * 100.0))
+	_set_sim_result("技能增幅", "+%.1f%%" % (float(stats.skill_amp) * 100.0))
 
 
 func _set_sim_result(result_key: String, value_text: String) -> void:

@@ -427,6 +427,11 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	level_label.add_theme_font_size_override("font_size", 11)
 	level_label.add_theme_color_override("font_color", Color("#14538a"))
 	name_row.add_child(level_label)
+	var rank_badge := ConceptIcon.new("", 20)
+	rank_badge.visible = owned
+	rank_badge.name = "CardRank"
+	rank_badge.set_rank(ProfileStore.get_profile().get_character_rank(character_id))
+	name_row.add_child(rank_badge)
 
 	var sub_label := Label.new()
 	sub_label.text = _character_sub_text(character_data, owned)
@@ -503,6 +508,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	var widgets := {
 		"button": card,
 		"level": level_label,
+		"rank": rank_badge,
 		"bonds": bonds_box,
 		"src": src_label,
 		"state": state_label,
@@ -1092,6 +1098,10 @@ func _refresh_card_texts() -> void:
 			if not locked:
 				level_label.text = "Lv%d" % GameFlow.get_character_level(
 					ProfileStore.get_profile(), str(character_id))
+		var badge := widgets.get("rank", null) as ConceptIcon
+		if badge != null:
+			badge.visible = not locked
+			badge.set_rank(ProfileStore.get_profile().get_character_rank(str(character_id)))
 		if src_label != null:
 			src_label.visible = locked
 		_refresh_card_bonds(widgets.get("bonds", null) as HBoxContainer, str(character_id))
@@ -1523,6 +1533,9 @@ func _confirm_character_row(character_data: CharacterData, profile: PlayerProfil
 	level_label.add_theme_color_override("font_color", Color("#2eaadc"))
 	level_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(level_label)
+	var rank_badge := ConceptIcon.new("", 22)
+	rank_badge.set_rank(profile.get_character_rank(str(character_data.character_id)))
+	row.add_child(rank_badge)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)

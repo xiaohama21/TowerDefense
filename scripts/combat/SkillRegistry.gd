@@ -4,7 +4,7 @@ class_name SkillRegistry
 
 ## 转职技能注册表（GDD modules/BEHAVIORS.md B.3.5，v0.15.0）：
 ## 技能 = 转职授予的被动/条件触发能力；战斗脚本只调用钩子，不在
-## Tower/Enemy 等脚本中写死技能逻辑。数值经 PromotionData.skill_params 读取。
+## Tower/Enemy 等脚本中写死技能逻辑。过渡技能参数经 Tower 接口读取；当前不授予职业技能。
 ## v0.28.0（阶段 8·提交 6）：
 ## ①职业技能收敛——每职业 1 技能（6 技能），移除龙突/凶威/斩获；稳射改保底触发；
 ## ②档位口径（v0.27.4 拍板）：档位系数 s = 1 + 0.1 × min(battle_rank/5, 4)，
@@ -402,7 +402,7 @@ static func _cast_green_dragon(tower: Tower) -> bool:
 	if target == null or not tower.is_target_valid(target):
 		return false
 	var segments := maxi(int(character_param(tower, &"char_green_dragon", "segments", 3.0)), 1)
-	var per_segment := int(round(tower.damage * character_param(tower, &"char_green_dragon", "segment_mult", 2.0)))
+	var per_segment := int(round(tower.damage * character_param(tower, &"char_green_dragon", "segment_mult", 2.0) * tower.skill_output_multiplier()))
 	# 3 连击演出（0.8.16.6，用户拍板「青龙偃月改为普通 3 次、合理调整攻速」）：
 	# spine 时 Attack_A 连播 segments 次（加速）+ 程序化挥击弧同步；伤害按每拍命中帧逐段结算。
 	tower.begin_melee_flurry(segments)

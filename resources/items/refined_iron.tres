@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1"]
+[resource]
+script = ExtResource("1")
+item_id = &"refined_iron"
+display_name = "精铁"
+description = "进阶时消耗的通用材料。"
+item_type = 2
+tags = [&"chapter_01"]
+max_stack = 9999

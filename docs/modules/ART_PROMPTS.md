@@ -1,5 +1,8 @@
 # AI 出图提示词库（ART_PROMPTS）
 
+> 文档版本：v0.18（2026-10-30）
+> v0.18 变更（阶段 9·提交 1，程序 0.9.1.0 / GDD v0.37.69）：0.9.1 新图徽缺口登记：三材料、技能书、六阶品阶、暴击率／爆伤／技能增幅，均虚线圆占位。
+
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)；美术资产规范/入库目录/许可见 [ART_ASSETS.md](ART_ASSETS.md)；技能来源见 [SKILLS.md](SKILLS.md) 与 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)；物品/遗物/掉落来源见 [DROPS_GACHA.md](DROPS_GACHA.md)。
 > 文档版本：v0.17（2026-10-09）
 > v0.17 变更（2026-10-09，**阶段 8·提交 17 小版本 0.8.17.0 落地 = HUD 图徽运行时就位 + 缺口登记（锁图徽 / 阶级角标图徽化）**（程序 0.8.16.6 → **0.8.17.0** / GDD v0.37.63 / UI_LAYOUT v0.20.66 §10）：①**21 枚 HUD 图徽随包入库**——`docs/ui_concept/src/icons_hud/` 为概念稿源（`export_presets` 排除 `docs/*`，打包后不可用），运行副本 = **`assets/ui/icons/icons_hud/`（21 枚 ×（PNG + 导入缓存））**；代码 `UITheme.hud_icon()` assets 优先 / docs 兜底、缺图回退虚线圆占位；PackVerify 新增「HUD 图徽素材」用例（运行副本 = docs 源逐枚可载入）守回归；②**缺口新增「锁」**（军需槽第 3 格 = 科技「军府调度」未解锁时，现用暗化虚线槽占位，需一枚锁图徽）；③**塔阶级角标**（`BattleRankBadge`，数字 1~9 圆标）0.8.17.0 按概念稿「数字圆标」落地，仍待图徽化（堆叠盾形 / 星标方案）；④怒气 / 军需限次两枚待出图状态不变。
@@ -290,6 +293,11 @@ pixel art, pixelated, 8-bit, 16-bit, retro game, dithering, voxel, mosaic, block
 
 ---
 
+### 4.7 品阶材料与技能书（0.9.1 缺口）
+
+general_seal 将印：金属将印；refined_iron 精铁：铁锭；ebony 乌木：深色木料；skill_book 技能书：卷册。按 §2 透明单符号、160×160、无文字／底板；未出图，运行 UI 虚线圆。
+
+
 ## 5. 通用 HUD 图徽（波次 / 伤害类型 / 人物属性 / 负面状态）
 
 > 本节图标落在 HUD / 属性面板 / 敌人状态条等通用位，非技能/物品本体。**5.1 波次旗帜属旗帜本体、用 §2.1 立绘级；5.2~5.4 属 HUD 属性/状态符号，一律用 §2.2 简版 UI 图标级（Kingdom Rush 式）。** 5.2~5.4 每组给两种用法：①「整套网格图」= 一张图出齐整组再切分（**首选，同组风格天然统一**）；②「单张」= 符号 + 主色 + §2.2 的 `UI-STYLE` 逐字追加（个别精修用）。负面词一律填 §2.2 负面栏。属性与状态口径以 [NUMBERS.md](NUMBERS.md) 10.12、[STATS_PIPELINE.md](STATS_PIPELINE.md) §6 为准。
@@ -422,6 +430,11 @@ A 2x2 grid of 4 flat 2D game UI symbols for resources and life, all identical sm
 
 ---
 
+### 5.7 品阶与新增属性（0.9.1 缺口）
+
+rank_white / green / purple / yellow / orange / red：同形阶徽按品阶色；stat_crit_rate：精准命中；stat_crit_damage：爆发冲击；stat_skill_amp：技能能量。透明单符号，tooltip 概念名，界面只数值。
+
+
 ## 6. 待办与续补
 
 - **生成次序建议**：① §3.1 职业技能核心 6（已建档，先定全套风格）→ ② §3.5 角色技能 9（典故辨识度最高）→ ③ §3.3 二转新技能 6 + §3.4 职业大招 6 → ④ §4 物品各分类。
@@ -431,6 +444,10 @@ A 2x2 grid of 4 flat 2D game UI symbols for resources and life, all identical sm
 - 本档为设计/生产参考，不承载数值与机制；机制以 SKILLS / CHARACTER_SKILLS / DROPS_GACHA 为准。
 
 ---
+
+### 6.1 0.9.1 缺口清单
+
+上述 13 枚待出图，未有真实图徽前不得用文字顶替。
 
 ## 7. 变更记录
 

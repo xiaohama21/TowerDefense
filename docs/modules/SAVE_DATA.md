@@ -13,10 +13,10 @@
 
 | 字段 | 内容 |
 |---|---|
-| `schema_version` | 存档版本，迁移用（**当前 v6**，0.8.16.0 起：新增 `military_merit`（军功余额）+ `supply_unlocks` / `supply_levels`（军需解锁与强化等级）+ `supply_loadout_ids`（局外选带记忆）——旧档迁移：军功补 0、基础 4 件军需补「已解锁 + L1」、选带补空数组、幂等；v5 = 0.8.15.0 经验池：新增 `exp_pool`（经验池余额；旧档迁移补 0、幂等）+ `items.exp_scroll` 残留数量随迁移清理；v4 为 0.8.14.0 碎片字段清理（`characters[id].shards` 删除）+ 信物双槽迁移（旧 `relic` → `relic_exclusive` 占位、新增 `relic_optional`）；v3 含 `squad_character_ids` / `squad_relic_ids` 编队记忆——v0~v4 旧档逐版自动迁移、幂等） |
-| `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`promotion_path`（转职历史）、`stars`（星级，✅ v0.13；**`shards` 已随 0.8.14 删除**——schema v4 迁移清理）、`relic_exclusive`（专属信物槽：**锁住占位、不参与计算**；旧档 `relic` 值迁移至此）、`relic_optional`（可选信物槽：Boss 签名信物生效位，✅ 0.8.14） |
+| `schema_version` | 当前 v7（0.9.1.0）：品阶、成长守护、黄巾布折算；v6 军功／军需、v5 经验池、v4 信物双槽、v3 编队记忆。旧档逐版迁移，未来高版本只读保护。 |
+| `characters` | 武将字典：`total_exp`（总经验，等级由此推导）、`rank`（0~5 手动品阶）、`growth_guard`（旧档裸面板守护，新档空；promotion_path / stars / shards 已删除）、`relic_exclusive`（专属信物槽：**锁住占位、不参与计算**；旧档 `relic` 值迁移至此）、`relic_optional`（可选信物槽：Boss 签名信物生效位，✅ 0.8.14） |
 | `stage_progress` | 关卡完成记录（首通/重复、成绩；v0.14.1 起按难度分键 `difficulties`：normal/hard（v0.31.2 移除 easy，旧档 easy 键忽略），解锁读取上一档通关记录） |
-| `items` | 道具数量字典（✅ v0.15.1 新增测试道具 `exp_scroll` 练兵令，经背包发放，不进掉落表；✅ v0.19.0 局内遗物库存复用本字典，`relic_id` 即 item_id；✅ v0.33.1 遗物改**永久使用**——数量 ≥1 即解锁、选带/结算均不消耗；✅ `exp_scroll` 已随 0.8.15.0 删除——`resources/items/exp_scroll.tres` 资源删除、背包测试发放按钮 / 养成面板使用行移除、旧档残留数量随 schema v5 迁移清理） |
+| `items` | 三材料／技能书／遗物数量字典；黄巾布在 v7 按 1:1 转为将印，练兵令已在 v5 清理。遗物数量 ≥1 即永久解锁。 |
 | `relics` | 已获信物列表（✅ v0.13；**✅ 0.8.14 落地**：Boss 签名信物按 s08 难度首通唯一获取、`add_relic` 去重保证「每件仅 1 次」；旧 3 件专属信物保留于列表但仅作占位、不参与计算） |
 | `tech_points` / `tech_unlocks` | 科技点余额与已解锁科技（✅ v0.14/v0.14.1；发放=首通+2/重复+1 × 难度材料倍率，胜利提交时经 `BattleSession.pending_tech_points` 写入） |
 | `gacha_state` | 抽奖状态（✅ v0.14.1 启用：保底计数/总抽数；求贤令数量存 `items.gacha_token`） |
@@ -29,5 +29,9 @@
 
 - **结算流程（已实现，禁止改动核心语义）**：`BattleSession`（会话内 pending：经验 / 掉落 / 解锁 / 信物 / **科技点** / 难度标记；✅ 0.8.15.0 起 + 经验池注入（`kill_xp_base` 累计 + 结算 `finalize_exp_pool_injection()`）；✅ 0.8.16.0 起 + 军功（击杀掉落累计、困难 ×1.5、失败不带出））→ 胜利 `mark_victory` → `PlayerProfile.apply_battle_session()`（写经验 / 掉落 / 解锁 / 关卡进度 / 科技点 / 难度通关记录；✅ 0.8.15.0 起一并写 `exp_pool`，✅ 0.8.16.0 起 + `military_merit`）→ `SaveManager.save_profile()`（原子写）；局内遗物**永久使用**（✅ v0.33.1：选带与结算均不消耗库存，v0.22.0“胜利扣库存各 1 件”作废，见 BUGS B-019）。
 - 失败/放弃：`mark_defeat` / `abandon` / `mark_discarded`，pending 数据清空，**不写入任何成长**。
-- **局内临时状态**：怒气、大招就绪、特性触发、局内塔升级等级（见 modules/STAGES.md 5.4）、**军需带**（局内购买 / 使用次数 / 未使用作废，✅ 0.8.16）等**只存在于本局**，不写入存档；存档只持久化等级经验、转职路径、信物、道具、军功与军需解锁 / 强化 / 选带、关卡进度。
+- **局内临时状态**：怒气、大招就绪、特性触发、局内塔升级等级（见 modules/STAGES.md 5.4）、**军需带**（局内购买 / 使用次数 / 未使用作废，✅ 0.8.16）等**只存在于本局**，不写入存档；存档只持久化等级经验、品阶与成长守护、信物、道具、军功与军需解锁 / 强化 / 选带、关卡进度。
 - **契约测试**：`tests/Stage0Runner.tscn` 覆盖存档事务（原子写、损坏恢复、非法结算拒绝、**高版本只读保护**——主/备份字节不变、无隔离、来源 `incompatible`、写盘被拒，B-099）；改动本模块后必须重跑。
+
+### schema v7（0.9.1）
+
+v6→v7 保留经验，按旧等级免费补最高可达品阶（已有 rank 不覆盖），读取有效末位转职计算 growth_guard（已有不覆盖），删除 promotion_path / stars。黄巾布非负整数化后 1:1 加至 general_seal 再删旧键，幂等。仅增加 rank／growth_guard，不预置装备、技能、天赋、元宝、主公与商店容器；原子写盘／备份／高版本只读保护继续适用。

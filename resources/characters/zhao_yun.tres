@@ -15,8 +15,6 @@ base_damage = 58
 base_range = 120.0
 attack_interval = 0.75
 projectile_speed = 460.0
-damage_growth_per_level = 5.0
-promotion_ids = [&"cavalry_iron_rider"]
 titles = ["龙骧卫"]
 character_skill_id = &"char_seven_charges"
 character_skill_params = {
@@ -30,3 +28,8 @@ trait_params = {
 "max_stacks": 10.0
 }
 unlock_stage_id = &"ch01_s06"
+
+attack_pct = 0.029
+speed_pct_per_level = 0.001
+per_rank_crit_rate = 0.01
+ultimate_id = &"ultimate_cavalry_breaker"

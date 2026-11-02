@@ -150,10 +150,11 @@ var _support_gain_per_tick: int = 2
 var _ultimate_id: StringName = StringName()
 var _ultimate_multiplier: float = 1.0
 var _granted_skills: Array[StringName] = []
-## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，来自 PromotionData。
+## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，旧执行器兼容参数；当前版本不授予职业技能。
 var _skill_params: Dictionary = {}
-## 当前转职（v0.28.0/提交 7）：技能显示名 + 按 enhanced_skill_ids 判断。
-var _promotion: PromotionData = null
+var crit_rate: float = 0.05
+var crit_damage: float = 1.5
+var skill_amp: float = 0.0
 ## 稳射保底计数（阶段 8·提交 6）：每 5 次命中必触发一次追加伤害。
 var steady_attack_counter: int = 0
 ## 突袭叠层（骁骑，提交 7）：击杀 +1 层 / 对精英/Boss 每 4 次命中 +1 层；普攻消耗 1 层该次 +25%×s。
@@ -298,19 +299,22 @@ func _refresh_battle_rank_badge() -> void:
 
 
 ## Apply a CharacterData to this tower. Call after add_child() so all
-## onready nodes are available. level/promotion 来自存档养成状态
+## onready nodes are available. level/rank/growth_guard 来自存档养成状态
 ## （GDD modules/CHARACTERS.md 4.4/4.5），属性经 compute_stats_at 统一计算。
 func apply_character(character_data: CharacterData, loadout: Dictionary = {}) -> void:
 	var level: int = int(loadout.get("level", 1))
-	var promotion: PromotionData = loadout.get("promotion", null)
-	var stars: int = 0  # 升星暂时移除（v0.30.0）：星级成长停用；恢复时改回 loadout
+	var rank := clampi(int(loadout.get("rank", 0)), 0, 5)
+	var guard: Dictionary = loadout.get("growth_guard", {})
 	var relic: RelicData = loadout.get("relic", null)
 	character_id = character_data.character_id
 	display_name = character_data.display_name
 	# 特性 ID/参数先于属性计算就位（观星射程加成等静态特性在下方读取）。
 	_trait_id = character_data.trait_id
 	_trait_params = character_data.trait_params.duplicate(true)
-	var stats := character_data.compute_stats_at(level, promotion, stars, relic)
+	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard)
+	crit_rate = float(stats.crit_rate)
+	crit_damage = float(stats.crit_damage)
+	skill_amp = float(stats.skill_amp)
 	damage = stats.damage
 	_base_damage = damage
 	range_radius = stats.range
@@ -356,9 +360,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_battle_rank_aoe_step = _resolve_rank_step(character_data.battle_rank_aoe_step_override, profession_data.battle_rank_aoe_step if profession_data != null else 0.0)
 	_battle_rank_buff_duration_step = _resolve_rank_step(character_data.battle_rank_buff_duration_step_override, profession_data.battle_rank_buff_duration_step if profession_data != null else 0.0)
 	_battle_rank_buff_power_step = _resolve_rank_step(character_data.battle_rank_buff_power_step_override, profession_data.battle_rank_buff_power_step if profession_data != null else 0.0)
-	_promotion = promotion
-	_granted_skills.assign(promotion.granted_skill_ids.duplicate()) if promotion != null else _granted_skills.clear()
-	_skill_params = promotion.skill_params.duplicate(true) if promotion != null else {}
+	_granted_skills.clear()
+	_skill_params = {}
 	# 角色技能（阶段 8·提交 6）：初始冷却就绪；B 被动激活标记与常驻加成清零。
 	_character_skill_id = character_data.character_skill_id
 	_character_skill_params = character_data.character_skill_params.duplicate(true)
@@ -382,10 +385,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_bullet_speed_buff = 1.0
 	_bullet_speed_sources.clear()
 	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
-	_ultimate_multiplier = promotion.ultimate_multiplier if promotion != null else 1.0
-	_ultimate_id = character_data.ultimate_override_id
-	if _ultimate_id.is_empty() and character_data.profession != null:
-		_ultimate_id = character_data.profession.ultimate_id
+	_ultimate_multiplier = 1.0
+	_ultimate_id = character_data.ultimate_id
 	_rage_mode = character_data.rage_gain_mode_override
 	if _rage_mode.is_empty() and character_data.profession != null:
 		_rage_mode = character_data.profession.rage_gain_mode
@@ -628,8 +629,9 @@ func schedule_melee_hit(target_enemy: Enemy, amount: int, damage_type: StringNam
 		var victim := resolve_hit_frame_target(victim_id)
 		if victim == null:
 			return
-		deal_damage(victim, amount, damage_type)
-		notify_attack_damage_dealt(victim, amount)
+		var hit := attack_hit_damage(amount)
+		deal_damage(victim, hit, damage_type)
+		notify_attack_damage_dealt(victim, hit)
 	)
 
 
@@ -846,7 +848,7 @@ func _process(_delta: float) -> void:
 	if _trait_id == &"trait_star_gazer" and _aura_tick <= 0.0:
 		_aura_tick = 0.5
 		for enemy in enemies_in_range():
-			enemy.apply_slow(get_trait_param("aura_slow", 0.92), 0.6)
+			enemy.apply_slow(get_trait_param("aura_slow", 0.92), 0.6 * skill_output_multiplier())
 
 	if attack_timer.is_stopped() and (passive or target != null):
 		attack()
@@ -949,11 +951,11 @@ func ultimate_effect_power() -> float:
 
 ## 局内升阶 buff 增强（阶段 8）：施加方升阶后，其 buff 持续/效果按此放大（舞娘/刘备等辅助）。
 func get_battle_rank_buff_duration_multiplier() -> float:
-	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank)
+	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank) * skill_output_multiplier()
 
 
 func get_battle_rank_buff_power_multiplier() -> float:
-	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct)
+	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct) * skill_output_multiplier()
 
 
 ## 局内升阶 AOE 半径倍率（阶段 8）：投石车普攻爆散 / 术士大招范围。
@@ -1024,8 +1026,12 @@ func get_character_skill_id() -> StringName:
 
 
 func get_character_skill_param(key: String, default: float) -> float:
-	return float(_character_skill_params.get(key, default))
-
+	var value := float(_character_skill_params.get(key, default))
+	if key == "slow_factor":
+		return maxf(1.0 - (1.0 - value) * skill_output_multiplier(), 0.0)
+	if key in ["duration", "fear_duration", "slow_duration", "mark_duration", "burn_duration", "team_speed_bonus", "bullet_speed_bonus", "speed_bonus", "self_rage", "self_rage_extra", "team_rage", "reveal_duration"]:
+		return value * skill_output_multiplier()
+	return value
 
 func is_character_skill_ready() -> bool:
 	return _char_skill_ready
@@ -1075,14 +1081,9 @@ func cast_character_skill() -> bool:
 	return true
 
 
-## 职业技能显示名（提交 7 继承与显示规则，v0.31.3）：仅对 PromotionData.enhanced_skill_ids
-## 命中的技能加 +（强化线配核心技能 id、新技能线留空——双技能均不带 +，不再按 parent_id 推断）。
+## 历史技能显示名兼容入口；当前版本不授予职业技能。
 func get_skill_display_name(skill_id: StringName) -> String:
-	var name := SkillRegistry.get_skill_name(skill_id)
-	if _promotion != null and has_skill(skill_id) and _promotion.enhanced_skill_ids.has(skill_id):
-		return name + "+"
-	return name
-
+	return SkillRegistry.get_skill_name(skill_id)
 
 func get_granted_skills() -> Array[StringName]:
 	return _granted_skills.duplicate()
@@ -1243,7 +1244,12 @@ func get_trait_id() -> StringName:
 
 
 func get_trait_param(key: String, default: float) -> float:
-	return float(_trait_params.get(key, default))
+	var value := float(_trait_params.get(key, default))
+	if key in ["aura_slow", "slow_factor"]:
+		return maxf(1.0 - (1.0 - value) * skill_output_multiplier(), 0.0)
+	if key in ["duration", "aura_damage_bonus", "self_rage_bonus", "ally_rage_bonus"]:
+		return value * skill_output_multiplier()
+	return value
 
 
 func get_behavior_id() -> StringName:
@@ -1261,7 +1267,7 @@ func get_consecutive_hits() -> int:
 ## damage_type（✅ 0.8.14）：本次伤害类型；缺省 = 本塔普攻类型。信物·类型条件增伤
 ## （天公雷诏 魔法 +12%）仅在该类型匹配时入乘区——调用方按实发伤害类型传参，
 ## 与 Tower.deal_damage 的类型解析保持同源。
-func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"") -> int:
+func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"", is_skill: bool = true) -> int:
 	# 常驻光环桶惰性刷新（提交 7）：拆塔/建塔后结算前自愈，避免缓存过期。
 	_ensure_aura_fresh()
 	var formation_bonus := clampf(
@@ -1282,6 +1288,8 @@ func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"") ->
 		var bonus_source := _next_attack_bonus_source
 		_next_attack_bonus_source = &"charge"
 		spawn_float_text(SkillRegistry.get_skill_name(bonus_source) + "+", Color(0.6, 0.9, 1.0))
+	if is_skill:
+		value *= skill_output_multiplier()
 	return int(round(value))
 
 
@@ -1855,3 +1863,16 @@ func _draw_range() -> void:
 	draw_circle(Vector2.ZERO, range_radius, RANGE_FILL_COLOR, true, -1.0, true)
 	draw_arc(Vector2.ZERO, range_radius, 0.0, TAU, 96, RANGE_BORDER_COLOR, RANGE_BORDER_WIDTH, true)
 	draw_circle(Vector2.ZERO, 5.0, RANGE_BORDER_COLOR, true, -1.0, true)
+
+## Hit-time critical roll: skills and damage-over-time never call this method.
+func attack_hit_damage(amount: int, roll: float = -1.0) -> int:
+	return roll_attack_critical(amount, crit_rate, crit_damage, roll)
+
+static func roll_attack_critical(amount: int, rate: float, multiplier: float, roll: float = -1.0) -> int:
+	var sample := randf() if roll < 0.0 else roll
+	if sample < clampf(rate, 0.0, 0.75):
+		return int(round(amount * maxf(multiplier, 1.0)))
+	return amount
+
+func skill_output_multiplier() -> float:
+	return 1.0 + maxf(skill_amp, 0.0)

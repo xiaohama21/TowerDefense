@@ -15,8 +15,6 @@ base_damage = 52
 base_range = 120.0
 attack_interval = 0.7
 projectile_speed = 400.0
-damage_growth_per_level = 4.0
-promotion_ids = [&"tiger_guard_army"]
 titles = ["蛇矛先锋"]
 character_skill_id = &"char_dangyang_roar"
 character_skill_params = {
@@ -32,3 +30,8 @@ trait_params = {
 "duration": 1.0
 }
 unlock_stage_id = &"ch01_s02"
+
+attack_pct = 0.027
+speed_pct_per_level = 0.001
+per_rank_skill_amp = 0.015
+ultimate_id = &"ultimate_tiger_guard_sweep"

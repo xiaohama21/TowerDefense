@@ -5,7 +5,7 @@ class_name ItemData
 enum ItemType {
 	CURRENCY,
 	GACHA_TOKEN,
-	PROMOTION_MATERIAL,
+	MATERIAL,
 	CHARACTER_SHARD,
 	CONSUMABLE,
 	# 遗物（v0.37.10 / 0.8.11.6）：局内遗物（编队选带、永久持有）由消耗品改列本类；

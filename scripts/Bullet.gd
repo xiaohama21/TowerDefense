@@ -14,7 +14,14 @@ var source_character_id: String = ""
 
 ## 命中结算来源塔（v0.31.4 / 0.8.6.2 命中事件拆分）：普攻弹道命中/爆炸后回调
 ## 怒气与技能命中钩子；大招/主动技能弹道不置位（只结算伤害，不接普攻命中事件）。
-var source_tower: Tower = null
+var attack_crit_rate := 0.0
+var attack_crit_damage := 1.5
+var source_tower: Tower = null:
+	set(value):
+		source_tower = value
+		if is_instance_valid(value):
+			attack_crit_rate = value.crit_rate
+			attack_crit_damage = value.crit_damage
 ## 是否按普攻命中事件结算（普攻弹道置 true；大招/技能弹道默认 false）。
 var counts_as_attack: bool = false
 ## 震地眩晕标记（震山·震地，提交 7）：大招抛射弹爆炸时对落点范围内敌人
@@ -62,8 +69,9 @@ func _physics_process(delta: float) -> void:
 	# Hit immediately when this frame's movement can reach the target. This
 	# avoids fast bullets skipping past it on a low frame rate.
 	if distance <= hit_radius or travel_distance >= distance:
-		target.take_damage(damage, source_character_id, damage_type, pen_ratios, pen_flat)
-		_notify_hit_events(target)
+		var hit := _hit_damage()
+		target.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat)
+		_notify_hit_events(target, hit)
 		queue_free()
 		return
 
@@ -75,10 +83,10 @@ func _physics_process(delta: float) -> void:
 
 ## 命中事件回调（v0.31.4 / 0.8.6.2）：仅普攻弹道在造成伤害后调用（近战即时结算
 ## 走 BehaviorRegistry，不走本回调）。
-func _notify_hit_events(target: Enemy) -> void:
+func _notify_hit_events(target: Enemy, hit: int) -> void:
 	if not counts_as_attack or source_tower == null or not is_instance_valid(source_tower):
 		return
-	source_tower.notify_attack_damage_dealt(target, damage)
+	source_tower.notify_attack_damage_dealt(target, hit)
 
 ## 启动抛射：设定落点与爆炸半径，飞行总距离据此计算。
 func launch_lob(landing: Vector2, radius: float) -> void:
@@ -104,19 +112,22 @@ func _process_lob(delta: float) -> void:
 func _explode() -> void:
 	var enemies := get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP)
 	var hit_any := false
+	var event_damage := 0
 	for node in enemies:
 		var enemy := node as Enemy
 		if enemy == null or enemy.is_dead:
 			continue
 		if enemy.global_position.distance_to(lob_landing) <= explosion_radius:
-			enemy.take_damage(damage, source_character_id, damage_type, pen_ratios, pen_flat)
+			var hit := _hit_damage()
+			enemy.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat)
+			event_damage = maxi(event_damage, hit)
 			# 震地（提交 7）：大招每发落点范围内敌人眩晕（同目标冷却防 3 连发叠晕）。
 			if tremor_stun and source_tower != null and is_instance_valid(source_tower):
 				SkillRegistry.try_apply_tremor_stun(source_tower, enemy)
 			hit_any = true
 	# AOE 攻击级事件（v0.31.4 / 0.8.6.2）：命中≥1 才按该发伤害计一次怒气（空爆不计）。
 	if counts_as_attack and hit_any and source_tower != null and is_instance_valid(source_tower):
-		source_tower.notify_aoe_damage_dealt(damage)
+		source_tower.notify_aoe_damage_dealt(event_damage)
 
 
 func _draw_lob() -> void:
@@ -161,3 +172,8 @@ func _draw() -> void:
 		_:
 			draw_circle(Vector2.ZERO, 5.0, color)
 			draw_circle(Vector2.ZERO, 2.5, Color.WHITE)
+
+func _hit_damage() -> int:
+	if counts_as_attack:
+		return Tower.roll_attack_critical(damage, attack_crit_rate, attack_crit_damage)
+	return damage

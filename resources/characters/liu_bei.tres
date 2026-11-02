@@ -15,8 +15,6 @@ base_damage = 38
 base_range = 130.0
 attack_interval = 0.8
 projectile_speed = 400.0
-damage_growth_per_level = 3.5
-promotion_ids = [&"tiger_guard_army"]
 titles = ["仁德统军"]
 character_skill_id = &"char_carry_people"
 character_skill_params = {
@@ -32,3 +30,8 @@ battle_rank_damage_step_override = 0.05
 battle_rank_attack_speed_step_override = 0.1
 battle_rank_buff_duration_step_override = 0.1
 battle_rank_buff_power_step_override = 0.05
+
+attack_pct = 0.03
+range_pct_per_level = 0.0012
+per_rank_skill_amp = 0.015
+ultimate_id = &"ultimate_tiger_guard_sweep"
