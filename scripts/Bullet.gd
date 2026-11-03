@@ -24,9 +24,6 @@ var source_tower: Tower = null:
 			attack_crit_damage = value.crit_damage
 ## 是否按普攻命中事件结算（普攻弹道置 true；大招/技能弹道默认 false）。
 var counts_as_attack: bool = false
-## 震地眩晕标记（震山·震地，提交 7）：大招抛射弹爆炸时对落点范围内敌人
-## 施加眩晕（同一敌人内置冷却由施法者塔维护，见 SkillRegistry.try_apply_tremor_stun）。
-var tremor_stun: bool = false
 var max_lifetime: float = 5.0
 var hit_radius: float = 6.0
 
@@ -69,8 +66,8 @@ func _physics_process(delta: float) -> void:
 	# Hit immediately when this frame's movement can reach the target. This
 	# avoids fast bullets skipping past it on a low frame rate.
 	if distance <= hit_radius or travel_distance >= distance:
-		var hit := _hit_damage()
-		target.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat)
+		var hit := _hit_damage(target)
+		target.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat, false, source_tower if is_instance_valid(source_tower) else null)
 		_notify_hit_events(target, hit)
 		queue_free()
 		return
@@ -118,12 +115,11 @@ func _explode() -> void:
 		if enemy == null or enemy.is_dead:
 			continue
 		if enemy.global_position.distance_to(lob_landing) <= explosion_radius:
-			var hit := _hit_damage()
-			enemy.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat)
+			var hit := _hit_damage(enemy)
+			enemy.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat, false, source_tower if is_instance_valid(source_tower) else null)
 			event_damage = maxi(event_damage, hit)
-			# 震地（提交 7）：大招每发落点范围内敌人眩晕（同目标冷却防 3 连发叠晕）。
-			if tremor_stun and source_tower != null and is_instance_valid(source_tower):
-				SkillRegistry.try_apply_tremor_stun(source_tower, enemy)
+			if counts_as_attack and is_instance_valid(source_tower):
+				SkillRegistry.on_attack_hit(source_tower, enemy, hit)
 			hit_any = true
 	# AOE 攻击级事件（v0.31.4 / 0.8.6.2）：命中≥1 才按该发伤害计一次怒气（空爆不计）。
 	if counts_as_attack and hit_any and source_tower != null and is_instance_valid(source_tower):
@@ -173,7 +169,8 @@ func _draw() -> void:
 			draw_circle(Vector2.ZERO, 5.0, color)
 			draw_circle(Vector2.ZERO, 2.5, Color.WHITE)
 
-func _hit_damage() -> int:
+func _hit_damage(_victim: Enemy = null) -> int:
 	if counts_as_attack:
+		if is_instance_valid(source_tower): return source_tower.attack_hit_damage(int(round(damage * SkillRegistry.attack_multiplier(source_tower, _victim))))
 		return Tower.roll_attack_critical(damage, attack_crit_rate, attack_crit_damage)
 	return damage

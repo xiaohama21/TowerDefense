@@ -48,8 +48,6 @@ var total_waves: int = 5
 var starting_lives: int = 20
 var is_wave_active: bool = false
 var active_battle_session: BattleSession = null
-## 每波首次漏怪已触发标记（B 被动：刘备·携民渡江 / 赵云·七进七出，每波一次）。
-var _wave_first_leak_used: bool = false
 
 ## 击杀连击状态（局内临时，不写存档）。
 var combo_count: int = 0
@@ -66,13 +64,6 @@ func enemy_reached_base(damage: int = 1):
 		return
 	lives = max(lives - damage, 0)
 	enemy_leaked.emit(damage)
-	# 角色技能 B 被动（每波首次漏怪）：GameManager 仅分发一次，塔不各自记波。
-	if not _wave_first_leak_used:
-		_wave_first_leak_used = true
-		for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-			var tower := node as Tower
-			if tower != null and is_instance_valid(tower):
-				SkillRegistry.on_wave_first_leak(tower)
 
 func enemy_died(
 	reward: int,
@@ -218,7 +209,6 @@ func start_wave():
 	_wave_support_xp_granted = 0
 	_support_coverage_last_time.clear()
 	# 每波重置首次漏怪标记（B 被动每波一次）。
-	_wave_first_leak_used = false
 	wave_started.emit(current_wave)
 	return true
 
@@ -262,7 +252,6 @@ func reset(starting_gold: int = 100, starting_lives: int = 20, wave_count: int =
 	# 科技 base_hp / 铁盾加成的起始生命只影响 lives 本身（周仓死战阈值 / 修整满血 / 低血红条错用 20）。
 	self.starting_lives = maxi(starting_lives, 0)
 	total_waves = maxi(wave_count, 1)
-	_wave_first_leak_used = false
 	current_wave = 0
 	is_wave_active = false
 	active_battle_session = null

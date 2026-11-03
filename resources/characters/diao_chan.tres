@@ -16,19 +16,25 @@ base_range = 145.0
 attack_interval = 1.4
 projectile_speed = 380.0
 titles = ["倾城鼓舞"]
-character_skill_id = &"char_moon_dance"
-character_skill_params = {
-"cooldown": 25.0,
-"team_rage": 10.0,
-"self_rage_extra": 5.0
-}
-trait_id = &"trait_moon_veil"
-trait_params = {
-"self_rage_bonus": 0.2,
-"ally_rage_bonus": 0.1
-}
 unlock_stage_id = &"ch01_s04"
 attack_pct = 0.03
 range_pct_per_level = 0.0012
 per_rank_skill_amp = 0.015
-ultimate_id = &"ultimate_dancer_encourage"
+
+passive_ids = Array[StringName]([&"trait_moon_veil", &"passive_worship_moon"])
+ultimate_id = &"char_moon_dance"
+rage_gain_mode = &"support"
+skill_params = {
+  "trait_moon_veil": {
+    "self_rage": 0.2,
+    "ally_rage": 0.1
+  },
+  "passive_worship_moon": {
+    "battle_rank": 3,
+    "skill_amp": 0.05
+  },
+  "char_moon_dance": {
+    "speed_bonus": 0.25,
+    "duration": 8.0
+  }
+}

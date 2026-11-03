@@ -37,14 +37,6 @@ enum AttackPattern {
 @export var attack_damage_type: StringName = &"physical"
 @export var behavior_id: StringName
 
-@export_category("Ultimate & Rage (阶段 3 字段，v0.11.1 先行铺设)")
-## 职业大招行为 ID（怒气驱动，见 CHARACTERS.md 4.6）。
-## 积怒模式：hit+damage（输出）/ support（辅助增益），默认按 combat_role 推断、可显式覆盖。
-@export var rage_gain_mode: StringName
-@export_range(0, 99, 1) var ultimate_gain_per_hit: int = 4
-@export_range(0.0, 99.0, 0.1) var ultimate_gain_per_damage: float = 0.1
-@export_range(0, 99, 1) var support_ultimate_gain_per_tick: int = 2
-
 @export_category("Battle Rank (阶段 8 职业化升阶，NUMBERS.md 10.9)")
 ## 局内升阶职业化步进（v0.20.1 定稿）：每阶加算到基础值；默认伤害 +25% 保持旧行为、
 ## 其余 0；角色可用 CharacterData.battle_rank_*_override 覆盖。
