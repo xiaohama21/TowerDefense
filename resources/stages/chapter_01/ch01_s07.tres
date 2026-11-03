@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=73 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=76 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -23,6 +23,10 @@
 [ext_resource type="Resource" path="res://resources/items/skill_book.tres" id="rank_skill_book"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="rank_amount"]
 [ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="rank_drop"]
+
+[ext_resource type="Script" path="res://scripts/data/WeaponData.gd" id="weapon_script"]
+[ext_resource type="Resource" path="res://resources/weapons/equipment_ritual_staff_1.tres" id="weapon_0"]
+[ext_resource type="Resource" path="res://resources/weapons/equipment_bamboo_banner_1.tres" id="weapon_1"]
 
 [sub_resource type="Resource" id="E_s07_w01_0"]
 script = ExtResource("3_spawn")
@@ -382,3 +386,5 @@ recommended_tower_count = 7
 recommended_rank_count = 3
 recommended_supply_count = 1
 target_remaining_gold = 150
+
+first_clear_weapons = Array[ExtResource("weapon_script")]([ExtResource("weapon_0"), ExtResource("weapon_1")])

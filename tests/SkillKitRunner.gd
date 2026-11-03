@@ -126,7 +126,7 @@ func _test_levels_and_migration(profile: PlayerProfile) -> void:
 	_check(SkillRegistry.normalize_levels("guan_yu", {"char_green_dragon": "999999999999999999999999999999"}).char_green_dragon == 10, "整数文本先夹取")
 	var raw := {"schema_version": 7, "characters": {"guan_yu": {"total_exp": 1340, "rank": 2, "skill_levels": {"char_green_dragon": 8, "passive_green_dragon_stance": -10, "passive_warm_wine": "bad", "foreign": 99}}}, "items": {"skill_book": 50}, "military_merit": 99, "exp_pool": 123}
 	var migrated: Dictionary = ProfileStore._migrate_to_current(raw)
-	_check(migrated.ok and migrated.data.schema_version == 8, "schema8")
+	_check(migrated.ok and migrated.data.schema_version == PlayerProfile.CURRENT_SCHEMA_VERSION, "技能迁移至当前schema")
 	var values: Dictionary = migrated.data.characters.guan_yu.skill_levels
 	_check(values == {"char_green_dragon": 8, "passive_green_dragon_stance": 1, "passive_warm_wine": 1}, "非法归一与有效等级保留")
 	_check(ProfileStore._migrate_to_current(migrated.data).data == migrated.data, "迁移幂等")

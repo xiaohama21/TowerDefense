@@ -1,5 +1,9 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
+> 文档版本：v0.37.72（2026-11-03）
+> v0.37.72 变更：启动阶段9·提交3装备系统（目标程序0.9.3.0、schema v9）；12凡品、单槽配装、首通/重复补件、3件上限与将印折算、属性管线与图徽界面。WEAPONS v0.1为权威模块；商店购买依赖0.9.4。按§5.3已同步0.9.2.0并建立0.9.3，交付时main冻结。
+> 0.9.3.0验收（2026-11-03）：12款凡品、单武器槽、449项装备检查与14项回归通过，Benchmark failures=0/warnings=0；14张原生窗口截图归档runtime_0.9.3。Windows导出/独立启动/PE版本/交付DLL/包内装备与schema v9/首波验证通过。BUGS v0.68登记B-128~B-132；ICONS v1.1，品质五档缺口使用虚线圆。0.9.3分支交付，main冻结在69faf52。
+
 > 文档版本：v0.37.71（2026-11-03）
 > v0.37.71 变更：启动阶段 9·提交 2（目标程序 0.9.2.0）；九将三技能、绿／紫被动解锁、技能书独立升级与 schema v8 先行登记。CHARACTER_SKILLS v0.12 / SKILLS v0.14 / STATS_PIPELINE v0.9 / UI_LAYOUT v0.20.73 / ENCYCLOPEDIA v0.1.22。按 AGENTS §5.3 同步 0.9.1.1 后从 main 建立 0.9.2；本提交交付后 main 冻结。
 > 0.9.2.0验收（2026-11-03）：14项功能／回归检查通过，三技能新基线双轮failures=0／warnings=0；13张原生窗口截图归档，UI_CONCEPT v0.29。Windows独立启动退出码0、PE版本0.9.2.0、交付Spine DLL实际加载、内嵌九将三技能／schema v8／技能书升级／273图标／首关开波均通过。BUGS v0.67登记B-119~B-127；当前版本分支0.9.2，main保持启动时同步状态。
@@ -296,6 +300,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 | [modules/UI_LAYOUT.md](modules/UI_LAYOUT.md) | 界面排版规范：网格、页签、语义色板 | 9 实现侧 |
 | [modules/BUGS.md](modules/BUGS.md) | Bug 修复记录：问题/复现/根因/处理，关联版本号 | 全阶段（v0.27.6 起强制登记） |
 | [modules/STATS_PIPELINE.md](modules/STATS_PIPELINE.md) | 数值来源与结算管线：五层计算顺序、增益桶与上限、伤害／攻速／射程／怒气公式、技能升级与增幅、固定状态伤害、减益叠加语义 | 10 实现侧（v0.31.6 新增） |
+| [WEAPONS.md](modules/WEAPONS.md) | 武器单槽、12款词条、库存与掉落、schema v9、图徽配装 | 重构提案§8／§11／§12／§13 |
 | [modules/ART_ASSETS.md](modules/ART_ASSETS.md) | 美术资产规范：分类目录、UI/地图素材台账、角色 spine 素材（v0.4 试点登记、v0.5 朝向定稿、v0.6 接入试点登记、v0.7 接入落地、v0.15 素材与运行时入库跨环境同步）、来源许可 | 13 美术风格行实现侧、附录资源映射（v0.33.4 新增；v0.4 角色 spine 试点登记；v0.5 朝向定稿；v0.6 接入试点登记；v0.7 关羽接入落地；v0.15 素材入库） |
 | [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) | UI 概念图生成与归档：概念图工作流、v3 视觉语言、PNG↔源码映射、复现/维护 | 13 美术风格设计侧（v0.34.3 新增） |
 | [modules/MAP_EDITOR.md](modules/MAP_EDITOR.md) | 地图编辑器：布局数据生产工具（宿主、数据模型、校验导出、里程碑） | 5.1/5.6 工具侧、13 地图素材实现侧（v0.35.4 新增；v0.35.5 M1 骨架落地） |

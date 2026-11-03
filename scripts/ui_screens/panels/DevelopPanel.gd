@@ -44,6 +44,7 @@ var _detail_level_label: Label
 var _exp_bar: ProgressBar
 var _exp_label: Label
 var _tab_container: TabContainer
+var _weapon_tab: VBoxContainer
 var _skill_tab: VBoxContainer
 ## 信物页签：专属槽锁定占位标签 + 可选槽（Boss 签名信物）列表容器（✅ 0.8.14 双槽）。
 var _relic_label: Label
@@ -302,6 +303,7 @@ func _build_right_column() -> Control:
 	right_column.add_child(_tab_container)
 	_skill_tab = _make_tab_page("技能")
 	_build_rank_tab()
+	_weapon_tab = _make_tab_page("装备")
 	_build_relic_tab()
 	return right_column
 
@@ -610,11 +612,12 @@ func _refresh() -> void:
 		return
 	var level := GameFlow.get_character_level(_profile, _selected_id)
 	var progress := LevelCurve.progress_at(_profile.get_character_exp(_selected_id))
-	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}), _profile.get_character(_selected_id).get("skill_levels", {}))
+	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}), _profile.get_character(_selected_id).get("skill_levels", {}), WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)))
 	_populate_info_card(character, level, stats, progress)
 	_refresh_skill_tab(character)
 	_refresh_rank_tab(character, level)
 	_refresh_relic(character)
+	_refresh_weapon_tab(character)
 	_refresh_exp_pool(level)
 	_sync_owned_button_labels()
 
@@ -639,7 +642,7 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()
 		content.add_child(card)
-		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), character.per_rank_skill_amp * rank, _profile.skill_upgrade_status(_selected_id, id), true)
+		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), character.per_rank_skill_amp * rank + float(WeaponRegistry.bonuses(WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)), character).get("skill_amp", 0.0)), _profile.skill_upgrade_status(_selected_id, id), true)
 		card.upgrade_requested.connect(_upgrade_skill)
 
 func _upgrade_skill(character_id: String, skill_id: StringName, expected_level: int) -> void:
@@ -1166,3 +1169,45 @@ func _apply_rank(character_id: String, expected_rank: int, dialog: ConfirmationD
 			return
 	dialog.queue_free()
 	_refresh()
+
+func _refresh_weapon_tab(character: CharacterData) -> void:
+	for child in _weapon_tab.get_children():
+		_weapon_tab.remove_child(child)
+		child.queue_free()
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_weapon_tab.add_child(scroll)
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 8)
+	scroll.add_child(content)
+	var current := _profile.get_character_weapon_id(_selected_id)
+	if current.is_empty():
+		var empty := HBoxContainer.new()
+		empty.add_child(ConceptIcon.new("ui_empty", 28, "当前槽为空，可在下方选择已拥有的装备。"))
+		var hint := _make_note_label("选择后生效，可自由装卸。", UITheme.LIGHT_MUTED)
+		hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		empty.add_child(hint)
+		content.add_child(empty)
+	for weapon in WeaponRegistry.for_character(character):
+		var id := str(weapon.weapon_id)
+		var count := _profile.weapon_count(id)
+		var available := _profile.weapon_available(id)
+		var equipped := current == id
+		var action := "卸下" if equipped else ("未获得" if count == 0 else ("已占用" if available == 0 else "装备"))
+		var card := WeaponCard.new()
+		content.add_child(card)
+		card.configure(weapon, count, available, action, equipped or available > 0, equipped)
+		var character_id := _selected_id
+		card.action_requested.connect(func(_id: String) -> void: _equip_weapon(character_id, "" if equipped else id))
+
+func _equip_weapon(character_id: String, weapon_id: String) -> bool:
+	var candidate := ProfileStore.get_profile().duplicate_profile()
+	if not candidate.set_character_weapon(character_id, weapon_id): return false
+	if not ProfileStore.save_profile(candidate):
+		_weapon_tab.add_child(_make_note_label("保存失败，请重试。", UITheme.LIGHT_LOCK))
+		return false
+	_profile = ProfileStore.get_profile()
+	_refresh()
+	return true

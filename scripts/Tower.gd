@@ -154,6 +154,7 @@ var skill_aura_tick := 0.0
 var skill_support_tick := 0.0
 var _base_crit_rate := 0.05
 var _base_skill_amp := 0.0
+var _weapon_bonuses: Dictionary = {}
 var _attack_growth_scale := 1.0
 var _skill_stat_buffs: Dictionary = {}
 var _aura_attack_flat := 0.0
@@ -290,7 +291,8 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_aura_crit_rate = 0.0
 	_attack_growth_scale = (1.0 + character_data.attack_pct * (level - 1 + (relic.level_bonus if relic != null else 0))) * CharacterRank.ATTACK[rank]
 
-	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard, _skill_levels)
+	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard, _skill_levels, loadout.get("weapon", null))
+	_weapon_bonuses = stats.equipment
 	crit_rate = float(stats.crit_rate)
 	crit_damage = float(stats.crit_damage)
 	skill_amp = float(stats.skill_amp)
@@ -318,7 +320,7 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_battle_relic_damage_bonus = float(relic_bonuses.get("damage_bonus_pct", 0)) / 100.0
 	var balance := GameBalance.get_balance()
 	_max_rage = balance.max_rage
-	bullet_speed = character_data.projectile_speed
+	bullet_speed = float(stats.projectile_speed)
 	build_cost = character_data.build_cost
 
 	var profession_data := character_data.profession
@@ -772,9 +774,10 @@ func _process(_delta: float) -> void:
 
 ## 攻击时积怒（hit+damage 模式）：命中 +N，另按伤害折算（GDD 4.6/10.6）。
 func gain_rage_for_attack(dealt: int) -> void:
-	if _rage_mode != &"hit+damage":
-		return
-	gain_rage(float(_gain_per_hit) + float(dealt) * _gain_per_damage)
+	if dealt <= 0: return
+	var gain := float(_weapon_bonuses.get("hit_rage_flat", 0.0))
+	if _rage_mode == &"hit+damage": gain += float(_gain_per_hit) + float(dealt) * _gain_per_damage
+	gain_rage(gain)
 
 
 ## 单体攻击命中结算统一入口（v0.31.4 / 0.8.6.2 命中事件拆分）：
@@ -819,7 +822,7 @@ func grant_rage_flat(amount: float) -> void:
 func gain_rage(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	rage = minf(rage + amount * SkillRegistry.rage_multiplier(self) * (1.0 + _tech_rage_gain_pct), _max_rage)
+	rage = minf(rage + amount * SkillRegistry.rage_multiplier(self) * (1.0 + _tech_rage_gain_pct + float(_weapon_bonuses.get("rage_pct", 0.0))), _max_rage)
 	queue_redraw()
 
 
@@ -1014,6 +1017,8 @@ func get_armor_penetration() -> Dictionary:
 	if ratio > 0.0:
 		var source_key := character_id if not character_id.is_empty() else str(_profession_id)
 		ratios[source_key] = clampf(ratio, 0.0, DamageTypes.MAX_PENETRATION_RATIO)
+	var weapon_ratio := clampf(float(_weapon_bonuses.get("armor_pen_pct", 0.0)), 0.0, DamageTypes.MAX_PENETRATION_RATIO)
+	if weapon_ratio > 0.0: ratios["weapon"] = weapon_ratio
 	return {"ratios": ratios, "flat": flat}
 
 
@@ -1071,7 +1076,7 @@ func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"", _i
 		FORMATION_DAMAGE_CAP
 	)
 	var resolved_type := damage_type if DamageTypes.is_valid(damage_type) else get_attack_damage_type()
-	var relic_type_bonus := _relic_magic_damage_bonus if resolved_type == DamageTypes.MAGIC else 0.0
+	var relic_type_bonus := (_relic_magic_damage_bonus + float(_weapon_bonuses.get("magic_damage_pct", 0.0))) if resolved_type == DamageTypes.MAGIC else 0.0
 	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + relic_type_bonus) * (1.0 + formation_bonus) * (1.0 + _battle_relic_damage_bonus)
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
 	return int(round(value))
@@ -1655,4 +1660,4 @@ func _recalc_skill_stats() -> void:
 
 func splash_radius(base: float) -> float:
 	var extra := get_skill_param(&"passive_fierce_flame", "splash_flat") * SkillRegistry.strength(self, &"passive_fierce_flame") if has_skill(&"passive_fierce_flame") else 0.0
-	return (base + extra) * get_battle_rank_aoe_multiplier()
+	return (base + extra) * (1.0 + float(_weapon_bonuses.get("splash_pct", 0.0))) * get_battle_rank_aoe_multiplier()

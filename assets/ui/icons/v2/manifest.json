@@ -1727,7 +1727,7 @@
       "label": "环首大刀",
       "category": "equipment",
       "description": "环首大刀",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_ring_blade_1.svg",
       "png": "equipment_ring_blade_1.png",
       "pixels": 256
@@ -1777,7 +1777,7 @@
       "label": "铁脊长枪",
       "category": "equipment",
       "description": "铁脊长枪",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_long_spear_1.svg",
       "png": "equipment_long_spear_1.png",
       "pixels": 256
@@ -1827,7 +1827,7 @@
       "label": "雕角弓",
       "category": "equipment",
       "description": "雕角弓",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_horn_bow_1.svg",
       "png": "equipment_horn_bow_1.png",
       "pixels": 256
@@ -1877,7 +1877,7 @@
       "label": "金铃绶带",
       "category": "equipment",
       "description": "金铃绶带",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_silk_bells_1.svg",
       "png": "equipment_silk_bells_1.png",
       "pixels": 256
@@ -1927,7 +1927,7 @@
       "label": "霹雳车",
       "category": "equipment",
       "description": "霹雳车",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_thunder_cart_1.svg",
       "png": "equipment_thunder_cart_1.png",
       "pixels": 256
@@ -1977,7 +1977,7 @@
       "label": "桃木法杖",
       "category": "equipment",
       "description": "桃木法杖",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_ritual_staff_1.svg",
       "png": "equipment_ritual_staff_1.png",
       "pixels": 256
@@ -2027,7 +2027,7 @@
       "label": "骨朵",
       "category": "equipment",
       "description": "骨朵",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_bone_mace_1.svg",
       "png": "equipment_bone_mace_1.png",
       "pixels": 256
@@ -2077,7 +2077,7 @@
       "label": "斩马剑",
       "category": "equipment",
       "description": "斩马剑",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_horse_sword_1.svg",
       "png": "equipment_horse_sword_1.png",
       "pixels": 256
@@ -2127,7 +2127,7 @@
       "label": "桑木弓",
       "category": "equipment",
       "description": "桑木弓",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_mulberry_bow_1.svg",
       "png": "equipment_mulberry_bow_1.png",
       "pixels": 256
@@ -2177,7 +2177,7 @@
       "label": "陶埙",
       "category": "equipment",
       "description": "陶埙",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_clay_flute_1.svg",
       "png": "equipment_clay_flute_1.png",
       "pixels": 256
@@ -2227,7 +2227,7 @@
       "label": "木梢砲",
       "category": "equipment",
       "description": "木梢砲",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_wood_mortar_1.svg",
       "png": "equipment_wood_mortar_1.png",
       "pixels": 256
@@ -2277,7 +2277,7 @@
       "label": "竹节幡",
       "category": "equipment",
       "description": "竹节幡",
-      "planned": true,
+      "planned": false,
       "svg": "equipment_bamboo_banner_1.svg",
       "png": "equipment_bamboo_banner_1.png",
       "pixels": 256

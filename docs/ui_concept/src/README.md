@@ -82,6 +82,10 @@
 - `ui_cursor_palette.py`：`docs/ui_concept/ui_cursor_palette.png` 生成脚本（PIL，非 HTML/Chrome 流程）——自 `kenney_cursor_pack/` 子集读原图并内联 A/B/C 三色双色重着色、浅/深底色对照合成；标签字体优先 Windows `msyh.ttc`、缺失回退 `fonts/ZCOOL-Kuaile.ttf`（字形有差异）；输出 1280×780。运行：`python ui_cursor_palette.py`。
 - 17 文件清单：`Blue/Default/icon_cross.png`；`Blue|Grey|Red|Yellow/Double/button_rectangle_depth_flat.png`（四色）；`Blue|Grey|Red|Yellow/Double/button_rectangle_gloss.png`（四色）；`Yellow/Double/button_rectangle_depth_gloss.png`；`Yellow/Double/arrow_decorative_e.png` / `arrow_decorative_w.png`；`Yellow/Double/star.png` / `star_outline.png` / `star_outline_depth.png`；`Grey/Double/star_outline.png`；`Extra/Double/icon_arrow_down_dark.png`。
 
+### 4.1 装备品质缺口（0.9.3）
+
+登记equipment_rarity_0..4（凡/良/珍/绝/神）独立品质角标；不得复用角色六阶图徽。0.9.3使用虚线圆占位并以tooltip说明凡品，12款武器使用现有v2 PNG。
+
 ## 5. 维护约定
 
 1. 改稿 = 编辑 HTML → 重渲 PNG → 给用户确认 → 覆盖 `docs/ui_concept/ui_*.png` → 同步 `UI_CONCEPT.md` / `UI_LAYOUT.md` 版本与 changelog（文档先行）。

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=56 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=58 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -17,6 +17,9 @@
 [ext_resource type="Resource" path="res://resources/items/skill_book.tres" id="rank_skill_book"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="rank_amount"]
 [ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="rank_drop"]
+
+[ext_resource type="Script" path="res://scripts/data/WeaponData.gd" id="weapon_script"]
+[ext_resource type="Resource" path="res://resources/weapons/equipment_silk_bells_1.tres" id="weapon_0"]
 
 [sub_resource type="Resource" id="EnemySpawnData_w1_0"]
 script = ExtResource("3_spawn")
@@ -308,3 +311,5 @@ recommended_supply_count = 1
 target_remaining_gold = 150
 
 probability_drops = [SubResource("rank_prob_refined_iron"), SubResource("rank_prob_skill_book")]
+
+first_clear_weapons = Array[ExtResource("weapon_script")]([ExtResource("weapon_0")])

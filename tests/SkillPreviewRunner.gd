@@ -49,7 +49,7 @@ func _run() -> void:
 	develop._select_character("huang_fu_song")
 	develop._refresh()
 	await _shot("develop_fire_skills")
-	develop._tab_container.current_tab = 2
+	develop._tab_container.current_tab = 3
 	await _shot("develop_relic")
 	hub._show_panel(&"inventory")
 	await _shot("inventory_materials")

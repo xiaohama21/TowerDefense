@@ -508,7 +508,7 @@ func _test_save_migration_v4_to_v5() -> void:
 	var migrated_data: Dictionary = migrated.get("data", {})
 	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
 		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 8, "PlayerProfile schema 应为 v6（0.8.16.0 军功 + 军需）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 9, "PlayerProfile schema 应为 v9（装备）")
 	_check(int(migrated_data.get("exp_pool", -1)) == 0, "v4→v5 迁移应补 exp_pool = 0")
 	var items: Dictionary = migrated_data.get("items", {})
 	_check(not items.has("exp_scroll"), "v4→v5 迁移应清理 items.exp_scroll 残留（练兵令删除）")
@@ -575,7 +575,7 @@ func _test_save_migration_v5_to_v6() -> void:
 	var migrated_data: Dictionary = migrated.get("data", {})
 	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
 		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 8, "PlayerProfile schema 应为 v6（0.8.16 军功 + 军需）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 9, "PlayerProfile schema 应为 v9（装备）")
 	_check(int(migrated_data.get("military_merit", -1)) == 0, "v5→v6 迁移应补 military_merit = 0")
 	var unlocks: Array = migrated_data.get("supply_unlocks", [])
 	for supply_id in PlayerProfile.BASE_SUPPLY_IDS:

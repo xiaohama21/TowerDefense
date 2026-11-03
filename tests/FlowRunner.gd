@@ -310,7 +310,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	_show_hub_panel(hub, &"develop")
 	_check(develop_panel.visible and not map_panel.visible, "点击武将养成应切换内容区")
 	var toggles := 0
-	for button in _collect_buttons(develop_panel):
+	for button in _collect_buttons(develop_panel._owned_grid):
 		if button.toggle_mode:
 			toggles += 1
 	_check(toggles == 2, "养成面板应列出 2 名初始武将（刘备/关羽）")
@@ -370,7 +370,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		for child in inventory_filter_row.get_children():
 			if child is Button:
 				filter_texts.append((child as Button).text)
-	_check(filter_texts == ["全部", "材料", "消耗品", "遗物"],
+	_check(filter_texts == ["全部", "材料", "消耗品", "遗物", "装备"],
 		"背包类目应包含技能书消耗品，实际 %s" % [filter_texts])
 	var inventory_scroll := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
 	_check(inventory_scroll != null, "背包网格应包在 GridScroll 滚动容器内")

@@ -303,6 +303,7 @@ func get_battle_loadout(profile: PlayerProfile, character_id: String) -> Diction
 		"skill_levels": profile.get_character(character_id).get("skill_levels", {}) if profile != null else {},
 		"growth_guard": profile.get_character(character_id).get("growth_guard", {}) if profile != null else {},
 		"relic": get_equipped_relic(profile, character_id),
+		"weapon": WeaponRegistry.get_weapon(profile.get_character_weapon_id(character_id)) if profile != null else null,
 	}
 
 
@@ -392,15 +393,23 @@ func load_item_data(item_id: String) -> ItemData:
 	var path := "%s/%s.tres" % [ITEM_RESOURCE_DIR, item_id]
 	if ResourceLoader.exists(path):
 		return load(path) as ItemData
-	return null
+	return WeaponRegistry.get_weapon(item_id)
 
 
 ## 关卡结算固定奖励（v0.15.1 抽公共，正常胜利与"一键通关（测试）"共用同一条规则）：
 ## 首通=解锁武将 + 首通奖励 + Boss 首通信物；重复=重复奖励 + 概率掉落掷点；
 ## 数量按难度材料倍率缩放（Difficulty.material_mult，取整保底 ≥1）。
-func collect_stage_rewards(session: BattleSession, stage: StageData, first_clear: bool) -> void:
+func collect_stage_rewards(session: BattleSession, stage: StageData, first_clear: bool, weapon_rng: RandomNumberGenerator = null) -> void:
 	if session == null or stage == null:
 		return
+	# Global first clear, shared by standard and hard. Equipment does not scale with difficulty.
+	var profile := get_profile()
+	var weapon_first := first_clear and (profile == null or not profile.stage_progress.has(str(stage.stage_id)))
+	for weapon in stage.first_clear_weapons:
+		if weapon == null: continue
+		var roll := weapon_rng.randf() if weapon_rng != null else randf()
+		if weapon_first or roll < stage.repeat_weapon_drop_chance:
+			session.add_weapon(str(weapon.weapon_id))
 	var mult := Difficulty.material_mult(selected_difficulty)
 	var rewards: Array = []
 	if first_clear:

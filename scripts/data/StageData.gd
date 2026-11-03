@@ -61,6 +61,8 @@ class_name StageData
 ## Boss 首掉信物（✅ 0.8.14 信物重构，**困难难度**首通）：与标准档各 1 件、每件仅获取 1 次、
 ## 不做"先通困难补标准"补发（困难解锁本就要求标准通关，NUMBERS 10.13 / DROPS_GACHA 7.2）。
 @export var first_clear_relic_hard: RelicData
+@export var first_clear_weapons: Array[WeaponData] = []
+@export_range(0.0, 1.0, 0.01) var repeat_weapon_drop_chance: float = 0.3
 @export var repeat_clear_rewards: Array[ItemAmountData] = []
 ## 概率掉落（v0.13）：重复通关时逐条掷点，命中计入战局掉落。
 @export var probability_drops: Array[DropEntryData] = []

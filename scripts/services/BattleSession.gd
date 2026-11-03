@@ -19,6 +19,7 @@ var stage_id: String = ""
 var deployed_character_ids: Array[String] = []
 var pending_xp_by_character: Dictionary = {}
 var pending_loot: Dictionary = {}
+var pending_weapons: Dictionary = {}
 var pending_unlocks: Array[String] = []
 ## 首通信物（v0.13）：通关后写入存档 relics。
 var pending_relics: Array[String] = []
@@ -80,6 +81,7 @@ func load_dict(data: Dictionary) -> void:
 	deployed_character_ids = _normalize_string_array(data.get("deployed_character_ids", []))
 	pending_xp_by_character = _normalize_amount_dictionary(data.get("pending_xp_by_character", {}))
 	pending_loot = _normalize_amount_dictionary(data.get("pending_loot", {}))
+	pending_weapons = _normalize_amount_dictionary(data.get("pending_weapons", {}))
 	pending_unlocks = _normalize_string_array(data.get("pending_unlocks", []))
 	pending_relics = _normalize_string_array(data.get("pending_relics", []))
 	pending_tech_points = _coerce_non_negative_int(data.get("pending_tech_points", 0))
@@ -100,6 +102,7 @@ func to_dict() -> Dictionary:
 		"deployed_character_ids": deployed_character_ids.duplicate(),
 		"pending_xp_by_character": pending_xp_by_character.duplicate(true),
 		"pending_loot": pending_loot.duplicate(true),
+		"pending_weapons": pending_weapons.duplicate(true),
 		"pending_unlocks": pending_unlocks.duplicate(),
 		"pending_relics": pending_relics.duplicate(),
 		"pending_tech_points": pending_tech_points,
@@ -337,6 +340,7 @@ func mark_discarded() -> bool:
 	status = STATUS_DISCARDED
 	pending_xp_by_character.clear()
 	pending_loot.clear()
+	pending_weapons.clear()
 	pending_unlocks.clear()
 	pending_relics.clear()
 	pending_tech_points = 0
@@ -349,6 +353,7 @@ func mark_discarded() -> bool:
 func clear_pending_rewards() -> void:
 	pending_xp_by_character.clear()
 	pending_loot.clear()
+	pending_weapons.clear()
 	pending_unlocks.clear()
 	pending_relics.clear()
 	pending_tech_points = 0
@@ -404,3 +409,11 @@ func _coerce_non_negative_int(value) -> int:
 			number = 0
 	return maxi(number, 0)
 
+
+func add_weapon(weapon_id: String, amount: int = 1) -> int:
+	if not can_accumulate_rewards() or amount <= 0 or WeaponRegistry.get_weapon(weapon_id) == null: return int(pending_weapons.get(weapon_id, 0))
+	pending_weapons[weapon_id] = int(pending_weapons.get(weapon_id, 0)) + amount
+	return int(pending_weapons[weapon_id])
+
+func get_pending_weapons() -> Dictionary:
+	return pending_weapons.duplicate(true)

@@ -271,6 +271,8 @@ var _selected_character_id: String = ""
 var _selected_enemy_id: String = ""
 
 ## 模拟器状态（只读假设视图，不写档）。
+var _sim_weapon_id := ""
+var _weapon_tab: VBoxContainer
 var _sim_level: int = 1
 var _sim_rank: int = 0
 var _sim_battle_rank: int = 0
@@ -772,6 +774,7 @@ func _build_character_detail() -> void:
 
 	_base_tab = _make_tab("基础")
 	_skill_tab = _make_tab("技能")
+	_weapon_tab = _make_tab("装备")
 	_relic_tab = _make_tab("信物")
 
 
@@ -971,6 +974,7 @@ func _fill_rank_options(_character: CharacterData) -> void:
 func _select_character(character_id: String) -> void:
 	_selected_character_id = character_id
 	_sim_level = 1
+	_sim_weapon_id = ""
 	_sim_battle_rank = 0
 	if _mode != &"character":
 		_switch_mode(&"character")
@@ -1022,6 +1026,7 @@ func _refresh_character_chips(character: CharacterData) -> void:
 
 func _clear_tab(tab: VBoxContainer) -> void:
 	for child in tab.get_children():
+		tab.remove_child(child)
 		child.queue_free()
 
 
@@ -1119,7 +1124,7 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()
 		_skill_tab.add_child(card)
-		card.configure(character, id, rank, 1, character.per_rank_skill_amp * rank)
+		card.configure(character, id, rank, 1, character.per_rank_skill_amp * rank + float(WeaponRegistry.bonuses(WeaponRegistry.get_weapon(_sim_weapon_id), character).get("skill_amp", 0.0)))
 
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
@@ -1192,7 +1197,7 @@ func _on_sim_changed() -> void:
 		_sim_plus_button.disabled = _sim_level >= LevelCurve.max_level()
 	_sync_rank_buttons()
 	_sim_rank = maxi(_sim_rank_option.selected, 0)
-	var stats := character.compute_stats_at(_sim_level, _sim_rank, null, _sim_battle_rank)
+	var stats := character.compute_stats_at(_sim_level, _sim_rank, null, _sim_battle_rank, {}, {}, WeaponRegistry.get_weapon(_sim_weapon_id))
 	var attack_type := character.profession.attack_damage_type if character.profession != null else DamageTypes.PHYSICAL
 	if _sim_attack_icon != null:
 		UITheme.apply_hud_icon(_sim_attack_icon, "dmg_" + str(attack_type), 20)
@@ -1204,6 +1209,7 @@ func _on_sim_changed() -> void:
 	_set_sim_result("暴击伤害", "%.1f%%" % (float(stats.crit_damage) * 100.0))
 	_set_sim_result("技能增幅", "+%.1f%%" % (float(stats.skill_amp) * 100.0))
 	_refresh_skill_tab(character)
+	_refresh_weapon_tab(character)
 
 
 func _set_sim_result(result_key: String, value_text: String) -> void:
@@ -1581,3 +1587,19 @@ func _default_enemy_id() -> String:
 ## 武将头像概念九色键（CHARACTER_AVATAR_COLORS；缺失回退蓝，不再按职业色着色）。
 func _avatar_color_key(character: CharacterData) -> String:
 	return str(CHARACTER_AVATAR_COLORS.get(str(character.character_id), "blue"))
+
+func _refresh_weapon_tab(character: CharacterData) -> void:
+	if _weapon_tab == null: return
+	_clear_tab(_weapon_tab)
+	var reset := Button.new()
+	reset.text = "清空预览" if not _sim_weapon_id.is_empty() else "选择下方装备进行预览"
+	reset.disabled = _sim_weapon_id.is_empty()
+	UITheme.apply_light_selectable(reset)
+	reset.pressed.connect(func() -> void: _sim_weapon_id = ""; _on_sim_changed())
+	_weapon_tab.add_child(reset)
+	for weapon in WeaponRegistry.for_character(character):
+		var card := WeaponCard.new()
+		_weapon_tab.add_child(card)
+		var selected := _sim_weapon_id == str(weapon.weapon_id)
+		card.configure(weapon, -1, -1, "已选" if selected else "预览", not selected, selected)
+		card.action_requested.connect(func(id: String) -> void: _sim_weapon_id = id; _on_sim_changed())

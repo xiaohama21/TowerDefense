@@ -566,6 +566,7 @@ func _on_victory():
 	var saved := false
 	var xp_by_character: Dictionary = {}
 	var loot: Dictionary = {}
+	var weapon_rewards := {"weapons": {}, "seals": 0}
 	var unlock_names: Array[String] = []
 	# v0.21.1 修复：先收集奖励再 mark_victory，与一键通关（MapPanel）顺序统一，
 	# 避免胜利状态后 is_in_progress() 守卫拦截首通解锁/掉落写入。
@@ -585,6 +586,7 @@ func _on_victory():
 			"completed_waves": GameManager.current_wave,
 			"difficulty": Difficulty.key_name(GameFlow.selected_difficulty),
 		}):
+			weapon_rewards = profile.weapon_reward_preview(battle_session.get_pending_weapons())
 			saved = ProfileStore.commit_victory(battle_session)
 			xp_by_character = battle_session.get_pending_xp_by_character()
 			loot = battle_session.get_pending_loot()
@@ -594,6 +596,7 @@ func _on_victory():
 		"victory": true,
 		"xp_by_character": xp_by_character,
 		"loot": loot,
+		"weapon_rewards": weapon_rewards if saved else {"weapons": {}, "seals": 0},
 		"unlock_names": unlock_names,
 		"saved": saved,
 		"next_stage_name": _next_stage_display_name(),

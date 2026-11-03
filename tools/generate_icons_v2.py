@@ -292,7 +292,7 @@ def catalogue():
         for tier,name in enumerate(names):
             c=[WOOD,JADE,BLUE,VIOLET,GOLD][tier]
             decor=''.join(circle(14+i*9,84,2.5,c,INK,1.2) for i in range(tier))
-            add('equipment_'+family+'_'+str(tier+1),name,'equipment',draw(c)+decor,planned=True)
+            add('equipment_'+family+'_'+str(tier+1),name,'equipment',draw(c)+decor,planned=(tier > 0))
     # Technology has a symbolic concept and tier marker rather than a title initial.
     tech_map={'mil_dmg':sword(),'prof_tiger_guard':tiger(),'prof_cavalry':horse(),'prof_archer':bow(),'prof_strategist':fan(),'prof_dancer':lotus(),'prof_catapult':catapult(),'eco_gold':coin(),'eco_wave':flag(),'inf_hp':gate(),'strat_rage':flame(GOLD),'strat_refund':ingot(),'strat_upgrade':shield(),'strat_supply':pouch()}
     tech_text=(ROOT/'resources/tech/tech_tree.tres').read_text(encoding='utf-8')

@@ -11,7 +11,7 @@ signal back_requested
 const TEST_RELIC_IDS: Array[String] = ["wolf_tooth", "iron_shield", "war_drums", "scout_eye", "provision_bag"]
 
 ## 类目顺序与 ItemData.ItemType 枚举一致（追加在末尾，勿改中间顺序）。
-const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品", "遗物"]
+const ITEM_TYPE_NAMES := ["货币", "抽奖券", "材料", "碎片", "消耗品", "遗物", "装备"]
 ## 筛选 chips 展示的类型（v0.37.11 收敛 / ✅ 0.8.15.0 二次收敛；货币/抽奖券/碎片随系统下线不生成——
 ## 金币不入库存、求贤令 v0.30.0 库存隐藏、升星碎片 v0.30.0 移除；**消耗品类目随练兵令删除清空**
 ## （0.8.15.0：exp_scroll 道具删除、发放入口移除），只保留有内容的类目）。
@@ -19,6 +19,7 @@ const FILTER_TYPES: Array[int] = [
 	ItemData.ItemType.MATERIAL,
 	ItemData.ItemType.CONSUMABLE,
 	ItemData.ItemType.RELIC,
+	ItemData.ItemType.EQUIPMENT,
 ]
 ## 方块图标渐变 key（概念图 .tile.*，索引 = ItemData.ItemType；avatar_gradient_colors 取色）。
 const TYPE_TILE_KEYS := ["gold", "teal", "blue", "green", "orange", "purple"]
@@ -196,11 +197,27 @@ func _show_detail(item_id: String) -> void:
 	for child in _detail_box.get_children():
 		child.queue_free()
 	var item := GameFlow.load_item_data(item_id)
-	if item == null:
+	if item == null: return
+	if item is WeaponData:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		_detail_box.add_child(row)
+		row.add_child(ConceptIcon.new(item_id, 40, item.display_name))
+		for effect in WeaponRegistry.effect_rows(item):
+			row.add_child(ConceptIcon.new(str(effect[0]), 22, str(effect[2])))
+			var value := Label.new()
+			value.text = str(effect[1])
+			value.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+			row.add_child(value)
+		var hint := Label.new()
+		hint.text = "在养成页选择武将后装配。"
+		hint.tooltip_text = WeaponRegistry.acquisition_text(item)
+		hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		_detail_box.add_child(hint)
 		return
 	var type_index: int = item.item_type if item.item_type >= 0 else 0
 	var type_name: String = ITEM_TYPE_NAMES[type_index] if item.item_type >= 0 and item.item_type < ITEM_TYPE_NAMES.size() else "未知"
-	var amount := int(ProfileStore.get_profile().items.get(item_id, 0))
+	var amount := ProfileStore.get_profile().weapon_count(item_id) if item is WeaponData else int(ProfileStore.get_profile().items.get(item_id, 0))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	_detail_box.add_child(row)
@@ -273,6 +290,8 @@ func _refresh() -> void:
 		var amount := int(profile.items.get(key, 0))
 		if amount > 0:
 			entries.append([item_id, amount])
+	for id in profile.weapons:
+		if profile.weapon_count(str(id)) > 0: entries.append([str(id), profile.weapon_count(str(id))])
 	# 概念图按类型分组排序（材料→消耗品→遗物…），同类型内按 id 字典序稳定排。
 	entries.sort_custom(func(a: Array, b: Array) -> bool:
 		var item_a := GameFlow.load_item_data(str(a[0]))
@@ -313,6 +332,11 @@ func _refresh() -> void:
 
 func _make_item_card(item_id: String, amount: int) -> Button:
 	var item := GameFlow.load_item_data(item_id)
+	if item is WeaponData:
+		var weapon_card := WeaponCard.new()
+		weapon_card.configure(item, amount, ProfileStore.get_profile().weapon_available(item_id), "", true, item_id == _selected_id)
+		weapon_card.pressed.connect(_on_card_pressed.bind(item_id))
+		return weapon_card
 	var display_name := item.display_name if item != null else item_id
 	var type_index: int = item.item_type if item != null and item.item_type >= 0 else 0
 	var type_name: String = ITEM_TYPE_NAMES[type_index] if item != null and item.item_type >= 0 and item.item_type < ITEM_TYPE_NAMES.size() else "未知"
