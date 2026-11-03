@@ -9,7 +9,10 @@ class_name LevelCurve
 static func exp_total_for_level(level: int) -> int:
 	var balance := GameBalance.get_balance()
 	var l := maxi(level, 1)
-	return balance.exp_base_per_level * (l - 1) + balance.exp_growth_per_level * (l - 1) * (l - 2)
+	if l <= 30:
+		return balance.exp_base_per_level * (l - 1) + balance.exp_growth_per_level * (l - 1) * (l - 2)
+	var n := l - 30
+	return exp_total_for_level(30) + balance.exp_tail_base * n + balance.exp_tail_step * n * (n - 1) / 2
 
 
 static func max_level() -> int:

@@ -14,7 +14,6 @@ const CHAPTER_SCENE_DIR := "res://resources/chapters"
 const STAGE_RESOURCE_DIR := "res://resources/stages"
 const CHARACTER_RESOURCE_DIR := "res://resources/characters"
 const ENEMY_RESOURCE_DIR := "res://resources/enemies"
-const PROMOTION_RESOURCE_DIR := "res://resources/promotions"
 const RELIC_RESOURCE_DIR := "res://resources/relics"
 const ITEM_RESOURCE_DIR := "res://resources/items"
 const BOND_RESOURCE_DIR := "res://resources/bonds"
@@ -300,8 +299,8 @@ func get_profile() -> PlayerProfile:
 func get_battle_loadout(profile: PlayerProfile, character_id: String) -> Dictionary:
 	return {
 		"level": get_character_level(profile, character_id),
-		"promotion": get_active_promotion(profile, character_id),
-		"stars": profile.get_character_stars(character_id) if profile != null else 0,
+		"rank": profile.get_character_rank(character_id) if profile != null else 0,
+		"growth_guard": profile.get_character(character_id).get("growth_guard", {}) if profile != null else {},
 		"relic": get_equipped_relic(profile, character_id),
 	}
 
@@ -380,54 +379,6 @@ func get_character_level(profile: PlayerProfile, character_id: String) -> int:
 	if profile == null:
 		return 1
 	return LevelCurve.level_from_total_exp(profile.get_character_exp(character_id))
-
-
-## 当前生效的转职（promotion_path 末位；未转职返回 null）。
-func get_active_promotion(profile: PlayerProfile, character_id: String) -> PromotionData:
-	if profile == null:
-		return null
-	var entry := profile.get_character(character_id)
-	var promotion_path: Array = entry.get("promotion_path", [])
-	if promotion_path.is_empty():
-		return null
-	return load_promotion_data(str(promotion_path[promotion_path.size() - 1]))
-
-
-## 按 id 加载转职资源（`res://resources/promotions/{id}.tres`）；不存在返回 null。
-func load_promotion_data(promotion_id: String) -> PromotionData:
-	if promotion_id.is_empty():
-		return null
-	var path: String = "%s/%s.tres" % [PROMOTION_RESOURCE_DIR, promotion_id]
-	return load(path) as PromotionData if ResourceLoader.exists(path) else null
-
-
-## 武将当前可选的转职候选（阶段 6 图结构，v0.17.0）：
-## 未转职返回 `character.promotion_ids` 首条一转路线；已转职返回当前转职的
-## `next_promotion_ids` 分支候选（校验 parent_id=当前生效转职，且路径未含该候选，
-## 防跳级/回退/重复转职）。
-func get_promotion_candidates(profile: PlayerProfile, character_id: String) -> Array[PromotionData]:
-	var candidates: Array[PromotionData] = []
-	if profile == null:
-		return candidates
-	var character := load_character_data(character_id)
-	if character == null:
-		return candidates
-	var active := get_active_promotion(profile, character_id)
-	if active == null:
-		if not character.promotion_ids.is_empty():
-			var first := load_promotion_data(str(character.promotion_ids[0]))
-			if first != null:
-				candidates.append(first)
-		return candidates
-	var path: Array = profile.get_character(character_id).get("promotion_path", [])
-	for next_id in active.next_promotion_ids:
-		var candidate := load_promotion_data(str(next_id))
-		if candidate == null or str(candidate.parent_id) != str(active.promotion_id):
-			continue
-		if path.has(str(candidate.promotion_id)):
-			continue
-		candidates.append(candidate)
-	return candidates
 
 
 func get_item_display_name(item_id: String) -> String:

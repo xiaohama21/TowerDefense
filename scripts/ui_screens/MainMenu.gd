@@ -79,7 +79,7 @@ func _add_glow(center_frac: Vector2, size: Vector2, alpha: float) -> void:
 func _add_star(center_frac: Vector2, width: float) -> void:
 	var star := TextureRect.new()
 	star.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	star.texture = load("res://assets/ui/icons/star_outline.png")
+	star.texture = load("res://assets/ui/icons/v2/ui_star_outline.png")
 	star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	star.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	star.modulate = Color(1.6, 1.9, 2.1, 0.16)  # 概念图低透明度星形点缀（白色调淡）
@@ -147,7 +147,7 @@ func _make_ornament() -> HBoxContainer:
 	hbox.add_theme_constant_override("separation", 12)
 	hbox.add_child(_make_bar(120.0))
 	var star := TextureRect.new()
-	star.texture = load("res://assets/ui/icons/star.png")
+	star.texture = load("res://assets/ui/icons/v2/ui_star.png")
 	star.custom_minimum_size = Vector2(28, 26)
 	star.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -340,7 +340,7 @@ func _make_dialog_header() -> Panel:
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	close_button.tooltip_text = "关闭"
-	close_button.icon = load("res://assets/ui/icons/cross_blue.png")
+	close_button.icon = load("res://assets/ui/icons/v2/ui_close.png")
 	close_button.add_theme_constant_override("icon_max_width", 18)
 	var close_style := StyleBoxFlat.new()
 	close_style.bg_color = Color(1, 1, 1, 0.28)

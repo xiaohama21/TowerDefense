@@ -56,6 +56,7 @@ func _build_topbar() -> Control:
 	_merit_label.add_theme_font_size_override("font_size", 16)
 	_merit_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
 	_merit_label.add_theme_stylebox_override("normal", UITheme.tag_style(Color("#ffe9b0"), 12, 4))
+	row.add_child(ConceptIcon.new("merit", 24, "军功"))
 	row.add_child(_merit_label)
 	var hint := Label.new()
 	hint.text = "击杀掉落 · 困难 ×1.5 · 失败 / 退出不带出"
@@ -122,24 +123,16 @@ func _build_card(supply: BattleSupplyData) -> Control:
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_theme_constant_override("separation", 9)
 	box.add_child(head)
-	var icon := DashedPill.new()
-	icon.custom_minimum_size = Vector2(44, 44)
-	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	icon.setup(Color("#f0f6fb"), Color("#9cbed9"), 22.0)
+	var icon := ConceptIcon.new("supply_" + supply_id, 44, supply.display_name)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var icon_text := Label.new()
-	icon_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	icon_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	icon_text.add_theme_font_size_override("font_size", 19)
-	icon_text.add_theme_color_override("font_color", Color("#7fa3c2"))
-	icon.add_child(icon_text)
 	head.add_child(icon)
 	var head_info := VBoxContainer.new()
 	head_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head_info.add_theme_constant_override("separation", 3)
 	head.add_child(head_info)
 	var name_label := Label.new()
-	name_label.text = supply.display_name
+	name_label.text = ""
+	card.tooltip_text = supply.display_name
 	name_label.add_theme_font_size_override("font_size", 18)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -157,18 +150,22 @@ func _build_card(supply: BattleSupplyData) -> Control:
 	belt_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip_row.add_child(belt_chip)
 
-	var summary := Label.new()
+	var summary := RichTextLabel.new()
+	summary.bbcode_enabled = true
+	summary.fit_content = true
+	summary.scroll_active = false
 	summary.custom_minimum_size = Vector2(CARD_WIDTH - 26.0, 30)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.max_lines_visible = 2
-	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	summary.add_theme_font_size_override("font_size", 12)
-	summary.add_theme_color_override("font_color", UITheme.LIGHT_DESC)
+	summary.add_theme_font_size_override("normal_font_size", 12)
+	summary.add_theme_color_override("default_color", UITheme.LIGHT_DESC)
 	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(summary)
-	var cost := Label.new()
-	cost.add_theme_font_size_override("font_size", 12)
-	cost.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+	var cost := RichTextLabel.new()
+	cost.bbcode_enabled = true
+	cost.fit_content = true
+	cost.scroll_active = false
+	cost.add_theme_font_size_override("normal_font_size", 12)
+	cost.add_theme_color_override("default_color", UITheme.LIGHT_BODY)
 	cost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(cost)
 	var spacer := Control.new()
@@ -184,7 +181,7 @@ func _build_card(supply: BattleSupplyData) -> Control:
 
 	_cards[supply_id] = {
 		"root": card, "style": style, "hover": hover_style, "pressed": pressed_style,
-		"icon_text": icon_text, "name": name_label, "level": level_chip, "belt": belt_chip,
+		"icon_text": icon, "name": name_label, "level": level_chip, "belt": belt_chip,
 		"summary": summary, "cost": cost, "action": action,
 	}
 	return card
@@ -254,17 +251,8 @@ func _build_slot(index: int) -> Control:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 9)
 	margin.add_child(row)
-	var icon := DashedPill.new()
-	icon.custom_minimum_size = Vector2(38, 38)
-	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	icon.setup(Color("#f0f6fb"), Color("#9cbed9"), 19.0)
+	var icon := ConceptIcon.new("ui_empty", 38)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var icon_text := Label.new()
-	icon_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	icon_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	icon_text.add_theme_font_size_override("font_size", 17)
-	icon_text.add_theme_color_override("font_color", Color("#7fa3c2"))
-	icon.add_child(icon_text)
 	row.add_child(icon)
 	var label := Label.new()
 	label.add_theme_font_size_override("font_size", 15)
@@ -273,7 +261,7 @@ func _build_slot(index: int) -> Control:
 	row.add_child(label)
 	slot.set_meta("slot_nodes", {
 		"root": slot, "style": style, "hover": hover_style,
-		"icon_text": icon_text, "label": label,
+		"icon_text": icon, "label": label,
 	})
 	return slot
 
@@ -315,7 +303,7 @@ func _refresh() -> void:
 	var limit := _slot_limit()
 	if _merit_label != null:
 		var merit_balance: int = profile.get_military_merit() if profile != null else 0
-		_merit_label.text = "◆ 军功 %d" % merit_balance
+		_merit_label.text = str(merit_balance)
 	_refresh_cards(profile, limit)
 	_refresh_slots(profile, limit)
 
@@ -332,14 +320,14 @@ func _refresh_cards(profile: PlayerProfile, limit: int) -> void:
 		var style := nodes["style"] as StyleBoxFlat
 		var hover_style := nodes["hover"] as StyleBoxFlat
 		var pressed_style := nodes["pressed"] as StyleBoxFlat
-		var icon_text := nodes["icon_text"] as Label
+		var icon_text := nodes["icon_text"] as ConceptIcon
 		var name_label := nodes["name"] as Label
 		var level_chip := nodes["level"] as Label
 		var belt_chip := nodes["belt"] as Label
-		var summary := nodes["summary"] as Label
-		var cost := nodes["cost"] as Label
+		var summary := nodes["summary"] as RichTextLabel
+		var cost := nodes["cost"] as RichTextLabel
 		var action := nodes["action"] as Button
-		icon_text.text = "锁" if locked else supply.display_name.substr(0, 1)
+		icon_text.set_icon("lock" if locked else "supply_" + supply_id)
 		name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_INK)
 		if locked:
 			level_chip.text = "未解锁"
@@ -358,10 +346,11 @@ func _refresh_cards(profile: PlayerProfile, limit: int) -> void:
 			belt_chip.text = "点击卡片选带" if not locked else "不可选带"
 			belt_chip.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 			belt_chip.add_theme_stylebox_override("normal", UITheme.tag_style(Color("#eef3f7"), 8, 1))
-		summary.text = supply.summary_at(display_level) if not locked else _locked_summary(supply)
-		summary.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_DESC)
-		cost.text = "%d 金 · 限 %d" % [supply.cost_at(display_level), supply.max_uses_at(display_level)]
-		cost.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_BODY)
+		summary.text = UITheme.supply_effect_bbcode(supply, display_level)
+		summary.tooltip_text = supply.summary_at(display_level)
+		summary.add_theme_color_override("default_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_DESC)
+		cost.text = UITheme.icon_bbcode("coin") + str(supply.cost_at(display_level)) + "  " + UITheme.icon_bbcode("uses") + str(supply.max_uses_at(display_level))
+		cost.add_theme_color_override("default_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_BODY)
 		_update_action_button(action, supply, profile, level)
 		var border := UITheme.LIGHT_GOLD_SELECT if in_belt else UITheme.LIGHT_PANEL_BORDER
 		var bg := Color("#eef3f7") if locked else Color.WHITE
@@ -382,7 +371,8 @@ func _update_action_button(action: Button, supply: BattleSupplyData, profile: Pl
 	var merit: int = profile.get_military_merit() if profile != null else 0
 	if level <= 0:
 		var unlock_cost := supply.merit_unlock_cost
-		action.text = "解锁 · %d 军功" % unlock_cost if unlock_cost > 0 else "解锁"
+		action.text = "解锁  %d" % unlock_cost if unlock_cost > 0 else "解锁"
+		action.icon = UITheme.hud_icon_sized("merit", 18)
 		var affordable := merit >= unlock_cost
 		UITheme.apply_kenney_rect_button(action, "yellow" if affordable else "grey",
 			UITheme.INK if affordable else Color("#7d8fa0"), 6.0)
@@ -390,11 +380,13 @@ func _update_action_button(action: Button, supply: BattleSupplyData, profile: Pl
 		return
 	if level >= PlayerProfile.SUPPLY_MAX_LEVEL:
 		action.text = "已满级"
+		action.icon = null
 		UITheme.apply_kenney_rect_button(action, "grey", Color("#7d8fa0"), 6.0)
 		action.disabled = true
 		return
 	var upgrade_cost := PlayerProfile.supply_upgrade_cost(level)
-	action.text = "强化 · %d 军功" % upgrade_cost
+	action.text = "强化  %d" % upgrade_cost
+	action.icon = UITheme.hud_icon_sized("merit", 18)
 	var next_level := level + 1
 	var color_key := "yellow" if next_level == 2 else "blue"
 	var affordable_upgrade := merit >= upgrade_cost
@@ -415,12 +407,12 @@ func _refresh_slots(profile: PlayerProfile, limit: int) -> void:
 		var slot := _slot_nodes[index]
 		var meta: Dictionary = slot.get_meta("slot_nodes", {})
 		var supply: BattleSupplyData = _find_supply(loadout[index]) if index < loadout.size() else null
-		var icon_text := meta.get("icon_text") as Label
+		var icon_text := meta.get("icon_text") as ConceptIcon
 		var label := meta.get("label") as Label
 		var style := meta.get("style") as StyleBoxFlat
 		var hover_style := meta.get("hover") as StyleBoxFlat
 		if supply == null:
-			icon_text.text = ""
+			icon_text.set_icon("ui_empty")
 			label.text = "空"
 			label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 			style.bg_color = Color("#eef6fb")
@@ -428,8 +420,9 @@ func _refresh_slots(profile: PlayerProfile, limit: int) -> void:
 			hover_style.bg_color = Color("#eef6fb")
 			slot.disabled = true
 		else:
-			icon_text.text = supply.display_name.substr(0, 1)
-			label.text = "✓ %s" % supply.display_name
+			icon_text.set_icon("supply_" + str(supply.supply_id))
+			label.text = "已选带"
+			slot.tooltip_text = supply.display_name
 			label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 			style.bg_color = Color("#f7fbfe")
 			style.border_color = UITheme.LIGHT_PANEL_BORDER

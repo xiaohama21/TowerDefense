@@ -88,6 +88,7 @@ func _build_ui() -> void:
 	_points_label.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OPEN_BG, 11, 4))
 	_points_label.add_theme_font_size_override("font_size", 16)
 	_points_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
+	topbar.add_child(ConceptIcon.new("tech_point", 24, "科技点"))
 	topbar.add_child(_points_label)
 	_unlocked_count_label = Label.new()
 	_unlocked_count_label.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_BLUE_SOFT, 11, 4))
@@ -104,7 +105,8 @@ func _build_ui() -> void:
 	topbar.add_child(reset_button)
 	# 测试辅助按钮保留（用户拍板 0.8.10.28 保留）：仅测试用，不进入正式结算逻辑。
 	var debug_button := Button.new()
-	debug_button.text = "科技点+%d（测试）" % DEBUG_POINTS_AMOUNT
+	debug_button.text = "+%d（测试）" % DEBUG_POINTS_AMOUNT
+	debug_button.icon = UITheme.hud_icon_sized("tech_point", 18)
 	debug_button.custom_minimum_size = Vector2(150, 40)
 	debug_button.focus_mode = Control.FOCUS_NONE
 	debug_button.add_theme_font_size_override("font_size", 13)
@@ -159,7 +161,7 @@ func _make_legend() -> Control:
 	legend.add_child(_make_legend_item(NODE_BORDER_DONE, "已解锁"))
 	legend.add_child(_make_legend_item(NODE_BORDER_WAIT, "需前置"))
 	var note := Label.new()
-	note.text = "◆ 根节点 → 逐层解锁"
+	note.text = "根节点逐层解锁"
 	note.add_theme_font_size_override("font_size", 12)
 	note.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 	legend.add_child(note)
@@ -431,11 +433,8 @@ func _make_node_button(item: TechItemData, glyph: String, card_w: float) -> Butt
 	strip.add_theme_constant_override("separation", 6)
 	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(strip)
-	var glyph_label := Label.new()
+	var glyph_label := ConceptIcon.new("tech_" + str(item.id), 20, item.name)
 	glyph_label.name = "GlyphLabel"
-	glyph_label.text = glyph
-	glyph_label.add_theme_font_size_override("font_size", 11)
-	glyph_label.add_theme_color_override("font_color", GLYPH_COLOR)
 	strip.add_child(glyph_label)
 	var strip_spacer := Control.new()
 	strip_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -445,6 +444,9 @@ func _make_node_button(item: TechItemData, glyph: String, card_w: float) -> Butt
 	state_label.name = "StateLabel"
 	state_label.add_theme_font_size_override("font_size", 10)
 	strip.add_child(state_label)
+	var state_icon := ConceptIcon.new("lock", 14)
+	state_icon.name = "StateIcon"
+	strip.add_child(state_icon)
 	var name_label := Label.new()
 	name_label.name = "NameLabel"
 	name_label.text = item.name
@@ -463,9 +465,14 @@ func _make_node_button(item: TechItemData, glyph: String, card_w: float) -> Butt
 	bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	bottom_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(bottom_spacer)
-	var bottom_label := Label.new()
+	var bottom_label := RichTextLabel.new()
 	bottom_label.name = "BottomLabel"
-	bottom_label.add_theme_font_size_override("font_size", 12)
+	bottom_label.bbcode_enabled = true
+	bottom_label.fit_content = true
+	bottom_label.scroll_active = false
+	bottom_label.custom_minimum_size = Vector2(0, 18)
+	bottom_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bottom_label.add_theme_font_size_override("normal_font_size", 12)
 	content.add_child(bottom_label)
 	_node_buttons[item.id] = button
 	return button
@@ -557,6 +564,7 @@ func _build_detail_panel() -> void:
 	cost_caption.add_theme_font_size_override("font_size", 12)
 	cost_caption.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	cost_row.add_child(cost_caption)
+	cost_row.add_child(ConceptIcon.new("tech_point", 18, "科技点"))
 	_detail_cost_label = Label.new()
 	_detail_cost_label.add_theme_font_size_override("font_size", 15)
 	_detail_cost_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
@@ -570,6 +578,7 @@ func _build_detail_panel() -> void:
 	balance_caption.add_theme_font_size_override("font_size", 12)
 	balance_caption.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	balance_row.add_child(balance_caption)
+	balance_row.add_child(ConceptIcon.new("tech_point", 18, "科技点"))
 	_detail_balance_label = Label.new()
 	_detail_balance_label.add_theme_font_size_override("font_size", 13)
 	_detail_balance_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
@@ -620,7 +629,7 @@ func _build_confirm_dialog() -> void:
 
 func _refresh() -> void:
 	var profile := ProfileStore.get_profile()
-	_points_label.text = "科技点 ×%d" % profile.tech_points
+	_points_label.text = "×%d" % profile.tech_points
 	_unlocked_count_label.text = "已解锁 %d 项" % profile.tech_unlocks.size()
 	for tech_id in _node_buttons.keys():
 		var item := TechTree.get_item(tech_id)
@@ -647,19 +656,19 @@ func _refresh_node(button: Button, item: TechItemData) -> void:
 	if unlocked:
 		bg = NODE_BG_DONE
 		border = NODE_BORDER_DONE
-		st_text = "✔ 已解锁"
+		st_text = "已解锁"
 		st_color = UITheme.TAG_OK_FG
-		bottom_text = "✓"
+		bottom_text = UITheme.icon_bbcode("ui_check", 16)
 	elif prereq_ok:
 		bg = NODE_BG_OPEN
 		border = NODE_BORDER_OPEN
 		st_text = "可解锁"
 		st_color = UITheme.LIGHT_GOLD_TEXT
-		bottom_text = "科技点 ×%d" % item.cost
+		bottom_text = UITheme.icon_bbcode("tech_point", 16) + "×%d" % item.cost
 	else:
 		bg = NODE_BG_WAIT
 		border = NODE_BORDER_WAIT
-		st_text = "🔒 需前置"
+		st_text = "需前置"
 		st_color = UITheme.LIGHT_LOCK
 		bottom_text = "前置：%s" % _prereq_display_name(item)
 		name_color = UITheme.LIGHT_LOCK
@@ -668,15 +677,18 @@ func _refresh_node(button: Button, item: TechItemData) -> void:
 	var state_label := content.get_node("Strip/StateLabel") as Label
 	state_label.text = st_text
 	state_label.add_theme_color_override("font_color", st_color)
+	var state_icon := content.get_node("Strip/StateIcon") as ConceptIcon
+	state_icon.visible = unlocked or not prereq_ok
+	state_icon.set_icon("ui_check" if unlocked else "lock")
 	var name_label := content.get_node("NameLabel") as Label
 	name_label.text = item.name
 	name_label.add_theme_color_override("font_color", name_color)
 	var summary_label := content.get_node("SummaryLabel") as Label
 	summary_label.text = item.summary
 	summary_label.add_theme_color_override("font_color", summary_color)
-	var bottom_label := content.get_node("BottomLabel") as Label
+	var bottom_label := content.get_node("BottomLabel") as RichTextLabel
 	bottom_label.text = bottom_text
-	bottom_label.add_theme_color_override("font_color", st_color)
+	bottom_label.add_theme_color_override("default_color", st_color)
 	_apply_node_style(button, bg, border, false)
 	_apply_node_style(button, bg.darkened(0.05), border, true)
 	var selected := _selected_item != null and _selected_item.id == item.id
@@ -751,7 +763,8 @@ func _show_detail(item: TechItemData) -> void:
 		_detail_state.text = "已解锁"
 		_detail_state.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OK_BG, 9, 2))
 		_detail_state.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
-		_unlock_button.text = "已解锁 ✓"
+		_unlock_button.text = "已解锁"
+		_unlock_button.icon = UITheme.hud_icon_sized("ui_check", 18)
 		_unlock_button.disabled = true
 		_unlock_button.visible = true
 	elif prereq_ok:
@@ -759,6 +772,7 @@ func _show_detail(item: TechItemData) -> void:
 		_detail_state.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.TAG_OPEN_BG, 9, 2))
 		_detail_state.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
 		_unlock_button.text = "解锁"
+		_unlock_button.icon = null
 		_unlock_button.disabled = profile.tech_points < item.cost
 		_unlock_button.visible = true
 	else:
@@ -767,6 +781,7 @@ func _show_detail(item: TechItemData) -> void:
 		_detail_state.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 		var req := TechTree.get_item(item.requires)
 		_unlock_button.text = "需前置：%s" % (req.name if req != null else item.requires)
+		_unlock_button.icon = UITheme.hud_icon_sized("lock", 18)
 		_unlock_button.disabled = true
 		_unlock_button.visible = true
 	_apply_unlock_button_style(can_unlock)
@@ -774,7 +789,7 @@ func _show_detail(item: TechItemData) -> void:
 	var req_item := TechTree.get_item(item.requires)
 	if req_item != null:
 		var req_done := TechTree.is_unlocked(profile, req_item.id)
-		_detail_prereq_pill.text = "前置 %s %s" % [req_item.name, "✓" if req_done else "未解锁"]
+		_detail_prereq_pill.text = "前置 %s %s" % [req_item.name, "已解锁" if req_done else "未解锁"]
 	else:
 		_detail_prereq_pill.text = "前置 无（链根）"
 	var chain: Array = _chain_of_item.get(item.id, [])
@@ -791,7 +806,7 @@ func _show_detail(item: TechItemData) -> void:
 		_detail_cap_pill.text = "职业加成合计 —"
 	_detail_cap_pill.visible = true
 	# 消耗 / 余额
-	_detail_cost_label.text = "科技点 ×%d" % item.cost
+	_detail_cost_label.text = "×%d" % item.cost
 	_detail_balance_label.text = "%d · %s" % [profile.tech_points,
 		"充足" if profile.tech_points >= item.cost else "不足"]
 	_detail_summary.text = item.summary

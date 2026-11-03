@@ -177,20 +177,20 @@ func _test_supply_depot(profile: PlayerProfile) -> void:
 	var stone_level_chip := stone_card["level"] as Label
 	var stone_action := stone_card["action"] as Button
 	_check(stone_level_chip.text == "未解锁", "未解锁军需卡片应显示「未解锁」chip")
-	_check(stone_action.text == "解锁 · 340 军功" and not stone_action.disabled,
-		"军功充足时未解锁卡片按钮应为「解锁 · 340 军功」且可点")
+	_check(stone_action.text == "解锁  340" and stone_action.icon == UITheme.hud_icon_sized("merit", 18) and not stone_action.disabled,
+		"军功充足时解锁按钮应显示动作＋军功图徽＋340且可点")
 	stone_action.pressed.emit()
 	await get_tree().process_frame
 	_check(profile.is_supply_unlocked("stone_volley") and profile.get_supply_level("stone_volley") == 1,
 		"点「解锁」应即时写档：掷石齐射已解锁并置 L1")
 	_check(profile.get_military_merit() == 660, "解锁应扣 340 军功")
 	_check(stone_level_chip.text == "L1", "解锁后卡片应显示 L1 chip")
-	_check(stone_action.text == "强化 · 150 军功", "L1 卡片按钮应为「强化 · 150 军功」")
+	_check(stone_action.text == "强化  150" and stone_action.icon == UITheme.hud_icon_sized("merit", 18), "L1 强化按钮应显示军功图徽＋150")
 	stone_action.pressed.emit()
 	await get_tree().process_frame
 	_check(profile.get_supply_level("stone_volley") == 2 and profile.get_military_merit() == 510,
 		"点「强化」应扣 150 军功并把等级提升到 L2")
-	_check(stone_action.text == "强化 · 300 军功", "L2 卡片按钮应为「强化 · 300 军功」")
+	_check(stone_action.text == "强化  300" and stone_action.icon == UITheme.hud_icon_sized("merit", 18), "L2 强化按钮应显示军功图徽＋300")
 
 	# 选带：点卡片切换选带态（基础 2 槽 = 未点科技「军府调度」），超槽位拒绝并提示。
 	var slot_count := depot.get("_slot_count_label") as Label
@@ -322,29 +322,6 @@ func _test_hub(profile: PlayerProfile) -> void:
 			locked_count += 1
 	print("PROBE develop_buttons=", develop_buttons.size(), " locked_disabled=", locked_count)
 	_check(locked_count >= 7, "图鉴应显示 7 名未拥有武将（置灰）")
-	# 转职候选（v0.35.3+ 收纳）：收敛至职业页签「转职详情 ▸」叠层——切职业页 →
-	# 打开叠层后应展示一转候选按钮，新档 Lv1 未达门槛应禁用。
-	var develop_tabs = develop_panel.get("_tab_container")
-	_check(develop_tabs != null, "养成面板应含页签容器")
-	if develop_tabs != null:
-		develop_tabs.current_tab = 1  # 页签序：技能 / 职业 / 信物 / 特性
-		await get_tree().process_frame
-	var detail_button: Button = null
-	for button in _collect_buttons(develop_panel):
-		if button.text.begins_with("转职详情"):
-			detail_button = button
-			break
-	_check(detail_button != null, "职业页签应含「转职详情 ▸」入口")
-	if detail_button != null:
-		detail_button.pressed.emit()
-		await get_tree().process_frame
-		var promotion_buttons: Array = develop_panel.get("_promotion_buttons")
-		var promote_button = promotion_buttons[0] if promotion_buttons.size() > 0 else null
-		_check(promote_button != null and promote_button is Button and promote_button.disabled,
-			"等级/材料不足时转职按钮应禁用")
-		develop_panel._close_promotion_overlay()
-		await get_tree().process_frame
-
 	# 切换到设置面板
 	_show_hub_panel(hub, &"settings")
 	_check(settings_panel.visible and not develop_panel.visible, "点击设置应切换内容区")
@@ -393,8 +370,8 @@ func _test_hub(profile: PlayerProfile) -> void:
 		for child in inventory_filter_row.get_children():
 			if child is Button:
 				filter_texts.append((child as Button).text)
-	_check(filter_texts == ["全部", "材料", "遗物"],
-		"背包类目 chips 应收敛为 全部/材料/遗物（消耗品随练兵令删除清空，0.8.15.0），实际 %s" % [filter_texts])
+	_check(filter_texts == ["全部", "材料", "消耗品", "遗物"],
+		"背包类目应包含技能书消耗品，实际 %s" % [filter_texts])
 	var inventory_scroll := inventory_panel.get_node_or_null("GridScroll") as ScrollContainer
 	_check(inventory_scroll != null, "背包网格应包在 GridScroll 滚动容器内")
 	if inventory_scroll != null and inventory_scroll.get_child_count() > 0:
@@ -666,10 +643,10 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 			sim_results.append(result_label)
 	_check(sim_results.size() == 3, "模拟器结果卡应为伤害/攻速/射程三枚（概念 .res）")
 	var zhuge := GameFlow.load_character_data("zhuge_liang")
-	var base := zhuge.compute_stats_at(20, null, 0, null)
+	var base := zhuge.compute_stats_at(20)
 	var steps := zhuge.get_battle_rank_steps()
 	var expected_damage := int(round(base.damage * CharacterData.rank_scale(steps.damage, 3)))
-	var ranked := zhuge.compute_stats_at(20, null, 0, null, 3)
+	var ranked := zhuge.compute_stats_at(20, 0, null, 3)
 	_check(ranked.damage == expected_damage, "模拟器升阶数值应与共享倍率公式一致（观星角色）")
 	_check(dmg_label != null and str(int(ranked.damage)) == dmg_label.text,
 		"结果卡伤害应与升阶公式一致（%s / %s）" % [dmg_label.text if dmg_label else "?", str(int(ranked.damage))])

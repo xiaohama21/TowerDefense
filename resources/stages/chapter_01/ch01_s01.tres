@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=30 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=39 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -7,10 +7,16 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_cavalry.tres" id="5_cavalry"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_sergeant.tres" id="6_sergeant"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="7_item_amount"]
-[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
 
 [ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
 [ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
+
+[ext_resource type="Resource" path="res://resources/items/general_seal.tres" id="rank_general_seal"]
+[ext_resource type="Resource" path="res://resources/items/refined_iron.tres" id="rank_refined_iron"]
+[ext_resource type="Resource" path="res://resources/items/ebony.tres" id="rank_ebony"]
+[ext_resource type="Resource" path="res://resources/items/skill_book.tres" id="rank_skill_book"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="rank_amount"]
+[ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="rank_drop"]
 
 [sub_resource type="Resource" id="EnemySpawnData_soldier_5"]
 script = ExtResource("3_spawn")
@@ -114,11 +120,6 @@ preparation_time = 2.0
 completion_currency = 0
 is_boss_wave = false
 
-[sub_resource type="Resource" id="ItemAmountData_cloth"]
-script = ExtResource("7_item_amount")
-item = ExtResource("8_cloth")
-amount = 2
-
 [sub_resource type="Resource" id="DialogueLine_1"]
 script = ExtResource("9_dline")
 speaker = "刘备"
@@ -138,6 +139,32 @@ text = "好！就在这涿郡城下，教黄巾贼子知道厉害。"
 script = ExtResource("10_ddata")
 dialogue_id = &"ch01_s01_intro"
 lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3")]
+
+[sub_resource type="Resource" id="rank_first_general_seal"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_general_seal")
+amount = 3
+
+[sub_resource type="Resource" id="rank_first_refined_iron"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_refined_iron")
+amount = 3
+
+[sub_resource type="Resource" id="rank_first_skill_book"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_skill_book")
+amount = 1
+
+[sub_resource type="Resource" id="rank_repeat_general_seal"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_general_seal")
+amount = 1
+
+[sub_resource type="Resource" id="rank_repeat_refined_iron"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_refined_iron")
+amount = 1
+
 
 [resource]
 script = ExtResource("1_stage")
@@ -162,10 +189,12 @@ decor_cells = [Vector2i(2, 1), Vector2i(5, 1), Vector2i(10, 1), Vector2i(14, 1),
 forbidden_cells = [Vector2i(0, 1), Vector2i(0, 5), Vector2i(12, 3), Vector2i(12, 8)]
 prerequisite_stage_ids = []
 first_clear_unlock_character_ids = []
-first_clear_rewards = [SubResource("ItemAmountData_cloth")]
-repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
+first_clear_rewards = [SubResource("rank_first_general_seal"), SubResource("rank_first_refined_iron"), SubResource("rank_first_skill_book")]
+repeat_clear_rewards = [SubResource("rank_repeat_general_seal"), SubResource("rank_repeat_refined_iron")]
 participant_xp = 50
 recommended_tower_count = 4
 recommended_rank_count = 1
 recommended_supply_count = 0
 target_remaining_gold = 150
+
+probability_drops = []

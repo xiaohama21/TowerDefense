@@ -1,5 +1,5 @@
 extends Node
-## 全局光标服务（autoload）：启动注册 Kenney 光标素材 + 新控件 hover 手型统一出口。
+## 全局光标服务（autoload）：启动注册原创新版光标素材 + 新控件 hover 手型统一出口。
 ##
 ## 目录与热点见 scripts/services/CursorIcons.gd（UI_LAYOUT §15 光标规范）；
 ## 业务代码只需设置 Control.mouse_default_cursor_shape 或走 UITheme 封装，
@@ -7,6 +7,7 @@ extends Node
 
 
 func _ready() -> void:
+	UITheme.install_icon_theme()
 	CursorIcons.register_game_cursors()
 	get_tree().node_added.connect(_on_node_added)
 	_polish(get_tree().root)

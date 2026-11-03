@@ -15,8 +15,6 @@ base_damage = 18
 base_range = 145.0
 attack_interval = 1.4
 projectile_speed = 380.0
-damage_growth_per_level = 2.0
-promotion_ids = [&"dancer_master"]
 titles = ["倾城鼓舞"]
 character_skill_id = &"char_moon_dance"
 character_skill_params = {
@@ -30,3 +28,7 @@ trait_params = {
 "ally_rage_bonus": 0.1
 }
 unlock_stage_id = &"ch01_s04"
+attack_pct = 0.03
+range_pct_per_level = 0.0012
+per_rank_skill_amp = 0.015
+ultimate_id = &"ultimate_dancer_encourage"

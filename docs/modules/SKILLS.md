@@ -1,4 +1,7 @@
-# 职业技能（SKILLS）
+# 技能规格归档（SKILLS）
+
+> 文档版本：v0.13（2026-10-30）
+> v0.13 变更（阶段 9·提交 1，程序 0.9.1.0 / GDD v0.37.69）：转职与职业授予入口删除，历史技能／大招规格留档；旧大招执行器由武将显式绑定过渡到 0.9.2。
 
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)，转职与角色养成见 [CHARACTERS.md](CHARACTERS.md)，行为注册表见 [BEHAVIORS.md](BEHAVIORS.md)，数值基调见 [NUMBERS.md](NUMBERS.md)，角色技能见 [CHARACTER_SKILLS.md](CHARACTER_SKILLS.md)。
 > 文档版本：v0.12（2026-09-12）

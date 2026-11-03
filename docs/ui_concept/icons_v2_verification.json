@@ -1,0 +1,24 @@
+{
+  "count": 273,
+  "categories": {
+    "hud": 32,
+    "status": 12,
+    "rank": 6,
+    "battle_rank": 9,
+    "item": 15,
+    "supply": 6,
+    "profession": 6,
+    "skill": 24,
+    "planned_skill": 10,
+    "bond": 2,
+    "faction": 4,
+    "system": 46,
+    "equipment": 60,
+    "tech": 32,
+    "cursor": 9
+  },
+  "legacy_files_preserved": 290,
+  "tracked_legacy_files_preserved": 168,
+  "workspace_snapshot_checked": true,
+  "errors": []
+}

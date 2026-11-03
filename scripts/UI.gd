@@ -161,6 +161,9 @@ func _apply_glyph(rect: TextureRect, icon_name: String) -> void:
 func _style_hud_controls() -> void:
 	if menu_button == null:
 		return
+	menu_button.text = ""
+	menu_button.icon = UITheme.hud_icon_sized("ui_menu", 28)
+	menu_button.tooltip_text = "打开菜单"
 	menu_button.add_theme_stylebox_override("normal", _make_flat_style(
 		UITheme.HUD_CARD_BG, Color(UITheme.HUD_LINE.r, UITheme.HUD_LINE.g, UITheme.HUD_LINE.b, 0.55), 10, 2))
 	menu_button.add_theme_stylebox_override("hover", _make_flat_style(
@@ -176,10 +179,10 @@ func _style_hud_controls() -> void:
 	if popup == null:
 		return
 	popup.clear()
-	popup.add_item("暂停", MENU_RESUME)
-	popup.add_item("设置", MENU_SETTINGS)
-	popup.add_item("重开", MENU_RESTART)
-	popup.add_item("退出", MENU_EXIT)
+	popup.add_icon_item(UITheme.hud_icon_sized("ui_pause", 20), "暂停", MENU_RESUME)
+	popup.add_icon_item(UITheme.hud_icon_sized("ui_settings", 20), "设置", MENU_SETTINGS)
+	popup.add_icon_item(UITheme.hud_icon_sized("ui_restart", 20), "重开", MENU_RESTART)
+	popup.add_icon_item(UITheme.hud_icon_sized("ui_close", 20), "退出", MENU_EXIT)
 	popup.add_theme_stylebox_override("panel", _make_flat_style(UITheme.HUD_BG, UITheme.HUD_LINE, 8, 2))
 	popup.add_theme_stylebox_override("hover", _make_flat_style(
 		Color(0.12, 0.2, 0.15, 0.98), UITheme.HUD_LINE, 6, 1))

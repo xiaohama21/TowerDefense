@@ -46,18 +46,18 @@ func _scan_tres_ids(dir_path: String) -> Array[String]:
 
 
 func _run() -> void:
-	_check("项目与 Windows 导出版本一致（0.8.17.4）", _release_version_integrity())
+	_check("项目与 Windows 导出版本一致（0.9.1.1）", _release_version_integrity())
 	_check("全新环境：user:// 下无存档", not FileAccess.file_exists(ProfileStore.get_profile_path()))
 	_check("开始游戏：创建新档成功", GameFlow.start_new_game())
 	var profile := ProfileStore.get_profile()
 	_check("初始武将入库（刘备/关羽）", profile != null and profile.has_character("liu_bei") and profile.has_character("guan_yu"))
 	_check("幂等：重复调用不重复发放", _initial_characters_idempotent(profile))
 	_check("编队角色链路（SquadSelect 同款）", _squad_select_link(profile))
-	_check("全量角色/职业/转职资源", _characters_integrity())
+	_check("全量角色/职业模板资源", _characters_integrity())
 	_check("全量关卡/波次/敌人资源", _stages_integrity())
 	_check("羁绊/遗物/道具/科技/数值/模板资源", _misc_integrity())
-	_check("光标素材（Kenney Cursor Pack ×2 尺寸 + 热点落点）", _cursor_assets_integrity())
-	_check("HUD 图徽素材（0.8.17.0 · assets 运行副本 = docs 源）", _hud_icon_assets_integrity())
+	_check("新版光标素材（原创 SVG ×2 尺寸 + 热点落点）", _cursor_assets_integrity())
+	_check("新版图标（全目录透明度／尺寸／当前缺口覆盖）", _hud_icon_assets_integrity())
 	_check("关羽 spine 素材与运行时（ART_ASSETS §5.8）", _spine_assets_integrity())
 	print("PACK_VERIFY_%s" % ("OK" if failures.is_empty() else "FAIL"))
 	print("DETAILS:")
@@ -127,9 +127,6 @@ func _characters_integrity() -> bool:
 			missing.append(character_id + ".profession")
 		if character_data.display_name.is_empty():
 			missing.append(character_id + ".display_name")
-		for promotion_id in character_data.promotion_ids:
-			if GameFlow.load_promotion_data(promotion_id) == null:
-				missing.append("%s->promotion:%s" % [character_id, promotion_id])
 	var profession_ids := _scan_tres_ids("res://resources/professions")
 	details.append("角色=%d、职业=%d（%s）" % [GameFlow.get_all_character_ids().size(), profession_ids.size(), str(profession_ids)])
 	details.append("角色/职业/转职缺失=%s" % str(missing))
@@ -218,25 +215,39 @@ func _cursor_assets_integrity() -> bool:
 	return missing.is_empty()
 
 
-## HUD 图徽素材（UI_LAYOUT §10 v2 / 程序 0.8.17.0 · AGENTS §6）：概念稿源 docs/ui_concept/src/icons_hud/
-## 的每一枚都要有 assets/ui/icons/icons_hud/ 运行副本（export_presets 排除 docs/*，缺副本 =
-## 打包后图徽消失退虚线圆占位）；runtime 目录逐枚可载入。
+## ICONS v1.0：按新版清单逐枚验证透明度、尺寸与当前资源覆盖。
 func _hud_icon_assets_integrity() -> bool:
 	var missing: Array[String] = []
-	var names: Array[String] = []
-	for entry in ResourceLoader.list_directory(UITheme.HUD_ICON_DIR_FALLBACK):
-		if entry.ends_with(".png"):
-			names.append(entry.trim_suffix(".png"))
-	names.sort()
-	for icon_name in names:
-		var runtime_path := "%s%s.png" % [UITheme.HUD_ICON_DIR, icon_name]
-		if not ResourceLoader.exists(runtime_path):
-			missing.append("缺运行副本: " + icon_name)
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(UITheme.ICON_MANIFEST))
+	var entries: Array = manifest.get("icons", [])
+	var ids: Array[String] = []
+	for entry in entries:
+		ids.append(str(entry.id))
+		var runtime_path := UITheme.HUD_ICON_DIR + str(entry.png)
+		var texture := load(runtime_path) as Texture2D
+		if texture == null:
+			missing.append("不可载入: " + str(entry.id))
 			continue
-		if UITheme.hud_icon(icon_name) == null:
-			missing.append("不可载入: " + icon_name)
-	details.append("HUD 图徽 %d 枚（assets 运行副本 = docs 源），缺失/异常=%s" % [names.size(), str(missing)])
-	return not names.is_empty() and missing.is_empty()
+		var image := texture.get_image()
+		var pixels := int(entry.pixels)
+		if image.get_size() != Vector2i(pixels, pixels) or image.get_used_rect().size == Vector2i.ZERO:
+			missing.append("尺寸或透明主体异常: " + str(entry.id))
+		if image.get_pixel(0, 0).a > 0.01:
+			missing.append("角点非透明: " + str(entry.id))
+	var required := ["stat_crit_rate", "stat_crit_damage", "stat_skill_amp", "rage", "uses", "lock", "general_seal", "refined_iron", "ebony", "skill_book", "ui_menu", "ui_close"]
+	for rank_key in CharacterRank.KEYS:
+		required.append("rank_" + rank_key)
+	for supply in BattleSupplyData.load_catalog():
+		required.append("supply_" + str(supply.supply_id))
+	for key in required:
+		if not ids.has(key) or UITheme.hud_icon(key) == null:
+			missing.append("缺实际界面语义: " + key)
+	for file in _scan_tres_ids("res://resources/items"):
+		var item := load("res://resources/items/" + file + ".tres") as ItemData
+		if item.icon == null or not ids.has(str(item.item_id)):
+			missing.append("物品缺图: " + file)
+	details.append("新版图标 %d 枚，缺失/异常=%s" % [entries.size(), str(missing)])
+	return not entries.is_empty() and missing.is_empty()
 
 
 ## 关羽 spine 素材与运行时（ART_ASSETS §5·§5.8，程序 0.8.16.2 / BUGS B-076）：数据资源 / 图集 / 数据 /

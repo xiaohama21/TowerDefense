@@ -15,8 +15,6 @@ base_damage = 70
 base_range = 115.0
 attack_interval = 0.9
 projectile_speed = 400.0
-damage_growth_per_level = 5.0
-promotion_ids = [&"tiger_guard_army"]
 titles = ["忠勇护卫"]
 character_skill_id = &"char_death_fight"
 character_skill_params = {
@@ -29,3 +27,8 @@ trait_params = {
 "high_hp_damage_bonus": 0.3
 }
 unlock_stage_id = &"ch01_s05"
+
+attack_pct = 0.027
+speed_pct_per_level = 0.0006
+per_rank_crit_damage = 0.02
+ultimate_id = &"ultimate_tiger_guard_sweep"

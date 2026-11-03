@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=91 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=103 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -7,7 +7,6 @@
 [ext_resource type="Resource" path="res://resources/relics/relic_tiangong_leizhao.tres" id="21_relic"]
 [ext_resource type="Resource" path="res://resources/relics/relic_taiping_yaoshu.tres" id="22_relic_hard"]
 [ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="20_drop"]
-[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="8_cloth"]
 [ext_resource type="Resource" path="res://resources/items/wolf_tooth.tres" id="24_wolf"]
 [ext_resource type="Script" path="res://scripts/data/BuildSlotData.gd" id="23_bslot"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_soldier.tres" id="4_e0"]
@@ -26,6 +25,13 @@
 [ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
 [ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
 
+
+[ext_resource type="Resource" path="res://resources/items/general_seal.tres" id="rank_general_seal"]
+[ext_resource type="Resource" path="res://resources/items/refined_iron.tres" id="rank_refined_iron"]
+[ext_resource type="Resource" path="res://resources/items/ebony.tres" id="rank_ebony"]
+[ext_resource type="Resource" path="res://resources/items/skill_book.tres" id="rank_skill_book"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="rank_amount"]
+[ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="rank_drop"]
 
 [sub_resource type="Resource" id="E_s08_w01_0"]
 script = ExtResource("3_spawn")
@@ -386,12 +392,6 @@ is_boss_wave = true
 
 
 
-[sub_resource type="Resource" id="ItemAmountData_cloth"]
-script = ExtResource("7_amount")
-item = ExtResource("8_cloth")
-amount = 2
-
-
 [sub_resource type="Resource" id="ItemAmountData_wolf"]
 script = ExtResource("7_amount")
 item = ExtResource("24_wolf")
@@ -426,12 +426,6 @@ text = "贼将张梁擅召援兵，岔路来敌，不可不防；张角三卷轮
 script = ExtResource("10_ddata")
 dialogue_id = &"ch01_s08_intro"
 lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3"), SubResource("DialogueLine_4"), SubResource("DialogueLine_5")]
-
-[sub_resource type="Resource" id="DropEntry_cloth3"]
-script = ExtResource("20_drop")
-item = ExtResource("8_cloth")
-amount = 3
-chance = 0.5
 
 [sub_resource type="Resource" id="BuildSlotData_1"]
 script = ExtResource("23_bslot")
@@ -504,6 +498,55 @@ locked = false
 unlock_cost = 60
 
 
+[sub_resource type="Resource" id="rank_first_general_seal"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_general_seal")
+amount = 6
+
+[sub_resource type="Resource" id="rank_first_refined_iron"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_refined_iron")
+amount = 2
+
+[sub_resource type="Resource" id="rank_first_ebony"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_ebony")
+amount = 2
+
+[sub_resource type="Resource" id="rank_first_skill_book"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_skill_book")
+amount = 2
+
+[sub_resource type="Resource" id="rank_repeat_general_seal"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_general_seal")
+amount = 3
+
+[sub_resource type="Resource" id="rank_repeat_ebony"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_ebony")
+amount = 2
+
+[sub_resource type="Resource" id="rank_prob_ebony"]
+script = ExtResource("rank_drop")
+item = ExtResource("rank_ebony")
+amount = 2
+chance = 0.5
+
+[sub_resource type="Resource" id="rank_prob_general_seal"]
+script = ExtResource("rank_drop")
+item = ExtResource("rank_general_seal")
+amount = 2
+chance = 0.5
+
+[sub_resource type="Resource" id="rank_prob_skill_book"]
+script = ExtResource("rank_drop")
+item = ExtResource("rank_skill_book")
+amount = 1
+chance = 0.4
+
+
 [resource]
 script = ExtResource("1_stage")
 stage_id = &"ch01_s08"
@@ -531,9 +574,9 @@ prerequisite_stage_ids = [&"ch01_s07"]
 first_clear_unlock_character_ids = []
 first_clear_relic = ExtResource("21_relic")
 first_clear_relic_hard = ExtResource("22_relic_hard")
-first_clear_rewards = [SubResource("ItemAmountData_cloth"), SubResource("ItemAmountData_wolf")]
-probability_drops = [SubResource("DropEntry_cloth3")]
-repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
+first_clear_rewards = [SubResource("ItemAmountData_wolf"), SubResource("rank_first_general_seal"), SubResource("rank_first_refined_iron"), SubResource("rank_first_ebony"), SubResource("rank_first_skill_book")]
+probability_drops = [SubResource("rank_prob_ebony"), SubResource("rank_prob_general_seal"), SubResource("rank_prob_skill_book")]
+repeat_clear_rewards = [SubResource("rank_repeat_general_seal"), SubResource("rank_repeat_ebony")]
 participant_xp = 60
 recommended_tower_count = 8
 recommended_rank_count = 3

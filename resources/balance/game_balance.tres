@@ -6,7 +6,7 @@
 script = ExtResource("1_balance")
 exp_base_per_level = 40
 exp_growth_per_level = 15
-max_level = 30
+max_level = 100
 difficulty_presets = [{
 "key": "normal",
 "merit_mult": 1.0,

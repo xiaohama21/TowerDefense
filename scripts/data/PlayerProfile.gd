@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 6
+const CURRENT_SCHEMA_VERSION: int = 7
 ## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
 const SUPPLY_MAX_LEVEL: int = 3
 const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
@@ -169,8 +169,10 @@ func unlock_character(character_id: String, initial_data: Dictionary = {}) -> bo
 		return false
 	var entry := initial_data.duplicate(true)
 	entry["total_exp"] = _coerce_non_negative_int(entry.get("total_exp", 0))
-	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
-	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
+	entry.erase("promotion_path")
+	entry.erase("stars")
+	entry["rank"] = clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
+	entry["growth_guard"] = CharacterRank.normalize_guard(entry.get("growth_guard", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
@@ -197,21 +199,55 @@ func add_character_exp(character_id: String, amount: int) -> int:
 	entry = entry.duplicate(true)
 	var new_exp := _coerce_non_negative_int(entry.get("total_exp", 0)) + amount
 	entry["total_exp"] = new_exp
-	entry["promotion_path"] = _normalize_string_array(entry.get("promotion_path", []))
-	entry["stars"] = _coerce_non_negative_int(entry.get("stars", 0))
+	entry.erase("promotion_path")
+	entry.erase("stars")
+	entry["rank"] = clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
+	entry["growth_guard"] = CharacterRank.normalize_guard(entry.get("growth_guard", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
+	refresh_growth_guard(key)
 	return new_exp
 
 
-## 武将当前星级（升星系统，GDD 4.8；升星自 v0.30.0 暂时移除，字段保留）。
-func get_character_stars(character_id: String) -> int:
-	return _coerce_non_negative_int(get_character(character_id).get("stars", 0))
+## 武将当前品阶，白=0、红=5。
+func get_character_rank(character_id: String) -> int:
+	return clampi(_coerce_non_negative_int(get_character(character_id).get("rank", 0)), 0, 5)
 
+func rank_up_status(character_id: String) -> String:
+	if not has_character(character_id):
+		return "未解锁"
+	var next := get_character_rank(character_id) + 1
+	if next >= CharacterRank.LEVELS.size():
+		return "已满级"
+	if LevelCurve.level_from_total_exp(get_character_exp(character_id)) < CharacterRank.LEVELS[next]:
+		return "等级不足"
+	var costs := CharacterRank.costs(next)
+	for item_id in costs:
+		if _coerce_non_negative_int(items.get(item_id, 0)) < int(costs[item_id]):
+			return "材料不足"
+	return "进阶"
 
-## 武将某槽位已装配的信物 ID（GDD 4.8 双槽）：
-## "optional" = 可选槽（生效位，Boss 签名信物）/ "exclusive" = 专属槽（本版锁住占位）。
+func advance_character_rank(character_id: String) -> bool:
+	if rank_up_status(character_id) != "进阶":
+		return false
+	var next := get_character_rank(character_id) + 1
+	for item_id in CharacterRank.costs(next):
+		spend_item(item_id, CharacterRank.costs(next)[item_id])
+	characters[character_id]["rank"] = next
+	refresh_growth_guard(character_id)
+	return true
+
+func refresh_growth_guard(character_id: String) -> void:
+	if not has_character(character_id):
+		return
+	var guard := CharacterRank.normalize_guard(characters[character_id].get("growth_guard", {}))
+	if guard.is_empty():
+		return
+	var character := load("res://resources/characters/%s.tres" % character_id) as CharacterData
+	if character != null:
+		characters[character_id]["growth_guard"] = character.remaining_guard(LevelCurve.level_from_total_exp(get_character_exp(character_id)), get_character_rank(character_id), guard)
+
 func get_character_relic_id(character_id: String, slot: String = "optional") -> String:
 	var key := "relic_exclusive" if slot == "exclusive" else "relic_optional"
 	return str(get_character(character_id).get(key, ""))
@@ -459,17 +495,6 @@ func set_gacha_total(value: int) -> void:
 	gacha_state["total_pulls"] = maxi(value, 0)
 
 
-func set_promotion_path(character_id: String, promotion_path: Array) -> bool:
-	var key := character_id.strip_edges()
-	if key.is_empty():
-		return false
-	ensure_character(key)
-	var entry = characters.get(key, {}).duplicate(true)
-	entry["promotion_path"] = _normalize_string_array(promotion_path)
-	characters[key] = entry
-	return true
-
-
 func add_item(item_id: String, amount: int) -> int:
 	var key := item_id.strip_edges()
 	if key.is_empty() or amount <= 0:
@@ -615,8 +640,10 @@ func _normalize_characters(value) -> Dictionary:
 		else:
 			normalized = {}
 		normalized["total_exp"] = _coerce_non_negative_int(normalized.get("total_exp", 0))
-		normalized["promotion_path"] = _normalize_string_array(normalized.get("promotion_path", []))
-		normalized["stars"] = _coerce_non_negative_int(normalized.get("stars", 0))
+		normalized.erase("promotion_path")
+		normalized.erase("stars")
+		normalized["rank"] = clampi(_coerce_non_negative_int(normalized.get("rank", 0)), 0, 5)
+		normalized["growth_guard"] = CharacterRank.normalize_guard(normalized.get("growth_guard", {}))
 		# v4（0.8.14）：碎片字段删除；旧 relic 键就地迁移为专属槽占位（防御性，正式迁移在 SaveManager）。
 		normalized.erase("shards")
 		var legacy_relic := str(normalized.get("relic", ""))

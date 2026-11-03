@@ -9,7 +9,9 @@ class_name BalanceData
 @export_category("Level Curve (NUMBERS.md 10.1)")
 @export_range(1, 9999, 1) var exp_base_per_level: int = 40
 @export_range(1, 9999, 1) var exp_growth_per_level: int = 15
-@export_range(1, 999, 1) var max_level: int = 30
+@export_range(1, 9999, 1) var exp_tail_base: int = 880
+@export_range(0, 999, 1) var exp_tail_step: int = 2
+@export_range(1, 999, 1) var max_level: int = 100
 
 @export_category("Difficulty (NUMBERS.md 10.7)")
 ## 难度档位预设（v0.31.2 数据驱动，轻松已移除）：首档恒解锁，后续档需通关上一档解锁

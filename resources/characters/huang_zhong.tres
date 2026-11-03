@@ -15,8 +15,6 @@ base_damage = 48
 base_range = 205.0
 attack_interval = 1.25
 projectile_speed = 520.0
-damage_growth_per_level = 4.5
-promotion_ids = [&"archer_strong_bow"]
 titles = ["神射手"]
 character_skill_id = &"char_dingjun"
 character_skill_params = {
@@ -33,3 +31,7 @@ trait_params = {
 "reveal_stealth": 1.0
 }
 unlock_stage_id = &"ch01_s03"
+attack_pct = 0.03
+range_pct_per_level = 0.001
+per_rank_crit_rate = 0.01
+ultimate_id = &"ultimate_archer_volley"

@@ -308,10 +308,7 @@ func _append_chapter_row(list_box: VBoxContainer, name_text: String, is_current:
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row_content.add_child(name_label)
 	if is_current and enabled:
-		var check := Label.new()
-		check.text = "✔"
-		check.add_theme_font_size_override("font_size", 15)
-		check.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
+		var check := ConceptIcon.new("ui_check", 18, "已选择")
 		check.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row_content.add_child(check)
 	elif not enabled:
@@ -457,7 +454,7 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	head.add_child(star_spacer)
 	for star_index in range(3):
 		var star := TextureRect.new()
-		star.texture = load("res://assets/ui/icons/star_outline_grey.png")
+		star.texture = load("res://assets/ui/icons/v2/ui_star_outline.png")
 		star.custom_minimum_size = Vector2(16, 15)
 		star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		star.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -496,7 +493,12 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	reward_border_style.bg_color = REWARD_LINE
 	reward_border.add_theme_stylebox_override("panel", reward_border_style)
 	content.add_child(reward_border)
-	content.add_child(_make_kv_text("首通", _reward_compact_text(stage), MUTED if unlocked else LOCK_TEXT, NAV_BODY if unlocked else LOCK_TEXT))
+	var rewards := HFlowContainer.new()
+	rewards.add_theme_constant_override("h_separation", 4)
+	rewards.add_theme_constant_override("v_separation", 2)
+	rewards.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(rewards)
+	_append_reward_glyphs(rewards, stage, true)
 	return card
 
 
@@ -523,7 +525,7 @@ func _make_kv(k: String, v: String, k_color: Color, v_color: Color) -> HBoxConta
 
 ## 下拉框箭头图标：原图过大（会撑高顶栏），预缩放为 18×12。
 func _small_arrow_icon() -> ImageTexture:
-	var texture := load("res://assets/ui/icons/arrow_basic_s_blue.png") as Texture2D
+	var texture := load("res://assets/ui/icons/v2/ui_arrow_down.png") as Texture2D
 	var image := texture.get_image()
 	image.resize(18, 12, Image.INTERPOLATE_LANCZOS)
 	return ImageTexture.create_from_image(image)
@@ -557,28 +559,6 @@ func _chip_style(bg: Color, margin_h: float, margin_v: float) -> StyleBoxFlat:
 	style.content_margin_top = margin_v
 	style.content_margin_bottom = margin_v
 	return style
-
-
-## 首通奖励紧凑文案（卡片奖励行用）：解锁 X · 道具×N · 信物 X（双档各 1 件时标注难度）。
-func _reward_compact_text(stage: StageData) -> String:
-	var parts: Array[String] = []
-	for character_id in stage.first_clear_unlock_character_ids:
-		var character := GameFlow.load_character_data(str(character_id))
-		parts.append("解锁 %s" % (character.display_name if character != null else str(character_id)))
-	for reward in stage.first_clear_rewards:
-		if reward == null or reward.item == null or reward.amount <= 0:
-			continue
-		parts.append("%s×%d" % [reward.item.display_name, reward.amount])
-	var relic_names: Array[String] = []
-	if stage.first_clear_relic != null:
-		relic_names.append(stage.first_clear_relic.display_name)
-	if stage.first_clear_relic_hard != null:
-		relic_names.append("%s（困难）" % stage.first_clear_relic_hard.display_name)
-	if not relic_names.is_empty():
-		parts.append("信物 %s" % " / ".join(relic_names))
-	if parts.is_empty():
-		return "—"
-	return " · ".join(parts)
 
 
 # ============ 底部关卡预告条（概念图 .detail） ============
@@ -680,24 +660,16 @@ func _build_detail_bar() -> void:
 		_detail_stats.append(value_label)
 
 	var right := VBoxContainer.new()
+	right.custom_minimum_size = Vector2(400, 0)
 	right.add_theme_constant_override("separation", 9)
 	columns.add_child(right)
 
-	var reward_head := HBoxContainer.new()
-	reward_head.alignment = BoxContainer.ALIGNMENT_CENTER
-	reward_head.add_theme_constant_override("separation", 8)
-	right.add_child(reward_head)
-	var reward_label := Label.new()
-	reward_label.text = "首通奖励"
-	reward_label.add_theme_font_size_override("font_size", 13)
-	reward_label.add_theme_color_override("font_color", MUTED)
-	reward_head.add_child(reward_label)
-	# 0.8.11.3 / B-054：首通奖励徽章改流式容器——横向放不下自动折行，不再把右列撑出面板。
 	_detail_rewards = HFlowContainer.new()
 	_detail_rewards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail_rewards.add_theme_constant_override("h_separation", 8)
 	_detail_rewards.add_theme_constant_override("v_separation", 6)
-	reward_head.add_child(_detail_rewards)
+	_detail_rewards.tooltip_text = "首次通关可获得以下奖励。"
+	right.add_child(_detail_rewards)
 
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -724,38 +696,45 @@ func _build_detail_bar() -> void:
 	actions.add_child(_deploy_button)
 
 
-## 首通奖励徽章（右列）：解锁武将=绿、道具/信物=蓝。
+## 首通奖励：图徽＋数量，解锁使用武将头像，名称仅作 tooltip。
 func _refresh_reward_chips(stage: StageData) -> void:
 	for child in _detail_rewards.get_children():
 		_detail_rewards.remove_child(child)
 		child.queue_free()
+	_append_reward_glyphs(_detail_rewards, stage, false)
+
+func _append_reward_glyphs(holder: Control, stage: StageData, compact: bool) -> void:
 	for character_id in stage.first_clear_unlock_character_ids:
 		var character := GameFlow.load_character_data(str(character_id))
-		_detail_rewards.add_child(_make_reward_chip(
-			"武将 · %s" % (character.display_name if character != null else str(character_id)), CHIP_GREEN))
+		if character == null:
+			continue
+		var avatar := UITheme.avatar_label(character.display_name.left(1), UITheme.character_avatar_color_key(str(character_id)), 18.0 if compact else 24.0, 11)
+		var unlock := _reward_glyph("", "解锁", character.display_name, compact, CHIP_GREEN)
+		var old_icon := unlock.get_child(0)
+		unlock.remove_child(old_icon)
+		old_icon.queue_free()
+		unlock.add_child(avatar)
+		unlock.move_child(avatar, 0)
+		holder.add_child(unlock)
 	for reward in stage.first_clear_rewards:
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue
-		_detail_rewards.add_child(_make_reward_chip("%s ×%d" % [reward.item.display_name, reward.amount], CHIP_BLUE))
-	# ✅ 0.8.14：Boss 签名信物按当前所选难度展示（各难度各 1 件）——避免两枚信物胶囊
-	# 叠高右列触发 B-054 越界；难度切换时由 _on_difficulty_changed 重刷。
-	var first_clear_relic := stage.first_clear_relic_hard if _selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
-	if first_clear_relic != null:
-		_detail_rewards.add_child(_make_reward_chip("信物 · %s" % first_clear_relic.display_name, CHIP_BLUE))
+		holder.add_child(_reward_glyph(str(reward.item.item_id), "×%d" % reward.amount, reward.item.display_name, compact))
+	var relic := stage.first_clear_relic_hard if _selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
+	if relic != null:
+		holder.add_child(_reward_glyph(str(relic.relic_id), "×1", relic.display_name, compact))
 
-
-func _make_reward_chip(text: String, bg: Color) -> Label:
-	var chip := Label.new()
-	chip.text = text
-	chip.add_theme_font_size_override("font_size", 14)
-	chip.add_theme_color_override("font_color", Color.WHITE)
-	var style := _chip_style(bg, 12, 4)
-	style.set_corner_radius_all(9)
-	style.border_width_bottom = 3
-	style.border_color = bg.darkened(0.2)
-	chip.add_theme_stylebox_override("normal", style)
-	return chip
-
+func _reward_glyph(icon_id: String, amount: String, hint: String, compact: bool, bg: Color = CHIP_BLUE) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 3)
+	row.tooltip_text = hint
+	row.add_child(ConceptIcon.new(icon_id, 18 if compact else 24, hint, bg.darkened(0.25)))
+	var value := Label.new()
+	value.text = amount
+	value.add_theme_font_size_override("font_size", 12 if compact else 14)
+	value.add_theme_color_override("font_color", NAV_BODY)
+	row.add_child(value)
+	return row
 
 # ============ 选择与刷新（交互逻辑不变） ============
 

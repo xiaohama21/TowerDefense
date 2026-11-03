@@ -13,7 +13,6 @@ const DATA_SCRIPT_PATHS := [
 	"res://scripts/data/ItemAmountData.gd",
 	"res://scripts/data/StageData.gd",
 	"res://scripts/data/ChapterData.gd",
-	"res://scripts/data/PromotionData.gd",
 ]
 
 const PROFILE_PATH := "res://scripts/data/PlayerProfile.gd"
@@ -96,11 +95,9 @@ func _test_data_resources() -> void:
 	var amount_script := load("res://scripts/data/ItemAmountData.gd") as Script
 	var stage_script := load("res://scripts/data/StageData.gd") as Script
 	var chapter_script := load("res://scripts/data/ChapterData.gd") as Script
-	var promotion_script := load("res://scripts/data/PromotionData.gd") as Script
 	if profession_script == null or character_script == null or enemy_script == null \
 			or spawn_script == null or wave_script == null or item_script == null \
-			or amount_script == null or stage_script == null or chapter_script == null \
-			or promotion_script == null:
+			or amount_script == null or stage_script == null or chapter_script == null:
 		return
 
 	var profession = profession_script.new()
@@ -156,13 +153,6 @@ func _test_data_resources() -> void:
 	chapter.stages.append(stage)
 	_check(chapter.is_valid(), "ChapterData 基础数据应有效")
 
-	var promotion = promotion_script.new()
-	promotion.promotion_id = &"cavalry_iron_rider"
-	promotion.display_name = "铁骑"
-	promotion.required_level = 10
-	_check(promotion.is_valid(), "PromotionData 基础数据应有效")
-
-
 func _test_player_profile() -> void:
 	if not ResourceLoader.exists(PROFILE_PATH):
 		_check(false, "PlayerProfile.gd 不存在")
@@ -201,15 +191,6 @@ func _test_player_profile() -> void:
 	_check(not profile.spend_item("yellow_turban_cloth", 99), "材料不足时消耗应失败且不改数量")
 	_check(profile.spend_item("yellow_turban_cloth", 10), "材料充足时应能消耗")
 	_check(int(profile.items.get("yellow_turban_cloth", 0)) == 0, "消耗后数量应正确")
-	_check(profile.set_promotion_path("guan_yu", ["cavalry_iron_rider"]), "转职路径应能写入")
-	var promotion_roundtrip = script.new()
-	promotion_roundtrip.load_dict(profile.to_dict())
-	_check(
-		promotion_roundtrip.get_character("guan_yu").get("promotion_path", []) == ["cavalry_iron_rider"],
-		"转职路径应随存档往返保留",
-	)
-
-
 func _test_battle_session_contract() -> void:
 	var script := _load_first_script(BATTLE_SESSION_PATHS)
 	if script == null:
@@ -527,11 +508,11 @@ func _test_save_migration_v4_to_v5() -> void:
 	var migrated_data: Dictionary = migrated.get("data", {})
 	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
 		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "PlayerProfile schema 应为 v6（0.8.16.0 军功 + 军需）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 7, "PlayerProfile schema 应为 v6（0.8.16.0 军功 + 军需）")
 	_check(int(migrated_data.get("exp_pool", -1)) == 0, "v4→v5 迁移应补 exp_pool = 0")
 	var items: Dictionary = migrated_data.get("items", {})
 	_check(not items.has("exp_scroll"), "v4→v5 迁移应清理 items.exp_scroll 残留（练兵令删除）")
-	_check(int(items.get("yellow_turban_cloth", 0)) == 12, "迁移不应影响其他道具数量")
+	_check(int(items.get("general_seal", 0)) == 12, "迁移不应影响其他道具数量")
 	_check(int(items.get("wolf_tooth", 0)) == 1, "迁移不应影响遗物库存")
 	var idempotent: Dictionary = manager._migrate_to_current(migrated_data)
 	_check(bool(idempotent.get("ok", false)) and not bool(idempotent.get("migrated", false)),
@@ -594,7 +575,7 @@ func _test_save_migration_v5_to_v6() -> void:
 	var migrated_data: Dictionary = migrated.get("data", {})
 	_check(int(migrated_data.get("schema_version", 0)) == PlayerProfile.CURRENT_SCHEMA_VERSION,
 		"迁移后 schema_version 应为 %d" % PlayerProfile.CURRENT_SCHEMA_VERSION)
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 6, "PlayerProfile schema 应为 v6（0.8.16 军功 + 军需）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 7, "PlayerProfile schema 应为 v6（0.8.16 军功 + 军需）")
 	_check(int(migrated_data.get("military_merit", -1)) == 0, "v5→v6 迁移应补 military_merit = 0")
 	var unlocks: Array = migrated_data.get("supply_unlocks", [])
 	for supply_id in PlayerProfile.BASE_SUPPLY_IDS:

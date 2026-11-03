@@ -427,6 +427,11 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	level_label.add_theme_font_size_override("font_size", 11)
 	level_label.add_theme_color_override("font_color", Color("#14538a"))
 	name_row.add_child(level_label)
+	var rank_badge := ConceptIcon.new("", 20)
+	rank_badge.visible = owned
+	rank_badge.name = "CardRank"
+	rank_badge.set_rank(ProfileStore.get_profile().get_character_rank(character_id))
+	name_row.add_child(rank_badge)
 
 	var sub_label := Label.new()
 	sub_label.text = _character_sub_text(character_data, owned)
@@ -481,11 +486,8 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	cost_value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	cost_row.add_child(cost_value)
 
-	var lock_label := Label.new()
-	lock_label.text = "🔒"
+	var lock_label := ConceptIcon.new("lock", 18, "未解锁")
 	lock_label.visible = not owned
-	lock_label.add_theme_font_size_override("font_size", 13)
-	lock_label.add_theme_color_override("font_color", Color("#9fb3c4"))
 	lock_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	cost_row.add_child(lock_label)
 
@@ -503,6 +505,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	var widgets := {
 		"button": card,
 		"level": level_label,
+		"rank": rank_badge,
 		"bonds": bonds_box,
 		"src": src_label,
 		"state": state_label,
@@ -605,7 +608,7 @@ func _build_relic_area() -> Control:
 	side_title.add_theme_color_override("font_color", Color("#33566f"))
 	side.add_child(side_title)
 	var side_hint := Label.new()
-	side_hint.text = "悬停看详情\n移开即消失\n图标待美术"
+	side_hint.text = "悬停看详情\n移开即消失"
 	side_hint.add_theme_font_size_override("font_size", 9)
 	side_hint.add_theme_color_override("font_color", Color("#a8bccb"))
 	side_hint.add_theme_constant_override("line_spacing", 1)
@@ -657,7 +660,7 @@ func _make_relic_pill(relic_id: String) -> Button:
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pill.add_child(content)
 
-	content.add_child(UITheme.tile_label(relic.display_name.left(1), "purple", 46.0, 21))
+	content.add_child(ConceptIcon.new(str(relic.relic_id), 46, relic.display_name))
 
 	var name_label := Label.new()
 	name_label.text = relic.display_name
@@ -1092,6 +1095,10 @@ func _refresh_card_texts() -> void:
 			if not locked:
 				level_label.text = "Lv%d" % GameFlow.get_character_level(
 					ProfileStore.get_profile(), str(character_id))
+		var badge := widgets.get("rank", null) as ConceptIcon
+		if badge != null:
+			badge.visible = not locked
+			badge.set_rank(ProfileStore.get_profile().get_character_rank(str(character_id)))
 		if src_label != null:
 			src_label.visible = locked
 		_refresh_card_bonds(widgets.get("bonds", null) as HBoxContainer, str(character_id))
@@ -1375,7 +1382,7 @@ func _build_confirm_header() -> Panel:
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	close_button.focus_mode = Control.FOCUS_NONE
 	close_button.tooltip_text = "关闭"
-	close_button.icon = load("res://assets/ui/icons/cross_blue.png")
+	close_button.icon = load("res://assets/ui/icons/v2/ui_close.png")
 	close_button.add_theme_constant_override("icon_max_width", 18)
 	var close_style := StyleBoxFlat.new()
 	close_style.bg_color = Color(1, 1, 1, 0.28)
@@ -1523,6 +1530,9 @@ func _confirm_character_row(character_data: CharacterData, profile: PlayerProfil
 	level_label.add_theme_color_override("font_color", Color("#2eaadc"))
 	level_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(level_label)
+	var rank_badge := ConceptIcon.new("", 22)
+	rank_badge.set_rank(profile.get_character_rank(str(character_data.character_id)))
+	row.add_child(rank_badge)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
@@ -1562,7 +1572,7 @@ func _confirm_relic_row() -> HBoxContainer:
 		content.offset_bottom = -5.0
 		content.add_theme_constant_override("separation", 8)
 		card.add_child(content)
-		content.add_child(UITheme.tile_label(relic.display_name.left(1), "purple", 42.0, 19))
+		content.add_child(ConceptIcon.new(str(relic.relic_id), 42, relic.display_name))
 		var name_label := Label.new()
 		name_label.text = relic.display_name
 		name_label.add_theme_font_size_override("font_size", 13)

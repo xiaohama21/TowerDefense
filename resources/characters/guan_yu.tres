@@ -15,8 +15,6 @@ base_damage = 64
 base_range = 130.0
 attack_interval = 1.15
 projectile_speed = 460.0
-damage_growth_per_level = 5.5
-promotion_ids = [&"cavalry_iron_rider"]
 titles = ["武圣"]
 character_skill_id = &"char_green_dragon"
 character_skill_params = {
@@ -29,3 +27,8 @@ trait_id = &"trait_wusheng"
 trait_params = {
 "elite_damage_bonus": 0.25
 }
+
+attack_pct = 0.027
+speed_pct_per_level = 0.0008
+per_rank_crit_damage = 0.025
+ultimate_id = &"ultimate_cavalry_breaker"

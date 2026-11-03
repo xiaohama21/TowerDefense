@@ -26,7 +26,7 @@ enum AttackPattern {
 
 @export_category("Base Modifiers")
 ## 纯参考字段（设计基调，不参与计算）：职业差异化由角色基础属性（base_damage/base_range/attack_interval）体现，
-## 见 PROFESSIONS.md 4.2；勿在代码中读取，防止与 PromotionData（转职倍率）同名字段混淆。
+## 见 PROFESSIONS.md 4.2；仅作职业数值参考，运行属性由 CharacterData 的等级／品阶成长计算。
 @export_range(0.0, 10.0, 0.01) var damage_multiplier: float = 1.0
 @export_range(0.0, 10.0, 0.01) var range_multiplier: float = 1.0
 @export_range(0.01, 10.0, 0.01) var attack_interval_multiplier: float = 1.0
@@ -39,7 +39,6 @@ enum AttackPattern {
 
 @export_category("Ultimate & Rage (阶段 3 字段，v0.11.1 先行铺设)")
 ## 职业大招行为 ID（怒气驱动，见 CHARACTERS.md 4.6）。
-@export var ultimate_id: StringName
 ## 积怒模式：hit+damage（输出）/ support（辅助增益），默认按 combat_role 推断、可显式覆盖。
 @export var rage_gain_mode: StringName
 @export_range(0, 99, 1) var ultimate_gain_per_hit: int = 4

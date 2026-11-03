@@ -121,7 +121,8 @@ func _make_header(title: String) -> Panel:
 	row.add_child(title_label)
 
 	var close_button := Button.new()
-	close_button.text = "✕"
+	close_button.icon = UITheme.hud_icon_sized("ui_close", 18)
+	close_button.tooltip_text = "关闭"
 	close_button.custom_minimum_size = Vector2(34, 34)
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	close_button.add_theme_font_size_override("font_size", 17)

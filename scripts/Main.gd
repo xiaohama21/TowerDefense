@@ -901,27 +901,30 @@ func _build_supply_bar_slot(index: int, supply_id: String) -> Control:
 	slot.add_theme_stylebox_override("panel", _make_hud_bar_style(
 		Color(0.16, 0.26, 0.19, 0.92) if highlight else UITheme.HUD_CARD_BG,
 		UITheme.HUD_LINE if highlight else Color(UITheme.HUD_LINE.r, UITheme.HUD_LINE.g, UITheme.HUD_LINE.b, 0.45)))
-	# 军需图标待美术（ART_PROMPTS §4/§6）：按 AGENTS §6 虚线圆占位 + 名称首字示意。
+	# 军需图标按 supply_id 查询新版目录（ICONS v1.0）。
 	var icon := _make_supply_icon(44)
-	var icon_text := icon.get_meta("icon_text", null) as Label
+	var icon_text := icon.get_meta("icon_text", null) as ConceptIcon
 	if icon_text != null:
-		icon_text.text = _supply_glyph(supply)
-		icon_text.add_theme_color_override("font_color", UITheme.HUD_TEXT)
+		icon_text.set_icon(_supply_glyph(supply))
 	icon.position = Vector2(16, 4)
 	icon.size = Vector2(44, 44)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	body.add_child(icon)
 	if purchased:
 		var mark := Label.new()
-		mark.text = "✓ %d" % left
+		mark.text = str(left)
 		mark.add_theme_font_size_override("font_size", 13)
 		mark.add_theme_color_override("font_color",
 			UITheme.HUD_GREEN if left > 0 else Color(UITheme.HUD_TEXT.r, UITheme.HUD_TEXT.g, UITheme.HUD_TEXT.b, 0.5))
-		mark.position = Vector2(4, 52)
-		mark.size = Vector2(68, 20)
+		mark.position = Vector2(24, 52)
+		mark.size = Vector2(44, 20)
 		mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		body.add_child(mark)
+		var completed := ConceptIcon.new("ui_check", 16)
+		completed.position = Vector2(10, 54)
+		completed.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		body.add_child(completed)
 		slot.tooltip_text = "%s：点击使用（剩余 %d 次）· 右键打开军需" % [supply.display_name, left]
 	else:
 		var cost := _supply_paid_cost(supply)
@@ -1154,17 +1157,19 @@ func _build_supply_title() -> Control:
 	chip.add_theme_stylebox_override("normal", UITheme.tag_style(Color(1, 1, 1, 0.2), 13, 4))
 	row.add_child(chip)
 	_supply_gold_label = Label.new()
-	_supply_gold_label.text = "金币 0"
+	_supply_gold_label.text = "0"
 	_supply_gold_label.add_theme_font_size_override("font_size", 19)
 	_supply_gold_label.add_theme_color_override("font_color", Color("#b07a00"))
 	_supply_gold_label.add_theme_stylebox_override("normal", UITheme.tag_style(Color.WHITE, 14, 3))
+	row.add_child(ConceptIcon.new("coin", 24, "金币"))
 	row.add_child(_supply_gold_label)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 	var close_button := Button.new()
 	close_button.name = "SupplyCloseButton"
-	close_button.text = "✕"
+	close_button.icon = UITheme.hud_icon_sized("ui_close", 18)
+	close_button.tooltip_text = "关闭"
 	close_button.custom_minimum_size = Vector2(30, 30)
 	close_button.focus_mode = Control.FOCUS_NONE
 	close_button.add_theme_font_size_override("font_size", 15)
@@ -1244,10 +1249,13 @@ func _build_supply_slot(index: int) -> Control:
 	var count_label := Label.new()
 	count_label.add_theme_font_size_override("font_size", 15)
 	count_label.add_theme_color_override("font_color", Color("#0e9f58"))
+	var count_icon := ConceptIcon.new("ui_check", 16)
+	count_icon.visible = false
+	row.add_child(count_icon)
 	row.add_child(count_label)
 	slot.set_meta("supply_slot", {
 		"root": slot, "icon": icon, "icon_text": icon.get_meta("icon_text", null),
-		"name": name_label, "sub": sub_label, "count": count_label, "style": style,
+		"name": name_label, "sub": sub_label, "count": count_label, "count_icon": count_icon, "style": style,
 	})
 	# 点击整槽 = 使用（不弹二次确认）
 	var button := Button.new()
@@ -1261,20 +1269,20 @@ func _build_supply_slot(index: int) -> Control:
 	return slot
 
 
-func _make_supply_icon(diameter: float) -> DashedPill:
-	var pill := DashedPill.new()
-	pill.custom_minimum_size = Vector2(diameter, diameter)
-	pill.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	pill.setup(Color("#f0f6fb"), Color("#9cbed9"), diameter * 0.5)
-	var text := Label.new()
-	text.name = "IconText"
-	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	text.add_theme_font_size_override("font_size", int(diameter * 0.42))
-	text.add_theme_color_override("font_color", Color("#7fa3c2"))
-	pill.add_child(text)
-	pill.set_meta("icon_text", text)
-	return pill
+func _make_supply_icon(diameter: float) -> ConceptIcon:
+	var icon := ConceptIcon.new("ui_empty", int(diameter))
+	icon.set_meta("icon_text", icon)
+	return icon
+
+
+func _supply_rich_label(font_size: int) -> RichTextLabel:
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.add_theme_font_size_override("normal_font_size", font_size)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
 
 
 func _build_supply_list() -> Control:
@@ -1327,23 +1335,21 @@ func _build_supply_card(supply_id: String) -> Control:
 	info.add_theme_constant_override("separation", 2)
 	row.add_child(info)
 	var name_label := Label.new()
-	name_label.text = supply.display_name if supply != null else supply_id
+	card.tooltip_text = supply.display_name if supply != null else supply_id
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	info.add_child(name_label)
-	var desc_label := Label.new()
-	desc_label.add_theme_font_size_override("font_size", 11)
-	desc_label.add_theme_color_override("font_color", UITheme.LIGHT_DESC)
-	desc_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	var desc_label := _supply_rich_label(11)
+	desc_label.custom_minimum_size = Vector2(240, 22)
+	desc_label.add_theme_color_override("default_color", UITheme.LIGHT_DESC)
 	info.add_child(desc_label)
 	var right := VBoxContainer.new()
 	right.alignment = BoxContainer.ALIGNMENT_CENTER
 	right.add_theme_constant_override("separation", 3)
 	row.add_child(right)
-	var cost_label := Label.new()
-	cost_label.add_theme_font_size_override("font_size", 15)
-	cost_label.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
-	cost_label.add_theme_stylebox_override("normal", UITheme.tag_style(Color("#fff8e0"), 9, 2))
+	var cost_label := _supply_rich_label(15)
+	cost_label.custom_minimum_size = Vector2(112, 22)
+	cost_label.add_theme_color_override("default_color", UITheme.LIGHT_GOLD_TEXT)
 	right.add_child(cost_label)
 	var tag_label := Label.new()
 	tag_label.add_theme_font_size_override("font_size", 11)
@@ -1418,6 +1424,7 @@ func _build_supply_detail() -> Control:
 	var keys := ["效果", "持续", "剩余"]
 	var fx_values: Array[Label] = []
 	var fx_units: Array[Label] = []
+	var fx_icons: Array[ConceptIcon] = []
 	for key in keys:
 		var fx_box := PanelContainer.new()
 		fx_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1436,12 +1443,11 @@ func _build_supply_detail() -> Control:
 		var fx_column := VBoxContainer.new()
 		fx_column.add_theme_constant_override("separation", 1)
 		fx_margin.add_child(fx_column)
-		var key_label := Label.new()
-		key_label.text = key
-		key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		key_label.add_theme_font_size_override("font_size", 11)
-		key_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-		fx_column.add_child(key_label)
+		var icon_center := CenterContainer.new()
+		var effect_icon := ConceptIcon.new("cooldown" if key == "持续" else "uses", 22, key)
+		icon_center.add_child(effect_icon)
+		fx_column.add_child(icon_center)
+		fx_icons.append(effect_icon)
 		var value_label := Label.new()
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		value_label.add_theme_font_size_override("font_size", 16)
@@ -1499,7 +1505,7 @@ func _build_supply_detail() -> Control:
 		"tag_a": tag_a, "tag_b": tag_b, "desc": desc,
 		"fx0": fx_values[0], "fx1": fx_values[1], "fx2": fx_values[2],
 		"fxu0": fx_units[0], "fxu1": fx_units[1], "fxu2": fx_units[2],
-		"rule": rule, "button": action, "fx_row": fx_row, "hint": hint,
+		"rule": rule, "button": action, "fx_row": fx_row, "hint": hint, "fx_icons": fx_icons,
 	}
 	return card
 
@@ -1530,8 +1536,8 @@ func _build_supply_foot() -> Control:
 
 func _supply_glyph(supply: BattleSupplyData) -> String:
 	if supply == null or supply.display_name.is_empty():
-		return "?"
-	return supply.display_name.substr(0, 1)
+		return "ui_empty"
+	return "supply_" + str(supply.supply_id)
 
 
 ## ===== 刷新 =====
@@ -1540,7 +1546,7 @@ func _refresh_battle_supply_popup() -> void:
 	if _battle_supply_popup == null or not is_instance_valid(_battle_supply_popup):
 		return
 	if _supply_gold_label != null and is_instance_valid(_supply_gold_label):
-		_supply_gold_label.text = "金币 %d" % GameManager.gold
+		_supply_gold_label.text = str(GameManager.gold)
 	_refresh_supply_belt()
 	_refresh_supply_cards()
 	_render_supply_detail(_supply_selected_id)
@@ -1556,14 +1562,16 @@ func _refresh_supply_belt() -> void:
 		var button := slot.get_meta("supply_slot_button", null) as Button
 		var supply_id := _supply_belt[index] if index < _supply_belt.size() else ""
 		var supply := _find_battle_supply(supply_id)
-		var icon_text := meta.get("icon_text") as Label
+		var icon_text := meta.get("icon_text") as ConceptIcon
 		var name_label := meta.get("name") as Label
 		var sub_label := meta.get("sub") as Label
 		var count_label := meta.get("count") as Label
+		var count_icon := meta.get("count_icon") as ConceptIcon
+		count_icon.visible = supply != null and _is_supply_purchased(supply_id) and _supply_uses_left(supply_id) > 0 and not settlement_started
 		var style := meta.get("style") as StyleBoxFlat
 		slot.modulate = Color(1, 1, 1, 0.55) if settlement_started else Color.WHITE
 		if supply == null or supply_id.is_empty():
-			icon_text.text = ""
+			icon_text.set_icon("ui_empty")
 			name_label.text = "空"
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 			sub_label.text = ""
@@ -1574,8 +1582,8 @@ func _refresh_supply_belt() -> void:
 			button.tooltip_text = "空槽：在军需处选带后可携带"
 			continue
 		var left := _supply_uses_left(supply_id)
-		icon_text.text = _supply_glyph(supply)
-		name_label.text = supply.display_name
+		icon_text.set_icon(_supply_glyph(supply))
+		name_label.text = ""
 		if settlement_started:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 			sub_label.text = "结算中"
@@ -1597,7 +1605,7 @@ func _refresh_supply_belt() -> void:
 		elif left > 0:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 			sub_label.text = "已满" if _is_supply_heal_blocked(supply) else "点击使用"
-			count_label.text = "✓ %d" % left
+			count_label.text = str(left)
 			count_label.add_theme_color_override("font_color", Color("#0e9f58"))
 			style.bg_color = Color.WHITE
 			style.border_color = UITheme.LIGHT_PANEL_BORDER
@@ -1625,19 +1633,20 @@ func _refresh_supply_cards() -> void:
 		var locked := level <= 0
 		var display_level := maxi(level, 1)
 		var name_label := nodes["name"] as Label
-		var desc_label := nodes["desc"] as Label
-		var cost_label := nodes["cost"] as Label
+		var desc_label := nodes["desc"] as RichTextLabel
+		var cost_label := nodes["cost"] as RichTextLabel
 		var tag_label := nodes["tag"] as Label
 		var style := nodes["style"] as StyleBoxFlat
-		var icon_text := nodes["icon_text"] as Label
+		var icon_text := nodes["icon_text"] as ConceptIcon
 		var button := nodes["button"] as Button
 		button.disabled = settlement_started
 		button.mouse_default_cursor_shape = Control.CURSOR_ARROW if settlement_started else Control.CURSOR_POINTING_HAND
 		var paid := _supply_paid_cost(supply)
-		icon_text.text = "锁" if locked else _supply_glyph(supply)
-		name_label.text = supply.display_name
-		desc_label.text = supply.summary_at(display_level)
-		cost_label.text = "%d 金 · 限 %d" % [paid, supply.max_uses_at(display_level)]
+		icon_text.set_icon("lock" if locked else _supply_glyph(supply))
+		name_label.text = ""
+		desc_label.text = UITheme.supply_effect_bbcode(supply, display_level)
+		desc_label.tooltip_text = supply.summary_at(display_level)
+		cost_label.text = UITheme.icon_bbcode("coin", 16) + str(paid) + "  " + UITheme.icon_bbcode("uses", 16) + str(supply.max_uses_at(display_level))
 		var gray := locked or settlement_started
 		if settlement_started:
 			tag_label.text = "结算中"
@@ -1660,8 +1669,8 @@ func _refresh_supply_cards() -> void:
 			if GameManager.gold < paid:
 				gray = true
 		name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_INK)
-		desc_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_DESC)
-		cost_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_GOLD_TEXT)
+		desc_label.add_theme_color_override("default_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_DESC)
+		cost_label.add_theme_color_override("default_color", UITheme.LIGHT_LOCK if gray else UITheme.LIGHT_GOLD_TEXT)
 		style.bg_color = Color("#eef3f7") if gray else Color.WHITE
 		style.border_color = Color("#d9e3ea") if gray else UITheme.LIGHT_PANEL_BORDER
 		if supply_id == _supply_selected_id and not settlement_started:
@@ -1680,22 +1689,24 @@ func _render_supply_detail(supply_id: String) -> void:
 	for key in ["fx_row", "rule", "hint", "tag_a", "tag_b"]:
 		(_supply_detail_nodes[key] as Control).visible = supply != null
 	if supply == null:
-		for key in ["icon_text", "name", "tag_a", "tag_b", "desc", "fx0", "fx1", "fx2", "fxu0", "fxu1", "fxu2"]:
+		(_supply_detail_nodes["icon_text"] as ConceptIcon).set_icon("ui_empty")
+		for key in ["name", "tag_a", "tag_b", "desc", "fx0", "fx1", "fx2", "fxu0", "fxu1", "fxu2"]:
 			(_supply_detail_nodes[key] as Label).text = ""
 		(_supply_detail_nodes["name"] as Label).text = "未选带"
 		_refresh_supply_action_button()
 		return
 	var level := maxi(_supply_level(supply_id), 1)
 	var locked := _supply_level(supply_id) <= 0
-	var icon_text := _supply_detail_nodes.get("icon_text") as Label
+	var icon_text := _supply_detail_nodes.get("icon_text") as ConceptIcon
 	var name_label := _supply_detail_nodes.get("name") as Label
 	var tag_a := _supply_detail_nodes.get("tag_a") as Label
 	var tag_b := _supply_detail_nodes.get("tag_b") as Label
 	var desc := _supply_detail_nodes.get("desc") as Label
 	if icon_text != null:
-		icon_text.text = "锁" if locked else _supply_glyph(supply)
+		icon_text.set_icon("lock" if locked else _supply_glyph(supply))
 	if name_label != null:
-		name_label.text = supply.display_name
+		name_label.text = ""
+		name_label.tooltip_text = supply.display_name
 	if locked:
 		tag_a.text = "未解锁"
 		_style_supply_tag(tag_a, UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG)
@@ -1727,6 +1738,8 @@ func _render_supply_detail(supply_id: String) -> void:
 	fxu0.text = fx[1]
 	fx1.text = fx[2]
 	fxu1.text = fx[3]
+	(_supply_detail_nodes["fx_icons"][0] as ConceptIcon).set_icon(fx[4])
+	(_supply_detail_nodes["fx_icons"][1] as ConceptIcon).set_icon(fx[5])
 	var max_uses := supply.max_uses_at(level)
 	if _is_supply_purchased(supply_id):
 		fx2.text = "%d / %d" % [_supply_uses_left(supply_id), max_uses]
@@ -1741,27 +1754,27 @@ func _render_supply_detail(supply_id: String) -> void:
 func _supply_detail_fx(supply: BattleSupplyData, level: int) -> Array:
 	var duration := supply.duration_at(level)
 	if supply.heal_at(level) > 0:
-		return ["生命 +%d" % supply.heal_at(level), "基地生命", "立即", "使用即生效"]
+		return ["+%d" % supply.heal_at(level), "", "立即", "使用即生效", "base_hp", "cooldown"]
 	if supply.instant_physical_at(level) > 0:
-		return ["%d 物理" % supply.instant_physical_at(level), "全场敌军", "立即", "按护甲结算"]
+		return [str(supply.instant_physical_at(level)), "", "立即", "按护甲结算", "dmg_physical", "cooldown"]
 	if supply.rage_gain_at(level) > 0:
-		return ["怒气 +%d" % supply.rage_gain_at(level), "全队武将", "立即", "直接加怒"]
+		return ["+%d" % supply.rage_gain_at(level), "", "立即", "使用即生效", "rage", "cooldown"]
 	if supply.burn_dps_at(level) > 0:
 		return [
-			"%d 魔法" % supply.instant_magic_at(level), "全场敌军",
-			"灼烧 %.0f 秒" % duration, "%d / 秒" % supply.burn_dps_at(level),
+			str(supply.instant_magic_at(level)), "",
+			"%.0fs" % duration, "%d/秒" % supply.burn_dps_at(level), "dmg_magic", "status_burn",
 		]
 	if supply.attack_speed_bonus_at(level) > 0.0:
 		return [
-			"攻速 +%d%%" % roundi(supply.attack_speed_bonus_at(level) * 100.0), "全队武将",
-			"%.0f 秒" % duration, "同类只刷新",
+			"+%d%%" % roundi(supply.attack_speed_bonus_at(level) * 100.0), "",
+			"%.0fs" % duration, "同类只刷新", "stat_attack_speed", "cooldown",
 		]
 	if supply.slow_factor_at(level) < 1.0:
 		return [
-			"减速 %d%%" % roundi((1.0 - supply.slow_factor_at(level)) * 100.0), "全场敌军",
-			"%.0f 秒" % duration, "对 Boss 折减",
+			"%d%%" % roundi((1.0 - supply.slow_factor_at(level)) * 100.0), "",
+			"%.0fs" % duration, "对 Boss 折减", "status_slow", "cooldown",
 		]
-	return ["—", "—", "—", "—"]
+	return ["—", "", "—", "", "ui_empty", "cooldown"]
 
 
 ## 修整类（回复基地生命）在满生命时禁用（NUMBERS 10.15 边界规则「满血禁修整」；
@@ -1775,6 +1788,7 @@ func _refresh_supply_action_button() -> void:
 	var button := _supply_detail_nodes.get("button") as Button
 	if button == null or not is_instance_valid(button):
 		return
+	button.icon = null
 	if supply == null:
 		button.text = "未选带"
 		_set_supply_action_state(button, "grey", false)
@@ -1801,7 +1815,8 @@ func _refresh_supply_action_button() -> void:
 			_set_supply_action_state(button, "yellow", true)
 		return
 	var paid := _supply_paid_cost(supply)
-	button.text = "购买 %d 金币" % paid
+	button.text = "购买  %d" % paid
+	button.icon = UITheme.hud_icon_sized("coin", 18)
 	var affordable := GameManager.gold >= paid and _supply_is_in_belt(_supply_selected_id)
 	_set_supply_action_state(button, "yellow" if affordable else "grey", affordable)
 

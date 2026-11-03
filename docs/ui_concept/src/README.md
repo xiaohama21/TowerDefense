@@ -12,6 +12,14 @@
 
 ## 2. PNG ↔ HTML 映射（24 屏）
 
+阶段 9·提交 1 起，旧养成／百科 HTML 作为历史设计稿保留；当前页签与图徽口径以 `../runtime_0.9.1/` 运行截图为准。该组不是 HTML 截图，使用 Godot 1280×720 视口及隔离档案生成：
+
+```powershell
+& 'F:\Godot\Godot_v4.7.1-stable_win64.exe\Godot_v4.7.1-stable_win64_console.exe' --path . --scene res://tests/RankPreviewRunner.tscn -- --capture-dir=res://docs/ui_concept/runtime_0.9.1
+```
+
+在仓库根目录运行；未指定 capture-dir 时截图保存至 build/verify_0.9.1。覆盖品阶／技能／信物、材料、地图奖励、百科物理／魔法攻击与编队。缺图徽仍用虚线圆（§4 的 13 枚），不使用概念名词顶替。
+
 | 归档 PNG（docs/ui_concept/） | 源码 HTML | 内容 |
 |---|---|---|
 | `ui_home.png` | `ui_home.html` | 主菜单首页 |
@@ -59,6 +67,10 @@
 - 验证脚本思路：重渲后比对 MD5；不一致即视为新版本，需人工确认后覆盖。
 
 ## 4. 素材清单与许可
+
+- 当前图标（0.9.1.1）：273 枚原创 SVG 母版与透明 PNG，唯一运行目录 `assets/ui/icons/v2/`；原 13 枚缺口及军需／怒气／限次／锁／阶徽／技能等均已补齐，当前资源缺口为 0，见 ART_PROMPTS §6.1 / ICONS v1.0。旧 `icons_hud/`、`icons_battle/`、Kenney 图标／光标与 SVG 实验稿保留历史归档，停止运行取用；转职稿继续归档。
+- 新版参考：[可搜索总览](../icons_v2.html)、[亮暗底与 15px 对照](../icons_v2_preview.png)、[实际运行截图](../runtime_0.9.1.1/)。以下旧图清单与再现路径用于历史设计稿追溯。
+
 
 - `fonts/ZCOOL-Kuaile.ttf`：站酷快乐体 2016 修订版（免费商用）；与运行时字体 `assets/fonts/ZCOOL-Kuaile.ttf` 同一文件（MD5 `2347D2B3716F8D584D276992E803CA1A`）。
 - `kenney_ui_pack/PNG/`：Kenney UI Pack（CC0，https://kenney.nl/assets/ui-pack ）中概念图用到的 **17 个文件子集**（保留官方目录层级）；完整包 1315 个文件未入库，缺素材时从官方包按同名路径补拷即可（本地原始压缩包：`F:\godotProject\kenney_ui-pack.zip`，属个人机器路径、非仓库基线）。

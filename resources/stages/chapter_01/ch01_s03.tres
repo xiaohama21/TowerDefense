@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageData" load_steps=42 format=3]
+[gd_resource type="Resource" script_class="StageData" load_steps=54 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/StageData.gd" id="1_stage"]
 [ext_resource type="Script" path="res://scripts/data/WaveData.gd" id="2_wave"]
@@ -10,10 +10,16 @@
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_elite_sergeant.tres" id="4_e0"]
 [ext_resource type="Resource" path="res://resources/enemies/yellow_turban/yellow_turban_general.tres" id="4_general"]
 [ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="8_item_amount"]
-[ext_resource type="Resource" path="res://resources/items/yellow_turban_cloth.tres" id="9_cloth"]
 
 [ext_resource type="Script" path="res://scripts/data/DialogueLineData.gd" id="9_dline"]
 [ext_resource type="Script" path="res://scripts/data/DialogueData.gd" id="10_ddata"]
+
+[ext_resource type="Resource" path="res://resources/items/general_seal.tres" id="rank_general_seal"]
+[ext_resource type="Resource" path="res://resources/items/refined_iron.tres" id="rank_refined_iron"]
+[ext_resource type="Resource" path="res://resources/items/ebony.tres" id="rank_ebony"]
+[ext_resource type="Resource" path="res://resources/items/skill_book.tres" id="rank_skill_book"]
+[ext_resource type="Script" path="res://scripts/data/ItemAmountData.gd" id="rank_amount"]
+[ext_resource type="Script" path="res://scripts/data/DropEntryData.gd" id="rank_drop"]
 
 [sub_resource type="Resource" id="EnemySpawnData_soldier_6"]
 script = ExtResource("3_spawn")
@@ -183,11 +189,6 @@ preparation_time = 2.0
 completion_currency = 0
 is_boss_wave = false
 
-[sub_resource type="Resource" id="ItemAmountData_cloth"]
-script = ExtResource("8_item_amount")
-item = ExtResource("9_cloth")
-amount = 2
-
 [sub_resource type="Resource" id="DialogueLine_1"]
 script = ExtResource("9_dline")
 speaker = "黄忠"
@@ -207,6 +208,43 @@ text = "老夫的箭，可比他们的快三分。"
 script = ExtResource("10_ddata")
 dialogue_id = &"ch01_s03_intro"
 lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResource("DialogueLine_3")]
+
+[sub_resource type="Resource" id="rank_first_general_seal"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_general_seal")
+amount = 3
+
+[sub_resource type="Resource" id="rank_first_refined_iron"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_refined_iron")
+amount = 3
+
+[sub_resource type="Resource" id="rank_first_ebony"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_ebony")
+amount = 1
+
+[sub_resource type="Resource" id="rank_first_skill_book"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_skill_book")
+amount = 1
+
+[sub_resource type="Resource" id="rank_repeat_general_seal"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_general_seal")
+amount = 1
+
+[sub_resource type="Resource" id="rank_repeat_refined_iron"]
+script = ExtResource("rank_amount")
+item = ExtResource("rank_refined_iron")
+amount = 1
+
+[sub_resource type="Resource" id="rank_prob_refined_iron"]
+script = ExtResource("rank_drop")
+item = ExtResource("rank_refined_iron")
+amount = 2
+chance = 0.5
+
 
 [resource]
 script = ExtResource("1_stage")
@@ -231,10 +269,12 @@ decor_cells = [Vector2i(2, 1), Vector2i(6, 1), Vector2i(10, 1), Vector2i(0, 5), 
 forbidden_cells = [Vector2i(0, 3), Vector2i(0, 6), Vector2i(11, 2), Vector2i(13, 5)]
 prerequisite_stage_ids = [&"ch01_s02"]
 first_clear_unlock_character_ids = [&"huang_zhong", &"huang_fu_song"]
-first_clear_rewards = [SubResource("ItemAmountData_cloth")]
-repeat_clear_rewards = [SubResource("ItemAmountData_cloth")]
+first_clear_rewards = [SubResource("rank_first_general_seal"), SubResource("rank_first_refined_iron"), SubResource("rank_first_ebony"), SubResource("rank_first_skill_book")]
+repeat_clear_rewards = [SubResource("rank_repeat_general_seal"), SubResource("rank_repeat_refined_iron")]
 participant_xp = 50
 recommended_tower_count = 5
 recommended_rank_count = 2
 recommended_supply_count = 0
 target_remaining_gold = 150
+
+probability_drops = [SubResource("rank_prob_refined_iron")]
