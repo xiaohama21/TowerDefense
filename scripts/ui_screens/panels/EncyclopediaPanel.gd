@@ -141,27 +141,8 @@ const ENEMY_BEHAVIOR_HINTS := {
 }
 
 ## 职业大招玩家向文案（CHARACTERS.md 4.6 表）。
-const ULTIMATE_HINTS := {
-	&"ultimate_cavalry_breaker": "对当前目标造成 3× 真实伤害（无视护甲）；若击杀则返还 50% 怒气",
-	&"ultimate_tiger_guard_sweep": "破阵：范围内敌人受到 1.5× 物理伤害并击退，附近友方攻速提升",
-	&"ultimate_archer_volley": "快速连射 4 支物理箭（0.8×），优先锁定低血量敌人",
-	&"ultimate_strategist_blaze": "大范围魔法伤害并施加减速",
-	&"ultimate_dancer_encourage": "范围内友方攻速与伤害提升，持续数秒",
-	&"ultimate_catapult_barrage": "3 连发物理抛射轰击目标区域",
-}
 
 ## 角色专属技能玩家向文案（CHARACTER_SKILLS.md §2 效果草案）。
-const CHARACTER_SKILL_HINTS := {
-	&"char_green_dragon": "3 段 × 2.0× 真实伤害（不分摊、无视护甲）；段内溢血转下一目标，每击杀冷却 -5s",
-	&"char_dangyang_roar": "范围内敌人恐惧 1s（反向行军）→ 减速 60% 持续 2s",
-	&"char_carry_people": "全队攻速 +15% 持续 5s（每波一次）",
-	&"char_dingjun": "命中射程内最多 3 个目标，各 2.0× 物理伤害；未击杀者被「定军」标记 4s：受该塔普攻伤害 +15%",
-	&"char_moon_dance": "全队怒气 +10（自身 +15）",
-	&"char_burn_camp": "目标区域 1.5× 魔法伤害 + 灼烧 3s（每秒 0.25× 魔法）",
-	&"char_seven_charges": "对射程内所有敌人造成 1× 物理伤害 + 自身攻速 +30% 持续 3s",
-	&"char_death_fight": "自身攻速 +30%（常驻，仅触发一次）",
-	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s；期间**全图破隐**（可锁定隐匿单位）",
-}
 
 ## 概念图 .dhead 底部 2px 虚线分隔（StyleBoxFlat 不支持 dashed，_draw 手绘横虚线）。
 class DashedLine:
@@ -1020,7 +1001,6 @@ func _refresh_character_detail() -> void:
 	_refresh_base_tab(character)
 	_refresh_skill_tab(character)
 	_refresh_relic_tab(character)
-	_append_trait_summary(character)
 	_on_sim_changed()
 
 
@@ -1135,27 +1115,11 @@ func _stat_pill_box(key_text: String, value_text: String, gold: bool = false, ic
 
 func _refresh_skill_tab(character: CharacterData) -> void:
 	_clear_tab(_skill_tab)
-	var skill_id := character.character_skill_id
-	if not skill_id.is_empty():
-		_skill_tab.add_child(ConceptIcon.new(str(skill_id), 38, SkillRegistry.get_character_skill_name(skill_id)))
-		var is_b := SkillRegistry.CHARACTER_SKILL_B_TYPE.has(skill_id)
-		var type_text := "条件触发（被动）" if is_b else "主动（冷却制）"
-		_skill_tab.add_child(_make_body_label("角色专属技能：%s（%s）" % [
-			SkillRegistry.get_character_skill_name(skill_id), type_text,
-		], UITheme.LIGHT_GOLD_TEXT))
-		_skill_tab.add_child(_make_body_label("效果：%s" % CHARACTER_SKILL_HINTS.get(skill_id, "说明随版本完善"), UITheme.LIGHT_BODY))
-	else:
-		_skill_tab.add_child(_make_body_label("角色专属技能：无", UITheme.LIGHT_LOCK))
-	_skill_tab.add_child(_make_body_label("——", UITheme.LIGHT_LOCK))
-	var ultimate_id := character.ultimate_id
-	if not ultimate_id.is_empty():
-		_skill_tab.add_child(ConceptIcon.new(str(ultimate_id), 38, BehaviorRegistry.ultimate_display_name(ultimate_id)))
-		_skill_tab.add_child(_make_body_label("大招：%s（怒气满 100 释放）" % BehaviorRegistry.ultimate_display_name(ultimate_id), UITheme.LIGHT_GOLD_TEXT))
-		_skill_tab.add_child(_make_body_label("效果：%s" % ULTIMATE_HINTS.get(ultimate_id, "说明随版本完善"), UITheme.LIGHT_BODY))
-	else:
-		_skill_tab.add_child(ConceptIcon.new(str(ultimate_id), 38, BehaviorRegistry.ultimate_display_name(ultimate_id)))
-		_skill_tab.add_child(_make_body_label("大招：无", UITheme.LIGHT_LOCK))
-
+	var rank := maxi(_sim_rank_option.selected, 0) if _sim_rank_option != null else 0
+	for id in character.get_skill_ids():
+		var card := SkillCard.new()
+		_skill_tab.add_child(card)
+		card.configure(character, id, rank, 1, character.per_rank_skill_amp * rank)
 
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
@@ -1178,17 +1142,6 @@ func _refresh_relic_tab(character: CharacterData) -> void:
 			relic.display_name, state, relic.effect_summary(),
 			relic.acquisition_hint if not relic.acquisition_hint.is_empty() else "—",
 		]))
-
-
-func _append_trait_summary(character: CharacterData) -> void:
-	var hints := DevelopPanelScript.TRAIT_HINTS
-	var trait_id := character.trait_id
-	if trait_id.is_empty():
-		_skill_tab.add_child(_make_body_label("该武将暂无特性", UITheme.LIGHT_LOCK))
-		return
-	_skill_tab.add_child(ConceptIcon.new(str(trait_id), 34, "常驻特性"))
-	var hint_text: String = str(hints.get(trait_id, "说明随版本完善"))
-	_skill_tab.add_child(_make_body_label("特性（常驻被动）：%s" % hint_text, UITheme.LIGHT_GOLD_TEXT))
 
 
 ## ============ 模拟器 ============
@@ -1243,13 +1196,14 @@ func _on_sim_changed() -> void:
 	var attack_type := character.profession.attack_damage_type if character.profession != null else DamageTypes.PHYSICAL
 	if _sim_attack_icon != null:
 		UITheme.apply_hud_icon(_sim_attack_icon, "dmg_" + str(attack_type), 20)
-	var preview_range := float(stats.range) * character.get_static_range_multiplier()
+	var preview_range := float(stats.range)
 	_set_sim_result("伤害", str(int(stats.damage)))
 	_set_sim_result("攻速", "%.2fs" % float(stats.attack_interval))
 	_set_sim_result("射程", str(int(preview_range)))
 	_set_sim_result("暴击率", "%.1f%%" % (float(stats.crit_rate) * 100.0))
 	_set_sim_result("暴击伤害", "%.1f%%" % (float(stats.crit_damage) * 100.0))
 	_set_sim_result("技能增幅", "+%.1f%%" % (float(stats.skill_amp) * 100.0))
+	_refresh_skill_tab(character)
 
 
 func _set_sim_result(result_key: String, value_text: String) -> void:

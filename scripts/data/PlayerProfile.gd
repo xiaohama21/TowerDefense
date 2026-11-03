@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 7
+const CURRENT_SCHEMA_VERSION: int = 8
 ## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
 const SUPPLY_MAX_LEVEL: int = 3
 const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
@@ -173,6 +173,7 @@ func unlock_character(character_id: String, initial_data: Dictionary = {}) -> bo
 	entry.erase("stars")
 	entry["rank"] = clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
 	entry["growth_guard"] = CharacterRank.normalize_guard(entry.get("growth_guard", {}))
+	entry["skill_levels"] = SkillRegistry.normalize_levels(key, entry.get("skill_levels", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
@@ -203,6 +204,7 @@ func add_character_exp(character_id: String, amount: int) -> int:
 	entry.erase("stars")
 	entry["rank"] = clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
 	entry["growth_guard"] = CharacterRank.normalize_guard(entry.get("growth_guard", {}))
+	entry["skill_levels"] = SkillRegistry.normalize_levels(key, entry.get("skill_levels", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
@@ -644,6 +646,7 @@ func _normalize_characters(value) -> Dictionary:
 		normalized.erase("stars")
 		normalized["rank"] = clampi(_coerce_non_negative_int(normalized.get("rank", 0)), 0, 5)
 		normalized["growth_guard"] = CharacterRank.normalize_guard(normalized.get("growth_guard", {}))
+		normalized["skill_levels"] = SkillRegistry.normalize_levels(character_id, normalized.get("skill_levels", {}))
 		# v4（0.8.14）：碎片字段删除；旧 relic 键就地迁移为专属槽占位（防御性，正式迁移在 SaveManager）。
 		normalized.erase("shards")
 		var legacy_relic := str(normalized.get("relic", ""))
@@ -685,3 +688,31 @@ func _coerce_non_negative_int(value) -> int:
 			number = 0
 	return maxi(number, 0)
 
+
+func get_skill_level(character_id: String, skill_id: StringName) -> int:
+	var levels := SkillRegistry.normalize_levels(character_id, get_character(character_id).get("skill_levels", {}))
+	return int(levels.get(str(skill_id), 1))
+
+func skill_upgrade_status(character_id: String, skill_id: StringName) -> String:
+	if not has_character(character_id):
+		return "未解锁"
+	var character := GameFlow.load_character_data(character_id)
+	if character == null or not character.get_skill_ids().has(skill_id) or not SkillRegistry.is_known(skill_id):
+		return "未解锁"
+	if not character.is_skill_unlocked(skill_id, get_character_rank(character_id)):
+		return "未解锁"
+	var level := get_skill_level(character_id, skill_id)
+	if level >= SkillRegistry.MAX_LEVEL:
+		return "已满级"
+	return "升级" if int(items.get("skill_book", 0)) >= SkillRegistry.upgrade_cost(level) else "不足"
+
+func upgrade_skill(character_id: String, skill_id: StringName) -> bool:
+	if skill_upgrade_status(character_id, skill_id) != "升级":
+		return false
+	var level := get_skill_level(character_id, skill_id)
+	if not spend_item("skill_book", SkillRegistry.upgrade_cost(level)):
+		return false
+	var levels := SkillRegistry.normalize_levels(character_id, characters[character_id].get("skill_levels", {}))
+	levels[str(skill_id)] = level + 1
+	characters[character_id]["skill_levels"] = levels
+	return true

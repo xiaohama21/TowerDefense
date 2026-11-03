@@ -1,9 +1,9 @@
 extends Node
 
-## 阶段 9·提交 1 品阶数值基准（modules/STATS_PIPELINE.md）：
+## 阶段 9·提交 2 品阶数值基准（modules/STATS_PIPELINE.md）：
 ## headless 确定性虚拟时钟模拟——固定 delta 步进、同一 seed、3 次采样取均值；
 ## 与战斗数值同源（走真实 Tower/Enemy/Bullet 节点与 _process/_physics_process，
-## 不另抄任何数值公式）。首次运行生成 tests/benchmark_rank_baseline.json，
+## 不另抄任何数值公式）。首次运行生成 tests/benchmark_skill_baseline.json，
 ## 后续与快照对比（±3% 容差）防平衡回退；断言失败以非零退出码结束。
 
 const TOWER_SCENE := preload("res://scenes/Tower.tscn")
@@ -15,7 +15,7 @@ const WINDOW_TICKS: int = int(60.0 / VIRTUAL_DELTA)
 const WINDOW_SECONDS: float = 60.0
 const SAMPLES: int = 3
 const BASELINE_TOLERANCE: float = 0.03
-const BASELINE_PATH := "res://tests/benchmark_rank_baseline.json"
+const BASELINE_PATH := "res://tests/benchmark_skill_baseline.json"
 
 const CHARACTER_DIR := "res://resources/characters/"
 
@@ -75,7 +75,7 @@ func _run() -> void:
 	seed(20260904)
 	await _run_rank_benchmarks()
 	await _run_support_benchmarks()
-	_run_bucket_asserts()
+	await _run_bucket_asserts()
 	_finish()
 
 
@@ -442,11 +442,9 @@ func _run_bucket_asserts() -> void:
 		var floor_wait := tower2.attack_cooldown * Tower.ATTACK_SPEED_FLOOR
 		tower2.apply_attack_speed_buff("bench_cap", 2.0, 10.0)
 		_check(is_equal_approx(tower2.attack_timer.wait_time, floor_wait),
-			"临时桶 +100% 后攻速间隔应触底 0.55×基础（%.4f vs %.4f）" % [
+			"临时桶 +100%% 后攻速间隔应触底 0.55×基础（%.4f vs %.4f）" % [
 				tower2.attack_timer.wait_time, floor_wait,
 			])
-		# 光环伤害桶上限（档次 1，SmokeRunner 已做多源断言，此处复核常量语义）。
-		_check(Tower.AURA_DAMAGE_CAP == 0.5, "常驻光环伤害桶上限应为 +50%（档 1）")
 		_check(Tower.FORMATION_DAMAGE_CAP == 0.3, "编队加成伤害桶上限应为 +30%（档 2）")
 		await _teardown_window()
 	_bench_report.append("")
@@ -484,8 +482,8 @@ func _save_baseline() -> void:
 		push_error("无法写入基线快照：" + BASELINE_PATH)
 		return
 	var payload := {
-		"program_version": "0.9.1.0",
-		"note": "阶段 9·提交 1（六阶品阶、百分比成长与暴击）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
+		"program_version": "0.9.2.0",
+		"note": "阶段 9·提交 2（六阶品阶、百分比成长与暴击）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
 	}
 	for key in flat:
 		payload[key] = flat[key]
@@ -510,15 +508,15 @@ func _finish() -> void:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	print("")
-	print("==================== 数值基准报告（阶段 9·提交 1 / 0.9.1.0） ====================")
+	print("==================== 数值基准报告（阶段 9·提交 2 / 0.9.2.0） ====================")
 	for line in _bench_report:
 		print(line)
 	print("=======================================================================")
 	if failures.is_empty() and _baseline.is_empty():
 		_save_baseline()
 	elif failures.is_empty() and not _baseline.is_empty():
-		_bench_report.append("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_rank_baseline.json 后重跑。")
-		print("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_rank_baseline.json 后重跑。")
+		_bench_report.append("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_skill_baseline.json 后重跑。")
+		print("基线对比全绿（±3% 内）；如需更新基线请删除 tests/benchmark_skill_baseline.json 后重跑。")
 	if not warnings.is_empty():
 		print("警告（不阻塞）：")
 		for w in warnings:
@@ -561,7 +559,7 @@ func _run_rank_benchmarks() -> void:
 func _run_support_benchmarks() -> void:
 	var control := 0.0
 	for support in ["", "liu_bei", "diao_chan"]:
-		var group := _make_support_group(support, 0)
+		var group := _make_support_group(support, 2)
 		var groups: Array = [group]
 		if group.has("support_tower"):
 			groups.append({"tower": group["support_tower"], "dummies": [], "character_id": support, "remaining": 0.0, "ult_count": 0, "respawn_hp": 0, "respawn_timer": 0.0})

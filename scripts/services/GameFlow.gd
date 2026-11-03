@@ -300,6 +300,7 @@ func get_battle_loadout(profile: PlayerProfile, character_id: String) -> Diction
 	return {
 		"level": get_character_level(profile, character_id),
 		"rank": profile.get_character_rank(character_id) if profile != null else 0,
+		"skill_levels": profile.get_character(character_id).get("skill_levels", {}) if profile != null else {},
 		"growth_guard": profile.get_character(character_id).get("growth_guard", {}) if profile != null else {},
 		"relic": get_equipped_relic(profile, character_id),
 	}

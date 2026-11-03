@@ -1,621 +1,294 @@
 extends RefCounted
-
 class_name SkillRegistry
 
-## 转职技能注册表（GDD modules/BEHAVIORS.md B.3.5，v0.15.0）：
-## 技能 = 转职授予的被动/条件触发能力；战斗脚本只调用钩子，不在
-## Tower/Enemy 等脚本中写死技能逻辑。过渡技能参数经 Tower 接口读取；当前不授予职业技能。
-## v0.28.0（阶段 8·提交 6）：
-## ①职业技能收敛——每职业 1 技能（6 技能），移除龙突/凶威/斩获；稳射改保底触发；
-## ②档位口径（v0.27.4 拍板）：档位系数 s = 1 + 0.1 × min(battle_rank/5, 4)，
-##   仅职业技能适用、以局内升阶 battle_rank 为准；角色技能不参与 s；
-## ③角色技能（武将专属差异化，CHARACTER_SKILLS.md v0.1）：A 主动冷却制 /
-##   B 条件触发被动，与职业层解耦。
-## v0.32.0（阶段 8·提交 7，职业技能双轨）：
-## ①二转新技能线接入 6 个新技能（assault/guard/chain_arrow/mystic_gate/echo/tremor），
-##   新技能线节点显式配置「核心技能 + 新技能」两 id，无代码级父节点继承；
-## ②军旗光环移出本表乘区（收敛进 Tower 常驻光环伤害桶，STATS_PIPELINE 增益档次 1）；
-## ③新增敌人减益：易伤（奇门）、眩晕（震地）。
-
-const MAX_TIERS := 4
-const TIER_STEP := 0.1
-
-const SKILL_NAMES := {
-	&"charge": "蓄力",
-	&"command": "军旗",
-	&"steady": "稳射",
-	&"inspire": "鼓舞",
-	&"siege": "破城",
-	&"wisdom": "奇谋",
-	# 二转新技能线（提交 7）
-	&"assault": "突袭",
-	&"guard": "护卫",
-	&"chain_arrow": "连矢",
-	&"mystic_gate": "奇门",
-	&"echo": "余音",
-	&"tremor": "震地",
+const MAX_LEVEL := 10
+const COSTS := [1, 1, 2, 2, 3, 3, 4, 4, 5]
+const KITS := {
+	"guan_yu": ["passive_green_dragon_stance", "passive_warm_wine", "char_green_dragon"],
+	"zhang_fei": ["trait_yanyan_roar", "passive_yanhan", "char_dangyang_roar"],
+	"liu_bei": ["trait_benevolence", "passive_diligence", "char_carry_people"],
+	"huang_zhong": ["trait_hundred_step", "passive_sentry", "char_dingjun"],
+	"diao_chan": ["trait_moon_veil", "passive_worship_moon", "char_moon_dance"],
+	"huang_fu_song": ["passive_fierce_flame", "passive_detonation", "char_burn_camp"],
+	"zhao_yun": ["trait_dragon_spirit", "passive_dragon_courage", "char_seven_charges"],
+	"zhou_wei": ["trait_vanguard", "char_death_fight", "ultimate_death_fight"],
+	"zhuge_liang": ["trait_star_gazer", "passive_momentum", "char_borrow_wind"],
+}
+const NAMES := {
+	"passive_green_dragon_stance": "青龙势", "passive_warm_wine": "温酒", "char_green_dragon": "青龙偃月",
+	"trait_yanyan_roar": "燕人咆哮", "passive_yanhan": "燕颔", "char_dangyang_roar": "当阳桥",
+	"trait_benevolence": "仁德", "passive_diligence": "砥砺", "char_carry_people": "携民渡江",
+	"trait_hundred_step": "百步穿杨", "passive_sentry": "哨戒", "char_dingjun": "定军山",
+	"trait_moon_veil": "月华", "passive_worship_moon": "拜月", "char_moon_dance": "凤仪鼓舞",
+	"passive_fierce_flame": "烈焰", "passive_detonation": "爆燃", "char_burn_camp": "长社焚营",
+	"trait_dragon_spirit": "龙魂", "passive_dragon_courage": "龙胆", "char_seven_charges": "七进七出",
+	"trait_vanguard": "陷阵", "char_death_fight": "死战", "ultimate_death_fight": "麦城死战",
+	"trait_star_gazer": "观星", "passive_momentum": "乘势", "char_borrow_wind": "借东风",
 }
 
-const KNOWN_SKILLS: Array[StringName] = [
-	&"charge", &"command", &"steady", &"inspire", &"siege", &"wisdom",
-	&"assault", &"guard", &"chain_arrow", &"mystic_gate", &"echo", &"tremor",
-]
+static func is_known(id: StringName) -> bool:
+	return NAMES.has(str(id))
 
-## 角色技能显示名（武将专属差异化，CHARACTER_SKILLS.md v0.1）。
-const CHARACTER_SKILL_NAMES := {
-	&"char_green_dragon": "青龙偃月",
-	&"char_dangyang_roar": "当阳桥",
-	&"char_carry_people": "携民渡江",
-	&"char_dingjun": "定军山",
-	&"char_moon_dance": "月下舞",
-	&"char_burn_camp": "焚营",
-	&"char_seven_charges": "七进七出",
-	&"char_death_fight": "死战",
-	&"char_borrow_wind": "借东风",
-}
+static func get_skill_name(id: StringName) -> String:
+	return str(NAMES.get(str(id), ""))
 
-## B 型条件触发被动（无冷却、不自动释放）：每波首次漏怪 / 基地低血。
-const CHARACTER_SKILL_B_TYPE: Array[StringName] = [
-	&"char_carry_people", &"char_seven_charges", &"char_death_fight",
-]
+static func level_multiplier(level: int) -> float:
+	return 1.0 + 0.03 * (clampi(level, 1, MAX_LEVEL) - 1)
 
+static func upgrade_cost(level: int) -> int:
+	return int(COSTS[level - 1]) if level >= 1 and level < MAX_LEVEL else 0
 
-## 档位系数：s = 1 + 0.1 × min(battle_rank/5, 4)（每 5 阶一档，上限 +40%）。
-## 仅职业技能适用；角色技能与档位无关（v0.27.4 拍板）。
-static func tier_multiplier(tower: Tower) -> float:
-	var tiers := mini(int(tower.battle_rank / 5), MAX_TIERS)
-	return 1.0 + TIER_STEP * tiers
+static func normalize_levels(character_id: String, raw) -> Dictionary:
+	var result := {}
+	for id in KITS.get(character_id, []):
+		var value = raw.get(id, 1) if raw is Dictionary else 1
+		var level := 1
+		if typeof(value) == TYPE_INT or typeof(value) == TYPE_FLOAT:
+			if is_finite(float(value)): level = int(clampf(float(value), 1, MAX_LEVEL))
+		elif value is String and value.is_valid_int():
+			level = int(clampf(float(value), 1, MAX_LEVEL))
+		result[id] = level
+	return result
 
+static func param(tower: Tower, id: StringName, key: String, fallback: float = 0.0) -> float:
+	return tower.get_skill_param(id, key, fallback)
 
-static func get_skill_name(skill_id: StringName) -> String:
-	return str(SKILL_NAMES.get(skill_id, str(skill_id)))
+static func strength(tower: Tower, id: StringName) -> float:
+	return level_multiplier(tower.get_skill_level(id)) * tower.skill_output_multiplier()
 
+static func duration(tower: Tower, id: StringName, key: String = "duration") -> float:
+	return param(tower, id, key) * tower.skill_output_multiplier()
 
-static func get_character_skill_name(skill_id: StringName) -> String:
-	return str(CHARACTER_SKILL_NAMES.get(skill_id, str(skill_id)))
+static func rage_multiplier(tower: Tower) -> float:
+	var total := 0.0
+	if tower.has_skill(&"trait_moon_veil"):
+		total += param(tower, &"trait_moon_veil", "self_rage") * strength(tower, &"trait_moon_veil")
+	var best := 0.0
+	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+		var other := node as Tower
+		if other == null or other == tower or other.is_queued_for_deletion() or not other.has_skill(&"trait_moon_veil"): continue
+		if tower.global_position.distance_to(other.global_position) <= other.range_radius:
+			best = maxf(best, param(other, &"trait_moon_veil", "ally_rage") * strength(other, &"trait_moon_veil"))
+	return 1.0 + total + best
 
+static func on_attack_hit(tower: Tower, victim: Enemy, _dealt: int) -> void:
+	tower.skill_hit_counter += 1
+	if tower.has_skill(&"trait_hundred_step"):
+		var victim_id := victim.get_instance_id()
+		tower.skill_consecutive_hits = tower.skill_consecutive_hits + 1 if tower.skill_last_target_id == victim_id else 1
+		tower.skill_last_target_id = victim_id
+	if not is_instance_valid(victim) or victim.is_dead: return
+	if tower.has_skill(&"passive_sentry"):
+		victim.apply_poison(int(param(tower, &"passive_sentry", "poison_dps")), duration(tower, &"passive_sentry"), tower.character_id, tower)
+	for id in [&"trait_yanyan_roar", &"char_death_fight"]:
+		if not tower.has_skill(id): continue
+		# Upgrade affects configured probability; no pity and no amplification of probability.
+		var chance := clampf(param(tower, id, "chance") * level_multiplier(tower.get_skill_level(id)), 0.0, 1.0)
+		if randf() < chance:
+			var amount := tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * strength(tower, id))), victim, DamageTypes.PHYSICAL)
+			tower.deal_damage(victim, amount, DamageTypes.PHYSICAL)
+			if id == &"trait_yanyan_roar" and not victim.is_dead: victim.apply_fear(duration(tower, id, "fear_duration"))
+			tower.play_skill_effect()
 
-static func has_skill(tower: Tower, skill_id: StringName) -> bool:
-	return tower != null and is_instance_valid(tower) and tower.has_skill(skill_id)
+static func on_kill(tower: Tower) -> void:
+	if tower.has_skill(&"passive_yanhan"):
+		tower.grant_rage_flat(param(tower, &"passive_yanhan", "kill_rage") * strength(tower, &"passive_yanhan"))
 
+static func attack_multiplier(tower: Tower, victim: Enemy) -> float:
+	if tower.has_skill(&"trait_hundred_step") and tower.skill_last_target_id == victim.get_instance_id():
+		return 1.0 + minf(param(tower, &"trait_hundred_step", "attack_step") * tower.skill_consecutive_hits, param(tower, &"trait_hundred_step", "attack_cap")) * strength(tower, &"trait_hundred_step")
+	return 1.0
 
-## 技能参数（基准值 × 档位系数由各触发点自行乘）。未持有技能时返回默认值。
-static func param(tower: Tower, skill_id: StringName, key: String, default: float) -> float:
-	if not has_skill(tower, skill_id):
-		return default
-	return float(tower.get_skill_param(skill_id, key, default))
+static func tick(tower: Tower, delta: float) -> void:
+	tower.skill_aura_tick -= delta
+	if tower.skill_aura_tick > 0.0: return
+	tower.skill_aura_tick = 0.25
+	if tower.has_skill(&"trait_star_gazer"):
+		var slow := param(tower, &"trait_star_gazer", "slow_strength") * strength(tower, &"trait_star_gazer")
+		for enemy in tower.enemies_in_range(): enemy.apply_slow(1.0 - slow, 0.5 * tower.skill_output_multiplier())
+	if tower.has_skill(&"trait_benevolence") or tower.has_skill(&"passive_diligence"):
+		tower.skill_support_tick -= 0.25
+		if tower.skill_support_tick <= 0.0:
+			tower.skill_support_tick = tower.attack_cooldown
+			tower.record_support_contribution(tower.allies_in_range())
 
-
-## ============ 角色技能（武将专属差异化） ============
-
-static func get_character_skill_id(tower: Tower) -> StringName:
-	if tower == null or not is_instance_valid(tower):
-		return StringName()
-	return tower.get_character_skill_id()
-
-
-static func has_character_skill(tower: Tower, skill_id: StringName = StringName()) -> bool:
-	if tower == null or not is_instance_valid(tower):
-		return false
-	var actual := tower.get_character_skill_id()
-	if actual.is_empty():
-		return false
-	if not skill_id.is_empty():
-		return actual == skill_id
-	return true
-
-
-static func is_character_skill_b_type(tower: Tower) -> bool:
-	return CHARACTER_SKILL_B_TYPE.has(get_character_skill_id(tower))
-
-
-## 角色技能冷却（A 主动）：参数可覆盖默认值；B 被动返回 0。
-static func character_skill_cooldown(tower: Tower) -> float:
-	if not has_character_skill(tower) or is_character_skill_b_type(tower):
-		return 0.0
-	return float(tower.get_character_skill_param("cooldown", 0.0))
-
-
-static func character_param(tower: Tower, skill_id: StringName, key: String, default: float) -> float:
-	if not has_character_skill(tower, skill_id):
-		return default
-	return float(tower.get_character_skill_param(key, default))
-
-
-## 角色技能释放（A 由冷却就绪/手动按钮触发；B 由漏怪/基地低血钩子触发）。
-## 返回 false 表示前置条件不满足（如 A 主动射程内无目标），调用方不进入冷却。
-static func cast_character_skill(tower: Tower) -> bool:
-	if tower == null or not is_instance_valid(tower) or not has_character_skill(tower):
-		return false
-	match get_character_skill_id(tower):
+static func execute_ultimate(id: StringName, tower: Tower) -> bool:
+	var enemies := tower.enemies_in_range()
+	var power := strength(tower, id)
+	match id:
 		&"char_green_dragon":
 			return _cast_green_dragon(tower)
 		&"char_dangyang_roar":
-			return _cast_dangyang_roar(tower)
-		&"char_carry_people":
-			return _cast_carry_people(tower)
+			if enemies.is_empty(): return false
+			for enemy in enemies:
+				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
+				if not enemy.is_dead: enemy.apply_fear(duration(tower, id, "fear_duration"), maxf(1.0 - param(tower, id, "slow_strength") * power, 0.05), duration(tower, id, "slow_duration"))
+		&"char_carry_people", &"char_moon_dance":
+			var allies := tower.allies_in_range() if id == &"char_carry_people" else _all_towers(tower)
+			if allies.is_empty(): return false
+			for ally in allies:
+				ally.apply_attack_speed_buff(str(id), 1.0 + param(tower, id, "speed_bonus") * power * tower.get_battle_rank_buff_power_multiplier(), duration(tower, id) * tower.get_battle_rank_buff_duration_multiplier())
 		&"char_dingjun":
-			return _cast_dingjun(tower)
-		&"char_moon_dance":
-			return _cast_moon_dance(tower)
+			if enemies.is_empty(): return false
+			for enemy in enemies: enemy.apply_vulnerability(param(tower, id, "vulnerability") * power, duration(tower, id))
+			tower.apply_skill_stat_buff(str(id), param(tower, id, "attack_bonus") * power, param(tower, id, "crit_rate") * power, duration(tower, id))
+			tower.apply_attack_speed_buff(str(id), 1.0 + param(tower, id, "speed_bonus") * power, duration(tower, id))
 		&"char_burn_camp":
-			return _cast_burn_camp(tower)
+			if enemies.is_empty(): return false
+			var center: Vector2 = enemies[0].global_position
+			if tower.is_target_valid(tower.target): center = tower.target.global_position
+			var dps := int(round(tower.damage * param(tower, id, "burn_ratio")))
+			for enemy in enemies:
+				if enemy.global_position.distance_to(center) <= param(tower, id, "radius") * tower.get_battle_rank_aoe_multiplier():
+					enemy.apply_burn(dps, duration(tower, id), tower)
+					tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
 		&"char_seven_charges":
-			return _cast_seven_charges(tower)
-		&"char_death_fight":
-			return _cast_death_fight(tower)
+			var targets := tower.lowest_hp_targets_in_range(int(param(tower, id, "targets")))
+			if targets.is_empty(): return false
+			for enemy in targets: tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
+			tower.apply_attack_speed_buff(str(id), 1.0 + param(tower, id, "speed_bonus") * power, duration(tower, id))
+		&"ultimate_death_fight":
+			var victim = tower.target
+			if not tower.is_target_valid(victim): return false
+			var mult := param(tower, id, "mult") * power
+			if float(GameManager.lives) <= float(GameManager.starting_lives) * param(tower, id, "base_hp_threshold"): mult *= param(tower, id, "low_hp_mult")
+			tower.deal_damage(victim, tower.finalize_damage(int(round(tower.damage * mult)), victim, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
 		&"char_borrow_wind":
-			return _cast_borrow_wind(tower)
-	return false
-
-
-## 漏怪钩子（B 被动·每波首次漏怪）：GameManager 每波仅分发一次；
-## 死战（基地低血）不走漏怪钩子，由 check_base_low 轮询触发。
-static func on_wave_first_leak(tower: Tower) -> void:
-	var skill_id := get_character_skill_id(tower)
-	if skill_id == &"char_carry_people" or skill_id == &"char_seven_charges":
-		cast_character_skill(tower)
-
-
-## 基地低血钩子（B 被动·周仓死战）：Tower._process 轮询调用，首次触发后常驻。
-static func check_base_low(tower: Tower) -> void:
-	if tower == null or not is_instance_valid(tower) or tower.is_character_skill_activated():
-		return
-	if not has_character_skill(tower, &"char_death_fight"):
-		return
-	if GameManager.lives <= GameManager.starting_lives * character_param(tower, &"char_death_fight", "hp_threshold", 0.5):
-		tower.set_character_skill_activated(true)
-		cast_character_skill(tower)
-
-
-## 冷却就绪钩子（A 主动）：自动模式立即释放；手动模式由面板按钮触发。
-static func on_character_skill_ready(tower: Tower) -> void:
-	if not has_character_skill(tower) or is_character_skill_b_type(tower):
-		return
-	if not GameFlow.is_gameplay_flag_enabled("manual_ultimate"):
-		tower.cast_character_skill()
-
-
-## ============ 职业技能钩子（每职业 1 个，效果 × 档位系数 s） ============
-
-## 攻击命中钩子（普攻实际命中造成伤害后由 Tower.notify_attack_damage_dealt 调用）：
-## v0.31.4/0.8.6.2 命中口径——实际命中即计数（击杀那发计入）；追加顺延至目标存活的下一次命中。
-## 提交 7 扩展：稳射（保底追加）/ 连矢（概率追加）/ 突袭（精英命中叠层）/ 护卫（近战概率拖回）。
-static func on_attack_hit(tower: Tower, target: Enemy, _dealt: int) -> void:
-	if tower == null or not is_instance_valid(tower):
-		return
-	_steady_proc(tower, target)
-	_chain_arrow_proc(tower, target)
-	_assault_gain_on_hit(tower, target)
-	_guard_proc(tower, target)
-
-
-## 稳射（保底追加）：每 every 次命中必触发一次 mult×s 追加伤害。
-static func _steady_proc(tower: Tower, target: Enemy) -> void:
-	if not has_skill(tower, &"steady"):
-		return
-	tower.steady_attack_counter += 1
-	if target == null or target.is_dead:
-		return
-	var s := tier_multiplier(tower)
-	var every := maxi(int(param(tower, &"steady", "every", 5.0)), 1)
-	if tower.steady_attack_counter < every:
-		return
-	tower.steady_attack_counter = 0
-	var extra := int(round(tower.damage * param(tower, &"steady", "mult", 0.6) * s))
-	if extra > 0:
-		_deliver_extra_damage(tower, target, extra, get_skill_name(&"steady"), Color(1.0, 0.9, 0.4))
-
-
-## 连矢（概率追加）：命中 chance×s 概率触发 mult×s 追加箭矢；roll 中但目标已死
-## （击杀那发）顺延至下一次存活命中，不吞触发。
-static func _chain_arrow_proc(tower: Tower, target: Enemy) -> void:
-	if not has_skill(tower, &"chain_arrow"):
-		return
-	var s := tier_multiplier(tower)
-	var chance := param(tower, &"chain_arrow", "chance", 0.2)
-	var trigger := tower.chain_arrow_pending
-	if not trigger and randf() < chance:
-		trigger = true
-	if not trigger:
-		return
-	if target == null or target.is_dead:
-		tower.chain_arrow_pending = true
-		return
-	tower.chain_arrow_pending = false
-	var extra := int(round(tower.damage * param(tower, &"chain_arrow", "mult", 0.5) * s))
-	_deliver_extra_damage(tower, target, extra, get_skill_name(&"chain_arrow"), Color(0.75, 0.95, 0.6))
-
-
-## 突袭（精英/Boss 命中叠层来源 2）：对精英/Boss 每 hit_every 次自身命中 +1 层。
-static func _assault_gain_on_hit(tower: Tower, target: Enemy) -> void:
-	if not has_skill(tower, &"assault"):
-		return
-	if target == null:
-		return
-	if not (target.tags.has(&"elite") or target.tags.has(&"boss")):
-		return
-	tower.assault_hit_counter += 1
-	var every := maxi(int(param(tower, &"assault", "hit_every", 4.0)), 1)
-	if tower.assault_hit_counter < every:
-		return
-	tower.assault_hit_counter = 0
-	_add_assault_stack(tower)
-
-
-## 护卫（近战命中概率拖回拦截）：命中 chance×s 概率将目标沿路径拖回 pull px；
-## 内置冷却 cooldown s 防「钉死」（复用破阵 enemy.progress 位移）。
-static func _guard_proc(tower: Tower, target: Enemy) -> void:
-	if not has_skill(tower, &"guard"):
-		return
-	if tower.guard_cooldown_left > 0.0 or target == null or target.is_dead:
-		return
-	var s := tier_multiplier(tower)
-	if randf() >= param(tower, &"guard", "chance", 0.25) * s:
-		return
-	tower.guard_cooldown_left = param(tower, &"guard", "cooldown", 2.5)
-	target.progress = maxf(target.progress - param(tower, &"guard", "pull", 20.0), 0.0)
-	tower.spawn_float_text(get_skill_name(&"guard"), Color(0.6, 0.9, 1.0))
-	tower.play_skill_effect(Color(0.6, 0.9, 1.0))
-	SfxLibrary.play(&"skill", -8.0)
-
-
-## 追加伤害统一交付：走 finalize_damage 管线 + 飘字/扩散环/音效。
-static func _deliver_extra_damage(tower: Tower, target: Enemy, amount: int, label: String, color: Color) -> void:
-	if amount <= 0 or tower == null or not is_instance_valid(tower) or target == null or target.is_dead:
-		return
-	tower.deal_damage(target, tower.finalize_damage(amount, target))
-	tower.spawn_float_text(label, color)
-	tower.play_skill_effect(color)
-	SfxLibrary.play(&"skill", -8.0)
-
-
-## 突袭叠层叠加：击杀（on_kill）与精英/Boss 命中来源共用；满层不叠加。
-static func _add_assault_stack(tower: Tower) -> void:
-	if tower == null or not is_instance_valid(tower) or not has_skill(tower, &"assault"):
-		return
-	var max_stacks := maxi(int(param(tower, &"assault", "max_stacks", 3.0)), 1)
-	if tower.assault_stacks >= max_stacks:
-		return
-	tower.assault_stacks = mini(tower.assault_stacks + 1, max_stacks)
-	tower.spawn_float_text("%s %d/%d" % [get_skill_name(&"assault"), tower.assault_stacks, max_stacks], Color(0.6, 0.9, 1.0))
-
-
-## 突袭层消耗（Tower.attack 普攻前调用）：有层则消耗 1 层，挂载该次普攻 +bonus×s。
-static func try_consume_assault(tower: Tower) -> void:
-	if tower == null or not is_instance_valid(tower) or not has_skill(tower, &"assault"):
-		return
-	if tower.assault_stacks <= 0:
-		return
-	tower.assault_stacks -= 1
-	tower.set_next_attack_bonus(&"assault", param(tower, &"assault", "bonus", 0.25) * tier_multiplier(tower))
-
-
-## 击杀钩子（Enemy 死亡结算后由 Tower 订阅调用）：
-## charge（蓄力强化线）= 击杀后下一次攻击加成（next_hit_bonus 配置）；
-## assault（骁骑）= 击杀任意敌人 +1 层。
-static func on_kill(tower: Tower, _enemy: Enemy) -> void:
-	if tower == null or not is_instance_valid(tower):
-		return
-	if has_skill(tower, &"charge"):
-		var next_hit_bonus := param(tower, &"charge", "next_hit_bonus", 0.0)
-		if next_hit_bonus > 0.0:
-			tower.set_next_attack_bonus(&"charge", next_hit_bonus * tier_multiplier(tower))
-			tower.spawn_float_text(get_skill_name(&"charge") + "+", Color(0.6, 0.9, 1.0))
-			tower.play_skill_effect(Color(0.6, 0.9, 1.0))
-			SfxLibrary.play(&"skill", -8.0)
-	_add_assault_stack(tower)
-
-
-## 大招释放钩子（大招执行器成功后调用）：鼓舞 / 余音 / 奇谋飘字。
-static func on_ultimate_cast(tower: Tower) -> void:
-	if tower == null or not is_instance_valid(tower):
-		return
-	var s := tier_multiplier(tower)
-	SfxLibrary.play(&"ultimate", -6.0)
-	tower.play_skill_effect(Color(1.0, 0.8, 0.95))
-	if has_skill(tower, &"inspire"):
-		var speed_bonus := param(tower, &"inspire", "team_speed_bonus", 0.06) * s
-		var duration := param(tower, &"inspire", "duration", 8.0) * tower.get_battle_rank_buff_duration_multiplier()
-		speed_bonus *= tower.get_battle_rank_buff_power_multiplier()
-		for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-			var ally := node as Tower
-			if ally != null and is_instance_valid(ally):
-				ally.apply_attack_speed_buff("skill_inspire", 1.0 + speed_bonus, duration)
-		tower.spawn_float_text(get_skill_name(&"inspire"), Color(1.0, 0.75, 0.9))
-	if has_skill(tower, &"echo"):
-		var damage_bonus := param(tower, &"echo", "team_damage_bonus", 0.08) * s
-		var echo_duration := param(tower, &"echo", "duration", 5.0) * tower.get_battle_rank_buff_duration_multiplier()
-		damage_bonus *= tower.get_battle_rank_buff_power_multiplier()
-		for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-			var ally := node as Tower
-			if ally != null and is_instance_valid(ally):
-				ally.apply_team_buff("skill_echo", 1.0, 1.0 + damage_bonus, echo_duration)
-		tower.spawn_float_text(get_skill_name(&"echo"), Color(0.85, 0.9, 0.55))
-	if has_skill(tower, &"wisdom"):
-		tower.spawn_float_text(get_skill_name(&"wisdom"), Color(0.7, 0.85, 1.0))
-
-
-## 奇门（天师）：大招落点命中敌人施加易伤（同类不叠加、时长刷新，NUMBERS 10.10）。
-## 由术士大招执行器（_ult_strategist_blaze）对范围内敌人调用。
-static func apply_mystic_gate(tower: Tower, enemy: Enemy) -> void:
-	if tower == null or not is_instance_valid(tower) or enemy == null or enemy.is_dead:
-		return
-	if not has_skill(tower, &"mystic_gate"):
-		return
-	var s := tier_multiplier(tower)
-	var bonus := param(tower, &"mystic_gate", "vulnerability", 0.1) * s
-	var duration := param(tower, &"mystic_gate", "duration", 4.0)
-	enemy.apply_vulnerability(bonus, duration)
-
-
-## 震地（震山）：大招每发落点命中敌人眩晕 duration×s；同一敌人内置冷却防 3 连发叠晕。
-## 由 Bullet._explode（大招抛射弹）对落点范围内敌人调用。
-static func try_apply_tremor_stun(tower: Tower, enemy: Enemy) -> void:
-	if tower == null or not is_instance_valid(tower) or enemy == null or enemy.is_dead:
-		return
-	if not has_skill(tower, &"tremor"):
-		return
-	var key := enemy.get_instance_id()
-	var cooldowns: Dictionary = tower.tremor_stun_cooldowns
-	if float(cooldowns.get(key, 0.0)) > 0.0:
-		return
-	var s := tier_multiplier(tower)
-	var duration := param(tower, &"tremor", "stun_duration", 0.5) * s
-	enemy.apply_stun(duration)
-	cooldowns[key] = param(tower, &"tremor", "cooldown", 2.5)
-	tower.spawn_float_text(get_skill_name(&"tremor"), Color(1.0, 0.8, 0.5))
-
-
-## 常驻伤害倍率（叠加进 Tower.finalize_damage）：投石车·破城（条件增伤，档次 3 预算）+
-## 黄忠·定军山易伤标记。军旗光环已收敛进 Tower 常驻光环伤害桶（档次 1，STATS_PIPELINE）。
-static func passive_damage_multiplier(tower: Tower, target: Enemy) -> float:
-	var multiplier := 1.0
-	if has_skill(tower, &"siege") and (target.tags.has(&"elite") or target.tags.has(&"boss")):
-		multiplier *= 1.0 + param(tower, &"siege", "elite_damage_bonus", 0.1) * tier_multiplier(tower)
-	# 定军山：被定军标记的目标受该塔普攻伤害 +15%。
-	if has_character_skill(tower, &"char_dingjun") and target.has_mark(tower.character_id):
-		multiplier *= 1.0 + character_param(tower, &"char_dingjun", "mark_damage_bonus", 0.15)
-	return multiplier
-
-
-## 大招范围倍率（术士·奇谋，供术士大招计算爆炸半径）。
-static func ultimate_aoe_radius_multiplier(tower: Tower) -> float:
-	if has_skill(tower, &"wisdom"):
-		return 1.0 + param(tower, &"wisdom", "aoe_radius_bonus", 0.1) * tier_multiplier(tower)
-	return 1.0
-
-## 大招击杀返怒（骑兵·蓄力强化；无 charge 时返回职业基础 50%）。
-static func kill_rage_refund(tower: Tower) -> float:
-	if has_skill(tower, &"charge"):
-		return param(tower, &"charge", "base_refund", 50.0) * tier_multiplier(tower)
-	return 50.0
-
-
-## ============ 角色技能执行器（演出：飘字 + 扩散环 + 音效） ============
-
-## 关羽·青龙偃月（A/CD18，v0.9 / 0.8.13.0）：3 段 × 2.0 真实伤害（逐段结算、不分摊、
-## 无视护甲且不可被任何减伤）；段内溢血转下一目标（射程内未被打过、路径最靠前者），
-## 每击杀一名敌人冷却 -5s。
-static func _cast_green_dragon(tower: Tower) -> bool:
-	var target: Enemy = tower.target
-	if target == null or not tower.is_target_valid(target):
-		return false
-	var segments := maxi(int(character_param(tower, &"char_green_dragon", "segments", 3.0)), 1)
-	var per_segment := int(round(tower.damage * character_param(tower, &"char_green_dragon", "segment_mult", 2.0) * tower.skill_output_multiplier()))
-	# 3 连击演出（0.8.16.6，用户拍板「青龙偃月改为普通 3 次、合理调整攻速」）：
-	# spine 时 Attack_A 连播 segments 次（加速）+ 程序化挥击弧同步；伤害按每拍命中帧逐段结算。
-	tower.begin_melee_flurry(segments)
-	var strike := {
-		"current_id": target.get_instance_id(),
-		"carry": 0,
-		"kills": 0,
-		"struck": [] as Array[Enemy],
-	}
-	for i in range(segments):
-		var is_last := i == segments - 1
-		tower.schedule_combat_step(
-			tower.flurry_hit_delay(i),
-			func() -> void: _green_dragon_segment(tower, strike, per_segment, is_last)
-		)
-	tower.spawn_float_text(get_character_skill_name(&"char_green_dragon"), Color(0.6, 0.95, 0.75))
-	tower.play_skill_effect(Color(0.6, 0.95, 0.75))
-	SfxLibrary.play(&"skill", -7.0)
+			var all_enemies := tower.get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP)
+			if all_enemies.is_empty(): return false
+			var controlled := 0
+			if tower.has_skill(&"passive_momentum"):
+				for enemy in enemies:
+					if enemy.is_controlled(): controlled += 1
+				var extra := minf(controlled * param(tower, &"passive_momentum", "amp_per_enemy"), param(tower, &"passive_momentum", "amp_cap")) * level_multiplier(tower.get_skill_level(&"passive_momentum"))
+				power = level_multiplier(tower.get_skill_level(id)) * (tower.skill_output_multiplier() + extra)
+			for node in all_enemies:
+				var enemy := node as Enemy
+				if enemy == null or enemy.is_dead: continue
+				enemy.apply_reveal(duration(tower, id, "reveal_duration"))
+				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC)
+		_:
+			return false
+	tower.play_skill_effect()
 	return true
 
-
-## 青龙偃月单拍结算（0.8.16.6）：目标失效 / 已死 → 换「射程内未被打过、路径最靠前」者；
-## 该拍无目标则空过（后续拍仍可命中新入场敌人）；末拍收尾统一结清击杀冷却返还。
-static func _green_dragon_segment(tower: Tower, strike: Dictionary, per_segment: int, is_last: bool) -> void:
-	var struck: Array[Enemy] = strike["struck"]
-	# 实例 ID 而非对象引用：拍与拍之间目标被释放时不产生「已释放实例」赋值噪声。
-	var current := instance_from_id(int(strike["current_id"])) as Enemy
-	if current == null or not is_instance_valid(current) or current.is_dead or not tower.is_target_valid(current):
-		current = _next_green_dragon_target(tower, struck)
-	if current != null:
-		var amount := per_segment + int(strike["carry"])
-		var hp_before := current.current_hp
-		tower.deal_damage(current, amount, DamageTypes.TRUE)
-		strike["carry"] = maxi(amount - (hp_before - current.current_hp), 0)
-		if not struck.has(current):
-			struck.append(current)
-		if current.is_dead:
-			strike["kills"] = int(strike["kills"]) + 1
-			strike["current_id"] = 0
-		else:
-			strike["current_id"] = current.get_instance_id()
-	if is_last:
-		tower.refund_character_skill_cooldown(
-			character_param(tower, &"char_green_dragon", "kill_cd_refund", 5.0) * int(strike["kills"])
-		)
-
-
-## 青龙偃月后续段目标：射程内未被打过、路径进度最高者（溢血转向）。
-static func _next_green_dragon_target(tower: Tower, struck: Array[Enemy]) -> Enemy:
-	var best: Enemy = null
-	var best_progress := -1.0
-	for enemy in tower.enemies_in_range():
-		if enemy == null or enemy.is_dead or struck.has(enemy):
-			continue
-		# B-096：以单位为目标的攻击一律跳过隐匿（NUMBERS 10.16）——换目标与结算段同口径，
-		# 仅持有破隐（黄忠固有 / 借东风 / 舞娘光环）才可选隐匿单位。
-		if not enemy.is_visible_to(tower):
-			continue
-		if enemy.progress_ratio > best_progress:
-			best_progress = enemy.progress_ratio
-			best = enemy
-	return best
-
-
-
-## 张飞·当阳桥（A/CD22）：范围内敌人恐惧 1s（反向行军、移速不变）→ 结束后
-## 减速 60% 2s（两段顺序控制，v0.35.2 / 0.8.10.1；CHARACTER_SKILLS / NUMBERS 10.10）。
-static func _cast_dangyang_roar(tower: Tower) -> bool:
-	var enemies := tower.enemies_in_range()
-	if enemies.is_empty():
-		return false
-	for enemy in enemies:
-		enemy.apply_fear(
-			character_param(tower, &"char_dangyang_roar", "fear_duration", 1.0),
-			character_param(tower, &"char_dangyang_roar", "slow_factor", 0.4),
-			character_param(tower, &"char_dangyang_roar", "slow_duration", 2.0)
-		)
-	tower.spawn_float_text(get_character_skill_name(&"char_dangyang_roar"), Color(0.95, 0.6, 0.35))
-	tower.play_skill_effect(Color(0.95, 0.6, 0.35))
-	SfxLibrary.play(&"skill", -7.0)
-	return true
-
-
-## 刘备·携民渡江（B·每波首次漏怪）：全队攻速 +15% 5s。
-static func _cast_carry_people(tower: Tower) -> bool:
-	var speed_bonus := character_param(tower, &"char_carry_people", "team_speed_bonus", 0.15)
-	var duration := character_param(tower, &"char_carry_people", "duration", 5.0)
+static func _all_towers(tower: Tower) -> Array[Tower]:
+	var result: Array[Tower] = []
 	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var ally := node as Tower
-		if ally != null and is_instance_valid(ally):
-			ally.apply_attack_speed_buff("char_carry_people", 1.0 + speed_bonus, duration)
-	tower.spawn_float_text(get_character_skill_name(&"char_carry_people"), Color(0.7, 0.95, 0.8))
-	tower.play_skill_effect(Color(0.7, 0.95, 0.8))
-	SfxLibrary.play(&"skill", -8.0)
-	return true
-
-
-## 黄忠·定军山（A/CD18，v0.9 / 0.8.13.0）：命中射程内最多 3 目标，各 2.0× 物理伤害
-## （不分摊、各目标独立结算）；未击杀者被「定军」标记：受该塔普攻伤害 +15%（易伤 4s）。
-static func _cast_dingjun(tower: Tower) -> bool:
-	var targets := _dingjun_targets(tower)
-	if targets.is_empty():
-		return false
-	var mult := character_param(tower, &"char_dingjun", "mult", 2.0)
-	var mark_duration := character_param(tower, &"char_dingjun", "mark_duration", 4.0)
-	for enemy in targets:
-		if enemy == null or not is_instance_valid(enemy) or enemy.is_dead:
-			continue
-		var hp_before := enemy.current_hp
-		tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * mult)), enemy))
-		if hp_before > 0 and enemy.current_hp > 0:
-			enemy.apply_mark(tower.character_id, mark_duration)
-	tower.spawn_float_text(get_character_skill_name(&"char_dingjun"), Color(0.85, 0.75, 0.4))
-	tower.play_skill_effect(Color(0.85, 0.75, 0.4))
-	SfxLibrary.play(&"skill", -7.0)
-	return true
-
-
-## 定军山目标选取：当前目标优先，其余按路径进度（威胁最靠前）补足到 targets（默认 3）。
-static func _dingjun_targets(tower: Tower) -> Array[Enemy]:
-	var result: Array[Enemy] = []
-	var limit := maxi(int(character_param(tower, &"char_dingjun", "targets", 3.0)), 1)
-	var current: Enemy = tower.target
-	if current != null and tower.is_target_valid(current):
-		result.append(current)
-	var candidates := tower.enemies_in_range()
-	candidates.sort_custom(func(a: Enemy, b: Enemy) -> bool: return a.progress_ratio > b.progress_ratio)
-	for enemy in candidates:
-		if result.size() >= limit:
-			break
-		if enemy.is_dead or result.has(enemy):
-			continue
-		result.append(enemy)
+		if ally != null and not ally.is_queued_for_deletion(): result.append(ally)
 	return result
 
-
-
-## 貂蝉·月下舞（A/CD25）：全队怒气 +10（自身 +15）；怒气资源类间接关联为允许例外。
-static func _cast_moon_dance(tower: Tower) -> bool:
-	var team_rage := character_param(tower, &"char_moon_dance", "team_rage", 10.0)
-	var self_rage := team_rage + character_param(tower, &"char_moon_dance", "self_rage_extra", 5.0)
-	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-		var ally := node as Tower
-		if ally == null or not is_instance_valid(ally):
-			continue
-		ally.gain_rage(self_rage if ally == tower else team_rage)
-	tower.spawn_float_text(get_character_skill_name(&"char_moon_dance"), Color(1.0, 0.7, 0.9))
-	tower.play_skill_effect(Color(1.0, 0.7, 0.9))
-	SfxLibrary.play(&"skill", -7.0)
+static func _cast_green_dragon(tower: Tower) -> bool:
+	var victim = tower.target
+	if not tower.is_target_valid(victim): return false
+	var id := &"char_green_dragon"
+	var count := int(param(tower, id, "segments"))
+	var per_segment := int(round(tower.damage * param(tower, id, "mult") * strength(tower, id)))
+	var strike := {"target_id": victim.get_instance_id(), "carry": 0, "kills": 0, "struck": []}
+	tower.begin_melee_flurry(count)
+	for i in range(count):
+		var last := i == count - 1
+		tower.schedule_combat_step(tower.flurry_hit_delay(i), func() -> void: _green_dragon_segment(tower, strike, per_segment, last))
 	return true
 
+static func _green_dragon_segment(tower: Tower, strike: Dictionary, amount: int, last: bool) -> void:
+	var victim = instance_from_id(int(strike.target_id)) if int(strike.target_id) != 0 else null
+	if not tower.is_target_valid(victim): victim = _next_green_dragon_target(tower, strike.struck)
+	if victim != null:
+		var final_amount := tower.finalize_damage(amount, victim, DamageTypes.TRUE) + int(strike.carry)
+		var before: int = victim.current_hp
+		var consumed := ceili(float(before) / victim.get_vulnerability_multiplier())
+		tower.deal_damage(victim, final_amount, DamageTypes.TRUE)
+		strike.carry = maxi(final_amount - consumed, 0)
+		strike.struck.append(victim.get_instance_id())
+		if victim.is_dead:
+			strike.kills += 1
+			strike.target_id = 0
+		else: strike.target_id = victim.get_instance_id()
+	if last:
+		var id := &"char_green_dragon"
+		tower.grant_rage_flat(minf(float(strike.kills) * param(tower, id, "kill_rage"), param(tower, id, "kill_cap")) * strength(tower, id))
+		if tower.has_skill(&"passive_warm_wine"):
+			var wine := &"passive_warm_wine"
+			tower.apply_attack_speed_buff(str(wine), 1.0 + param(tower, wine, "speed_bonus") * strength(tower, wine), duration(tower, wine))
 
-## 皇甫嵩·焚营（A/CD20）：目标区域 1.5× 范围伤害 + 灼烧 3s（每秒 0.25×）。
-static func _cast_burn_camp(tower: Tower) -> bool:
-	var center_target: Enemy = tower.target
-	var center := Vector2.ZERO
-	if center_target != null and tower.is_target_valid(center_target):
-		center = center_target.global_position
-	else:
-		var enemies := tower.enemies_in_range()
-		if enemies.is_empty():
-			return false
-		center = enemies[0].global_position
-	var aoe_radius := character_param(tower, &"char_burn_camp", "aoe_radius", 90.0)
-	var burn_dps := int(round(tower.damage * character_param(tower, &"char_burn_camp", "burn_dps_mult", 0.25)))
-	var burn_duration := character_param(tower, &"char_burn_camp", "burn_duration", 3.0)
+static func _next_green_dragon_target(tower: Tower, struck: Array) -> Enemy:
+	var best: Enemy = null
 	for enemy in tower.enemies_in_range():
-		if enemy.global_position.distance_to(center) <= aoe_radius:
-			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_burn_camp", "mult", 1.5))), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC)
-			enemy.apply_burn(burn_dps, burn_duration)
-	tower.spawn_float_text(get_character_skill_name(&"char_burn_camp"), Color(1.0, 0.55, 0.3))
-	tower.play_skill_effect(Color(1.0, 0.55, 0.3))
-	SfxLibrary.play(&"skill", -7.0)
-	return true
+		if not struck.has(enemy.get_instance_id()) and tower.is_target_valid(enemy) and (best == null or enemy.progress_ratio > best.progress_ratio): best = enemy
+	return best
 
+static func on_burned_death(tower: Tower, center: Vector2) -> void:
+	var id := &"passive_detonation"
+	if not tower.has_skill(id) or tower.is_queued_for_deletion(): return
+	for node in tower.get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP):
+		var enemy := node as Enemy
+		if enemy != null and not enemy.is_dead and enemy.global_position.distance_to(center) <= param(tower, id, "radius"):
+			tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * strength(tower, id))), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
 
-## 赵云·七进七出（B·每波首次漏怪）：射程内所有敌人 1× 范围伤害 + 自身攻速 +30% 3s。
-static func _cast_seven_charges(tower: Tower) -> bool:
-	for enemy in tower.enemies_in_range():
-		tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * character_param(tower, &"char_seven_charges", "mult", 1.0))), enemy))
-	tower.apply_attack_speed_buff("char_seven_charges", 1.0 + character_param(tower, &"char_seven_charges", "speed_bonus", 0.3), character_param(tower, &"char_seven_charges", "duration", 3.0))
-	tower.spawn_float_text(get_character_skill_name(&"char_seven_charges"), Color(0.7, 0.85, 1.0))
-	tower.play_skill_effect(Color(0.7, 0.85, 1.0))
-	SfxLibrary.play(&"skill", -8.0)
-	return true
+static func effect_rows(character: CharacterData, id: StringName, level: int, amp: float) -> Array:
+	var rows: Array = []
+	var row: Array = []
+	var params: Dictionary = character.skill_params.get(str(id), {})
+	var power := level_multiplier(level) * (1.0 + amp)
+	var icons := {"mult": "dmg_magic" if id == &"char_borrow_wind" else ("dmg_true" if id == &"char_green_dragon" else "dmg_physical"), "speed_bonus": "stat_attack_speed", "attack_flat": "dmg_physical", "range_flat": "stat_range", "range_bonus": "stat_range", "splash_flat": "stat_splash", "crit_rate": "stat_crit_rate", "crit_damage": "stat_crit_damage", "penetration": "stat_armor_pen", "kill_rage": "rage", "kill_cap": "rage", "self_rage": "rage", "ally_rage": "rage", "vulnerability": "status_vulnerable", "attack_bonus": "dmg_physical", "attack_step": "dmg_physical", "attack_cap": "dmg_physical", "slow_strength": "status_slow", "fear_duration": "status_fear", "poison_dps": "status_poison", "burn_ratio": "status_burn", "skill_amp": "stat_skill_amp", "amp_per_enemy": "stat_skill_amp", "amp_cap": "stat_skill_amp", "reveal_duration": "status_reveal", "duration": "cooldown", "slow_duration": "status_slow", "radius": "stat_splash", "targets": str(id), "segments": str(id), "hit_every": str(id), "max_stacks": str(id), "chance": str(id), "battle_rank": "battle_rank_3", "base_hp_threshold": "base_hp", "low_hp_mult": "dmg_physical"}
+	var hints := {"speed_bonus": "攻击速度提升", "range_flat": "射程固定加值", "range_bonus": "射程百分比提升", "splash_flat": "溅射范围固定加值", "crit_rate": "暴击率提升", "crit_damage": "暴击伤害提升", "penetration": "百分比穿甲", "kill_rage": "每次击杀返怒", "vulnerability": "受所有来源伤害提升", "attack_bonus": "自身物理攻击提升", "slow_strength": "减速强度", "fear_duration": "恐惧时长", "poison_dps": "固定中毒秒伤", "skill_amp": "自身技能增幅", "amp_per_enemy": "每个受控目标增加本次技能增幅", "amp_cap": "本次增幅上限", "reveal_duration": "命中现形时长", "slow_duration": "恐惧结束后减速时长", "radius": "效果半径（px）", "targets": "最多目标数", "segments": "连击段数", "hit_every": "必定暴击的命中周期", "battle_rank": "局内升阶门槛", "mult": "技能伤害倍率", "chance": "命中触发概率（无保底）", "attack_flat": "基础攻击固定加值", "duration": "持续时间", "attack_step": "连续同目标每次增加", "attack_cap": "连续同目标加成上限", "kill_cap": "单次返怒上限", "self_rage": "自身怒气获取", "ally_rage": "射程内友方怒气获取", "max_stacks": "不同刘备覆盖的最多层数", "burn_ratio": "面板攻击乘该倍率，固定秒伤", "base_hp_threshold": "基地生命比例条件", "low_hp_mult": "低血条件额外倍率"}
+	for key in params:
+		var value := float(params[key])
+		var text := ""
+		if key in ["duration", "fear_duration", "slow_duration", "reveal_duration"]:
+			text = String.num(value * (1.0 + amp), 2) + "s"
+		elif key in ["poison_dps"]:
+			text = String.num(value, 0) + "/秒"
+		elif key == "burn_ratio":
+			text = "×" + String.num(value, 2) + "/秒"
+		elif key in ["radius", "targets", "segments", "hit_every", "max_stacks", "battle_rank"]:
+			text = String.num(value, 0)
+		elif key in ["low_hp_mult", "base_hp_threshold"]:
+			text = "×" + String.num(value, 2) if key == "low_hp_mult" else "≤" + String.num(value * 100.0, 2) + "%"
+		elif key == "chance":
+			text = String.num(value * level_multiplier(level) * 100.0, 2) + "%"
+		elif key in ["attack_flat", "range_flat", "splash_flat", "kill_rage", "kill_cap"]:
+			text = "+" + String.num(value * power, 2)
+		elif key == "mult":
+			text = "×" + String.num(value * power, 2)
+		elif key in ["amp_per_enemy", "amp_cap", "skill_amp"]:
+			text = "+" + String.num(value * level_multiplier(level) * 100.0, 2) + "%"
+		else:
+			text = "+" + String.num(value * power * 100.0, 2) + "%"
+		var icon_key: String = str(icons.get(key, ""))
+		# Reuse existing generic system glyphs; every conceptual icon resolves in v2.
+		if UITheme.hud_icon(icon_key) == null: icon_key = "char_death_fight" if id == &"ultimate_death_fight" else str(id)
+		row.append([icon_key, text, str(hints.get(key, key))])
+		if row.size() == 3:
+			rows.append(row)
+			row = []
+	if not row.is_empty(): rows.append(row)
+	return rows
 
-
-## 周仓·死战（B·基地生命 ≤50%）：周仓攻速 +30% 常驻（仅触发一次）。
-static func _cast_death_fight(tower: Tower) -> bool:
-	tower.set_character_skill_activated(true)
-	tower.set_character_skill_speed_bonus(character_param(tower, &"char_death_fight", "speed_bonus", 0.3))
-	tower.spawn_float_text(get_character_skill_name(&"char_death_fight"), Color(0.9, 0.45, 0.35))
-	tower.play_skill_effect(Color(0.9, 0.45, 0.35))
-	SfxLibrary.play(&"skill", -8.0)
-	return true
-
-
-## 诸葛亮·借东风（A/CD30）：全图友方塔攻速 +20%、弹道速度 +50% 持续 8s；
-## v0.10 / ✅ 0.8.13.1 追加**全图破隐**（reveal_stealth，NUMBERS 10.16）。
-static func _cast_borrow_wind(tower: Tower) -> bool:
-	var speed_bonus := character_param(tower, &"char_borrow_wind", "team_speed_bonus", 0.2)
-	var bullet_speed_bonus := character_param(tower, &"char_borrow_wind", "bullet_speed_bonus", 0.5)
-	var duration := character_param(tower, &"char_borrow_wind", "duration", 8.0)
-	var reveal := character_param(tower, &"char_borrow_wind", "reveal_stealth", 1.0)
-	for node in tower.get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
-		var ally := node as Tower
-		if ally == null or not is_instance_valid(ally):
-			continue
-		ally.apply_attack_speed_buff("char_borrow_wind", 1.0 + speed_bonus, duration)
-		ally.apply_bullet_speed_buff("char_borrow_wind", 1.0 + bullet_speed_bonus, duration)
-		if reveal > 0.0:
-			ally.apply_stealth_reveal_buff("char_borrow_wind", duration)
-	tower.spawn_float_text(get_character_skill_name(&"char_borrow_wind"), Color(0.6, 0.85, 1.0))
-	tower.play_skill_effect(Color(0.6, 0.85, 1.0))
-	SfxLibrary.play(&"skill", -6.0)
-	return true
+static func rule_text(id: StringName) -> String:
+	match id:
+		&"passive_green_dragon_stance": return "每累计3次命中，第3次必定触发；换目标不重置。"
+		&"passive_warm_wine": return "最后一击完成后生效。"
+		&"char_green_dragon": return "三击逐拍结算；溢血带入下一击，击杀返还。"
+		&"trait_yanyan_roar", &"char_death_fight": return "命中后概率追加；无保底，追加不再触发普攻事件。"
+		&"passive_yanhan": return "每次击杀获得；仅击杀者生效。"
+		&"char_dangyang_roar": return "先反向行军，结束后再减速；两段不重叠。"
+		&"trait_benevolence", &"passive_diligence": return "每名覆盖者增加一层；离开覆盖移除。"
+		&"char_carry_people": return "射程内一次施加；同源只刷新。"
+		&"trait_hundred_step": return "连续命中同目标累加；换目标重置，只作用于普攻。"
+		&"passive_sentry": return "命中后持续生效；固定秒伤，不受增减伤影响。"
+		&"char_dingjun": return "射程内同类不叠加，自身同时获得三项限时提升。"
+		&"trait_moon_veil": return "自身与射程内友方分别生效。"
+		&"passive_worship_moon": return "升至局内3阶后生效；需先解锁本技能。"
+		&"char_moon_dance": return "全队一次施加；同源只刷新。"
+		&"passive_fierce_flame", &"trait_dragon_spirit", &"passive_dragon_courage", &"trait_vanguard": return "解锁后常驻；基础加值参与成长。"
+		&"passive_detonation": return "由本塔施加的灼烧目标死亡时触发；按死亡位置结算。"
+		&"char_burn_camp": return "落点范围直接命中，并附加固定秒伤。"
+		&"char_seven_charges": return "射程内最多5个目标各结算一次，并提升自身。"
+		&"ultimate_death_fight": return "当前目标单次结算；基地生命不高于50%时翻倍。"
+		&"trait_star_gazer": return "解锁后常驻，射程内持续施加。"
+		&"passive_momentum": return "施放时按射程内受控数量计算，只影响本次。"
+		&"char_borrow_wind": return "全图命中并使隐匿单位现形，所有友方均可索敌。"
+	return ""

@@ -6,6 +6,8 @@
 
 ## 1. 预览 / 修改
 
+- 当前三技能界面（0.9.2）：[运行截图](../runtime_0.9.2/)，共13张；由Godot隔离档案生成，图徽／锁定／独立等级／升级与战斗均与运行代码同源。
+- 在仓库根目录复现：`& 'F:\Godot\Godot_v4.7.1-stable_win64.exe\Godot_v4.7.1-stable_win64_console.exe' --path . res://tests/SkillPreviewRunner.tscn -- --capture-dir=res://docs/ui_concept/runtime_0.9.2`。
 - 直接双击任意 `*.html` 用浏览器打开即可（无构建步骤），固定画布 **1280×720**。
 - 共享样式 `concept_ui.css`（v3 视觉语言：背景渐变 / 面板 / 按钮九宫格 / 滚动条 / 头像占位），旧首页两版自带内联样式。
 - 字体与 Kenney 素材均在包内相对引用，整个 `src/` 目录可整体拷走使用。
@@ -68,7 +70,7 @@
 
 ## 4. 素材清单与许可
 
-- 当前图标（0.9.1.1）：273 枚原创 SVG 母版与透明 PNG，唯一运行目录 `assets/ui/icons/v2/`；原 13 枚缺口及军需／怒气／限次／锁／阶徽／技能等均已补齐，当前资源缺口为 0，见 ART_PROMPTS §6.1 / ICONS v1.0。旧 `icons_hud/`、`icons_battle/`、Kenney 图标／光标与 SVG 实验稿保留历史归档，停止运行取用；转职稿继续归档。
+- 当前图标（0.9.2）：273 枚原创 SVG 母版与透明 PNG，唯一运行目录 `assets/ui/icons/v2/`；三技能沿用已入库图徽，当前资源缺口为0，见ART_PROMPTS §6.1 / ICONS v1.0。旧 `icons_hud/`、`icons_battle/`、Kenney 图标／光标与SVG实验稿保留历史归档，停止运行取用；转职稿继续归档。
 - 新版参考：[可搜索总览](../icons_v2.html)、[亮暗底与 15px 对照](../icons_v2_preview.png)、[实际运行截图](../runtime_0.9.1.1/)。以下旧图清单与再现路径用于历史设计稿追溯。
 
 

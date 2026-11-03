@@ -529,6 +529,16 @@ func _coerce_non_negative_int(value) -> int:
 
 
 ## Migration entry point. Add one version step at a time as schemas evolve.
+func _migrate_v7_to_v8(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var characters = data.get("characters", {})
+	if characters is Dictionary:
+		for key in characters:
+			if characters[key] is Dictionary:
+				characters[key]["skill_levels"] = SkillRegistry.normalize_levels(str(key), characters[key].get("skill_levels", {}))
+	data["schema_version"] = 8
+	return data
+
 func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	var data := raw_data.duplicate(true)
 	var version := _read_schema_version(data)
@@ -566,6 +576,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			6:
 				data = _migrate_v6_to_v7(data)
 				version = 7
+				migrated = true
+			7:
+				data = _migrate_v7_to_v8(data)
+				version = 8
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}

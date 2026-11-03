@@ -29,21 +29,32 @@ class_name CharacterData
 ## 原角色专属转职名保留为角色称号（CHARACTERS.md 4.5 称号表），仅作展示/记录。
 @export var titles: Array[String] = []
 
-@export_category("Character Skill (阶段 8·提交 6，CHARACTER_SKILLS.md v0.1)")
-## 角色专属技能 ID（武将差异化；A 主动冷却 / B 条件触发，与职业技能解耦、不参与档位）。
-@export var character_skill_id: StringName
-## 角色技能数值参数（行为脚本按 ID 读取，复用 skill_params 模式）。
-@export var character_skill_params: Dictionary = {}
-
-@export_category("Trait & Ultimate (阶段 3 字段，v0.11.1 先行铺设)")
-## 常驻被动特性 ID（行为脚本按 ID 注册，见 CHARACTERS.md 4.7）。
-@export var trait_id: StringName
-## 特性数值参数，行为脚本按 ID 读取，避免为每个特性改数据类。
-@export var trait_params: Dictionary = {}
-## 武将绑定大招；0.9.1 显式绑定旧执行器，0.9.2 替换三技能。
+@export_category("Three Skills")
+@export var passive_ids: Array[StringName] = []
 @export var ultimate_id: StringName
-## 角色级积怒模式覆盖（v0.11.2 勘误：空则按职业默认/combat_role 推断；刘备=support）。
-@export var rage_gain_mode_override: StringName
+@export var skill_params: Dictionary = {}
+@export var rage_gain_mode: StringName = &"hit+damage"
+@export var rage_gain_per_hit: int = 4
+@export var rage_gain_per_damage: float = 0.1
+@export var support_rage_per_tick: int = 2
+
+func get_skill_ids() -> Array[StringName]:
+	var ids: Array[StringName] = passive_ids.duplicate()
+	ids.append(ultimate_id)
+	return ids
+
+func is_skill_unlocked(skill_id: StringName, rank: int) -> bool:
+	if skill_id == ultimate_id and not skill_id.is_empty():
+		return true
+	var slot := passive_ids.find(skill_id)
+	return slot >= 0 and rank >= slot + 1
+
+func skill_param(skill_id: StringName, key: String, fallback: float = 0.0) -> float:
+	var params: Dictionary = skill_params.get(str(skill_id), {})
+	return float(params.get(key, fallback))
+
+func skill_strength(skill_id: StringName, rank: int, levels: Dictionary = {}) -> float:
+	return SkillRegistry.level_multiplier(int(levels.get(str(skill_id), 1))) * (1.0 + per_rank_skill_amp * clampi(rank, 0, 5))
 
 @export_category("Battle Rank Override (阶段 8，NUMBERS.md 10.9)")
 ## 角色级局内升阶步进覆盖（-1 = 继承职业配置；辅助定位角色如刘备在此配置辅助行数值）。
@@ -90,13 +101,6 @@ func get_battle_rank_steps() -> Dictionary:
 	}
 
 
-## 静态特性射程加成倍率（Tower.apply_character 与百科预览共用；当前仅观星）。
-func get_static_range_multiplier() -> float:
-	if trait_id == &"trait_star_gazer":
-		return 1.0 + float(trait_params.get("range_bonus", 0.12))
-	return 1.0
-
-
 func is_valid() -> bool:
 	return not character_id.is_empty() and not display_name.is_empty() and profession != null
 
@@ -120,7 +124,7 @@ func remaining_guard(level: int, rank: int, guard: Dictionary) -> Dictionary:
 			result.erase(key)
 	return result
 
-func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}) -> Dictionary:
+func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}) -> Dictionary:
 	var r := clampi(rank, 0, 5)
 	var bare := bare_stats_at(level, r)
 	var protected := CharacterRank.normalize_guard(guard)
@@ -141,6 +145,27 @@ func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle
 		"crit_rate": clampf(0.05 + per_rank_crit_rate * r, 0.0, 0.75),
 		"crit_damage": 1.5 + per_rank_crit_damage * r, "skill_amp": per_rank_skill_amp * r,
 	}
+	# Permanent skills share this path with combat, development and encyclopedia.
+	for id in passive_ids:
+		if not is_skill_unlocked(id, r):
+			continue
+		var power := skill_strength(id, r, skill_levels)
+		var params: Dictionary = skill_params.get(str(id), {})
+		if id == &"passive_worship_moon":
+			if battle_rank >= int(params.get("battle_rank", 3)):
+				stats.skill_amp += float(params.get("skill_amp", 0.05)) * SkillRegistry.level_multiplier(int(skill_levels.get(str(id), 1)))
+			continue
+		if id == &"passive_fierce_flame":
+			stats.damage += int(round(float(params.get("attack_flat", 0.0)) * power * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r]))
+			stats.attack = stats.damage
+			stats.range += float(params.get("range_flat", 0.0)) * power
+		if id == &"trait_star_gazer":
+			stats.range *= 1.0 + float(params.get("range_bonus", 0.0)) * power
+		if id == &"trait_dragon_spirit":
+			stats.crit_damage += float(params.get("crit_damage", 0.0)) * power
+		if id == &"passive_dragon_courage":
+			stats.crit_rate = clampf(float(stats.crit_rate) + float(params.get("crit_rate", 0.0)) * power, 0.0, 0.75)
+
 	if battle_rank > 0:
 		var steps_battle := get_battle_rank_steps()
 		stats.damage = int(round(int(stats.damage) * rank_scale(steps_battle.damage, battle_rank)))

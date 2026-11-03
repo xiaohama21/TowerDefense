@@ -18,7 +18,6 @@ func _run() -> void:
 	_test_curve_and_ranks()
 	_test_migration()
 	await _test_combat()
-	await _test_skill_amplification()
 	await _test_panel_transaction()
 	await _test_encyclopedia_icons()
 	for suffix in ["", ".bak", ".tmp"]:
@@ -56,9 +55,8 @@ func _test_curve_and_ranks() -> void:
 	var growth := {"guan_yu": 306, "zhang_fei": 248, "liu_bei": 196, "huang_zhong": 248, "diao_chan": 93, "huang_fu_song": 474, "zhao_yun": 292, "zhou_wei": 334, "zhuge_liang": 270}
 	for id in growth:
 		var character := GameFlow.load_character_data(id)
-		var stats := character.compute_stats_at(100, 5)
+		var stats := character.bare_stats_at(100, 5)
 		_check(int(stats.attack) == int(growth[id]), "逐将 L100 红阶攻击：" + id)
-		_check(is_equal_approx(float(stats.crit_rate), 0.05 + 5.0 * character.per_rank_crit_rate) and is_equal_approx(float(stats.crit_damage), 1.5 + 5.0 * character.per_rank_crit_damage) and is_equal_approx(float(stats.skill_amp), 5.0 * character.per_rank_skill_amp), "品阶差异项：" + id)
 
 func _test_migration() -> void:
 	for id in LegacyCharacterGrowth.CHARACTERS:
@@ -72,7 +70,7 @@ func _test_migration() -> void:
 				var entry := {"total_exp": LevelCurve.exp_total_for_level(level), "promotion_path": [promo] if not promo.is_empty() else [], "stars": 5}
 				var raw := {"schema_version": 6, "characters": {id: entry}, "items": {"yellow_turban_cloth": 12, "general_seal": 3, "wolf_tooth": 1}, "exp_pool": 456, "military_merit": 789}
 				var result: Dictionary = ProfileStore._migrate_to_current(raw)
-				_check(result.ok and result.data.schema_version == 7, "v6→v7")
+				_check(result.ok and result.data.schema_version == PlayerProfile.CURRENT_SCHEMA_VERSION, "v6→v7")
 				var profile := PlayerProfile.from_dict(result.data)
 				var migrated := profile.get_character(id)
 				_check(not migrated.has("promotion_path") and not migrated.has("stars") and profile.items.get("general_seal") == 15 and not profile.items.has("yellow_turban_cloth"), "删除旧字段与 1:1 折算")
@@ -81,7 +79,7 @@ func _test_migration() -> void:
 				var character := GameFlow.load_character_data(id)
 				var stats := character.compute_stats_at(level, profile.get_character_rank(id), null, 0, migrated.growth_guard)
 				_check(int(stats.attack) >= int(old.attack) and float(stats.range) >= float(old.range) - 0.001 and float(stats.attack_interval) <= float(old.attack_interval) + 0.001, "旧裸面板不回退：%s L%d %s" % [id, level, promo])
-				var again: Dictionary = ProfileStore._migrate_v6_to_v7(result.data)
+				var again: Dictionary = ProfileStore._migrate_to_current(result.data).data
 				_check(again == result.data, "迁移重复执行幂等")
 				var remaining := character.remaining_guard(100, 5, migrated.growth_guard)
 				var naked := character.bare_stats_at(100, 5)
@@ -116,6 +114,7 @@ func _test_combat() -> void:
 	tower.set_process(false)
 	_check(tower.attack_hit_damage(100, 0.0) == 163 and tower.attack_hit_damage(100, 0.9) == 100, "暴击判定与爆伤")
 	tower.crit_rate = 2.0
+	tower._base_crit_rate = 2.0
 	tower.crit_damage = 1.5
 	_check(tower.attack_hit_damage(100, 0.74) == 150 and tower.attack_hit_damage(100, 0.75) == 100, "暴击率 clamp 75%")
 	var enemy := (load("res://scenes/Enemy.tscn") as PackedScene).instantiate() as Enemy
@@ -135,14 +134,14 @@ func _test_combat() -> void:
 	tower.deal_damage(enemy, tower.attack_hit_damage(100, 0.0), DamageTypes.TRUE)
 	_check(hp - enemy.current_hp == 150, "真伤普攻可暴击")
 	tower.skill_amp = 0.4
-	_check(tower.finalize_damage(100, enemy, DamageTypes.TRUE) == 140 and tower.finalize_damage(100, enemy, DamageTypes.TRUE, false) == 100, "技能增幅不进入普攻")
+	_check(int(round(100 * tower.skill_output_multiplier())) == 140 and tower.finalize_damage(100, enemy, DamageTypes.TRUE, false) == 100, "技能增幅不进入普攻")
 	tower.rage = 0.0
 	tower.notify_attack_damage_dealt(enemy, tower.attack_hit_damage(100, 0.0))
 	_check(is_equal_approx(tower.rage, 19.0), "暴击打甲前伤害参与单次积怒")
 	var bullet := Bullet.new()
 	bullet.source_tower = tower
 	bullet.damage = 100
-	_check(bullet._hit_damage() == 100, "技能弹道不暴击")
+	_check(bullet._hit_damage(enemy) == 100, "技能弹道不暴击")
 	bullet.counts_as_attack = true
 	bullet.damage_type = DamageTypes.TRUE
 	bullet.lob_landing = Vector2(20, 0)
@@ -239,28 +238,4 @@ func _test_encyclopedia_icons() -> void:
 		_check(panel._sim_attack_icon.texture == UITheme.hud_icon_sized(icon_id, 20), "百科模拟攻击图徽按类型切换：" + id)
 		_check(ProfileStore.get_profile().to_dict() == before, "百科切换预览不写档")
 	panel.queue_free()
-	await get_tree().process_frame
-
-func _test_skill_amplification() -> void:
-	var caster := (load("res://scenes/Tower.tscn") as PackedScene).instantiate() as Tower
-	var ally := (load("res://scenes/Tower.tscn") as PackedScene).instantiate() as Tower
-	add_child(caster)
-	add_child(ally)
-	caster.apply_character(GameFlow.load_character_data("zhuge_liang"), {"level": 100, "rank": 5})
-	ally.apply_character(GameFlow.load_character_data("guan_yu"))
-	caster.set_process(false)
-	ally.set_process(false)
-	_check(SkillRegistry._cast_borrow_wind(caster), "借东风可施加")
-	var buff: Dictionary = ally._buff_sources["char_borrow_wind"]
-	_check(is_equal_approx(float(buff.speed_add), 0.22) and is_equal_approx(float(buff.time_left), 8.8) and is_equal_approx(ally._bullet_speed_buff, 1.55), "借东风实际强度／时长／弹道增益")
-	caster.skill_amp = 0.5
-	_check(caster.get_character_skill_param("cooldown", 30.0) == 30.0 and caster.get_character_skill_param("aoe_radius", 90.0) == 90.0 and caster.get_character_skill_param("segments", 3.0) == 3.0 and caster.get_character_skill_param("burn_dps_mult", 0.25) == 0.25, "概率／冷却／范围／数量／固定DoT排除增幅")
-	caster.apply_character(GameFlow.load_character_data("diao_chan"), {"level": 100, "rank": 5})
-	caster._trait_id = &""
-	caster.rage = 0.0
-	ally.rage = 0.0
-	SkillRegistry._cast_moon_dance(caster)
-	_check(is_equal_approx(caster.rage, 16.125) and is_equal_approx(ally.rage, 10.75), "月下舞自身额外怒气也增幅")
-	caster.queue_free()
-	ally.queue_free()
 	await get_tree().process_frame

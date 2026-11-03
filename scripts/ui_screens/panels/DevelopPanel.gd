@@ -8,38 +8,10 @@ extends VBoxContainer
 signal back_requested
 
 ## 大招玩家向简述（同源 ENCYCLOPEDIA ULTIMATE_HINTS）。
-const ULTIMATE_HINTS := {
-	&"ultimate_iron_bull": "重击地面，范围伤害并减速",
-	&"ultimate_green_dragon": "横扫大范围目标，伤害随怒气提升",
-	&"ultimate_dangyang_roar": "当阳桥喝断当阳，范围恐惧",
-	&"ultimate_archer_focus": "连续物理箭雨覆盖目标区域",
-	&"ultimate_strategist_blaze": "大范围魔法伤害并施加减速",
-	&"ultimate_dancer_encourage": "范围内友方攻速与伤害提升，持续数秒",
-	&"ultimate_catapult_barrage": "3 连发物理抛射轰击目标区域",
-}
 
 ## 角色专属技能玩家向文案（同源 ENCYCLOPEDIA CHARACTER_SKILL_HINTS）。
-const CHARACTER_SKILL_HINTS := {
-	&"char_green_dragon": "3 段 × 2.0× 真实伤害（不分摊、无视护甲）；段内溢血转下一目标，每击杀冷却 -5s",
-	&"char_dangyang_roar": "范围内敌人恐惧 1s（反向行军）→ 减速 60% 持续 2s",
-	&"char_carry_people": "全队攻速 +15% 持续 5s（每波一次）",
-	&"char_dingjun": "命中射程内最多 3 个目标，各 2.0× 物理伤害；未击杀者被「定军」标记 4s：受该塔普攻伤害 +15%",
-	&"char_moon_dance": "全队怒气 +10（自身 +15）",
-	&"char_burn_camp": "目标区域 1.5× 魔法伤害 + 灼烧 3s（每秒 0.25× 魔法）",
-	&"char_seven_charges": "对射程内所有敌人造成 1× 物理伤害 + 自身攻速 +30% 持续 3s",
-	&"char_death_fight": "自身攻速 +30%（常驻，仅触发一次）",
-	&"char_borrow_wind": "全图友方塔攻速 +20%、弹道速度 +50% 持续 8s",
-}
 
 ## 特性展示文案（CHARACTERS.md 4.7；阶段 9 升阶特性接入后改由数据源驱动）。
-const TRAIT_HINTS := {
-	&"trait_wusheng": "武圣：对精英/Boss 伤害 +25%",
-	&"trait_royal_fire": "皇家烈焰：范围伤害 +15%",
-	&"trait_yanyan_roar": "燕颜咆哮：攻击命中概率使目标短暂减速",
-	&"trait_hundred_step": "百步穿杨：连续攻击同一目标伤害逐步提升（至多 +30%）",
-	&"trait_benevolence": "仁德：光环——场上所有友方塔伤害 +8%（不可叠加）",
-	&"trait_moon_veil": "月纱：自身大招怒气获取 +20%，友方大招怒气获取 +10%",
-}
 
 const AVATAR_COLORS := ["blue", "red", "gold", "green", "purple", "orange"]
 
@@ -638,7 +610,7 @@ func _refresh() -> void:
 		return
 	var level := GameFlow.get_character_level(_profile, _selected_id)
 	var progress := LevelCurve.progress_at(_profile.get_character_exp(_selected_id))
-	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}))
+	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}), _profile.get_character(_selected_id).get("skill_levels", {}))
 	_populate_info_card(character, level, stats, progress)
 	_refresh_skill_tab(character)
 	_refresh_rank_tab(character, level)
@@ -651,177 +623,37 @@ func _refresh() -> void:
 
 func _refresh_skill_tab(character: CharacterData) -> void:
 	for child in _skill_tab.get_children():
+		_skill_tab.remove_child(child)
 		child.queue_free()
-	if character == null:
-		return
+	if character == null: return
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_skill_tab.add_child(scroll)
-	var skill_box := VBoxContainer.new()
-	skill_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	skill_box.add_theme_constant_override("separation", 8)
-	scroll.add_child(skill_box)
-
-	# 第一行：怒气大招卡 + 职业技能卡（概念图 .skrow 并排）
-	var skrow := HBoxContainer.new()
-	skrow.add_theme_constant_override("separation", 10)
-	skrow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	skill_box.add_child(skrow)
-
-	# 怒气大招卡
-	var ultimate_id := character.ultimate_id
-	var ult_card := _make_skill_card()
-	ult_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	skrow.add_child(ult_card)
-	if not ultimate_id.is_empty():
-		var ult_owner := character.display_name
-		_fill_skill_card(ult_card, str(ultimate_id),
-			"red", BehaviorRegistry.ultimate_display_name(ultimate_id),
-			[["怒气大招", UITheme.TAG_FIRE_FG, UITheme.TAG_FIRE_BG],
-			["%s · 大招" % ult_owner, UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT]],
-			ULTIMATE_HINTS.get(ultimate_id, "说明随版本完善"),
-			"怒气上限 100，满怒自动释放（设置可选手动）；大招无冷却。", true)
-	else:
-		_fill_skill_card(ult_card, "—", "grey", "暂无大招", [], "", "", false)
-	# 角色专属技能卡（整行）
-	var role_card := _make_skill_card()
-	skill_box.add_child(role_card)
-	var skill_id := character.character_skill_id
-	if not skill_id.is_empty():
-		var is_b := SkillRegistry.CHARACTER_SKILL_B_TYPE.has(skill_id)
-		var role_note := ""
-		if is_b:
-			role_note = "B 被动 · 条件触发"
-		else:
-			var cooldown := float(character.character_skill_params.get("cooldown", 0.0))
-			role_note = "A 主动" + (" · CD %.0fs" % cooldown if cooldown > 0.0 else "")
-		_fill_skill_card(role_card, str(skill_id),
-			"blue", SkillRegistry.get_character_skill_name(skill_id),
-			[["角色专属技能", UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT],
-			["不耗怒气", UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG]],
-			CHARACTER_SKILL_HINTS.get(skill_id, "说明随版本完善"),
-			("条件触发（被动），随战斗条件自动生效。" if is_b else "冷却制自动释放（可选手动）；与职业层解耦。"), false, role_note)
-	else:
-		_fill_skill_card(role_card, "—", "grey", "暂无角色专属技能", [], "", "", false)
-	if not character.trait_id.is_empty():
-		var trait_card := _make_skill_card()
-		skill_box.add_child(trait_card)
-		_fill_skill_card(trait_card, str(character.trait_id), "gold", "常驻特性", [],
-			str(TRAIT_HINTS.get(character.trait_id, "说明随版本完善")),
-			"随战斗条件自动生效。", false)
-
-
-func _make_skill_card() -> PanelContainer:
-	var card := PanelContainer.new()
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var card_style := UITheme.light_card_style()
-	card_style.content_margin_left = 10.0
-	card_style.content_margin_right = 10.0
-	card_style.content_margin_top = 8.0
-	card_style.content_margin_bottom = 8.0
-	card.add_theme_stylebox_override("panel", card_style)
 	var content := VBoxContainer.new()
-	content.name = "Content"
-	content.add_theme_constant_override("separation", 5)
-	card.add_child(content)
-	return card
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 8)
+	scroll.add_child(content)
+	var rank := _profile.get_character_rank(_selected_id)
+	for id in character.get_skill_ids():
+		var card := SkillCard.new()
+		content.add_child(card)
+		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), character.per_rank_skill_amp * rank, _profile.skill_upgrade_status(_selected_id, id), true)
+		card.upgrade_requested.connect(_upgrade_skill)
 
+func _upgrade_skill(character_id: String, skill_id: StringName, expected_level: int) -> void:
+	var candidate := ProfileStore.get_profile().duplicate_profile()
+	if candidate.get_skill_level(character_id, skill_id) != expected_level or not candidate.upgrade_skill(character_id, skill_id):
+		_refresh()
+		return
+	if not ProfileStore.save_profile(candidate):
+		var error := _make_note_label("保存失败，未扣除。请重试。", UITheme.LIGHT_LOCK)
+		error.name = "SkillSaveError"
+		_skill_tab.add_child(error)
+		return
+	_refresh()
 
-func _fill_skill_card(card: PanelContainer, avatar_char: String, color_key: String,
-		skill_name: String, tags: Array, fx_text: String, note_text: String,
-		with_rage: bool = false, name_note: String = "") -> void:
-	var content := card.get_node("Content") as VBoxContainer
-	var head := HBoxContainer.new()
-	head.name = "Head"
-	head.add_theme_constant_override("separation", 10)
-	content.add_child(head)
-	head.add_child(ConceptIcon.new(avatar_char if avatar_char != "—" else "ui_empty", 36, skill_name))
-	var meta := VBoxContainer.new()
-	meta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	meta.add_theme_constant_override("separation", 2)
-	head.add_child(meta)
-	var name_row := HBoxContainer.new()
-	name_row.add_theme_constant_override("separation", 6)
-	meta.add_child(name_row)
-	var nm := Label.new()
-	nm.text = skill_name
-	nm.add_theme_font_size_override("font_size", 16)
-	nm.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-	nm.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	nm.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	name_row.add_child(nm)
-	if not name_note.is_empty():
-		var note := Label.new()
-		note.text = name_note
-		note.add_theme_font_size_override("font_size", 11)
-		note.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
-		note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		name_row.add_child(note)
-	var tag_row := HBoxContainer.new()
-	tag_row.add_theme_constant_override("separation", 5)
-	meta.add_child(tag_row)
-	for tag_def in tags:
-		tag_row.add_child(UITheme.tag_label(tag_def[0], tag_def[1], tag_def[2], 11))
-	if with_rage:
-		head.add_child(_make_rage_bar())
-	var fx := Label.new()
-	fx.text = fx_text
-	fx.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	fx.add_theme_font_size_override("font_size", 12)
-	fx.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
-	content.add_child(fx)
-	if not note_text.is_empty():
-		var note := Label.new()
-		note.text = note_text
-		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		note.add_theme_font_size_override("font_size", 11)
-		note.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
-		var note_style := UITheme.tag_style(UITheme.LIGHT_PANEL_SPLIT, 8, 4)
-		note_style.set_corner_radius_all(8)
-		note.add_theme_stylebox_override("normal", note_style)
-		content.add_child(note)
-
-
-## 怒气条（概念图 .rage：金框横条 + 满怒标注）。
-func _make_rage_bar() -> Control:
-	var bar := Panel.new()
-	bar.custom_minimum_size = Vector2(84, 16)
-	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#ffd75e")
-	style.border_color = UITheme.LIGHT_GOLD_SELECT
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(9)
-	bar.add_theme_stylebox_override("panel", style)
-	var label := Label.new()
-	label.text = "满怒 100"
-	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 10)
-	label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
-	bar.add_child(label)
-	return bar
-
-
-# ============ 富文本规则说明 ============
-
-func richtext_apply(rich: RichTextLabel, bbcode_text: String,
-		text_color: Color = Color("#33566f")) -> void:
-	rich.bbcode_enabled = true
-	rich.text = bbcode_text
-	rich.fit_content = true
-	rich.scroll_active = false
-	rich.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rich.add_theme_font_size_override("normal_font_size", 13)
-	rich.add_theme_color_override("default_color", text_color)
-	rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-
-## 行状态点（概念 .tnode .dot）：彩色核心 + 2px 白边 + 外圈状态色环（cur 绿 / next 金 / locked 灰）。
 func _build_relic_tab() -> void:
 	var page := _make_tab_page("信物")
 	var exclusive_slot := HBoxContainer.new()

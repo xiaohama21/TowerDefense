@@ -650,8 +650,8 @@ func _test_encyclopedia(profile: PlayerProfile) -> void:
 	_check(ranked.damage == expected_damage, "模拟器升阶数值应与共享倍率公式一致（观星角色）")
 	_check(dmg_label != null and str(int(ranked.damage)) == dmg_label.text,
 		"结果卡伤害应与升阶公式一致（%s / %s）" % [dmg_label.text if dmg_label else "?", str(int(ranked.damage))])
-	_check(is_equal_approx(zhuge.get_static_range_multiplier(), 1.12), "诸葛亮观星应提供 +12% 静态射程加成")
-	_check(is_equal_approx(GameFlow.load_character_data("liu_bei").get_static_range_multiplier(), 1.0),
+	_check(is_equal_approx(zhuge.compute_stats_at(1, 1).range / (zhuge.base_range * 1.01), 1.1224), "诸葛亮观星应提供 +12% 静态射程加成")
+	_check(is_equal_approx(GameFlow.load_character_data("liu_bei").compute_stats_at(1, 0).range, GameFlow.load_character_data("liu_bei").base_range),
 		"非观星角色静态射程倍率应为 1.0")
 
 	# 敌人图鉴：切换到敌人页，7 敌列表 + 困难难度 HP 倍率 + 出现关卡反查。

@@ -46,7 +46,7 @@ func _scan_tres_ids(dir_path: String) -> Array[String]:
 
 
 func _run() -> void:
-	_check("项目与 Windows 导出版本一致（0.9.1.1）", _release_version_integrity())
+	_check("项目与 Windows 导出版本一致（0.9.2.0）", _release_version_integrity())
 	_check("全新环境：user:// 下无存档", not FileAccess.file_exists(ProfileStore.get_profile_path()))
 	_check("开始游戏：创建新档成功", GameFlow.start_new_game())
 	var profile := ProfileStore.get_profile()

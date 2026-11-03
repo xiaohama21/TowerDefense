@@ -16,22 +16,28 @@ base_range = 120.0
 attack_interval = 0.7
 projectile_speed = 400.0
 titles = ["蛇矛先锋"]
-character_skill_id = &"char_dangyang_roar"
-character_skill_params = {
-"cooldown": 22.0,
-"fear_duration": 1.0,
-"slow_factor": 0.4,
-"slow_duration": 2.0
-}
-trait_id = &"trait_yanyan_roar"
-trait_params = {
-"chance": 0.3,
-"slow_factor": 0.4,
-"duration": 1.0
-}
 unlock_stage_id = &"ch01_s02"
 
 attack_pct = 0.027
 speed_pct_per_level = 0.001
 per_rank_skill_amp = 0.015
-ultimate_id = &"ultimate_tiger_guard_sweep"
+
+passive_ids = Array[StringName]([&"trait_yanyan_roar", &"passive_yanhan"])
+ultimate_id = &"char_dangyang_roar"
+rage_gain_mode = &"hit+damage"
+skill_params = {
+  "trait_yanyan_roar": {
+    "chance": 0.2,
+    "mult": 0.8,
+    "fear_duration": 1.0
+  },
+  "passive_yanhan": {
+    "kill_rage": 2.0
+  },
+  "char_dangyang_roar": {
+    "mult": 1.0,
+    "fear_duration": 1.0,
+    "slow_strength": 0.6,
+    "slow_duration": 2.0
+  }
+}

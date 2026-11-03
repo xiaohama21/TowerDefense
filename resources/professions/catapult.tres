@@ -16,7 +16,6 @@ attack_interval_multiplier = 1.0
 min_range = 160.0
 behavior_id = &"lob_aoe"
 attack_damage_type = &"physical"
-rage_gain_mode = &"hit+damage"
 battle_rank_damage_step = 0.12
 battle_rank_attack_speed_step = 0.08
 battle_rank_range_step = 0.03

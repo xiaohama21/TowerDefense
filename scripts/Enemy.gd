@@ -2,6 +2,17 @@ extends PathFollow2D
 
 class_name Enemy
 
+var _burn_owner: WeakRef
+var _burn_source_id := ""
+var _poison_owner: WeakRef
+var _poison_source_id := ""
+var poison_dps := 0
+var _poison_time_left := 0.0
+var _poison_acc := 0.0
+var _forced_reveal_left := 0.0
+var _last_damage_tower: WeakRef
+
+
 const ENEMY_GROUP: StringName = &"enemies"
 ## 金币获取反馈（✅ 0.8.17.1 / DESIGN_REVIEW §12.7）：档位取自 tags（普通 / 精英 / Boss）。
 const GOLD_FX_SCRIPT := preload("res://scripts/GoldFx.gd")
@@ -234,17 +245,11 @@ func _process(delta: float) -> void:
 	if _armor_aura_time_left > 0.0:
 		_armor_aura_time_left = maxf(_armor_aura_time_left - delta, 0.0)
 
-	if _burn_time_left > 0.0:
-		_burn_time_left = maxf(_burn_time_left - delta, 0.0)
-		_burn_acc += float(burn_dps) * delta
-		if _burn_acc >= 1.0:
-			var tick := int(_burn_acc)
-			_burn_acc -= tick
-			take_damage(tick, "", DamageTypes.MAGIC)
-		# B-095：到期必须清零 dps 与余量——否则后续弱灼烧会继承历史强 dps（maxi 刷新语义）。
-		if _burn_time_left <= 0.0:
-			burn_dps = 0
-			_burn_acc = 0.0
+	_tick_status_damage(delta)
+	if is_dead: return
+	if _forced_reveal_left > 0.0:
+		_forced_reveal_left = maxf(_forced_reveal_left - delta, 0.0)
+		if _forced_reveal_left <= 0.0: refresh_stealth_reveal()
 
 	if not marks.is_empty():
 		var expired_marks: Array[String] = []
@@ -317,11 +322,56 @@ func apply_slow(factor: float, duration: float) -> void:
 
 
 ## 施加灼烧：多来源叠加时取更大每秒伤害，时长刷新。
-func apply_burn(dps: int, duration: float) -> void:
-	if is_dead or dps <= 0 or duration <= 0.0:
-		return
+func apply_burn(dps: int, duration: float, source: Tower = null) -> void:
+	if is_dead or dps <= 0 or duration <= 0.0: return
+	if dps >= burn_dps:
+		_burn_owner = weakref(source) if is_instance_valid(source) else null
+		_burn_source_id = source.character_id if is_instance_valid(source) else ""
 	burn_dps = maxi(burn_dps, dps)
 	_burn_time_left = maxf(_burn_time_left, duration)
+
+func apply_poison(dps: int, duration: float, source_id: String, source: Tower = null) -> void:
+	if is_dead or dps <= 0 or duration <= 0.0: return
+	if dps >= poison_dps:
+		_poison_source_id = source_id
+		_poison_owner = weakref(source) if is_instance_valid(source) else null
+	poison_dps = maxi(poison_dps, dps)
+	_poison_time_left = maxf(_poison_time_left, duration)
+
+func _tick_status_damage(delta: float) -> void:
+	if _burn_time_left > 0.0:
+		_burn_acc += burn_dps * minf(delta, _burn_time_left)
+		var tick := int(_burn_acc + 0.000001)
+		_burn_acc -= tick
+		var owner = _burn_owner.get_ref() if _burn_owner != null else null
+		if tick > 0: take_damage(tick, _burn_source_id, DamageTypes.MAGIC, {}, 0, true, owner)
+		_burn_time_left = maxf(_burn_time_left - delta, 0.0)
+		if _burn_time_left <= 0.0:
+			burn_dps = 0
+			_burn_acc = 0.0
+			_burn_owner = null
+			_burn_source_id = ""
+	if is_dead: return
+	if _poison_time_left > 0.0:
+		_poison_acc += poison_dps * minf(delta, _poison_time_left)
+		var tick := int(_poison_acc + 0.000001)
+		_poison_acc -= tick
+		var owner = _poison_owner.get_ref() if _poison_owner != null else null
+		if tick > 0: take_damage(tick, _poison_source_id, DamageTypes.MAGIC, {}, 0, true, owner)
+		_poison_time_left = maxf(_poison_time_left - delta, 0.0)
+		if _poison_time_left <= 0.0:
+			poison_dps = 0
+			_poison_acc = 0.0
+			_poison_owner = null
+			_poison_source_id = ""
+
+func apply_reveal(duration: float) -> void:
+	_forced_reveal_left = maxf(_forced_reveal_left, duration)
+	_set_stealth_revealed(true)
+
+func is_controlled() -> bool:
+	return (_slow_time_left > 0.0 and slow_factor < 1.0) or _fear_time_left > 0.0 or _stun_time_left > 0.0
+
 
 
 ## 施加眩晕（震地，提交 7）：时长类控制，取更长剩余时长；期间停止移动。
@@ -373,7 +423,7 @@ func is_stealthed() -> bool:
 func is_visible_to(tower) -> bool:
 	if not stealth:
 		return true
-	return tower != null and is_instance_valid(tower) and tower.reveals_stealth()
+	return _forced_reveal_left > 0.0 or (tower != null and is_instance_valid(tower) and tower.reveals_stealth())
 
 
 ## 当前是否已现形（表现口径：虚影 vs 正常 + 血条）。
@@ -386,7 +436,7 @@ func is_revealed() -> bool:
 func refresh_stealth_reveal() -> void:
 	if not stealth:
 		return
-	var revealed := false
+	var revealed := _forced_reveal_left > 0.0
 	for node in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
 		var tower := node as Tower
 		if tower == null or not is_instance_valid(tower) or not tower.reveals_stealth():
@@ -459,20 +509,23 @@ func take_damage(
 	source_character_id: String = "",
 	damage_type: StringName = DamageTypes.PHYSICAL,
 	pen_ratios: Dictionary = {},
-	pen_flat: int = 0
+	pen_flat: int = 0,
+	fixed_status: bool = false,
+	source_tower: Tower = null
 ) -> void:
 	if is_dead or amount <= 0:
 		return
 	var source_id := source_character_id.strip_edges()
+	_last_damage_tower = weakref(source_tower) if is_instance_valid(source_tower) else null
 	if not source_id.is_empty():
 		last_damage_source_character_id = source_id
 
 	# 易伤（奇门）：所有来源伤害先乘易伤倍率（同类不叠加只刷新，NUMBERS 10.10）。
-	var scaled := int(round(float(amount) * get_vulnerability_multiplier()))
+	var scaled := amount if fixed_status else int(round(float(amount) * get_vulnerability_multiplier()))
 	if scaled <= 0:
 		return
 	# 护甲结算（类型系数 → 百分比穿甲 → 固定穿透 → 比值减伤）；真实伤害恒满伤。
-	var effective := _apply_armor(scaled, damage_type, pen_ratios, pen_flat)
+	var effective := scaled if fixed_status else _apply_armor(scaled, damage_type, pen_ratios, pen_flat)
 	if effective <= 0:
 		return
 	var hp_ratio_before := get_hp_ratio()
@@ -521,6 +574,10 @@ func die(give_reward: bool) -> void:
 		_spawn_kill_bar_flash()
 
 	if give_reward:
+		var killer = _last_damage_tower.get_ref() if _last_damage_tower != null else null
+		if is_instance_valid(killer) and not killer.is_queued_for_deletion(): SkillRegistry.on_kill(killer)
+		var burner = _burn_owner.get_ref() if _burn_owner != null else null
+		if _burn_time_left > 0.0 and is_instance_valid(burner) and not burner.is_queued_for_deletion(): SkillRegistry.on_burned_death(burner, global_position)
 		var fx_tier := GOLD_FX_SCRIPT.Tier.NORMAL
 		if tags.has(&"boss"):
 			fx_tier = GOLD_FX_SCRIPT.Tier.BOSS

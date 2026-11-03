@@ -16,19 +16,26 @@ base_range = 115.0
 attack_interval = 0.9
 projectile_speed = 400.0
 titles = ["忠勇护卫"]
-character_skill_id = &"char_death_fight"
-character_skill_params = {
-"hp_threshold": 0.5,
-"speed_bonus": 0.3
-}
-trait_id = &"trait_captain"
-trait_params = {
-"high_hp_threshold": 0.7,
-"high_hp_damage_bonus": 0.3
-}
 unlock_stage_id = &"ch01_s05"
 
 attack_pct = 0.027
 speed_pct_per_level = 0.0006
 per_rank_crit_damage = 0.02
-ultimate_id = &"ultimate_tiger_guard_sweep"
+
+passive_ids = Array[StringName]([&"trait_vanguard", &"char_death_fight"])
+ultimate_id = &"ultimate_death_fight"
+rage_gain_mode = &"hit+damage"
+skill_params = {
+  "trait_vanguard": {
+    "penetration": 0.15
+  },
+  "char_death_fight": {
+    "chance": 0.2,
+    "mult": 2.5
+  },
+  "ultimate_death_fight": {
+    "mult": 4.0,
+    "base_hp_threshold": 0.5,
+    "low_hp_mult": 2.0
+  }
+}

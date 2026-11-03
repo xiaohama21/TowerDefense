@@ -94,9 +94,6 @@ const TEAM_BUFF_MULTIPLIER_CAP: float = 2.0
 const TEAM_DEBUFF_SLOW_CAP: float = 0.5
 ## 最终攻速倍率下限（P0 3.2 拍板）：攻速间隔最快为 0.55 × 当前基础间隔。
 const ATTACK_SPEED_FLOOR: float = 0.55
-## 常驻光环伤害桶上限（STATS_PIPELINE 增益档次 1，v0.31.6 拍板 +50% 初稿）：
-## 刘备仁德 + 虎贲军旗同类加法求和后 clamp 至此，finalize_damage 只乘一次。
-const AURA_DAMAGE_CAP: float = 0.5
 ## 编队加成伤害桶上限（STATS_PIPELINE 增益档次 2，v0.31.6 拍板，提交 10 收敛）：
 ## 科技全局 + 科技职业分支 + 羁绊为 L2 同层来源，层内加法求和后 clamp 至此（合计 ≤+30%）。
 const FORMATION_DAMAGE_CAP: float = 0.3
@@ -111,7 +108,6 @@ var _buff_time_left: float = 0.0
 ## buff 来源表：source_id -> {speed_add: float, damage_add: float, time_left: float}
 var _buff_sources: Dictionary = {}
 # 龙魂击杀叠层（赵云特性）：击杀 +1 层攻速，目标丢失时清零。
-var kill_stacks := 0
 
 var _profession_id: StringName = StringName()
 var _profession_name: String = ""
@@ -123,8 +119,6 @@ var _base_damage: int = 40
 var _base_attack_cooldown: float = 0.8
 var _base_range: float = 150.0
 var _min_range: float = 0.0
-var _trait_id: StringName = StringName()
-var _trait_params: Dictionary = {}
 var _relic_damage_bonus: float = 0.0
 ## 信物·类型条件增伤（✅ 0.8.14，NUMBERS 10.13 天公雷诏）：仅指定伤害类型生效
 ## （当前 = 魔法），与 _relic_damage_bonus 同层、各自独立乘算。
@@ -148,27 +142,29 @@ var _gain_per_hit: int = 4
 var _gain_per_damage: float = 0.1
 var _support_gain_per_tick: int = 2
 var _ultimate_id: StringName = StringName()
-var _ultimate_multiplier: float = 1.0
-var _granted_skills: Array[StringName] = []
 ## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，旧执行器兼容参数；当前版本不授予职业技能。
 var _skill_params: Dictionary = {}
+var _character_data: CharacterData
+var _character_rank := 0
+var _skill_levels: Dictionary = {}
+var skill_hit_counter := 0
+var skill_consecutive_hits := 0
+var skill_last_target_id := 0
+var skill_aura_tick := 0.0
+var skill_support_tick := 0.0
+var _base_crit_rate := 0.05
+var _base_skill_amp := 0.0
+var _attack_growth_scale := 1.0
+var _skill_stat_buffs: Dictionary = {}
+var _aura_attack_flat := 0.0
+var _aura_crit_rate := 0.0
+
 var crit_rate: float = 0.05
 var crit_damage: float = 1.5
 var skill_amp: float = 0.0
 ## 稳射保底计数（阶段 8·提交 6）：每 5 次命中必触发一次追加伤害。
-var steady_attack_counter: int = 0
 ## 突袭叠层（骁骑，提交 7）：击杀 +1 层 / 对精英/Boss 每 4 次命中 +1 层；普攻消耗 1 层该次 +25%×s。
-var assault_stacks: int = 0
 ## 突袭对精英/Boss 命中计数（每 hit_every 次 +1 层，击杀那发计入）。
-var assault_hit_counter: int = 0
-## 护卫拖回冷却剩余（虎卫，提交 7）：内置冷却防「钉死」。
-var guard_cooldown_left: float = 0.0
-## 连矢保底顺延（连弩，提交 7）：概率触发命中但目标已死时，标记下一次存活命中必追加。
-var chain_arrow_pending: bool = false
-## 震地眩晕同目标冷却表（震山，提交 7）：enemy instance_id -> 剩余秒数（防 3 连发叠晕）。
-var tremor_stun_cooldowns: Dictionary = {}
-## 常驻光环伤害桶汇总（提交 7，增益档次 1）：刘备仁德 + 虎贲军旗加算后 clamp(AURA_DAMAGE_CAP)。
-var _aura_damage_bonus: float = 0.0
 ## 破隐（NUMBERS 10.16，✅ 0.8.13.1）：三来源聚合——固有特性 / 限时全图 buff / 舞娘 3 阶光环。
 ## 限时全图 buff 剩余秒数（B-097 改战斗时钟）：随 _process 递减，暂停时冻结。
 var _stealth_reveal_time_left: float = 0.0
@@ -177,23 +173,9 @@ var _aura_scan_tick: float = 0.0
 ## 上次光环刷新时间戳（ms）：finalize_damage 前惰性节流刷新，保证直接 queue_free
 ## 拆塔（不经 sell_tower）或塔停 _process 时光环桶也能在结算前自愈。
 var _aura_last_scan_ms: int = -1
-## 角色技能（武将专属差异化，CHARACTER_SKILLS.md v0.1）：ID、参数、冷却与状态。
-var _character_skill_id: StringName = StringName()
-var _character_skill_params: Dictionary = {}
-var _char_skill_cooldown_left: float = 0.0
-var _char_skill_ready: bool = false
-var _char_skill_ready_notified: bool = false
-## B 被动一次性激活标记（周仓·死战：基地低血后常驻）。
-var _char_skill_activated: bool = false
-## 角色技能攻速常驻加成（死战 +30%）。
-var _char_skill_speed_bonus: float = 0.0
 ## 弹道速度增益（诸葛亮·借东风）：按来源取最大倍率。
 var _bullet_speed_buff: float = 1.0
 var _bullet_speed_sources: Dictionary = {}
-## 下一次普攻伤害加成（charge 击杀后 / assault 层消耗，提交 7 双来源）：
-## finalize_damage 一次性消耗，飘字按来源显示。
-var _next_attack_bonus: float = 0.0
-var _next_attack_bonus_source: StringName = &"charge"
 ## 手动大招（v0.15.0）：满怒待发状态与提示去抖。
 var _ultimate_ready: bool = false
 var _rage_ready_notified: bool = false
@@ -203,8 +185,6 @@ var _ult_visual_id: StringName = StringName()
 var _ult_visual_time: float = 0.0
 ## 浮字层（由 Main 注入；缺省回退到 current_scene 的 spawn_float_text_at）。
 var _float_text_layer: Node = null
-var _consecutive_hits: int = 0
-var _last_attacked_target = null
 var _aura_tick: float = 0.0
 var _hero_color: Color = Color(0.45, 0.55, 0.65, 1.0)
 var _aim_angle: float = -PI / 2.0
@@ -255,7 +235,6 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	attack_timer.one_shot = true
 	_rebuild_attack_timer()
-	GameManager.enemy_killed_by_character.connect(_on_enemy_killed)
 	_rebuild_range_area()
 	if not display_name.is_empty():
 		name_label.text = display_name
@@ -299,17 +278,29 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	character_id = character_data.character_id
 	display_name = character_data.display_name
 	# 特性 ID/参数先于属性计算就位（观星射程加成等静态特性在下方读取）。
-	_trait_id = character_data.trait_id
-	_trait_params = character_data.trait_params.duplicate(true)
-	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard)
+	_character_data = character_data
+	_character_rank = rank
+	_skill_levels = SkillRegistry.normalize_levels(str(character_data.character_id), loadout.get("skill_levels", {}))
+	_skill_params = character_data.skill_params.duplicate(true)
+	skill_hit_counter = 0
+	skill_consecutive_hits = 0
+	skill_last_target_id = 0
+	_skill_stat_buffs.clear()
+	_aura_attack_flat = 0.0
+	_aura_crit_rate = 0.0
+	_attack_growth_scale = (1.0 + character_data.attack_pct * (level - 1 + (relic.level_bonus if relic != null else 0))) * CharacterRank.ATTACK[rank]
+
+	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard, _skill_levels)
 	crit_rate = float(stats.crit_rate)
 	crit_damage = float(stats.crit_damage)
 	skill_amp = float(stats.skill_amp)
+	_base_skill_amp = skill_amp
+	_base_crit_rate = crit_rate
 	damage = stats.damage
 	_base_damage = damage
 	range_radius = stats.range
 	# 诸葛亮·观星：射程 +12%（特性静态加成，与百科预览共用 CharacterData 实现）
-	range_radius *= character_data.get_static_range_multiplier()
+	pass
 	var relic_bonuses := GameFlow.get_battle_relic_bonuses()
 	# 局内遗物射程加成（v0.19.0，与特性乘算）
 	range_radius *= 1.0 + float(relic_bonuses.get("range_bonus_pct", 0)) / 100.0
@@ -350,42 +341,14 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_battle_rank_aoe_step = _resolve_rank_step(character_data.battle_rank_aoe_step_override, profession_data.battle_rank_aoe_step if profession_data != null else 0.0)
 	_battle_rank_buff_duration_step = _resolve_rank_step(character_data.battle_rank_buff_duration_step_override, profession_data.battle_rank_buff_duration_step if profession_data != null else 0.0)
 	_battle_rank_buff_power_step = _resolve_rank_step(character_data.battle_rank_buff_power_step_override, profession_data.battle_rank_buff_power_step if profession_data != null else 0.0)
-	_granted_skills.clear()
-	_skill_params = {}
-	# 角色技能（阶段 8·提交 6）：初始冷却就绪；B 被动激活标记与常驻加成清零。
-	_character_skill_id = character_data.character_skill_id
-	_character_skill_params = character_data.character_skill_params.duplicate(true)
-	steady_attack_counter = 0
-	# 提交 7 新技能状态：突袭叠层 / 护卫冷却 / 连矢顺延 / 震地冷却 / aura 桶清零。
-	assault_stacks = 0
-	assault_hit_counter = 0
-	guard_cooldown_left = 0.0
-	chain_arrow_pending = false
-	tremor_stun_cooldowns.clear()
-	_next_attack_bonus = 0.0
-	_next_attack_bonus_source = &"charge"
-	_aura_damage_bonus = 0.0
 	_aura_scan_tick = 0.0
 	_aura_last_scan_ms = -1
-	_char_skill_cooldown_left = 0.0
-	_char_skill_ready = true
-	_char_skill_ready_notified = false
-	_char_skill_activated = false
-	_char_skill_speed_bonus = 0.0
-	_bullet_speed_buff = 1.0
-	_bullet_speed_sources.clear()
 	_manual_ultimate_mode = GameFlow.is_gameplay_flag_enabled("manual_ultimate")
-	_ultimate_multiplier = 1.0
 	_ultimate_id = character_data.ultimate_id
-	_rage_mode = character_data.rage_gain_mode_override
-	if _rage_mode.is_empty() and character_data.profession != null:
-		_rage_mode = character_data.profession.rage_gain_mode
-	if _rage_mode.is_empty() and character_data.profession != null:
-		_rage_mode = &"support" if character_data.profession.combat_role == ProfessionData.CombatRole.SUPPORT else &"hit+damage"
-	if character_data.profession != null:
-		_gain_per_hit = character_data.profession.ultimate_gain_per_hit
-		_gain_per_damage = character_data.profession.ultimate_gain_per_damage
-		_support_gain_per_tick = character_data.profession.support_ultimate_gain_per_tick
+	_rage_mode = character_data.rage_gain_mode
+	_gain_per_hit = character_data.rage_gain_per_hit
+	_gain_per_damage = character_data.rage_gain_per_damage
+	_support_gain_per_tick = character_data.support_rage_per_tick
 	_hero_color = PROFESSION_COLORS.get(_profession_id, Color(0.45, 0.55, 0.65, 1.0))
 	name_label.text = display_name
 	name_label.add_theme_color_override("font_color", _hero_color.lightened(0.35))
@@ -424,9 +387,11 @@ func get_sell_refund(sell_refund_ratio: float) -> int:
 func apply_battle_rank(spent_cost: int) -> void:
 	battle_rank += 1
 	total_invested += spent_cost
-	damage = int(round(_base_damage * CharacterData.rank_scale(_battle_rank_damage_step, battle_rank)))
+	_recalc_skill_stats()
 	attack_cooldown = _base_attack_cooldown / CharacterData.rank_scale(_battle_rank_attack_speed_step, battle_rank)
 	range_radius = _base_range * CharacterData.rank_scale(_battle_rank_range_step, battle_rank)
+	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
+		node.refresh_aura_damage_bonus()
 	_refresh_battle_rank_badge()
 	_rebuild_attack_timer()
 	_rebuild_range_area()
@@ -619,7 +584,7 @@ func schedule_melee_hit(target_enemy: Enemy, amount: int, damage_type: StringNam
 		var victim := resolve_hit_frame_target(victim_id)
 		if victim == null:
 			return
-		var hit := attack_hit_damage(amount)
+		var hit := attack_hit_damage(int(round(amount * SkillRegistry.attack_multiplier(self, victim))))
 		deal_damage(victim, hit, damage_type)
 		notify_attack_damage_dealt(victim, hit)
 	)
@@ -658,22 +623,6 @@ func ultimate_hit_delay() -> float:
 	return SPINE_XX_HIT_FRAME if _use_spine_visual else 0.0
 
 
-## 大招「起手 → 命中帧结算」：伤害延迟到命中帧落地，击杀返怒（charge）随之在命中帧结算。
-func begin_ultimate_strike(target_enemy: Enemy, amount: int, damage_type: StringName = StringName()) -> void:
-	if target_enemy == null or amount <= 0:
-		return
-	var victim_id := target_enemy.get_instance_id()
-	schedule_combat_step(ultimate_hit_delay(), func() -> void:
-		var victim := resolve_hit_frame_target(victim_id)
-		if victim == null:
-			return
-		var hp_before := victim.current_hp
-		deal_damage(victim, amount, damage_type)
-		if hp_before > 0 and victim.current_hp <= 0:
-			gain_rage(kill_rage_refund())
-	)
-
-
 ## 大招演出（0.8.16.6）：关羽接素材 XX（0.80s）；其它角色 / 无 spine 自动跳过（仅程序化斩弧）。
 func _play_spine_ultimate() -> void:
 	if not _use_spine_visual or _spine == null:
@@ -709,10 +658,8 @@ func set_ghost_mode() -> void:
 
 
 func _rebuild_attack_timer() -> void:
-	# 角色技能常驻攻速加成（周仓·死战）与职业 buff 同区相乘。
-	var effective := attack_cooldown / (attack_speed_buff * (1.0 + get_trait_param("attack_speed_per_kill", 0.04) * kill_stacks) * (1.0 + _char_skill_speed_bonus) * (1.0 + _tech_attack_speed_pct))
+	var effective := attack_cooldown / (attack_speed_buff * (1.0 + _tech_attack_speed_pct))
 	attack_timer.wait_time = maxf(effective, attack_cooldown * ATTACK_SPEED_FLOOR)
-
 
 func _rebuild_range_area() -> void:
 	var circle := CircleShape2D.new()
@@ -794,51 +741,15 @@ func _process(_delta: float) -> void:
 			_bullet_speed_sources.erase(source_id)
 		_recalc_bullet_speed_buff()
 
-	# 角色技能（阶段 8·提交 6）：B 被动轮询（基地低血）+ A 主动冷却计时。
-	SkillRegistry.check_base_low(self)
-	if SkillRegistry.has_character_skill(self) and not SkillRegistry.is_character_skill_b_type(self):
-		if _char_skill_cooldown_left > 0.0:
-			_char_skill_cooldown_left = maxf(_char_skill_cooldown_left - _delta, 0.0)
-			# 冷却环每帧重绘（阶段 8·提交 11，BUGS B-050 修复）：脱战无目标时无攻击
-			# 闪光等重绘事件，弧线曾冻结在旧值；实际冷却一直在走。
-			queue_redraw()
-			if _char_skill_cooldown_left <= 0.0:
-				_char_skill_ready = true
-				SkillRegistry.on_character_skill_ready(self)
-				if _char_skill_ready and not _char_skill_ready_notified:
-					_char_skill_ready_notified = true
-					spawn_float_text("技能就绪", Color(0.6, 0.9, 1.0), 14)
-		# 阶段 8·提交 11：技能释放入口移出塔详情面板后，A 型就绪即自动释放，
-		# 与手动大招开关（manual_ultimate）解耦；手动大招仅约束大招本身。
-		elif _char_skill_ready:
-			if cast_character_skill():
-				_char_skill_ready = false
-				_char_skill_ready_notified = false
+	SkillRegistry.tick(self, _delta)
+	_tick_skill_stat_buffs(_delta)
 
-	# 提交 7：护卫拖回冷却 / 震地同目标眩晕冷却递减（到 0 移除；敌人已死条目随帧过期）。
-	if guard_cooldown_left > 0.0:
-		guard_cooldown_left = maxf(guard_cooldown_left - _delta, 0.0)
-	if not tremor_stun_cooldowns.is_empty():
-		var expired_stun: Array = []
-		for key in tremor_stun_cooldowns.keys():
-			tremor_stun_cooldowns[key] = maxf(float(tremor_stun_cooldowns[key]) - _delta, 0.0)
-			if float(tremor_stun_cooldowns[key]) <= 0.0:
-				expired_stun.append(key)
-		for key in expired_stun:
-			tremor_stun_cooldowns.erase(key)
 	# 常驻光环伤害桶（提交 7，增益档次 1）：0.25s 低频兜底扫描；建/拆塔由
 	# TowerManager 即时刷新，见 _refresh_aura_all。
 	_aura_scan_tick = maxf(_aura_scan_tick - _delta, 0.0)
 	if _aura_scan_tick <= 0.0:
 		_aura_scan_tick = AURA_SCAN_INTERVAL
 		_ensure_aura_fresh()
-
-	# 诸葛亮·观星：范围内敌人持续减速 8%（周期施加，取最强因子）
-	_aura_tick = maxf(_aura_tick - _delta, 0.0)
-	if _trait_id == &"trait_star_gazer" and _aura_tick <= 0.0:
-		_aura_tick = 0.5
-		for enemy in enemies_in_range():
-			enemy.apply_slow(get_trait_param("aura_slow", 0.92), 0.6 * skill_output_multiplier())
 
 	if attack_timer.is_stopped() and (passive or target != null):
 		attack()
@@ -868,11 +779,10 @@ func gain_rage_for_attack(dealt: int) -> void:
 
 ## 单体攻击命中结算统一入口（v0.31.4 / 0.8.6.2 命中事件拆分）：
 ## 近战挥击与弹道命中共用，仅在实际造成伤害后调用——怒气 / 职业技能命中钩子
-## （稳射等计数与追加）/ 命中型特性（咆哮等）。目标飞行中死亡或空爆不触发。
+## 计数与命中被动。目标飞行中死亡或空爆不触发。
 func notify_attack_damage_dealt(target: Enemy, dealt: int) -> void:
 	gain_rage_for_attack(dealt)
 	SkillRegistry.on_attack_hit(self, target, dealt)
-	BehaviorRegistry.notify_hit_trait(self, target)
 
 
 ## AOE 命中结算攻击级入口（v0.31.4 / 0.8.6.2）：每发一次（命中≥1 才调用），
@@ -887,6 +797,9 @@ func gain_support_pulse(allies: Array) -> void:
 	if _rage_mode != &"support" or allies.is_empty():
 		return
 	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies.size())
+	record_support_contribution(allies)
+
+func record_support_contribution(allies: Array) -> void:
 	var ally_keys: Array[String] = []
 	for ally in allies:
 		if ally != null and is_instance_valid(ally):
@@ -906,7 +819,7 @@ func grant_rage_flat(amount: float) -> void:
 func gain_rage(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	rage = minf(rage + amount * BehaviorRegistry.moon_veil_rage_multiplier(self) * (1.0 + _tech_rage_gain_pct), _max_rage)
+	rage = minf(rage + amount * SkillRegistry.rage_multiplier(self) * (1.0 + _tech_rage_gain_pct), _max_rage)
 	queue_redraw()
 
 
@@ -918,34 +831,22 @@ func _try_cast_ultimate() -> bool:
 	# 避免返怒被调用方随后清怒覆盖（v0.15.0 修正 v0.11.2 遗留时序缺陷）。
 	var spent := rage
 	rage = 0.0
-	if not BehaviorRegistry.execute_ultimate(_ultimate_id, self):
+	if not SkillRegistry.execute_ultimate(_ultimate_id, self):
 		rage = spent
 		return false
 	# 大招演出（v0.15.0）：专属视觉 + 大招名飘字 + 技能钩子。
 	play_ultimate_visual(_ultimate_id)
-	spawn_float_text(BehaviorRegistry.ultimate_display_name(_ultimate_id), Color(1.0, 0.85, 0.3), 20)
-	SkillRegistry.on_ultimate_cast(self)
+	spawn_float_text(SkillRegistry.get_skill_name(_ultimate_id), Color(1.0, 0.85, 0.3), 20)
 	return true
-
-
-## 大招强度（10.5）：×(1 + 伤害步进 × 局内阶数) × 转职 ultimate_multiplier（与普攻升阶同源）。
-func ultimate_power() -> float:
-	return (1.0 + _battle_rank_damage_step * battle_rank) * _ultimate_multiplier
-
-
-## 效果型大招强度（NUMBERS 10.5）：转职 ultimate_multiplier 同样作用于大招效果段
-## （鼓舞/破阵激励段等 buff 强度；升阶效果步进仍走 get_battle_rank_buff_power_multiplier）。
-func ultimate_effect_power() -> float:
-	return _ultimate_multiplier
 
 
 ## 局内升阶 buff 增强（阶段 8）：施加方升阶后，其 buff 持续/效果按此放大（舞娘/刘备等辅助）。
 func get_battle_rank_buff_duration_multiplier() -> float:
-	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank) * skill_output_multiplier()
+	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank)
 
 
 func get_battle_rank_buff_power_multiplier() -> float:
-	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct) * skill_output_multiplier()
+	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct)
 
 
 ## 局内升阶 AOE 半径倍率（阶段 8）：投石车普攻爆散 / 术士大招范围。
@@ -954,51 +855,43 @@ func get_battle_rank_aoe_multiplier() -> float:
 
 
 ## charge 技能（突击骑）：大招击杀返怒 50% × 档位系数（每 5 级 +10%）。
-func kill_rage_refund() -> float:
-	return SkillRegistry.kill_rage_refund(self)
-
-
 func has_skill(skill_id: StringName) -> bool:
-	return _granted_skills.has(skill_id)
+	return _character_data != null and _character_data.is_skill_unlocked(skill_id, _character_rank)
 
+func get_skill_param(skill_id: StringName, key: String, fallback: float = 0.0) -> float:
+	var params: Dictionary = _skill_params.get(str(skill_id), {})
+	return float(params.get(key, fallback))
 
-func get_skill_param(skill_id: StringName, key: String, default: float) -> float:
-	# v0.28.0 职业技能收敛后每转职仅授 1 技能，.tres 参数为扁平格式（key 直存）；
-	# 兼容旧分层格式（skill_id -> dict）。
-	var params: Dictionary = _skill_params.get(skill_id, {})
-	if not params.is_empty():
-		return float(params.get(key, default))
-	return float(_skill_params.get(key, default))
+func get_skill_level(skill_id: StringName) -> int:
+	return int(_skill_levels.get(str(skill_id), 1))
 
+func get_rage_mode() -> StringName:
+	return _rage_mode
 
-
-## 挂载下一次普攻伤害加成（charge 击杀 / assault 层消耗）：来源决定飘字显示。
-func set_next_attack_bonus(source: StringName, bonus: float) -> void:
-	_next_attack_bonus = maxf(bonus, 0.0)
-	_next_attack_bonus_source = source
-
-
-## 常驻光环伤害桶汇总（提交 7，STATS_PIPELINE 增益档次 1）：扫描场上其他塔——
-## ①刘备仁德（trait_benevolence，全图、自身不吃）；②虎贲军旗（command 光环，
-## 受益者距离 ≤ radius、自身不吃，加成 × 施法者档位 s）。同类加法求和后
-## clamp(0, AURA_DAMAGE_CAP)；两者均不再进 passive_damage_multiplier 独立乘区。
-## 多虎贲互乘（1.06^n）与「军旗 × 仁德」互乘路径由此消除。
+## 刷新射程内刘备固定攻击与暴击光环，按来源分别取最多3层和2层。
 func refresh_aura_damage_bonus() -> void:
+	if not is_inside_tree(): return
 	_stealth_reveal_from_aura = _is_in_dancer_reveal_aura()
-	var total := 0.0
+	var attacks: Array[float] = []
+	var crits: Array[float] = []
 	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
 		var other := node as Tower
-		if other == null or other == self or not is_instance_valid(other) or other.is_queued_for_deletion():
-			continue
-		if other.get_trait_id() == &"trait_benevolence":
-			total += other.get_trait_param("aura_damage_bonus", 0.08)
-		if other.has_skill(&"command"):
-			var radius := other.get_skill_param(&"command", "radius", 150.0)
-			if radius > 0.0 and global_position.distance_to(other.global_position) <= radius:
-				total += other.get_skill_param(&"command", "ally_damage_bonus", 0.04) * SkillRegistry.tier_multiplier(other)
-	_aura_damage_bonus = clampf(total, 0.0, AURA_DAMAGE_CAP)
+		if other == null or other == self or other.is_queued_for_deletion(): continue
+		if global_position.distance_to(other.global_position) > other.range_radius: continue
+		if other.has_skill(&"trait_benevolence"):
+			attacks.append(other.get_skill_param(&"trait_benevolence", "attack_flat") * SkillRegistry.strength(other, &"trait_benevolence"))
+		if other.has_skill(&"passive_diligence"):
+			crits.append(other.get_skill_param(&"passive_diligence", "crit_rate") * SkillRegistry.strength(other, &"passive_diligence"))
+	attacks.sort()
+	attacks.reverse()
+	crits.sort()
+	crits.reverse()
+	_aura_attack_flat = 0.0
+	_aura_crit_rate = 0.0
+	for i in range(mini(attacks.size(), 3)): _aura_attack_flat += attacks[i]
+	for i in range(mini(crits.size(), 2)): _aura_crit_rate += crits[i]
+	_recalc_skill_stats()
 	_aura_last_scan_ms = Time.get_ticks_msec()
-
 
 ## 光环桶惰性节流刷新（提交 7）：距上次扫描 ≥ AURA_SCAN_INTERVAL 才重算，
 ## 供 finalize_damage 在结算前调用——拆塔（含直接 queue_free）后最多延迟一个周期生效。
@@ -1009,75 +902,15 @@ func _ensure_aura_fresh() -> void:
 		_aura_last_scan_ms = now
 
 
-## ============ 角色技能（阶段 8·提交 6，CHARACTER_SKILLS.md v0.1） ============
-
-func get_character_skill_id() -> StringName:
-	return _character_skill_id
-
-
-func get_character_skill_param(key: String, default: float) -> float:
-	var value := float(_character_skill_params.get(key, default))
-	if key == "slow_factor":
-		return maxf(1.0 - (1.0 - value) * skill_output_multiplier(), 0.0)
-	if key in ["duration", "fear_duration", "slow_duration", "mark_duration", "burn_duration", "team_speed_bonus", "bullet_speed_bonus", "speed_bonus", "self_rage", "self_rage_extra", "team_rage", "reveal_duration"]:
-		return value * skill_output_multiplier()
-	return value
-
-func is_character_skill_ready() -> bool:
-	return _char_skill_ready
-
-
-func get_character_skill_cooldown_left() -> float:
-	return _char_skill_cooldown_left
-
-
-func is_character_skill_activated() -> bool:
-	return _char_skill_activated
-
-
-func set_character_skill_activated(activated: bool) -> void:
-	_char_skill_activated = activated
-
+## ============ 武将技能与增益 ============
 
 ## 角色技能常驻攻速加成（周仓·死战）：立即生效并重建攻击计时器。
-func set_character_skill_speed_bonus(bonus: float) -> void:
-	_char_skill_speed_bonus = maxf(bonus, 0.0)
-	_rebuild_attack_timer()
-	queue_redraw()
-
-
 ## 冷却缩减（关羽·青龙偃月击杀返 CD）：不低于 0，到 0 即就绪。
-func refund_character_skill_cooldown(seconds: float) -> void:
-	_char_skill_cooldown_left = maxf(_char_skill_cooldown_left - seconds, 0.0)
-	if _char_skill_cooldown_left <= 0.0:
-		_char_skill_ready = true
-
-
 ## 释放角色技能（A 主动冷却制 / B 条件触发）：成功则进入冷却，失败保留就绪。
 ## 冷却先置再执行（v0.28.0）：执行器内可返冷却（青龙偃月击杀 -6s），不会被覆盖。
-func cast_character_skill() -> bool:
-	if _character_skill_id.is_empty() or not _char_skill_ready:
-		return false
-	var cooldown := SkillRegistry.character_skill_cooldown(self)
-	if cooldown > 0.0:
-		_char_skill_cooldown_left = cooldown
-		_char_skill_ready = false
-		_char_skill_ready_notified = false
-	if not SkillRegistry.cast_character_skill(self):
-		if cooldown > 0.0:
-			_char_skill_cooldown_left = 0.0
-			_char_skill_ready = true
-		return false
-	return true
-
-
 ## 历史技能显示名兼容入口；当前版本不授予职业技能。
 func get_skill_display_name(skill_id: StringName) -> String:
 	return SkillRegistry.get_skill_name(skill_id)
-
-func get_granted_skills() -> Array[StringName]:
-	return _granted_skills.duplicate()
-
 
 ## 弹道速度增益（借东风）：按来源取最大倍率，时长刷新。
 func apply_bullet_speed_buff(source_id: String, multiplier: float, duration: float) -> void:
@@ -1100,7 +933,7 @@ func _recalc_bullet_speed_buff() -> void:
 
 ## 大招范围（v0.15.0）：诸葛亮·奇谋按档位放大爆炸半径。
 func ultimate_aoe_radius(base_radius: float) -> float:
-	return base_radius * SkillRegistry.ultimate_aoe_radius_multiplier(self)
+	return base_radius
 
 
 ## 手动大招（GDD 10.5，v0.15.0）：满怒且射程内有目标时释放，成功清空怒气。
@@ -1173,8 +1006,9 @@ func get_attack_damage_type() -> StringName:
 func get_armor_penetration() -> Dictionary:
 	var ratio := 0.0
 	var flat := 0
-	for skill_id in _granted_skills:
-		ratio = maxf(ratio, get_skill_param(skill_id, "armor_pen_ratio", 0.0))
+	for skill_id in (_character_data.passive_ids if _character_data != null else []):
+		if has_skill(skill_id):
+			ratio = maxf(ratio, get_skill_param(skill_id, "penetration", 0.0) * SkillRegistry.strength(self, skill_id))
 		flat = maxi(flat, int(get_skill_param(skill_id, "armor_pen_flat", 0.0)))
 	var ratios := {}
 	if ratio > 0.0:
@@ -1190,14 +1024,14 @@ func deal_damage(target_enemy: Enemy, amount: int, damage_type: StringName = Str
 		return
 	var resolved_type := damage_type if DamageTypes.is_valid(damage_type) else get_attack_damage_type()
 	var penetration := get_armor_penetration()
-	target_enemy.take_damage(amount, character_id, resolved_type, penetration["ratios"], int(penetration["flat"]))
+	target_enemy.take_damage(amount, character_id, resolved_type, penetration["ratios"], int(penetration["flat"]), false, self)
 
 
 ## ============ 破隐（NUMBERS 10.16，✅ 0.8.13.1） ============
 
 ## 固有破隐：特性参数 reveal_stealth > 0（黄忠·哨戒），覆盖半径 = 自身射程。
 func has_inherent_reveal() -> bool:
-	return get_trait_param("reveal_stealth", 0.0) > 0.0
+	return character_id == "huang_zhong"
 
 
 ## 限时全图破隐（诸葛亮·借东风）：同源取更晚到期时间，效果结束即失效。
@@ -1216,48 +1050,19 @@ func reveals_stealth() -> bool:
 
 ## 舞娘 3 阶破隐光环：自身为 3 阶舞娘，或位于任一 3 阶友方舞娘射程内。
 func _is_in_dancer_reveal_aura() -> bool:
-	if _profession_id == &"dancer" and battle_rank >= DANCER_REVEAL_RANK:
-		return true
 	for node in get_tree().get_nodes_in_group(TOWER_GROUP):
 		var other := node as Tower
-		if other == null or other == self or not is_instance_valid(other) or other.is_queued_for_deletion():
-			continue
-		if other.get_profession_id() != &"dancer" or other.battle_rank < DANCER_REVEAL_RANK:
-			continue
-		if global_position.distance_to(other.global_position) <= other.range_radius:
-			return true
+		if other == null or other.is_queued_for_deletion() or not other.has_skill(&"passive_worship_moon"): continue
+		if other.battle_rank >= int(other.get_skill_param(&"passive_worship_moon", "battle_rank", 3)) and global_position.distance_to(other.global_position) <= other.range_radius: return true
 	return false
-
-
-func get_trait_id() -> StringName:
-	return _trait_id
-
-
-func get_trait_param(key: String, default: float) -> float:
-	var value := float(_trait_params.get(key, default))
-	if key in ["aura_slow", "slow_factor"]:
-		return maxf(1.0 - (1.0 - value) * skill_output_multiplier(), 0.0)
-	if key in ["duration", "aura_damage_bonus", "self_rage_bonus", "ally_rage_bonus"]:
-		return value * skill_output_multiplier()
-	return value
-
 
 func get_behavior_id() -> StringName:
 	return _behavior_id
 
 
-func get_consecutive_hits() -> int:
-	return _consecutive_hits
-
-
-## 伤害结算管线：基础值 × 增益 × 常驻光环桶 × 职业克制 × 特性（提交 7：刘备仁德与
-## 虎贲军旗收敛进 _aura_damage_bonus 加法桶，只乘一次 (1+clamp(Σ,0,+50%))。
-## 提交 10（档次 2）：科技全局/科技职业分支/羁绊由首行三连乘收敛为编队加成伤害桶
-## 层内加法，只乘一次 (1+clamp(Σ,0,+30%))；信物（L1）与局内遗物（L3）仍跨层乘算。
-## damage_type（✅ 0.8.14）：本次伤害类型；缺省 = 本塔普攻类型。信物·类型条件增伤
-## （天公雷诏 魔法 +12%）仅在该类型匹配时入乘区——调用方按实发伤害类型传参，
-## 与 Tower.deal_damage 的类型解析保持同源。
-func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"", is_skill: bool = true) -> int:
+## 通用伤害结算：信物、临时增伤、编队加法桶、局内遗物与职业克制。
+## 技能升级与技能增幅由执行器在入口应用一次，普攻在实际命中时独立暴击。
+func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"", _is_skill: bool = true) -> int:
 	# 常驻光环桶惰性刷新（提交 7）：拆塔/建塔后结算前自愈，避免缓存过期。
 	_ensure_aura_fresh()
 	var formation_bonus := clampf(
@@ -1268,18 +1073,7 @@ func finalize_damage(base: int, target: Enemy, damage_type: StringName = &"", is
 	var resolved_type := damage_type if DamageTypes.is_valid(damage_type) else get_attack_damage_type()
 	var relic_type_bonus := _relic_magic_damage_bonus if resolved_type == DamageTypes.MAGIC else 0.0
 	var value := float(base) * damage_buff * (1.0 + _relic_damage_bonus) * (1.0 + relic_type_bonus) * (1.0 + formation_bonus) * (1.0 + _battle_relic_damage_bonus)
-	value *= 1.0 + _aura_damage_bonus
 	value *= BehaviorRegistry.get_profession_counter(_profession_id, target.tags)
-	value *= BehaviorRegistry.get_trait_damage_multiplier(self, target)
-	value *= SkillRegistry.passive_damage_multiplier(self, target)
-	if _next_attack_bonus > 0.0:
-		value *= 1.0 + _next_attack_bonus
-		_next_attack_bonus = 0.0
-		var bonus_source := _next_attack_bonus_source
-		_next_attack_bonus_source = &"charge"
-		spawn_float_text(SkillRegistry.get_skill_name(bonus_source) + "+", Color(0.6, 0.9, 1.0))
-	if is_skill:
-		value *= skill_output_multiplier()
 	return int(round(value))
 
 
@@ -1364,16 +1158,8 @@ func _recalc_team_buff() -> void:
 	damage_buff = 1.0 + clampf(total_damage, 0.0, TEAM_BUFF_MULTIPLIER_CAP - 1.0)
 
 
-func _on_enemy_killed(character_id: String) -> void:
-	if character_id != self.character_id:
-		return
-	# 赵云·龙魂：击杀叠攻速（可叠加；目标丢失时重置）
-	if _trait_id == &"trait_dragon_spirit":
-		kill_stacks = mini(kill_stacks + 1, int(get_trait_param("max_stacks", 10.0)))
-		_rebuild_attack_timer()
-		spawn_float_text("龙魂 ×%d" % kill_stacks, Color(0.75, 0.9, 1.0))
-	SkillRegistry.on_kill(self, null)
-
+func _on_enemy_killed(killer_id: String) -> void:
+	if killer_id == character_id: SkillRegistry.on_kill(self)
 
 func find_target() -> Enemy:
 	var best_target: Enemy = null
@@ -1407,16 +1193,7 @@ func attack() -> void:
 		if not _is_target_in_range(target):
 			target = null
 			return
-		# 百步穿杨：连续攻击同一目标时伤害递增，换目标重置
-		if target == _last_attacked_target:
-			_consecutive_hits += 1
-		else:
-			_consecutive_hits = 1
-			_last_attacked_target = target
 
-	# 突袭（骁骑，提交 7）：普攻前消耗 1 层挂载该次加成（弹道发射时随伤害锁定，
-	# 与 charge「击杀后下一次攻击加成」同语义；大招/角色技能不走 attack() 不消耗层）。
-	SkillRegistry.try_consume_assault(self)
 	# 攻击行为按职业 behavior_id 分发（GDD modules/BEHAVIORS.md），
 	# 塔脚本不硬编码任何职业的攻击逻辑与攻击表现。
 	BehaviorRegistry.execute_attack(_behavior_id, self, target)
@@ -1555,7 +1332,6 @@ func _draw() -> void:
 		_draw_skill_flash()
 	_draw_rage_bar()
 	_draw_quick_cast_capsule()
-	_draw_character_skill_cooldown()
 	if _ult_visual_time > 0.0:
 		_draw_ultimate_visual()
 	if attack_speed_buff < 0.999:
@@ -1673,21 +1449,6 @@ func _draw_capsule_fill(pos: Vector2, w: float, h: float, ratio: float, color: C
 
 
 ## 角色技能冷却盘（阶段 8·提交 6）：塔身外细环按剩余冷却比例收缩，就绪时隐藏。
-func _draw_character_skill_cooldown() -> void:
-	if not SkillRegistry.has_character_skill(self) or SkillRegistry.is_character_skill_b_type(self):
-		return
-	if _char_skill_ready:
-		return
-	var total := SkillRegistry.character_skill_cooldown(self)
-	if total <= 0.0:
-		return
-	var remaining := clampf(_char_skill_cooldown_left / total, 0.0, 1.0)
-	var start := -PI / 2.0
-	# 角色 spine（试点 v0.6）：冷却环外扩避免被角色素材遮挡。
-	var cd_radius := 40.0 if _use_spine_visual else 25.0
-	draw_arc(Vector2.ZERO, cd_radius, start, start + TAU * remaining, 24, Color(0.55, 0.85, 1.0, 0.85), 2.5, true)
-
-
 ## 大招专属视觉（v0.15.0，GDD 阶段 5 提交 1）：按 ultimate_id 绘制差异化演出，
 ## 由 _try_cast_ultimate 成功后触发，持续 ULT_VISUAL_DURATION。
 func _draw_ultimate_visual() -> void:
@@ -1695,34 +1456,34 @@ func _draw_ultimate_visual() -> void:
 	var alpha := clampf(1.0 - t * 0.7, 0.1, 1.0)
 	var gold := Color(1.0, 0.85, 0.35, alpha)
 	match _ult_visual_id:
-		&"ultimate_cavalry_breaker":
+		&"char_green_dragon":
 			# 突击斩杀：大斩弧沿瞄准方向横扫 + 刀光
 			var start := _aim_angle - 1.2
 			var sweep := lerpf(0.0, 2.4, t)
 			draw_arc(Vector2.ZERO, 52.0, start, start + sweep, 18, gold, 6.0)
 			draw_line(Vector2.ZERO, Vector2.from_angle(_aim_angle) * 62.0, Color(1.0, 0.95, 0.7, alpha * 0.9), 3.0)
-		&"ultimate_tiger_guard_sweep":
+		&"char_dangyang_roar":
 			# 破阵：扩散圆环 + 六向震地线（激励段金色外环）
 			draw_arc(Vector2.ZERO, 30.0 + 46.0 * t, 0.0, TAU, 28, Color(0.6, 1.0, 0.7, alpha), 5.0)
 			for i in range(6):
 				var ang := _aim_angle + TAU * i / 6.0
 				draw_line(Vector2.from_angle(ang) * 34.0, Vector2.from_angle(ang) * (34.0 + 26.0 * t), Color(0.7, 1.0, 0.8, alpha), 2.5)
-		&"ultimate_archer_volley":
+		&"char_dingjun":
 			# 连珠齐射：枪口连闪三点
 			for i in range(3):
 				var dir := Vector2.from_angle(_aim_angle + (i - 1) * 0.22)
 				draw_circle(dir * 30.0, maxf(2.0, 5.0 - i * 1.4), gold)
-		&"ultimate_strategist_blaze":
+		&"char_borrow_wind":
 			# 火烧连营：旋转法阵 + 扩散火环
 			var spin := t * TAU
 			draw_arc(Vector2.ZERO, 34.0, spin, spin + 4.6, 20, Color(1.0, 0.6, 0.3, alpha), 4.0)
 			draw_arc(Vector2.ZERO, 46.0, -spin, -spin + 4.6, 20, Color(1.0, 0.75, 0.4, alpha * 0.8), 3.0)
 			draw_arc(Vector2.ZERO, 20.0 + 30.0 * t, 0.0, TAU, 24, Color(1.0, 0.5, 0.25, alpha * 0.7), 3.0)
-		&"ultimate_dancer_encourage":
+		&"char_moon_dance":
 			# 倾城鼓舞：双粉环扩散
 			draw_arc(Vector2.ZERO, 24.0 + 40.0 * t, 0.0, TAU, 26, Color(1.0, 0.65, 0.85, alpha), 4.0)
 			draw_arc(Vector2.ZERO, 34.0 + 40.0 * t, 0.0, TAU, 26, Color(1.0, 0.8, 0.9, alpha * 0.7), 2.5)
-		&"ultimate_catapult_barrage":
+		&"char_burn_camp":
 			# 石破天惊：抛射弧线示意
 			var p0 := Vector2.ZERO
 			var p1 := Vector2.from_angle(_aim_angle) * 70.0
@@ -1856,7 +1617,8 @@ func _draw_range() -> void:
 
 ## Hit-time critical roll: skills and damage-over-time never call this method.
 func attack_hit_damage(amount: int, roll: float = -1.0) -> int:
-	return roll_attack_critical(amount, crit_rate, crit_damage, roll)
+	var force := has_skill(&"passive_green_dragon_stance") and (skill_hit_counter + 1) % int(get_skill_param(&"passive_green_dragon_stance", "hit_every", 3)) == 0
+	return int(round(amount * crit_damage)) if force else roll_attack_critical(amount, crit_rate, crit_damage, roll)
 
 static func roll_attack_critical(amount: int, rate: float, multiplier: float, roll: float = -1.0) -> int:
 	var sample := randf() if roll < 0.0 else roll
@@ -1866,3 +1628,31 @@ static func roll_attack_critical(amount: int, rate: float, multiplier: float, ro
 
 func skill_output_multiplier() -> float:
 	return 1.0 + maxf(skill_amp, 0.0)
+
+func apply_skill_stat_buff(source: String, attack_bonus: float, crit_bonus: float, duration: float) -> void:
+	if duration <= 0.0: return
+	_skill_stat_buffs[source] = {"attack": attack_bonus, "crit": crit_bonus, "left": duration}
+	_recalc_skill_stats()
+
+func _tick_skill_stat_buffs(delta: float) -> void:
+	if _skill_stat_buffs.is_empty(): return
+	for id in _skill_stat_buffs.keys():
+		_skill_stat_buffs[id].left -= delta
+		if float(_skill_stat_buffs[id].left) <= 0.0: _skill_stat_buffs.erase(id)
+	_recalc_skill_stats()
+
+func _recalc_skill_stats() -> void:
+	var attack_bonus := 0.0
+	var crit_bonus := _aura_crit_rate
+	for entry in _skill_stat_buffs.values():
+		attack_bonus += float(entry.attack)
+		crit_bonus += float(entry.crit)
+	damage = int(round((_base_damage + _aura_attack_flat * _attack_growth_scale) * CharacterData.rank_scale(_battle_rank_damage_step, battle_rank) * (1.0 + attack_bonus)))
+	crit_rate = clampf(_base_crit_rate + crit_bonus, 0.0, 0.75)
+	skill_amp = _base_skill_amp
+	if has_skill(&"passive_worship_moon") and battle_rank >= int(get_skill_param(&"passive_worship_moon", "battle_rank", 3)):
+		skill_amp += get_skill_param(&"passive_worship_moon", "skill_amp") * SkillRegistry.level_multiplier(get_skill_level(&"passive_worship_moon"))
+
+func splash_radius(base: float) -> float:
+	var extra := get_skill_param(&"passive_fierce_flame", "splash_flat") * SkillRegistry.strength(self, &"passive_fierce_flame") if has_skill(&"passive_fierce_flame") else 0.0
+	return (base + extra) * get_battle_rank_aoe_multiplier()
