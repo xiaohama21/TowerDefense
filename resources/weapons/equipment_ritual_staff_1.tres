@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/WeaponData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/v2/equipment_ritual_staff_1.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+item_id = &"equipment_ritual_staff_1"
+display_name = "制式·桃木法杖"
+item_type = 6
+rarity = 0
+max_stack = 3
+icon = ExtResource("2")
+profession_id = &"strategist"
+set_number = 1
+affixes = {"magic_attack_flat": 6.0, "magic_damage_pct": 0.08}
+unlock_stage_id = &"ch01_s07"
+shop_price = 120

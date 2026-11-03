@@ -720,6 +720,8 @@ func _append_reward_glyphs(holder: Control, stage: StageData, compact: bool) -> 
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue
 		holder.add_child(_reward_glyph(str(reward.item.item_id), "×%d" % reward.amount, reward.item.display_name, compact))
+	for weapon in stage.first_clear_weapons:
+		if weapon != null: holder.add_child(_reward_glyph(str(weapon.weapon_id), "×1", weapon.display_name, compact))
 	var relic := stage.first_clear_relic_hard if _selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
 	if relic != null:
 		holder.add_child(_reward_glyph(str(relic.relic_id), "×1", relic.display_name, compact))

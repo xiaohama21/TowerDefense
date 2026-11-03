@@ -105,6 +105,7 @@ var _boss_banner_timer: SceneTreeTimer = null
 var _result_panel: PanelContainer
 var _result_center: CenterContainer
 var _result_title_label: Label
+var _result_reward_icons: HFlowContainer
 var _result_lines_label: Label
 var _result_next_button: Button
 var _result_wheel_button: Button
@@ -1094,6 +1095,10 @@ func _create_result_panel() -> void:
 	lines.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(lines)
 	_result_lines_label = lines
+	lines.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	_result_reward_icons = HFlowContainer.new()
+	_result_reward_icons.add_theme_constant_override("h_separation", 10)
+	vbox.add_child(_result_reward_icons)
 
 	var wheel_button := Button.new()
 	wheel_button.name = "ResultWheelButton"
@@ -1144,8 +1149,20 @@ func show_result(data: Dictionary) -> void:
 	var lines := _result_lines_label
 	title.text = "胜 利" if victory else "战 败"
 	title.add_theme_color_override("font_color",
-		UITheme.GREEN if victory else UITheme.RED)
+		UITheme.TAG_OK_FG if victory else UITheme.RED)
 
+	for child in _result_reward_icons.get_children():
+		_result_reward_icons.remove_child(child)
+		child.queue_free()
+	var weapon_rewards: Dictionary = data.get("weapon_rewards", {})
+	if victory and data.get("saved", false):
+		for id in weapon_rewards.get("weapons", {}):
+			_append_result_reward(str(id), int(weapon_rewards.weapons[id]), GameFlow.get_item_display_name(str(id)))
+		var loot: Dictionary = data.get("loot", {}).duplicate()
+		if int(weapon_rewards.get("seals", 0)) > 0:
+			loot["general_seal"] = int(loot.get("general_seal", 0)) + int(weapon_rewards.seals)
+		for id in loot:
+			_append_result_reward(str(id), int(loot[id]), GameFlow.get_item_display_name(str(id)))
 	var line_parts: Array[String] = []
 	if victory:
 		var xp_by_character: Dictionary = data.get("xp_by_character", {})
@@ -1155,9 +1172,6 @@ func show_result(data: Dictionary) -> void:
 					if GameFlow.load_character_data(str(character_id)) != null else str(character_id),
 				int(xp_by_character[character_id]),
 			])
-		var loot: Dictionary = data.get("loot", {})
-		for item_id in loot.keys():
-			line_parts.append("%s ×%d" % [GameFlow.get_item_display_name(str(item_id)), int(loot[item_id])])
 		for unlock_name in data.get("unlock_names", []):
 			line_parts.append("新武将加入：%s" % unlock_name)
 		if line_parts.is_empty():
@@ -1213,3 +1227,12 @@ func hide_result() -> void:
 	_result_center.visible = false
 	_result_panel.visible = false
 	_refresh_bottom_bar_visible()
+
+func _append_result_reward(id: String, amount: int, hint: String) -> void:
+	var row := HBoxContainer.new()
+	row.add_child(ConceptIcon.new(id, 30, hint))
+	var value := Label.new()
+	value.text = "×%d" % amount
+	value.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+	row.add_child(value)
+	_result_reward_icons.add_child(row)

@@ -88,7 +88,7 @@ func _test_migration() -> void:
 	var profile := PlayerProfile.new()
 	profile.unlock_character("guan_yu")
 	_check(profile.get_character("guan_yu").growth_guard.is_empty() and profile.get_character_rank("guan_yu") == 0, "新档没有守护")
-	for key in ["yuanbao", "lord_exp", "weapons", "talent_alloc", "shop_purchases", "skill_levels"]:
+	for key in ["yuanbao", "lord_exp", "talent_alloc", "shop_purchases", "skill_levels"]:
 		_check(not profile.to_dict().has(key), "不预置未来容器：" + key)
 	var profile_saved := PlayerProfile.from_dict(ProfileStore._migrate_v6_to_v7({"schema_version": 6, "characters": {"guan_yu": {"total_exp": 13340, "promotion_path": ["cavalry_heavy_armor"]}}}))
 	_check(ProfileStore.save_profile(profile_saved), "迁移档持久化")
@@ -193,7 +193,7 @@ func _test_panel_transaction() -> void:
 	await get_tree().process_frame
 	panel._select_character("guan_yu")
 	panel._refresh()
-	_check(panel._tab_container.get_tab_count() == 3 and panel._tab_container.get_tab_title(1) == "品阶", "养成页签清理")
+	_check(panel._tab_container.get_tab_count() == 4 and panel._tab_container.get_tab_title(1) == "品阶" and panel._tab_container.get_tab_title(2) == "装备", "养成页签清理")
 	var numeric_row: Control = panel._rank_value("stat_range", "×1.01 → ×1.03", "射程倍率")
 	_check((numeric_row.get_child(1) as Label).autowrap_mode == TextServer.AUTOWRAP_OFF, "品阶数值单行防竖排")
 	numeric_row.free()

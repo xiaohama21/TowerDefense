@@ -53,8 +53,8 @@ func skill_param(skill_id: StringName, key: String, fallback: float = 0.0) -> fl
 	var params: Dictionary = skill_params.get(str(skill_id), {})
 	return float(params.get(key, fallback))
 
-func skill_strength(skill_id: StringName, rank: int, levels: Dictionary = {}) -> float:
-	return SkillRegistry.level_multiplier(int(levels.get(str(skill_id), 1))) * (1.0 + per_rank_skill_amp * clampi(rank, 0, 5))
+func skill_strength(skill_id: StringName, rank: int, levels: Dictionary = {}, equipment_amp: float = 0.0) -> float:
+	return SkillRegistry.level_multiplier(int(levels.get(str(skill_id), 1))) * (1.0 + per_rank_skill_amp * clampi(rank, 0, 5) + equipment_amp)
 
 @export_category("Battle Rank Override (阶段 8，NUMBERS.md 10.9)")
 ## 角色级局内升阶步进覆盖（-1 = 继承职业配置；辅助定位角色如刘备在此配置辅助行数值）。
@@ -124,8 +124,11 @@ func remaining_guard(level: int, rank: int, guard: Dictionary) -> Dictionary:
 			result.erase(key)
 	return result
 
-func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}) -> Dictionary:
+func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}, weapon: WeaponData = null) -> Dictionary:
 	var r := clampi(rank, 0, 5)
+	var equipment := WeaponRegistry.bonuses(weapon, self)
+	var equipment_amp := float(equipment.get("skill_amp", 0.0))
+	var range_pct := float(equipment.get("range_pct", 0.0))
 	var bare := bare_stats_at(level, r)
 	var protected := CharacterRank.normalize_guard(guard)
 	for key in protected:
@@ -136,20 +139,24 @@ func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle
 	var new_attack := base_damage * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r]
 	if float(protected.get("attack", 0.0)) > float(bare_stats_at(level, r).attack):
 		new_attack = float(bare.attack) * (1.0 + attack_pct * (steps + bonus)) / (1.0 + attack_pct * steps)
+	var attack_key := "magic_attack_flat" if profession != null and profession.attack_damage_type == &"magic" else "physical_attack_flat"
+	new_attack += float(equipment.get(attack_key, 0.0)) * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r]
 	bare.attack = int(round(new_attack))
 	bare.range = float(bare.range) * (1.0 + range_pct_per_level * (steps + bonus)) / (1.0 + range_pct_per_level * steps) + (relic.range_bonus if relic != null else 0.0)
 	bare.attack_interval = float(bare.attack_interval) * (1.0 + speed_pct_per_level * steps) / (1.0 + speed_pct_per_level * (steps + bonus)) * (relic.attack_interval_factor if relic != null else 1.0)
 	var stats := {
 		"attack": int(bare.attack), "damage": int(bare.attack), "range": float(bare.range),
 		"attack_interval": float(bare.attack_interval), "min_range": profession.min_range if profession != null else 0.0,
-		"crit_rate": clampf(0.05 + per_rank_crit_rate * r, 0.0, 0.75),
-		"crit_damage": 1.5 + per_rank_crit_damage * r, "skill_amp": per_rank_skill_amp * r,
+		"crit_rate": clampf(0.05 + per_rank_crit_rate * r + float(equipment.get("crit_rate", 0.0)), 0.0, 0.75),
+		"crit_damage": 1.5 + per_rank_crit_damage * r + float(equipment.get("crit_damage", 0.0)), "skill_amp": per_rank_skill_amp * r + equipment_amp,
+		"projectile_speed": projectile_speed + float(equipment.get("projectile_flat", 0.0)),
+		"equipment": equipment,
 	}
 	# Permanent skills share this path with combat, development and encyclopedia.
 	for id in passive_ids:
 		if not is_skill_unlocked(id, r):
 			continue
-		var power := skill_strength(id, r, skill_levels)
+		var power := skill_strength(id, r, skill_levels, equipment_amp)
 		var params: Dictionary = skill_params.get(str(id), {})
 		if id == &"passive_worship_moon":
 			if battle_rank >= int(params.get("battle_rank", 3)):
@@ -160,12 +167,13 @@ func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle
 			stats.attack = stats.damage
 			stats.range += float(params.get("range_flat", 0.0)) * power
 		if id == &"trait_star_gazer":
-			stats.range *= 1.0 + float(params.get("range_bonus", 0.0)) * power
+			range_pct += float(params.get("range_bonus", 0.0)) * power
 		if id == &"trait_dragon_spirit":
 			stats.crit_damage += float(params.get("crit_damage", 0.0)) * power
 		if id == &"passive_dragon_courage":
 			stats.crit_rate = clampf(float(stats.crit_rate) + float(params.get("crit_rate", 0.0)) * power, 0.0, 0.75)
 
+	stats.range = (float(stats.range) + float(equipment.get("range_flat", 0.0))) * (1.0 + range_pct)
 	if battle_rank > 0:
 		var steps_battle := get_battle_rank_steps()
 		stats.damage = int(round(int(stats.damage) * rank_scale(steps_battle.damage, battle_rank)))

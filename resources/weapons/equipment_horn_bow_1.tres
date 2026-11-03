@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/WeaponData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/v2/equipment_horn_bow_1.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+item_id = &"equipment_horn_bow_1"
+display_name = "制式·雕角弓"
+item_type = 6
+rarity = 0
+max_stack = 3
+icon = ExtResource("2")
+profession_id = &"archer"
+set_number = 1
+affixes = {"physical_attack_flat": 5.0, "range_pct": 0.1}
+unlock_stage_id = &"ch01_s03"
+shop_price = 120

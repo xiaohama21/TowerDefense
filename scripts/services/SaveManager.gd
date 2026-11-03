@@ -539,6 +539,14 @@ func _migrate_v7_to_v8(old_data: Dictionary) -> Dictionary:
 	data["schema_version"] = 8
 	return data
 
+func _migrate_v8_to_v9(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	data["weapons"] = WeaponRegistry.normalize_inventory(data.get("weapons", {}))
+	if data.get("characters", {}) is Dictionary:
+		WeaponRegistry.normalize_equipped(data.characters, data.weapons)
+	data["schema_version"] = 9
+	return data
+
 func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 	var data := raw_data.duplicate(true)
 	var version := _read_schema_version(data)
@@ -580,6 +588,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 			7:
 				data = _migrate_v7_to_v8(data)
 				version = 8
+				migrated = true
+			8:
+				data = _migrate_v8_to_v9(data)
+				version = 9
 				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}
@@ -669,7 +681,7 @@ func _file_declares_newer_schema(path: String) -> bool:
 func _validate_current_shape(data: Dictionary) -> bool:
 	if _read_schema_version(data) != PlayerProfile.CURRENT_SCHEMA_VERSION:
 		return false
-	for key in ["characters", "stage_progress", "items", "gacha_state"]:
+	for key in ["characters", "stage_progress", "items", "weapons", "gacha_state"]:
 		if data.has(key) and not data[key] is Dictionary:
 			return false
 	return true

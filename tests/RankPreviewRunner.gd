@@ -34,7 +34,7 @@ func _run() -> void:
 	await _shot("develop_rank")
 	develop._tab_container.current_tab = 0
 	await _shot("develop_skills")
-	develop._tab_container.current_tab = 2
+	develop._tab_container.current_tab = 3
 	await _shot("develop_relic")
 	hub._show_panel(&"inventory")
 	await _shot("inventory_materials")

@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 8
+const CURRENT_SCHEMA_VERSION: int = 9
 ## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
 const SUPPLY_MAX_LEVEL: int = 3
 const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
@@ -29,6 +29,7 @@ var schema_version: int = CURRENT_SCHEMA_VERSION
 var characters: Dictionary = {}
 var stage_progress: Dictionary = {}
 var items: Dictionary = {}
+var weapons: Dictionary = {}
 var relics: Array[String] = []
 var gacha_state: Dictionary = {}
 var tech_points: int = 0
@@ -75,6 +76,8 @@ func load_dict(data: Dictionary) -> void:
 	items = _normalize_dictionary(source.get("items", {}))
 	# v5（0.8.15.0 防御性）：练兵令整体删除——旧档若残留（正式迁移在 SaveManager）就地清理。
 	items.erase("exp_scroll")
+	weapons = WeaponRegistry.normalize_inventory(source.get("weapons", {}))
+	WeaponRegistry.normalize_equipped(characters, weapons)
 	relics = _normalize_string_array(source.get("relics", []))
 	tech_points = _coerce_non_negative_int(source.get("tech_points", 0))
 	tech_unlocks = _normalize_string_array(source.get("tech_unlocks", []))
@@ -96,6 +99,7 @@ func to_dict() -> Dictionary:
 		"characters": characters.duplicate(true),
 		"stage_progress": stage_progress.duplicate(true),
 		"items": items.duplicate(true),
+		"weapons": weapons.duplicate(true),
 		"relics": relics.duplicate(),
 		"tech_points": tech_points,
 		"tech_unlocks": tech_unlocks.duplicate(),
@@ -122,6 +126,7 @@ func copy_from(other: PlayerProfile) -> void:
 	characters = other.characters.duplicate(true)
 	stage_progress = other.stage_progress.duplicate(true)
 	items = other.items.duplicate(true)
+	weapons = other.weapons.duplicate(true)
 	relics = other.relics.duplicate()
 	tech_points = other.tech_points
 	tech_unlocks = other.tech_unlocks.duplicate()
@@ -176,6 +181,7 @@ func unlock_character(character_id: String, initial_data: Dictionary = {}) -> bo
 	entry["skill_levels"] = SkillRegistry.normalize_levels(key, entry.get("skill_levels", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
+	entry["weapon_id"] = ""
 	characters[key] = entry
 	return true
 
@@ -622,6 +628,10 @@ func apply_battle_session(session: Object) -> bool:
 					result = raw_result
 			mark_stage_completed(stage_id, result)
 
+	if session.has_method("get_pending_weapons"):
+		for weapon_id in session.get_pending_weapons():
+			add_weapon(str(weapon_id), int(session.get_pending_weapons()[weapon_id]))
+
 	last_committed_run_id = run_id
 	schema_version = CURRENT_SCHEMA_VERSION
 	return true
@@ -716,3 +726,45 @@ func upgrade_skill(character_id: String, skill_id: StringName) -> bool:
 	levels[str(skill_id)] = level + 1
 	characters[character_id]["skill_levels"] = levels
 	return true
+
+
+func weapon_count(weapon_id: String) -> int:
+	return int(weapons.get(weapon_id, 0))
+
+func weapon_available(weapon_id: String, except_character: String = "") -> int:
+	var count := weapon_count(weapon_id)
+	for id in characters:
+		if str(id) != except_character and str(characters[id].get("weapon_id", "")) == weapon_id: count -= 1
+	return maxi(count, 0)
+
+func get_character_weapon_id(character_id: String) -> String:
+	return str(get_character(character_id).get("weapon_id", ""))
+
+func set_character_weapon(character_id: String, weapon_id: String) -> bool:
+	if not has_character(character_id): return false
+	if not weapon_id.is_empty():
+		var weapon := WeaponRegistry.get_weapon(weapon_id)
+		var character := GameFlow.load_character_data(character_id)
+		if weapon == null or not weapon.fits(character) or weapon_available(weapon_id, character_id) < 1: return false
+	var entry := get_character(character_id)
+	entry["weapon_id"] = weapon_id
+	characters[character_id] = entry
+	return true
+
+func weapon_reward_preview(pending: Dictionary) -> Dictionary:
+	var granted := {}
+	var seals := 0
+	for id in pending:
+		if WeaponRegistry.get_weapon(str(id)) == null: continue
+		var amount := maxi(int(pending[id]), 0)
+		var keep := mini(amount, maxi(WeaponRegistry.MAX_COUNT - weapon_count(str(id)), 0))
+		if keep > 0: granted[id] = keep
+		seals += (amount - keep) * WeaponRegistry.OVERFLOW_SEALS
+	return {"weapons": granted, "seals": seals}
+
+func add_weapon(weapon_id: String, amount: int = 1) -> Dictionary:
+	if WeaponRegistry.get_weapon(weapon_id) == null or amount <= 0: return {"weapons": {}, "seals": 0}
+	var result := weapon_reward_preview({weapon_id: amount})
+	weapons[weapon_id] = weapon_count(weapon_id) + int(result.weapons.get(weapon_id, 0))
+	if int(result.seals) > 0: add_item("general_seal", int(result.seals))
+	return result

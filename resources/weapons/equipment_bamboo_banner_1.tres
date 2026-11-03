@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/WeaponData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/v2/equipment_bamboo_banner_1.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+item_id = &"equipment_bamboo_banner_1"
+display_name = "制式·竹节幡"
+item_type = 6
+rarity = 0
+max_stack = 3
+icon = ExtResource("2")
+profession_id = &"strategist"
+set_number = 2
+affixes = {"skill_amp": 0.06, "armor_pen_pct": 0.2}
+unlock_stage_id = &"ch01_s07"
+shop_price = 120
