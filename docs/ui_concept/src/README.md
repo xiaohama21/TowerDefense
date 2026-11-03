@@ -100,4 +100,4 @@
 
 ### 4.2 经济图徽缺口（0.9.4）
 
-ingot（元宝）、lord_level（主公等级）、lord_exp（主公经验）暂无图；按ART_PROMPTS v0.21 / ICONS v1.2使用虚线圆占位。商店与经济结算规则见SHOP v0.2；现有物资、装备和五遗物图徽直接复用。17张当前窗口验收位于[runtime_0.9.4](../runtime_0.9.4/README.md)，GDD v0.37.75 / UI_LAYOUT v0.20.77 / UI_CONCEPT v0.33。
+ingot（元宝）、lord_level（主公等级）、lord_exp（主公经验）暂无图；按ART_PROMPTS v0.21 / ICONS v1.2使用虚线圆占位。商店与经济结算规则见SHOP v0.3；现有物资、装备和五遗物图徽直接复用。19张当前窗口验收位于[runtime_0.9.4.1](../runtime_0.9.4.1/README.md)，商品名称/说明常显、两列物资/装备与三列遗物，GDD v0.37.76 / UI_LAYOUT v0.20.78 / UI_CONCEPT v0.34。

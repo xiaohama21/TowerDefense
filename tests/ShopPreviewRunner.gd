@@ -1,10 +1,12 @@
 extends Node
 
 var _slot := ""
-var _capture_dir := "res://build/verify_0.9.4"
+var _capture_dir := "res://build/verify_0.9.4.1"
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--capture-dir="): _capture_dir = arg.trim_prefix("--capture-dir=")
 	_slot = "user://.shop_preview_%d.json" % Time.get_ticks_usec()
 	ProfileStore.configure_paths(_slot)
 	call_deferred("_run")
@@ -42,6 +44,10 @@ func _run() -> void:
 	await _shot("shop_l60_equipment")
 	(panel.find_child("ShopOffer_equipment_ring_blade_1",true,false).find_child("BuyOffer",true,false) as Button).pressed.emit()
 	await _shot("shop_equipment_full")
+	await _scroll_to(panel, "ShopOffer_equipment_ritual_staff_1")
+	await _shot("shop_equipment_middle")
+	await _scroll_to(panel, "ShopOffer_equipment_wood_mortar_1")
+	await _shot("shop_equipment_bottom")
 	panel._switch_page(1)
 	await _shot("shop_merit")
 	(panel.find_child("ShopOffer_merit_iron_shield",true,false).find_child("BuyOffer",true,false) as Button).pressed.emit()
@@ -93,6 +99,7 @@ func _scroll_to(panel, card_name: String) -> void:
 	await get_tree().process_frame
 
 func _shot(label: String) -> void:
+	Input.warp_mouse(Vector2(get_viewport().get_visible_rect().size.x - 5, 5))
 	await get_tree().create_timer(0.35).timeout
 	await RenderingServer.frame_post_draw
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_capture_dir))

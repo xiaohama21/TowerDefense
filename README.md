@@ -6,13 +6,13 @@
 
 ## 当前状态
 
-- 程序 **0.9.4.0**；设计总纲 **v0.37.75** / [SHOP v0.2](docs/modules/SHOP.md)；当前分支 **0.9.4**。阶段9·提交4完成元宝、主公等级与双商店，schema **v10**。
+- 程序 **0.9.4.1**；设计总纲 **v0.37.76** / [SHOP v0.3](docs/modules/SHOP.md)；当前分支 **0.9.4**。商店商品增加名称与简短说明，物资/装备两列、军功遗物三列，五件同屏；礼包数量、装备职业/双属性、限购/持有数常显，选中页签高亮，购买后保留滚动位置。阶段9·提交4的经济与schema **v10**保持原规格。
 - 胜利元宝首通30/重复10（困难×2），主公经验80/25（困难×1.5、四舍五入）；全局首通只领一次。主公L1~100只解锁六档商店，无战斗属性；旧档经济字段补0，保留养成、技能、装备和军功。
 - 元宝店：7常驻物资、12对应关通关后可购装备、3格物资轮换；军功店：5件永久遗物。常驻独立永久限购，装备每款最多3件（含装配），军功遗物每件仅一次。刷新费用10→20→30→10，胜利免费刷新重置10，升档补入新档商品。
 - 购买/刷新/胜利经副本原子保存，保存失败不扣费、不改限购或货架，旧点击/run_id拒绝重复收益。地图奖励随难度更新，s08全部奖励留在卡片内；结算显示经济与升级，背包补充商店来源。
 - 27技能名称、中文简介、数值标签与触发/解锁规则继续常显；[技能窗口](docs/ui_concept/runtime_0.9.3.1/README.md)保留。新增元宝、主公等级、主公经验三图徽暂用虚线圆占位，ART_PROMPTS / ICONS已登记。
-- 13项功能/回归通过：ShopRunner **461项**、GearRunner **446项**、SkillKitRunner、FlowRunner、SmokeRunner、Stage0Runner、RankRunner、PackVerify、DevelopRefreshRunner、UnlockReproRunner、ExitFlowRunner、TechUnlockRunner、SupplyStateRunner。17张1280×720截图见[商店与经济窗口验收](docs/ui_concept/runtime_0.9.4/README.md)，B-134~B-136已登记；既有Benchmark基线保留。
-- Windows release位于`build/release_0.9.4.0/`；完整包`build/FengHuoLianYing_v0.9.4.0_Windows.zip`，EXE副本`build/FengHuoLianYing_v0.9.4.0.exe`。导出、独立启动、实际Spine DLL、PE0.9.4.0及**105项包内检查**通过，含54项技能信息及商店/迁移/回滚/刷新/升级/装备/战斗结算/首波。旧0.9.3.1包保留。
+- 本次ShopRunner **461项**与FlowRunner通过，19张1280×720截图见[商品说明与多列货架](docs/ui_concept/runtime_0.9.4.1/README.md)，覆盖12款装备、礼包、五遗物与操作状态；B-137~B-139已登记。0.9.4.0的13项回归、GearRunner 446项和既有Benchmark基线保留。
+- Windows release位于`build/release_0.9.4.1/`；完整包`build/FengHuoLianYing_v0.9.4.1_Windows.zip`，EXE副本`build/FengHuoLianYing_v0.9.4.1.exe`。导出、独立启动、实际Spine DLL、PE0.9.4.1及**105项包内检查**通过，含54项技能信息及商店/迁移/回滚/刷新/升级/装备/战斗结算/首波。旧0.9.4.0与0.9.3.1包保留。
 - 0.9.4在版本分支提交与交付，main冻结于 **66cc17f**；启动0.9.5时按AGENTS §5.3同步。下一项按排期为天赋。
 
 
