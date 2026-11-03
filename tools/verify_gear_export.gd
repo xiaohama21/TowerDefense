@@ -14,10 +14,11 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.3.0", "project version 0.9.3.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.3.1", "project version 0.9.3.1")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
+	var skills = load("res://scripts/combat/SkillRegistry.gd")
 	store.configure_paths("user://.gear_export_%d.json" % Time.get_ticks_usec())
 	_check(flow.start_new_game(), "isolated new profile")
 	var profile = store.get_profile()
@@ -35,6 +36,7 @@ func _run() -> void:
 		profile.add_weapon(id, 3)
 	profile.unlock_character("guan_yu")
 	profile.unlock_character("zhuge_liang")
+	for id in flow.get_all_character_ids(): profile.unlock_character(id)
 	var hub = load("res://scenes/GameHub.tscn").instantiate()
 	root.add_child(hub)
 	await process_frame
@@ -53,6 +55,17 @@ func _run() -> void:
 	enc._on_sim_changed()
 	await process_frame
 	_check(profile.to_dict() == snapshot and enc._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged read-only weapon preview")
+	for id in flow.get_all_character_ids():
+		panel._select_character(id)
+		panel._refresh()
+		_check_skill_cards(panel, flow.load_character_data(id), skills, "develop")
+	var skill_snapshot = profile.to_dict()
+	for id in flow.get_all_character_ids():
+		enc._select_character(id)
+		enc._sim_rank_option.select(5)
+		enc._on_sim_changed()
+		_check_skill_cards(enc, flow.load_character_data(id), skills, "encyclopedia")
+	_check(profile.to_dict() == skill_snapshot, "skill encyclopedia leaves profile unchanged")
 	_check(not ResourceLoader.exists("res://tests/GearRunner.tscn") and not FileAccess.file_exists("res://AGENTS.md"), "development files excluded")
 	var session = load("res://scripts/services/BattleSession.gd").new("ch01_s08")
 	flow.collect_stage_rewards(session, flow.load_stage_data(&"ch01_s08"), true)
@@ -80,3 +93,17 @@ func _run() -> void:
 	await process_frame
 	print("PACKAGE_VERIFY_" + ("FAIL" if failed else "OK"))
 	quit(1 if failed else 0)
+
+func _check_skill_cards(panel, character, skills, context: String) -> void:
+	for id in character.get_skill_ids():
+		var card = panel._skill_tab.find_child("SkillCard_" + str(id), true, false)
+		var title = card.find_child("SkillName", true, false) if card != null else null
+		var description = card.find_child("SkillDescription", true, false) if card != null else null
+		var readable: bool = title != null and description != null and title.text == skills.get_skill_name(id) and description.text == skills.description_text(id) and not description.text.is_empty()
+		var labels: Array[String] = []
+		if card != null:
+			for label in card.find_children("*", "Label", true, false): labels.append(label.text)
+		for row in skills.effect_rows(character, id, 1, 0.0):
+			for entry in row:
+				readable = readable and entry.size() == 4 and labels.has(str(entry[3]))
+		_check(readable, "%s skill name, description and effect labels: %s" % [context, id])

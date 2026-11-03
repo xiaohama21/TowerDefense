@@ -25,12 +25,58 @@ const NAMES := {
 	"trait_vanguard": "陷阵", "char_death_fight": "死战", "ultimate_death_fight": "麦城死战",
 	"trait_star_gazer": "观星", "passive_momentum": "乘势", "char_borrow_wind": "借东风",
 }
+const DESCRIPTIONS := {
+	"passive_green_dragon_stance": "普攻按命中次数累计，周期性打出必定暴击的一击。",
+	"passive_warm_wine": "青龙偃月的最后一击完成后，短时间提升自身攻击速度。",
+	"char_green_dragon": "对目标连续斩击，造成真实伤害。击杀后的溢出伤害带入下一击，并按击杀数返还怒气。",
+	"trait_yanyan_roar": "普攻命中时有概率追加物理伤害，并使存活目标陷入恐惧、沿路径后退。",
+	"passive_yanhan": "自身击杀敌人时额外获得怒气，更快积满大招。",
+	"char_dangyang_roar": "对射程内敌人造成物理伤害，先使其恐惧后退，恐惧结束后再施加减速。",
+	"trait_benevolence": "提升射程内友方的基础攻击；不同刘备的光环可叠加，最多达到叠层上限。",
+	"passive_diligence": "提升射程内友方的暴击率；不同刘备的光环可叠加，最多达到叠层上限。",
+	"char_carry_people": "短时间提升射程内友方的攻击速度，帮助队伍集中输出。",
+	"trait_hundred_step": "连续普攻同一敌人时逐次增加普攻伤害，达到上限后保持；换目标重新累计。",
+	"passive_sentry": "普攻命中后使敌人中毒，在持续时间内每秒造成固定伤害。",
+	"char_dingjun": "使射程内敌人受到更多伤害，同时短时间提升自身攻击、攻速和暴击率。",
+	"trait_moon_veil": "提升自身和射程内友方的怒气获取速度，帮助队伍更频繁地施放大招。",
+	"passive_worship_moon": "本技能解锁后，局内升至指定阶数时提升自身技能增幅。",
+	"char_moon_dance": "短时间提升全队攻击速度，支援全场友方输出。",
+	"passive_fierce_flame": "常驻提升自身基础攻击、射程和普攻溅射半径。",
+	"passive_detonation": "被自身灼烧的敌人死亡时发生爆炸，对死亡位置附近的敌人造成物理伤害。",
+	"char_burn_camp": "轰击目标所在位置，对落点范围内的敌人造成物理伤害，并附加持续灼烧。",
+	"trait_dragon_spirit": "常驻提升自身穿甲和暴击伤害，强化对高护甲敌人的输出。",
+	"passive_dragon_courage": "常驻提升自身暴击率，使攻击更容易打出暴击。",
+	"char_seven_charges": "攻击射程内生命最低的多个敌人，对每个目标造成物理伤害，并短时间提升自身攻速。",
+	"trait_vanguard": "常驻提升自身穿甲，削弱敌方护甲对攻击的阻挡。",
+	"char_death_fight": "普攻命中时有概率追加一次高额物理伤害。",
+	"ultimate_death_fight": "对当前目标造成高额物理伤害；基地生命较低时，伤害进一步提升。",
+	"trait_star_gazer": "常驻扩大自身射程，并持续减速射程内的敌人。",
+	"passive_momentum": "施放借东风时，射程内每名受控敌人都会增加本次技能增幅，最多达到增幅上限。",
+	"char_borrow_wind": "对全图敌人造成魔法伤害，并使隐匿敌人现形，让所有友方都能攻击它们。",
+}
+const EFFECT_LABELS := {
+	"mult": "技能伤害", "speed_bonus": "攻速", "attack_flat": "基础攻击",
+	"range_flat": "射程", "range_bonus": "射程", "splash_flat": "溅射半径",
+	"crit_rate": "暴击率", "crit_damage": "暴击伤害", "penetration": "穿甲",
+	"kill_rage": "击杀返怒", "kill_cap": "返怒上限", "self_rage": "自身积怒",
+	"ally_rage": "友方积怒", "vulnerability": "易伤", "attack_bonus": "自身攻击",
+	"attack_step": "每次叠加", "attack_cap": "伤害上限", "slow_strength": "减速",
+	"fear_duration": "恐惧时间", "poison_dps": "中毒秒伤", "burn_ratio": "灼烧秒伤",
+	"skill_amp": "技能增幅", "amp_per_enemy": "每名受控敌人", "amp_cap": "增幅上限",
+	"reveal_duration": "现形时间", "duration": "持续时间", "slow_duration": "减速时间",
+	"radius": "效果半径", "targets": "目标数", "segments": "连击数",
+	"hit_every": "必暴间隔", "max_stacks": "叠层上限", "chance": "触发率",
+	"battle_rank": "局内阶数", "base_hp_threshold": "基地生命", "low_hp_mult": "低血增伤",
+}
 
 static func is_known(id: StringName) -> bool:
 	return NAMES.has(str(id))
 
 static func get_skill_name(id: StringName) -> String:
 	return str(NAMES.get(str(id), ""))
+
+static func description_text(id: StringName) -> String:
+	return str(DESCRIPTIONS.get(str(id), ""))
 
 static func level_multiplier(level: int) -> float:
 	return 1.0 + 0.03 * (clampi(level, 1, MAX_LEVEL) - 1)
@@ -260,7 +306,8 @@ static func effect_rows(character: CharacterData, id: StringName, level: int, am
 		var icon_key: String = str(icons.get(key, ""))
 		# Reuse existing generic system glyphs; every conceptual icon resolves in v2.
 		if UITheme.hud_icon(icon_key) == null: icon_key = "char_death_fight" if id == &"ultimate_death_fight" else str(id)
-		row.append([icon_key, text, str(hints.get(key, key))])
+		# Keep the first three fields stable for existing consumers.
+		row.append([icon_key, text, str(hints.get(key, key)), str(EFFECT_LABELS.get(key, key))])
 		if row.size() == 3:
 			rows.append(row)
 			row = []
