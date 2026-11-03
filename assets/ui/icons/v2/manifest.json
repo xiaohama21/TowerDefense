@@ -1,0 +1,2736 @@
+{
+  "version": 2,
+  "source": "original SVG; rendered by Godot",
+  "icons": [
+    {
+      "id": "coin",
+      "label": "金币",
+      "category": "hud",
+      "description": "金币",
+      "planned": false,
+      "svg": "coin.svg",
+      "png": "coin.png",
+      "pixels": 256
+    },
+    {
+      "id": "merit",
+      "label": "军功",
+      "category": "hud",
+      "description": "军功",
+      "planned": false,
+      "svg": "merit.svg",
+      "png": "merit.png",
+      "pixels": 256
+    },
+    {
+      "id": "base_hp",
+      "label": "基地生命",
+      "category": "hud",
+      "description": "基地生命",
+      "planned": false,
+      "svg": "base_hp.svg",
+      "png": "base_hp.png",
+      "pixels": 256
+    },
+    {
+      "id": "wave_flag",
+      "label": "波次",
+      "category": "hud",
+      "description": "波次",
+      "planned": false,
+      "svg": "wave_flag.svg",
+      "png": "wave_flag.png",
+      "pixels": 256
+    },
+    {
+      "id": "dmg_physical",
+      "label": "物理伤害",
+      "category": "hud",
+      "description": "物理伤害",
+      "planned": false,
+      "svg": "dmg_physical.svg",
+      "png": "dmg_physical.png",
+      "pixels": 256
+    },
+    {
+      "id": "dmg_magic",
+      "label": "魔法伤害",
+      "category": "hud",
+      "description": "魔法伤害",
+      "planned": false,
+      "svg": "dmg_magic.svg",
+      "png": "dmg_magic.png",
+      "pixels": 256
+    },
+    {
+      "id": "dmg_true",
+      "label": "真实伤害",
+      "category": "hud",
+      "description": "真实伤害",
+      "planned": false,
+      "svg": "dmg_true.svg",
+      "png": "dmg_true.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_attack",
+      "label": "攻击力",
+      "category": "hud",
+      "description": "攻击力",
+      "planned": false,
+      "svg": "stat_attack.svg",
+      "png": "stat_attack.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_attack_speed",
+      "label": "攻击速度",
+      "category": "hud",
+      "description": "攻击速度",
+      "planned": false,
+      "svg": "stat_attack_speed.svg",
+      "png": "stat_attack_speed.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_range",
+      "label": "射程",
+      "category": "hud",
+      "description": "射程",
+      "planned": false,
+      "svg": "stat_range.svg",
+      "png": "stat_range.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_armor",
+      "label": "护甲",
+      "category": "hud",
+      "description": "护甲",
+      "planned": false,
+      "svg": "stat_armor.svg",
+      "png": "stat_armor.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_armor_pen",
+      "label": "穿甲",
+      "category": "hud",
+      "description": "穿甲",
+      "planned": false,
+      "svg": "stat_armor_pen.svg",
+      "png": "stat_armor_pen.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_exp",
+      "label": "经验",
+      "category": "hud",
+      "description": "经验",
+      "planned": false,
+      "svg": "stat_exp.svg",
+      "png": "stat_exp.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_tenacity",
+      "label": "韧性",
+      "category": "hud",
+      "description": "韧性",
+      "planned": false,
+      "svg": "stat_tenacity.svg",
+      "png": "stat_tenacity.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_move_speed",
+      "label": "移动速度",
+      "category": "hud",
+      "description": "移动速度",
+      "planned": false,
+      "svg": "stat_move_speed.svg",
+      "png": "stat_move_speed.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_hp",
+      "label": "生命",
+      "category": "hud",
+      "description": "生命",
+      "planned": false,
+      "svg": "stat_hp.svg",
+      "png": "stat_hp.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_crit_rate",
+      "label": "暴击率",
+      "category": "hud",
+      "description": "暴击率",
+      "planned": false,
+      "svg": "stat_crit_rate.svg",
+      "png": "stat_crit_rate.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_crit_damage",
+      "label": "暴击伤害",
+      "category": "hud",
+      "description": "暴击伤害",
+      "planned": false,
+      "svg": "stat_crit_damage.svg",
+      "png": "stat_crit_damage.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_skill_amp",
+      "label": "技能增幅",
+      "category": "hud",
+      "description": "技能增幅",
+      "planned": false,
+      "svg": "stat_skill_amp.svg",
+      "png": "stat_skill_amp.png",
+      "pixels": 256
+    },
+    {
+      "id": "rage",
+      "label": "怒气",
+      "category": "hud",
+      "description": "怒气",
+      "planned": false,
+      "svg": "rage.svg",
+      "png": "rage.png",
+      "pixels": 256
+    },
+    {
+      "id": "uses",
+      "label": "使用次数",
+      "category": "hud",
+      "description": "使用次数",
+      "planned": false,
+      "svg": "uses.svg",
+      "png": "uses.png",
+      "pixels": 256
+    },
+    {
+      "id": "lock",
+      "label": "锁定",
+      "category": "hud",
+      "description": "锁定",
+      "planned": false,
+      "svg": "lock.svg",
+      "png": "lock.png",
+      "pixels": 256
+    },
+    {
+      "id": "cooldown",
+      "label": "冷却",
+      "category": "hud",
+      "description": "冷却",
+      "planned": false,
+      "svg": "cooldown.svg",
+      "png": "cooldown.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_splash",
+      "label": "溅射范围",
+      "category": "hud",
+      "description": "溅射范围",
+      "planned": false,
+      "svg": "stat_splash.svg",
+      "png": "stat_splash.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_projectile_speed",
+      "label": "弹道速度",
+      "category": "hud",
+      "description": "弹道速度",
+      "planned": false,
+      "svg": "stat_projectile_speed.svg",
+      "png": "stat_projectile_speed.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_heal",
+      "label": "治疗",
+      "category": "hud",
+      "description": "治疗",
+      "planned": false,
+      "svg": "stat_heal.svg",
+      "png": "stat_heal.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_lifesteal",
+      "label": "吸血",
+      "category": "hud",
+      "description": "吸血",
+      "planned": false,
+      "svg": "stat_lifesteal.svg",
+      "png": "stat_lifesteal.png",
+      "pixels": 256
+    },
+    {
+      "id": "stat_rage_gain",
+      "label": "怒气获取",
+      "category": "hud",
+      "description": "怒气获取",
+      "planned": false,
+      "svg": "stat_rage_gain.svg",
+      "png": "stat_rage_gain.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_point",
+      "label": "科技点",
+      "category": "hud",
+      "description": "科技点",
+      "planned": false,
+      "svg": "tech_point.svg",
+      "png": "tech_point.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_point",
+      "label": "天赋点",
+      "category": "hud",
+      "description": "天赋点",
+      "planned": false,
+      "svg": "talent_point.svg",
+      "png": "talent_point.png",
+      "pixels": 256
+    },
+    {
+      "id": "yuanbao",
+      "label": "元宝",
+      "category": "hud",
+      "description": "元宝",
+      "planned": false,
+      "svg": "yuanbao.svg",
+      "png": "yuanbao.png",
+      "pixels": 256
+    },
+    {
+      "id": "player_level",
+      "label": "主公等级",
+      "category": "hud",
+      "description": "主公等级",
+      "planned": false,
+      "svg": "player_level.svg",
+      "png": "player_level.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_slow",
+      "label": "减速",
+      "category": "status",
+      "description": "减速",
+      "planned": false,
+      "svg": "status_slow.svg",
+      "png": "status_slow.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_burn",
+      "label": "灼烧",
+      "category": "status",
+      "description": "灼烧",
+      "planned": false,
+      "svg": "status_burn.svg",
+      "png": "status_burn.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_vulnerable",
+      "label": "易伤",
+      "category": "status",
+      "description": "易伤",
+      "planned": false,
+      "svg": "status_vulnerable.svg",
+      "png": "status_vulnerable.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_stun",
+      "label": "眩晕",
+      "category": "status",
+      "description": "眩晕",
+      "planned": false,
+      "svg": "status_stun.svg",
+      "png": "status_stun.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_fear",
+      "label": "恐惧",
+      "category": "status",
+      "description": "恐惧",
+      "planned": false,
+      "svg": "status_fear.svg",
+      "png": "status_fear.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_knockback",
+      "label": "击退",
+      "category": "status",
+      "description": "击退",
+      "planned": false,
+      "svg": "status_knockback.svg",
+      "png": "status_knockback.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_poison",
+      "label": "中毒",
+      "category": "status",
+      "description": "中毒",
+      "planned": true,
+      "svg": "status_poison.svg",
+      "png": "status_poison.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_stealth",
+      "label": "隐匿",
+      "category": "status",
+      "description": "隐匿",
+      "planned": false,
+      "svg": "status_stealth.svg",
+      "png": "status_stealth.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_reveal",
+      "label": "破隐",
+      "category": "status",
+      "description": "破隐",
+      "planned": false,
+      "svg": "status_reveal.svg",
+      "png": "status_reveal.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_armor_aura",
+      "label": "护甲光环",
+      "category": "status",
+      "description": "护甲光环",
+      "planned": false,
+      "svg": "status_armor_aura.svg",
+      "png": "status_armor_aura.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_shield",
+      "label": "护盾",
+      "category": "status",
+      "description": "护盾",
+      "planned": false,
+      "svg": "status_shield.svg",
+      "png": "status_shield.png",
+      "pixels": 256
+    },
+    {
+      "id": "status_silence",
+      "label": "沉默",
+      "category": "status",
+      "description": "沉默",
+      "planned": true,
+      "svg": "status_silence.svg",
+      "png": "status_silence.png",
+      "pixels": 256
+    },
+    {
+      "id": "rank_white",
+      "label": "白阶",
+      "category": "rank",
+      "description": "白阶",
+      "planned": false,
+      "svg": "rank_white.svg",
+      "png": "rank_white.png",
+      "pixels": 256
+    },
+    {
+      "id": "rank_green",
+      "label": "绿阶",
+      "category": "rank",
+      "description": "绿阶",
+      "planned": false,
+      "svg": "rank_green.svg",
+      "png": "rank_green.png",
+      "pixels": 256
+    },
+    {
+      "id": "rank_purple",
+      "label": "紫阶",
+      "category": "rank",
+      "description": "紫阶",
+      "planned": false,
+      "svg": "rank_purple.svg",
+      "png": "rank_purple.png",
+      "pixels": 256
+    },
+    {
+      "id": "rank_yellow",
+      "label": "黄阶",
+      "category": "rank",
+      "description": "黄阶",
+      "planned": false,
+      "svg": "rank_yellow.svg",
+      "png": "rank_yellow.png",
+      "pixels": 256
+    },
+    {
+      "id": "rank_orange",
+      "label": "橙阶",
+      "category": "rank",
+      "description": "橙阶",
+      "planned": false,
+      "svg": "rank_orange.svg",
+      "png": "rank_orange.png",
+      "pixels": 256
+    },
+    {
+      "id": "rank_red",
+      "label": "红阶",
+      "category": "rank",
+      "description": "红阶",
+      "planned": false,
+      "svg": "rank_red.svg",
+      "png": "rank_red.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_1",
+      "label": "战斗阶 1",
+      "category": "battle_rank",
+      "description": "战斗阶 1",
+      "planned": false,
+      "svg": "battle_rank_1.svg",
+      "png": "battle_rank_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_2",
+      "label": "战斗阶 2",
+      "category": "battle_rank",
+      "description": "战斗阶 2",
+      "planned": false,
+      "svg": "battle_rank_2.svg",
+      "png": "battle_rank_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_3",
+      "label": "战斗阶 3",
+      "category": "battle_rank",
+      "description": "战斗阶 3",
+      "planned": false,
+      "svg": "battle_rank_3.svg",
+      "png": "battle_rank_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_4",
+      "label": "战斗阶 4",
+      "category": "battle_rank",
+      "description": "战斗阶 4",
+      "planned": false,
+      "svg": "battle_rank_4.svg",
+      "png": "battle_rank_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_5",
+      "label": "战斗阶 5",
+      "category": "battle_rank",
+      "description": "战斗阶 5",
+      "planned": false,
+      "svg": "battle_rank_5.svg",
+      "png": "battle_rank_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_6",
+      "label": "战斗阶 6",
+      "category": "battle_rank",
+      "description": "战斗阶 6",
+      "planned": false,
+      "svg": "battle_rank_6.svg",
+      "png": "battle_rank_6.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_7",
+      "label": "战斗阶 7",
+      "category": "battle_rank",
+      "description": "战斗阶 7",
+      "planned": false,
+      "svg": "battle_rank_7.svg",
+      "png": "battle_rank_7.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_8",
+      "label": "战斗阶 8",
+      "category": "battle_rank",
+      "description": "战斗阶 8",
+      "planned": false,
+      "svg": "battle_rank_8.svg",
+      "png": "battle_rank_8.png",
+      "pixels": 256
+    },
+    {
+      "id": "battle_rank_9",
+      "label": "战斗阶 9",
+      "category": "battle_rank",
+      "description": "战斗阶 9",
+      "planned": false,
+      "svg": "battle_rank_9.svg",
+      "png": "battle_rank_9.png",
+      "pixels": 256
+    },
+    {
+      "id": "general_seal",
+      "label": "将印",
+      "category": "item",
+      "description": "将印",
+      "planned": false,
+      "svg": "general_seal.svg",
+      "png": "general_seal.png",
+      "pixels": 256
+    },
+    {
+      "id": "refined_iron",
+      "label": "精铁",
+      "category": "item",
+      "description": "精铁",
+      "planned": false,
+      "svg": "refined_iron.svg",
+      "png": "refined_iron.png",
+      "pixels": 256
+    },
+    {
+      "id": "ebony",
+      "label": "乌木",
+      "category": "item",
+      "description": "乌木",
+      "planned": false,
+      "svg": "ebony.svg",
+      "png": "ebony.png",
+      "pixels": 256
+    },
+    {
+      "id": "skill_book",
+      "label": "技能升级书",
+      "category": "item",
+      "description": "技能升级书",
+      "planned": false,
+      "svg": "skill_book.svg",
+      "png": "skill_book.png",
+      "pixels": 256
+    },
+    {
+      "id": "gacha_token",
+      "label": "求贤令",
+      "category": "item",
+      "description": "求贤令",
+      "planned": false,
+      "svg": "gacha_token.svg",
+      "png": "gacha_token.png",
+      "pixels": 256
+    },
+    {
+      "id": "wolf_tooth",
+      "label": "狼牙符",
+      "category": "item",
+      "description": "狼牙符",
+      "planned": false,
+      "svg": "wolf_tooth.svg",
+      "png": "wolf_tooth.png",
+      "pixels": 256
+    },
+    {
+      "id": "iron_shield",
+      "label": "铁盾徽记",
+      "category": "item",
+      "description": "铁盾徽记",
+      "planned": false,
+      "svg": "iron_shield.svg",
+      "png": "iron_shield.png",
+      "pixels": 256
+    },
+    {
+      "id": "war_drums",
+      "label": "战鼓",
+      "category": "item",
+      "description": "战鼓",
+      "planned": false,
+      "svg": "war_drums.svg",
+      "png": "war_drums.png",
+      "pixels": 256
+    },
+    {
+      "id": "scout_eye",
+      "label": "鹰眼符",
+      "category": "item",
+      "description": "鹰眼符",
+      "planned": false,
+      "svg": "scout_eye.svg",
+      "png": "scout_eye.png",
+      "pixels": 256
+    },
+    {
+      "id": "provision_bag",
+      "label": "军粮袋",
+      "category": "item",
+      "description": "军粮袋",
+      "planned": false,
+      "svg": "provision_bag.svg",
+      "png": "provision_bag.png",
+      "pixels": 256
+    },
+    {
+      "id": "relic_guanyu_blade",
+      "label": "青龙偃月断刃",
+      "category": "item",
+      "description": "青龙偃月断刃",
+      "planned": false,
+      "svg": "relic_guanyu_blade.svg",
+      "png": "relic_guanyu_blade.png",
+      "pixels": 256
+    },
+    {
+      "id": "relic_huangfusong_torch",
+      "label": "火攻图卷",
+      "category": "item",
+      "description": "火攻图卷",
+      "planned": false,
+      "svg": "relic_huangfusong_torch.svg",
+      "png": "relic_huangfusong_torch.png",
+      "pixels": 256
+    },
+    {
+      "id": "relic_zhangfei_spear",
+      "label": "蛇矛精锻",
+      "category": "item",
+      "description": "蛇矛精锻",
+      "planned": false,
+      "svg": "relic_zhangfei_spear.svg",
+      "png": "relic_zhangfei_spear.png",
+      "pixels": 256
+    },
+    {
+      "id": "relic_tiangong_leizhao",
+      "label": "天公雷诏",
+      "category": "item",
+      "description": "天公雷诏",
+      "planned": false,
+      "svg": "relic_tiangong_leizhao.svg",
+      "png": "relic_tiangong_leizhao.png",
+      "pixels": 256
+    },
+    {
+      "id": "relic_taiping_yaoshu",
+      "label": "太平要术·残卷",
+      "category": "item",
+      "description": "太平要术·残卷",
+      "planned": false,
+      "svg": "relic_taiping_yaoshu.svg",
+      "png": "relic_taiping_yaoshu.png",
+      "pixels": 256
+    },
+    {
+      "id": "supply_repair",
+      "label": "修整",
+      "category": "supply",
+      "description": "修整",
+      "planned": false,
+      "svg": "supply_repair.svg",
+      "png": "supply_repair.png",
+      "pixels": 256
+    },
+    {
+      "id": "supply_fire_attack",
+      "label": "火攻",
+      "category": "supply",
+      "description": "火攻",
+      "planned": false,
+      "svg": "supply_fire_attack.svg",
+      "png": "supply_fire_attack.png",
+      "pixels": 256
+    },
+    {
+      "id": "supply_war_drum",
+      "label": "擂鼓",
+      "category": "supply",
+      "description": "擂鼓",
+      "planned": false,
+      "svg": "supply_war_drum.svg",
+      "png": "supply_war_drum.png",
+      "pixels": 256
+    },
+    {
+      "id": "supply_slow_down",
+      "label": "缓兵",
+      "category": "supply",
+      "description": "缓兵",
+      "planned": false,
+      "svg": "supply_slow_down.svg",
+      "png": "supply_slow_down.png",
+      "pixels": 256
+    },
+    {
+      "id": "supply_stone_volley",
+      "label": "掷石齐射",
+      "category": "supply",
+      "description": "掷石齐射",
+      "planned": false,
+      "svg": "supply_stone_volley.svg",
+      "png": "supply_stone_volley.png",
+      "pixels": 256
+    },
+    {
+      "id": "supply_reward_army",
+      "label": "犒军",
+      "category": "supply",
+      "description": "犒军",
+      "planned": false,
+      "svg": "supply_reward_army.svg",
+      "png": "supply_reward_army.png",
+      "pixels": 256
+    },
+    {
+      "id": "profession_cavalry",
+      "label": "骑兵",
+      "category": "profession",
+      "description": "骑兵",
+      "planned": false,
+      "svg": "profession_cavalry.svg",
+      "png": "profession_cavalry.png",
+      "pixels": 256
+    },
+    {
+      "id": "profession_tiger_guard",
+      "label": "虎贲",
+      "category": "profession",
+      "description": "虎贲",
+      "planned": false,
+      "svg": "profession_tiger_guard.svg",
+      "png": "profession_tiger_guard.png",
+      "pixels": 256
+    },
+    {
+      "id": "profession_archer",
+      "label": "弓箭手",
+      "category": "profession",
+      "description": "弓箭手",
+      "planned": false,
+      "svg": "profession_archer.svg",
+      "png": "profession_archer.png",
+      "pixels": 256
+    },
+    {
+      "id": "profession_strategist",
+      "label": "术士",
+      "category": "profession",
+      "description": "术士",
+      "planned": false,
+      "svg": "profession_strategist.svg",
+      "png": "profession_strategist.png",
+      "pixels": 256
+    },
+    {
+      "id": "profession_dancer",
+      "label": "舞娘",
+      "category": "profession",
+      "description": "舞娘",
+      "planned": false,
+      "svg": "profession_dancer.svg",
+      "png": "profession_dancer.png",
+      "pixels": 256
+    },
+    {
+      "id": "profession_catapult",
+      "label": "投石车",
+      "category": "profession",
+      "description": "投石车",
+      "planned": false,
+      "svg": "profession_catapult.svg",
+      "png": "profession_catapult.png",
+      "pixels": 256
+    },
+    {
+      "id": "ultimate_cavalry_breaker",
+      "label": "突击斩杀",
+      "category": "skill",
+      "description": "突击斩杀",
+      "planned": false,
+      "svg": "ultimate_cavalry_breaker.svg",
+      "png": "ultimate_cavalry_breaker.png",
+      "pixels": 256
+    },
+    {
+      "id": "ultimate_tiger_guard_sweep",
+      "label": "破阵横扫",
+      "category": "skill",
+      "description": "破阵横扫",
+      "planned": false,
+      "svg": "ultimate_tiger_guard_sweep.svg",
+      "png": "ultimate_tiger_guard_sweep.png",
+      "pixels": 256
+    },
+    {
+      "id": "ultimate_archer_volley",
+      "label": "箭雨",
+      "category": "skill",
+      "description": "箭雨",
+      "planned": false,
+      "svg": "ultimate_archer_volley.svg",
+      "png": "ultimate_archer_volley.png",
+      "pixels": 256
+    },
+    {
+      "id": "ultimate_strategist_blaze",
+      "label": "天火奇谋",
+      "category": "skill",
+      "description": "天火奇谋",
+      "planned": false,
+      "svg": "ultimate_strategist_blaze.svg",
+      "png": "ultimate_strategist_blaze.png",
+      "pixels": 256
+    },
+    {
+      "id": "ultimate_dancer_encourage",
+      "label": "凤仪鼓舞",
+      "category": "skill",
+      "description": "凤仪鼓舞",
+      "planned": false,
+      "svg": "ultimate_dancer_encourage.svg",
+      "png": "ultimate_dancer_encourage.png",
+      "pixels": 256
+    },
+    {
+      "id": "ultimate_catapult_barrage",
+      "label": "连环轰击",
+      "category": "skill",
+      "description": "连环轰击",
+      "planned": false,
+      "svg": "ultimate_catapult_barrage.svg",
+      "png": "ultimate_catapult_barrage.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_green_dragon",
+      "label": "青龙偃月",
+      "category": "skill",
+      "description": "青龙偃月",
+      "planned": false,
+      "svg": "char_green_dragon.svg",
+      "png": "char_green_dragon.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_dangyang_roar",
+      "label": "当阳怒吼",
+      "category": "skill",
+      "description": "当阳怒吼",
+      "planned": false,
+      "svg": "char_dangyang_roar.svg",
+      "png": "char_dangyang_roar.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_carry_people",
+      "label": "携民渡江",
+      "category": "skill",
+      "description": "携民渡江",
+      "planned": false,
+      "svg": "char_carry_people.svg",
+      "png": "char_carry_people.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_dingjun",
+      "label": "定军山",
+      "category": "skill",
+      "description": "定军山",
+      "planned": false,
+      "svg": "char_dingjun.svg",
+      "png": "char_dingjun.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_moon_dance",
+      "label": "月舞",
+      "category": "skill",
+      "description": "月舞",
+      "planned": false,
+      "svg": "char_moon_dance.svg",
+      "png": "char_moon_dance.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_burn_camp",
+      "label": "长社焚营",
+      "category": "skill",
+      "description": "长社焚营",
+      "planned": false,
+      "svg": "char_burn_camp.svg",
+      "png": "char_burn_camp.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_seven_charges",
+      "label": "七进七出",
+      "category": "skill",
+      "description": "七进七出",
+      "planned": false,
+      "svg": "char_seven_charges.svg",
+      "png": "char_seven_charges.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_death_fight",
+      "label": "死战",
+      "category": "skill",
+      "description": "死战",
+      "planned": false,
+      "svg": "char_death_fight.svg",
+      "png": "char_death_fight.png",
+      "pixels": 256
+    },
+    {
+      "id": "char_borrow_wind",
+      "label": "借东风",
+      "category": "skill",
+      "description": "借东风",
+      "planned": false,
+      "svg": "char_borrow_wind.svg",
+      "png": "char_borrow_wind.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_wusheng",
+      "label": "武圣",
+      "category": "skill",
+      "description": "武圣",
+      "planned": false,
+      "svg": "trait_wusheng.svg",
+      "png": "trait_wusheng.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_yanyan_roar",
+      "label": "燕人咆哮",
+      "category": "skill",
+      "description": "燕人咆哮",
+      "planned": false,
+      "svg": "trait_yanyan_roar.svg",
+      "png": "trait_yanyan_roar.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_benevolence",
+      "label": "仁德",
+      "category": "skill",
+      "description": "仁德",
+      "planned": false,
+      "svg": "trait_benevolence.svg",
+      "png": "trait_benevolence.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_hundred_step",
+      "label": "百步穿杨",
+      "category": "skill",
+      "description": "百步穿杨",
+      "planned": false,
+      "svg": "trait_hundred_step.svg",
+      "png": "trait_hundred_step.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_moon_veil",
+      "label": "月华",
+      "category": "skill",
+      "description": "月华",
+      "planned": false,
+      "svg": "trait_moon_veil.svg",
+      "png": "trait_moon_veil.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_royal_fire",
+      "label": "皇家火",
+      "category": "skill",
+      "description": "皇家火",
+      "planned": false,
+      "svg": "trait_royal_fire.svg",
+      "png": "trait_royal_fire.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_dragon_spirit",
+      "label": "龙魂",
+      "category": "skill",
+      "description": "龙魂",
+      "planned": false,
+      "svg": "trait_dragon_spirit.svg",
+      "png": "trait_dragon_spirit.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_captain",
+      "label": "陷阵",
+      "category": "skill",
+      "description": "陷阵",
+      "planned": false,
+      "svg": "trait_captain.svg",
+      "png": "trait_captain.png",
+      "pixels": 256
+    },
+    {
+      "id": "trait_star_gazer",
+      "label": "观星",
+      "category": "skill",
+      "description": "观星",
+      "planned": false,
+      "svg": "trait_star_gazer.svg",
+      "png": "trait_star_gazer.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_green_dragon_stance",
+      "label": "青龙势",
+      "category": "planned_skill",
+      "description": "青龙势",
+      "planned": true,
+      "svg": "passive_green_dragon_stance.svg",
+      "png": "passive_green_dragon_stance.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_warm_wine",
+      "label": "温酒",
+      "category": "planned_skill",
+      "description": "温酒",
+      "planned": true,
+      "svg": "passive_warm_wine.svg",
+      "png": "passive_warm_wine.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_yanhan",
+      "label": "燕颔",
+      "category": "planned_skill",
+      "description": "燕颔",
+      "planned": true,
+      "svg": "passive_yanhan.svg",
+      "png": "passive_yanhan.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_diligence",
+      "label": "砥砺",
+      "category": "planned_skill",
+      "description": "砥砺",
+      "planned": true,
+      "svg": "passive_diligence.svg",
+      "png": "passive_diligence.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_sentry",
+      "label": "哨戒",
+      "category": "planned_skill",
+      "description": "哨戒",
+      "planned": true,
+      "svg": "passive_sentry.svg",
+      "png": "passive_sentry.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_worship_moon",
+      "label": "拜月",
+      "category": "planned_skill",
+      "description": "拜月",
+      "planned": true,
+      "svg": "passive_worship_moon.svg",
+      "png": "passive_worship_moon.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_fierce_flame",
+      "label": "烈焰",
+      "category": "planned_skill",
+      "description": "烈焰",
+      "planned": true,
+      "svg": "passive_fierce_flame.svg",
+      "png": "passive_fierce_flame.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_detonation",
+      "label": "爆燃",
+      "category": "planned_skill",
+      "description": "爆燃",
+      "planned": true,
+      "svg": "passive_detonation.svg",
+      "png": "passive_detonation.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_dragon_courage",
+      "label": "龙胆",
+      "category": "planned_skill",
+      "description": "龙胆",
+      "planned": true,
+      "svg": "passive_dragon_courage.svg",
+      "png": "passive_dragon_courage.png",
+      "pixels": 256
+    },
+    {
+      "id": "passive_momentum",
+      "label": "乘势",
+      "category": "planned_skill",
+      "description": "乘势",
+      "planned": true,
+      "svg": "passive_momentum.svg",
+      "png": "passive_momentum.png",
+      "pixels": 256
+    },
+    {
+      "id": "bond_taoyuan_oath",
+      "label": "桃园结义",
+      "category": "bond",
+      "description": "桃园结义",
+      "planned": false,
+      "svg": "bond_taoyuan_oath.svg",
+      "png": "bond_taoyuan_oath.png",
+      "pixels": 256
+    },
+    {
+      "id": "bond_five_tigers",
+      "label": "五虎将",
+      "category": "bond",
+      "description": "五虎将",
+      "planned": false,
+      "svg": "bond_five_tigers.svg",
+      "png": "bond_five_tigers.png",
+      "pixels": 256
+    },
+    {
+      "id": "faction_wei",
+      "label": "魏",
+      "category": "faction",
+      "description": "魏",
+      "planned": true,
+      "svg": "faction_wei.svg",
+      "png": "faction_wei.png",
+      "pixels": 256
+    },
+    {
+      "id": "faction_shu",
+      "label": "蜀",
+      "category": "faction",
+      "description": "蜀",
+      "planned": true,
+      "svg": "faction_shu.svg",
+      "png": "faction_shu.png",
+      "pixels": 256
+    },
+    {
+      "id": "faction_wu",
+      "label": "吴",
+      "category": "faction",
+      "description": "吴",
+      "planned": true,
+      "svg": "faction_wu.svg",
+      "png": "faction_wu.png",
+      "pixels": 256
+    },
+    {
+      "id": "faction_qun",
+      "label": "群",
+      "category": "faction",
+      "description": "群",
+      "planned": true,
+      "svg": "faction_qun.svg",
+      "png": "faction_qun.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_close",
+      "label": "关闭",
+      "category": "system",
+      "description": "关闭",
+      "planned": false,
+      "svg": "ui_close.svg",
+      "png": "ui_close.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_check",
+      "label": "确认",
+      "category": "system",
+      "description": "确认",
+      "planned": false,
+      "svg": "ui_check.svg",
+      "png": "ui_check.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_plus",
+      "label": "plus",
+      "category": "system",
+      "description": "plus",
+      "planned": false,
+      "svg": "ui_plus.svg",
+      "png": "ui_plus.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_minus",
+      "label": "minus",
+      "category": "system",
+      "description": "minus",
+      "planned": false,
+      "svg": "ui_minus.svg",
+      "png": "ui_minus.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_menu",
+      "label": "menu",
+      "category": "system",
+      "description": "menu",
+      "planned": false,
+      "svg": "ui_menu.svg",
+      "png": "ui_menu.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_play",
+      "label": "play",
+      "category": "system",
+      "description": "play",
+      "planned": false,
+      "svg": "ui_play.svg",
+      "png": "ui_play.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_pause",
+      "label": "pause",
+      "category": "system",
+      "description": "pause",
+      "planned": false,
+      "svg": "ui_pause.svg",
+      "png": "ui_pause.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_restart",
+      "label": "restart",
+      "category": "system",
+      "description": "restart",
+      "planned": false,
+      "svg": "ui_restart.svg",
+      "png": "ui_restart.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_info",
+      "label": "明细",
+      "category": "system",
+      "description": "明细",
+      "planned": false,
+      "svg": "ui_info.svg",
+      "png": "ui_info.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_help",
+      "label": "帮助",
+      "category": "system",
+      "description": "帮助",
+      "planned": false,
+      "svg": "ui_help.svg",
+      "png": "ui_help.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_settings",
+      "label": "设置",
+      "category": "system",
+      "description": "设置",
+      "planned": false,
+      "svg": "ui_settings.svg",
+      "png": "ui_settings.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_sound",
+      "label": "sound",
+      "category": "system",
+      "description": "sound",
+      "planned": false,
+      "svg": "ui_sound.svg",
+      "png": "ui_sound.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_mute",
+      "label": "mute",
+      "category": "system",
+      "description": "mute",
+      "planned": false,
+      "svg": "ui_mute.svg",
+      "png": "ui_mute.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_music",
+      "label": "music",
+      "category": "system",
+      "description": "music",
+      "planned": false,
+      "svg": "ui_music.svg",
+      "png": "ui_music.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_fullscreen",
+      "label": "fullscreen",
+      "category": "system",
+      "description": "fullscreen",
+      "planned": false,
+      "svg": "ui_fullscreen.svg",
+      "png": "ui_fullscreen.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_windowed",
+      "label": "windowed",
+      "category": "system",
+      "description": "windowed",
+      "planned": false,
+      "svg": "ui_windowed.svg",
+      "png": "ui_windowed.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_save",
+      "label": "save",
+      "category": "system",
+      "description": "save",
+      "planned": false,
+      "svg": "ui_save.svg",
+      "png": "ui_save.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_trash",
+      "label": "trash",
+      "category": "system",
+      "description": "trash",
+      "planned": false,
+      "svg": "ui_trash.svg",
+      "png": "ui_trash.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_equip",
+      "label": "装备",
+      "category": "system",
+      "description": "装备",
+      "planned": false,
+      "svg": "ui_equip.svg",
+      "png": "ui_equip.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_unequip",
+      "label": "卸下",
+      "category": "system",
+      "description": "卸下",
+      "planned": false,
+      "svg": "ui_unequip.svg",
+      "png": "ui_unequip.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_home",
+      "label": "主城",
+      "category": "system",
+      "description": "主城",
+      "planned": false,
+      "svg": "ui_home.svg",
+      "png": "ui_home.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_inventory",
+      "label": "背包",
+      "category": "system",
+      "description": "背包",
+      "planned": false,
+      "svg": "ui_inventory.svg",
+      "png": "ui_inventory.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_formation",
+      "label": "编队",
+      "category": "system",
+      "description": "编队",
+      "planned": false,
+      "svg": "ui_formation.svg",
+      "png": "ui_formation.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_map",
+      "label": "关卡",
+      "category": "system",
+      "description": "关卡",
+      "planned": false,
+      "svg": "ui_map.svg",
+      "png": "ui_map.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_encyclopedia",
+      "label": "百科",
+      "category": "system",
+      "description": "百科",
+      "planned": false,
+      "svg": "ui_encyclopedia.svg",
+      "png": "ui_encyclopedia.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_develop",
+      "label": "养成",
+      "category": "system",
+      "description": "养成",
+      "planned": false,
+      "svg": "ui_develop.svg",
+      "png": "ui_develop.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_supply",
+      "label": "军需",
+      "category": "system",
+      "description": "军需",
+      "planned": false,
+      "svg": "ui_supply.svg",
+      "png": "ui_supply.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_shop",
+      "label": "商店",
+      "category": "system",
+      "description": "商店",
+      "planned": true,
+      "svg": "ui_shop.svg",
+      "png": "ui_shop.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_tavern",
+      "label": "酒馆",
+      "category": "system",
+      "description": "酒馆",
+      "planned": true,
+      "svg": "ui_tavern.svg",
+      "png": "ui_tavern.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_pet",
+      "label": "战宠",
+      "category": "system",
+      "description": "战宠",
+      "planned": true,
+      "svg": "ui_pet.svg",
+      "png": "ui_pet.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_tech",
+      "label": "科技",
+      "category": "system",
+      "description": "科技",
+      "planned": false,
+      "svg": "ui_tech.svg",
+      "png": "ui_tech.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_talent",
+      "label": "天赋",
+      "category": "system",
+      "description": "天赋",
+      "planned": true,
+      "svg": "ui_talent.svg",
+      "png": "ui_talent.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_victory",
+      "label": "胜利",
+      "category": "system",
+      "description": "胜利",
+      "planned": false,
+      "svg": "ui_victory.svg",
+      "png": "ui_victory.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_defeat",
+      "label": "失败",
+      "category": "system",
+      "description": "失败",
+      "planned": false,
+      "svg": "ui_defeat.svg",
+      "png": "ui_defeat.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_empty",
+      "label": "empty",
+      "category": "system",
+      "description": "empty",
+      "planned": false,
+      "svg": "ui_empty.svg",
+      "png": "ui_empty.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_arrow_right",
+      "label": "方向 right",
+      "category": "system",
+      "description": "方向 right",
+      "planned": false,
+      "svg": "ui_arrow_right.svg",
+      "png": "ui_arrow_right.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_arrow_down",
+      "label": "方向 down",
+      "category": "system",
+      "description": "方向 down",
+      "planned": false,
+      "svg": "ui_arrow_down.svg",
+      "png": "ui_arrow_down.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_arrow_left",
+      "label": "方向 left",
+      "category": "system",
+      "description": "方向 left",
+      "planned": false,
+      "svg": "ui_arrow_left.svg",
+      "png": "ui_arrow_left.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_arrow_up",
+      "label": "方向 up",
+      "category": "system",
+      "description": "方向 up",
+      "planned": false,
+      "svg": "ui_arrow_up.svg",
+      "png": "ui_arrow_up.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_star",
+      "label": "星级",
+      "category": "system",
+      "description": "星级",
+      "planned": false,
+      "svg": "ui_star.svg",
+      "png": "ui_star.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_star_outline",
+      "label": "未获星级",
+      "category": "system",
+      "description": "未获星级",
+      "planned": false,
+      "svg": "ui_star_outline.svg",
+      "png": "ui_star_outline.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_checkbox_off",
+      "label": "未勾选",
+      "category": "system",
+      "description": "未勾选",
+      "planned": false,
+      "svg": "ui_checkbox_off.svg",
+      "png": "ui_checkbox_off.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_checkbox_on",
+      "label": "已勾选",
+      "category": "system",
+      "description": "已勾选",
+      "planned": false,
+      "svg": "ui_checkbox_on.svg",
+      "png": "ui_checkbox_on.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_radio_off",
+      "label": "未选",
+      "category": "system",
+      "description": "未选",
+      "planned": false,
+      "svg": "ui_radio_off.svg",
+      "png": "ui_radio_off.png",
+      "pixels": 256
+    },
+    {
+      "id": "ui_radio_on",
+      "label": "已选",
+      "category": "system",
+      "description": "已选",
+      "planned": false,
+      "svg": "ui_radio_on.svg",
+      "png": "ui_radio_on.png",
+      "pixels": 256
+    },
+    {
+      "id": "game_crest",
+      "label": "烽火连营",
+      "category": "system",
+      "description": "烽火连营",
+      "planned": false,
+      "svg": "game_crest.svg",
+      "png": "game_crest.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ring_blade_1",
+      "label": "环首大刀",
+      "category": "equipment",
+      "description": "环首大刀",
+      "planned": true,
+      "svg": "equipment_ring_blade_1.svg",
+      "png": "equipment_ring_blade_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ring_blade_2",
+      "label": "断岳刀",
+      "category": "equipment",
+      "description": "断岳刀",
+      "planned": true,
+      "svg": "equipment_ring_blade_2.svg",
+      "png": "equipment_ring_blade_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ring_blade_3",
+      "label": "斩蛟刀",
+      "category": "equipment",
+      "description": "斩蛟刀",
+      "planned": true,
+      "svg": "equipment_ring_blade_3.svg",
+      "png": "equipment_ring_blade_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ring_blade_4",
+      "label": "伏波刀",
+      "category": "equipment",
+      "description": "伏波刀",
+      "planned": true,
+      "svg": "equipment_ring_blade_4.svg",
+      "png": "equipment_ring_blade_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ring_blade_5",
+      "label": "天威刀",
+      "category": "equipment",
+      "description": "天威刀",
+      "planned": true,
+      "svg": "equipment_ring_blade_5.svg",
+      "png": "equipment_ring_blade_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_long_spear_1",
+      "label": "铁脊长枪",
+      "category": "equipment",
+      "description": "铁脊长枪",
+      "planned": true,
+      "svg": "equipment_long_spear_1.svg",
+      "png": "equipment_long_spear_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_long_spear_2",
+      "label": "追云枪",
+      "category": "equipment",
+      "description": "追云枪",
+      "planned": true,
+      "svg": "equipment_long_spear_2.svg",
+      "png": "equipment_long_spear_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_long_spear_3",
+      "label": "龙骧枪",
+      "category": "equipment",
+      "description": "龙骧枪",
+      "planned": true,
+      "svg": "equipment_long_spear_3.svg",
+      "png": "equipment_long_spear_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_long_spear_4",
+      "label": "破阵枪",
+      "category": "equipment",
+      "description": "破阵枪",
+      "planned": true,
+      "svg": "equipment_long_spear_4.svg",
+      "png": "equipment_long_spear_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_long_spear_5",
+      "label": "天裂枪",
+      "category": "equipment",
+      "description": "天裂枪",
+      "planned": true,
+      "svg": "equipment_long_spear_5.svg",
+      "png": "equipment_long_spear_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horn_bow_1",
+      "label": "雕角弓",
+      "category": "equipment",
+      "description": "雕角弓",
+      "planned": true,
+      "svg": "equipment_horn_bow_1.svg",
+      "png": "equipment_horn_bow_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horn_bow_2",
+      "label": "穿柳弓",
+      "category": "equipment",
+      "description": "穿柳弓",
+      "planned": true,
+      "svg": "equipment_horn_bow_2.svg",
+      "png": "equipment_horn_bow_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horn_bow_3",
+      "label": "落雁弓",
+      "category": "equipment",
+      "description": "落雁弓",
+      "planned": true,
+      "svg": "equipment_horn_bow_3.svg",
+      "png": "equipment_horn_bow_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horn_bow_4",
+      "label": "惊弦弓",
+      "category": "equipment",
+      "description": "惊弦弓",
+      "planned": true,
+      "svg": "equipment_horn_bow_4.svg",
+      "png": "equipment_horn_bow_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horn_bow_5",
+      "label": "天狼弓",
+      "category": "equipment",
+      "description": "天狼弓",
+      "planned": true,
+      "svg": "equipment_horn_bow_5.svg",
+      "png": "equipment_horn_bow_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_silk_bells_1",
+      "label": "金铃绶带",
+      "category": "equipment",
+      "description": "金铃绶带",
+      "planned": true,
+      "svg": "equipment_silk_bells_1.svg",
+      "png": "equipment_silk_bells_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_silk_bells_2",
+      "label": "流霞带",
+      "category": "equipment",
+      "description": "流霞带",
+      "planned": true,
+      "svg": "equipment_silk_bells_2.svg",
+      "png": "equipment_silk_bells_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_silk_bells_3",
+      "label": "回雪绫",
+      "category": "equipment",
+      "description": "回雪绫",
+      "planned": true,
+      "svg": "equipment_silk_bells_3.svg",
+      "png": "equipment_silk_bells_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_silk_bells_4",
+      "label": "承云绫",
+      "category": "equipment",
+      "description": "承云绫",
+      "planned": true,
+      "svg": "equipment_silk_bells_4.svg",
+      "png": "equipment_silk_bells_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_silk_bells_5",
+      "label": "天霓绫",
+      "category": "equipment",
+      "description": "天霓绫",
+      "planned": true,
+      "svg": "equipment_silk_bells_5.svg",
+      "png": "equipment_silk_bells_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_thunder_cart_1",
+      "label": "霹雳车",
+      "category": "equipment",
+      "description": "霹雳车",
+      "planned": true,
+      "svg": "equipment_thunder_cart_1.svg",
+      "png": "equipment_thunder_cart_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_thunder_cart_2",
+      "label": "轰雷车",
+      "category": "equipment",
+      "description": "轰雷车",
+      "planned": true,
+      "svg": "equipment_thunder_cart_2.svg",
+      "png": "equipment_thunder_cart_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_thunder_cart_3",
+      "label": "轰山砲",
+      "category": "equipment",
+      "description": "轰山砲",
+      "planned": true,
+      "svg": "equipment_thunder_cart_3.svg",
+      "png": "equipment_thunder_cart_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_thunder_cart_4",
+      "label": "崩云砲",
+      "category": "equipment",
+      "description": "崩云砲",
+      "planned": true,
+      "svg": "equipment_thunder_cart_4.svg",
+      "png": "equipment_thunder_cart_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_thunder_cart_5",
+      "label": "乾元砲",
+      "category": "equipment",
+      "description": "乾元砲",
+      "planned": true,
+      "svg": "equipment_thunder_cart_5.svg",
+      "png": "equipment_thunder_cart_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ritual_staff_1",
+      "label": "桃木法杖",
+      "category": "equipment",
+      "description": "桃木法杖",
+      "planned": true,
+      "svg": "equipment_ritual_staff_1.svg",
+      "png": "equipment_ritual_staff_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ritual_staff_2",
+      "label": "青竹杖",
+      "category": "equipment",
+      "description": "青竹杖",
+      "planned": true,
+      "svg": "equipment_ritual_staff_2.svg",
+      "png": "equipment_ritual_staff_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ritual_staff_3",
+      "label": "玄玉杖",
+      "category": "equipment",
+      "description": "玄玉杖",
+      "planned": true,
+      "svg": "equipment_ritual_staff_3.svg",
+      "png": "equipment_ritual_staff_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ritual_staff_4",
+      "label": "承星杖",
+      "category": "equipment",
+      "description": "承星杖",
+      "planned": true,
+      "svg": "equipment_ritual_staff_4.svg",
+      "png": "equipment_ritual_staff_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_ritual_staff_5",
+      "label": "天枢杖",
+      "category": "equipment",
+      "description": "天枢杖",
+      "planned": true,
+      "svg": "equipment_ritual_staff_5.svg",
+      "png": "equipment_ritual_staff_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bone_mace_1",
+      "label": "骨朵",
+      "category": "equipment",
+      "description": "骨朵",
+      "planned": true,
+      "svg": "equipment_bone_mace_1.svg",
+      "png": "equipment_bone_mace_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bone_mace_2",
+      "label": "虎头锤",
+      "category": "equipment",
+      "description": "虎头锤",
+      "planned": true,
+      "svg": "equipment_bone_mace_2.svg",
+      "png": "equipment_bone_mace_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bone_mace_3",
+      "label": "镇军钺",
+      "category": "equipment",
+      "description": "镇军钺",
+      "planned": true,
+      "svg": "equipment_bone_mace_3.svg",
+      "png": "equipment_bone_mace_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bone_mace_4",
+      "label": "撼山斧",
+      "category": "equipment",
+      "description": "撼山斧",
+      "planned": true,
+      "svg": "equipment_bone_mace_4.svg",
+      "png": "equipment_bone_mace_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bone_mace_5",
+      "label": "玄天钺",
+      "category": "equipment",
+      "description": "玄天钺",
+      "planned": true,
+      "svg": "equipment_bone_mace_5.svg",
+      "png": "equipment_bone_mace_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horse_sword_1",
+      "label": "斩马剑",
+      "category": "equipment",
+      "description": "斩马剑",
+      "planned": true,
+      "svg": "equipment_horse_sword_1.svg",
+      "png": "equipment_horse_sword_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horse_sword_2",
+      "label": "断流剑",
+      "category": "equipment",
+      "description": "断流剑",
+      "planned": true,
+      "svg": "equipment_horse_sword_2.svg",
+      "png": "equipment_horse_sword_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horse_sword_3",
+      "label": "秋水剑",
+      "category": "equipment",
+      "description": "秋水剑",
+      "planned": true,
+      "svg": "equipment_horse_sword_3.svg",
+      "png": "equipment_horse_sword_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horse_sword_4",
+      "label": "承光剑",
+      "category": "equipment",
+      "description": "承光剑",
+      "planned": true,
+      "svg": "equipment_horse_sword_4.svg",
+      "png": "equipment_horse_sword_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_horse_sword_5",
+      "label": "玄光剑",
+      "category": "equipment",
+      "description": "玄光剑",
+      "planned": true,
+      "svg": "equipment_horse_sword_5.svg",
+      "png": "equipment_horse_sword_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_mulberry_bow_1",
+      "label": "桑木弓",
+      "category": "equipment",
+      "description": "桑木弓",
+      "planned": true,
+      "svg": "equipment_mulberry_bow_1.svg",
+      "png": "equipment_mulberry_bow_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_mulberry_bow_2",
+      "label": "鸣镝弓",
+      "category": "equipment",
+      "description": "鸣镝弓",
+      "planned": true,
+      "svg": "equipment_mulberry_bow_2.svg",
+      "png": "equipment_mulberry_bow_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_mulberry_bow_3",
+      "label": "引风弓",
+      "category": "equipment",
+      "description": "引风弓",
+      "planned": true,
+      "svg": "equipment_mulberry_bow_3.svg",
+      "png": "equipment_mulberry_bow_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_mulberry_bow_4",
+      "label": "星落弓",
+      "category": "equipment",
+      "description": "星落弓",
+      "planned": true,
+      "svg": "equipment_mulberry_bow_4.svg",
+      "png": "equipment_mulberry_bow_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_mulberry_bow_5",
+      "label": "天陨弓",
+      "category": "equipment",
+      "description": "天陨弓",
+      "planned": true,
+      "svg": "equipment_mulberry_bow_5.svg",
+      "png": "equipment_mulberry_bow_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_clay_flute_1",
+      "label": "陶埙",
+      "category": "equipment",
+      "description": "陶埙",
+      "planned": true,
+      "svg": "equipment_clay_flute_1.svg",
+      "png": "equipment_clay_flute_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_clay_flute_2",
+      "label": "和鸾笙",
+      "category": "equipment",
+      "description": "和鸾笙",
+      "planned": true,
+      "svg": "equipment_clay_flute_2.svg",
+      "png": "equipment_clay_flute_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_clay_flute_3",
+      "label": "鸣凤箫",
+      "category": "equipment",
+      "description": "鸣凤箫",
+      "planned": true,
+      "svg": "equipment_clay_flute_3.svg",
+      "png": "equipment_clay_flute_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_clay_flute_4",
+      "label": "承露笛",
+      "category": "equipment",
+      "description": "承露笛",
+      "planned": true,
+      "svg": "equipment_clay_flute_4.svg",
+      "png": "equipment_clay_flute_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_clay_flute_5",
+      "label": "九韶琴",
+      "category": "equipment",
+      "description": "九韶琴",
+      "planned": true,
+      "svg": "equipment_clay_flute_5.svg",
+      "png": "equipment_clay_flute_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_wood_mortar_1",
+      "label": "木梢砲",
+      "category": "equipment",
+      "description": "木梢砲",
+      "planned": true,
+      "svg": "equipment_wood_mortar_1.svg",
+      "png": "equipment_wood_mortar_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_wood_mortar_2",
+      "label": "裂石砲",
+      "category": "equipment",
+      "description": "裂石砲",
+      "planned": true,
+      "svg": "equipment_wood_mortar_2.svg",
+      "png": "equipment_wood_mortar_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_wood_mortar_3",
+      "label": "摧城砲",
+      "category": "equipment",
+      "description": "摧城砲",
+      "planned": true,
+      "svg": "equipment_wood_mortar_3.svg",
+      "png": "equipment_wood_mortar_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_wood_mortar_4",
+      "label": "承天砲",
+      "category": "equipment",
+      "description": "承天砲",
+      "planned": true,
+      "svg": "equipment_wood_mortar_4.svg",
+      "png": "equipment_wood_mortar_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_wood_mortar_5",
+      "label": "天崩砲",
+      "category": "equipment",
+      "description": "天崩砲",
+      "planned": true,
+      "svg": "equipment_wood_mortar_5.svg",
+      "png": "equipment_wood_mortar_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bamboo_banner_1",
+      "label": "竹节幡",
+      "category": "equipment",
+      "description": "竹节幡",
+      "planned": true,
+      "svg": "equipment_bamboo_banner_1.svg",
+      "png": "equipment_bamboo_banner_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bamboo_banner_2",
+      "label": "七星幡",
+      "category": "equipment",
+      "description": "七星幡",
+      "planned": true,
+      "svg": "equipment_bamboo_banner_2.svg",
+      "png": "equipment_bamboo_banner_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bamboo_banner_3",
+      "label": "八卦幡",
+      "category": "equipment",
+      "description": "八卦幡",
+      "planned": true,
+      "svg": "equipment_bamboo_banner_3.svg",
+      "png": "equipment_bamboo_banner_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bamboo_banner_4",
+      "label": "承曦幡",
+      "category": "equipment",
+      "description": "承曦幡",
+      "planned": true,
+      "svg": "equipment_bamboo_banner_4.svg",
+      "png": "equipment_bamboo_banner_4.png",
+      "pixels": 256
+    },
+    {
+      "id": "equipment_bamboo_banner_5",
+      "label": "河洛幡",
+      "category": "equipment",
+      "description": "河洛幡",
+      "planned": true,
+      "svg": "equipment_bamboo_banner_5.svg",
+      "png": "equipment_bamboo_banner_5.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_mil_dmg_1",
+      "label": "mil_dmg_1",
+      "category": "tech",
+      "description": "mil_dmg_1",
+      "planned": false,
+      "svg": "tech_mil_dmg_1.svg",
+      "png": "tech_mil_dmg_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_mil_dmg_2",
+      "label": "mil_dmg_2",
+      "category": "tech",
+      "description": "mil_dmg_2",
+      "planned": false,
+      "svg": "tech_mil_dmg_2.svg",
+      "png": "tech_mil_dmg_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_mil_dmg_3",
+      "label": "mil_dmg_3",
+      "category": "tech",
+      "description": "mil_dmg_3",
+      "planned": false,
+      "svg": "tech_mil_dmg_3.svg",
+      "png": "tech_mil_dmg_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_tiger_guard_1",
+      "label": "prof_tiger_guard_1",
+      "category": "tech",
+      "description": "prof_tiger_guard_1",
+      "planned": false,
+      "svg": "tech_prof_tiger_guard_1.svg",
+      "png": "tech_prof_tiger_guard_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_tiger_guard_2",
+      "label": "prof_tiger_guard_2",
+      "category": "tech",
+      "description": "prof_tiger_guard_2",
+      "planned": false,
+      "svg": "tech_prof_tiger_guard_2.svg",
+      "png": "tech_prof_tiger_guard_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_cavalry_1",
+      "label": "prof_cavalry_1",
+      "category": "tech",
+      "description": "prof_cavalry_1",
+      "planned": false,
+      "svg": "tech_prof_cavalry_1.svg",
+      "png": "tech_prof_cavalry_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_cavalry_2",
+      "label": "prof_cavalry_2",
+      "category": "tech",
+      "description": "prof_cavalry_2",
+      "planned": false,
+      "svg": "tech_prof_cavalry_2.svg",
+      "png": "tech_prof_cavalry_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_archer_1",
+      "label": "prof_archer_1",
+      "category": "tech",
+      "description": "prof_archer_1",
+      "planned": false,
+      "svg": "tech_prof_archer_1.svg",
+      "png": "tech_prof_archer_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_archer_2",
+      "label": "prof_archer_2",
+      "category": "tech",
+      "description": "prof_archer_2",
+      "planned": false,
+      "svg": "tech_prof_archer_2.svg",
+      "png": "tech_prof_archer_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_strategist_1",
+      "label": "prof_strategist_1",
+      "category": "tech",
+      "description": "prof_strategist_1",
+      "planned": false,
+      "svg": "tech_prof_strategist_1.svg",
+      "png": "tech_prof_strategist_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_strategist_2",
+      "label": "prof_strategist_2",
+      "category": "tech",
+      "description": "prof_strategist_2",
+      "planned": false,
+      "svg": "tech_prof_strategist_2.svg",
+      "png": "tech_prof_strategist_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_dancer_1",
+      "label": "prof_dancer_1",
+      "category": "tech",
+      "description": "prof_dancer_1",
+      "planned": false,
+      "svg": "tech_prof_dancer_1.svg",
+      "png": "tech_prof_dancer_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_dancer_2",
+      "label": "prof_dancer_2",
+      "category": "tech",
+      "description": "prof_dancer_2",
+      "planned": false,
+      "svg": "tech_prof_dancer_2.svg",
+      "png": "tech_prof_dancer_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_catapult_1",
+      "label": "prof_catapult_1",
+      "category": "tech",
+      "description": "prof_catapult_1",
+      "planned": false,
+      "svg": "tech_prof_catapult_1.svg",
+      "png": "tech_prof_catapult_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_prof_catapult_2",
+      "label": "prof_catapult_2",
+      "category": "tech",
+      "description": "prof_catapult_2",
+      "planned": false,
+      "svg": "tech_prof_catapult_2.svg",
+      "png": "tech_prof_catapult_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_eco_gold_1",
+      "label": "eco_gold_1",
+      "category": "tech",
+      "description": "eco_gold_1",
+      "planned": false,
+      "svg": "tech_eco_gold_1.svg",
+      "png": "tech_eco_gold_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_eco_gold_2",
+      "label": "eco_gold_2",
+      "category": "tech",
+      "description": "eco_gold_2",
+      "planned": false,
+      "svg": "tech_eco_gold_2.svg",
+      "png": "tech_eco_gold_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_eco_gold_3",
+      "label": "eco_gold_3",
+      "category": "tech",
+      "description": "eco_gold_3",
+      "planned": false,
+      "svg": "tech_eco_gold_3.svg",
+      "png": "tech_eco_gold_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_eco_wave_1",
+      "label": "eco_wave_1",
+      "category": "tech",
+      "description": "eco_wave_1",
+      "planned": false,
+      "svg": "tech_eco_wave_1.svg",
+      "png": "tech_eco_wave_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_eco_wave_2",
+      "label": "eco_wave_2",
+      "category": "tech",
+      "description": "eco_wave_2",
+      "planned": false,
+      "svg": "tech_eco_wave_2.svg",
+      "png": "tech_eco_wave_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_inf_hp_1",
+      "label": "inf_hp_1",
+      "category": "tech",
+      "description": "inf_hp_1",
+      "planned": false,
+      "svg": "tech_inf_hp_1.svg",
+      "png": "tech_inf_hp_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_inf_hp_2",
+      "label": "inf_hp_2",
+      "category": "tech",
+      "description": "inf_hp_2",
+      "planned": false,
+      "svg": "tech_inf_hp_2.svg",
+      "png": "tech_inf_hp_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_inf_hp_3",
+      "label": "inf_hp_3",
+      "category": "tech",
+      "description": "inf_hp_3",
+      "planned": false,
+      "svg": "tech_inf_hp_3.svg",
+      "png": "tech_inf_hp_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_rage_1",
+      "label": "strat_rage_1",
+      "category": "tech",
+      "description": "strat_rage_1",
+      "planned": false,
+      "svg": "tech_strat_rage_1.svg",
+      "png": "tech_strat_rage_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_rage_2",
+      "label": "strat_rage_2",
+      "category": "tech",
+      "description": "strat_rage_2",
+      "planned": false,
+      "svg": "tech_strat_rage_2.svg",
+      "png": "tech_strat_rage_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_refund_1",
+      "label": "strat_refund_1",
+      "category": "tech",
+      "description": "strat_refund_1",
+      "planned": false,
+      "svg": "tech_strat_refund_1.svg",
+      "png": "tech_strat_refund_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_refund_2",
+      "label": "strat_refund_2",
+      "category": "tech",
+      "description": "strat_refund_2",
+      "planned": false,
+      "svg": "tech_strat_refund_2.svg",
+      "png": "tech_strat_refund_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_upgrade_1",
+      "label": "strat_upgrade_1",
+      "category": "tech",
+      "description": "strat_upgrade_1",
+      "planned": false,
+      "svg": "tech_strat_upgrade_1.svg",
+      "png": "tech_strat_upgrade_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_upgrade_2",
+      "label": "strat_upgrade_2",
+      "category": "tech",
+      "description": "strat_upgrade_2",
+      "planned": false,
+      "svg": "tech_strat_upgrade_2.svg",
+      "png": "tech_strat_upgrade_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_supply_1",
+      "label": "strat_supply_1",
+      "category": "tech",
+      "description": "strat_supply_1",
+      "planned": false,
+      "svg": "tech_strat_supply_1.svg",
+      "png": "tech_strat_supply_1.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_supply_2",
+      "label": "strat_supply_2",
+      "category": "tech",
+      "description": "strat_supply_2",
+      "planned": false,
+      "svg": "tech_strat_supply_2.svg",
+      "png": "tech_strat_supply_2.png",
+      "pixels": 256
+    },
+    {
+      "id": "tech_strat_supply_3",
+      "label": "strat_supply_3",
+      "category": "tech",
+      "description": "strat_supply_3",
+      "planned": false,
+      "svg": "tech_strat_supply_3.svg",
+      "png": "tech_strat_supply_3.png",
+      "pixels": 256
+    },
+    {
+      "id": "pointer_toon_a",
+      "label": "pointer_toon_a",
+      "category": "cursor",
+      "description": "pointer_toon_a",
+      "planned": false,
+      "svg": "cursors/pointer_toon_a.svg",
+      "png": "cursors/pointer_toon_a.png",
+      "pixels": 32
+    },
+    {
+      "id": "pointer_a",
+      "label": "pointer_a",
+      "category": "cursor",
+      "description": "pointer_a",
+      "planned": false,
+      "svg": "cursors/pointer_a.svg",
+      "png": "cursors/pointer_a.png",
+      "pixels": 32
+    },
+    {
+      "id": "hand_point",
+      "label": "hand_point",
+      "category": "cursor",
+      "description": "hand_point",
+      "planned": false,
+      "svg": "cursors/hand_point.svg",
+      "png": "cursors/hand_point.png",
+      "pixels": 32
+    },
+    {
+      "id": "hand_closed",
+      "label": "hand_closed",
+      "category": "cursor",
+      "description": "hand_closed",
+      "planned": false,
+      "svg": "cursors/hand_closed.svg",
+      "png": "cursors/hand_closed.png",
+      "pixels": 32
+    },
+    {
+      "id": "cross_large",
+      "label": "cross_large",
+      "category": "cursor",
+      "description": "cross_large",
+      "planned": false,
+      "svg": "cursors/cross_large.svg",
+      "png": "cursors/cross_large.png",
+      "pixels": 32
+    },
+    {
+      "id": "drawing_pen",
+      "label": "drawing_pen",
+      "category": "cursor",
+      "description": "drawing_pen",
+      "planned": false,
+      "svg": "cursors/drawing_pen.svg",
+      "png": "cursors/drawing_pen.png",
+      "pixels": 32
+    },
+    {
+      "id": "drawing_brush",
+      "label": "drawing_brush",
+      "category": "cursor",
+      "description": "drawing_brush",
+      "planned": false,
+      "svg": "cursors/drawing_brush.svg",
+      "png": "cursors/drawing_brush.png",
+      "pixels": 32
+    },
+    {
+      "id": "drawing_eraser",
+      "label": "drawing_eraser",
+      "category": "cursor",
+      "description": "drawing_eraser",
+      "planned": false,
+      "svg": "cursors/drawing_eraser.svg",
+      "png": "cursors/drawing_eraser.png",
+      "pixels": 32
+    },
+    {
+      "id": "cursor_disabled",
+      "label": "cursor_disabled",
+      "category": "cursor",
+      "description": "cursor_disabled",
+      "planned": false,
+      "svg": "cursors/cursor_disabled.svg",
+      "png": "cursors/cursor_disabled.png",
+      "pixels": 32
+    }
+  ]
+}

@@ -1,5 +1,7 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
 [ext_resource type="Script" path="res://scripts/data/ItemData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/v2/general_seal.png" id="v2_icon"]
+
 [resource]
 script = ExtResource("1")
 item_id = &"general_seal"
@@ -8,3 +10,4 @@ description = "进阶时消耗的通用材料。"
 item_type = 2
 tags = [&"chapter_01"]
 max_stack = 9999
+icon = ExtResource("v2_icon")

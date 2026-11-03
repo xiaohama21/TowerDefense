@@ -677,7 +677,7 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	skrow.add_child(ult_card)
 	if not ultimate_id.is_empty():
 		var ult_owner := character.display_name
-		_fill_skill_card(ult_card, BehaviorRegistry.ultimate_display_name(ultimate_id).left(1),
+		_fill_skill_card(ult_card, str(ultimate_id),
 			"red", BehaviorRegistry.ultimate_display_name(ultimate_id),
 			[["怒气大招", UITheme.TAG_FIRE_FG, UITheme.TAG_FIRE_BG],
 			["%s · 大招" % ult_owner, UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT]],
@@ -697,7 +697,7 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 		else:
 			var cooldown := float(character.character_skill_params.get("cooldown", 0.0))
 			role_note = "A 主动" + (" · CD %.0fs" % cooldown if cooldown > 0.0 else "")
-		_fill_skill_card(role_card, SkillRegistry.get_character_skill_name(skill_id).left(1),
+		_fill_skill_card(role_card, str(skill_id),
 			"blue", SkillRegistry.get_character_skill_name(skill_id),
 			[["角色专属技能", UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT],
 			["不耗怒气", UITheme.TAG_LOCK_FG, UITheme.TAG_LOCK_BG]],
@@ -705,6 +705,12 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 			("条件触发（被动），随战斗条件自动生效。" if is_b else "冷却制自动释放（可选手动）；与职业层解耦。"), false, role_note)
 	else:
 		_fill_skill_card(role_card, "—", "grey", "暂无角色专属技能", [], "", "", false)
+	if not character.trait_id.is_empty():
+		var trait_card := _make_skill_card()
+		skill_box.add_child(trait_card)
+		_fill_skill_card(trait_card, str(character.trait_id), "gold", "常驻特性", [],
+			str(TRAIT_HINTS.get(character.trait_id, "说明随版本完善")),
+			"随战斗条件自动生效。", false)
 
 
 func _make_skill_card() -> PanelContainer:
@@ -731,7 +737,7 @@ func _fill_skill_card(card: PanelContainer, avatar_char: String, color_key: Stri
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 10)
 	content.add_child(head)
-	head.add_child(UITheme.avatar_label(avatar_char, color_key, 36.0, 16))
+	head.add_child(ConceptIcon.new(avatar_char if avatar_char != "—" else "ui_empty", 36, skill_name))
 	var meta := VBoxContainer.new()
 	meta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta.add_theme_constant_override("separation", 2)
@@ -825,7 +831,7 @@ func _build_relic_tab() -> void:
 	_relic_label = Label.new()
 	_relic_label.add_theme_font_size_override("font_size", 15)
 	_relic_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
-	_relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_relic_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	exclusive_slot.add_child(_relic_label)
 	var optional_title := Label.new()
 	optional_title.text = "可选信物槽（Boss 签名信物 · 通用件，可自由装卸）"
@@ -993,7 +999,8 @@ func _build_pool_dialog_header(overlay: Control) -> Panel:
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(title)
 	var close_button := Button.new()
-	close_button.text = "✕"
+	close_button.icon = UITheme.hud_icon_sized("ui_close", 18)
+	close_button.tooltip_text = "关闭"
 	close_button.custom_minimum_size = Vector2(34, 34)
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	close_button.add_theme_font_size_override("font_size", 17)
@@ -1180,6 +1187,7 @@ func _build_optional_relic_row(relic: RelicData, equipped_id: String) -> PanelCo
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	card.add_child(row)
+	row.add_child(ConceptIcon.new(str(relic.relic_id), 44, relic.display_name))
 	var text_box := VBoxContainer.new()
 	text_box.add_theme_constant_override("separation", 2)
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL

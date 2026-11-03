@@ -177,20 +177,20 @@ func _test_supply_depot(profile: PlayerProfile) -> void:
 	var stone_level_chip := stone_card["level"] as Label
 	var stone_action := stone_card["action"] as Button
 	_check(stone_level_chip.text == "未解锁", "未解锁军需卡片应显示「未解锁」chip")
-	_check(stone_action.text == "解锁 · 340 军功" and not stone_action.disabled,
-		"军功充足时未解锁卡片按钮应为「解锁 · 340 军功」且可点")
+	_check(stone_action.text == "解锁  340" and stone_action.icon == UITheme.hud_icon_sized("merit", 18) and not stone_action.disabled,
+		"军功充足时解锁按钮应显示动作＋军功图徽＋340且可点")
 	stone_action.pressed.emit()
 	await get_tree().process_frame
 	_check(profile.is_supply_unlocked("stone_volley") and profile.get_supply_level("stone_volley") == 1,
 		"点「解锁」应即时写档：掷石齐射已解锁并置 L1")
 	_check(profile.get_military_merit() == 660, "解锁应扣 340 军功")
 	_check(stone_level_chip.text == "L1", "解锁后卡片应显示 L1 chip")
-	_check(stone_action.text == "强化 · 150 军功", "L1 卡片按钮应为「强化 · 150 军功」")
+	_check(stone_action.text == "强化  150" and stone_action.icon == UITheme.hud_icon_sized("merit", 18), "L1 强化按钮应显示军功图徽＋150")
 	stone_action.pressed.emit()
 	await get_tree().process_frame
 	_check(profile.get_supply_level("stone_volley") == 2 and profile.get_military_merit() == 510,
 		"点「强化」应扣 150 军功并把等级提升到 L2")
-	_check(stone_action.text == "强化 · 300 军功", "L2 卡片按钮应为「强化 · 300 军功」")
+	_check(stone_action.text == "强化  300" and stone_action.icon == UITheme.hud_icon_sized("merit", 18), "L2 强化按钮应显示军功图徽＋300")
 
 	# 选带：点卡片切换选带态（基础 2 槽 = 未点科技「军府调度」），超槽位拒绝并提示。
 	var slot_count := depot.get("_slot_count_label") as Label

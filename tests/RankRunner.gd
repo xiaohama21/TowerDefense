@@ -228,6 +228,8 @@ func _test_encyclopedia_icons() -> void:
 		panel._on_sim_changed()
 		await get_tree().process_frame
 		var icon_id := "dmg_magic" if id == "zhuge_liang" else "dmg_physical"
+		_check(panel._sim_rank_option.get_item_icon(0).get_size() == Vector2(24, 24), "百科下拉图徽固定显示尺寸")
+		_check(panel._sim_rank_option.get_combined_minimum_size().y <= 40, "百科下拉最小高度不被源图撑大")
 		var stat_rows: Array = panel._base_tab.find_children("*", "GridContainer", true, false)
 		_check(not stat_rows.is_empty(), "百科基础属性卡存在")
 		if stat_rows.is_empty():

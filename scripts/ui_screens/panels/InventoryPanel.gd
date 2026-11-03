@@ -204,7 +204,7 @@ func _show_detail(item_id: String) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	_detail_box.add_child(row)
-	row.add_child(ConceptIcon.new(item_id, 56, item.display_name) if item_id in ["general_seal", "refined_iron", "ebony", "skill_book"] else UITheme.tile_label(item.display_name.left(1), TYPE_TILE_KEYS[type_index % TYPE_TILE_KEYS.size()], 56.0, 26))
+	row.add_child(ConceptIcon.new(item_id, 56, item.display_name))
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 3)
@@ -213,7 +213,7 @@ func _show_detail(item_id: String) -> void:
 	name_row.add_theme_constant_override("separation", 8)
 	info.add_child(name_row)
 	var name_label := Label.new()
-	name_label.text = "" if item_id in ["general_seal", "refined_iron", "ebony", "skill_book"] else item.display_name
+	name_label.text = ""
 	name_label.add_theme_font_override("font", UITheme.spaced_font(2))
 	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
@@ -349,7 +349,7 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	content.add_theme_constant_override("separation", 10)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(content)
-	content.add_child(ConceptIcon.new(item_id, 52, display_name) if item_id in ["general_seal", "refined_iron", "ebony", "skill_book"] else UITheme.tile_label(display_name.left(1), TYPE_TILE_KEYS[type_index % TYPE_TILE_KEYS.size()], 52.0, 24))
+	content.add_child(ConceptIcon.new(item_id, 52, display_name))
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -361,7 +361,7 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(name_row)
 	var name_label := Label.new()
-	name_label.text = "" if item_id in ["general_seal", "refined_iron", "ebony", "skill_book"] else display_name
+	name_label.text = ""
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	name_row.add_child(name_label)

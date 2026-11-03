@@ -11,10 +11,10 @@ config_version=5
 [application]
 
 config/name="TowerDefense"
-config/version="0.9.1.0"
+config/version="0.9.1.1"
 run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://assets/ui/icons/v2/game_crest.png"
 
 [autoload]
 

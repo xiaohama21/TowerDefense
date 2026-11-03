@@ -77,10 +77,10 @@ func _run() -> void:
 		await get_tree().process_frame
 	var refreshed := ProfileStore.get_profile()
 	_check(TechTree.is_unlocked(refreshed, "mil_dmg_2"), "点击解锁后 mil_dmg_2 应已解锁入库")
-	_check(unlock_btn != null and unlock_btn.text == "已解锁 ✓", "解锁后按钮应刷新为「已解锁 ✓」")
+	_check(unlock_btn != null and unlock_btn.text == "已解锁" and unlock_btn.icon != null, "解锁后按钮应显示已解锁与完成图徽")
 	_check(unlock_btn != null and unlock_btn.disabled, "解锁后按钮应禁用")
-	var bottom_label := node_btn.get_node_or_null("Content/BottomLabel") as Label
-	_check(bottom_label != null and bottom_label.text == "✓", "已解锁节点底部应显示 ✓")
+	var bottom_label := node_btn.get_node_or_null("Content/BottomLabel") as RichTextLabel
+	_check(bottom_label != null and bottom_label.text.contains("ui_check.png"), "已解锁节点底部应显示完成图徽")
 
 	# ③ 稀疏层列对齐（v0.20.51 / B-070）：将略 tier3「军府调度」必须与前置「官商合作」同列、
 	#    且不在首列；军略 tier3「百战精锐」仍在首列（终极层虚线提示条口径不变）。

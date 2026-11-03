@@ -562,7 +562,7 @@ func _apply_pick_style(option: OptionButton) -> void:
 
 
 func _chapter_arrow_icon() -> ImageTexture:
-	var texture := load("res://assets/ui/icons/arrow_basic_s_blue.png") as Texture2D
+	var texture := load("res://assets/ui/icons/v2/ui_arrow_down.png") as Texture2D
 	var image := texture.get_image()
 	image.resize(18, 12, Image.INTERPOLATE_LANCZOS)
 	return ImageTexture.create_from_image(image)
@@ -1137,6 +1137,7 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	_clear_tab(_skill_tab)
 	var skill_id := character.character_skill_id
 	if not skill_id.is_empty():
+		_skill_tab.add_child(ConceptIcon.new(str(skill_id), 38, SkillRegistry.get_character_skill_name(skill_id)))
 		var is_b := SkillRegistry.CHARACTER_SKILL_B_TYPE.has(skill_id)
 		var type_text := "条件触发（被动）" if is_b else "主动（冷却制）"
 		_skill_tab.add_child(_make_body_label("角色专属技能：%s（%s）" % [
@@ -1148,9 +1149,11 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	_skill_tab.add_child(_make_body_label("——", UITheme.LIGHT_LOCK))
 	var ultimate_id := character.ultimate_id
 	if not ultimate_id.is_empty():
+		_skill_tab.add_child(ConceptIcon.new(str(ultimate_id), 38, BehaviorRegistry.ultimate_display_name(ultimate_id)))
 		_skill_tab.add_child(_make_body_label("大招：%s（怒气满 100 释放）" % BehaviorRegistry.ultimate_display_name(ultimate_id), UITheme.LIGHT_GOLD_TEXT))
 		_skill_tab.add_child(_make_body_label("效果：%s" % ULTIMATE_HINTS.get(ultimate_id, "说明随版本完善"), UITheme.LIGHT_BODY))
 	else:
+		_skill_tab.add_child(ConceptIcon.new(str(ultimate_id), 38, BehaviorRegistry.ultimate_display_name(ultimate_id)))
 		_skill_tab.add_child(_make_body_label("大招：无", UITheme.LIGHT_LOCK))
 
 
@@ -1168,6 +1171,7 @@ func _refresh_relic_tab(character: CharacterData) -> void:
 		_relic_tab.add_child(_make_body_label("暂无通用信物", UITheme.LIGHT_LOCK))
 		return
 	for relic in relics:
+		_relic_tab.add_child(ConceptIcon.new(str(relic.relic_id), 38, relic.display_name))
 		var owned := profile != null and profile.has_relic(str(relic.relic_id))
 		var state := "已装备" if owned and equipped_id == str(relic.relic_id) else ("已持有" if owned else "未持有")
 		_relic_tab.add_child(_make_body_label("· %s（%s）\n　效果：%s\n　获取：%s" % [
@@ -1182,6 +1186,7 @@ func _append_trait_summary(character: CharacterData) -> void:
 	if trait_id.is_empty():
 		_skill_tab.add_child(_make_body_label("该武将暂无特性", UITheme.LIGHT_LOCK))
 		return
+	_skill_tab.add_child(ConceptIcon.new(str(trait_id), 34, "常驻特性"))
 	var hint_text: String = str(hints.get(trait_id, "说明随版本完善"))
 	_skill_tab.add_child(_make_body_label("特性（常驻被动）：%s" % hint_text, UITheme.LIGHT_GOLD_TEXT))
 

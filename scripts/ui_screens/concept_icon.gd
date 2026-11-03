@@ -11,6 +11,11 @@ func _init(icon_name: String = "", pixels: int = 24, hint: String = "", tint: Co
 	tooltip_text = hint
 	placeholder_color = tint
 	UITheme.apply_hud_icon(self, icon_name, pixels)
+	mouse_filter = Control.MOUSE_FILTER_PASS
+
+func set_icon(icon_name: String) -> void:
+	UITheme.apply_hud_icon(self, icon_name, int(custom_minimum_size.x))
+	queue_redraw()
 
 func set_rank(rank: int) -> void:
 	var r := clampi(rank, 0, 5)
@@ -21,7 +26,7 @@ func set_rank(rank: int) -> void:
 
 static func rank_texture(rank: int, pixels: int = 24) -> Texture2D:
 	var r := clampi(rank, 0, 5)
-	var available := UITheme.hud_icon("rank_" + CharacterRank.KEYS[r])
+	var available := UITheme.hud_icon_sized("rank_" + CharacterRank.KEYS[r], pixels)
 	if available != null:
 		return available
 	var bitmap := Image.create(pixels, pixels, false, Image.FORMAT_RGBA8)

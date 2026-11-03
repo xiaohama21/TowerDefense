@@ -68,7 +68,8 @@
 
 ## 4. 素材清单与许可
 
-- 0.9.1 缺口：general_seal / refined_iron / ebony / skill_book、六阶 rank_*、stat_crit_rate / stat_crit_damage / stat_skill_amp，共 13 枚；ART_PROMPTS §4.7 / §5.7，先虚线圆。转职稿只作历史归档。
+- 当前图标（0.9.1.1）：273 枚原创 SVG 母版与透明 PNG，唯一运行目录 `assets/ui/icons/v2/`；原 13 枚缺口及军需／怒气／限次／锁／阶徽／技能等均已补齐，当前资源缺口为 0，见 ART_PROMPTS §6.1 / ICONS v1.0。旧 `icons_hud/`、`icons_battle/`、Kenney 图标／光标与 SVG 实验稿保留历史归档，停止运行取用；转职稿继续归档。
+- 新版参考：[可搜索总览](../icons_v2.html)、[亮暗底与 15px 对照](../icons_v2_preview.png)、[实际运行截图](../runtime_0.9.1.1/)。以下旧图清单与再现路径用于历史设计稿追溯。
 
 
 - `fonts/ZCOOL-Kuaile.ttf`：站酷快乐体 2016 修订版（免费商用）；与运行时字体 `assets/fonts/ZCOOL-Kuaile.ttf` 同一文件（MD5 `2347D2B3716F8D584D276992E803CA1A`）。

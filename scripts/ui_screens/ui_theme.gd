@@ -356,29 +356,66 @@ const HUD_DISC_GOLD_DEEP := Color("#d9a53a")
 const HUD_DISC_RED := Color("#ff9d7d")
 const HUD_DISC_RED_DEEP := Color("#c2604f")
 
-## 通用 HUD 图徽目录（AGENTS §6「图徽优先」）：运行时就位 = assets/ui/icons/icons_hud
-## （随 PCK 导出；export_presets 排除 docs/*），开发副本 = docs/ui_concept/src/icons_hud。
-const HUD_ICON_DIR := "res://assets/ui/icons/icons_hud/"
-const HUD_ICON_DIR_FALLBACK := "res://docs/ui_concept/src/icons_hud/"
+## 新版图徽唯一目录（ICONS v1.0）。旧图保留归档，不作缺图兜底。
+const HUD_ICON_DIR := "res://assets/ui/icons/v2/"
+const ICON_MANIFEST := HUD_ICON_DIR + "manifest.json"
 
 static var _hud_icon_cache: Dictionary = {}
 static var _hud_icon_sized_cache: Dictionary = {}
 
 
-## 图徽加载（透明符号，裸符号落位）：assets 优先、docs 兜底；缺图返回 null，
+## 图徽加载（透明符号，裸符号落位）：只取新版；缺图返回 null，
 ## 调用方按 AGENTS §6 用虚线圆占位并登记 ART_PROMPTS。
 static func hud_icon(icon_name: String) -> Texture2D:
 	if _hud_icon_cache.has(icon_name):
 		return _hud_icon_cache[icon_name]
 	var texture: Texture2D = null
-	for dir in [HUD_ICON_DIR, HUD_ICON_DIR_FALLBACK]:
-		var path := "%s%s.png" % [dir, icon_name]
-		if ResourceLoader.exists(path):
-			texture = load(path) as Texture2D
-			if texture != null:
-				break
+	var path := "%s%s.png" % [HUD_ICON_DIR, icon_name]
+	if not icon_name.is_empty() and ResourceLoader.exists(path):
+		texture = load(path) as Texture2D
 	_hud_icon_cache[icon_name] = texture
 	return texture
+
+
+static func icon_bbcode(icon_name: String, pixels: int = 18) -> String:
+	return "[img=%dx%d]%s%s.png[/img]" % [pixels, pixels, HUD_ICON_DIR, icon_name]
+
+static func supply_effect_bbcode(supply: BattleSupplyData, level: int) -> String:
+	var duration := "  " + icon_bbcode("cooldown") + "%.0fs" % supply.duration_at(level)
+	if supply.instant_physical_at(level) > 0:
+		return icon_bbcode("dmg_physical") + str(supply.instant_physical_at(level))
+	if supply.heal_at(level) > 0:
+		return icon_bbcode("base_hp") + "+%d" % supply.heal_at(level)
+	if supply.rage_gain_at(level) > 0:
+		return icon_bbcode("rage") + "+%d" % supply.rage_gain_at(level)
+	if supply.burn_dps_at(level) > 0:
+		return icon_bbcode("dmg_magic") + str(supply.instant_magic_at(level)) + "  " + icon_bbcode("status_burn") + "%d/秒" % supply.burn_dps_at(level) + duration
+	if supply.attack_speed_bonus_at(level) > 0.0:
+		return icon_bbcode("stat_attack_speed") + "+%d%%" % roundi(supply.attack_speed_bonus_at(level) * 100.0) + duration
+	if supply.slow_factor_at(level) < 1.0:
+		return icon_bbcode("status_slow") + "%d%%" % roundi((1.0 - supply.slow_factor_at(level)) * 100.0) + duration
+	return supply.description
+
+
+## Install icons on the project's theme; all other font/skin settings are preserved.
+static func install_icon_theme() -> void:
+	var theme := load("res://assets/ui/ui_theme.tres") as Theme
+	var groups := {
+		"OptionButton": {"arrow": "ui_arrow_down"},
+		"CheckBox": {"checked": "ui_checkbox_on", "unchecked": "ui_checkbox_off", "checked_disabled": "ui_checkbox_on", "unchecked_disabled": "ui_checkbox_off", "radio_checked": "ui_radio_on", "radio_unchecked": "ui_radio_off"},
+		"CheckButton": {"checked": "ui_checkbox_on", "unchecked": "ui_checkbox_off", "checked_disabled": "ui_checkbox_on", "unchecked_disabled": "ui_checkbox_off"},
+		"PopupMenu": {"checked": "ui_checkbox_on", "unchecked": "ui_checkbox_off", "radio_checked": "ui_radio_on", "radio_unchecked": "ui_radio_off", "submenu": "ui_arrow_right"},
+		"Tree": {"checked": "ui_checkbox_on", "unchecked": "ui_checkbox_off", "arrow": "ui_arrow_down", "arrow_collapsed": "ui_arrow_right"},
+		"SpinBox": {"up": "ui_arrow_up", "down": "ui_arrow_down"},
+		"TabBar": {"close": "ui_close", "increment": "ui_arrow_right", "decrement": "ui_arrow_left"},
+		"Window": {"close": "ui_close", "close_pressed": "ui_close"},
+	}
+	for type_name in groups:
+		for icon_name in groups[type_name]:
+			var icon := hud_icon_sized(groups[type_name][icon_name], 18)
+			if icon != null:
+				theme.set_icon(icon_name, type_name, icon)
+				ThemeDB.get_default_theme().set_icon(icon_name, type_name, icon)
 
 
 ## 图徽落位（0.8.17.2）：< 24px 小档位（160px 源直缩 ≈10.7×，无 mipmap 线性 = 锯齿糊斑、

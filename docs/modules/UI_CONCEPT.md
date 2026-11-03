@@ -1,5 +1,14 @@
 # UI 概念图生成与归档（UI_CONCEPT）
 
+> 文档版本：v0.28（2026-11-03）
+> v0.28 变更：历史 PNG／HTML／SVG 实验稿保留原貌；当前图标参考改新版总览 icons_v2.html 与运行截图，全部旧图停止运行取用，缺口以 ICONS v1.0 台账为准。目标程序 0.9.1.1 / GDD v0.37.70。
+
+### 0.9.1.1 新版图标与运行界面归档（2026-11-03）
+
+`icons_v2.html` 提供 273 枚分类／搜索／亮暗底与大小对照；`icons_v2.png` 为全量总览，`icons_v2_preview.png` 为亮暗底与 15px 重点预览。当前资源缺口为 0，旧实验稿与旧概念稿保留原貌。
+
+运行截图 `runtime_0.9.1.1/` 由 `IconPreviewRunner` 隔离档案复现，含主菜单、地图、军需、背包、科技、养成三页、百科三页、设置、编队、战斗与局内军需；`export_main_menu.png` 仅从 Windows EXE 内嵌 PCK 挂载资源。校验报告见 `icons_v2_verification.json` / `icons_v2_release_verification.json`，台账与生产规范见 [ICONS](ICONS.md)。
+
 > 文档版本：v0.27（2026-10-30）
 > v0.27 变更（阶段 9·提交 1，程序 0.9.1.0 / GDD v0.37.69）：品阶页与百科模拟器替换转职；旧 HTML 概念稿保留历史归档，当前运行截图位于 runtime_0.9.1，由 RankPreviewRunner 使用隔离档案可复现。攻击按类型图徽＋数值，新增属性与材料用虚线圆，经验池余额用经验图徽。
 

@@ -308,10 +308,7 @@ func _append_chapter_row(list_box: VBoxContainer, name_text: String, is_current:
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row_content.add_child(name_label)
 	if is_current and enabled:
-		var check := Label.new()
-		check.text = "✔"
-		check.add_theme_font_size_override("font_size", 15)
-		check.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
+		var check := ConceptIcon.new("ui_check", 18, "已选择")
 		check.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row_content.add_child(check)
 	elif not enabled:
@@ -457,7 +454,7 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	head.add_child(star_spacer)
 	for star_index in range(3):
 		var star := TextureRect.new()
-		star.texture = load("res://assets/ui/icons/star_outline_grey.png")
+		star.texture = load("res://assets/ui/icons/v2/ui_star_outline.png")
 		star.custom_minimum_size = Vector2(16, 15)
 		star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		star.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -528,7 +525,7 @@ func _make_kv(k: String, v: String, k_color: Color, v_color: Color) -> HBoxConta
 
 ## 下拉框箭头图标：原图过大（会撑高顶栏），预缩放为 18×12。
 func _small_arrow_icon() -> ImageTexture:
-	var texture := load("res://assets/ui/icons/arrow_basic_s_blue.png") as Texture2D
+	var texture := load("res://assets/ui/icons/v2/ui_arrow_down.png") as Texture2D
 	var image := texture.get_image()
 	image.resize(18, 12, Image.INTERPOLATE_LANCZOS)
 	return ImageTexture.create_from_image(image)

@@ -81,7 +81,7 @@ var is_selected: bool = false
 # 局内临时状态（GDD 5.4/阶段 8）：升阶阶数（battle_rank）与总投入只存在于本局，不写入存档。
 var battle_rank: int = 0
 ## 阶级角标（0.8.17.0 / UI_LAYOUT §10 v2）：局内升阶 1/2/3 阶置于头像右下的圆形小标，0 阶隐藏。
-var _rank_badge: Label = null
+var _rank_badge: ConceptIcon = null
 var total_invested: int = 0
 var build_cost: int = 0
 var assigned_slot: Node = null
@@ -269,24 +269,14 @@ func _ready() -> void:
 
 ## 阶级角标（0.8.17.0 / UI_LAYOUT §10 v2）：头像右下 22px 圆标 + 升阶数（0 阶隐藏）。
 func _setup_battle_rank_badge() -> void:
-	_rank_badge = Label.new()
+	_rank_badge = ConceptIcon.new("battle_rank_1", 22)
 	_rank_badge.name = "BattleRankBadge"
 	_rank_badge.custom_minimum_size = Vector2(22, 22)
 	_rank_badge.size = Vector2(22, 22)
 	# 角标压塔身右下角（UI_LAYOUT §10 v2 概念稿 .rank = left31/top29 于 50×74 塔框）。
 	_rank_badge.position = Vector2(14, 30)
-	_rank_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_rank_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_rank_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_rank_badge.z_index = 1
-	_rank_badge.add_theme_font_size_override("font_size", 14)
-	_rank_badge.add_theme_color_override("font_color", Color("#ffd479"))
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#14231a")
-	style.border_color = Color("#c9a35c")
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(11)
-	_rank_badge.add_theme_stylebox_override("normal", style)
 	add_child(_rank_badge)
 	_refresh_battle_rank_badge()
 
@@ -295,7 +285,7 @@ func _refresh_battle_rank_badge() -> void:
 	if _rank_badge == null or not is_instance_valid(_rank_badge):
 		return
 	_rank_badge.visible = battle_rank > 0
-	_rank_badge.text = str(mini(battle_rank, 9))
+	_rank_badge.set_icon("battle_rank_%d" % clampi(battle_rank, 1, 9))
 
 
 ## Apply a CharacterData to this tower. Call after add_child() so all

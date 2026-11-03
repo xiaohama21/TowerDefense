@@ -1,5 +1,8 @@
 # 美术资产规范（ART_ASSETS）
 
+> 文档版本：v0.23（2026-11-03）
+> v0.23 变更：全部旧图标保留并弃用；当前图标改原创 SVG 母版与透明 PNG，唯一运行目录 assets/ui/icons/v2，生产／语义台账／验收以 ICONS v1.0 为准，目标程序 0.9.1.1 / GDD v0.37.70。
+
 > 文档版本：v0.22（2026-10-26）
 > v0.22 变更（2026-10-26，GDD v0.37.68 / 程序 0.8.17.4）：校正当前图徽／关羽接入台账；战场 Q 版军营视觉基线与优先级登记（阶段 9·8），历史变更行保留。
 
@@ -52,9 +55,9 @@ assets/
 │   ├── buttons/
 │   │   ├── rect/{yellow,red,grey,blue,green}/{normal,hover,pressed}.png
 │   │   └── round/{yellow,red,grey,blue,green}/{normal,hover,pressed}.png
-│   ├── icons/              # 星形/勾选/关闭/箭头/输入框/分隔线/滑块
+│   ├── icons/              # 旧图保留弃用；v2/ 为 273 枚原创 SVG + 透明 PNG，含 cursors/
 │   ├── panels/             # 弹窗/面板九宫格底图（自绘或素材化，当前为空=预留）
-│   ├── cursors/            # 鼠标光标（Kenney Cursor Pack 调色定稿 B，v0.14 入库：9 枚 × {32px, _2x}）
+│   ├── cursors/            # 旧 Kenney 光标归档，当前取用 icons/v2/cursors/
 │   └── ui_theme.tres       # 全局主题（默认字体=快乐体，系统字体回退）
 ├── map/                    # 战斗地图素材
 │   ├── decor/              # 装饰（banner/rock/torch/tree，原 assets/decor，v0.33.4 迁移）
@@ -68,6 +71,8 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 ```
 
 ## 3. UI 素材台账（✅ 已入库）
+
+当前图标：[ICONS](ICONS.md) v1.0，原创 SVG 273 枚、透明 PNG 273 枚，另有双倍光标与 Windows ICO；旧图文件全部保留，运行代码和导出包停止取用。以下 Kenney 按钮皮肤继续使用；其旧图标／光标及旧 AI 图徽台账只作历史来源记录。
 
 来源：Kenney UI Pack（[kenney.nl/assets/ui-pack](https://kenney.nl/assets/ui-pack)，CC0），切片取 Double（2×）以保证 1280×720 下清晰。
 

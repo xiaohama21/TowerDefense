@@ -1,5 +1,9 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
+> 文档版本：v0.37.70（2026-11-03）
+> v0.37.70 变更：图标系统整体换版，全部旧图标保留归档并停止运行时取用；原创 SVG 母版转换透明 PNG，补齐 HUD／品阶／物品／技能／军需／系统／光标及定稿预备图。新增 ICONS v1.0；ART_ASSETS v0.23 / ART_PROMPTS v0.19 / UI_LAYOUT v0.20.72 / UI_CONCEPT v0.28。0.9.1 分支延伸，目标程序 0.9.1.1，main 保持冻结。
+> 0.9.1.1 验收（2026-11-03）：273 枚原创 SVG／PNG 接入，当前资源图标缺口为 0；旧图哈希保持不变，旧图停止运行取用且从导出包排除。PackVerify／Smoke／Flow／ExitFlow／Rank／TechUnlock／SupplyState／DevelopRefresh／GoldFx／MapEditor 共 10 项功能回归通过；15 张开发态截图与包内主菜单截图归档。Windows 文件／PE 0.9.1.1，独立 release 启动退出码 0，挂载包内 273 图标与旧图排除校验通过。BUGS v0.66 / ENCYCLOPEDIA v0.1.21；既有音频与 MapEditor 退出资源告警继续观察。
+
 > 文档版本：v0.37.69（2026-10-30）
 > 0.9.1.0 验收（2026-11-02）：Rank／PackVerify／Smoke／Flow／ExitFlow／Stage0／TechUnlock／UnlockRepro／GoldFx／MapEditor／SupplyState／DevelopRefresh／Benchmark 共 13 项通过，基准 failures=0／warnings=0；补验品阶事务、物理／魔法攻击图徽及养成刷新，八张窗口截图归档。Windows 独立 release／交付 Spine DLL／包内六阶与 100 级资源／首关开波验证通过，PE 版本 0.9.1.0；B-103~B-111 已登记。
 > v0.37.69 变更（阶段 9·提交 1，程序 0.9.1.0 / GDD v0.37.69）：启动品阶与属性底层重构：六阶手动进阶、100 级连续经验曲线、逐将百分比成长与差异项、普攻独立暴击、转职全链删除、黄巾布折算及三材料掉落；schema v7 保存旧档裸面板成长守护。SKILLS v0.13 / STATS_PIPELINE v0.8 / UI_LAYOUT v0.20.71 / ENCYCLOPEDIA v0.1.20 / ART_PROMPTS v0.18 / UI_CONCEPT v0.27。2026-11-02 完成开发与验收，在 0.9.1 分支交付。
@@ -293,6 +297,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 | [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) | UI 概念图生成与归档：概念图工作流、v3 视觉语言、PNG↔源码映射、复现/维护 | 13 美术风格设计侧（v0.34.3 新增） |
 | [modules/MAP_EDITOR.md](modules/MAP_EDITOR.md) | 地图编辑器：布局数据生产工具（宿主、数据模型、校验导出、里程碑） | 5.1/5.6 工具侧、13 地图素材实现侧（v0.35.4 新增；v0.35.5 M1 骨架落地） |
 | [modules/ART_PROMPTS.md](modules/ART_PROMPTS.md) | AI 出图提示词库：Leonardo 技能/物品图标统一风格底座与负面词、分类提示词 | 13 美术风格实现侧补充（v0.37.9 新增；入库目录与许可主档=ART_ASSETS） |
+| [modules/ICONS.md](modules/ICONS.md) | 当前图标系统：SVG 母版、语义清单、PNG 转换、旧版弃用与运行映射 | 13 美术风格图标生产与运行接入（v0.37.70 新增） |
 
 ---
 

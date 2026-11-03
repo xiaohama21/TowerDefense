@@ -4,7 +4,7 @@ class_name CursorIcons
 ##
 ## 素材 = docs/ui_concept/src/kenney_cursor_pack/PNG/Outline/{Default,Double} 经
 ## tools/prep_cursors.py 按定稿配色 B 重着色（芯 #cdeffb / 描边 #14538a）后写入
-## assets/ui/cursors/（32px 基准 + _2x 64px 高 DPI 套）。
+## assets/ui/icons/v2/cursors/（32px 基准 + _2x 64px 高 DPI 套）。
 ##
 ## 热点为逐枚实测值（脚本按几何规则标定极值实心像素簇质心并校验 alpha≥200，
 ## 与 UI_LAYOUT §15 热点表同源）；64px 套非 32px 等比放大，故两套热点独立标定。
@@ -12,7 +12,7 @@ class_name CursorIcons
 ## **禁止在业务代码里散点调用 Input.set_custom_mouse_cursor**：游戏内走
 ## CursorService autoload（启动注册 + 新控件 hover 手型），地图编辑器插件走本静态出口。
 
-const DIR := "res://assets/ui/cursors/"
+const DIR := "res://assets/ui/icons/v2/cursors/"
 
 ## 语义图标（UI_LAYOUT §15 映射表）
 const ICON_DEFAULT := "pointer_toon_a"    # 全局默认指针（Q 版指针；备选 pointer_a）
@@ -23,28 +23,28 @@ const ICON_BLOCKED := "cursor_disabled"   # 禁建
 
 ## 32px 基准热点（实测表，见 UI_LAYOUT §15）
 const HOTSPOT_32 := {
-	"pointer_toon_a": Vector2(3, 4),
-	"pointer_a": Vector2(9, 8),
-	"hand_point": Vector2(9, 4),
+	"pointer_toon_a": Vector2(3, 3),
+	"pointer_a": Vector2(3, 3),
+	"hand_point": Vector2(13, 5),
 	"hand_closed": Vector2(16, 16),
 	"cross_large": Vector2(16, 16),
-	"drawing_pen": Vector2(5, 5),
-	"drawing_brush": Vector2(24, 25),
+	"drawing_pen": Vector2(4, 4),
+	"drawing_brush": Vector2(27, 27),
 	"drawing_eraser": Vector2(16, 16),
-	"cursor_disabled": Vector2(2, 3),
+	"cursor_disabled": Vector2(3, 3),
 }
 
 ## 64px（_2x）热点（实测表，见 UI_LAYOUT §15）
 const HOTSPOT_64 := {
-	"pointer_toon_a": Vector2(7, 7),
-	"pointer_a": Vector2(17, 14),
-	"hand_point": Vector2(19, 5),
+	"pointer_toon_a": Vector2(6, 6),
+	"pointer_a": Vector2(6, 6),
+	"hand_point": Vector2(27, 10),
 	"hand_closed": Vector2(32, 32),
 	"cross_large": Vector2(32, 32),
-	"drawing_pen": Vector2(9, 10),
-	"drawing_brush": Vector2(50, 51),
+	"drawing_pen": Vector2(8, 8),
+	"drawing_brush": Vector2(54, 54),
 	"drawing_eraser": Vector2(32, 32),
-	"cursor_disabled": Vector2(3, 4),
+	"cursor_disabled": Vector2(6, 6),
 }
 
 ## 高 DPI 切换阈值（Windows 缩放 ≥150% 用 _2x 套，避免光标相对 UI 过小）
