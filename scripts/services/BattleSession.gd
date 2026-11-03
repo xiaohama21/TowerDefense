@@ -36,6 +36,8 @@ var pending_exp_pool: int = 0
 ## 逐笔取整额外偏 +19.6%，与 NUMBERS 10.15「×1.5」难度杠杆不符）；
 ## 胜利结算由 PlayerProfile.apply_battle_session 写档；失败 / 放弃 / 崩溃清零不带出。
 var pending_merit_exact: float = 0.0
+var pending_ingots: int = 0
+var pending_lord_exp: int = 0
 var result: Dictionary = {}
 var status: String = STATUS_IN_PROGRESS
 var started_at_unix: int = 0
@@ -88,6 +90,8 @@ func load_dict(data: Dictionary) -> void:
 	kill_xp_base = _coerce_non_negative_int(data.get("kill_xp_base", 0))
 	pending_exp_pool = _coerce_non_negative_int(data.get("pending_exp_pool", 0))
 	pending_merit_exact = float(_coerce_non_negative_int(data.get("pending_merit", 0)))
+	pending_ingots = ShopRegistry.non_negative(data.get("pending_ingots", 0))
+	pending_lord_exp = ShopRegistry.non_negative(data.get("pending_lord_exp", 0))
 	result = data.get("result", {}).duplicate(true) if data.get("result", {}) is Dictionary else {}
 	status = _normalize_status(str(data.get("status", STATUS_IN_PROGRESS)))
 	started_at_unix = _coerce_non_negative_int(data.get("started_at_unix", 0))
@@ -109,6 +113,8 @@ func to_dict() -> Dictionary:
 		"kill_xp_base": kill_xp_base,
 		"pending_exp_pool": pending_exp_pool,
 		"pending_merit": get_pending_merit(),
+		"pending_ingots": pending_ingots,
+		"pending_lord_exp": pending_lord_exp,
 		"result": result.duplicate(true),
 		"status": status,
 		"started_at_unix": started_at_unix,
@@ -268,6 +274,17 @@ func add_merit(amount: int) -> int:
 func get_pending_merit() -> int:
 	return roundi(pending_merit_exact)
 
+func set_economy_rewards(ingots: int, lord_exp: int) -> void:
+	if not is_in_progress(): return
+	pending_ingots = ShopRegistry.non_negative(ingots)
+	pending_lord_exp = ShopRegistry.non_negative(lord_exp)
+
+func get_pending_ingots() -> int:
+	return pending_ingots
+
+func get_pending_lord_exp() -> int:
+	return pending_lord_exp
+
 
 ## 科技点暂存（GDD modules/NUMBERS.md 10.7）：通关后随战局提交写档。
 func add_tech_points(amount: int) -> int:
@@ -347,6 +364,8 @@ func mark_discarded() -> bool:
 	kill_xp_base = 0
 	pending_exp_pool = 0
 	pending_merit_exact = 0.0
+	pending_ingots = 0
+	pending_lord_exp = 0
 	return true
 
 
@@ -360,6 +379,8 @@ func clear_pending_rewards() -> void:
 	kill_xp_base = 0
 	pending_exp_pool = 0
 	pending_merit_exact = 0.0
+	pending_ingots = 0
+	pending_lord_exp = 0
 
 
 static func _generate_run_id() -> String:

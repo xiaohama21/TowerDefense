@@ -88,8 +88,9 @@ func _test_migration() -> void:
 	var profile := PlayerProfile.new()
 	profile.unlock_character("guan_yu")
 	_check(profile.get_character("guan_yu").growth_guard.is_empty() and profile.get_character_rank("guan_yu") == 0, "新档没有守护")
-	for key in ["yuanbao", "lord_exp", "talent_alloc", "shop_purchases", "skill_levels"]:
+	for key in ["yuanbao", "talent_alloc", "shop_purchases", "skill_levels"]:
 		_check(not profile.to_dict().has(key), "不预置未来容器：" + key)
+	_check(profile.to_dict().lord_exp == 0, "0.9.4主公经验默认补零")
 	var profile_saved := PlayerProfile.from_dict(ProfileStore._migrate_v6_to_v7({"schema_version": 6, "characters": {"guan_yu": {"total_exp": 13340, "promotion_path": ["cavalry_heavy_armor"]}}}))
 	_check(ProfileStore.save_profile(profile_saved), "迁移档持久化")
 	ProfileStore.profile = null

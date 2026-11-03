@@ -568,6 +568,7 @@ func _on_victory():
 	var loot: Dictionary = {}
 	var weapon_rewards := {"weapons": {}, "seals": 0}
 	var unlock_names: Array[String] = []
+	var lord_before := int(ShopRegistry.lord_progress(ProfileStore.get_profile().lord_exp).level)
 	# v0.21.1 修复：先收集奖励再 mark_victory，与一键通关（MapPanel）顺序统一，
 	# 避免胜利状态后 is_in_progress() 守卫拦截首通解锁/掉落写入。
 	if battle_session != null:
@@ -597,6 +598,9 @@ func _on_victory():
 		"xp_by_character": xp_by_character,
 		"loot": loot,
 		"weapon_rewards": weapon_rewards if saved else {"weapons": {}, "seals": 0},
+		"economy": {"ingots": battle_session.get_pending_ingots(), "lord_exp": battle_session.get_pending_lord_exp()} if battle_session != null else {},
+		"lord_before": lord_before,
+		"lord_after": int(ShopRegistry.lord_progress(ProfileStore.get_profile().lord_exp).level),
 		"unlock_names": unlock_names,
 		"saved": saved,
 		"next_stage_name": _next_stage_display_name(),

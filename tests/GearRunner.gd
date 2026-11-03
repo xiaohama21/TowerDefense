@@ -83,7 +83,7 @@ func _test_inventory() -> void:
 func _test_migration() -> void:
 	var raw := {"schema_version":8, "characters":{"zhang_fei":{"total_exp":1340, "rank":2, "skill_levels":{"char_dangyang_roar":8}, "weapon_id":"equipment_ring_blade_1"}, "liu_bei":{"weapon_id":"equipment_ring_blade_1"}, "guan_yu":{"weapon_id":"equipment_ring_blade_1"}, "zhou_wei":{"weapon_id":"equipment_ring_blade_1"}}, "weapons":{"equipment_ring_blade_1":2, "equipment_long_spear_1":1e100, "equipment_horn_bow_1":-5, "equipment_silk_bells_1":true, "unknown":3}, "items":{"skill_book":20}, "exp_pool":321}
 	var migrated := ProfileStore._migrate_to_current(raw)
-	_check(migrated.ok and migrated.data.schema_version == 9, "v8→v9")
+	_check(migrated.ok and migrated.data.schema_version == PlayerProfile.CURRENT_SCHEMA_VERSION, "v8→当前schema")
 	var p := PlayerProfile.from_dict(migrated.data)
 	_check(p.weapon_count("equipment_long_spear_1") == 3 and p.weapons.size() == 2, "非法数量/未知ID归一")
 	_check(p.get_character_weapon_id("guan_yu").is_empty() and p.get_character_weapon_id("zhou_wei").is_empty(), "职业与超配归一")
@@ -92,7 +92,7 @@ func _test_migration() -> void:
 	_check(PlayerProfile.from_dict(ProfileStore._migrate_to_current(p.to_dict()).data).to_dict() == p.to_dict(), "迁移幂等")
 	var legacy := PlayerProfile.from_dict(ProfileStore._migrate_to_current({"schema_version":8, "characters":{"guan_yu":{}}, "stage_progress":{"ch01_s02":{"completed":true}}}).data)
 	_check(legacy.weapons.is_empty() and legacy.get_character_weapon_id("guan_yu").is_empty(), "旧首通不补发")
-	for key in ["yuanbao", "lord_exp", "shop_purchases", "talent_alloc"]: _check(not legacy.to_dict().has(key), "不预置0.9.4容器 " + key)
+	for key in ["talent_alloc"]: _check(not legacy.to_dict().has(key), "不预置未来容器 " + key)
 	_check(not ProfileStore._migrate_to_current({"schema_version":9, "weapons":[]}).ok, "当前schema错误容器拒绝")
 
 func _test_rewards(p: PlayerProfile) -> void:

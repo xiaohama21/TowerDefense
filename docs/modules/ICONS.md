@@ -1,5 +1,7 @@
 # 图标系统（ICONS）
 
+> 文档版本：v1.2（2026-11-03）
+> v1.2：0.9.4三个经济图徽缺口ingot/lord_level/lord_exp登记，占位至出图；不冒用金币或武将经验，273现有图徽保留。GDD v0.37.74 / 程序0.9.4.0 / SHOP v0.1。
 > 文档版本：v1.1（2026-11-03）
 > v1.1：0.9.3第一章12款武器由备图转为使用中，manifest与生成配方planned状态同步；总图标273不变。品质角标equipment_rarity_0..4新增缺口，虚线圆占位，详见ART_PROMPTS §4.8／§6.2。GDD v0.37.72 / 程序0.9.3.0。
 
@@ -54,3 +56,7 @@
 - 总览：[完整 HTML](../ui_concept/icons_v2.html)、[重点亮暗底预览](../ui_concept/icons_v2_preview.png)、[目录校验](../ui_concept/icons_v2_verification.json)。`IconPreviewRunner` 隔离档案截图归档于 `docs/ui_concept/runtime_0.9.1.1/`，涵盖主菜单、地图、军需、背包、科技、养成三页、百科三页、设置、编队与战斗。
 - Windows 发布：文件／PE 版本 0.9.1.1，独立模板启动退出码 0；引擎从发布 EXE 挂载 PCK 后加载全部 273 枚图标、主菜单启动并截图，旧图不可加载。工具 `verify_icons_v2_export.gd` 必须在无源文件的 `build/` 工作目录运行，避免读取开发资源兜底。
 - 回归通过：PackVerify／Smoke／Flow／ExitFlow／Rank／TechUnlock／SupplyState／DevelopRefresh／GoldFx／MapEditor；既有退出音频与 MapEditor 资源告警继续观察，图标及功能断言全部通过。
+
+### 0.9.4 当前缺口
+
+ingot、lord_level、lord_exp共三枚独立通用图徽，虚线圆占位；装备品质五档缺口继续保留。素材生成后更新manifest与运行映射，本提交不增加位图资产。

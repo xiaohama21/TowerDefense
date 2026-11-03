@@ -62,4 +62,4 @@ static func effect_rows(weapon: WeaponData) -> Array:
 static func acquisition_text(weapon: WeaponData) -> String:
 	var path := "res://resources/stages/chapter_01/%s.tres" % weapon.unlock_stage_id
 	var stage := load(path) as StageData if ResourceLoader.exists(path) else null
-	return "通关「%s」首通必得；重复通关30%%补件。每款最多3件，超额转将印×2。" % (stage.display_name if stage != null else "对应关卡")
+	return "通关「%s」首通必得并上架；重复通关30%%补件，商店%d元宝可购复件。每款最多3件，超额掉落转将印×2。" % [stage.display_name if stage != null else "对应关卡", weapon.shop_price]

@@ -246,6 +246,15 @@ func _show_detail(item_id: String) -> void:
 	desc.max_lines_visible = 2
 	desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info.add_child(desc)
+	var source := ShopRegistry.acquisition_text(item_id)
+	if not source.is_empty():
+		var source_label := Label.new()
+		source_label.name = "ShopAcquisition"
+		source_label.text = source
+		source_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		source_label.add_theme_font_size_override("font_size", 12)
+		source_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		info.add_child(source_label)
 	if item.item_type == ItemData.ItemType.RELIC:
 		var note := Label.new()
 		note.text = "遗物 = 队伍级 · 永久持有：编队选带生效，不消耗库存（最多 2 件）。"

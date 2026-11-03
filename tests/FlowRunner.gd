@@ -153,8 +153,8 @@ func _test_supply_depot(profile: PlayerProfile) -> void:
 		if button.text == "军需":
 			supply_button = button
 	_check(supply_button != null, "大厅侧栏应含「军需」入口")
-	_check(nav_texts.size() == 8 and nav_texts[3] == "军需",
-		"「军需」应为侧栏第 4 个功能按钮（地图 / 养成 / 科技 / 军需 / 背包 / 设置 / 百科 + 返回主菜单）")
+	_check(nav_texts.size() == 9 and nav_texts[3] == "军需" and nav_texts[4] == "商店",
+		"军需第四、商店第五，原入口保留")
 	if supply_button == null or depot == null:
 		hub.queue_free()
 		await get_tree().process_frame
@@ -230,7 +230,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 
 	var sidebar_buttons := _collect_buttons(hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 8, "大厅侧栏应有 7 个功能入口 + 返回主菜单（v0.34 百科入列、0.8.16 军需入列）")
+	_check(sidebar_buttons.size() == 9, "大厅侧栏应有8个功能入口+返回主菜单")
 	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
 	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 

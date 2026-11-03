@@ -71,6 +71,11 @@ func _ready() -> void:
 	_refresh_stages()
 
 
+func _on_shown() -> void:
+	_selected_difficulty = GameFlow.selected_difficulty
+	_refresh_stages()
+
+
 # ============ 顶栏：标题 + 章节下拉 + 进度 + 难度分段 ============
 
 func _build_ui() -> void:
@@ -338,6 +343,7 @@ func _chapter_cn_numeral(number: int) -> String:
 func _refresh_stages() -> void:
 	_status_label.visible = false
 	for child in _stage_grid.get_children():
+		_stage_grid.remove_child(child)
 		child.queue_free()
 	_stage_cards.clear()
 	var profile := ProfileStore.get_profile()
@@ -474,7 +480,8 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.add_theme_font_size_override("font_size", 13)
 	desc.add_theme_color_override("font_color", sub_color)
-	desc.max_lines_visible = 2
+	desc.max_lines_visible = 1
+	desc.tooltip_text = stage.description
 	desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	content.add_child(desc)
 
@@ -494,6 +501,7 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	reward_border.add_theme_stylebox_override("panel", reward_border_style)
 	content.add_child(reward_border)
 	var rewards := HFlowContainer.new()
+	rewards.name = "StageRewardGlyphs"
 	rewards.add_theme_constant_override("h_separation", 4)
 	rewards.add_theme_constant_override("v_separation", 2)
 	rewards.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -704,6 +712,9 @@ func _refresh_reward_chips(stage: StageData) -> void:
 	_append_reward_glyphs(_detail_rewards, stage, false)
 
 func _append_reward_glyphs(holder: Control, stage: StageData, compact: bool) -> void:
+	var economy := ShopRegistry.victory_rewards(not ProfileStore.get_profile().stage_progress.has(str(stage.stage_id)), _selected_difficulty)
+	holder.add_child(_reward_glyph("ingot", "+%d" % int(economy.ingots), "元宝", compact))
+	holder.add_child(_reward_glyph("lord_exp", "+%d" % int(economy.lord_exp), "主公经验", compact))
 	for character_id in stage.first_clear_unlock_character_ids:
 		var character := GameFlow.load_character_data(str(character_id))
 		if character == null:
@@ -805,6 +816,15 @@ func _refresh_action_bar() -> void:
 func _on_difficulty_changed(pressed: bool, difficulty: int) -> void:
 	if pressed:
 		_selected_difficulty = difficulty
+		GameFlow.selected_difficulty = difficulty
+		for stage in GameFlow.get_sorted_stages(_selected_chapter):
+			var card: Control = _stage_cards.get(str(stage.stage_id))
+			var rewards := card.find_child("StageRewardGlyphs", true, false) if card != null else null
+			if rewards != null:
+				for child in rewards.get_children():
+					rewards.remove_child(child)
+					child.queue_free()
+				_append_reward_glyphs(rewards, stage, true)
 		if _selected_stage != null:
 			_detail_difficulty_chip.text = "难度 · %s" % Difficulty.name(_selected_difficulty)
 			# ✅ 0.8.14：首通信物随难度不同（标准 / 困难各 1 件），同步重刷奖励胶囊。
@@ -827,6 +847,7 @@ func _on_instant_clear() -> void:
 	if stage == null:
 		return
 	var profile := ProfileStore.get_profile()
+	GameFlow.selected_difficulty = _selected_difficulty
 	var first_clear := not profile.stage_progress.has(str(stage.stage_id))
 	var session := BattleSession.new(str(stage.stage_id), profile.get_owned_character_ids())
 	for character_id in profile.get_owned_character_ids():

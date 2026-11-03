@@ -1156,6 +1156,9 @@ func show_result(data: Dictionary) -> void:
 		child.queue_free()
 	var weapon_rewards: Dictionary = data.get("weapon_rewards", {})
 	if victory and data.get("saved", false):
+		var economy: Dictionary = data.get("economy", {})
+		if int(economy.get("ingots", 0)) > 0: _append_result_reward("ingot", int(economy.ingots), "元宝")
+		if int(economy.get("lord_exp", 0)) > 0: _append_result_reward("lord_exp", int(economy.lord_exp), "主公经验")
 		for id in weapon_rewards.get("weapons", {}):
 			_append_result_reward(str(id), int(weapon_rewards.weapons[id]), GameFlow.get_item_display_name(str(id)))
 		var loot: Dictionary = data.get("loot", {}).duplicate()
@@ -1165,6 +1168,8 @@ func show_result(data: Dictionary) -> void:
 			_append_result_reward(str(id), int(loot[id]), GameFlow.get_item_display_name(str(id)))
 	var line_parts: Array[String] = []
 	if victory:
+		if data.get("saved", false) and int(data.get("lord_after", 1)) > int(data.get("lord_before", 1)):
+			line_parts.append("升级！Lv.%d → Lv.%d" % [int(data.lord_before), int(data.lord_after)])
 		var xp_by_character: Dictionary = data.get("xp_by_character", {})
 		for character_id in xp_by_character.keys():
 			line_parts.append("%s +%d 经验" % [
