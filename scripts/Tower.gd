@@ -155,6 +155,8 @@ var skill_support_tick := 0.0
 var _base_crit_rate := 0.05
 var _base_skill_amp := 0.0
 var _weapon_bonuses: Dictionary = {}
+var talent_bonuses: Dictionary = {}
+var talent_state: Dictionary = {}
 var _attack_growth_scale := 1.0
 var _skill_stat_buffs: Dictionary = {}
 var _aura_attack_flat := 0.0
@@ -282,6 +284,9 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_character_data = character_data
 	_character_rank = rank
 	_skill_levels = SkillRegistry.normalize_levels(str(character_data.character_id), loadout.get("skill_levels", {}))
+	var talent_alloc := TalentRegistry.normalize(character_id, level, loadout.get("talent_alloc", {}))
+	talent_bonuses = TalentRegistry.bonuses(character_id, talent_alloc)
+	TalentCombat.reset(self)
 	_skill_params = character_data.skill_params.duplicate(true)
 	skill_hit_counter = 0
 	skill_consecutive_hits = 0
@@ -289,9 +294,9 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_skill_stat_buffs.clear()
 	_aura_attack_flat = 0.0
 	_aura_crit_rate = 0.0
-	_attack_growth_scale = (1.0 + character_data.attack_pct * (level - 1 + (relic.level_bonus if relic != null else 0))) * CharacterRank.ATTACK[rank]
+	_attack_growth_scale = (1.0 + character_data.attack_pct * (level - 1 + (relic.level_bonus if relic != null else 0))) * CharacterRank.ATTACK[rank] * (1.0 + TalentCombat.value(self, "attack_pct"))
 
-	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard, _skill_levels, loadout.get("weapon", null))
+	var stats := character_data.compute_stats_at(level, rank, relic, 0, guard, _skill_levels, loadout.get("weapon", null), talent_alloc)
 	_weapon_bonuses = stats.equipment
 	crit_rate = float(stats.crit_rate)
 	crit_damage = float(stats.crit_damage)
@@ -377,7 +382,7 @@ func _resolve_rank_step(override_value: float, profession_default: float) -> flo
 
 func get_upgrade_cost(upgrade_cost_factor: float) -> int:
 	## 第 n 次升阶费用 = build_cost × factor × n（n 从 1 起，向上取整）。
-	return ceili(build_cost * upgrade_cost_factor * (battle_rank + 1))
+	return ceili(build_cost * upgrade_cost_factor * (battle_rank + 1) * (1.0 - clampf(TalentCombat.value(self, "upgrade_discount_pct"), 0.0, 0.3)))
 
 
 func get_sell_refund(sell_refund_ratio: float) -> int:
@@ -587,7 +592,7 @@ func schedule_melee_hit(target_enemy: Enemy, amount: int, damage_type: StringNam
 		if victim == null:
 			return
 		var hit := attack_hit_damage(int(round(amount * SkillRegistry.attack_multiplier(self, victim))))
-		deal_damage(victim, hit, damage_type)
+		deal_damage(victim, hit, damage_type, &"attack")
 		notify_attack_damage_dealt(victim, hit)
 	)
 
@@ -660,7 +665,7 @@ func set_ghost_mode() -> void:
 
 
 func _rebuild_attack_timer() -> void:
-	var effective := attack_cooldown / (attack_speed_buff * (1.0 + _tech_attack_speed_pct))
+	var effective := attack_cooldown / (attack_speed_buff * (1.0 + _tech_attack_speed_pct) * TalentCombat.speed_multiplier(self))
 	attack_timer.wait_time = maxf(effective, attack_cooldown * ATTACK_SPEED_FLOOR)
 
 func _rebuild_range_area() -> void:
@@ -680,6 +685,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	TalentCombat.tick(self, _delta)
 	# 大招手动开关即时生效（BUGS B-057）：apply_character 快照每帧同步——
 	# 战斗中设置弹窗切换 manual_ultimate 后全部塔立刻生效（旧实现只读一次，
 	# 已建塔保持自动模式，满怒见敌即放，表现为「没点击就释放/持续释放」。
@@ -775,7 +781,7 @@ func _process(_delta: float) -> void:
 ## 攻击时积怒（hit+damage 模式）：命中 +N，另按伤害折算（GDD 4.6/10.6）。
 func gain_rage_for_attack(dealt: int) -> void:
 	if dealt <= 0: return
-	var gain := float(_weapon_bonuses.get("hit_rage_flat", 0.0))
+	var gain := float(_weapon_bonuses.get("hit_rage_flat", 0.0)) + TalentCombat.hit_rage(self)
 	if _rage_mode == &"hit+damage": gain += float(_gain_per_hit) + float(dealt) * _gain_per_damage
 	gain_rage(gain)
 
@@ -784,14 +790,19 @@ func gain_rage_for_attack(dealt: int) -> void:
 ## 近战挥击与弹道命中共用，仅在实际造成伤害后调用——怒气 / 职业技能命中钩子
 ## 计数与命中被动。目标飞行中死亡或空爆不触发。
 func notify_attack_damage_dealt(target: Enemy, dealt: int) -> void:
+	if dealt <= 0: return
 	gain_rage_for_attack(dealt)
 	SkillRegistry.on_attack_hit(self, target, dealt)
+	TalentCombat.on_attack_target(self, target)
+	TalentCombat.on_attack(self, target)
 
 
 ## AOE 命中结算攻击级入口（v0.31.4 / 0.8.6.2）：每发一次（命中≥1 才调用），
 ## 怒气按该发伤害计一次、不按命中数叠加；目标级效果由 AOE 行为执行器逐目标施加。
-func notify_aoe_damage_dealt(dealt: int) -> void:
+func notify_aoe_damage_dealt(dealt: int, first_target: Enemy = null) -> void:
+	if dealt <= 0: return
 	gain_rage_for_attack(dealt)
+	TalentCombat.on_attack(self, first_target)
 
 
 ## 辅助脉冲积怒（support 模式）：触发增益 +N，每覆盖一名友方再 +N；
@@ -799,7 +810,7 @@ func notify_aoe_damage_dealt(dealt: int) -> void:
 func gain_support_pulse(allies: Array) -> void:
 	if _rage_mode != &"support" or allies.is_empty():
 		return
-	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies.size())
+	gain_rage(float(_gain_per_hit) + float(_support_gain_per_tick) * allies.size() + TalentCombat.value(self, "support_hit_rage"))
 	record_support_contribution(allies)
 
 func record_support_contribution(allies: Array) -> void:
@@ -817,12 +828,14 @@ func grant_rage_flat(amount: float) -> void:
 	if amount <= 0.0:
 		return
 	rage = minf(rage + amount, _max_rage)
+	_rebuild_attack_timer()
 
 
 func gain_rage(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	rage = minf(rage + amount * SkillRegistry.rage_multiplier(self) * (1.0 + _tech_rage_gain_pct + float(_weapon_bonuses.get("rage_pct", 0.0))), _max_rage)
+	rage = minf(rage + amount * SkillRegistry.rage_multiplier(self) * (1.0 + _tech_rage_gain_pct + float(_weapon_bonuses.get("rage_pct", 0.0)) + TalentCombat.rage_bonus(self)), _max_rage)
+	_rebuild_attack_timer()
 	queue_redraw()
 
 
@@ -837,6 +850,7 @@ func _try_cast_ultimate() -> bool:
 	if not SkillRegistry.execute_ultimate(_ultimate_id, self):
 		rage = spent
 		return false
+	_rebuild_attack_timer()
 	# 大招演出（v0.15.0）：专属视觉 + 大招名飘字 + 技能钩子。
 	play_ultimate_visual(_ultimate_id)
 	spawn_float_text(SkillRegistry.get_skill_name(_ultimate_id), Color(1.0, 0.85, 0.3), 20)
@@ -845,11 +859,11 @@ func _try_cast_ultimate() -> bool:
 
 ## 局内升阶 buff 增强（阶段 8）：施加方升阶后，其 buff 持续/效果按此放大（舞娘/刘备等辅助）。
 func get_battle_rank_buff_duration_multiplier() -> float:
-	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank)
+	return CharacterData.rank_scale(_battle_rank_buff_duration_step, battle_rank) * (1.0 + TalentCombat.value(self, "buff_duration_pct"))
 
 
 func get_battle_rank_buff_power_multiplier() -> float:
-	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct)
+	return CharacterData.rank_scale(_battle_rank_buff_power_step, battle_rank) * (1.0 + _tech_buff_power_pct) * (1.0 + TalentCombat.value(self, "buff_power_pct"))
 
 
 ## 局内升阶 AOE 半径倍率（阶段 8）：投石车普攻爆散 / 术士大招范围。
@@ -882,7 +896,7 @@ func refresh_aura_damage_bonus() -> void:
 		if other == null or other == self or other.is_queued_for_deletion(): continue
 		if global_position.distance_to(other.global_position) > other.range_radius: continue
 		if other.has_skill(&"trait_benevolence"):
-			attacks.append(other.get_skill_param(&"trait_benevolence", "attack_flat") * SkillRegistry.strength(other, &"trait_benevolence"))
+			attacks.append(other.get_skill_param(&"trait_benevolence", "attack_flat") * SkillRegistry.strength(other, &"trait_benevolence") * (1.0 + TalentCombat.value(other, "buff_power_pct")))
 		if other.has_skill(&"passive_diligence"):
 			crits.append(other.get_skill_param(&"passive_diligence", "crit_rate") * SkillRegistry.strength(other, &"passive_diligence"))
 	attacks.sort()
@@ -1006,7 +1020,7 @@ func get_attack_damage_type() -> StringName:
 ## 读取 armor_pen_ratio（百分比、单源 ≤30%）与 armor_pen_flat（固定、百分比之后）；
 ## 返回 { "ratios": {来源 key: 比值}, "flat": int }——同源取最高由本方法按 key 聚合，
 ## 跨源乘算由 Enemy.take_damage 执行。未配置 = 无穿透。
-func get_armor_penetration() -> Dictionary:
+func get_armor_penetration(target_enemy: Enemy = null, damage_kind: StringName = &"skill") -> Dictionary:
 	var ratio := 0.0
 	var flat := 0
 	for skill_id in (_character_data.passive_ids if _character_data != null else []):
@@ -1019,17 +1033,20 @@ func get_armor_penetration() -> Dictionary:
 		ratios[source_key] = clampf(ratio, 0.0, DamageTypes.MAX_PENETRATION_RATIO)
 	var weapon_ratio := clampf(float(_weapon_bonuses.get("armor_pen_pct", 0.0)), 0.0, DamageTypes.MAX_PENETRATION_RATIO)
 	if weapon_ratio > 0.0: ratios["weapon"] = weapon_ratio
+	var talent_pen := TalentCombat.penetration(self, target_enemy, damage_kind)
+	if float(talent_pen.ratio) > 0.0: ratios["talent"] = talent_pen.ratio
+	flat += int(talent_pen.flat)
 	return {"ratios": ratios, "flat": flat}
 
 
 ## 以本塔为来源结算一次伤害（NUMBERS 10.12，✅ 0.8.13.0）：类型 + 穿透参数统一出口，
 ## 调用点不直接拼 take_damage 参数；damage_type 留空 = 本塔普攻类型（术士 = 魔法）。
-func deal_damage(target_enemy: Enemy, amount: int, damage_type: StringName = StringName()) -> void:
+func deal_damage(target_enemy: Enemy, amount: int, damage_type: StringName = StringName(), damage_kind: StringName = &"skill") -> void:
 	if target_enemy == null or not is_instance_valid(target_enemy) or target_enemy.is_dead or amount <= 0:
 		return
 	var resolved_type := damage_type if DamageTypes.is_valid(damage_type) else get_attack_damage_type()
-	var penetration := get_armor_penetration()
-	target_enemy.take_damage(amount, character_id, resolved_type, penetration["ratios"], int(penetration["flat"]), false, self)
+	var penetration := get_armor_penetration(target_enemy, damage_kind)
+	target_enemy.take_damage(amount, character_id, resolved_type, penetration["ratios"], int(penetration["flat"]), false, self, damage_kind)
 
 
 ## ============ 破隐（NUMBERS 10.16，✅ 0.8.13.1） ============
@@ -1660,4 +1677,4 @@ func _recalc_skill_stats() -> void:
 
 func splash_radius(base: float) -> float:
 	var extra := get_skill_param(&"passive_fierce_flame", "splash_flat") * SkillRegistry.strength(self, &"passive_fierce_flame") if has_skill(&"passive_fierce_flame") else 0.0
-	return (base + extra) * (1.0 + float(_weapon_bonuses.get("splash_pct", 0.0))) * get_battle_rank_aoe_multiplier()
+	return (base + extra) * (1.0 + float(_weapon_bonuses.get("splash_pct", 0.0)) + TalentCombat.value(self, "splash_pct")) * get_battle_rank_aoe_multiplier()

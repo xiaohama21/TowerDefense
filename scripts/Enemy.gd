@@ -511,7 +511,8 @@ func take_damage(
 	pen_ratios: Dictionary = {},
 	pen_flat: int = 0,
 	fixed_status: bool = false,
-	source_tower: Tower = null
+	source_tower: Tower = null,
+	damage_kind: StringName = &"skill"
 ) -> void:
 	if is_dead or amount <= 0:
 		return
@@ -521,7 +522,8 @@ func take_damage(
 		last_damage_source_character_id = source_id
 
 	# 易伤（奇门）：所有来源伤害先乘易伤倍率（同类不叠加只刷新，NUMBERS 10.10）。
-	var scaled := amount if fixed_status else int(round(float(amount) * get_vulnerability_multiplier()))
+	var talent_mult := TalentCombat.damage_multiplier(source_tower, self, damage_type, damage_kind) if not fixed_status and is_instance_valid(source_tower) else 1.0
+	var scaled := amount if fixed_status else int(round(float(amount) * talent_mult * get_vulnerability_multiplier()))
 	if scaled <= 0:
 		return
 	# 护甲结算（类型系数 → 百分比穿甲 → 固定穿透 → 比值减伤）；真实伤害恒满伤。
@@ -542,7 +544,7 @@ func take_damage(
 	if current_hp <= 0:
 		# 一击必杀定格（0.8.16.5）：入伤前满血 → 玩家从未见过这条血条，死亡瞬间补一段定格。
 		_kill_bar_flash = should_flash_kill_bar(hp_ratio_before)
-		die(true)
+		die(true, &"status" if fixed_status else damage_kind)
 
 
 ## 护甲结算唯一实现（NUMBERS 10.12，✅ 0.8.13.0）：
@@ -563,7 +565,7 @@ func _apply_armor(amount: int, damage_type: StringName, pen_ratios: Dictionary, 
 	var reduction := armor_final / (armor_final + constant)
 	return maxi(int(round(float(amount) * (1.0 - reduction))), 0)
 
-func die(give_reward: bool) -> void:
+func die(give_reward: bool, damage_kind: StringName = &"skill") -> void:
 	if is_dead:
 		return
 	is_dead = true
@@ -575,6 +577,7 @@ func die(give_reward: bool) -> void:
 
 	if give_reward:
 		var killer = _last_damage_tower.get_ref() if _last_damage_tower != null else null
+		var talent_gold := TalentCombat.on_kill(killer, self, damage_kind) if is_instance_valid(killer) and not killer.is_queued_for_deletion() else 0
 		if is_instance_valid(killer) and not killer.is_queued_for_deletion(): SkillRegistry.on_kill(killer)
 		var burner = _burn_owner.get_ref() if _burn_owner != null else null
 		if _burn_time_left > 0.0 and is_instance_valid(burner) and not burner.is_queued_for_deletion(): SkillRegistry.on_burned_death(burner, global_position)
@@ -592,7 +595,8 @@ func die(give_reward: bool) -> void:
 			is_summon,
 			merit_reward,
 			global_position,
-			fx_tier
+			fx_tier,
+			talent_gold
 		)
 
 	# 死亡渐隐（UI_LAYOUT §10 · 0.8.16.6）：仅「被击杀」（give_reward）且有进程时做演出；

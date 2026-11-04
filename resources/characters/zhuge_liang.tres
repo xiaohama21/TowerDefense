@@ -39,3 +39,5 @@ skill_params = {
     "reveal_duration": 5.0
   }
 }
+
+talent_tree_ids = Array[String](["magic_area", "buff", "control"])

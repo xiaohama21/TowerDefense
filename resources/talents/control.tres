@@ -1,0 +1,114 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "control"
+display_name = "控场"
+role = "减速与受控压制"
+icon_key = "status_slow"
+nodes = Array[Dictionary]([
+  {
+    "id": "control.reach",
+    "name": "瞭望",
+    "tier": 1,
+    "description": "射程每级+0.5%。",
+    "effects": {
+      "range_pct": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.slow",
+    "name": "绊足",
+    "tier": 1,
+    "description": "自身施加的减速强度每级+0.5%。",
+    "effects": {
+      "slow_strength_pct": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.punish",
+    "name": "制敌",
+    "tier": 1,
+    "description": "对受控目标伤害每级+0.6%。",
+    "effects": {
+      "controlled_damage_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.duration",
+    "name": "缓阵",
+    "tier": 2,
+    "description": "自身施加的减速与恐惧时长每级+0.9%。",
+    "effects": {
+      "control_duration_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.elite",
+    "name": "困将",
+    "tier": 2,
+    "description": "对受控精英与Boss伤害每级+0.9%。",
+    "effects": {
+      "controlled_elite_damage_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.power",
+    "name": "机变",
+    "tier": 2,
+    "description": "所有技能增幅每级+0.5%。",
+    "effects": {
+      "skill_amp": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.hit",
+    "name": "牵制",
+    "tier": 3,
+    "description": "普攻命中附加每级0.6%减速，持续2s。",
+    "effects": {
+      "slow_on_hit": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.ultimate",
+    "name": "破势",
+    "tier": 3,
+    "description": "大招专属增幅每级+0.6%。",
+    "effects": {
+      "ultimate_amp": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.reveal",
+    "name": "识伏",
+    "tier": 3,
+    "description": "自身施加的现形时长每级+0.9%；不新增破隐能力。",
+    "effects": {
+      "reveal_duration_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "control.lock",
+    "name": "控场如棋",
+    "tier": 4,
+    "description": "自身施加的减速强度每级+1.5%；2级另加普攻命中3%减速、持续2s。",
+    "effects": {
+      "slow_strength_pct": 0.015
+    },
+    "level2_overrides": {
+      "slow_on_hit": 0.03
+    }
+  }
+])

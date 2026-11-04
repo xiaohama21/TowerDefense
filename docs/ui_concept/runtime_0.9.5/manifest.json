@@ -1,0 +1,266 @@
+{
+  "version": "0.9.5.0",
+  "document_version": "v0.37.80",
+  "date": "2026-11-04",
+  "talent_checks": 271,
+  "layout_checks": 750,
+  "packaged_checks": 249,
+  "regression": {
+    "TalentRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "TALENT_RESULT: PASS checks=271 failures=0"
+      ],
+      "passed": true
+    },
+    "Stage0Runner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "PackVerify": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "PASS  11棵天赋树/110节点与武将独立三树"
+      ],
+      "passed": true
+    },
+    "SmokeRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "FlowRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "ExitFlowRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "RankRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "RANK_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "DevelopRefreshRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "SupplyStateRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "SUPPLY_STATE_OK failures=0"
+      ],
+      "passed": true
+    },
+    "ShopRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "SHOP_RESULT: PASS checks=461 failures=0"
+      ],
+      "passed": true
+    },
+    "SkillKitRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "SKILL_KIT_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "GearRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "GEAR_RESULT: PASS checks=446 failures=0"
+      ],
+      "passed": true
+    },
+    "ItemUiRunner": {
+      "exit_code": 0,
+      "script_errors": [],
+      "summary": [
+        "ITEM_UI_RESULT: PASS checks=91 failures=0"
+      ],
+      "passed": true
+    }
+  },
+  "captures": [
+    {
+      "file": "develop_talent_l1.png",
+      "purpose": "L1无点，三树及点数不足状态完整",
+      "width": 1280,
+      "height": 720,
+      "bytes": 203201,
+      "sha256": "73c280cebc09ee1df924ad2282e8046b5e8ba95f4fb8cd396f45c6bc8e2c0980"
+    },
+    {
+      "file": "develop_talent_l5.png",
+      "purpose": "L5获得2点，第一层可分配",
+      "width": 1280,
+      "height": 720,
+      "bytes": 203252,
+      "sha256": "20aff98e0d1ea57b1d1b2f973f7625c1ac7b241ff409217e5a6d5cae98a0970a"
+    },
+    {
+      "file": "develop_talent_allocated.png",
+      "purpose": "实际分配后节点等级与余额更新",
+      "width": 1280,
+      "height": 720,
+      "bytes": 208555,
+      "sha256": "f3b434b0fb402e835b17d84a08b00d05813b72bb92e40b9cec26387c76c44552"
+    },
+    {
+      "file": "develop_talent_save_failed.png",
+      "purpose": "保存受阻时点数与节点不变，错误提示可读",
+      "width": 1280,
+      "height": 720,
+      "bytes": 210397,
+      "sha256": "aae5ad39962963e0222cb458205587e2fb097ae1e3e3517444745f8d3acc1808"
+    },
+    {
+      "file": "develop_talent_reset_confirm.png",
+      "purpose": "免费重置二次确认，武将与返还点数正确",
+      "width": 1280,
+      "height": 720,
+      "bytes": 197638,
+      "sha256": "55943e89bfd64a43f7a0b7a908a5c278c7bb134ea881777a7c45d01538fb0843"
+    },
+    {
+      "file": "develop_talent_reset_done.png",
+      "purpose": "重置后节点清空、点数返还",
+      "width": 1280,
+      "height": 720,
+      "bytes": 203252,
+      "sha256": "20aff98e0d1ea57b1d1b2f973f7625c1ac7b241ff409217e5a6d5cae98a0970a"
+    },
+    {
+      "file": "develop_talent_guan_yu.png",
+      "purpose": "关羽：破军 / 破防 / 怒气",
+      "width": 1280,
+      "height": 720,
+      "bytes": 202170,
+      "sha256": "f8cc75b9059f13ada0d576e66d821b8b743424025c7f67974e1f36a00c40f0da"
+    },
+    {
+      "file": "develop_talent_zhang_fei.png",
+      "purpose": "张飞：镇军 / 控场 / 鼓舞",
+      "width": 1280,
+      "height": 720,
+      "bytes": 201164,
+      "sha256": "03717ca3e388aa6ab22b0f23f9d1b4762d026f925d8bb4d0589681fac0660877"
+    },
+    {
+      "file": "develop_talent_liu_bei.png",
+      "purpose": "刘备：同袍 / 鼓舞 / 筹谋",
+      "width": 1280,
+      "height": 720,
+      "bytes": 208735,
+      "sha256": "a57bdb023d81cac5dc14e89420570a0c2fb97da99a5e82a3c76ec9cf897c14ea"
+    },
+    {
+      "file": "develop_talent_huang_zhong.png",
+      "purpose": "黄忠：破军 / 破防 / 控场",
+      "width": 1280,
+      "height": 720,
+      "bytes": 201914,
+      "sha256": "fba0b9e0965608e7be2c9d7dd6caa944d7a1285ef9531f3e6337b30db06ae248"
+    },
+    {
+      "file": "develop_talent_diao_chan.png",
+      "purpose": "貂蝉：同袍 / 鼓舞 / 怒气",
+      "width": 1280,
+      "height": 720,
+      "bytes": 205772,
+      "sha256": "6fa2085e60cea758d0dac92a64333c67981d5063d7bb1e89527ed3da89b6da46"
+    },
+    {
+      "file": "develop_talent_huang_fu_song.png",
+      "purpose": "皇甫嵩：火阵 / 破防 / 筹谋",
+      "width": 1280,
+      "height": 720,
+      "bytes": 207414,
+      "sha256": "63892b0ab4a60fb370d73c9cb5a4a2c0ef6440cea6c5ea8e7e1bc77617b19beb"
+    },
+    {
+      "file": "develop_talent_zhao_yun.png",
+      "purpose": "赵云：破军 / 怒气 / 破防",
+      "width": 1280,
+      "height": 720,
+      "bytes": 200509,
+      "sha256": "6a72f8900f46dc3c51bad4ad20d822aa4eadb6c0a4c2a4a99daedc4838974528"
+    },
+    {
+      "file": "develop_talent_zhou_wei.png",
+      "purpose": "周仓：破军 / 破防 / 控场",
+      "width": 1280,
+      "height": 720,
+      "bytes": 202451,
+      "sha256": "c192c66c0ddc907959d99ebd45b5ad7988e4982e378e3ea9473e630ab003bb5e"
+    },
+    {
+      "file": "develop_talent_zhuge_liang.png",
+      "purpose": "诸葛亮：天火 / 鼓舞 / 控场",
+      "width": 1280,
+      "height": 720,
+      "bytes": 202444,
+      "sha256": "cb6594bc8130f866bb1d2817afc99dc3aed1772a1d4a7468ed19c45a0a8e9880"
+    },
+    {
+      "file": "develop_talent_ultimate.png",
+      "purpose": "养成滚动末层，终极卡名称、效果与动作完整对齐",
+      "width": 1280,
+      "height": 720,
+      "bytes": 208729,
+      "sha256": "27f50aaa44a25847e7ea151a378e9e79015401e22fa9ed461473343867085a89"
+    },
+    {
+      "file": "encyclopedia_talent_sim.png",
+      "purpose": "百科独立模拟分配，属性同步且不写档",
+      "width": 1280,
+      "height": 720,
+      "bytes": 225266,
+      "sha256": "2543db61baf9e76acbc523840bece5174b092a051b39c7814dc3ad5317795463"
+    },
+    {
+      "file": "encyclopedia_talent_ultimate.png",
+      "purpose": "百科末层三张终极卡完整可达",
+      "width": 1280,
+      "height": 720,
+      "bytes": 231644,
+      "sha256": "ab4c9f2740503656e18c17c36986dd660b5f219afe24c95b76f201a9e6d0d118"
+    },
+    {
+      "file": "encyclopedia_talent_scroll_kept.png",
+      "purpose": "同武将重新分配保留滚动位置",
+      "width": 1280,
+      "height": 720,
+      "bytes": 231559,
+      "sha256": "a026883a615571becdcbd03e96be8994beee1cc1ed5bbce23eb3bed568c15cb7"
+    },
+    {
+      "file": "encyclopedia_talent_magic.png",
+      "purpose": "魔法定位武将三树与中文长描述",
+      "width": 1280,
+      "height": 720,
+      "bytes": 225713,
+      "sha256": "2037622b65b28c8c1d41e161c6e13c62ffd04733afdfdc59601ce6a64b75c438"
+    }
+  ]
+}

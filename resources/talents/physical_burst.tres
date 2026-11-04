@@ -1,0 +1,115 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "physical_burst"
+display_name = "破军"
+role = "物理单体爆发"
+icon_key = "dmg_physical"
+nodes = Array[Dictionary]([
+  {
+    "id": "physical_burst.slash",
+    "name": "斩击",
+    "tier": 1,
+    "description": "基础物理攻击每级+0.6%。",
+    "effects": {
+      "attack_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.swift",
+    "name": "疾刃",
+    "tier": 1,
+    "description": "攻击速度每级+0.6%。",
+    "effects": {
+      "speed_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.critical",
+    "name": "会心",
+    "tier": 1,
+    "description": "暴击率每级+0.5%。",
+    "effects": {
+      "crit_rate": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.fatal",
+    "name": "致命",
+    "tier": 2,
+    "description": "对精英与Boss伤害每级+0.9%。",
+    "effects": {
+      "elite_boss_damage_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.pierce",
+    "name": "贯革",
+    "tier": 2,
+    "description": "百分比穿甲每级+2%。",
+    "effects": {
+      "armor_pen_pct": 0.02
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.rupture",
+    "name": "裂甲",
+    "tier": 2,
+    "description": "暴击伤害每级+1.5%。",
+    "effects": {
+      "crit_damage": 0.015
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.chain",
+    "name": "连斩",
+    "tier": 3,
+    "description": "自身击杀后2s，攻速每级+0.9%。",
+    "effects": {
+      "kill_speed_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.power",
+    "name": "破军",
+    "tier": 3,
+    "description": "所有技能增幅每级+1%。",
+    "effects": {
+      "skill_amp": 0.01
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.triumph",
+    "name": "凯旋",
+    "tier": 3,
+    "description": "自身大招每次击杀返怒每级+2。",
+    "effects": {
+      "ultimate_kill_rage": 2.0
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "physical_burst.dragon",
+    "name": "青龙临阵",
+    "tier": 4,
+    "description": "大招增幅每级+1.5%；2级再加大招击杀返怒3。",
+    "effects": {
+      "ultimate_amp": 0.015
+    },
+    "level2_overrides": {
+      "ultimate_kill_rage": 3.0
+    },
+    "rule": "大招专属增幅每级+1.5%；2级另加大招击杀返怒3。"
+  }
+])

@@ -1,0 +1,114 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "magic_burst"
+display_name = "玄策"
+role = "魔法单体爆发（备建）"
+icon_key = "dmg_magic"
+nodes = Array[Dictionary]([
+  {
+    "id": "magic_burst.focus",
+    "name": "凝神",
+    "tier": 1,
+    "description": "基础魔法攻击每级+0.6%。",
+    "effects": {
+      "attack_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.swift",
+    "name": "疾咒",
+    "tier": 1,
+    "description": "攻击速度每级+0.6%。",
+    "effects": {
+      "speed_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.reach",
+    "name": "远谋",
+    "tier": 1,
+    "description": "射程每级+0.6%。",
+    "effects": {
+      "range_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.spell",
+    "name": "灵术",
+    "tier": 2,
+    "description": "魔法伤害每级+0.9%。",
+    "effects": {
+      "magic_damage_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.critical",
+    "name": "会心",
+    "tier": 2,
+    "description": "暴击率每级+0.5%。",
+    "effects": {
+      "crit_rate": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.ultimate",
+    "name": "破咒",
+    "tier": 2,
+    "description": "大招专属增幅每级+0.9%。",
+    "effects": {
+      "ultimate_amp": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.pierce",
+    "name": "透法",
+    "tier": 3,
+    "description": "百分比穿甲每级+0.9%。",
+    "effects": {
+      "armor_pen_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.execute",
+    "name": "追魂",
+    "tier": 3,
+    "description": "对生命不高于50%的目标伤害每级+0.9%。",
+    "effects": {
+      "low_hp_damage_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.wisdom",
+    "name": "玄谋",
+    "tier": 3,
+    "description": "所有技能增幅每级+0.5%。",
+    "effects": {
+      "skill_amp": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "magic_burst.strategy",
+    "name": "玄策定局",
+    "tier": 4,
+    "description": "大招专属增幅每级+1.2%；2级另加普攻命中怒气0.5。",
+    "effects": {
+      "ultimate_amp": 0.012
+    },
+    "level2_overrides": {
+      "hit_rage_flat": 0.5
+    }
+  }
+])

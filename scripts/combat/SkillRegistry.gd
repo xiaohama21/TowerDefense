@@ -100,10 +100,16 @@ static func param(tower: Tower, id: StringName, key: String, fallback: float = 0
 	return tower.get_skill_param(id, key, fallback)
 
 static func strength(tower: Tower, id: StringName) -> float:
-	return level_multiplier(tower.get_skill_level(id)) * tower.skill_output_multiplier()
+	return level_multiplier(tower.get_skill_level(id)) * output_multiplier(tower, id)
+
+static func output_multiplier(tower: Tower, id: StringName) -> float:
+	return tower.skill_output_multiplier() + (TalentCombat.value(tower, "ultimate_amp") if id == tower._ultimate_id else 0.0)
 
 static func duration(tower: Tower, id: StringName, key: String = "duration") -> float:
-	return param(tower, id, key) * tower.skill_output_multiplier()
+	var factor := output_multiplier(tower, id)
+	if key in ["fear_duration", "slow_duration"]: factor *= 1.0 + TalentCombat.value(tower, "control_duration_pct")
+	if key == "reveal_duration": factor *= 1.0 + TalentCombat.value(tower, "reveal_duration_pct")
+	return param(tower, id, key) * factor
 
 static func rage_multiplier(tower: Tower) -> float:
 	var total := 0.0
@@ -114,7 +120,7 @@ static func rage_multiplier(tower: Tower) -> float:
 		var other := node as Tower
 		if other == null or other == tower or other.is_queued_for_deletion() or not other.has_skill(&"trait_moon_veil"): continue
 		if tower.global_position.distance_to(other.global_position) <= other.range_radius:
-			best = maxf(best, param(other, &"trait_moon_veil", "ally_rage") * strength(other, &"trait_moon_veil"))
+			best = maxf(best, param(other, &"trait_moon_veil", "ally_rage") * strength(other, &"trait_moon_veil") + TalentCombat.value(other, "ally_rage_pct"))
 	return 1.0 + total + best
 
 static func on_attack_hit(tower: Tower, victim: Enemy, _dealt: int) -> void:
@@ -150,8 +156,8 @@ static func tick(tower: Tower, delta: float) -> void:
 	if tower.skill_aura_tick > 0.0: return
 	tower.skill_aura_tick = 0.25
 	if tower.has_skill(&"trait_star_gazer"):
-		var slow := param(tower, &"trait_star_gazer", "slow_strength") * strength(tower, &"trait_star_gazer")
-		for enemy in tower.enemies_in_range(): enemy.apply_slow(1.0 - slow, 0.5 * tower.skill_output_multiplier())
+		var slow := param(tower, &"trait_star_gazer", "slow_strength") * strength(tower, &"trait_star_gazer") * (1.0 + TalentCombat.value(tower, "slow_strength_pct"))
+		for enemy in tower.enemies_in_range(): enemy.apply_slow(maxf(1.0 - slow, 0.05), 0.5 * tower.skill_output_multiplier() * (1.0 + TalentCombat.value(tower, "control_duration_pct")))
 	if tower.has_skill(&"trait_benevolence") or tower.has_skill(&"passive_diligence"):
 		tower.skill_support_tick -= 0.25
 		if tower.skill_support_tick <= 0.0:
@@ -167,8 +173,8 @@ static func execute_ultimate(id: StringName, tower: Tower) -> bool:
 		&"char_dangyang_roar":
 			if enemies.is_empty(): return false
 			for enemy in enemies:
-				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
-				if not enemy.is_dead: enemy.apply_fear(duration(tower, id, "fear_duration"), maxf(1.0 - param(tower, id, "slow_strength") * power, 0.05), duration(tower, id, "slow_duration"))
+				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL, &"ultimate")
+				if not enemy.is_dead: enemy.apply_fear(duration(tower, id, "fear_duration"), maxf(1.0 - param(tower, id, "slow_strength") * power * (1.0 + TalentCombat.value(tower, "slow_strength_pct")), 0.05), duration(tower, id, "slow_duration"))
 		&"char_carry_people", &"char_moon_dance":
 			var allies := tower.allies_in_range() if id == &"char_carry_people" else _all_towers(tower)
 			if allies.is_empty(): return false
@@ -187,18 +193,18 @@ static func execute_ultimate(id: StringName, tower: Tower) -> bool:
 			for enemy in enemies:
 				if enemy.global_position.distance_to(center) <= param(tower, id, "radius") * tower.get_battle_rank_aoe_multiplier():
 					enemy.apply_burn(dps, duration(tower, id), tower)
-					tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
+					tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL, &"ultimate")
 		&"char_seven_charges":
 			var targets := tower.lowest_hp_targets_in_range(int(param(tower, id, "targets")))
 			if targets.is_empty(): return false
-			for enemy in targets: tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
+			for enemy in targets: tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL, &"ultimate")
 			tower.apply_attack_speed_buff(str(id), 1.0 + param(tower, id, "speed_bonus") * power, duration(tower, id))
 		&"ultimate_death_fight":
 			var victim = tower.target
 			if not tower.is_target_valid(victim): return false
 			var mult := param(tower, id, "mult") * power
 			if float(GameManager.lives) <= float(GameManager.starting_lives) * param(tower, id, "base_hp_threshold"): mult *= param(tower, id, "low_hp_mult")
-			tower.deal_damage(victim, tower.finalize_damage(int(round(tower.damage * mult)), victim, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL)
+			tower.deal_damage(victim, tower.finalize_damage(int(round(tower.damage * mult)), victim, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL, &"ultimate")
 		&"char_borrow_wind":
 			var all_enemies := tower.get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP)
 			if all_enemies.is_empty(): return false
@@ -207,14 +213,19 @@ static func execute_ultimate(id: StringName, tower: Tower) -> bool:
 				for enemy in enemies:
 					if enemy.is_controlled(): controlled += 1
 				var extra := minf(controlled * param(tower, &"passive_momentum", "amp_per_enemy"), param(tower, &"passive_momentum", "amp_cap")) * level_multiplier(tower.get_skill_level(&"passive_momentum"))
-				power = level_multiplier(tower.get_skill_level(id)) * (tower.skill_output_multiplier() + extra)
+				power = level_multiplier(tower.get_skill_level(id)) * (output_multiplier(tower, id) + extra)
 			for node in all_enemies:
 				var enemy := node as Enemy
 				if enemy == null or enemy.is_dead: continue
 				enemy.apply_reveal(duration(tower, id, "reveal_duration"))
-				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC)
+				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.MAGIC), DamageTypes.MAGIC, &"ultimate")
 		_:
 			return false
+	var end_delay := 0.0
+	if id in [&"char_carry_people", &"char_moon_dance"]: end_delay = duration(tower, id) * tower.get_battle_rank_buff_duration_multiplier()
+	elif id == &"char_dingjun": end_delay = duration(tower, id)
+	if end_delay > 0.0: tower.schedule_combat_step(end_delay, func() -> void: TalentCombat.on_ultimate_end(tower))
+	else: TalentCombat.on_ultimate_end(tower)
 	tower.play_skill_effect()
 	return true
 
@@ -244,8 +255,8 @@ static func _green_dragon_segment(tower: Tower, strike: Dictionary, amount: int,
 	if victim != null:
 		var final_amount := tower.finalize_damage(amount, victim, DamageTypes.TRUE) + int(strike.carry)
 		var before: int = victim.current_hp
-		var consumed := ceili(float(before) / victim.get_vulnerability_multiplier())
-		tower.deal_damage(victim, final_amount, DamageTypes.TRUE)
+		var consumed := ceili(float(before) / (victim.get_vulnerability_multiplier() * TalentCombat.damage_multiplier(tower, victim, DamageTypes.TRUE, &"ultimate")))
+		tower.deal_damage(victim, final_amount, DamageTypes.TRUE, &"ultimate")
 		strike.carry = maxi(final_amount - consumed, 0)
 		strike.struck.append(victim.get_instance_id())
 		if victim.is_dead:
@@ -258,6 +269,7 @@ static func _green_dragon_segment(tower: Tower, strike: Dictionary, amount: int,
 		if tower.has_skill(&"passive_warm_wine"):
 			var wine := &"passive_warm_wine"
 			tower.apply_attack_speed_buff(str(wine), 1.0 + param(tower, wine, "speed_bonus") * strength(tower, wine), duration(tower, wine))
+		TalentCombat.on_ultimate_end(tower)
 
 static func _next_green_dragon_target(tower: Tower, struck: Array) -> Enemy:
 	var best: Enemy = null

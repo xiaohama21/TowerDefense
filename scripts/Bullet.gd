@@ -67,7 +67,8 @@ func _physics_process(delta: float) -> void:
 	# avoids fast bullets skipping past it on a low frame rate.
 	if distance <= hit_radius or travel_distance >= distance:
 		var hit := _hit_damage(target)
-		target.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat, false, source_tower if is_instance_valid(source_tower) else null)
+		var penetration := _hit_penetration(target)
+		target.take_damage(hit, source_character_id, damage_type, penetration.ratios, int(penetration.flat), false, source_tower if is_instance_valid(source_tower) else null, &"attack" if counts_as_attack else &"skill")
 		_notify_hit_events(target, hit)
 		queue_free()
 		return
@@ -110,20 +111,28 @@ func _explode() -> void:
 	var enemies := get_tree().get_nodes_in_group(Enemy.ENEMY_GROUP)
 	var hit_any := false
 	var event_damage := 0
+	var first_target: Enemy = null
 	for node in enemies:
 		var enemy := node as Enemy
 		if enemy == null or enemy.is_dead:
 			continue
 		if enemy.global_position.distance_to(lob_landing) <= explosion_radius:
 			var hit := _hit_damage(enemy)
-			enemy.take_damage(hit, source_character_id, damage_type, pen_ratios, pen_flat, false, source_tower if is_instance_valid(source_tower) else null)
+			var penetration := _hit_penetration(enemy)
+			enemy.take_damage(hit, source_character_id, damage_type, penetration.ratios, int(penetration.flat), false, source_tower if is_instance_valid(source_tower) else null, &"attack" if counts_as_attack else &"skill")
+			if first_target == null: first_target = enemy
 			event_damage = maxi(event_damage, hit)
 			if counts_as_attack and is_instance_valid(source_tower):
 				SkillRegistry.on_attack_hit(source_tower, enemy, hit)
+				TalentCombat.on_attack_target(source_tower, enemy)
 			hit_any = true
 	# AOE 攻击级事件（v0.31.4 / 0.8.6.2）：命中≥1 才按该发伤害计一次怒气（空爆不计）。
 	if counts_as_attack and hit_any and source_tower != null and is_instance_valid(source_tower):
-		source_tower.notify_aoe_damage_dealt(event_damage)
+		source_tower.notify_aoe_damage_dealt(event_damage, first_target)
+
+func _hit_penetration(enemy: Enemy) -> Dictionary:
+	if is_instance_valid(source_tower): return source_tower.get_armor_penetration(enemy, &"attack" if counts_as_attack else &"skill")
+	return {"ratios": pen_ratios, "flat": pen_flat}
 
 
 func _draw_lob() -> void:

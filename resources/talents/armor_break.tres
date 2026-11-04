@@ -1,0 +1,117 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "armor_break"
+display_name = "破防"
+role = "削弱护甲"
+icon_key = "stat_armor_pen"
+nodes = Array[Dictionary]([
+  {
+    "id": "armor_break.edge",
+    "name": "锐锋",
+    "tier": 1,
+    "description": "物理伤害每级+0.5%。",
+    "effects": {
+      "physical_damage_pct": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.elite",
+    "name": "专破",
+    "tier": 1,
+    "description": "对精英伤害每级+0.6%。",
+    "effects": {
+      "elite_damage_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.steel",
+    "name": "钢骨",
+    "tier": 1,
+    "description": "固定穿甲每级+2。",
+    "effects": {
+      "armor_pen_flat": 2.0
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.pierce",
+    "name": "透甲",
+    "tier": 2,
+    "description": "百分比穿甲每级+1%。",
+    "effects": {
+      "armor_pen_pct": 0.01
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.boss",
+    "name": "斩铁",
+    "tier": 2,
+    "description": "对Boss伤害每级+0.9%。",
+    "effects": {
+      "boss_damage_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.aura",
+    "name": "破竹",
+    "tier": 2,
+    "description": "对护甲光环覆盖目标伤害每级+0.9%。",
+    "effects": {
+      "aura_armor_damage_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.ultimate",
+    "name": "断金",
+    "tier": 3,
+    "description": "大招百分比穿甲每级+1%。",
+    "effects": {
+      "ultimate_pen_pct": 0.01
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.repeat",
+    "name": "连破",
+    "tier": 3,
+    "description": "连续普攻同一目标，第2次起穿甲每级+0.9%，不再叠层。",
+    "effects": {
+      "same_target_pen_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.kill",
+    "name": "碎甲",
+    "tier": 3,
+    "description": "自身击杀后2s，固定穿甲每级+3。",
+    "effects": {
+      "kill_pen_flat": 3.0
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "armor_break.unbreakable",
+    "name": "无坚不摧",
+    "tier": 4,
+    "description": "每6次普攻追加10%攻击的真实伤害；2级改为每5次。",
+    "effects": {
+      "armor_ignore_every": 6.0,
+      "armor_ignore_mult": 0.1
+    },
+    "level2_overrides": {
+      "armor_ignore_every": 5.0,
+      "armor_ignore_mult": 0.1
+    },
+    "rule": "每6次普攻命中追加面板攻击10%的真实伤害；2级改为每5次。追加不暴击、不触发普攻事件。"
+  }
+])

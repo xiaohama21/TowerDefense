@@ -607,6 +607,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 				data = _migrate_v9_to_v10(data)
 				version = 10
 				migrated = true
+			10:
+				data = _migrate_v10_to_v11(data)
+				version = 11
+				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}
 	if not _validate_current_shape(data):
@@ -769,3 +773,19 @@ func _fail(reason: String) -> bool:
 	save_failed.emit(reason)
 	push_error("SaveManager: %s" % reason)
 	return false
+
+
+func _migrate_v10_to_v11(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var characters = data.get("characters", {})
+	if characters is Dictionary:
+		for id in characters:
+			if characters[id] is Dictionary:
+				var exp_value = characters[id].get("total_exp", 0)
+				var exp_total := 0
+				if typeof(exp_value) == TYPE_INT or typeof(exp_value) == TYPE_FLOAT:
+					if is_finite(float(exp_value)): exp_total = maxi(int(exp_value), 0)
+				elif exp_value is String and exp_value.is_valid_int(): exp_total = maxi(int(exp_value), 0)
+				characters[id]["talent_alloc"] = TalentRegistry.normalize(str(id), LevelCurve.level_from_total_exp(exp_total), characters[id].get("talent_alloc", {}))
+	data["schema_version"] = 11
+	return data

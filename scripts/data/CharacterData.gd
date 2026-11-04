@@ -9,6 +9,7 @@ class_name CharacterData
 @export var portrait: Texture2D
 @export var profession: ProfessionData
 @export var tags: Array[StringName] = []
+@export var talent_tree_ids: Array[String] = []
 
 @export_category("Deployment")
 @export_range(0, 9999, 1) var build_cost: int = 50
@@ -124,11 +125,12 @@ func remaining_guard(level: int, rank: int, guard: Dictionary) -> Dictionary:
 			result.erase(key)
 	return result
 
-func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}, weapon: WeaponData = null) -> Dictionary:
+func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}, weapon: WeaponData = null, talent_alloc: Dictionary = {}) -> Dictionary:
 	var r := clampi(rank, 0, 5)
 	var equipment := WeaponRegistry.bonuses(weapon, self)
-	var equipment_amp := float(equipment.get("skill_amp", 0.0))
-	var range_pct := float(equipment.get("range_pct", 0.0))
+	var talents := TalentRegistry.bonuses(str(character_id), TalentRegistry.normalize(str(character_id), level, talent_alloc))
+	var equipment_amp := float(equipment.get("skill_amp", 0.0)) + float(talents.get("skill_amp", 0.0))
+	var range_pct := float(equipment.get("range_pct", 0.0)) + float(talents.get("range_pct", 0.0))
 	var bare := bare_stats_at(level, r)
 	var protected := CharacterRank.normalize_guard(guard)
 	for key in protected:
@@ -141,16 +143,18 @@ func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle
 		new_attack = float(bare.attack) * (1.0 + attack_pct * (steps + bonus)) / (1.0 + attack_pct * steps)
 	var attack_key := "magic_attack_flat" if profession != null and profession.attack_damage_type == &"magic" else "physical_attack_flat"
 	new_attack += float(equipment.get(attack_key, 0.0)) * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r]
-	bare.attack = int(round(new_attack))
+	bare.attack = int(round(new_attack * (1.0 + float(talents.get("attack_pct", 0.0)))))
 	bare.range = float(bare.range) * (1.0 + range_pct_per_level * (steps + bonus)) / (1.0 + range_pct_per_level * steps) + (relic.range_bonus if relic != null else 0.0)
 	bare.attack_interval = float(bare.attack_interval) * (1.0 + speed_pct_per_level * steps) / (1.0 + speed_pct_per_level * (steps + bonus)) * (relic.attack_interval_factor if relic != null else 1.0)
+	bare.attack_interval /= 1.0 + float(talents.get("speed_pct", 0.0))
 	var stats := {
 		"attack": int(bare.attack), "damage": int(bare.attack), "range": float(bare.range),
 		"attack_interval": float(bare.attack_interval), "min_range": profession.min_range if profession != null else 0.0,
-		"crit_rate": clampf(0.05 + per_rank_crit_rate * r + float(equipment.get("crit_rate", 0.0)), 0.0, 0.75),
-		"crit_damage": 1.5 + per_rank_crit_damage * r + float(equipment.get("crit_damage", 0.0)), "skill_amp": per_rank_skill_amp * r + equipment_amp,
+		"crit_rate": clampf(0.05 + per_rank_crit_rate * r + float(equipment.get("crit_rate", 0.0)) + float(talents.get("crit_rate", 0.0)), 0.0, 0.75),
+		"crit_damage": 1.5 + per_rank_crit_damage * r + float(equipment.get("crit_damage", 0.0)) + float(talents.get("crit_damage", 0.0)), "skill_amp": per_rank_skill_amp * r + equipment_amp,
 		"projectile_speed": projectile_speed + float(equipment.get("projectile_flat", 0.0)),
 		"equipment": equipment,
+		"talents": talents,
 	}
 	# Permanent skills share this path with combat, development and encyclopedia.
 	for id in passive_ids:
@@ -163,7 +167,7 @@ func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle
 				stats.skill_amp += float(params.get("skill_amp", 0.05)) * SkillRegistry.level_multiplier(int(skill_levels.get(str(id), 1)))
 			continue
 		if id == &"passive_fierce_flame":
-			stats.damage += int(round(float(params.get("attack_flat", 0.0)) * power * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r]))
+			stats.damage += int(round(float(params.get("attack_flat", 0.0)) * power * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r] * (1.0 + float(talents.get("attack_pct", 0.0)))))
 			stats.attack = stats.damage
 			stats.range += float(params.get("range_flat", 0.0)) * power
 		if id == &"trait_star_gazer":

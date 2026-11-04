@@ -1,0 +1,114 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "support_buff"
+display_name = "同袍"
+role = "辅助增益"
+icon_key = "stat_attack_speed"
+nodes = Array[Dictionary]([
+  {
+    "id": "support_buff.reach",
+    "name": "照应",
+    "tier": 1,
+    "description": "射程每级+0.6%。",
+    "effects": {
+      "range_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.swift",
+    "name": "迅令",
+    "tier": 1,
+    "description": "攻击速度每级+0.6%。",
+    "effects": {
+      "speed_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.rage",
+    "name": "聚志",
+    "tier": 1,
+    "description": "常规怒气获取每级+0.6%。",
+    "effects": {
+      "rage_pct": 0.006
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.power",
+    "name": "激励",
+    "tier": 2,
+    "description": "自身施加的攻击与攻速增益强度每级+0.9%。",
+    "effects": {
+      "buff_power_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.duration",
+    "name": "长歌",
+    "tier": 2,
+    "description": "自身施加的限时友方增益时长每级+0.9%。",
+    "effects": {
+      "buff_duration_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.critical",
+    "name": "同心",
+    "tier": 2,
+    "description": "暴击率每级+0.5%。",
+    "effects": {
+      "crit_rate": 0.005
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.ultimate",
+    "name": "齐心",
+    "tier": 3,
+    "description": "大招专属增幅每级+0.9%。",
+    "effects": {
+      "ultimate_amp": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.pulse",
+    "name": "鸣鼓",
+    "tier": 3,
+    "description": "辅助普攻脉冲额外怒气每级+0.5；每次脉冲一次。",
+    "effects": {
+      "support_hit_rage": 0.5
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.momentum",
+    "name": "昂扬",
+    "tier": 3,
+    "description": "怒气达到50%时，攻速每级+0.9%。",
+    "effects": {
+      "high_rage_speed_pct": 0.009
+    },
+    "level2_overrides": {}
+  },
+  {
+    "id": "support_buff.unity",
+    "name": "同袍协力",
+    "tier": 4,
+    "description": "自身施加的攻击与攻速增益强度每级+1.5%；2级另加辅助普攻脉冲怒气2。",
+    "effects": {
+      "buff_power_pct": 0.015
+    },
+    "level2_overrides": {
+      "support_hit_rage": 2.0
+    }
+  }
+])

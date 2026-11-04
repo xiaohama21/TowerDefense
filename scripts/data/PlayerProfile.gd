@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 10
+const CURRENT_SCHEMA_VERSION: int = 11
 ## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
 const SUPPLY_MAX_LEVEL: int = 3
 const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
@@ -192,6 +192,7 @@ func unlock_character(character_id: String, initial_data: Dictionary = {}) -> bo
 	entry["rank"] = clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
 	entry["growth_guard"] = CharacterRank.normalize_guard(entry.get("growth_guard", {}))
 	entry["skill_levels"] = SkillRegistry.normalize_levels(key, entry.get("skill_levels", {}))
+	entry["talent_alloc"] = TalentRegistry.normalize(key, LevelCurve.level_from_total_exp(int(entry["total_exp"])), entry.get("talent_alloc", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	entry["weapon_id"] = ""
@@ -224,6 +225,7 @@ func add_character_exp(character_id: String, amount: int) -> int:
 	entry["rank"] = clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
 	entry["growth_guard"] = CharacterRank.normalize_guard(entry.get("growth_guard", {}))
 	entry["skill_levels"] = SkillRegistry.normalize_levels(key, entry.get("skill_levels", {}))
+	entry["talent_alloc"] = TalentRegistry.normalize(key, LevelCurve.level_from_total_exp(int(entry["total_exp"])), entry.get("talent_alloc", {}))
 	entry["relic_exclusive"] = str(entry.get("relic_exclusive", ""))
 	entry["relic_optional"] = str(entry.get("relic_optional", ""))
 	characters[key] = entry
@@ -676,6 +678,7 @@ func _normalize_characters(value) -> Dictionary:
 		normalized["rank"] = clampi(_coerce_non_negative_int(normalized.get("rank", 0)), 0, 5)
 		normalized["growth_guard"] = CharacterRank.normalize_guard(normalized.get("growth_guard", {}))
 		normalized["skill_levels"] = SkillRegistry.normalize_levels(character_id, normalized.get("skill_levels", {}))
+		normalized["talent_alloc"] = TalentRegistry.normalize(character_id, LevelCurve.level_from_total_exp(int(normalized["total_exp"])), normalized.get("talent_alloc", {}))
 		# v4（0.8.14）：碎片字段删除；旧 relic 键就地迁移为专属槽占位（防御性，正式迁移在 SaveManager）。
 		normalized.erase("shards")
 		var legacy_relic := str(normalized.get("relic", ""))
@@ -787,3 +790,27 @@ func add_weapon(weapon_id: String, amount: int = 1) -> Dictionary:
 	weapons[weapon_id] = weapon_count(weapon_id) + int(result.weapons.get(weapon_id, 0))
 	if int(result.seals) > 0: add_item("general_seal", int(result.seals))
 	return result
+
+
+func get_talent_alloc(character_id: String) -> Dictionary:
+	return TalentRegistry.normalize(character_id, LevelCurve.level_from_total_exp(get_character_exp(character_id)), get_character(character_id).get("talent_alloc", {}))
+
+func talent_points_remaining(character_id: String) -> int:
+	if not has_character(character_id): return 0
+	return TalentRegistry.points_for_level(LevelCurve.level_from_total_exp(get_character_exp(character_id))) - TalentRegistry.spent(get_talent_alloc(character_id))
+
+func talent_allocation_status(character_id: String, node_id: String) -> String:
+	if not has_character(character_id): return "未解锁"
+	return TalentRegistry.allocation_status(character_id, LevelCurve.level_from_total_exp(get_character_exp(character_id)), get_talent_alloc(character_id), node_id)
+
+func allocate_talent(character_id: String, node_id: String, expected_rank: int) -> bool:
+	var alloc := get_talent_alloc(character_id)
+	if int(alloc.get(node_id, 0)) != expected_rank or talent_allocation_status(character_id, node_id) != "分配": return false
+	alloc[node_id] = expected_rank + 1
+	characters[character_id]["talent_alloc"] = alloc
+	return true
+
+func reset_talents(character_id: String, expected_alloc: Dictionary) -> bool:
+	if not has_character(character_id) or get_talent_alloc(character_id) != expected_alloc or expected_alloc.is_empty(): return false
+	characters[character_id]["talent_alloc"] = {}
+	return true

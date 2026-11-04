@@ -40,3 +40,5 @@ skill_params = {
     "duration": 3.0
   }
 }
+
+talent_tree_ids = Array[String](["physical_burst", "rage", "armor_break"])

@@ -6,12 +6,10 @@
 
 ## 当前状态
 
-- 程序 **0.9.4.3**，设计总纲 **v0.37.79**，当前分支 **0.9.4**。技能页留白和物品描述调整完成，BUGS v0.76登记B-143~B-144。
-- 养成/百科技能页内容左右16px、上下14px，卡间12px，名称、等级、中文效果和升级/解锁条件保留。
-- 物品名称及短用途/效果直接展示，覆盖背包、装备、信物、编队遗物、军需和奖励详情；装备与商店同源描述，地图/结算奖励滚动兜底。
-- **11项相关回归全部通过**，包含GearRunner 446、ShopRunner 461及ItemUiRunner 91项界面检查；[53张原生窗口截图](docs/ui_concept/runtime_0.9.4.3/README.md)已归档。Windows独立启动、实际Spine DLL、PE0.9.4.3与**119项包内检查**通过。
-- 完整包`build/FengHuoLianYing_v0.9.4.3_Windows.zip`，目录`build/release_0.9.4.3/`，EXE副本`build/FengHuoLianYing_v0.9.4.3.exe`。旧包保留，27技能人物动作图、暖金元宝与283图标保持，机制和schema **v10**不变。
-- 0.9.4在版本分支交付，main冻结 **66cc17f**；启动0.9.5时按AGENTS §5.3同步。
+- 已完成 **0.9.5.0** 天赋系统，设计总纲 **v0.37.80**，交付分支 **0.9.5**，节点权威 [TALENTS v0.1](docs/modules/TALENTS.md)。11棵共享定位树、110节点、九将独立三树、最多40点、本树4/8/12点门槛、免费重置与schema v11；养成可分配，百科可模拟。
+- 上一版本 **0.9.4.3** 已完成并推送（abfbb65）；11项回归、119项包内检查及53张原生窗口截图通过。完整包 `build/FengHuoLianYing_v0.9.4.3_Windows.zip` 保留。
+- **13项回归全部通过**；天赋专项271项、原生窗口布局750项、249项导出包内检查通过，20张1280×720截图见 [runtime_0.9.5](docs/ui_concept/runtime_0.9.5/README.md)。Windows独立启动、实际Spine DLL加载与PE版本0.9.5.0已验证。
+- 完整Windows包：`build/FengHuoLianYing_v0.9.5.0_Windows.zip`；解压后运行EXE，保留同目录DLL。main在启动0.9.5时按AGENTS §5.3同步至 **ecba0ed**；本次交付留在0.9.5分支。
 
 ## 历史交付记录
 

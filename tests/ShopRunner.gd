@@ -60,10 +60,10 @@ func _test_migration() -> void:
 	var raw := {"schema_version":9,"characters":{"guan_yu":{"rank":2,"skill_levels":{"char_green_dragon":6},"weapon_id":"equipment_long_spear_1"}},"weapons":{"equipment_long_spear_1":1},"items":{"iron_shield":1},"stage_progress":{"ch01_s01":{"completed":true}},"military_merit":123}
 	var result := ProfileStore._migrate_to_current(raw)
 	var p := PlayerProfile.from_dict(result.data)
-	_check(result.ok and p.to_dict().schema_version == 10 and p.ingots == 0 and p.lord_exp == 0, "旧档补零无首通补偿")
+	_check(result.ok and p.to_dict().schema_version == PlayerProfile.CURRENT_SCHEMA_VERSION and p.ingots == 0 and p.lord_exp == 0, "旧档补零无首通补偿")
 	_check(p.get_character_rank("guan_yu") == 2 and p.get_skill_level("guan_yu", &"char_green_dragon") == 6 and p.weapon_count("equipment_long_spear_1") == 1 and p.military_merit == 123, "旧养成/装备/军功保留")
 	_check(p.shop_state.rotation == ["rot_iron_5","rot_ebony_3"], "初始两件不重复")
-	_check(ProfileStore._migrate_v9_to_v10(result.data) == result.data and p.duplicate_profile().to_dict() == p.to_dict(), "幂等与读档货架保留")
+	_check(ProfileStore._migrate_to_current(result.data).data == result.data and p.duplicate_profile().to_dict() == p.to_dict(), "幂等与读档货架保留")
 	p.ingots = 654
 	p.lord_exp = 999
 	p.shop_state.refresh_step = 2
@@ -72,7 +72,7 @@ func _test_migration() -> void:
 	_check(kept.ingots == 654 and kept.lord_exp == 999 and kept.shop_state.refresh_step == 2 and kept.shop_state.permanent_counts.iron_1 == 4, "有效字段不覆盖")
 	var corrupt := PlayerProfile.from_dict({"ingots":NAN,"lord_exp":INF,"shop_state":{"permanent_counts":{"unknown":5,"iron_1":999,"book_1":-2},"rotation":["rot_iron_5","bad","rot_iron_5"],"refresh_step":99,"revision":-1}})
 	_check(corrupt.ingots == 0 and corrupt.lord_exp == 0 and corrupt.shop_state.permanent_counts == {"iron_1":60} and corrupt.shop_state.rotation.size() == 2 and corrupt.shop_state.refresh_step == 2 and corrupt.shop_state.revision == 0, "非法经济数据归一")
-	_check(not ProfileStore._migrate_to_current({"schema_version":11}).ok and not ProfileStore._migrate_to_current({"schema_version":10,"shop_state":[]}).ok, "未来档和错误容器拒绝")
+	_check(not ProfileStore._migrate_to_current({"schema_version":PlayerProfile.CURRENT_SCHEMA_VERSION + 1}).ok and not ProfileStore._migrate_to_current({"schema_version":10,"shop_state":[]}).ok, "未来档和错误容器拒绝")
 
 func _test_purchases() -> void:
 	var p := _rich()

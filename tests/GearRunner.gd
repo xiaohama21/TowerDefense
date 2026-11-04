@@ -224,7 +224,7 @@ func _test_ui() -> void:
 	add_child(panel)
 	panel._select_character("zhang_fei")
 	panel._refresh()
-	_check(panel._tab_container.get_tab_count() == 4, "养成四页签")
+	_check(panel._tab_container.get_tab_count() == 5, "养成五页签")
 	ProfileStore._writes_blocked = true
 	var before := p.to_dict()
 	_check(not panel._equip_weapon("zhang_fei", "equipment_ring_blade_1") and p.to_dict() == before, "换装保存失败不改live")
