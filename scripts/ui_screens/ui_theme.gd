@@ -380,6 +380,12 @@ static func hud_icon(icon_name: String) -> Texture2D:
 static func icon_bbcode(icon_name: String, pixels: int = 18) -> String:
 	return "[img=%dx%d]%s%s.png[/img]" % [pixels, pixels, HUD_ICON_DIR, icon_name]
 
+static func item_brief(item: Resource) -> String:
+	if item == null: return ""
+	if item is WeaponData: return WeaponRegistry.brief_description(item)
+	if item is RelicData: return item.effect_summary()
+	return str(item.description).split("（")[0].strip_edges().trim_suffix("。") + "。"
+
 static func supply_effect_bbcode(supply: BattleSupplyData, level: int) -> String:
 	var duration := "  " + icon_bbcode("cooldown") + "%.0fs" % supply.duration_at(level)
 	if supply.instant_physical_at(level) > 0:

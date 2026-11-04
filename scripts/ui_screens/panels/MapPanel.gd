@@ -57,7 +57,7 @@ var _detail_difficulty_chip: Label
 var _detail_desc: Label
 var _detail_stats: Array[Label] = []
 var _stat_key_labels: Array[Label] = []
-var _detail_rewards: HFlowContainer
+var _detail_rewards: VBoxContainer
 var _deploy_button: Button
 var _clear_button: Button
 
@@ -500,12 +500,15 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	reward_border_style.bg_color = REWARD_LINE
 	reward_border.add_theme_stylebox_override("panel", reward_border_style)
 	content.add_child(reward_border)
+	var reward_box := VBoxContainer.new()
+	reward_box.add_theme_constant_override("separation", 2)
+	content.add_child(reward_box)
 	var rewards := HFlowContainer.new()
 	rewards.name = "StageRewardGlyphs"
 	rewards.add_theme_constant_override("h_separation", 4)
 	rewards.add_theme_constant_override("v_separation", 2)
 	rewards.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(rewards)
+	reward_box.add_child(rewards)
 	_append_reward_glyphs(rewards, stage, true)
 	return card
 
@@ -573,7 +576,7 @@ func _chip_style(bg: Color, margin_h: float, margin_v: float) -> StyleBoxFlat:
 
 func _build_detail_bar() -> void:
 	_detail_panel = Panel.new()
-	_detail_panel.custom_minimum_size = Vector2(0, 148)
+	_detail_panel.custom_minimum_size = Vector2(0, 176)
 	var detail_style := StyleBoxFlat.new()
 	detail_style.bg_color = Color.WHITE
 	detail_style.border_color = CARD_BORDER_READY
@@ -672,12 +675,17 @@ func _build_detail_bar() -> void:
 	right.add_theme_constant_override("separation", 9)
 	columns.add_child(right)
 
-	_detail_rewards = HFlowContainer.new()
+	var reward_scroll := ScrollContainer.new()
+	reward_scroll.name = "RewardDetailScroll"
+	reward_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	reward_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	reward_scroll.custom_minimum_size.y = 92
+	right.add_child(reward_scroll)
+	_detail_rewards = VBoxContainer.new()
 	_detail_rewards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_detail_rewards.add_theme_constant_override("h_separation", 8)
-	_detail_rewards.add_theme_constant_override("v_separation", 6)
+	_detail_rewards.add_theme_constant_override("separation", 6)
 	_detail_rewards.tooltip_text = "首次通关可获得以下奖励。"
-	right.add_child(_detail_rewards)
+	reward_scroll.add_child(_detail_rewards)
 
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -704,7 +712,7 @@ func _build_detail_bar() -> void:
 	actions.add_child(_deploy_button)
 
 
-## 首通奖励：图徽＋数量，解锁使用武将头像，名称仅作 tooltip。
+## 卡尾紧凑名称/数量预告，选中详情直接显示物品简述。
 func _refresh_reward_chips(stage: StageData) -> void:
 	for child in _detail_rewards.get_children():
 		_detail_rewards.remove_child(child)
@@ -712,9 +720,15 @@ func _refresh_reward_chips(stage: StageData) -> void:
 	_append_reward_glyphs(_detail_rewards, stage, false)
 
 func _append_reward_glyphs(holder: Control, stage: StageData, compact: bool) -> void:
+	var quick_rewards := holder
+	if not compact:
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 8)
+		holder.add_child(flow)
+		quick_rewards = flow
 	var economy := ShopRegistry.victory_rewards(not ProfileStore.get_profile().stage_progress.has(str(stage.stage_id)), _selected_difficulty)
-	holder.add_child(_reward_glyph("ingot", "+%d" % int(economy.ingots), "元宝", compact))
-	holder.add_child(_reward_glyph("lord_exp", "+%d" % int(economy.lord_exp), "主公经验", compact))
+	quick_rewards.add_child(_reward_glyph("ingot", "+%d" % int(economy.ingots), "元宝", compact))
+	quick_rewards.add_child(_reward_glyph("lord_exp", "+%d" % int(economy.lord_exp), "主公经验", compact))
 	for character_id in stage.first_clear_unlock_character_ids:
 		var character := GameFlow.load_character_data(str(character_id))
 		if character == null:
@@ -726,27 +740,60 @@ func _append_reward_glyphs(holder: Control, stage: StageData, compact: bool) -> 
 		old_icon.queue_free()
 		unlock.add_child(avatar)
 		unlock.move_child(avatar, 0)
-		holder.add_child(unlock)
+		quick_rewards.add_child(unlock)
+	if compact:
+		var names: Array[String] = []
+		for reward in stage.first_clear_rewards:
+			if reward != null and reward.item != null and reward.amount > 0:
+				names.append("%s×%d" % [reward.item.display_name, reward.amount])
+		for weapon in stage.first_clear_weapons:
+			if weapon != null: names.append(weapon.display_name + "×1")
+		var card_relic := stage.first_clear_relic_hard if _selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
+		if card_relic != null: names.append(card_relic.display_name + "×1")
+		var summary := Label.new()
+		summary.name = "RewardItemNames"
+		summary.text = " · ".join(names)
+		summary.max_lines_visible = 2
+		summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		summary.add_theme_font_size_override("font_size", 11)
+		summary.add_theme_color_override("font_color", NAV_BODY)
+		holder.get_parent().add_child(summary)
+		return
 	for reward in stage.first_clear_rewards:
 		if reward == null or reward.item == null or reward.amount <= 0:
 			continue
-		holder.add_child(_reward_glyph(str(reward.item.item_id), "×%d" % reward.amount, reward.item.display_name, compact))
+		holder.add_child(_reward_glyph(str(reward.item.item_id), "×%d" % reward.amount, reward.item.display_name, compact, CHIP_BLUE, UITheme.item_brief(reward.item)))
 	for weapon in stage.first_clear_weapons:
-		if weapon != null: holder.add_child(_reward_glyph(str(weapon.weapon_id), "×1", weapon.display_name, compact))
+		if weapon != null: holder.add_child(_reward_glyph(str(weapon.weapon_id), "×1", weapon.display_name, compact, CHIP_BLUE, UITheme.item_brief(weapon)))
 	var relic := stage.first_clear_relic_hard if _selected_difficulty >= Difficulty.HARD else stage.first_clear_relic
 	if relic != null:
-		holder.add_child(_reward_glyph(str(relic.relic_id), "×1", relic.display_name, compact))
+		holder.add_child(_reward_glyph(str(relic.relic_id), "×1", relic.display_name, compact, CHIP_BLUE, UITheme.item_brief(relic)))
 
-func _reward_glyph(icon_id: String, amount: String, hint: String, compact: bool, bg: Color = CHIP_BLUE) -> HBoxContainer:
+func _reward_glyph(icon_id: String, amount: String, hint: String, compact: bool, bg: Color = CHIP_BLUE, description: String = "") -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 3)
 	row.tooltip_text = hint
 	row.add_child(ConceptIcon.new(icon_id, 18 if compact else 24, hint, bg.darkened(0.25)))
 	var value := Label.new()
-	value.text = amount
-	value.add_theme_font_size_override("font_size", 12 if compact else 14)
+	value.text = (hint + " " if not description.is_empty() else "") + amount
+	value.add_theme_font_size_override("font_size", 11 if compact else 13)
 	value.add_theme_color_override("font_color", NAV_BODY)
-	row.add_child(value)
+	if not compact and not description.is_empty():
+		var info := VBoxContainer.new()
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		info.add_theme_constant_override("separation", 1)
+		row.add_child(info)
+		info.add_child(value)
+		var brief := Label.new()
+		brief.name = "ItemDescription"
+		brief.text = description
+		brief.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		brief.add_theme_font_size_override("font_size", 11)
+		brief.add_theme_color_override("font_color", NAV_BODY)
+		info.add_child(brief)
+	else:
+		row.add_child(value)
 	return row
 
 # ============ 选择与刷新（交互逻辑不变） ============

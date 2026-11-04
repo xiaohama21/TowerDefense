@@ -11,7 +11,7 @@ func configure(weapon: WeaponData, count: int = -1, available: int = -1, action:
 	focus_mode = Control.FOCUS_NONE
 	button_pressed = selected
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	custom_minimum_size = Vector2(0, 144 if not action.is_empty() else 124)
+	custom_minimum_size = Vector2(0, 178 if not action.is_empty() else 140)
 	UITheme.apply_light_selectable(self)
 	var body := VBoxContainer.new()
 	body.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -26,26 +26,24 @@ func configure(weapon: WeaponData, count: int = -1, available: int = -1, action:
 	header.add_theme_constant_override("separation", 8)
 	body.add_child(header)
 	header.add_child(ConceptIcon.new(str(weapon.weapon_id), 36, weapon.display_name))
+	var title := _label(weapon.display_name)
+	title.name = "ItemName"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 16)
+	header.add_child(title)
 	header.add_child(ConceptIcon.new("equipment_rarity_%d" % weapon.rarity, 18, "凡品；装备品质与武将品阶独立"))
 	header.add_child(ConceptIcon.new("profession_" + str(weapon.profession_id), 24, "适用职业"))
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(spacer)
+	var description := _label(WeaponRegistry.brief_description(weapon))
+	description.name = "ItemDescription"
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+	description.add_theme_font_size_override("font_size", 13)
+	body.add_child(description)
 	if count >= 0:
-		var label := _label("×%d" % count)
+		var label := _label("持有 %d · 可用 %d" % [count, maxi(available, 0)])
 		label.tooltip_text = "持有%d件，未占用%d件（最多3件）" % [count, maxi(available, 0)]
-		header.add_child(label)
-		if available >= 0:
-			header.add_child(ConceptIcon.new("ui_equip", 18, "已装配件数"))
-			header.add_child(_label("×%d" % maxi(count - available, 0)))
-	for effect in WeaponRegistry.effect_rows(weapon):
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 6)
-		body.add_child(row)
-		row.add_child(ConceptIcon.new(str(effect[0]), 20, str(effect[2])))
-		var value := _label(str(effect[1]))
-		value.tooltip_text = str(effect[2])
-		row.add_child(value)
+		body.add_child(label)
 	if not action.is_empty():
 		var button := Button.new()
 		button.name = "WeaponAction"
@@ -55,6 +53,8 @@ func configure(weapon: WeaponData, count: int = -1, available: int = -1, action:
 		UITheme.apply_light_selectable(button)
 		button.pressed.connect(func() -> void: action_requested.emit(str(weapon.weapon_id)))
 		body.add_child(button)
+	body.minimum_size_changed.connect(func() -> void:
+		custom_minimum_size.y = maxf(178 if not action.is_empty() else 140, body.get_combined_minimum_size().y + 16))
 
 func _label(value: String) -> Label:
 	var label := Label.new()

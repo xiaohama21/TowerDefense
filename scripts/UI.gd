@@ -1067,7 +1067,7 @@ func _create_result_panel() -> void:
 
 	_result_panel = PanelContainer.new()
 	_result_panel.name = "ResultPanel"
-	_result_panel.custom_minimum_size = Vector2(460, 0)
+	_result_panel.custom_minimum_size = Vector2(620, 0)
 	_result_panel.add_theme_stylebox_override("panel", _make_panel_style())
 	_result_center.add_child(_result_panel)
 
@@ -1097,8 +1097,15 @@ func _create_result_panel() -> void:
 	_result_lines_label = lines
 	lines.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	_result_reward_icons = HFlowContainer.new()
+	_result_reward_icons.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_result_reward_icons.add_theme_constant_override("h_separation", 10)
-	vbox.add_child(_result_reward_icons)
+	_result_reward_icons.add_theme_constant_override("v_separation", 8)
+	var reward_scroll := ScrollContainer.new()
+	reward_scroll.name = "ResultRewardScroll"
+	reward_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	reward_scroll.custom_minimum_size.y = 112
+	reward_scroll.add_child(_result_reward_icons)
+	vbox.add_child(reward_scroll)
 
 	var wheel_button := Button.new()
 	wheel_button.name = "ResultWheelButton"
@@ -1167,6 +1174,7 @@ func show_result(data: Dictionary) -> void:
 		for id in loot:
 			_append_result_reward(str(id), int(loot[id]), GameFlow.get_item_display_name(str(id)))
 	var line_parts: Array[String] = []
+	_result_reward_icons.get_parent().visible = _result_reward_icons.get_child_count() > 0
 	if victory:
 		if data.get("saved", false) and int(data.get("lord_after", 1)) > int(data.get("lord_before", 1)):
 			line_parts.append("升级！Lv.%d → Lv.%d" % [int(data.lord_before), int(data.lord_after)])
@@ -1235,9 +1243,33 @@ func hide_result() -> void:
 
 func _append_result_reward(id: String, amount: int, hint: String) -> void:
 	var row := HBoxContainer.new()
+	row.custom_minimum_size.x = 268
+	row.add_theme_constant_override("separation", 8)
 	row.add_child(ConceptIcon.new(id, 30, hint))
+	if id in ["ingot", "lord_exp"]:
+		var amount_label := Label.new()
+		amount_label.text = "×%d" % amount
+		amount_label.add_theme_font_size_override("font_size", 14)
+		amount_label.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
+		row.add_child(amount_label)
+		_result_reward_icons.add_child(row)
+		return
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_theme_constant_override("separation", 2)
+	row.add_child(info)
 	var value := Label.new()
-	value.text = "×%d" % amount
+	value.text = hint + " ×%d" % amount
+	value.add_theme_font_size_override("font_size", 14)
 	value.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
-	row.add_child(value)
+	info.add_child(value)
+	var item := GameFlow.load_item_data(id)
+	if item != null:
+		var description := Label.new()
+		description.name = "ItemDescription"
+		description.text = UITheme.item_brief(item)
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description.add_theme_font_size_override("font_size", 12)
+		description.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+		info.add_child(description)
 	_result_reward_icons.add_child(row)

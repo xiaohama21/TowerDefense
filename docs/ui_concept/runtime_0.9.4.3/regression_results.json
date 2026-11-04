@@ -1,0 +1,85 @@
+{
+  "PackVerify": {
+    "exit_code": 0,
+    "summary": [
+      "PackVerify: exit=0, script_errors=False",
+      "FAILED: "
+    ]
+  },
+  "SmokeRunner": {
+    "exit_code": 0,
+    "summary": [
+      "SmokeRunner: exit=0, script_errors=False",
+      "FAILED: "
+    ]
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "summary": [
+      "FlowRunner: exit=0, script_errors=False",
+      "FAILED: "
+    ]
+  },
+  "ExitFlowRunner": {
+    "exit_code": 0,
+    "summary": [
+      "ExitFlowRunner: exit=0, script_errors=False",
+      "FAILED: "
+    ]
+  },
+  "RankRunner": {
+    "exit_code": 0,
+    "summary": [
+      "RankRunner: exit=0, script_errors=False",
+      "RANK_RESULT: PASS failures=0",
+      "FAILED: "
+    ]
+  },
+  "SupplyStateRunner": {
+    "exit_code": 0,
+    "summary": [
+      "SupplyStateRunner: exit=0, script_errors=False",
+      "SUPPLY_STATE_OK failures=0",
+      "FAILED: "
+    ]
+  },
+  "DevelopRefreshRunner": {
+    "exit_code": 0,
+    "summary": [
+      "DevelopRefreshRunner: exit=0, script_errors=False",
+      "FAILED: "
+    ]
+  },
+  "ShopRunner": {
+    "exit_code": 0,
+    "summary": [
+      "ShopRunner: exit=0, script_errors=False",
+      "SHOP_RESULT: PASS checks=461 failures=0",
+      "FAILED: "
+    ]
+  },
+  "SkillKitRunner": {
+    "exit_code": 0,
+    "summary": [
+      "SkillKitRunner: exit=0, script_errors=False",
+      "SKILL_KIT_RESULT: PASS failures=0",
+      "FAILED: "
+    ]
+  },
+  "GearRunner": {
+    "exit_code": 0,
+    "summary": [
+      "GearRunner: exit=0, script_errors=False",
+      "GEAR_RESULT: PASS checks=446 failures=0",
+      "FAILED: "
+    ]
+  },
+  "ItemUiRunner": {
+    "exit_code": 0,
+    "summary": [
+      "ItemUiRunner: exit=0, script_errors=False",
+      "ITEM_UI_RESULT: PASS checks=91 failures=0",
+      "FAILED: "
+    ]
+  }
+}

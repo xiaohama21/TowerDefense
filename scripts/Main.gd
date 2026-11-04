@@ -1590,7 +1590,7 @@ func _refresh_supply_belt() -> void:
 			continue
 		var left := _supply_uses_left(supply_id)
 		icon_text.set_icon(_supply_glyph(supply))
-		name_label.text = ""
+		name_label.text = supply.display_name
 		if settlement_started:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 			sub_label.text = "结算中"
@@ -1650,8 +1650,8 @@ func _refresh_supply_cards() -> void:
 		button.mouse_default_cursor_shape = Control.CURSOR_ARROW if settlement_started else Control.CURSOR_POINTING_HAND
 		var paid := _supply_paid_cost(supply)
 		icon_text.set_icon("lock" if locked else _supply_glyph(supply))
-		name_label.text = ""
-		desc_label.text = UITheme.supply_effect_bbcode(supply, display_level)
+		name_label.text = supply.display_name
+		desc_label.text = supply.summary_at(display_level)
 		desc_label.tooltip_text = supply.summary_at(display_level)
 		cost_label.text = UITheme.icon_bbcode("coin", 16) + str(paid) + "  " + UITheme.icon_bbcode("uses", 16) + str(supply.max_uses_at(display_level))
 		var gray := locked or settlement_started
@@ -1712,7 +1712,7 @@ func _render_supply_detail(supply_id: String) -> void:
 	if icon_text != null:
 		icon_text.set_icon("lock" if locked else _supply_glyph(supply))
 	if name_label != null:
-		name_label.text = ""
+		name_label.text = supply.display_name
 		name_label.tooltip_text = supply.display_name
 	if locked:
 		tag_a.text = "未解锁"

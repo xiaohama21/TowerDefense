@@ -204,4 +204,5 @@ func _map_economy_matches(map, ingots: String, lord_exp: String) -> bool:
 	for card in map._stage_cards.values():
 		var rewards: Control = card.find_child("StageRewardGlyphs", true, false)
 		if rewards.get_child(0).get_child(1).text != ingots or rewards.get_child(1).get_child(1).text != lord_exp: return false
-	return map._detail_rewards.get_child(0).get_child(1).text == ingots and map._detail_rewards.get_child(1).get_child(1).text == lord_exp
+	var detail_economy: Control = map._detail_rewards.get_child(0)
+	return detail_economy.get_child(0).get_child(1).text == ingots and detail_economy.get_child(1).get_child(1).text == lord_exp

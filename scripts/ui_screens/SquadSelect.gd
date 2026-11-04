@@ -596,7 +596,7 @@ func _refresh_card_bonds(bonds_box: HBoxContainer, character_id: String) -> void
 func _build_relic_area() -> Control:
 	var zone := HBoxContainer.new()
 	zone.add_theme_constant_override("separation", 8)
-	zone.custom_minimum_size = Vector2(0, 52)
+	zone.custom_minimum_size = Vector2(0, 80)
 
 	var side := VBoxContainer.new()
 	side.custom_minimum_size = Vector2(88, 0)
@@ -608,7 +608,7 @@ func _build_relic_area() -> Control:
 	side_title.add_theme_color_override("font_color", Color("#33566f"))
 	side.add_child(side_title)
 	var side_hint := Label.new()
-	side_hint.text = "悬停看详情\n移开即消失"
+	side_hint.text = "选带后生效\n最多两件"
 	side_hint.add_theme_font_size_override("font_size", 9)
 	side_hint.add_theme_color_override("font_color", Color("#a8bccb"))
 	side_hint.add_theme_constant_override("line_spacing", 1)
@@ -640,7 +640,7 @@ func _make_relic_pill(relic_id: String) -> Button:
 	var pill := Button.new()
 	pill.focus_mode = Control.FOCUS_NONE
 	pill.toggle_mode = true
-	pill.custom_minimum_size = Vector2(150, 52)
+	pill.custom_minimum_size = Vector2(230, 66)
 	pill.add_theme_stylebox_override("normal", _pill_style(false))
 	pill.add_theme_stylebox_override("hover", _pill_style(false, true))
 	pill.add_theme_stylebox_override("pressed", _pill_style(true))
@@ -662,6 +662,11 @@ func _make_relic_pill(relic_id: String) -> Button:
 
 	content.add_child(ConceptIcon.new(str(relic.relic_id), 46, relic.display_name))
 
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.alignment = BoxContainer.ALIGNMENT_CENTER
+	info.add_theme_constant_override("separation", 3)
+	content.add_child(info)
 	var name_label := Label.new()
 	name_label.text = relic.display_name
 	name_label.add_theme_font_size_override("font_size", 13)
@@ -669,7 +674,14 @@ func _make_relic_pill(relic_id: String) -> Button:
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	content.add_child(name_label)
+	info.add_child(name_label)
+	var description := Label.new()
+	description.name = "ItemDescription"
+	description.text = _relic_effect_text(relic)
+	description.add_theme_font_size_override("font_size", 11)
+	description.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(description)
 
 	var state_label := Label.new()
 	var state_style := UITheme.tag_style(UITheme.TAG_OPEN_BG, 6, 1)
@@ -1560,7 +1572,7 @@ func _confirm_relic_row() -> HBoxContainer:
 		if relic == null:
 			continue
 		var card := Panel.new()
-		card.custom_minimum_size = Vector2(150, 52)
+		card.custom_minimum_size = Vector2(230, 66)
 		var style := UITheme.light_card_style()
 		style.set_border_width_all(2)
 		card.add_theme_stylebox_override("panel", style)
@@ -1578,7 +1590,18 @@ func _confirm_relic_row() -> HBoxContainer:
 		name_label.add_theme_font_size_override("font_size", 13)
 		name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 		name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		content.add_child(name_label)
+		var info := VBoxContainer.new()
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		info.alignment = BoxContainer.ALIGNMENT_CENTER
+		content.add_child(info)
+		info.add_child(name_label)
+		var description := Label.new()
+		description.name = "ItemDescription"
+		description.text = _relic_effect_text(relic)
+		description.add_theme_font_size_override("font_size", 11)
+		description.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		info.add_child(description)
 		row.add_child(card)
 	return row
 

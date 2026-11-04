@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.4.2", "project version 0.9.4.2")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.4.3", "project version 0.9.4.3")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -53,6 +53,7 @@ func _run() -> void:
 	panel._select_character("guan_yu")
 	panel._refresh()
 	_check(panel._tab_container.get_tab_count() == 4 and panel._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged equipment UI")
+	_check(_items_readable(panel._weapon_tab), "packaged develop weapon names and brief descriptions")
 	_check(panel._equip_weapon("guan_yu", "equipment_long_spear_1") and profile.get_character_weapon_id("guan_yu") == "equipment_long_spear_1", "packaged equip and save")
 	_check(not profile.set_character_weapon("zhuge_liang", "equipment_long_spear_1"), "packaged profession restriction")
 	hub._show_panel(&"encyclopedia")
@@ -63,6 +64,10 @@ func _run() -> void:
 	enc._on_sim_changed()
 	await process_frame
 	_check(profile.to_dict() == snapshot and enc._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged read-only weapon preview")
+	_check(_items_readable(enc._weapon_tab), "packaged encyclopedia weapon names and brief descriptions")
+	var skill_margin = panel._skill_tab.find_child("SkillContentMargin", true, false)
+	_check(skill_margin != null and skill_margin.get_theme_constant("margin_left") == 16 and skill_margin.get_theme_constant("margin_top") == 14 and skill_margin.get_child(0).get_theme_constant("separation") == 12, "packaged develop skill page spacing")
+	_check(enc._skill_tab.get_parent().get_theme_constant("margin_left") == 16 and enc._skill_tab.get_parent().get_theme_constant("margin_top") == 14 and enc._skill_tab.get_theme_constant("separation") == 12, "packaged encyclopedia skill page spacing")
 	for id in flow.get_all_character_ids():
 		panel._select_character(id)
 		panel._refresh()
@@ -126,7 +131,8 @@ func _run() -> void:
 	var map = hub._panels[&"map"]
 	map._select_stage(flow.load_stage_data(&"ch01_s01"))
 	map._on_difficulty_changed(true,1)
-	_check(map._detail_rewards.get_child(0).get_child(1).text == "+20" and map._detail_rewards.get_child(1).get_child(1).text == "+38", "packaged map hard repeat economy preview")
+	var detail_economy = map._detail_rewards.get_child(0)
+	_check(detail_economy.get_child(0).get_child(1).text == "+20" and detail_economy.get_child(1).get_child(1).text == "+38", "packaged map hard repeat economy preview")
 	hub.queue_free()
 	await process_frame
 	flow.selected_stage_id = &"ch01_s01"
@@ -170,3 +176,12 @@ func _check_skill_cards(panel, character, skills, context: String) -> void:
 			for entry in row:
 				readable = readable and entry.size() == 4 and labels.has(str(entry[3]))
 		_check(readable, "%s skill name, description and effect labels: %s" % [context, id])
+
+func _items_readable(container) -> bool:
+	var cards = container.find_children("WeaponCard_*", "Button", true, false)
+	if cards.is_empty(): return false
+	for card in cards:
+		var title = card.find_child("ItemName", true, false)
+		var description = card.find_child("ItemDescription", true, false)
+		if title == null or description == null or title.text.is_empty() or description.text.is_empty(): return false
+	return true

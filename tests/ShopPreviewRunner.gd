@@ -1,7 +1,7 @@
 extends Node
 
 var _slot := ""
-var _capture_dir := "res://build/verify_0.9.4.2"
+var _capture_dir := "res://build/verify_0.9.4.3"
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -79,11 +79,26 @@ func _run() -> void:
 	hub._show_panel(&"inventory")
 	hub._panels[&"inventory"]._on_category_pressed(ItemData.ItemType.EQUIPMENT)
 	await _shot("inventory_equipment_icons")
+	hub._panels[&"inventory"]._show_detail("equipment_long_spear_1")
+	await _shot("inventory_equipment_description")
+	for id in WeaponRegistry.IDS: p.add_weapon(id, 3)
+	for id in ["refined_iron", "ebony", "general_seal", "skill_book", "wolf_tooth", "war_drums", "scout_eye", "provision_bag"]: p.add_item(id, 3)
+	p.set_supply_loadout(["repair", "fire_attack"], 2)
+	ProfileStore.save_profile(p)
+	hub._panels[&"inventory"]._on_category_pressed(-1)
+	await _shot("inventory_all_descriptions")
+	hub._panels[&"inventory"]._on_category_pressed(ItemData.ItemType.RELIC)
+	hub._panels[&"inventory"]._show_detail("war_drums")
+	await _shot("inventory_relic_descriptions")
+	hub._show_panel(&"supply")
+	await _shot("supply_depot_descriptions")
 	hub._show_panel(&"develop")
 	var develop = hub._panels[&"develop"]
 	develop._select_character("guan_yu")
 	develop._tab_container.current_tab = 2
 	await _shot("develop_equipment_icons")
+	develop._tab_container.current_tab = 3
+	await _shot("develop_relic_descriptions")
 	develop._select_character("zhou_wei")
 	develop._tab_container.current_tab = 0
 	await _shot("develop_zhou_wei_skills")
@@ -93,10 +108,15 @@ func _run() -> void:
 	encyclopedia._tab_container.current_tab = 2
 	await _shot("encyclopedia_equipment_icons")
 	encyclopedia._select_character("zhou_wei")
-	encyclopedia._tab_container.current_tab = 0
+	encyclopedia._tab_container.current_tab = 1
 	encyclopedia._sim_rank_option.select(5)
 	encyclopedia._on_sim_changed()
 	await _shot("encyclopedia_zhou_wei_skills")
+	encyclopedia._select_character("guan_yu")
+	await _shot("encyclopedia_skill_spacing")
+	for frame in range(3): await get_tree().process_frame
+	(encyclopedia._skill_tab.get_parent().get_parent() as ScrollContainer).scroll_vertical = 10000
+	await _shot("encyclopedia_skill_bottom_spacing")
 	for character_id in GameFlow.get_all_character_ids():
 		p.unlock_character(character_id)
 		p.characters[character_id]["rank"] = 2
@@ -112,7 +132,19 @@ func _run() -> void:
 		for frame in range(3): await get_tree().process_frame
 		(develop._skill_tab.get_child(0) as ScrollContainer).ensure_control_visible(ultimate)
 		await _shot("ultimate_" + character_id)
+	GameFlow.selected_stage_id = &"ch01_s08"
+	GameFlow.selected_difficulty = Difficulty.NORMAL
+	p.squad_character_ids = ["liu_bei", "guan_yu", "zhang_fei"]
+	p.squad_relic_ids = ["war_drums", "iron_shield"]
+	ProfileStore.save_profile(p)
 	hub.queue_free()
+	await get_tree().process_frame
+	var squad := (load("res://scenes/SquadSelect.tscn") as PackedScene).instantiate()
+	add_child(squad)
+	await _shot("squad_relic_descriptions")
+	squad._open_confirm_popup()
+	await _shot("squad_confirm_relic_descriptions")
+	squad.queue_free()
 	await get_tree().process_frame
 	GameFlow.selected_stage_id = &"ch01_s01"
 	GameFlow.selected_difficulty = Difficulty.NORMAL
@@ -123,8 +155,13 @@ func _run() -> void:
 	add_child(main)
 	await get_tree().process_frame
 	main.ui.skip_dialogue()
+	main._on_battle_supply_pressed()
+	await _shot("battle_supply_descriptions")
+	main._close_battle_supply_popup()
 	main._on_victory()
 	await _shot("victory_economy_levelup")
+	main.ui.show_result({"victory":true,"saved":true,"loot":{"refined_iron":2,"ebony":1,"general_seal":2,"skill_book":5,"war_drums":1}, "weapon_rewards":{"weapons":{"equipment_bamboo_banner_1":1,"equipment_wood_mortar_1":1}}, "xp_by_character":{}, "economy":{}})
+	await _shot("victory_item_descriptions")
 	main.queue_free()
 	await get_tree().process_frame
 	for suffix in ["", ".bak", ".tmp"]:

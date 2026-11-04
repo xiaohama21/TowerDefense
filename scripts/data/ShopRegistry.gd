@@ -143,15 +143,7 @@ static func display_name(entry: Dictionary) -> String:
 static func brief_description(entry: Dictionary) -> String:
 	if entry.has("weapon"):
 		var weapon := WeaponRegistry.get_weapon(str(entry.weapon))
-		var profession := load("res://resources/professions/%s.tres" % weapon.profession_id) as ProfessionData
-		var parts: Array[String] = []
-		var names := {"physical_attack_flat":"物理攻击", "magic_attack_flat":"魔法攻击", "crit_rate":"暴击率", "crit_damage":"暴击伤害", "skill_amp":"技能增幅", "range_pct":"射程", "range_flat":"射程", "splash_pct":"溅射半径", "projectile_flat":"弹道速度", "magic_damage_pct":"魔法伤害", "armor_pen_pct":"穿甲", "rage_pct":"怒气获取", "hit_rage_flat":"普攻命中怒气"}
-		var effects := WeaponRegistry.effect_rows(weapon)
-		for index in range(weapon.affixes.size()):
-			var key := str(weapon.affixes.keys()[index])
-			var unit := "px" if key == "range_flat" else ("px/s" if key == "projectile_flat" else "")
-			parts.append(str(names.get(key, WeaponRegistry.HINTS.get(key, "属性"))) + str(effects[index][1]) + unit)
-		return "%s专用。%s。" % [profession.display_name, "，".join(parts)]
+		return WeaponRegistry.brief_description(weapon)
 	if entry.items.size() > 1: return "用于武将进阶，补充精铁与乌木。"
 	var id := str(entry.items.keys()[0])
 	if entry.shelf == "merit":
