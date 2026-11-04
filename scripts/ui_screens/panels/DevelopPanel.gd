@@ -634,10 +634,18 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_skill_tab.add_child(scroll)
+	var margin := MarginContainer.new()
+	margin.name = "SkillContentMargin"
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 16)
+	for side in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 14)
+	scroll.add_child(margin)
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 8)
-	scroll.add_child(content)
+	content.add_theme_constant_override("separation", 12)
+	margin.add_child(content)
 	var rank := _profile.get_character_rank(_selected_id)
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()

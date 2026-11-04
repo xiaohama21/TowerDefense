@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 9
+const CURRENT_SCHEMA_VERSION: int = 10
 ## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
 const SUPPLY_MAX_LEVEL: int = 3
 const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
@@ -38,6 +38,9 @@ var tech_unlocks: Array[String] = []
 var exp_pool: int = 0
 ## 军功余额（✅ 0.8.16 / NUMBERS 10.15）：击杀掉落累积（困难 ×1.5），用于军需解锁 / 强化。
 var military_merit: int = 0
+var ingots: int = 0
+var lord_exp: int = 0
+var shop_state: Dictionary = {}
 ## 军需解锁（✅ 0.8.16）：已解锁军需 id（基础 4 件默认解锁；解锁不可逆）。
 var supply_unlocks: Array[String] = []
 ## 军需强化等级（✅ 0.8.16）：id → 等级 1~3；未解锁的 id 不出现在表内。
@@ -55,6 +58,7 @@ func _init(initial_data: Dictionary = {}) -> void:
 	else:
 		# 与「空档 / 旧档读入」同语义（✅ 0.8.16）：裸档也落实基础 4 件军需「已解锁 + L1」。
 		_ensure_base_supplies()
+		shop_state = ShopRegistry.normalize_state({}, 0)
 
 
 static func from_dict(data: Dictionary) -> PlayerProfile:
@@ -83,6 +87,9 @@ func load_dict(data: Dictionary) -> void:
 	tech_unlocks = _normalize_string_array(source.get("tech_unlocks", []))
 	exp_pool = _coerce_non_negative_int(source.get("exp_pool", 0))
 	military_merit = _coerce_non_negative_int(source.get("military_merit", 0))
+	ingots = ShopRegistry.non_negative(source.get("ingots", 0))
+	lord_exp = ShopRegistry.non_negative(source.get("lord_exp", 0), ShopRegistry.exp_for_level(ShopRegistry.data().max_lord_level))
+	shop_state = ShopRegistry.normalize_state(source.get("shop_state", {}), lord_exp)
 	supply_unlocks = _normalize_string_array(source.get("supply_unlocks", []))
 	supply_levels = _normalize_supply_levels(source.get("supply_levels", {}))
 	supply_loadout_ids = _normalize_string_array(source.get("supply_loadout_ids", []))
@@ -105,6 +112,9 @@ func to_dict() -> Dictionary:
 		"tech_unlocks": tech_unlocks.duplicate(),
 		"exp_pool": exp_pool,
 		"military_merit": military_merit,
+		"ingots": ingots,
+		"lord_exp": lord_exp,
+		"shop_state": shop_state.duplicate(true),
 		"supply_unlocks": supply_unlocks.duplicate(),
 		"supply_levels": supply_levels.duplicate(true),
 		"supply_loadout_ids": supply_loadout_ids.duplicate(),
@@ -131,6 +141,9 @@ func copy_from(other: PlayerProfile) -> void:
 	tech_points = other.tech_points
 	tech_unlocks = other.tech_unlocks.duplicate()
 	exp_pool = other.exp_pool
+	ingots = other.ingots
+	lord_exp = other.lord_exp
+	shop_state = other.shop_state.duplicate(true)
 	military_merit = other.military_merit
 	supply_unlocks = other.supply_unlocks.duplicate()
 	supply_levels = other.supply_levels.duplicate(true)
@@ -598,6 +611,12 @@ func apply_battle_session(session: Object) -> bool:
 		if pending_merit > 0:
 			add_military_merit(pending_merit)
 
+	if session.has_method("get_pending_ingots"):
+		var old_level := int(ShopRegistry.lord_progress(lord_exp).level)
+		ingots = ShopRegistry.non_negative(ingots + session.get_pending_ingots())
+		lord_exp = ShopRegistry.non_negative(lord_exp + session.get_pending_lord_exp(), ShopRegistry.exp_for_level(ShopRegistry.data().max_lord_level))
+		shop_state.refresh_step = 0
+		ShopRegistry.reroll(self, old_level)
 	# 科技点（GDD modules/NUMBERS.md 10.7，v0.14.1）：随战局提交写档。
 	if session.has_method("get_pending_tech_points"):
 		var pending_tech: int = _coerce_non_negative_int(session.get_pending_tech_points())

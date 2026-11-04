@@ -131,7 +131,7 @@ func _build_card(supply: BattleSupplyData) -> Control:
 	head_info.add_theme_constant_override("separation", 3)
 	head.add_child(head_info)
 	var name_label := Label.new()
-	name_label.text = ""
+	name_label.text = supply.display_name
 	card.tooltip_text = supply.display_name
 	name_label.add_theme_font_size_override("font_size", 18)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
@@ -256,6 +256,8 @@ func _build_slot(index: int) -> Control:
 	row.add_child(icon)
 	var label := Label.new()
 	label.add_theme_font_size_override("font_size", 15)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(label)
@@ -346,7 +348,7 @@ func _refresh_cards(profile: PlayerProfile, limit: int) -> void:
 			belt_chip.text = "点击卡片选带" if not locked else "不可选带"
 			belt_chip.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 			belt_chip.add_theme_stylebox_override("normal", UITheme.tag_style(Color("#eef3f7"), 8, 1))
-		summary.text = UITheme.supply_effect_bbcode(supply, display_level)
+		summary.text = supply.summary_at(display_level)
 		summary.tooltip_text = supply.summary_at(display_level)
 		summary.add_theme_color_override("default_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_DESC)
 		cost.text = UITheme.icon_bbcode("coin") + str(supply.cost_at(display_level)) + "  " + UITheme.icon_bbcode("uses") + str(supply.max_uses_at(display_level))
@@ -421,7 +423,8 @@ func _refresh_slots(profile: PlayerProfile, limit: int) -> void:
 			slot.disabled = true
 		else:
 			icon_text.set_icon("supply_" + str(supply.supply_id))
-			label.text = "已选带"
+			label.text = supply.display_name + "\n" + supply.summary_at(profile.get_supply_level(str(supply.supply_id)))
+			label.add_theme_font_size_override("font_size", 11)
 			slot.tooltip_text = supply.display_name
 			label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 			style.bg_color = Color("#f7fbfe")

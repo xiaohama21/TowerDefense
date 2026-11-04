@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ShopData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ShopData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+max_lord_level = 100
+exp_base = 30
+exp_step = 5
+first_ingots = 30
+repeat_ingots = 10
+hard_ingot_mult = 2.0
+first_lord_exp = 80
+repeat_lord_exp = 25
+hard_exp_mult = 1.5
+refresh_prices = Array[int]([10, 20, 30])
+tier_levels = Array[int]([1, 10, 20, 40, 60, 80])
+permanent_offers = Array[Dictionary]([{"id": "iron_1", "shelf": "permanent", "currency": "ingots", "level": 1, "price": 8, "limit": 60, "items": {"refined_iron": 1}}, {"id": "ebony_1", "shelf": "permanent", "currency": "ingots", "level": 1, "price": 12, "limit": 40, "items": {"ebony": 1}}, {"id": "seal_1", "shelf": "permanent", "currency": "ingots", "level": 1, "price": 40, "limit": 20, "items": {"general_seal": 1}}, {"id": "book_1", "shelf": "permanent", "currency": "ingots", "level": 10, "price": 30, "limit": 30, "items": {"skill_book": 1}}, {"id": "iron_5", "shelf": "permanent", "currency": "ingots", "level": 20, "price": 40, "limit": 12, "items": {"refined_iron": 5}}, {"id": "ebony_3", "shelf": "permanent", "currency": "ingots", "level": 40, "price": 36, "limit": 12, "items": {"ebony": 3}}, {"id": "seal_3", "shelf": "permanent", "currency": "ingots", "level": 60, "price": 120, "limit": 6, "items": {"general_seal": 3}}])
+rotating_offers = Array[Dictionary]([{"id": "rot_iron_5", "shelf": "rotation", "currency": "ingots", "level": 1, "price": 36, "limit": 0, "items": {"refined_iron": 5}}, {"id": "rot_ebony_3", "shelf": "rotation", "currency": "ingots", "level": 1, "price": 32, "limit": 0, "items": {"ebony": 3}}, {"id": "rot_seal_3", "shelf": "rotation", "currency": "ingots", "level": 10, "price": 110, "limit": 0, "items": {"general_seal": 3}}, {"id": "rot_book_2", "shelf": "rotation", "currency": "ingots", "level": 10, "price": 55, "limit": 0, "items": {"skill_book": 2}}, {"id": "rot_material_small", "shelf": "rotation", "currency": "ingots", "level": 20, "price": 68, "limit": 0, "items": {"refined_iron": 5, "ebony": 3}}, {"id": "rot_seal_6", "shelf": "rotation", "currency": "ingots", "level": 40, "price": 210, "limit": 0, "items": {"general_seal": 6}}, {"id": "rot_material_large", "shelf": "rotation", "currency": "ingots", "level": 60, "price": 140, "limit": 0, "items": {"refined_iron": 10, "ebony": 6}}])
+merit_offers = Array[Dictionary]([{"id": "merit_iron_shield", "shelf": "merit", "currency": "military_merit", "level": 1, "price": 240, "limit": 1, "items": {"iron_shield": 1}}, {"id": "merit_provision_bag", "shelf": "merit", "currency": "military_merit", "level": 1, "price": 240, "limit": 1, "items": {"provision_bag": 1}}, {"id": "merit_scout_eye", "shelf": "merit", "currency": "military_merit", "level": 1, "price": 300, "limit": 1, "items": {"scout_eye": 1}}, {"id": "merit_wolf_tooth", "shelf": "merit", "currency": "military_merit", "level": 1, "price": 360, "limit": 1, "items": {"wolf_tooth": 1}}, {"id": "merit_war_drums", "shelf": "merit", "currency": "military_merit", "level": 1, "price": 360, "limit": 1, "items": {"war_drums": 1}}])

@@ -305,7 +305,7 @@ static func effect_rows(character: CharacterData, id: StringName, level: int, am
 			text = "+" + String.num(value * power * 100.0, 2) + "%"
 		var icon_key: String = str(icons.get(key, ""))
 		# Reuse existing generic system glyphs; every conceptual icon resolves in v2.
-		if UITheme.hud_icon(icon_key) == null: icon_key = "char_death_fight" if id == &"ultimate_death_fight" else str(id)
+		if UITheme.hud_icon(icon_key) == null: icon_key = str(id)
 		# Keep the first three fields stable for existing consumers.
 		row.append([icon_key, text, str(hints.get(key, key)), str(EFFECT_LABELS.get(key, key))])
 		if row.size() == 3:

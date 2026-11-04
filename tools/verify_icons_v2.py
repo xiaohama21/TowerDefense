@@ -11,7 +11,11 @@ ROOT=Path(__file__).resolve().parents[1]
 BASE=ROOT/'assets/ui/icons/v2'
 manifest=json.loads((BASE/'manifest.json').read_text(encoding='utf-8'))
 ids={i['id'] for i in manifest['icons']}
+entries={i['id']:i for i in manifest['icons']}
+current_skills=set()
 errors=[]
+required=['ingot','lord_level','lord_exp']+['equipment_rarity_'+str(tier) for tier in range(5)]
+errors += ['economic/quality coverage: '+key for key in required if key not in ids]
 for icon in manifest['icons']:
     tree=ET.parse(BASE/icon['svg'])
     if any(n.tag.endswith('text') or n.tag.endswith('image') for n in tree.iter()):errors.append('non-vector content: '+icon['id'])
@@ -32,8 +36,21 @@ for folder,field,prefix in [('items','item_id',''),('relics','relic_id',''),('ba
         m=re.search(r'^'+field+r' = &?"([^"]+)"',text,re.M)
         if m and prefix+m[1] not in ids:errors.append('resource coverage: '+prefix+m[1])
 for file in (ROOT/'resources/characters').glob('*.tres'):
-    for key in re.findall(r'^(?:ultimate_id|character_skill_id|trait_id) = &?"([^"]+)"',file.read_text(encoding='utf-8'),re.M):
+    text=file.read_text(encoding='utf-8')
+    keys=re.findall(r'^(?:ultimate_id|character_skill_id|trait_id) = &?"([^"]+)"',text,re.M)
+    keys+=re.findall(r'&"([^"]+)"','\n'.join(line for line in text.splitlines() if line.startswith('passive_ids =')))
+    for key in keys:
+        current_skills.add(key)
         if key not in ids:errors.append('skill coverage: '+key)
+names_text=(ROOT/'scripts/combat/SkillRegistry.gd').read_text(encoding='utf-8').split('const NAMES := {',1)[1].split('\n}',1)[0]
+skill_names=dict(re.findall(r'"([^"]+)": "([^"]+)"',names_text))
+skill_hashes=set()
+for key in current_skills & ids:
+    entry=entries[key]
+    if entry['label']!=skill_names.get(key) or entry['planned'] or entry['category']!='skill':
+        errors.append('current skill metadata: '+key)
+    skill_hashes.add(hashlib.sha256((BASE/entry['png']).read_bytes()).hexdigest())
+if len(current_skills)!=27 or len(skill_hashes)!=27:errors.append('current skill uniqueness/count')
 legacy=json.loads((BASE/'legacy_archive.json').read_text(encoding='utf-8'))
 workspace=ROOT/'build/icons_v2_legacy_workspace.json'
 workspace_legacy=json.loads(workspace.read_text(encoding='utf-8')) if workspace.exists() else {}
@@ -47,7 +64,7 @@ for p in list((ROOT/'scripts').rglob('*.gd'))+list((ROOT/'scenes').rglob('*.tscn
 preview=ROOT/'docs/ui_concept/icons_v2.html'
 for path in re.findall(r'src="([^"]+)"',preview.read_text(encoding='utf-8')):
     if not (preview.parent/path).is_file():errors.append('preview path: '+path)
-report={'count':len(manifest['icons']),'categories':dict(Counter(i['category'] for i in manifest['icons'])),'legacy_files_preserved':len(checked_legacy),'tracked_legacy_files_preserved':len(legacy),'workspace_snapshot_checked':workspace.exists(),'errors':errors}
+report={'count':len(manifest['icons']),'categories':dict(Counter(i['category'] for i in manifest['icons'])),'current_skill_icons':len(current_skills),'distinct_current_skill_pngs':len(skill_hashes),'legacy_files_preserved':len(checked_legacy),'tracked_legacy_files_preserved':len(legacy),'workspace_snapshot_checked':workspace.exists(),'errors':errors}
 (ROOT/'docs/ui_concept/icons_v2_verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False))
 raise SystemExit(1 if errors else 0)

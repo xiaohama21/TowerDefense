@@ -153,8 +153,8 @@ func _test_supply_depot(profile: PlayerProfile) -> void:
 		if button.text == "军需":
 			supply_button = button
 	_check(supply_button != null, "大厅侧栏应含「军需」入口")
-	_check(nav_texts.size() == 8 and nav_texts[3] == "军需",
-		"「军需」应为侧栏第 4 个功能按钮（地图 / 养成 / 科技 / 军需 / 背包 / 设置 / 百科 + 返回主菜单）")
+	_check(nav_texts.size() == 9 and nav_texts[3] == "军需" and nav_texts[4] == "商店",
+		"军需第四、商店第五，原入口保留")
 	if supply_button == null or depot == null:
 		hub.queue_free()
 		await get_tree().process_frame
@@ -230,7 +230,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 	await get_tree().process_frame
 
 	var sidebar_buttons := _collect_buttons(hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 8, "大厅侧栏应有 7 个功能入口 + 返回主菜单（v0.34 百科入列、0.8.16 军需入列）")
+	_check(sidebar_buttons.size() == 9, "大厅侧栏应有8个功能入口+返回主菜单")
 	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
 	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
 
@@ -264,7 +264,7 @@ func _test_hub(profile: PlayerProfile) -> void:
 		"地图面板应包含章节行 + 8 关卡卡片 + 底部操作条（难度 2 档 + 出征·编队 + 一键通关）")
 	_check(disabled_count == 6, "未解锁的 s03~s08 六关卡片应禁用")
 	var map_scrolls := map_panel.find_children("*", "ScrollContainer", true, false)
-	_check(map_scrolls.is_empty(), "地图面板应一屏展示无滚动条")
+	_check(map_scrolls.size() == 1 and map_scrolls[0].name == "RewardDetailScroll", "地图八关一屏展示，滚动仅限奖励详情")
 	var stage_card_count := 0
 	for card in map_panel.find_children("*", "Button", true, false):
 		if card.has_meta("stage_id"):
@@ -293,6 +293,14 @@ func _test_hub(profile: PlayerProfile) -> void:
 			var probe_ctl := probe_child as Control
 			if probe_ctl == null or not probe_ctl.is_visible_in_tree():
 				continue
+			var ancestor := probe_ctl.get_parent()
+			var clipped := false
+			while ancestor != detail_panel and ancestor != null:
+				if ancestor is ScrollContainer:
+					clipped = true
+					break
+				ancestor = ancestor.get_parent()
+			if clipped: continue
 			var probe_rect: Rect2 = probe_ctl.get_global_rect()
 			if probe_rect.size.x <= 0.0 or probe_rect.size.y <= 0.0:
 				continue

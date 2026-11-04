@@ -203,12 +203,18 @@ func _show_detail(item_id: String) -> void:
 		row.add_theme_constant_override("separation", 10)
 		_detail_box.add_child(row)
 		row.add_child(ConceptIcon.new(item_id, 40, item.display_name))
-		for effect in WeaponRegistry.effect_rows(item):
-			row.add_child(ConceptIcon.new(str(effect[0]), 22, str(effect[2])))
-			var value := Label.new()
-			value.text = str(effect[1])
-			value.add_theme_color_override("font_color", UITheme.LIGHT_INK)
-			row.add_child(value)
+		var title := Label.new()
+		title.name = "ItemName"
+		title.text = item.display_name
+		title.add_theme_font_size_override("font_size", 20)
+		title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+		row.add_child(title)
+		var description := Label.new()
+		description.name = "ItemDescription"
+		description.text = WeaponRegistry.brief_description(item)
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
+		_detail_box.add_child(description)
 		var hint := Label.new()
 		hint.text = "在养成页选择武将后装配。"
 		hint.tooltip_text = WeaponRegistry.acquisition_text(item)
@@ -230,7 +236,8 @@ func _show_detail(item_id: String) -> void:
 	name_row.add_theme_constant_override("separation", 8)
 	info.add_child(name_row)
 	var name_label := Label.new()
-	name_label.text = ""
+	name_label.name = "ItemName"
+	name_label.text = item.display_name
 	name_label.add_theme_font_override("font", UITheme.spaced_font(2))
 	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
@@ -239,6 +246,7 @@ func _show_detail(item_id: String) -> void:
 	if item.item_type == ItemData.ItemType.RELIC:
 		name_row.add_child(UITheme.tag_label("永久使用", UITheme.TAG_OK_FG, UITheme.TAG_OK_BG, 12))
 	var desc := Label.new()
+	desc.name = "ItemDescription"
 	desc.text = item.description if not item.description.is_empty() else "（无描述）"
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.add_theme_font_size_override("font_size", 14)
@@ -246,6 +254,15 @@ func _show_detail(item_id: String) -> void:
 	desc.max_lines_visible = 2
 	desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info.add_child(desc)
+	var source := ShopRegistry.acquisition_text(item_id)
+	if not source.is_empty():
+		var source_label := Label.new()
+		source_label.name = "ShopAcquisition"
+		source_label.text = source
+		source_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		source_label.add_theme_font_size_override("font_size", 12)
+		source_label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
+		info.add_child(source_label)
 	if item.item_type == ItemData.ItemType.RELIC:
 		var note := Label.new()
 		note.text = "遗物 = 队伍级 · 永久持有：编队选带生效，不消耗库存（最多 2 件）。"
@@ -345,7 +362,7 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	var card := Button.new()
 	card.toggle_mode = true
 	card.focus_mode = Control.FOCUS_NONE
-	card.custom_minimum_size = Vector2(0, 116)
+	card.custom_minimum_size = Vector2(0, 138)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var card_style := UITheme.light_panel_style()
 	card_style.set_border_width_all(2)
@@ -385,12 +402,16 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(name_row)
 	var name_label := Label.new()
-	name_label.text = ""
+	name_label.name = "ItemName"
+	name_label.text = display_name
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	name_row.add_child(name_label)
 	name_row.add_child(UITheme.tag_label(type_name, TYPE_TAG_FG[type_index % TYPE_TAG_FG.size()], TYPE_TAG_BG[type_index % TYPE_TAG_BG.size()], 11))
 	var desc := Label.new()
+	desc.name = "ItemDescription"
 	desc.text = item.description if item != null and not item.description.is_empty() else "（无描述）"
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.add_theme_font_size_override("font_size", 12)

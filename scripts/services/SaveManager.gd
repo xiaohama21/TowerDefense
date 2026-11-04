@@ -272,6 +272,16 @@ func commit_session(
 	return commit_victory(session, target_profile)
 
 
+func buy_shop_offer(offer_id: String, expected_revision: int) -> bool:
+	var candidate := get_profile().duplicate_profile()
+	if not ShopRegistry.buy(candidate, offer_id, expected_revision): return false
+	return save_profile(candidate)
+
+func refresh_shop(expected_revision: int) -> bool:
+	var candidate := get_profile().duplicate_profile()
+	if not ShopRegistry.manual_refresh(candidate, expected_revision): return false
+	return save_profile(candidate)
+
 ## Failed, abandoned, or restarted runs never touch permanent storage.
 func discard_session(session: BattleSession) -> bool:
 	if session == null:
@@ -593,6 +603,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 				data = _migrate_v8_to_v9(data)
 				version = 9
 				migrated = true
+			9:
+				data = _migrate_v9_to_v10(data)
+				version = 10
+				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}
 	if not _validate_current_shape(data):
@@ -678,10 +692,18 @@ func _file_declares_newer_schema(path: String) -> bool:
 	return _read_schema_version(parsed) > PlayerProfile.CURRENT_SCHEMA_VERSION
 
 
+func _migrate_v9_to_v10(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	data["ingots"] = ShopRegistry.non_negative(data.get("ingots", 0))
+	data["lord_exp"] = ShopRegistry.non_negative(data.get("lord_exp", 0), ShopRegistry.exp_for_level(ShopRegistry.data().max_lord_level))
+	data["shop_state"] = ShopRegistry.normalize_state(data.get("shop_state", {}), int(data.lord_exp))
+	data["schema_version"] = 10
+	return data
+
 func _validate_current_shape(data: Dictionary) -> bool:
 	if _read_schema_version(data) != PlayerProfile.CURRENT_SCHEMA_VERSION:
 		return false
-	for key in ["characters", "stage_progress", "items", "weapons", "gacha_state"]:
+	for key in ["characters", "stage_progress", "items", "weapons", "shop_state", "gacha_state"]:
 		if data.has(key) and not data[key] is Dictionary:
 			return false
 	return true

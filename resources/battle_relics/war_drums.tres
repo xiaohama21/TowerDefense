@@ -6,5 +6,5 @@
 script = ExtResource("1_relic")
 relic_id = &"war_drums"
 display_name = "战鼓"
-description = "擂动进军的牛皮战鼓，士气高昂。攻速 ×0.95。"
+description = "擂动进军的牛皮战鼓。携带后全队攻击间隔缩短5%。"
 attack_interval_factor = 0.95

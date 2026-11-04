@@ -405,6 +405,8 @@ func collect_stage_rewards(session: BattleSession, stage: StageData, first_clear
 	# Global first clear, shared by standard and hard. Equipment does not scale with difficulty.
 	var profile := get_profile()
 	var weapon_first := first_clear and (profile == null or not profile.stage_progress.has(str(stage.stage_id)))
+	var economy := ShopRegistry.victory_rewards(weapon_first, selected_difficulty)
+	session.set_economy_rewards(int(economy.ingots), int(economy.lord_exp))
 	for weapon in stage.first_clear_weapons:
 		if weapon == null: continue
 		var roll := weapon_rng.randf() if weapon_rng != null else randf()

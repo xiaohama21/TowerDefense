@@ -792,15 +792,15 @@ func _make_tab(tab_name: String) -> VBoxContainer:
 	var body_margin := MarginContainer.new()
 	body_margin.name = "%sMargin" % tab_name
 	body_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body_margin.add_theme_constant_override("margin_left", 14)
-	body_margin.add_theme_constant_override("margin_right", 14)
-	body_margin.add_theme_constant_override("margin_top", 10)
-	body_margin.add_theme_constant_override("margin_bottom", 10)
+	body_margin.add_theme_constant_override("margin_left", 16 if tab_name == "技能" else 14)
+	body_margin.add_theme_constant_override("margin_right", 16 if tab_name == "技能" else 14)
+	body_margin.add_theme_constant_override("margin_top", 14 if tab_name == "技能" else 10)
+	body_margin.add_theme_constant_override("margin_bottom", 14 if tab_name == "技能" else 10)
 	scroll.add_child(body_margin)
 	var tab := VBoxContainer.new()
 	tab.name = tab_name
 	tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tab.add_theme_constant_override("separation", 8)
+	tab.add_theme_constant_override("separation", 12 if tab_name == "技能" else 8)
 	body_margin.add_child(tab)
 	return tab
 

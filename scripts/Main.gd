@@ -568,6 +568,7 @@ func _on_victory():
 	var loot: Dictionary = {}
 	var weapon_rewards := {"weapons": {}, "seals": 0}
 	var unlock_names: Array[String] = []
+	var lord_before := int(ShopRegistry.lord_progress(ProfileStore.get_profile().lord_exp).level)
 	# v0.21.1 修复：先收集奖励再 mark_victory，与一键通关（MapPanel）顺序统一，
 	# 避免胜利状态后 is_in_progress() 守卫拦截首通解锁/掉落写入。
 	if battle_session != null:
@@ -597,6 +598,9 @@ func _on_victory():
 		"xp_by_character": xp_by_character,
 		"loot": loot,
 		"weapon_rewards": weapon_rewards if saved else {"weapons": {}, "seals": 0},
+		"economy": {"ingots": battle_session.get_pending_ingots(), "lord_exp": battle_session.get_pending_lord_exp()} if battle_session != null else {},
+		"lord_before": lord_before,
+		"lord_after": int(ShopRegistry.lord_progress(ProfileStore.get_profile().lord_exp).level),
 		"unlock_names": unlock_names,
 		"saved": saved,
 		"next_stage_name": _next_stage_display_name(),
@@ -1586,7 +1590,7 @@ func _refresh_supply_belt() -> void:
 			continue
 		var left := _supply_uses_left(supply_id)
 		icon_text.set_icon(_supply_glyph(supply))
-		name_label.text = ""
+		name_label.text = supply.display_name
 		if settlement_started:
 			name_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 			sub_label.text = "结算中"
@@ -1646,8 +1650,8 @@ func _refresh_supply_cards() -> void:
 		button.mouse_default_cursor_shape = Control.CURSOR_ARROW if settlement_started else Control.CURSOR_POINTING_HAND
 		var paid := _supply_paid_cost(supply)
 		icon_text.set_icon("lock" if locked else _supply_glyph(supply))
-		name_label.text = ""
-		desc_label.text = UITheme.supply_effect_bbcode(supply, display_level)
+		name_label.text = supply.display_name
+		desc_label.text = supply.summary_at(display_level)
 		desc_label.tooltip_text = supply.summary_at(display_level)
 		cost_label.text = UITheme.icon_bbcode("coin", 16) + str(paid) + "  " + UITheme.icon_bbcode("uses", 16) + str(supply.max_uses_at(display_level))
 		var gray := locked or settlement_started
@@ -1708,7 +1712,7 @@ func _render_supply_detail(supply_id: String) -> void:
 	if icon_text != null:
 		icon_text.set_icon("lock" if locked else _supply_glyph(supply))
 	if name_label != null:
-		name_label.text = ""
+		name_label.text = supply.display_name
 		name_label.tooltip_text = supply.display_name
 	if locked:
 		tag_a.text = "未解锁"
