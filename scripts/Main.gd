@@ -370,7 +370,7 @@ func _on_tower_sell_requested() -> void:
 		ui.hide_tower_bar()
 
 
-## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（黄忠固有 /
+## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（孙尚香固有 /
 ## 借东风全图 / 舞娘 3 阶光环），或改用范围盲压；每局一次。
 func _on_enemy_leaked(_damage: int) -> void:
 	if _talent_leak_wave != GameManager.current_wave:
@@ -380,7 +380,7 @@ func _on_enemy_leaked(_damage: int) -> void:
 	if _stealth_hint_shown or not GameManager.last_leak_was_stealth:
 		return
 	_stealth_hint_shown = true
-	ui.show_status("隐匿单位突破防线：黄忠（固有）/ 借东风 / 舞娘 3 阶可破隐，或改用范围盲压", 3.5)
+	ui.show_status("隐匿单位突破防线：孙尚香（固有）/ 借东风 / 舞娘 3 阶可破隐，或改用范围盲压", 3.5)
 
 
 ## Boss 登场横幅（v0.15.0）：2.5 秒内只播一次。

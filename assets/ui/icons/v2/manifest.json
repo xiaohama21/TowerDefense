@@ -793,6 +793,26 @@
       "pixels": 256
     },
     {
+      "id": "relic_sunshangxiang_bow",
+      "label": "鹊画弓",
+      "category": "item",
+      "description": "鹊画弓",
+      "planned": false,
+      "svg": "relic_sunshangxiang_bow.svg",
+      "png": "relic_sunshangxiang_bow.png",
+      "pixels": 256
+    },
+    {
+      "id": "relic_dianwei_halberds",
+      "label": "双铁戟",
+      "category": "item",
+      "description": "双铁戟",
+      "planned": false,
+      "svg": "relic_dianwei_halberds.svg",
+      "png": "relic_dianwei_halberds.png",
+      "pixels": 256
+    },
+    {
       "id": "relic_zhangfei_spear",
       "label": "蛇矛精锻",
       "category": "item",
@@ -1034,9 +1054,9 @@
     },
     {
       "id": "char_dingjun",
-      "label": "定军山",
+      "label": "枭姬奋威",
       "category": "skill",
-      "description": "黄忠山前扬弓；易伤与自身攻速/攻击/暴击增幅",
+      "description": "孙尚香军旗下扬弓奋威；敌方易伤与自身攻速/攻击/暴击增幅",
       "planned": false,
       "svg": "char_dingjun.svg",
       "png": "char_dingjun.png",
@@ -1074,9 +1094,9 @@
     },
     {
       "id": "char_death_fight",
-      "label": "死战",
+      "label": "古之恶来",
       "category": "skill",
-      "description": "周卫举刀重斩；命中后概率追加高额物理伤害",
+      "description": "典韦双戟交错连斩；命中后概率追加高额物理伤害",
       "planned": false,
       "svg": "char_death_fight.svg",
       "png": "char_death_fight.png",
@@ -1124,9 +1144,9 @@
     },
     {
       "id": "trait_hundred_step",
-      "label": "百步穿杨",
+      "label": "弓腰姬",
       "category": "skill",
-      "description": "黄忠拉弓瞄准同一目标；箭线集中并累计增伤",
+      "description": "孙尚香高马尾女弓手拉弓锁定；箭线集中并累计增伤",
       "planned": false,
       "svg": "trait_hundred_step.svg",
       "png": "trait_hundred_step.png",
@@ -1184,9 +1204,9 @@
     },
     {
       "id": "trait_vanguard",
-      "label": "陷阵",
+      "label": "破阵双戟",
       "category": "skill",
-      "description": "周卫挺刃刺破敌甲；常驻穿甲",
+      "description": "典韦宽肩重甲持双铁戟刺破敌甲；常驻穿甲",
       "planned": false,
       "svg": "trait_vanguard.svg",
       "png": "trait_vanguard.png",
@@ -1194,9 +1214,9 @@
     },
     {
       "id": "ultimate_death_fight",
-      "label": "麦城死战",
+      "label": "宛城死战",
       "category": "skill",
-      "description": "周卫残门前奋力重斩；基地低血时加强的麦城死战",
+      "description": "典韦残门前双戟死守；基地低血时加强的宛城死战",
       "planned": false,
       "svg": "ultimate_death_fight.svg",
       "png": "ultimate_death_fight.png",
@@ -1244,9 +1264,9 @@
     },
     {
       "id": "passive_sentry",
-      "label": "哨戒",
+      "label": "淬毒箭",
       "category": "skill",
-      "description": "黄忠蹲守放毒箭；命中持续中毒",
+      "description": "孙尚香低姿放淬毒箭；命中持续中毒",
       "planned": false,
       "svg": "passive_sentry.svg",
       "png": "passive_sentry.png",

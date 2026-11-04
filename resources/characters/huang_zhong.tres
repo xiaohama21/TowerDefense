@@ -6,17 +6,17 @@
 [resource]
 script = ExtResource("1_character")
 character_id = &"huang_zhong"
-display_name = "黄忠"
-description = "百步穿杨，能够从远处稳定削弱敌军。"
+display_name = "孙尚香"
+description = "江东弓腰姬，善用弓箭与淬毒箭矢，越战越勇。"
 profession = ExtResource("2_profession")
-faction = &"shu"
+faction = &"wu"
 tags = [&"archer"]
 build_cost = 65
 base_damage = 48
 base_range = 205.0
 attack_interval = 1.25
 projectile_speed = 520.0
-titles = ["神射手"]
+titles = ["江东枭姬"]
 unlock_stage_id = &"ch01_s03"
 attack_pct = 0.03
 range_pct_per_level = 0.001

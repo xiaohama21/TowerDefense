@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/tiger_guard.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"zhou_wei"
+display_name = "周仓"
+description = "关将军的贴身部将，专啃硬骨头。"
+profession = ExtResource("2_profession")
+faction = &"shu"
+tags = [&"tiger_guard"]
+build_cost = 65
+base_damage = 70
+base_range = 115.0
+attack_interval = 0.9
+projectile_speed = 400.0
+titles = ["忠勇护卫"]
+unlock_stage_id = &"ch01_s05"
+
+attack_pct = 0.027
+speed_pct_per_level = 0.0006
+per_rank_crit_damage = 0.02
+
+passive_ids = Array[StringName]([&"trait_vanguard", &"char_death_fight"])
+ultimate_id = &"ultimate_death_fight"
+rage_gain_mode = &"hit+damage"
+skill_params = {
+  "trait_vanguard": {
+    "penetration": 0.15
+  },
+  "char_death_fight": {
+    "chance": 0.2,
+    "mult": 2.5
+  },
+  "ultimate_death_fight": {
+    "mult": 4.0,
+    "base_hp_threshold": 0.5,
+    "low_hp_mult": 2.0
+  }
+}
+
+talent_tree_ids = Array[String](["physical_burst", "armor_break", "control"])

@@ -2252,7 +2252,9 @@ func _run() -> void:
 		else:
 			c14_exclusive_count += 1
 			_check(not c14_relic.character_id.is_empty(), "专属槽信物应绑定武将: %s" % c14_relic_path)
-	_check(c14_exclusive_count == 3, "旧 3 件专属信物应保留为专属槽占位数据（不删除）")
+	_check(c14_exclusive_count == 5, "旧3件专属信物保留，孙尚香/典韦新增2件锁槽展示")
+	for relic_id in ["relic_guanyu_blade","relic_zhangfei_spear","relic_huangfusong_torch"]:
+		_check(GameFlow.load_relic_data(relic_id) != null, "旧专属信物保留 " + relic_id)
 	_check(c14_optional.size() == 2, "可选槽应有 2 件 Boss 签名信物")
 	var c14_tiangong := GameFlow.load_relic_data("relic_tiangong_leizhao")
 	var c14_taiping := GameFlow.load_relic_data("relic_taiping_yaoshu")

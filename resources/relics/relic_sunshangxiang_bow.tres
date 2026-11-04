@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/RelicData.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = &"relic_sunshangxiang_bow"
+display_name = "鹊画弓"
+description = "孙尚香随身的彩绘弓，象征江东枭姬的精湛射术。"
+slot = &"exclusive"
+character_id = &"huang_zhong"

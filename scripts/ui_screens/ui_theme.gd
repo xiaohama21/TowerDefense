@@ -262,10 +262,10 @@ const CHARACTER_AVATAR_KEYS := {
 	"liu_bei": "gold",
 	"guan_yu": "red",
 	"zhang_fei": "blue",
-	"huang_zhong": "green",
+	"huang_zhong": "orange",
 	"huang_fu_song": "purple",
 	"diao_chan": "orange",
-	"zhou_wei": "brown",
+	"zhou_wei": "blue",
 	"zhao_yun": "pink",
 	"zhuge_liang": "teal",
 }

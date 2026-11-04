@@ -101,7 +101,7 @@ func _run() -> void:
 	enc._select_character("guan_yu")
 	enc._sim_level = 35
 	enc._on_sim_changed()
-	for item in [[&"shu", 7], [&"qun", 2], [&"wei", 0], [&"wu", 0]]:
+	for item in [[&"shu", 5], [&"qun", 2], [&"wei", 1], [&"wu", 1]]:
 		await _click(enc._faction_buttons[item[0]])
 		await _shot("encyclopedia_factions_" + str(item[0]))
 		_check_enc(enc, item[1])
@@ -126,6 +126,44 @@ func _run() -> void:
 	var badge := develop._detail_chips.find_child("FactionBadge", true, false) as Control
 	_check(badge != null and develop.get_global_rect().encloses(badge.get_global_rect()) and develop._talent_button.visible, "属性徽记与天赋入口边界")
 	_check_badge(badge, "养成阵营")
+	for id in ["huang_zhong", "zhou_wei"]:
+		p.ensure_character(id)
+		p.characters[id].total_exp = LevelCurve.exp_total_for_level(100)
+		p.characters[id].rank = 5
+	ProfileStore.save_profile(p)
+	develop._on_shown()
+	for id in ["huang_zhong", "zhou_wei"]:
+		develop._select_character(id)
+		develop._refresh()
+		var hero := GameFlow.load_character_data(id)
+		_check(develop._detail_name_label.text == hero.display_name, "新角色中文姓名")
+		_check_badge(develop._detail_chips.find_child("FactionBadge",true,false), "新角色阵营")
+		develop._tab_container.current_tab = 0
+		await _shot(id + "_develop_skills")
+		var name_label: Label = develop._character_buttons[id].find_child("CardName",true,false)
+		_check(name_label.size.x >= name_label.get_theme_font("font").get_string_size(name_label.text,HORIZONTAL_ALIGNMENT_LEFT,-1,name_label.get_theme_font_size("font_size")).x, "满级姓名完整可见 " + id)
+		var skill_scroll: ScrollContainer = develop._skill_tab.get_child(0)
+		skill_scroll.scroll_vertical = 10000
+		await _shot(id + "_develop_ultimate")
+		skill_scroll.scroll_vertical = 0
+		develop._tab_container.current_tab = 3
+		await _shot(id + "_develop_relic")
+		var card: Control = develop._exclusive_relic_preview.find_child("LockedExclusiveRelic",true,false)
+		_check(card != null and card.find_child("ExclusiveRelicName",true,false).text.contains(GameFlow.get_relic_for_character(id).display_name), "信物名称常显")
+		_check(card.find_child("ExclusiveRelicDescription",true,false).text.contains("不参与战斗"), "信物锁定说明")
+		_check(get_viewport().get_visible_rect().encloses(card.get_global_rect()), "专属信物卡完整可见")
+		develop._open_talents()
+		await _shot(id + "_develop_talents")
+		develop._talent_panel.dismiss()
+		hub._show_panel(&"encyclopedia")
+		enc._apply_faction_filter(hero.faction)
+		enc._select_character(id)
+		enc._tab_container.current_tab = 1
+		await _shot(id + "_encyclopedia_skills")
+		enc._tab_container.current_tab = 3
+		await _shot(id + "_encyclopedia_relic")
+		_check(enc._relic_tab.find_child("ExclusiveRelicName",true,false).text.contains(GameFlow.get_relic_for_character(id).display_name), "百科信物名称")
+		hub._show_panel(&"develop")
 	hub.queue_free()
 	await get_tree().process_frame
 	for id in GameFlow.get_all_character_ids(): p.ensure_character(str(id))

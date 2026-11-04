@@ -3,7 +3,7 @@ extends Node
 var checks := 0
 var failures: Array[String] = []
 var _slot := ""
-const SHU := ["liu_bei", "guan_yu", "zhang_fei", "zhao_yun", "huang_zhong", "zhou_wei", "zhuge_liang"]
+const SHU := ["liu_bei", "guan_yu", "zhang_fei", "zhao_yun", "zhuge_liang"]
 
 func _ready() -> void:
 	_slot = "user://.factions_%d.json" % Time.get_ticks_usec()
@@ -48,7 +48,8 @@ func _test_catalog() -> void:
 	for id in GameFlow.get_all_character_ids():
 		var character := GameFlow.load_character_data(str(id))
 		_check(character.is_valid(), "合法角色 " + str(id))
-		_check(character.faction == (&"shu" if SHU.has(str(id)) else &"qun"), "归属 " + str(id))
+		var expected: StringName = &"shu" if SHU.has(str(id)) else (&"wu" if str(id) == "huang_zhong" else (&"wei" if str(id) == "zhou_wei" else &"qun"))
+		_check(character.faction == expected, "归属 " + str(id))
 		counts[character.faction] += 1
 		for tag in [&"shu", &"wei", &"wu", &"qun", &"han"]: _check(not character.tags.has(tag), "用途标签已迁出阵营 " + str(id) + " " + str(tag))
 		_check(not character.tags.is_empty(), "保留用途标签 " + str(id))
@@ -56,7 +57,7 @@ func _test_catalog() -> void:
 		var alternate := character.duplicate(true) as CharacterData
 		alternate.faction = &"wei"
 		_check(alternate.compute_stats_at(40, 2) == baseline, "归属本身不改属性 " + str(id))
-	_check(counts == {&"wei": 0, &"shu": 7, &"wu": 0, &"qun": 2}, "九将7/2，魏吴空池")
+	_check(counts == {&"wei": 1, &"shu": 5, &"wu": 1, &"qun": 2}, "九将魏1蜀5吴1群2")
 	for faction in FactionRegistry.IDS:
 		_check(UITheme.hud_icon_sized(FactionRegistry.icon_key(faction), 22) != null, "四阵营图徽 " + str(faction))
 		var image_path := "res://assets/ui/icons/v2/" + FactionRegistry.icon_key(faction) + ".png"
@@ -151,8 +152,8 @@ func _test_encyclopedia() -> void:
 	enc._on_sim_changed()
 	enc._faction_buttons[&"shu"].pressed.emit()
 	await get_tree().process_frame
-	_check(enc._character_buttons.size() == 7 and enc._selected_character_id == "guan_yu" and enc._sim_level == 35, "蜀筛选保留选中与模拟")
-	_check(enc._character_buttons.has("huang_zhong") and not p.characters.has("huang_zhong"), "未拥有武将可筛选")
+	_check(enc._character_buttons.size() == 5 and enc._selected_character_id == "guan_yu" and enc._sim_level == 35, "蜀筛选保留选中与模拟")
+	_check(enc._character_buttons.has("zhuge_liang") and not p.characters.has("zhuge_liang"), "未拥有武将可筛选")
 	for id in enc._character_buttons: _check(GameFlow.load_character_data(id).faction == &"shu", "结果全属蜀 " + id)
 	enc._faction_buttons[&"qun"].pressed.emit()
 	await get_tree().process_frame
@@ -160,10 +161,16 @@ func _test_encyclopedia() -> void:
 	for faction in [&"wei", &"wu"]:
 		enc._faction_buttons[faction].pressed.emit()
 		await get_tree().process_frame
-		_check(enc._character_buttons.is_empty() and enc._selected_character_id.is_empty() and not enc._sim_panel.visible, "空阵营清详情 " + str(faction))
-		_check(enc._detail_box.find_child("FactionEmpty", true, false) != null and enc._talent_button == null, "空态无旧天赋入口")
-		enc._open_talents()
-		_check(enc._talent_panel == null, "空态不能打开旧武将天赋")
+		_check(enc._character_buttons.size() == 1 and enc._sim_panel.visible and enc._talent_button != null, "魏吴新角色可查看 " + str(faction))
+		_check(GameFlow.load_character_data(enc._selected_character_id).faction == faction, "筛选归属一致 " + str(faction))
+	var originals: Array[String] = enc._character_ids.duplicate()
+	enc._character_ids.erase("huang_zhong")
+	enc._apply_faction_filter(&"wu")
+	_check(enc._character_buttons.is_empty() and enc._selected_character_id.is_empty() and not enc._sim_panel.visible, "未来空阵营清详情")
+	_check(enc._detail_box.find_child("FactionEmpty", true, false) != null and enc._talent_button == null, "空态无旧天赋入口")
+	enc._open_talents()
+	_check(enc._talent_panel == null, "空态不能打开旧武将天赋")
+	enc._character_ids.assign(originals)
 	enc._faction_buttons[&"qun"].pressed.emit()
 	enc._switch_mode(&"enemy")
 	_check(not enc._faction_row.visible and enc._enemy_buttons.size() == enc._enemy_ids.size(), "敌人列表独立")

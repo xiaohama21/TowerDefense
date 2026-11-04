@@ -6,6 +6,6 @@
 script = ExtResource("1_bond")
 bond_id = &"five_tigers"
 display_name = "五虎将"
-description = "关羽、张飞、赵云、黄忠、马超五虎聚首：同队攻击 +6%。（马超未登场，当前为预览）"
-member_ids = [&"guan_yu", &"zhang_fei", &"zhao_yun", &"huang_zhong", &"ma_chao"]
+description = "关羽、张飞、赵云、黄忠、马超五虎聚首：同队攻击 +6%。（黄忠、马超未登场，当前为预览）"
+member_ids = [&"guan_yu", &"zhang_fei", &"zhao_yun", &"huang_zhong_future", &"ma_chao"]
 damage_bonus = 0.06

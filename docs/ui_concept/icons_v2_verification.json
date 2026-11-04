@@ -1,12 +1,12 @@
 {
-  "count": 393,
+  "count": 395,
   "categories": {
     "hud": 35,
     "equipment_rarity": 5,
     "status": 12,
     "rank": 6,
     "battle_rank": 9,
-    "item": 15,
+    "item": 17,
     "supply": 6,
     "profession": 6,
     "skill": 36,

@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.6.0", "project version 0.9.6.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.6.1", "project version 0.9.6.1")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -33,7 +33,7 @@ func _run() -> void:
 	var count := 0
 	for entry in manifest.icons:
 		if load("res://assets/ui/icons/v2/" + str(entry.png)) != null: count += 1
-	_check(count == 393, "393 packaged icons including 110 talents")
+	_check(count == 395, "395 packaged icons including 110 talents")
 	var factions = load("res://scripts/data/FactionRegistry.gd")
 	var faction_counts := {"wei":0, "shu":0, "wu":0, "qun":0}
 	var faction_ui = load("res://scripts/ui_screens/faction_ui.gd")
@@ -45,7 +45,14 @@ func _run() -> void:
 		var hero = flow.load_character_data(str(id))
 		_check(factions.is_valid_id(hero.faction) and not hero.tags.has(&"shu") and not hero.tags.has(&"han"), "packaged faction resource " + str(id))
 		faction_counts[str(hero.faction)] += 1
-	_check(faction_counts == {"wei":0, "shu":7, "wu":0, "qun":2}, "packaged nine faction assignments")
+	_check(faction_counts == {"wei":1, "shu":5, "wu":1, "qun":2}, "packaged nine faction assignments")
+	for entry in [["huang_zhong","孙尚香","鹊画弓",["弓腰姬","淬毒箭","枭姬奋威"]],["zhou_wei","典韦","双铁戟",["破阵双戟","古之恶来","宛城死战"]]]:
+		var hero = flow.load_character_data(entry[0])
+		_check(hero.display_name == entry[1], "packaged replacement identity " + str(entry[1]))
+		var relic = flow.get_relic_for_character(entry[0])
+		_check(relic != null and relic.display_name == entry[2] and relic.effect_lines().is_empty() and not relic.is_optional_slot(), "packaged locked relic " + str(entry[2]))
+		var ids = hero.get_skill_ids()
+		for index in range(ids.size()): _check(skills.get_skill_name(ids[index]) == entry[3][index], "packaged replacement skill " + str(entry[3][index]))
 	for stage in flow.get_sorted_stages(flow.get_chapter()):
 		_check(stage.faction_rule.is_empty() and stage.allows_character(flow.load_character_data("guan_yu")), "packaged unrestricted chapter " + str(stage.stage_id))
 	var rule_stage = flow.load_stage_data(&"ch01_s01").duplicate(true)
@@ -119,12 +126,12 @@ func _run() -> void:
 
 	enc._talent_panel.dismiss()
 	enc._faction_buttons[&"shu"].pressed.emit()
-	_check(enc._character_buttons.size() == 7, "packaged shu filter")
+	_check(enc._character_buttons.size() == 5, "packaged shu filter")
 	enc._faction_buttons[&"qun"].pressed.emit()
 	_check(enc._character_buttons.size() == 2, "packaged qun filter")
 	for faction in [&"wei", &"wu"]:
 		enc._faction_buttons[faction].pressed.emit()
-		_check(enc._character_buttons.is_empty() and enc._talent_button == null and not enc._sim_panel.visible, "packaged faction empty state " + str(faction))
+		_check(enc._character_buttons.size() == 1 and enc._talent_button != null and enc._sim_panel.visible, "packaged faction replacement " + str(faction))
 	enc._faction_buttons[&""].pressed.emit()
 	enc._select_character("zhuge_liang")
 	_check(enc._character_buttons.size() == 9 and profile.to_dict() == talent_sim_snapshot, "packaged restore faction filter without saves")

@@ -78,16 +78,16 @@ const CHARACTER_ORDER: Array[String] = [
 ]
 
 ## 武将头像概念配色键（概念 ui_encyclopedia.html .lcard .ava 九色：金/红/蓝/绿/紫/橙/棕/粉/青；
-## 键映射 UITheme.avatar_label 渐变键，缺失回退蓝）。周仓=棕、赵云=粉、诸葛亮=青为概念色，
+## 键映射 UITheme.avatar_label 渐变键，缺失回退蓝）。孙尚香=橙、典韦=蓝、赵云=粉、诸葛亮=青为概念色，
 ## 不再按职业色着色。
 const CHARACTER_AVATAR_COLORS := {
 	"liu_bei": "gold",
 	"guan_yu": "red",
 	"zhang_fei": "blue",
-	"huang_zhong": "green",
+	"huang_zhong": "orange",
 	"huang_fu_song": "purple",
 	"diao_chan": "orange",
-	"zhou_wei": "brown",
+	"zhou_wei": "blue",
 	"zhao_yun": "pink",
 	"zhuge_liang": "teal",
 }
@@ -1225,6 +1225,8 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
+	var exclusive := GameFlow.get_relic_for_character(str(character.character_id))
+	if exclusive != null: _relic_tab.add_child(preload("res://scripts/ui_screens/locked_relic_card.gd").new(exclusive))
 	var exclusive_state := _make_body_label("未开放", UITheme.LIGHT_LOCK)
 	exclusive_state.name = "ExclusiveRelicState"
 	exclusive_state.tooltip_text = "专属信物槽暂未开放。"
@@ -1427,7 +1429,7 @@ func _refresh_enemy_detail() -> void:
 	if enemy.stealth:
 		body.add_child(_make_labeled_card("隐匿机制",
 			"无目标框、不显示血条，不可被「以单位为目标」的攻击选中；范围 / 无差别区域效果仍可命中。"
-			+ "破隐来源：黄忠（固有）/ 诸葛亮·借东风（全图 8s）/ 貂蝉 3 阶光环（半径 = 射程）"))
+			+ "破隐来源：孙尚香（固有）/ 诸葛亮·借东风（全图 8s）/ 貂蝉 3 阶光环（半径 = 射程）"))
 
 	# ③ 各档难度面板（概念 .diffrow，随 difficulty_presets 自动扩档）
 	var diff_row := HBoxContainer.new()

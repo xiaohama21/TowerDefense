@@ -6,10 +6,11 @@
 
 ## 当前状态
 
-- **0.9.6.0 阵营系统已完成**，设计总纲 **v0.37.83**，交付分支 **0.9.6**：九将资源归属（蜀7/群2）、百科筛选、军旗＋常显中文阵营、关卡及物品限制接口；权威见[FACTIONS v0.2](docs/modules/FACTIONS.md)。阵营无直接属性加成，第一章规则与schema v11保持。
-- 14项功能回归、294项阵营专项、856项原生窗口检查、388项包内检查通过；393图标及110天赋独立图像校验、Windows独立启动/实际Spine DLL/PE版本通过。[Windows包](build/FengHuoLianYing_v0.9.6.0_Windows.zip) / [13张原生截图](docs/ui_concept/runtime_0.9.6/README.md)。
-- 上一交付 **0.9.5.1** 天赋树弹窗与110枚专属图标已完成并推送（4bc50c1）；13项回归、389项天赋专项、1553项窗口检查与360项包内检查通过。[Windows包](build/FengHuoLianYing_v0.9.5.1_Windows.zip)及[24张原生截图](docs/ui_concept/runtime_0.9.5.1/README.md)保留。
-- 启动0.9.6前按AGENTS §5.3同步并推送main至 **2cfd28c**；本提交交付在0.9.6分支，main保持此启动状态。
+- **0.9.6.1 身份替换已完成**，设计总纲 **v0.37.84**，交付分支 **0.9.6**：孙尚香（吴）替换黄忠，典韦（魏）替换周仓；六技能名称与人物动作图徽更新，鹊画弓/双铁戟信物常显名称和描述。技能效果、数值、职业、解锁、天赋与旧档养成进度保持，专属信物槽仍未开放。
+- 九将阵营为魏1/蜀5/吴1/群2；开场对白与破隐提示同步新身份，孙尚香固有破隐保持，五虎保留未来黄忠身份，原羁绊加成不变。权威见[FACTIONS v0.3](docs/modules/FACTIONS.md)和[CHARACTER_SKILLS v0.17](docs/modules/CHARACTER_SKILLS.md)。
+- 15项功能回归、83项身份专项、293项阵营专项、902项原生窗口检查与398项包内检查通过；395图标、27技能与110天赋独立图像、Windows独立启动/实际Spine DLL/PE版本通过。[Windows包](build/FengHuoLianYing_v0.9.6.1_Windows.zip) / [25张原生截图](docs/ui_concept/runtime_0.9.6.1/README.md)。
+- 上一交付 **0.9.6.0** 阵营系统包及[13张原生截图](docs/ui_concept/runtime_0.9.6/README.md)保留；0.9.5.1天赋树弹窗与110枚专属图标已交付。
+- 本次修复/延伸留在 **0.9.6** 分支交付；main保持启动0.9.6时的 **2cfd28c**，按AGENTS §5.3在开始下一编号提交时同步。
 
 ## 历史交付记录
 

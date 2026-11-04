@@ -18,11 +18,11 @@ const NAMES := {
 	"passive_green_dragon_stance": "青龙势", "passive_warm_wine": "温酒", "char_green_dragon": "青龙偃月",
 	"trait_yanyan_roar": "燕人咆哮", "passive_yanhan": "燕颔", "char_dangyang_roar": "当阳桥",
 	"trait_benevolence": "仁德", "passive_diligence": "砥砺", "char_carry_people": "携民渡江",
-	"trait_hundred_step": "百步穿杨", "passive_sentry": "哨戒", "char_dingjun": "定军山",
+	"trait_hundred_step": "弓腰姬", "passive_sentry": "淬毒箭", "char_dingjun": "枭姬奋威",
 	"trait_moon_veil": "月华", "passive_worship_moon": "拜月", "char_moon_dance": "凤仪鼓舞",
 	"passive_fierce_flame": "烈焰", "passive_detonation": "爆燃", "char_burn_camp": "长社焚营",
 	"trait_dragon_spirit": "龙魂", "passive_dragon_courage": "龙胆", "char_seven_charges": "七进七出",
-	"trait_vanguard": "陷阵", "char_death_fight": "死战", "ultimate_death_fight": "麦城死战",
+	"trait_vanguard": "破阵双戟", "char_death_fight": "古之恶来", "ultimate_death_fight": "宛城死战",
 	"trait_star_gazer": "观星", "passive_momentum": "乘势", "char_borrow_wind": "借东风",
 }
 const DESCRIPTIONS := {

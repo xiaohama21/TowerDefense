@@ -10,9 +10,9 @@ def build_skill_art(draw):
     skin='#ffe0ad'
     roles={
         'guan_yu': (jade,'#286851','long_beard'), 'zhang_fei':(red,'#704132','black_beard'),
-        'liu_bei':(jade,gold,'crown'), 'huang_zhong':(gold,wood,'white_beard'),
+        'liu_bei':(jade,gold,'crown'), 'huang_zhong':(red,gold,'warrior_ponytail'),
         'diao_chan':(violet,red,'buns'), 'huang_fu_song':(red,wood,'general'),
-        'zhao_yun':('#e5f1f4',blue,'plume'), 'zhou_wei':(violet,'#586871','soldier'),
+        'zhao_yun':('#e5f1f4',blue,'plume'), 'zhou_wei':('#526e88',gold,'iron_guard'),
         'zhuge_liang':(jade,violet,'scholar')}
     # Head, right arm, left arm, legs: the pose is visible without its effect symbols.
     poses={
@@ -62,6 +62,19 @@ def build_skill_art(draw):
         elif hat=='crown':
             hair=p(f'M{x-9} {y-5} L{x-10} {y-12} L{x-4} {y-9} L{x} {y-15} L{x+4} {y-9} L{x+9} {y-12} L{x+8} {y-5} Z',gold,ink,2.5)
             hair+=p(f'M{x-3} {y+6} L{x+1} {y+13} L{x+4} {y+6}',ink,ink,1.5)
+        elif hat=='warrior_ponytail':
+            hair=p(f'M{x-9} {y-2} Q{x-10} {y-15} {x+2} {y-13} Q{x+10} {y-10} {x+8} {y-1} L{x+3} {y-5} L{x-2} {y-2} Z',ink,ink,2)
+            hair+=p(f'M{x-5} {y-10} Q{x-21} {y-21} {x-19} {y+8} Q{x-12} {y+3} {x-10} {y-4} Z',ink,ink,2)
+            hair+=p(f'M{x-6} {y-12} L{x-12} {y-15} M{x-6} {y-11} L{x-14} {y-6}','none',red,3)
+            hair+=c(x-5,y-12,2.5,gold,ink,1)
+            body=p(f'M{x-8} {y+13} Q{x} {y+9} {x+8} {y+13} L{x+9} {y+27} L{x+12} {y+38} Q{x} {y+42} {x-12} {y+38} L{x-9} {y+27} Z',cloth,ink,3)
+            body+=p(f'M{x-5} {y+16} L{x} {y+23} L{x+5} {y+16} M{x-9} {y+29} H{x+9}','none',gold,2.5)
+        elif hat=='iron_guard':
+            body=p(f'M{x-12} {y+12} L{x-18} {y+19} L{x-10} {y+27} V{y+38} Q{x} {y+43} {x+10} {y+38} V{y+27} L{x+18} {y+19} L{x+12} {y+12} Z',cloth,ink,3)
+            body+=p(f'M{x-8} {y+24} H{x+8} M{x-8} {y+31} H{x+8}','none',trim,3)
+            hair=p(f'M{x-10} {y-2} Q{x-11} {y-13} {x} {y-14} Q{x+11} {y-13} {x+10} {y-2} L{x+6} {y-5} H{x-6} Z','#3c5369',ink,2.5)
+            hair+=p(f'M{x-6} {y+5} L{x-4} {y+13} L{x} {y+11} L{x+4} {y+13} L{x+6} {y+5}',ink,ink,1.5)
+            hair+=p(f'M{x-4} {y-11} L{x} {y-7} L{x+4} {y-11}','none',gold,2)
         elif hat=='white_beard':
             hair=p(f'M{x-10} {y-4} Q{x-9} {y-13} {x} {y-13} Q{x+9} {y-12} {x+10} {y-4} Z',wood,ink,2.5)
             hair+=p(f'M{x-6} {y+5} Q{x} {y+11} {x+6} {y+5} L{x+1} {y+19} Z',cream,ink,2)
@@ -82,7 +95,11 @@ def build_skill_art(draw):
         return cape+legs+body+belt+arms+face+eyes+hair+hands
 
     def weapon(kind,hand,angle=0,scale=.7,color=blue):
-        if kind in ('spear','glaive'):
+        if kind=='halberd':
+            shape=line([(0,7),(0,-46)],wood,5)+p('M0 -60 L-6 -47 L0 -39 L6 -47 Z',blue,ink,2.5)
+            shape+=p('M3 -43 Q20 -45 17 -30 L7 -26 L4 -33 Q12 -35 10 -40 Z',blue,ink,2.5)
+            shape+=line([(-5,-36),(7,-36)],gold,3)
+        elif kind in ('spear','glaive'):
             shape=line([(0,6),(0,-52)],wood,4)
             if kind=='spear': shape+=p('M0 -66 L-7 -49 L0 -40 L7 -49 Z',color,ink,3)
             else: shape+=p('M0 -62 Q23 -57 13 -32 L0 -38 Z',jade,ink,3)+p('M4 -51 Q13 -47 8 -39','none',gold,3)
@@ -143,13 +160,13 @@ def build_skill_art(draw):
     add('char_carry_people','携民渡江',icon('liu_bei','guard','sword',(63,65),15,.62,
         back=little(77,50,blue),front=p('M10 70 H86 L72 84 H25 Z',wood,ink,3)+mist('M10 90 Q25 84 40 89 T84 89 M64 23 H82 M67 32 H87',blue,3)), '刘备舟上护送友军；攻速流线与渡江动作')
 
-    add('trait_hundred_step','百步穿杨',icon('huang_zhong','shoot','bow',(61,44),0,.77,
-        back=mist('M53 18 L78 23 M55 26 L82 30',gold,3),front=c(83,46,8,'none',gold,3)+mist('M83 34 V38 M83 55 V59',red,2)), '黄忠拉弓瞄准同一目标；箭线集中并累计增伤')
-    add('passive_sentry','哨戒',icon('huang_zhong','crouch','bow',(62,55),0,.75,
-        back=mist('M11 76 H25',jade,4),front=p('M83 60 Q92 71 83 76 Q74 71 83 60 Z',jade,ink,2)+c(75,79,2,jade,ink,1),color=jade), '黄忠蹲守放毒箭；命中持续中毒')
-    add('char_dingjun','定军山',icon('huang_zhong','shoot','bow',(61,44),-28,.78,
-        back=p('M9 81 L19 43 L34 65 L66 16 L86 80 Z',jade,ink,3)+mist('M13 75 Q47 50 83 76',gold,5),
-        front=star(80,24,9,gold,4)+armor_target(77,68)), '黄忠山前扬弓；易伤与自身攻速/攻击/暴击增幅')
+    add('trait_hundred_step','弓腰姬',icon('huang_zhong','shoot','bow',(61,44),0,.77,
+        back=mist('M53 18 L78 23 M55 26 L82 30',gold,3),front=c(83,46,8,'none',gold,3)+mist('M83 34 V38 M83 55 V59',red,2)), '孙尚香高马尾女弓手拉弓锁定；箭线集中并累计增伤')
+    add('passive_sentry','淬毒箭',icon('huang_zhong','crouch','bow',(62,55),0,.75,
+        back=mist('M11 76 H25',jade,4),front=p('M83 60 Q92 71 83 76 Q74 71 83 60 Z',jade,ink,2)+c(75,79,2,jade,ink,1),color=jade), '孙尚香低姿放淬毒箭；命中持续中毒')
+    add('char_dingjun','枭姬奋威',icon('huang_zhong','shoot','bow',(61,44),-28,.78,
+        back=g(draw['faction_flag'](red),'translate(42 6) scale(.48)')+mist('M13 75 Q47 50 83 76',gold,5),
+        front=star(80,24,9,gold,4)+armor_target(77,68)), '孙尚香军旗下扬弓奋威；敌方易伤与自身攻速/攻击/暴击增幅')
 
     add('trait_moon_veil','月华',icon('diao_chan','open','bell',(73,36),0,.73,
         back=moon(2,0,.4),front=mist('M14 61 Q44 80 79 57',violet,5)+little(15,64,blue)+little(78,65,jade)+c(16,58,3,gold,ink,1.5)+c(78,59,3,gold,ink,1.5)), '貂蝉持铃舒袖；月光覆盖友方怒气')
@@ -175,13 +192,13 @@ def build_skill_art(draw):
         back=g(hero('zhao_yun','dash'),'translate(-4 -1) scale(.9)') .replace('<g ', '<g opacity=".28" ',1)+mist('M8 29 H21 M6 41 H16 M8 54 H19',blue,4),
         front=little(78,66,'#9fa9a7')+little(63,72,'#9fa9a7')+star(85,36,7,gold,4)), '赵云前冲挺枪；速度残影与多个低血目标')
 
-    add('trait_vanguard','陷阵',icon('zhou_wei','thrust','sword',(60,45),73,.52,
-        back=mist('M13 51 H26',violet,4),front=armor_target(80,52)), '周卫挺刃刺破敌甲；常驻穿甲')
-    add('char_death_fight','死战',icon('zhou_wei','slash','sword',(58,38),44,.66,
-        back=mist('M17 31 Q39 9 77 18',red,4),front=star(79,51,12,red,4)+mist('M58 59 L81 39',gold,3),color=red), '周卫举刀重斩；命中后概率追加高额物理伤害')
-    add('ultimate_death_fight','麦城死战',icon('zhou_wei','slash','sword',(58,38),46,.65,
+    add('trait_vanguard','破阵双戟',icon('zhou_wei','thrust','halberd',(60,45),73,.52,
+        back=mist('M13 51 H26',blue,4),front=weapon('halberd',(49,51),-10,.60)+armor_target(80,52)), '典韦宽肩重甲持双铁戟刺破敌甲；常驻穿甲')
+    add('char_death_fight','古之恶来',icon('zhou_wei','slash','halberd',(58,38),44,.66,
+        back=mist('M17 31 Q39 9 77 18',red,4),front=weapon('halberd',(15,55),-8,.58)+star(79,51,12,red,4)+mist('M58 59 L81 39',gold,3)), '典韦双戟交错连斩；命中后概率追加高额物理伤害')
+    add('ultimate_death_fight','宛城死战',icon('zhou_wei','slash','halberd',(58,38),46,.65,
         back=g(draw['gate'](wood),'translate(26 30) scale(.63)')+mist('M69 47 L62 60 L73 68 L66 82',red,3),
-        front=p('M13 60 Q38 23 85 35 Q60 40 32 75 Z',red,ink,2.5)+mist('M27 80 Q51 49 87 54',gold,3),color=red), '周卫残门前奋力重斩；基地低血时加强的麦城死战')
+        front=weapon('halberd',(15,55),-8,.58)+p('M13 60 Q38 23 85 35 Q60 40 32 75 Z',red,ink,2.5)+mist('M27 80 Q51 49 87 54',gold,3)), '典韦残门前双戟死守；基地低血时加强的宛城死战')
 
     add('trait_star_gazer','观星',icon('zhuge_liang','cast','fan',(62,38),18,.67,
         back=star(75,17,9,gold,4)+mist('M18 18 L28 11 L46 15',blue,2)+c(18,18,2,gold,ink,1)+c(28,11,2,gold,ink,1),
@@ -200,11 +217,11 @@ SKILL_GROUPS=[
     ('关羽',['passive_green_dragon_stance','passive_warm_wine','char_green_dragon']),
     ('张飞',['trait_yanyan_roar','passive_yanhan','char_dangyang_roar']),
     ('刘备',['trait_benevolence','passive_diligence','char_carry_people']),
-    ('黄忠',['trait_hundred_step','passive_sentry','char_dingjun']),
+    ('孙尚香',['trait_hundred_step','passive_sentry','char_dingjun']),
     ('貂蝉',['trait_moon_veil','passive_worship_moon','char_moon_dance']),
     ('皇甫嵩',['passive_fierce_flame','passive_detonation','char_burn_camp']),
     ('赵云',['trait_dragon_spirit','passive_dragon_courage','char_seven_charges']),
-    ('周卫',['trait_vanguard','char_death_fight','ultimate_death_fight']),
+    ('典韦',['trait_vanguard','char_death_fight','ultimate_death_fight']),
     ('诸葛亮',['trait_star_gazer','passive_momentum','char_borrow_wind']),
 ]
 

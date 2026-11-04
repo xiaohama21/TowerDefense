@@ -226,18 +226,18 @@ is_boss_wave = false
 
 [sub_resource type="Resource" id="DialogueLine_1"]
 script = ExtResource("9_dline")
-speaker = "周仓"
-text = "卧牛山上跟错了主，今日正要与黄巾贼做个了断！"
+speaker = "典韦"
+text = "曹公命我前来助阵，贼兵休想踏过这道防线！"
 
 [sub_resource type="Resource" id="DialogueLine_2"]
 script = ExtResource("9_dline")
 speaker = "刘备"
-text = "周仓壮士，何不弃暗投明，共讨国贼？"
+text = "典壮士勇武过人，有你相助，百姓便多一分安稳。"
 
 [sub_resource type="Resource" id="DialogueLine_3"]
 script = ExtResource("9_dline")
-speaker = "周仓"
-text = "周仓这把刀，从今往后只听将军号令！"
+speaker = "典韦"
+text = "我这双铁戟，今日便替百姓杀出一条生路！"
 
 [sub_resource type="Resource" id="DialogueData_1"]
 script = ExtResource("10_ddata")

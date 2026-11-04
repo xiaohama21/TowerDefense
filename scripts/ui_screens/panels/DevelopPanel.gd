@@ -51,6 +51,7 @@ var _talent_reset_dialog: ConfirmationDialog
 var _skill_tab: VBoxContainer
 ## 信物页签：专属槽锁定占位标签 + 可选槽（Boss 签名信物）列表容器（✅ 0.8.14 双槽）。
 var _relic_label: Label
+var _exclusive_relic_preview: VBoxContainer
 var _relic_optional_box: VBoxContainer
 ## 经验池行（✅ 0.8.15 / NUMBERS 10.14）：余额 + 分配入口 + 直接升级。
 var _exp_pool_label: Label
@@ -514,12 +515,13 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 	content.offset_right = -9.0
 	content.offset_top = 8.0
 	content.offset_bottom = -8.0
-	content.add_theme_constant_override("separation", 9)
+	content.add_theme_constant_override("separation", 6)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var avatar_char := character.display_name.left(1)
 	var avatar := UITheme.avatar_label(avatar_char,
-		"grey" if locked else AVATAR_COLORS[abs(hash(avatar_char)) % AVATAR_COLORS.size()], 44.0, 20)
+		"grey" if locked else UITheme.character_avatar_color_key(str(character.character_id)), 36.0, 18)
 	avatar.name = "CardAvatar"
+	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	content.add_child(avatar)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -548,18 +550,24 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 		src.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 		src.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		info.add_child(src)
+	var progress := VBoxContainer.new()
+	progress.name = "CardProgress"
+	progress.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	progress.add_theme_constant_override("separation", 2)
+	content.add_child(progress)
 	var lvl := Label.new()
 	lvl.name = "CardLv"
 	lvl.text = "Lv%d" % level
 	lvl.add_theme_font_size_override("font_size", 14)
 	lvl.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_ACCENT)
-	lvl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	content.add_child(lvl)
+	lvl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	progress.add_child(lvl)
 	var badge := ConceptIcon.new("", 22)
 	badge.name = "CardRank"
 	badge.visible = not locked
 	badge.set_rank(_profile.get_character_rank(str(character.character_id)))
-	content.add_child(badge)
+	badge.size_flags_horizontal = Control.SIZE_SHRINK_END
+	progress.add_child(badge)
 	return content
 
 
@@ -687,6 +695,9 @@ func _build_relic_tab() -> void:
 	_relic_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_relic_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	exclusive_slot.add_child(_relic_label)
+	_exclusive_relic_preview = VBoxContainer.new()
+	_exclusive_relic_preview.name = "ExclusiveRelicPreview"
+	page.add_child(_exclusive_relic_preview)
 	var optional_title := Label.new()
 	optional_title.text = "可选信物槽（Boss 签名信物 · 通用件，可自由装卸）"
 	optional_title.add_theme_font_size_override("font_size", 15)
@@ -1017,6 +1028,11 @@ func _close_exp_pool_dialog(overlay: Control) -> void:
 func _refresh_relic(_character: CharacterData) -> void:
 	_relic_label.text = "未开放"
 	_relic_label.tooltip_text = "专属信物槽暂未开放。"
+	for child in _exclusive_relic_preview.get_children():
+		_exclusive_relic_preview.remove_child(child)
+		child.queue_free()
+	var exclusive := GameFlow.get_relic_for_character(_selected_id)
+	if exclusive != null: _exclusive_relic_preview.add_child(preload("res://scripts/ui_screens/locked_relic_card.gd").new(exclusive))
 	for child in _relic_optional_box.get_children():
 		_relic_optional_box.remove_child(child)
 		child.queue_free()
