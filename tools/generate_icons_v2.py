@@ -9,6 +9,9 @@ import os
 import re
 import subprocess
 import shutil
+import tempfile
+import time
+from skill_icon_art_v2 import build_skill_art, create_skill_previews
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets/ui/icons/v2'
@@ -21,6 +24,37 @@ VIOLET = '#b996e3'
 CREAM = '#fff0c6'
 WOOD = '#cf9e6e'
 ICONS = []
+
+def write_generated_text(target, text):
+    # Atomic replacement also works while desktop previews have the old file open.
+    for attempt in range(3):
+        temporary=None
+        try:
+            with tempfile.NamedTemporaryFile('w',encoding='utf-8',newline='\n',dir=target.parent,suffix='.tmp',delete=False) as stream:
+                temporary=Path(stream.name)
+                stream.write(text)
+            temporary.replace(target)
+            return
+        except OSError:
+            if attempt==2: raise
+            time.sleep(.2)
+        finally:
+            if temporary is not None and temporary.exists(): temporary.unlink()
+
+def write_generated_image(image, target, **options):
+    for attempt in range(3):
+        temporary=None
+        try:
+            with tempfile.NamedTemporaryFile('wb',dir=target.parent,suffix='.tmp',delete=False) as stream:
+                temporary=Path(stream.name)
+            image.save(temporary,format=target.suffix.removeprefix('.').upper(),**options)
+            temporary.replace(target)
+            return
+        except OSError:
+            if attempt==2: raise
+            time.sleep(.2)
+        finally:
+            if temporary is not None and temporary.exists(): temporary.unlink()
 
 def path(d, fill=GOLD, stroke=INK, width=5):
     return f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{width}" stroke-linecap="round" stroke-linejoin="round"/>'
@@ -119,6 +153,34 @@ def leaf(fill=JADE):
 def ingot(fill=GOLD):
     return path('M13 38 Q28 50 37 27 Q48 15 59 27 Q68 50 83 38 L72 67 Q48 83 24 67 Z',fill)+path('M30 58 Q48 66 66 58','none',CREAM,5)
 
+def gold_ingot():
+    return (path('M14 34 Q27 50 37 31 Q48 20 59 31 Q69 50 82 34 L72 67 Q48 81 24 67 Z', GOLD)
+            + path('M17 43 Q48 67 79 43 L72 67 Q48 81 24 67 Z', '#d3a344')
+            + path('M31 43 Q48 54 65 43 Q62 31 48 28 Q34 31 31 43 Z', '#f6d77d', INK, 4)
+            + path('M37 39 Q47 31 57 39 M32 66 Q48 73 64 66', 'none', CREAM, 3))
+
+def lord_crown():
+    return (path('M17 29 L32 43 L48 15 L64 43 L79 29 L72 62 H24 Z', GOLD)
+            + path('M30 52 H66', 'none', CREAM, 4)
+            + rect(31, 62, 34, 21, JADE, 4, INK, 4)
+            + path('M42 72 H54', 'none', CREAM, 4))
+
+def lord_experience():
+    return (circle(48, 48, 36, 'none', INK, 9)
+            + path('M48 12 A36 36 0 1 0 83 56', 'none', JADE, 5)
+            + group(lord_crown(), 'translate(20 19) scale(.58)')
+            + circle(81, 34, 6, GOLD, INK, 3))
+
+def equipment_quality(tier, fill):
+    # Metal lozenge and rivets distinguish gear quality from six-sided character rank.
+    positions = [[(48,48)], [(36,48),(60,48)], [(48,34),(36,57),(60,57)],
+                 [(37,37),(59,37),(37,59),(59,59)],
+                 [(37,37),(59,37),(48,48),(37,59),(59,59)]][tier]
+    return (path('M48 12 L82 48 L48 84 L14 48 Z', fill)
+            + path('M23 48 L48 23 L73 48 M23 48 L48 73 L73 48', 'none', CREAM, 3)
+            + ''.join(path(f'M{x} {y-5} L{x+5} {y} L{x} {y+5} L{x-5} {y} Z',
+                           CREAM, INK, 2.5) for x,y in positions))
+
 def pouch(fill=WOOD):
     return path('M33 16 Q48 22 63 16 L59 33 Q83 51 74 76 Q49 87 22 76 Q12 51 37 33 Z',fill)+path('M33 33 H63 M39 53 L49 69 L59 51','none',CREAM,5)
 
@@ -162,6 +224,13 @@ def catalogue():
       ('talent_point','天赋点',leaf()+star(55,42,13,GOLD,4)),('yuanbao','元宝',ingot()),('player_level','主公等级',path('M16 32 L30 46 L48 19 L66 46 L80 32 L74 72 H22 Z',GOLD)+path('M29 61 H66','none',CREAM,4)),
     ]
     for k,l,s in hud:add(k,l,'hud',s)
+    add('ingot', '元宝', 'hud', gold_ingot(), '暖金舟形元宝；商店余额/价格/刷新与经济奖励')
+    add('lord_level', '主公等级', 'hud', lord_crown(), '暖金冠与青玉方印；仅解锁商店货档')
+    add('lord_exp', '主公经验', 'hud', lord_experience(), '进度环与冠印；区别武将经验书册')
+    for tier, (label, color) in enumerate(zip(['凡品','良品','珍品','绝品','神品'],
+                                            ['#c8d5dc', JADE, BLUE, VIOLET, GOLD])):
+        add('equipment_rarity_'+str(tier), label, 'equipment_rarity', equipment_quality(tier,color),
+            '独立装备菱形品质徽记；'+str(tier+1)+'枚铆钉；与武将六阶分开', planned=tier>0)
     statuses=[
       ('slow','减速',path('M20 44 Q23 21 50 24 Q74 24 78 47 H20 Z',BLUE)+path('M24 51 H74 M30 51 V68 M61 51 V68','none',WOOD,6)+circle(79,58,6,BLUE)),
       ('burn','灼烧',flame()),('vulnerable','易伤',shield(VIOLET,True)),
@@ -235,6 +304,11 @@ def catalogue():
       ('trait_star_gazer','观星',star(48,32,23,VIOLET,4)+path('M17 71 Q48 90 79 71','none',BLUE,6)+circle(19,30,4,GOLD,INK,2)),
     ]
     for k,l,s in skills:add(k,l,'skill',s)
+    add('trait_vanguard', '陷阵', 'skill', gate(JADE)+group(spear(BLUE),'translate(40 7) scale(.5)'),
+        '周卫被动；城墙与矛尖，命中时增加穿甲')
+    add('ultimate_death_fight', '麦城死战', 'skill', group(gate(WOOD),'translate(12 12) scale(.8)')
+        +path('M50 27 L43 41 L53 51 L42 72','none',INK,4)
+        +group(sword(RED),'translate(5 -3) scale(.88)'), '周卫大招；红斩刃与裂损城门，低基地生命时加强')
     future_passives=[('green_dragon_stance','青龙势',sword(JADE)),('warm_wine','温酒',path('M25 27 H70 L65 60 Q48 76 30 60 Z',RED)+path('M48 68 V83 M34 83 H62','none',GOLD,6)),('yanhan','燕颔',tiger(RED)),('diligence','砥砺',group(reticle(),'translate(8 8) scale(.8)')+path('M16 76 L25 85','none',JADE,6)),('sentry','哨戒',eye(BLUE)),('worship_moon','拜月',moon(JADE)),('fierce_flame','烈焰',flame(WOOD)),('detonation','爆燃',star(fill=RED,points=7)+group(flame(GOLD),'translate(24 20) scale(.5)')),('dragon_courage','龙胆',heart(BLUE)+group(bolt(),'translate(25 30) scale(.5)')),('momentum','乘势',path('M17 68 L43 43 L57 57 L79 19 M60 20 H79 V39','none',JADE,8))]
     for k,l,s in future_passives:add('passive_'+k,l,'planned_skill',s,planned=True)
     add('bond_taoyuan_oath','桃园结义','bond',lotus(JADE)+circle(28,28,5,RED,INK,2)+circle(68,28,5,RED,INK,2))
@@ -335,40 +409,59 @@ def legacy_snapshot():
     workspace_archive=ROOT/'build/icons_v2_legacy_workspace.json'
     if not workspace_archive.exists():
         workspace_archive.parent.mkdir(parents=True,exist_ok=True)
-        workspace_archive.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        write_generated_text(workspace_archive,json.dumps(data,ensure_ascii=False,indent=2)+'\n')
     portable={name:sha for name,sha in data.items() if name in tracked}
-    target.write_text(json.dumps(portable,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    write_generated_text(target,json.dumps(portable,ensure_ascii=False,indent=2)+'\n')
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot',default=os.environ.get('GODOT_BIN') or shutil.which('godot') or 'F:/Godot/Godot_v4.7.1-stable_win64.exe/Godot_v4.7.1-stable_win64_console.exe',help='Godot executable for SVG to PNG rendering')
+    parser.add_argument('--render-all',action='store_true',help='Render every PNG even if its SVG is unchanged')
     args=parser.parse_args()
     godot=Path(args.godot)
     if not godot.is_file():parser.error('Godot executable not found; use --godot or GODOT_BIN')
     OUT.mkdir(parents=True,exist_ok=True)
     legacy_snapshot()
     catalogue();cursors()
+    skill_art=build_skill_art(globals())
+    assert set(skill_art)<=set(icon['id'] for icon in ICONS)
+    for icon in ICONS:
+        if icon['id'] in skill_art:
+            icon.update(skill_art[icon['id']])
+            icon['category']='skill'
     records=[]
+    changed=[]
     for icon in ICONS:
         sub='cursors/' if icon['category']=='cursor' else ''
         key=icon['id']
         target=OUT/sub
         target.mkdir(parents=True,exist_ok=True)
         svg=f'<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 96 96"><title>{html.escape(icon["label"])}</title>{icon["svg_body"]}</svg>\n'
-        (target/(key+'.svg')).write_text(svg,encoding='utf-8')
+        svg_path=target/(key+'.svg')
+        if not svg_path.exists() or svg_path.read_text(encoding='utf-8')!=svg:
+            write_generated_text(svg_path,svg)
+            changed.append(key)
+        elif (not (target/(key+'.png')).exists()
+              or (target/(key+'.png')).stat().st_size==0
+              or (target/(key+'.png')).stat().st_mtime_ns<svg_path.stat().st_mtime_ns
+              or (sub and not (target/(key+'_2x.png')).exists())):
+            changed.append(key)
         records.append({k:v for k,v in icon.items() if k!='svg_body'}|dict(svg=sub+key+'.svg',png=sub+key+'.png',pixels=32 if sub else 256))
     manifest=dict(version=2,source='original SVG; rendered by Godot',icons=records)
-    (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    write_generated_text(OUT/'manifest.json',json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     # No shell, no deleted files, no generation from old PNGs.
-    subprocess.run([str(godot),'--headless','--path',str(ROOT),'--script',str(ROOT/'tools/render_icons_v2.gd')],check=True)
+    if args.render_all or changed:
+        command=[str(godot),'--headless','--path',str(ROOT),'--script',str(ROOT/'tools/render_icons_v2.gd')]
+        if not args.render_all: command+=['--','--icons='+','.join(changed)]
+        subprocess.run(command,check=True)
     from PIL import Image,ImageDraw,ImageFont
     crest=Image.open(OUT/'game_crest.png')
-    crest.save(OUT/'game_crest.ico',sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
+    write_generated_image(crest,OUT/'game_crest.ico',sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
     cards=[]
     for item in records:
         cards.append(f'<article data-category="{item["category"]}" data-name="{html.escape(item["id"]+item["label"])}"><div class="sample"><img src="../../assets/ui/icons/v2/{item["png"]}"><img class="small" src="../../assets/ui/icons/v2/{item["png"]}"></div><b>{html.escape(item["label"])}</b><code>{item["id"]}</code><small>{item["category"]}{" · 预备图" if item["planned"] else ""}</small></article>')
     overview='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>烽火连营 · 新版图标</title><style>*{box-sizing:border-box}body{margin:0;background:#10271f;color:#f8f0d6;font:15px system-ui}header{padding:36px 5%;position:sticky;top:0;background:#10271fee;z-index:1;border-bottom:1px solid #456256}h1{margin:0 0 10px;font-size:30px}input,select,button{font:inherit;padding:9px 16px;margin:12px 10px 0 0;border-radius:8px;border:1px solid #6d8f7c;background:#203b30;color:#fff0c6}main{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;padding:28px 5%}article{padding:16px;background:#244234;border:1px solid #496551;border-radius:12px}article b,code,small{display:block;margin-top:7px}code{font-size:10px;overflow-wrap:anywhere;color:#b2d3c3}small{font-size:11px;color:#d1c49f}.sample{display:flex;align-items:center;justify-content:space-evenly;height:78px}.sample img{width:64px;height:64px}.sample .small{width:20px;height:20px}.light article{background:#f4f2e7;color:#243b36}.light code,.light small{color:#597069}article[hidden]{display:none}</style><header><h1>烽火连营 · 新版图标</h1><div>透明 SVG 母版 → Godot PNG · 大小双览 · 旧素材保留归档</div><input id="search" placeholder="搜索语义或文件名"><select id="category"><option value="">全部分类</option>'''+''.join(f'<option>{c}</option>' for c in sorted({i['category'] for i in records}))+'''</select><button onclick="document.body.classList.toggle('light')">切换亮／暗底</button><span id="count"></span></header><main>'''+''.join(cards)+'''</main><script>const s=document.querySelector('#search'),c=document.querySelector('#category');function filter(){let n=0;document.querySelectorAll('article').forEach(a=>{a.hidden=!(a.dataset.name.includes(s.value)&&(!c.value||a.dataset.category===c.value));if(!a.hidden)n++});document.querySelector('#count').textContent=n+' 枚'}s.oninput=c.onchange=filter;filter()</script></html>'''
-    (ROOT/'docs/ui_concept/icons_v2.html').write_text(overview,encoding='utf-8')
+    write_generated_text(ROOT/'docs/ui_concept/icons_v2.html',overview)
     fontpath=ROOT/'assets/fonts/ZCOOLKuaiLe-Regular.ttf'
     if not fontpath.exists():fontpath=Path('C:/Windows/Fonts/msyh.ttc')
     font=ImageFont.truetype(str(fontpath),17)
@@ -382,8 +475,8 @@ def main():
         thumb=source.resize((72,72),Image.Resampling.LANCZOS);sheet.paste(thumb,(x+38,y+8),thumb)
         draw.text((x+8,y+86),item['label'][:9],font=font,fill='#fff0c6')
         draw.text((x+8,y+108),item['category'],font=ImageFont.truetype(str(fontpath),12),fill='#99b9a7')
-    sheet.save(ROOT/'docs/ui_concept/icons_v2.png')
-    featured=[i for i in records if i['category'] in ['hud','status','rank','item','supply']][:78]
+    write_generated_image(sheet,ROOT/'docs/ui_concept/icons_v2.png')
+    featured=[i for i in records if i['category'] in ['hud','equipment_rarity','status','rank','item','supply']][:78]
     preview=Image.new('RGB',(1200,820),'#11271f');pen=ImageDraw.Draw(preview)
     pen.text((24,16),'烽火连营 · 新版透明图标',font=ImageFont.truetype(str(fontpath),26),fill=CREAM)
     for idx,item in enumerate(featured):
@@ -394,7 +487,27 @@ def main():
         thumb=original.resize((52,52),Image.Resampling.LANCZOS);preview.paste(thumb,(x+21,y+9),thumb)
         tiny=original.resize((15,15),Image.Resampling.LANCZOS);preview.paste(tiny,(x+39,y+68),tiny)
         pen.text((x+8,y+88),item['label'][:5],font=ImageFont.truetype(str(fontpath),12),fill=CREAM if idx//13<3 else INK)
-    preview.save(ROOT/'docs/ui_concept/icons_v2_preview.png')
+    write_generated_image(preview,ROOT/'docs/ui_concept/icons_v2_preview.png')
+    additions=[i for i in records if i['id'] in ['ingot','lord_level','lord_exp','trait_vanguard','ultimate_death_fight'] or i['category']=='equipment_rarity']
+    sizes=[15,18,20,24,34,56]
+    detail=Image.new('RGB',(1280,968),'#11271f');pen=ImageDraw.Draw(detail)
+    pen.text((24,18),'经济、装备品质与技能 · 十枚图徽 / 亮暗底实际尺寸',font=ImageFont.truetype(str(fontpath),26),fill=CREAM)
+    for base,bg,fg in [(200,'#274334',CREAM),(734,'#f4f2e7',INK)]:
+        for column,pixels in enumerate(sizes):
+            pen.text((base+column*84+18,65),str(pixels)+'px',font=font,fill=CREAM)
+        pen.rounded_rectangle((base,94,base+508,952),10,fill=bg)
+        for row,item in enumerate(additions):
+            y=103+row*84
+            source=Image.open(OUT/item['png']).convert('RGBA')
+            for column,pixels in enumerate(sizes):
+                thumb=source.resize((pixels,pixels),Image.Resampling.LANCZOS)
+                detail.paste(thumb,(base+column*84+(84-pixels)//2,y+(76-pixels)//2),thumb)
+    for row,item in enumerate(additions):
+        y=103+row*84
+        pen.text((20,y+16),item['label'],font=font,fill=CREAM)
+        pen.text((20,y+42),item['id'],font=ImageFont.truetype(str(fontpath),12),fill=JADE)
+    write_generated_image(detail,ROOT/'docs/ui_concept/icons_v2_additions.png')
+    create_skill_previews(records,OUT,ROOT,fontpath,write_generated_image)
     print(f'Generated {len(records)} original icon masters and PNGs; legacy hashes unchanged.')
 
 if __name__=='__main__':main()

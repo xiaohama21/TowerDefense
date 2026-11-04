@@ -1,7 +1,7 @@
 extends Node
 
 var _slot := ""
-var _capture_dir := "res://build/verify_0.9.4.1"
+var _capture_dir := "res://build/verify_0.9.4.2"
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -73,6 +73,45 @@ func _run() -> void:
 	await _shot("inventory_shop_material")
 	hub._panels[&"inventory"]._show_detail("iron_shield")
 	await _shot("inventory_shop_relic")
+	p.add_weapon("equipment_long_spear_1", 1)
+	p.unlock_character("zhou_wei")
+	ProfileStore.save_profile(p)
+	hub._show_panel(&"inventory")
+	hub._panels[&"inventory"]._on_category_pressed(ItemData.ItemType.EQUIPMENT)
+	await _shot("inventory_equipment_icons")
+	hub._show_panel(&"develop")
+	var develop = hub._panels[&"develop"]
+	develop._select_character("guan_yu")
+	develop._tab_container.current_tab = 2
+	await _shot("develop_equipment_icons")
+	develop._select_character("zhou_wei")
+	develop._tab_container.current_tab = 0
+	await _shot("develop_zhou_wei_skills")
+	hub._show_panel(&"encyclopedia")
+	var encyclopedia = hub._panels[&"encyclopedia"]
+	encyclopedia._select_character("guan_yu")
+	encyclopedia._tab_container.current_tab = 2
+	await _shot("encyclopedia_equipment_icons")
+	encyclopedia._select_character("zhou_wei")
+	encyclopedia._tab_container.current_tab = 0
+	encyclopedia._sim_rank_option.select(5)
+	encyclopedia._on_sim_changed()
+	await _shot("encyclopedia_zhou_wei_skills")
+	for character_id in GameFlow.get_all_character_ids():
+		p.unlock_character(character_id)
+		p.characters[character_id]["rank"] = 2
+	ProfileStore.save_profile(p)
+	hub._show_panel(&"develop")
+	for character_id in GameFlow.get_all_character_ids():
+		develop._select_character(character_id)
+		develop._refresh()
+		develop._tab_container.current_tab = 0
+		await _shot("skills_" + character_id)
+		var character := GameFlow.load_character_data(character_id)
+		var ultimate := develop._skill_tab.find_child("SkillCard_" + str(character.ultimate_id), true, false) as Control
+		for frame in range(3): await get_tree().process_frame
+		(develop._skill_tab.get_child(0) as ScrollContainer).ensure_control_visible(ultimate)
+		await _shot("ultimate_" + character_id)
 	hub.queue_free()
 	await get_tree().process_frame
 	GameFlow.selected_stage_id = &"ch01_s01"

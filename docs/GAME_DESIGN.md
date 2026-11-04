@@ -1,5 +1,9 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
+> 文档版本：v0.37.78（2026-11-04）
+> v0.37.78：用户反馈追加27技能图徽重绘：按“小人＋武器/器物＋动作”表达技能，九将保持角色服饰/头饰识别，三技能姿态与效果各自区分。保留技能名与中文描述，技能机制/数值、经济/装备和schema v10不变；程序0.9.4.2本轮一并交付。ICONS v1.4 / ART_PROMPTS v0.23 / ART_ASSETS v0.25 / CHARACTER_SKILLS v0.14 / UI_LAYOUT v0.20.80 / UI_CONCEPT v0.36 / BUGS v0.75 B-141~B-142。目录仍283枚；十枚补缺保留，金元宝沿用户反馈使用暖金色。main冻结66cc17f。
+> 文档版本：v0.37.77（2026-11-04）
+> v0.37.77：0.9.4分支延伸补齐图标（程序0.9.4.2）：三枚经济图徽ingot/lord_level/lord_exp与五档装备品质equipment_rarity_0..4及周卫两技能trait_vanguard/ultimate_death_fight采用现有原创SVG→Godot透明PNG生产；总目录273→283，当前已登记资源图徽缺口清零。ICONS v1.3 / ART_PROMPTS v0.22 / ART_ASSETS v0.24 / SHOP v0.4 / WEAPONS v0.3 / UI_LAYOUT v0.20.79 / UI_CONCEPT v0.35 / BUGS v0.73 B-140。经济、技能、装备规则与schema v10不变，main保持冻结。
 > 文档版本：v0.37.76（2026-11-03）
 > v0.37.76：0.9.4分支延伸，按用户反馈优化商店商品信息与排版（程序0.9.4.1）：名称、用途/效果、礼包内容和限购说明常显；物资/装备两列、军功遗物三列，轮换保留右侧紧凑卡片，子页选中态及购买后滚动位置修正。AGENTS §6登记商店文字例外。SHOP v0.3 / UI_LAYOUT v0.20.78 / UI_CONCEPT v0.34 / BUGS v0.72 B-137~B-139。经济规则与schema v10不变，main仍冻结66cc17f。
 > 0.9.4.1验收：ShopRunner 461项、FlowRunner通过；19张原生窗口归档runtime_0.9.4.1，全部12款装备说明、两种礼包内容、五遗物同屏、锁定/已满/不足/失败/购买后滚动已检查。Windows导出、独立启动、实际Spine DLL、PE0.9.4.1及105项包内检查通过，留0.9.4分支交付。
@@ -657,3 +661,6 @@ tests/         # RankRunner / RankPreviewRunner / BenchmarkRunner / SmokeRunner 
 行为 ID 注册表：`behavior_id`（职业攻击）、`special_behavior_id`（敌人特殊行为）、`passive_ids`／`ultimate_id`（武将三技能）统一由行为注册表（脚本按 ID 分发）驱动，禁止在战斗脚本中硬编码。**架构、规格清单与新增流程见 [modules/BEHAVIORS.md](modules/BEHAVIORS.md)**（阶段 1 已落地最小注册表：职业攻击行为分发 + 枪兵克制）。
 
 > 维护约定：本文档更新时同步递增版本号并记录变更；模块文档各自维护细节内容，跨模块/结构性变更须回写本文档。资源 ID 命名遵循现有 `snake_case` 风格（如 `ch01_s02`、`yellow_turban_archer`）。
+
+
+0.9.4.2验收（2026-11-04）：283图标完整覆盖，27当前技能PNG独立且名称对应；9项相关回归（ShopRunner 461项）、42张原生截图、Windows独立启动/实际Spine DLL/PE0.9.4.2及115项包内检查通过。248枚非本轮技能的既有图标与290个旧素材文件哈希保留；增量生成中断恢复验证通过。交付留在0.9.4分支，main冻结66cc17f。

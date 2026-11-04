@@ -235,10 +235,18 @@ func _hud_icon_assets_integrity() -> bool:
 		if image.get_pixel(0, 0).a > 0.01:
 			missing.append("角点非透明: " + str(entry.id))
 	var required := ["stat_crit_rate", "stat_crit_damage", "stat_skill_amp", "rage", "uses", "lock", "general_seal", "refined_iron", "ebony", "skill_book", "ui_menu", "ui_close"]
+	required.append_array(["ingot", "lord_level", "lord_exp"])
+	for rarity in range(ItemData.Rarity.size()):
+		required.append("equipment_rarity_%d" % rarity)
 	for rank_key in CharacterRank.KEYS:
 		required.append("rank_" + rank_key)
 	for supply in BattleSupplyData.load_catalog():
 		required.append("supply_" + str(supply.supply_id))
+	for character_id in GameFlow.get_all_character_ids():
+		var character := GameFlow.load_character_data(character_id)
+		for skill_id in character.passive_ids:
+			required.append(str(skill_id))
+		required.append(str(character.ultimate_id))
 	for key in required:
 		if not ids.has(key) or UITheme.hud_icon(key) == null:
 			missing.append("缺实际界面语义: " + key)

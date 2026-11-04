@@ -1,15 +1,15 @@
 {
-  "count": 273,
+  "count": 283,
   "categories": {
-    "hud": 32,
+    "hud": 35,
+    "equipment_rarity": 5,
     "status": 12,
     "rank": 6,
     "battle_rank": 9,
     "item": 15,
     "supply": 6,
     "profession": 6,
-    "skill": 24,
-    "planned_skill": 10,
+    "skill": 36,
     "bond": 2,
     "faction": 4,
     "system": 46,
@@ -17,6 +17,8 @@
     "tech": 32,
     "cursor": 9
   },
+  "current_skill_icons": 27,
+  "distinct_current_skill_pngs": 27,
   "legacy_files_preserved": 290,
   "tracked_legacy_files_preserved": 168,
   "workspace_snapshot_checked": true,

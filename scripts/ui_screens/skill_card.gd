@@ -18,7 +18,7 @@ func configure(character: CharacterData, skill_id: StringName, rank: int, level:
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 10)
 	body.add_child(header)
-	var icon_id := "char_death_fight" if skill_id == &"ultimate_death_fight" else str(skill_id)
+	var icon_id := str(skill_id)
 	var title := SkillRegistry.get_skill_name(skill_id)
 	var slot := character.passive_ids.find(skill_id)
 	var unlocked := character.is_skill_unlocked(skill_id, rank)

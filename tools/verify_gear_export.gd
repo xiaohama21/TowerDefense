@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.4.1", "project version 0.9.4.1")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.4.2", "project version 0.9.4.2")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -33,7 +33,10 @@ func _run() -> void:
 	var count := 0
 	for entry in manifest.icons:
 		if load("res://assets/ui/icons/v2/" + str(entry.png)) != null: count += 1
-	_check(count == 273, "273 packaged icons")
+	_check(count == 283, "283 packaged icons")
+	var theme = load("res://scripts/ui_screens/ui_theme.gd")
+	for icon_id in ["ingot", "lord_level", "lord_exp", "equipment_rarity_0", "equipment_rarity_1", "equipment_rarity_2", "equipment_rarity_3", "equipment_rarity_4", "trait_vanguard", "ultimate_death_fight"]:
+		_check(theme.hud_icon(icon_id) != null, "packaged economic/quality icon " + icon_id)
 	_check(registry.IDS.size() == 12, "12 packaged weapons")
 	for id in registry.IDS:
 		var weapon = registry.get_weapon(id)
@@ -160,6 +163,8 @@ func _check_skill_cards(panel, character, skills, context: String) -> void:
 		var readable: bool = title != null and description != null and title.text == skills.get_skill_name(id) and description.text == skills.description_text(id) and not description.text.is_empty()
 		var labels: Array[String] = []
 		if card != null:
+			var main_icon = card.get_child(0).get_child(0).get_child(0)
+			readable = readable and main_icon is TextureRect and main_icon.texture != null and main_icon.tooltip_text == skills.get_skill_name(id)
 			for label in card.find_children("*", "Label", true, false): labels.append(label.text)
 		for row in skills.effect_rows(character, id, 1, 0.0):
 			for entry in row:
