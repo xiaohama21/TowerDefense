@@ -97,6 +97,7 @@ func _resources() -> void:
 		var tiers := [0, 0, 0, 0]
 		for node in tree.nodes:
 			count += 1
+			_check(str(node.get("icon_key", "")) == "talent_" + str(node.id).replace(".", "_") and UITheme.hud_icon(str(node.get("icon_key", ""))) != null, "节点专属图徽 " + str(node.id))
 			tiers[int(node.tier) - 1] += 1
 			_check(str(node.id).begins_with(id + ".") and not str(node.name).is_empty() and not str(node.description).is_empty(), "节点ID/中文 " + str(node.id))
 		_check(tiers == [3, 3, 3, 1], "层级容量 " + id)
@@ -340,12 +341,34 @@ func _ui_transactions() -> void:
 	add_child(panel)
 	await get_tree().process_frame
 	panel._select_character("guan_yu")
-	_check(panel._tab_container.get_tab_count()==5 and panel._talent_panel.node_buttons.size()==30, "养成天赋页签与30节点")
+	panel._talent_button.pressed.emit()
+	var popup: TalentTreePanel = panel._talent_panel
+	_check(panel._tab_container.get_tab_count()==4 and popup.node_buttons.size()==30, "养成四页签与独立30节点弹窗")
+	panel._talent_button.pressed.emit()
+	_check(panel._talent_panel == popup, "重复入口不叠加弹窗")
+	var inspect_snapshot := ProfileStore.profile.to_dict()
+	popup.node_buttons["physical_burst.slash"].pressed.emit()
+	_check(is_instance_valid(popup.detail_panel) and popup.selected_node_id == "physical_burst.slash" and ProfileStore.profile.to_dict() == inspect_snapshot, "节点点击只查看详情不扣点")
+	_check(popup.detail_panel.find_child("NodeDescription", true, false).text.contains("0.6%"), "详情常显中文效果")
+	var focus_event := InputEventAction.new()
+	focus_event.action = "ui_focus_next"
+	focus_event.pressed = true
+	Input.parse_input_event(focus_event)
+	await get_tree().process_frame
+	_check(popup.detail_panel.is_ancestor_of(get_viewport().gui_get_focus_owner()), "Tab焦点限制在节点详情内")
+	focus_event.pressed = false
+	Input.parse_input_event(focus_event)
+	popup.close_detail()
+	popup.node_buttons["physical_burst.fatal"].pressed.emit()
+	_check(popup.detail_action.disabled, "门槛未达仍可查看详情但不可分配")
+	popup.close_detail()
+	popup.open_detail("physical_burst.slash")
 	var saved_before:=ProfileStore.profile.to_dict()
 	ProfileStore.configure_paths("user://talent_blocked.json", "", "user://")
 	_check(not panel._allocate_talent("physical_burst.slash",0) and ProfileStore.profile.to_dict()==saved_before, "分配保存失败不扣点")
 	ProfileStore.configure_paths(_slot)
-	_check(panel._allocate_talent("physical_burst.slash",0) and ProfileStore.profile.get_talent_alloc("guan_yu").get("physical_burst.slash")==1, "分配原子保存")
+	popup.detail_action.pressed.emit()
+	_check(ProfileStore.profile.get_talent_alloc("guan_yu").get("physical_burst.slash")==1 and popup.selected_node_id == "physical_burst.slash" and is_instance_valid(popup.detail_panel), "详情分配原子保存并保留节点")
 	var alloc:=ProfileStore.profile.get_talent_alloc("guan_yu")
 	panel._confirm_reset_talents()
 	panel._talent_reset_dialog.canceled.emit()
@@ -354,6 +377,9 @@ func _ui_transactions() -> void:
 	_check(not panel._reset_talents("guan_yu",alloc) and ProfileStore.profile.get_talent_alloc("guan_yu")==alloc, "重置保存失败保持")
 	ProfileStore.configure_paths(_slot)
 	_check(panel._reset_talents("guan_yu",alloc) and ProfileStore.profile.talent_points_remaining("guan_yu")==40, "重置原子保存")
+	popup.close_detail()
+	popup.dismiss()
+	_check(panel._talent_panel == null and get_viewport().gui_get_focus_owner() == panel._talent_button, "关闭返回属性面板并恢复入口焦点")
 	var encyclopedia:=preload("res://scripts/ui_screens/panels/EncyclopediaPanel.gd").new()
 	encyclopedia.custom_minimum_size=Vector2(1000,620)
 	add_child(encyclopedia)
@@ -361,11 +387,16 @@ func _ui_transactions() -> void:
 	encyclopedia._select_character("guan_yu")
 	encyclopedia._sim_level=100
 	encyclopedia._on_sim_changed()
+	encyclopedia._talent_button.pressed.emit()
 	var before_sim:=ProfileStore.profile.to_dict()
 	encyclopedia._allocate_sim_talent("physical_burst.slash",0)
-	_check(encyclopedia._tab_container.get_tab_count()==5 and encyclopedia._sim_talent_alloc.get("physical_burst.slash")==1 and ProfileStore.profile.to_dict()==before_sim, "百科模拟不写档")
+	_check(encyclopedia._tab_container.get_tab_count()==4 and encyclopedia._sim_talent_alloc.get("physical_burst.slash")==1 and ProfileStore.profile.to_dict()==before_sim, "百科模拟不写档")
 	encyclopedia._sim_level=1
 	encyclopedia._on_sim_changed()
 	_check(encyclopedia._sim_talent_alloc.is_empty(), "模拟降级归一化")
+	encyclopedia._change_talent_level(1)
+	_check(encyclopedia._sim_level == 2 and ProfileStore.profile.to_dict() == before_sim, "弹窗内调模拟等级不写档")
+	encyclopedia.hide()
+	_check(encyclopedia._talent_panel == null, "父面板隐藏关闭天赋弹窗")
 	panel.queue_free()
 	encyclopedia.queue_free()

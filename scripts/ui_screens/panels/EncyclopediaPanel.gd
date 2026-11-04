@@ -296,6 +296,7 @@ var _header_name_label: Label
 var _count_chip: Label
 var _tab_container: TabContainer
 var _base_tab: VBoxContainer
+var _talent_button: Button
 var _talent_panel: TalentTreePanel
 var _sim_talent_alloc: Dictionary = {}
 var _skill_tab: VBoxContainer
@@ -710,6 +711,7 @@ func _character_card_text(character: CharacterData) -> String:
 
 
 func _rebuild_detail() -> void:
+	if is_instance_valid(_talent_panel): _talent_panel.dismiss()
 	for child in _detail_box.get_children():
 		child.queue_free()
 	if _mode == &"enemy":
@@ -744,6 +746,11 @@ func _build_character_detail() -> void:
 	_character_chips.name = "CharacterChips"
 	_character_chips.add_theme_constant_override("separation", 6)
 	who.add_child(_character_chips)
+	_talent_button = TalentTreePanel._button("天赋", _open_talents, "blue")
+	_talent_button.name = "TalentEntry"
+	_talent_button.icon = UITheme.hud_icon_sized("talent_point", 18)
+	_talent_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	header_row.add_child(_talent_button)
 	var acquisition_box := VBoxContainer.new()
 	acquisition_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	acquisition_box.add_theme_constant_override("separation", 2)
@@ -778,12 +785,6 @@ func _build_character_detail() -> void:
 	_skill_tab = _make_tab("技能")
 	_weapon_tab = _make_tab("装备")
 	_relic_tab = _make_tab("信物")
-	_talent_panel = TalentTreePanel.new()
-	_talent_panel.name = "天赋"
-	_talent_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tab_container.add_child(_talent_panel)
-	_talent_panel.allocate_requested.connect(_allocate_sim_talent)
-	_talent_panel.reset_requested.connect(_clear_sim_talents)
 
 
 func _make_tab(tab_name: String) -> VBoxContainer:
@@ -980,6 +981,7 @@ func _fill_rank_options(_character: CharacterData) -> void:
 	_sim_rank = 0
 
 func _select_character(character_id: String) -> void:
+	if is_instance_valid(_talent_panel): _talent_panel.dismiss()
 	_selected_character_id = character_id
 	_sim_level = 1
 	_sim_weapon_id = ""
@@ -1208,7 +1210,7 @@ func _on_sim_changed() -> void:
 	_sim_rank = maxi(_sim_rank_option.selected, 0)
 	_sim_talent_alloc = TalentRegistry.normalize(_selected_character_id, _sim_level, _sim_talent_alloc)
 	var stats := character.compute_stats_at(_sim_level, _sim_rank, null, _sim_battle_rank, {}, {}, WeaponRegistry.get_weapon(_sim_weapon_id), _sim_talent_alloc)
-	if _talent_panel != null: _talent_panel.configure(_selected_character_id, _sim_level, _sim_talent_alloc, true)
+	if is_instance_valid(_talent_panel): _talent_panel.configure(_selected_character_id, _sim_level, _sim_talent_alloc, true)
 	var attack_type := character.profession.attack_damage_type if character.profession != null else DamageTypes.PHYSICAL
 	if _sim_attack_icon != null:
 		UITheme.apply_hud_icon(_sim_attack_icon, "dmg_" + str(attack_type), 20)
@@ -1615,6 +1617,19 @@ func _refresh_weapon_tab(character: CharacterData) -> void:
 		card.configure(weapon, -1, -1, "已选" if selected else "预览", not selected, selected)
 		card.action_requested.connect(func(id: String) -> void: _sim_weapon_id = id; _on_sim_changed())
 
+
+func _open_talents() -> void:
+	if is_instance_valid(_talent_panel): return
+	_talent_panel = TalentTreePanel.open(self, _talent_button)
+	_talent_panel.allocate_requested.connect(_allocate_sim_talent)
+	_talent_panel.reset_requested.connect(_clear_sim_talents)
+	_talent_panel.level_change_requested.connect(_change_talent_level)
+	_talent_panel.dismissed.connect(func() -> void: _talent_panel = null)
+	_talent_panel.configure(_selected_character_id, _sim_level, _sim_talent_alloc, true)
+
+func _change_talent_level(delta: int) -> void:
+	_sim_level = clampi(_sim_level + delta, 1, 100)
+	_on_sim_changed()
 
 func _allocate_sim_talent(node_id: String, expected_rank: int) -> void:
 	if int(_sim_talent_alloc.get(node_id, 0)) != expected_rank or TalentRegistry.allocation_status(_selected_character_id, _sim_level, _sim_talent_alloc, node_id) != "分配": return

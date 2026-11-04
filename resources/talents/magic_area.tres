@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "attack_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_focus"
   },
   {
     "id": "magic_area.chant",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "speed_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_chant"
   },
   {
     "id": "magic_area.reach",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "range_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_reach"
   },
   {
     "id": "magic_area.fire",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "magic_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_fire"
   },
   {
     "id": "magic_area.spread",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "splash_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_spread"
   },
   {
     "id": "magic_area.critical",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "crit_damage": 0.015
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_critical"
   },
   {
     "id": "magic_area.control",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "controlled_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_control"
   },
   {
     "id": "magic_area.wisdom",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "skill_amp": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_wisdom"
   },
   {
     "id": "magic_area.elite",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "elite_boss_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_elite"
   },
   {
     "id": "magic_area.inferno",
@@ -109,6 +118,7 @@ nodes = Array[Dictionary]([
     },
     "level2_overrides": {
       "range_pct": 0.03
-    }
+    },
+    "icon_key": "talent_magic_area_inferno"
   }
 ])

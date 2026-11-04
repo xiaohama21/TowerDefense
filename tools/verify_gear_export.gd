@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.5.0", "project version 0.9.5.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.5.1", "project version 0.9.5.1")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -33,7 +33,7 @@ func _run() -> void:
 	var count := 0
 	for entry in manifest.icons:
 		if load("res://assets/ui/icons/v2/" + str(entry.png)) != null: count += 1
-	_check(count == 283, "283 packaged icons")
+	_check(count == 393, "393 packaged icons including 110 talents")
 
 	var talents = load("res://scripts/data/TalentRegistry.gd")
 	_check(talents.IDS.size() == 11, "11 packaged talent trees")
@@ -43,6 +43,7 @@ func _run() -> void:
 		_check(tree != null and tree.nodes.size() == 10, "packaged talent tree " + str(tree_id))
 		for node in tree.nodes:
 			talent_nodes += 1
+			_check(load("res://assets/ui/icons/v2/" + str(node.get("icon_key", "")) + ".png") != null, "packaged dedicated talent icon " + str(node.id))
 			_check(not str(node.name).is_empty() and not str(node.description).is_empty() and not node.effects.is_empty(), "packaged talent node " + str(node.id))
 	_check(talent_nodes == 110, "110 packaged talent nodes")
 	var theme = load("res://scripts/ui_screens/ui_theme.gd")
@@ -63,20 +64,25 @@ func _run() -> void:
 	var panel = hub._panels[&"develop"]
 	panel._select_character("guan_yu")
 	panel._refresh()
-	_check(panel._tab_container.get_tab_count() == 5 and panel._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged equipment UI")
+	_check(panel._tab_container.get_tab_count() == 4 and panel._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged equipment UI")
 	_check(_items_readable(panel._weapon_tab), "packaged develop weapon names and brief descriptions")
 	profile.add_character_exp("guan_yu", LevelCurve.exp_total_for_level(100))
 	panel._on_shown()
 	panel._select_character("guan_yu")
 	panel._refresh()
-	_check(panel._talent_panel.node_buttons.size() == 30 and profile.talent_points_remaining("guan_yu") == 40, "packaged talent page and 40 points")
+	panel._talent_button.pressed.emit()
+	_check(panel._talent_panel.node_buttons.size() == 30 and profile.talent_points_remaining("guan_yu") == 40, "packaged talent popup and 40 points")
 	_check(panel._allocate_talent("physical_burst.slash", 0) and profile.get_talent_alloc("guan_yu").get("physical_burst.slash") == 1, "packaged talent allocation saves")
+	panel._talent_panel.node_buttons["physical_burst.slash"].pressed.emit()
+	_check(panel._talent_panel.detail_panel != null and panel._talent_panel.detail_action != null, "packaged node opens talent detail")
+	panel._talent_panel.close_detail()
 	var talent_snapshot = profile.get_talent_alloc("guan_yu")
 	store._writes_blocked = true
 	_check(not panel._allocate_talent("physical_burst.swift", 0) and profile.get_talent_alloc("guan_yu") == talent_snapshot, "packaged talent failed save rolls back")
 	store._writes_blocked = false
 	_check(panel._reset_talents("guan_yu", talent_snapshot) and profile.talent_points_remaining("guan_yu") == 40, "packaged free talent reset")
 
+	panel._talent_panel.dismiss()
 	_check(panel._equip_weapon("guan_yu", "equipment_long_spear_1") and profile.get_character_weapon_id("guan_yu") == "equipment_long_spear_1", "packaged equip and save")
 	_check(not profile.set_character_weapon("zhuge_liang", "equipment_long_spear_1"), "packaged profession restriction")
 	hub._show_panel(&"encyclopedia")
@@ -89,10 +95,12 @@ func _run() -> void:
 	_check(profile.to_dict() == snapshot and enc._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged read-only weapon preview")
 	enc._sim_level = 100
 	enc._on_sim_changed()
+	enc._talent_button.pressed.emit()
 	var talent_sim_snapshot = profile.to_dict()
 	enc._allocate_sim_talent("magic_area.focus", 0)
 	_check(enc._sim_talent_alloc.get("magic_area.focus") == 1 and profile.to_dict() == talent_sim_snapshot, "packaged talent simulation read-only")
 
+	enc._talent_panel.dismiss()
 	_check(_items_readable(enc._weapon_tab), "packaged encyclopedia weapon names and brief descriptions")
 	var skill_margin = panel._skill_tab.find_child("SkillContentMargin", true, false)
 	_check(skill_margin != null and skill_margin.get_theme_constant("margin_left") == 16 and skill_margin.get_theme_constant("margin_top") == 14 and skill_margin.get_child(0).get_theme_constant("separation") == 12, "packaged develop skill page spacing")

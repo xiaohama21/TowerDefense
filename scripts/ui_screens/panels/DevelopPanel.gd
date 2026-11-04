@@ -45,6 +45,7 @@ var _exp_bar: ProgressBar
 var _exp_label: Label
 var _tab_container: TabContainer
 var _weapon_tab: VBoxContainer
+var _talent_button: Button
 var _talent_panel: TalentTreePanel
 var _talent_reset_dialog: ConfirmationDialog
 var _skill_tab: VBoxContainer
@@ -236,6 +237,11 @@ func _build_right_column() -> Control:
 	_detail_chips.name = "Chips"
 	_detail_chips.add_theme_constant_override("separation", 6)
 	who.add_child(_detail_chips)
+	_talent_button = TalentTreePanel._button("天赋", _open_talents, "blue")
+	_talent_button.name = "TalentEntry"
+	_talent_button.icon = UITheme.hud_icon_sized("talent_point", 18)
+	_talent_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row1.add_child(_talent_button)
 	var lvl_big := VBoxContainer.new()
 	lvl_big.name = "LevelBig"
 	lvl_big.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -307,12 +313,6 @@ func _build_right_column() -> Control:
 	_build_rank_tab()
 	_weapon_tab = _make_tab_page("装备")
 	_build_relic_tab()
-	var talent_page := _make_tab_page("天赋")
-	_talent_panel = TalentTreePanel.new()
-	_talent_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	talent_page.add_child(_talent_panel)
-	_talent_panel.allocate_requested.connect(_allocate_talent)
-	_talent_panel.reset_requested.connect(_confirm_reset_talents)
 	return right_column
 
 
@@ -623,7 +623,7 @@ func _refresh() -> void:
 	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}), _profile.get_character(_selected_id).get("skill_levels", {}), WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)), _profile.get_talent_alloc(_selected_id))
 	_populate_info_card(character, level, stats, progress)
 	_refresh_skill_tab(character)
-	_refresh_talent_tab()
+	_refresh_talents()
 	_refresh_rank_tab(character, level)
 	_refresh_relic(character)
 	_refresh_weapon_tab(character)
@@ -1230,17 +1230,28 @@ func _equip_weapon(character_id: String, weapon_id: String) -> bool:
 	return true
 
 
-func _refresh_talent_tab() -> void:
-	if _talent_panel != null:
+func _open_talents() -> void:
+	if is_instance_valid(_talent_panel): return
+	if _selected_id.is_empty() or not _profile.characters.has(_selected_id): return
+	_talent_panel = TalentTreePanel.open(self, _talent_button)
+	_talent_panel.allocate_requested.connect(_allocate_talent)
+	_talent_panel.reset_requested.connect(_confirm_reset_talents)
+	_talent_panel.dismissed.connect(func() -> void: _talent_panel = null)
+	_refresh_talents()
+
+func _refresh_talents() -> void:
+	_talent_button.tooltip_text = "查看天赋 · 剩余%d点" % _profile.talent_points_remaining(_selected_id)
+	if is_instance_valid(_talent_panel):
 		_talent_panel.configure(_selected_id, GameFlow.get_character_level(_profile, _selected_id), _profile.get_talent_alloc(_selected_id))
 
 func _allocate_talent(node_id: String, expected_rank: int) -> bool:
 	var candidate := ProfileStore.get_profile().duplicate_profile()
 	if not candidate.allocate_talent(_selected_id, node_id, expected_rank):
 		_refresh()
+		if is_instance_valid(_talent_panel): _talent_panel.show_error("分配条件已变化，请查看当前等级、门槛和剩余点数。")
 		return false
 	if not ProfileStore.save_profile(candidate):
-		_talent_panel.show_error("保存失败，未消耗点数。请重试。")
+		if is_instance_valid(_talent_panel): _talent_panel.show_error("保存失败，未消耗点数。请重试。")
 		return false
 	_profile = ProfileStore.get_profile()
 	_refresh()
@@ -1258,8 +1269,13 @@ func _confirm_reset_talents() -> void:
 	dialog.dialog_text = "重置%s的全部天赋，返还%d点？可随时重新分配。" % [character.display_name, TalentRegistry.spent(alloc)]
 	dialog.get_ok_button().text = "重置"
 	dialog.get_cancel_button().text = "取消"
-	dialog.confirmed.connect(func() -> void: _reset_talents(character_id, alloc, dialog))
-	dialog.canceled.connect(dialog.queue_free)
+	if is_instance_valid(_talent_panel): _talent_panel.confirmation_open = true
+	dialog.confirmed.connect(func() -> void:
+		if is_instance_valid(_talent_panel): _talent_panel.confirmation_open = false
+		_reset_talents(character_id, alloc, dialog))
+	dialog.canceled.connect(func() -> void:
+		if is_instance_valid(_talent_panel): _talent_panel.confirmation_open = false
+		dialog.queue_free())
 	add_child(dialog)
 	dialog.popup_centered(Vector2i(450, 180))
 
@@ -1270,7 +1286,7 @@ func _reset_talents(character_id: String, expected_alloc: Dictionary, dialog: Co
 		_refresh()
 		return false
 	if not ProfileStore.save_profile(candidate):
-		_talent_panel.show_error("保存失败，天赋保持原样。请重试。")
+		if is_instance_valid(_talent_panel): _talent_panel.show_error("保存失败，天赋保持原样。请重试。")
 		if is_instance_valid(dialog): dialog.queue_free()
 		return false
 	if is_instance_valid(dialog): dialog.queue_free()

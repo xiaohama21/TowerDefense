@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "attack_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_slash"
   },
   {
     "id": "physical_burst.swift",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "speed_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_swift"
   },
   {
     "id": "physical_burst.critical",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "crit_rate": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_critical"
   },
   {
     "id": "physical_burst.fatal",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "elite_boss_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_fatal"
   },
   {
     "id": "physical_burst.pierce",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "armor_pen_pct": 0.02
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_pierce"
   },
   {
     "id": "physical_burst.rupture",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "crit_damage": 0.015
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_rupture"
   },
   {
     "id": "physical_burst.chain",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "kill_speed_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_chain"
   },
   {
     "id": "physical_burst.power",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "skill_amp": 0.01
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_power"
   },
   {
     "id": "physical_burst.triumph",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_kill_rage": 2.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_burst_triumph"
   },
   {
     "id": "physical_burst.dragon",
@@ -110,6 +119,7 @@ nodes = Array[Dictionary]([
     "level2_overrides": {
       "ultimate_kill_rage": 3.0
     },
-    "rule": "大招专属增幅每级+1.5%；2级另加大招击杀返怒3。"
+    "rule": "大招专属增幅每级+1.5%；2级另加大招击杀返怒3。",
+    "icon_key": "talent_physical_burst_dragon"
   }
 ])

@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "attack_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_edge"
   },
   {
     "id": "physical_area.charge",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "speed_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_charge"
   },
   {
     "id": "physical_area.spread",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "splash_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_spread"
   },
   {
     "id": "physical_area.crowd",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "attack_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_crowd"
   },
   {
     "id": "physical_area.critical",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "crit_rate": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_critical"
   },
   {
     "id": "physical_area.flame",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "skill_amp": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_flame"
   },
   {
     "id": "physical_area.ember",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "kill_speed_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_ember"
   },
   {
     "id": "physical_area.siege",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "elite_boss_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_siege"
   },
   {
     "id": "physical_area.camps",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_amp": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_camps"
   },
   {
     "id": "physical_area.formation",
@@ -109,6 +118,7 @@ nodes = Array[Dictionary]([
     },
     "level2_overrides": {
       "splash_pct": 0.03
-    }
+    },
+    "icon_key": "talent_physical_area_formation"
   }
 ])

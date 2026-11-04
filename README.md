@@ -6,10 +6,10 @@
 
 ## 当前状态
 
-- 已完成 **0.9.5.0** 天赋系统，设计总纲 **v0.37.80**，交付分支 **0.9.5**，节点权威 [TALENTS v0.1](docs/modules/TALENTS.md)。11棵共享定位树、110节点、九将独立三树、最多40点、本树4/8/12点门槛、免费重置与schema v11；养成可分配，百科可模拟。
-- 上一版本 **0.9.4.3** 已完成并推送（abfbb65）；11项回归、119项包内检查及53张原生窗口截图通过。完整包 `build/FengHuoLianYing_v0.9.4.3_Windows.zip` 保留。
-- **13项回归全部通过**；天赋专项271项、原生窗口布局750项、249项导出包内检查通过，20张1280×720截图见 [runtime_0.9.5](docs/ui_concept/runtime_0.9.5/README.md)。Windows独立启动、实际Spine DLL加载与PE版本0.9.5.0已验证。
-- 完整Windows包：`build/FengHuoLianYing_v0.9.5.0_Windows.zip`；解压后运行EXE，保留同目录DLL。main在启动0.9.5时按AGENTS §5.3同步至 **ecba0ed**；本次交付留在0.9.5分支。
+- **0.9.5.1** 天赋树弹窗与节点专属图标已完成，设计总纲 **v0.37.81**，交付分支 **0.9.5**。属性面板“天赋”按钮打开三大类分叉树，点击节点查看详情后分配；110枚专属图标按人物动作、武器、器物和效果区分，图标目录共393枚。权威文档：[TALENTS v0.2](docs/modules/TALENTS.md)。
+- 13项回归、389项天赋专项、1553项原生窗口检查及360项包内检查全部通过，Windows独立启动、实际Spine DLL加载和PE版本 **0.9.5.1** 已验证。24张1280×720截图及SHA256清单见[原生界面验收](docs/ui_concept/runtime_0.9.5.1/README.md)，110枚图标见[专属图集](docs/ui_concept/talent_icons_preview.png)。完整包：`build/FengHuoLianYing_v0.9.5.1_Windows.zip`；独立EXE：`build/release_0.9.5.1/FengHuoLianYing_v0.9.5.1.exe`。
+- 上一版本 **0.9.5.0** 已完成并推送（d765416）；13项回归、271项天赋检查、750项布局和249项包内检查通过。完整包 `build/FengHuoLianYing_v0.9.5.0_Windows.zip` 保留。
+- main保持 **ecba0ed**，本次延伸修复在0.9.5分支交付。
 
 ## 历史交付记录
 

@@ -101,3 +101,7 @@ equipment_rarity_0..4（凡/良/珍/绝/神）已在0.9.4.2补齐独立菱形品
 ### 4.2 经济图徽缺口（0.9.4）
 
 ingot（金元宝）、lord_level（冠印主公等级）、lord_exp（进度冠印主公经验）与五档equipment_rarity、周卫两技能补缺完成；全部27当前技能重绘为人物＋武器/器物＋动作。ART_PROMPTS v0.23 / ICONS v1.4 / GDD v0.37.78 / UI_LAYOUT v0.20.80 / UI_CONCEPT v0.36，目录283枚，当前登记缺口为0；高四档装备品质仅备图。42张最终窗口验收见[runtime_0.9.4.2](../runtime_0.9.4.2/README.md)，[技能动作图集](../skill_icons_v2_preview.png)与[亮暗底尺寸检查](../skill_icons_v2.png)同步。前版商店文字/多列布局19张截图保留[runtime_0.9.4.1](../runtime_0.9.4.1/README.md)。
+
+### 0.9.5.1天赋节点图徽
+
+110枚节点专属图徽已完成生成、资源绑定与验收，台账见ART_PROMPTS §6.3 / ICONS v1.5。母版与透明PNG沿唯一目录assets/ui/icons/v2/，原283枚保留；对应树状弹窗与节点详情，不修改本目录用户SVG实验稿。

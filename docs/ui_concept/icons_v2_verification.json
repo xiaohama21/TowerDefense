@@ -1,5 +1,5 @@
 {
-  "count": 283,
+  "count": 393,
   "categories": {
     "hud": 35,
     "equipment_rarity": 5,
@@ -15,12 +15,15 @@
     "system": 46,
     "equipment": 60,
     "tech": 32,
-    "cursor": 9
+    "cursor": 9,
+    "talent": 110
   },
   "current_skill_icons": 27,
   "distinct_current_skill_pngs": 27,
   "legacy_files_preserved": 290,
   "tracked_legacy_files_preserved": 168,
   "workspace_snapshot_checked": true,
-  "errors": []
+  "errors": [],
+  "talent_icons": 110,
+  "distinct_talent_pixels": 110
 }

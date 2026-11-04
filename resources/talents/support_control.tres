@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "range_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_reach"
   },
   {
     "id": "support_control.swift",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "speed_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_swift"
   },
   {
     "id": "support_control.attack",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "attack_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_attack"
   },
   {
     "id": "support_control.duration",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "control_duration_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_duration"
   },
   {
     "id": "support_control.punish",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "controlled_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_punish"
   },
   {
     "id": "support_control.rage",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "rage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_rage"
   },
   {
     "id": "support_control.slow",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "slow_strength_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_slow"
   },
   {
     "id": "support_control.ultimate",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_amp": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_ultimate"
   },
   {
     "id": "support_control.kill",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "kill_rage_flat": 1.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_kill"
   },
   {
     "id": "support_control.command",
@@ -109,6 +118,7 @@ nodes = Array[Dictionary]([
     },
     "level2_overrides": {
       "slow_on_hit": 0.04
-    }
+    },
+    "icon_key": "talent_support_control_command"
   }
 ])

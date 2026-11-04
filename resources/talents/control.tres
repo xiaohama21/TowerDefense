@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "range_pct": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_reach"
   },
   {
     "id": "control.slow",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "slow_strength_pct": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_slow"
   },
   {
     "id": "control.punish",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "controlled_damage_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_punish"
   },
   {
     "id": "control.duration",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "control_duration_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_duration"
   },
   {
     "id": "control.elite",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "controlled_elite_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_elite"
   },
   {
     "id": "control.power",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "skill_amp": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_power"
   },
   {
     "id": "control.hit",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "slow_on_hit": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_hit"
   },
   {
     "id": "control.ultimate",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_amp": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_ultimate"
   },
   {
     "id": "control.reveal",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "reveal_duration_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_control_reveal"
   },
   {
     "id": "control.lock",
@@ -109,6 +118,7 @@ nodes = Array[Dictionary]([
     },
     "level2_overrides": {
       "slow_on_hit": 0.03
-    }
+    },
+    "icon_key": "talent_control_lock"
   }
 ])

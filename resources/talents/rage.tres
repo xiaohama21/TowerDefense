@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "rage_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_gather"
   },
   {
     "id": "rage.resolve",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "hit_rage_flat": 0.5
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_resolve"
   },
   {
     "id": "rage.glare",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_amp": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_glare"
   },
   {
     "id": "rage.fight",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "kill_rage_flat": 1.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_fight"
   },
   {
     "id": "rage.tide",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_amp": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_tide"
   },
   {
     "id": "rage.leak",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "leak_rage_flat": 5.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_leak"
   },
   {
     "id": "rage.steady",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "post_ultimate_rage_pct": 0.01
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_steady"
   },
   {
     "id": "rage.rise",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_kill_rage": 2.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_rise"
   },
   {
     "id": "rage.unstoppable",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "high_rage_speed_pct": 0.01
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_rage_unstoppable"
   },
   {
     "id": "rage.fury",
@@ -110,6 +119,7 @@ nodes = Array[Dictionary]([
     "level2_overrides": {
       "post_ultimate_hit_rage": 3.0
     },
-    "rule": "大招结束后3s，普攻命中额外获得怒气2；2级改为3。范围普攻每发一次。"
+    "rule": "大招结束后3s，普攻命中额外获得怒气2；2级改为3。范围普攻每发一次。",
+    "icon_key": "talent_rage_fury"
   }
 ])

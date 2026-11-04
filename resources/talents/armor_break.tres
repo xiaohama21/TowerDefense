@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "physical_damage_pct": 0.005
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_edge"
   },
   {
     "id": "armor_break.elite",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "elite_damage_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_elite"
   },
   {
     "id": "armor_break.steel",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "armor_pen_flat": 2.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_steel"
   },
   {
     "id": "armor_break.pierce",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "armor_pen_pct": 0.01
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_pierce"
   },
   {
     "id": "armor_break.boss",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "boss_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_boss"
   },
   {
     "id": "armor_break.aura",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "aura_armor_damage_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_aura"
   },
   {
     "id": "armor_break.ultimate",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "ultimate_pen_pct": 0.01
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_ultimate"
   },
   {
     "id": "armor_break.repeat",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "same_target_pen_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_repeat"
   },
   {
     "id": "armor_break.kill",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "kill_pen_flat": 3.0
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_armor_break_kill"
   },
   {
     "id": "armor_break.unbreakable",
@@ -112,6 +121,7 @@ nodes = Array[Dictionary]([
       "armor_ignore_every": 5.0,
       "armor_ignore_mult": 0.1
     },
-    "rule": "每6次普攻命中追加面板攻击10%的真实伤害；2级改为每5次。追加不暴击、不触发普攻事件。"
+    "rule": "每6次普攻命中追加面板攻击10%的真实伤害；2级改为每5次。追加不暴击、不触发普攻事件。",
+    "icon_key": "talent_armor_break_unbreakable"
   }
 ])

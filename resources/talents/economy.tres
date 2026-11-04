@@ -17,7 +17,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "upgrade_discount_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_cost"
   },
   {
     "id": "economy.gold",
@@ -27,7 +28,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "kill_gold_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_gold"
   },
   {
     "id": "economy.reach",
@@ -37,7 +39,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "range_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_reach"
   },
   {
     "id": "economy.elite",
@@ -47,7 +50,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "elite_gold_pct": 0.006
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_elite"
   },
   {
     "id": "economy.boss",
@@ -57,7 +61,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "boss_gold_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_boss"
   },
   {
     "id": "economy.cost2",
@@ -67,7 +72,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "upgrade_discount_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_cost2"
   },
   {
     "id": "economy.pulse",
@@ -77,7 +83,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "support_hit_rage": 0.9
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_pulse"
   },
   {
     "id": "economy.skill",
@@ -87,7 +94,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "skill_amp": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_skill"
   },
   {
     "id": "economy.cost3",
@@ -97,7 +105,8 @@ nodes = Array[Dictionary]([
     "effects": {
       "upgrade_discount_pct": 0.009
     },
-    "level2_overrides": {}
+    "level2_overrides": {},
+    "icon_key": "talent_economy_cost3"
   },
   {
     "id": "economy.plan",
@@ -109,6 +118,7 @@ nodes = Array[Dictionary]([
     },
     "level2_overrides": {
       "kill_gold_pct": 0.02
-    }
+    },
+    "icon_key": "talent_economy_plan"
   }
 ])

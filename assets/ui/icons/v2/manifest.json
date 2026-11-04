@@ -2831,6 +2831,1106 @@
       "svg": "cursors/cursor_disabled.svg",
       "png": "cursors/cursor_disabled.png",
       "pixels": 32
+    },
+    {
+      "id": "talent_physical_burst_slash",
+      "label": "斩击",
+      "category": "talent",
+      "description": "跨步挥刀与单道斩弧；基础物理攻击每级+0.6%。",
+      "planned": false,
+      "svg": "talent_physical_burst_slash.svg",
+      "png": "talent_physical_burst_slash.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_swift",
+      "label": "疾刃",
+      "category": "talent",
+      "description": "前冲剑士与疾速流线；攻击速度每级+0.6%。",
+      "planned": false,
+      "svg": "talent_physical_burst_swift.svg",
+      "png": "talent_physical_burst_swift.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_critical",
+      "label": "会心",
+      "category": "talent",
+      "description": "射手瞄准会心靶心；暴击率每级+0.5%。",
+      "planned": false,
+      "svg": "talent_physical_burst_critical.svg",
+      "png": "talent_physical_burst_critical.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_fatal",
+      "label": "致命",
+      "category": "talent",
+      "description": "长矛刺向精英冠印；对精英与Boss伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_burst_fatal.svg",
+      "png": "talent_physical_burst_fatal.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_pierce",
+      "label": "贯革",
+      "category": "talent",
+      "description": "贯革长矛穿过甲片；百分比穿甲每级+2%。",
+      "planned": false,
+      "svg": "talent_physical_burst_pierce.svg",
+      "png": "talent_physical_burst_pierce.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_rupture",
+      "label": "裂甲",
+      "category": "talent",
+      "description": "高举利刃与碎裂暴击光；暴击伤害每级+1.5%。",
+      "planned": false,
+      "svg": "talent_physical_burst_rupture.svg",
+      "png": "talent_physical_burst_rupture.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_chain",
+      "label": "连斩",
+      "category": "talent",
+      "description": "双重连斩的偃月刀动作；自身击杀后2s，攻速每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_burst_chain.svg",
+      "png": "talent_physical_burst_chain.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_power",
+      "label": "破军",
+      "category": "talent",
+      "description": "持旗武将号令进攻；所有技能增幅每级+1%。",
+      "planned": false,
+      "svg": "talent_physical_burst_power.svg",
+      "png": "talent_physical_burst_power.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_triumph",
+      "label": "凯旋",
+      "category": "talent",
+      "description": "胜利举旗与凯旋冠印；自身大招每次击杀返怒每级+2。",
+      "planned": false,
+      "svg": "talent_physical_burst_triumph.svg",
+      "png": "talent_physical_burst_triumph.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_burst_dragon",
+      "label": "青龙临阵",
+      "category": "talent",
+      "description": "盘旋青龙环绕偃月刀锋；大招增幅每级+1.5%；2级再加大招击杀返怒3。",
+      "planned": false,
+      "svg": "talent_physical_burst_dragon.svg",
+      "png": "talent_physical_burst_dragon.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_edge",
+      "label": "锐锋",
+      "category": "talent",
+      "description": "剑刃磨砺与锋芒亮线；物理伤害每级+0.5%。",
+      "planned": false,
+      "svg": "talent_armor_break_edge.svg",
+      "png": "talent_armor_break_edge.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_elite",
+      "label": "专破",
+      "category": "talent",
+      "description": "长矛贯穿精英王冠；对精英伤害每级+0.6%。",
+      "planned": false,
+      "svg": "talent_armor_break_elite.svg",
+      "png": "talent_armor_break_elite.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_steel",
+      "label": "钢骨",
+      "category": "talent",
+      "description": "铆固钢甲与铁砧支架；固定穿甲每级+2。",
+      "planned": false,
+      "svg": "talent_armor_break_steel.svg",
+      "png": "talent_armor_break_steel.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_pierce",
+      "label": "透甲",
+      "category": "talent",
+      "description": "斜刺长矛与裂盾甲片；百分比穿甲每级+1%。",
+      "planned": false,
+      "svg": "talent_armor_break_pierce.svg",
+      "png": "talent_armor_break_pierce.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_boss",
+      "label": "斩铁",
+      "category": "talent",
+      "description": "重剑斩向Boss猛虎剪影；对Boss伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_armor_break_boss.svg",
+      "png": "talent_armor_break_boss.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_aura",
+      "label": "破竹",
+      "category": "talent",
+      "description": "护甲光环内的破竹剑锋；对护甲光环覆盖目标伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_armor_break_aura.svg",
+      "png": "talent_armor_break_aura.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_ultimate",
+      "label": "断金",
+      "category": "talent",
+      "description": "金色爆裂穿甲与盾牌碎片；大招百分比穿甲每级+1%。",
+      "planned": false,
+      "svg": "talent_armor_break_ultimate.svg",
+      "png": "talent_armor_break_ultimate.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_repeat",
+      "label": "连破",
+      "category": "talent",
+      "description": "两次连击的交叉剑刃；连续普攻同一目标，第2次起穿甲每级+0.9%，不再叠层。",
+      "planned": false,
+      "svg": "talent_armor_break_repeat.svg",
+      "png": "talent_armor_break_repeat.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_kill",
+      "label": "碎甲",
+      "category": "talent",
+      "description": "击杀破甲后持剑守势；自身击杀后2s，固定穿甲每级+3。",
+      "planned": false,
+      "svg": "talent_armor_break_kill.svg",
+      "png": "talent_armor_break_kill.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_armor_break_unbreakable",
+      "label": "无坚不摧",
+      "category": "talent",
+      "description": "贯穿整面重盾的金色真伤长矛；每6次普攻追加10%攻击的真实伤害；2级改为每5次。",
+      "planned": false,
+      "svg": "talent_armor_break_unbreakable.svg",
+      "png": "talent_armor_break_unbreakable.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_gather",
+      "label": "蓄势",
+      "category": "talent",
+      "description": "持刀蓄势与战意火苗；常规怒气获取每级+0.6%。",
+      "planned": false,
+      "svg": "talent_rage_gather.svg",
+      "png": "talent_rage_gather.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_resolve",
+      "label": "斗志",
+      "category": "talent",
+      "description": "举矛斗志与燃起的战心；普攻命中额外怒气每级+0.5；范围普攻每发一次。",
+      "planned": false,
+      "svg": "talent_rage_resolve.svg",
+      "png": "talent_rage_resolve.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_glare",
+      "label": "怒目",
+      "category": "talent",
+      "description": "怒目凝视与大招剑锋；大招专属增幅每级+0.6%。",
+      "planned": false,
+      "svg": "talent_rage_glare.svg",
+      "png": "talent_rage_glare.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_fight",
+      "label": "愈战",
+      "category": "talent",
+      "description": "击杀呐喊与怒火迸发；自身每次击杀额外返怒每级+1。",
+      "planned": false,
+      "svg": "talent_rage_fight.svg",
+      "png": "talent_rage_fight.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_tide",
+      "label": "怒涛",
+      "category": "talent",
+      "description": "翻涌怒涛托起战火；大招专属增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_rage_tide.svg",
+      "png": "talent_rage_tide.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_leak",
+      "label": "激昂",
+      "category": "talent",
+      "description": "漏怪关隘警旗与激昂波纹；每波首次漏怪，直接获得怒气每级+5。",
+      "planned": false,
+      "svg": "talent_rage_leak.svg",
+      "png": "talent_rage_leak.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_steady",
+      "label": "恒怒",
+      "category": "talent",
+      "description": "恒燃怒焰与结束后计时；大招结束后2s，常规怒气获取每级+1%。",
+      "planned": false,
+      "svg": "talent_rage_steady.svg",
+      "png": "talent_rage_steady.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_rise",
+      "label": "再起",
+      "category": "talent",
+      "description": "再起武将与凤凰火羽；自身大招每次击杀额外返怒每级+2。",
+      "planned": false,
+      "svg": "talent_rage_rise.svg",
+      "png": "talent_rage_rise.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_unstoppable",
+      "label": "势不可挡",
+      "category": "talent",
+      "description": "冲锋武将拖曳烈焰；怒气达到50%时，攻击速度每级+1%。",
+      "planned": false,
+      "svg": "talent_rage_unstoppable.svg",
+      "png": "talent_rage_unstoppable.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_rage_fury",
+      "label": "怒不可遏",
+      "category": "talent",
+      "description": "怒不可遏双烈焰斩击；大招结束后3s，普攻命中怒气+2；2级改为+3。",
+      "planned": false,
+      "svg": "talent_rage_fury.svg",
+      "png": "talent_rage_fury.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_edge",
+      "label": "锋芒",
+      "category": "talent",
+      "description": "投石机与锋芒刀锋；基础物理攻击每级+0.6%。",
+      "planned": false,
+      "svg": "talent_physical_area_edge.svg",
+      "png": "talent_physical_area_edge.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_charge",
+      "label": "蓄力",
+      "category": "talent",
+      "description": "蓄力投石与计时弹石；攻击速度每级+0.6%。",
+      "planned": false,
+      "svg": "talent_physical_area_charge.svg",
+      "png": "talent_physical_area_charge.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_spread",
+      "label": "扩阵",
+      "category": "talent",
+      "description": "扩阵战旗与散布军士；普攻溅射半径每级+0.6%。",
+      "planned": false,
+      "svg": "talent_physical_area_spread.svg",
+      "png": "talent_physical_area_spread.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_crowd",
+      "label": "破众",
+      "category": "talent",
+      "description": "落石破众与双目标冲击；普攻伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_area_crowd.svg",
+      "png": "talent_physical_area_crowd.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_critical",
+      "label": "会心",
+      "category": "talent",
+      "description": "瞄准会心的投石机；暴击率每级+0.5%。",
+      "planned": false,
+      "svg": "talent_physical_area_critical.svg",
+      "png": "talent_physical_area_critical.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_flame",
+      "label": "火势",
+      "category": "talent",
+      "description": "火势覆盖燃石车；所有技能增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_area_flame.svg",
+      "png": "talent_physical_area_flame.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_ember",
+      "label": "余烬",
+      "category": "talent",
+      "description": "滚动余烬与加速流线；自身击杀后2s，攻速每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_area_ember.svg",
+      "png": "talent_physical_area_ember.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_siege",
+      "label": "攻坚",
+      "category": "talent",
+      "description": "攻城投石与坚固关门；对精英与Boss伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_area_siege.svg",
+      "png": "talent_physical_area_siege.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_camps",
+      "label": "连营",
+      "category": "talent",
+      "description": "连营帐篷与火焰号旗；大招专属增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_physical_area_camps.svg",
+      "png": "talent_physical_area_camps.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_physical_area_formation",
+      "label": "火阵连环",
+      "category": "talent",
+      "description": "三处火阵连环爆燃的投石车；所有技能增幅每级+1.2%；2级另加普攻溅射半径3%。",
+      "planned": false,
+      "svg": "talent_physical_area_formation.svg",
+      "png": "talent_physical_area_formation.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_focus",
+      "label": "凝神",
+      "category": "talent",
+      "description": "凝神术士与咒术书；基础魔法攻击每级+0.6%。",
+      "planned": false,
+      "svg": "talent_magic_burst_focus.svg",
+      "png": "talent_magic_burst_focus.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_swift",
+      "label": "疾咒",
+      "category": "talent",
+      "description": "疾咒前冲与法杖流线；攻击速度每级+0.6%。",
+      "planned": false,
+      "svg": "talent_magic_burst_swift.svg",
+      "png": "talent_magic_burst_swift.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_reach",
+      "label": "远谋",
+      "category": "talent",
+      "description": "远谋术士释放远处星光；射程每级+0.6%。",
+      "planned": false,
+      "svg": "talent_magic_burst_reach.svg",
+      "png": "talent_magic_burst_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_spell",
+      "label": "灵术",
+      "category": "talent",
+      "description": "灵术书中飞出雷咒；魔法伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_burst_spell.svg",
+      "png": "talent_magic_burst_spell.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_critical",
+      "label": "会心",
+      "category": "talent",
+      "description": "举杖施法与会心光靶；暴击率每级+0.5%。",
+      "planned": false,
+      "svg": "talent_magic_burst_critical.svg",
+      "png": "talent_magic_burst_critical.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_ultimate",
+      "label": "破咒",
+      "category": "talent",
+      "description": "破咒闪电击碎护盾；大招专属增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_burst_ultimate.svg",
+      "png": "talent_magic_burst_ultimate.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_pierce",
+      "label": "透法",
+      "category": "talent",
+      "description": "透法长锥穿甲的术式卷册；百分比穿甲每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_burst_pierce.svg",
+      "png": "talent_magic_burst_pierce.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_execute",
+      "label": "追魂",
+      "category": "talent",
+      "description": "追魂术士锁定残血月影；对生命不高于50%的目标伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_burst_execute.svg",
+      "png": "talent_magic_burst_execute.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_wisdom",
+      "label": "玄谋",
+      "category": "talent",
+      "description": "玄谋军师执扇推演卷轴；所有技能增幅每级+0.5%。",
+      "planned": false,
+      "svg": "talent_magic_burst_wisdom.svg",
+      "png": "talent_magic_burst_wisdom.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_burst_strategy",
+      "label": "玄策定局",
+      "category": "talent",
+      "description": "玄策定局的星盘咒书；大招专属增幅每级+1.2%；2级另加普攻命中怒气0.5。",
+      "planned": false,
+      "svg": "talent_magic_burst_strategy.svg",
+      "png": "talent_magic_burst_strategy.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_focus",
+      "label": "凝神",
+      "category": "talent",
+      "description": "凝神施扇汇聚火球；基础魔法攻击每级+0.6%。",
+      "planned": false,
+      "svg": "talent_magic_area_focus.svg",
+      "png": "talent_magic_area_focus.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_chant",
+      "label": "疾吟",
+      "category": "talent",
+      "description": "疾吟法师与咒铃节奏；攻击速度每级+0.6%。",
+      "planned": false,
+      "svg": "talent_magic_area_chant.svg",
+      "png": "talent_magic_area_chant.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_reach",
+      "label": "远谋",
+      "category": "talent",
+      "description": "远谋施法与侦察视野；射程每级+0.6%。",
+      "planned": false,
+      "svg": "talent_magic_area_reach.svg",
+      "png": "talent_magic_area_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_fire",
+      "label": "天焰",
+      "category": "talent",
+      "description": "天焰火心内的金雷；魔法伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_area_fire.svg",
+      "png": "talent_magic_area_fire.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_spread",
+      "label": "扩散",
+      "category": "talent",
+      "description": "火焰向外扩散的双层范围；普攻溅射半径每级+0.9%；没有溅射的普攻不新增溅射。",
+      "planned": false,
+      "svg": "talent_magic_area_spread.svg",
+      "png": "talent_magic_area_spread.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_critical",
+      "label": "慧心",
+      "category": "talent",
+      "description": "慧心羽扇上的暴击星光；暴击伤害每级+1.5%。",
+      "planned": false,
+      "svg": "talent_magic_area_critical.svg",
+      "png": "talent_magic_area_critical.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_control",
+      "label": "困敌",
+      "category": "talent",
+      "description": "火网困敌与受控灼压；对受控目标伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_area_control.svg",
+      "png": "talent_magic_area_control.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_wisdom",
+      "label": "奇谋",
+      "category": "talent",
+      "description": "奇谋军师伏案推演；所有技能增幅每级+0.5%。",
+      "planned": false,
+      "svg": "talent_magic_area_wisdom.svg",
+      "png": "talent_magic_area_wisdom.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_elite",
+      "label": "破阵",
+      "category": "talent",
+      "description": "天火破阵与关门崩解；对精英与Boss伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_magic_area_elite.svg",
+      "png": "talent_magic_area_elite.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_magic_area_inferno",
+      "label": "天火燎原",
+      "category": "talent",
+      "description": "天火燎原三焰与军师羽扇；大招专属增幅每级+0.9%；2级另加射程3%。",
+      "planned": false,
+      "svg": "talent_magic_area_inferno.svg",
+      "png": "talent_magic_area_inferno.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_reach",
+      "label": "警戒",
+      "category": "talent",
+      "description": "持矛警戒与观察敌情；射程每级+0.6%。",
+      "planned": false,
+      "svg": "talent_support_control_reach.svg",
+      "png": "talent_support_control_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_swift",
+      "label": "迅令",
+      "category": "talent",
+      "description": "迅令持旗前冲；攻击速度每级+0.6%。",
+      "planned": false,
+      "svg": "talent_support_control_swift.svg",
+      "png": "talent_support_control_swift.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_attack",
+      "label": "威势",
+      "category": "talent",
+      "description": "威势武将举矛虎啸；基础攻击每级+0.6%。",
+      "planned": false,
+      "svg": "talent_support_control_attack.svg",
+      "png": "talent_support_control_attack.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_duration",
+      "label": "震慑",
+      "category": "talent",
+      "description": "震慑咆哮扩出声波；自身施加的减速与恐惧时长每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_control_duration.svg",
+      "png": "talent_support_control_duration.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_punish",
+      "label": "压制",
+      "category": "talent",
+      "description": "压制盾牌上的镇军剑锋；对受控目标伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_control_punish.svg",
+      "png": "talent_support_control_punish.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_rage",
+      "label": "战意",
+      "category": "talent",
+      "description": "战意守旗与积怒火焰；常规怒气获取每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_control_rage.svg",
+      "png": "talent_support_control_rage.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_slow",
+      "label": "迟滞",
+      "category": "talent",
+      "description": "迟滞重盾与沙漏时间；自身施加的减速强度每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_control_slow.svg",
+      "png": "talent_support_control_slow.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_ultimate",
+      "label": "号令",
+      "category": "talent",
+      "description": "号令长矛与指挥铜铃；大招专属增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_control_ultimate.svg",
+      "png": "talent_support_control_ultimate.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_kill",
+      "label": "振军",
+      "category": "talent",
+      "description": "振军举旗激励友军；自身击杀返怒每级+1。",
+      "planned": false,
+      "svg": "talent_support_control_kill.svg",
+      "png": "talent_support_control_kill.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_control_command",
+      "label": "镇军威令",
+      "category": "talent",
+      "description": "镇军威令的战旗重盾与吼声；自身施加的控制时长每级+1.5%；2级另加普攻命中4%减速、持续2s。",
+      "planned": false,
+      "svg": "talent_support_control_command.svg",
+      "png": "talent_support_control_command.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_reach",
+      "label": "照应",
+      "category": "talent",
+      "description": "照应友军的执扇辅助；射程每级+0.6%。",
+      "planned": false,
+      "svg": "talent_support_buff_reach.svg",
+      "png": "talent_support_buff_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_swift",
+      "label": "迅令",
+      "category": "talent",
+      "description": "迅令铜铃与飘动羽毛；攻击速度每级+0.6%。",
+      "planned": false,
+      "svg": "talent_support_buff_swift.svg",
+      "png": "talent_support_buff_swift.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_rage",
+      "label": "聚志",
+      "category": "talent",
+      "description": "聚志辅助祈愿战心；常规怒气获取每级+0.6%。",
+      "planned": false,
+      "svg": "talent_support_buff_rage.svg",
+      "png": "talent_support_buff_rage.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_power",
+      "label": "激励",
+      "category": "talent",
+      "description": "激励战旗提升友军攻击；自身施加的攻击与攻速增益强度每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_buff_power.svg",
+      "png": "talent_support_buff_power.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_duration",
+      "label": "长歌",
+      "category": "talent",
+      "description": "长歌舞者振铃与持续声纹；自身施加的限时友方增益时长每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_buff_duration.svg",
+      "png": "talent_support_buff_duration.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_critical",
+      "label": "同心",
+      "category": "talent",
+      "description": "两颗同心战心与会心光；暴击率每级+0.5%。",
+      "planned": false,
+      "svg": "talent_support_buff_critical.svg",
+      "png": "talent_support_buff_critical.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_ultimate",
+      "label": "齐心",
+      "category": "talent",
+      "description": "齐心持旗大招号令；大招专属增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_buff_ultimate.svg",
+      "png": "talent_support_buff_ultimate.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_pulse",
+      "label": "鸣鼓",
+      "category": "talent",
+      "description": "鸣鼓辅助指挥脉冲；辅助普攻脉冲额外怒气每级+0.5；每次脉冲一次。",
+      "planned": false,
+      "svg": "talent_support_buff_pulse.svg",
+      "png": "talent_support_buff_pulse.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_momentum",
+      "label": "昂扬",
+      "category": "talent",
+      "description": "昂扬举剑与飞升羽翼；怒气达到50%时，攻速每级+0.9%。",
+      "planned": false,
+      "svg": "talent_support_buff_momentum.svg",
+      "png": "talent_support_buff_momentum.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_support_buff_unity",
+      "label": "同袍协力",
+      "category": "talent",
+      "description": "同袍协力旋舞护佑友军；自身施加的攻击与攻速增益强度每级+1.5%；2级另加辅助普攻脉冲怒气2。",
+      "planned": false,
+      "svg": "talent_support_buff_unity.svg",
+      "png": "talent_support_buff_unity.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_reach",
+      "label": "瞭望",
+      "category": "talent",
+      "description": "瞭望眼与哨塔标旗；射程每级+0.5%。",
+      "planned": false,
+      "svg": "talent_control_reach.svg",
+      "png": "talent_control_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_slow",
+      "label": "绊足",
+      "category": "talent",
+      "description": "绊足绳索与草丛陷阱；自身施加的减速强度每级+0.5%。",
+      "planned": false,
+      "svg": "talent_control_slow.svg",
+      "png": "talent_control_slow.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_punish",
+      "label": "制敌",
+      "category": "talent",
+      "description": "制敌网中的压制剑；对受控目标伤害每级+0.6%。",
+      "planned": false,
+      "svg": "talent_control_punish.svg",
+      "png": "talent_control_punish.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_duration",
+      "label": "缓阵",
+      "category": "talent",
+      "description": "缓阵沙漏与阵旗；自身施加的减速与恐惧时长每级+0.9%。",
+      "planned": false,
+      "svg": "talent_control_duration.svg",
+      "png": "talent_control_duration.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_elite",
+      "label": "困将",
+      "category": "talent",
+      "description": "困将铁网罩住Boss冠印；对受控精英与Boss伤害每级+0.9%。",
+      "planned": false,
+      "svg": "talent_control_elite.svg",
+      "png": "talent_control_elite.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_power",
+      "label": "机变",
+      "category": "talent",
+      "description": "机变卷轴与应变雷光；所有技能增幅每级+0.5%。",
+      "planned": false,
+      "svg": "talent_control_power.svg",
+      "png": "talent_control_power.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_hit",
+      "label": "牵制",
+      "category": "talent",
+      "description": "牵制三叉铁栅与护盾；普攻命中附加每级0.6%减速，持续2s。",
+      "planned": false,
+      "svg": "talent_control_hit.svg",
+      "png": "talent_control_hit.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_ultimate",
+      "label": "破势",
+      "category": "talent",
+      "description": "破势剑斩控制护盾；大招专属增幅每级+0.6%。",
+      "planned": false,
+      "svg": "talent_control_ultimate.svg",
+      "png": "talent_control_ultimate.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_reveal",
+      "label": "识伏",
+      "category": "talent",
+      "description": "识伏探眼拨开隐匿草叶；自身施加的现形时长每级+0.9%；不新增破隐能力。",
+      "planned": false,
+      "svg": "talent_control_reveal.svg",
+      "png": "talent_control_reveal.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_control_lock",
+      "label": "控场如棋",
+      "category": "talent",
+      "description": "控场棋阵中的网、旗与将位；自身施加的减速强度每级+1.5%；2级另加普攻命中3%减速、持续2s。",
+      "planned": false,
+      "svg": "talent_control_lock.svg",
+      "png": "talent_control_lock.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_power",
+      "label": "鼓劲",
+      "category": "talent",
+      "description": "鼓劲军号与攻击剑锋；自身施加的攻击与攻速增益强度每级+0.5%。",
+      "planned": false,
+      "svg": "talent_buff_power.svg",
+      "png": "talent_buff_power.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_duration",
+      "label": "余音",
+      "category": "talent",
+      "description": "余音铜铃与持续声波；自身施加的限时友方增益时长每级+0.5%。",
+      "planned": false,
+      "svg": "talent_buff_duration.svg",
+      "png": "talent_buff_duration.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_reach",
+      "label": "广济",
+      "category": "talent",
+      "description": "广济战旗覆盖两名友军；射程每级+0.6%。",
+      "planned": false,
+      "svg": "talent_buff_reach.svg",
+      "png": "talent_buff_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_rage",
+      "label": "积势",
+      "category": "talent",
+      "description": "积势战鼓汇聚怒火；常规怒气获取每级+0.9%。",
+      "planned": false,
+      "svg": "talent_buff_rage.svg",
+      "png": "talent_buff_rage.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_critical",
+      "label": "慧心",
+      "category": "talent",
+      "description": "慧心羽扇与紫色暴击光；暴击伤害每级+1.5%。",
+      "planned": false,
+      "svg": "talent_buff_critical.svg",
+      "png": "talent_buff_critical.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_power_skill",
+      "label": "谋略",
+      "category": "talent",
+      "description": "谋略兵书与号旗；所有技能增幅每级+0.5%。",
+      "planned": false,
+      "svg": "talent_buff_power_skill.svg",
+      "png": "talent_buff_power_skill.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_ally",
+      "label": "协心",
+      "category": "talent",
+      "description": "协心月光连接友军积怒；月华施加的友方积怒比例额外每级+0.9%；无月华不新增光环。",
+      "planned": false,
+      "svg": "talent_buff_ally.svg",
+      "png": "talent_buff_ally.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_swift",
+      "label": "奋进",
+      "category": "talent",
+      "description": "奋进持旗者与战鼓节奏；攻击速度每级+0.9%。",
+      "planned": false,
+      "svg": "talent_buff_swift.svg",
+      "png": "talent_buff_swift.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_pulse",
+      "label": "振奋",
+      "category": "talent",
+      "description": "振奋击鼓鼓槌与闪光；辅助普攻脉冲额外怒气每级+0.5。",
+      "planned": false,
+      "svg": "talent_buff_pulse.svg",
+      "png": "talent_buff_pulse.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_buff_inspire",
+      "label": "鼓舞三军",
+      "category": "talent",
+      "description": "鼓舞三军的军号、战鼓与友军；自身施加的攻击与攻速增益强度每级+1.5%；2级另加限时友方增益时长2%。",
+      "planned": false,
+      "svg": "talent_buff_inspire.svg",
+      "png": "talent_buff_inspire.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_cost",
+      "label": "节用",
+      "category": "talent",
+      "description": "营帐规划节省升阶费用；自身局内升阶费用每级降低0.6%，最终向上取整。",
+      "planned": false,
+      "svg": "talent_economy_cost.svg",
+      "png": "talent_economy_cost.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_gold",
+      "label": "聚财",
+      "category": "talent",
+      "description": "聚财金锭与击杀剑锋；自身击杀金币每级+0.6%，小数在本塔本局累计。",
+      "planned": false,
+      "svg": "talent_economy_gold.svg",
+      "png": "talent_economy_gold.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_reach",
+      "label": "巡营",
+      "category": "talent",
+      "description": "远谋地图与侦察目光；射程每级+0.6%。",
+      "planned": false,
+      "svg": "talent_economy_reach.svg",
+      "png": "talent_economy_reach.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_elite",
+      "label": "赏功",
+      "category": "talent",
+      "description": "军资钱袋与精英冠印；自身击杀精英金币每级+0.6%。",
+      "planned": false,
+      "svg": "talent_economy_elite.svg",
+      "png": "talent_economy_elite.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_boss",
+      "label": "破寨",
+      "category": "talent",
+      "description": "攻城赏金宝箱上的猛虎徽；自身击杀Boss金币每级+0.9%。",
+      "planned": false,
+      "svg": "talent_economy_boss.svg",
+      "png": "talent_economy_boss.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_cost2",
+      "label": "善算",
+      "category": "talent",
+      "description": "筹算账册与拨算架；自身局内升阶费用每级再降低0.9%。",
+      "planned": false,
+      "svg": "talent_economy_cost2.svg",
+      "png": "talent_economy_cost2.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_pulse",
+      "label": "犒士",
+      "category": "talent",
+      "description": "后援战鼓与补给旗；辅助普攻脉冲额外怒气每级+0.9。",
+      "planned": false,
+      "svg": "talent_economy_pulse.svg",
+      "png": "talent_economy_pulse.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_skill",
+      "label": "奇计",
+      "category": "talent",
+      "description": "机谋军师兵书与羽扇；所有技能增幅每级+0.9%。",
+      "planned": false,
+      "svg": "talent_economy_skill.svg",
+      "png": "talent_economy_skill.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_cost3",
+      "label": "精筹",
+      "category": "talent",
+      "description": "勤俭维修战车与用度账册；自身局内升阶费用每级再降低0.9%。",
+      "planned": false,
+      "svg": "talent_economy_cost3.svg",
+      "png": "talent_economy_cost3.png",
+      "pixels": 256
+    },
+    {
+      "id": "talent_economy_plan",
+      "label": "运筹帷幄",
+      "category": "talent",
+      "description": "筹谋天下的冠印钱箱与军政卷册；自身局内升阶费用每级再降低1.5%；2级另加自身击杀金币2%。",
+      "planned": false,
+      "svg": "talent_economy_plan.svg",
+      "png": "talent_economy_plan.png",
+      "pixels": 256
     }
   ]
 }

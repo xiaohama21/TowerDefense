@@ -12,6 +12,7 @@ import shutil
 import tempfile
 import time
 from skill_icon_art_v2 import build_skill_art, create_skill_previews
+from talent_icon_art import build_talent_art, create_talent_previews
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets/ui/icons/v2'
@@ -429,6 +430,8 @@ def main():
         if icon['id'] in skill_art:
             icon.update(skill_art[icon['id']])
             icon['category']='skill'
+    for talent in build_talent_art(globals()):
+        add(talent['id'],talent['label'],'talent',talent['svg_body'],talent['description'])
     records=[]
     changed=[]
     for icon in ICONS:
@@ -508,6 +511,7 @@ def main():
         pen.text((20,y+42),item['id'],font=ImageFont.truetype(str(fontpath),12),fill=JADE)
     write_generated_image(detail,ROOT/'docs/ui_concept/icons_v2_additions.png')
     create_skill_previews(records,OUT,ROOT,fontpath,write_generated_image)
+    create_talent_previews(records,OUT,ROOT,fontpath,write_generated_image)
     print(f'Generated {len(records)} original icon masters and PNGs; legacy hashes unchanged.')
 
 if __name__=='__main__':main()
