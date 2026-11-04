@@ -1,0 +1,125 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "rage"
+display_name = "怒气"
+role = "积怒与返怒"
+icon_key = "rage"
+nodes = Array[Dictionary]([
+  {
+    "id": "rage.gather",
+    "name": "蓄势",
+    "tier": 1,
+    "description": "常规怒气获取每级+0.6%。",
+    "effects": {
+      "rage_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_gather"
+  },
+  {
+    "id": "rage.resolve",
+    "name": "斗志",
+    "tier": 1,
+    "description": "普攻命中额外怒气每级+0.5；范围普攻每发一次。",
+    "effects": {
+      "hit_rage_flat": 0.5
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_resolve"
+  },
+  {
+    "id": "rage.glare",
+    "name": "怒目",
+    "tier": 1,
+    "description": "大招专属增幅每级+0.6%。",
+    "effects": {
+      "ultimate_amp": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_glare"
+  },
+  {
+    "id": "rage.fight",
+    "name": "愈战",
+    "tier": 2,
+    "description": "自身每次击杀额外返怒每级+1。",
+    "effects": {
+      "kill_rage_flat": 1.0
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_fight"
+  },
+  {
+    "id": "rage.tide",
+    "name": "怒涛",
+    "tier": 2,
+    "description": "大招专属增幅每级+0.9%。",
+    "effects": {
+      "ultimate_amp": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_tide"
+  },
+  {
+    "id": "rage.leak",
+    "name": "激昂",
+    "tier": 2,
+    "description": "每波首次漏怪，直接获得怒气每级+5。",
+    "effects": {
+      "leak_rage_flat": 5.0
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_leak"
+  },
+  {
+    "id": "rage.steady",
+    "name": "恒怒",
+    "tier": 3,
+    "description": "大招结束后2s，常规怒气获取每级+1%。",
+    "effects": {
+      "post_ultimate_rage_pct": 0.01
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_steady"
+  },
+  {
+    "id": "rage.rise",
+    "name": "再起",
+    "tier": 3,
+    "description": "自身大招每次击杀额外返怒每级+2。",
+    "effects": {
+      "ultimate_kill_rage": 2.0
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_rise"
+  },
+  {
+    "id": "rage.unstoppable",
+    "name": "势不可挡",
+    "tier": 3,
+    "description": "怒气达到50%时，攻击速度每级+1%。",
+    "effects": {
+      "high_rage_speed_pct": 0.01
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_rage_unstoppable"
+  },
+  {
+    "id": "rage.fury",
+    "name": "怒不可遏",
+    "tier": 4,
+    "description": "大招结束后3s，普攻命中怒气+2；2级改为+3。",
+    "effects": {
+      "post_ultimate_hit_rage": 2.0
+    },
+    "level2_overrides": {
+      "post_ultimate_hit_rage": 3.0
+    },
+    "rule": "大招结束后3s，普攻命中额外获得怒气2；2级改为3。范围普攻每发一次。",
+    "icon_key": "talent_rage_fury"
+  }
+])

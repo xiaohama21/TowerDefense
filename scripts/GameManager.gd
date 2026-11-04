@@ -74,9 +74,10 @@ func enemy_died(
 	is_summon: bool = false,
 	merit: int = 0,
 	world_pos: Vector2 = Vector2.ZERO,
-	fx_tier: int = 0
+	fx_tier: int = 0,
+	extra_gold: int = 0
 ):
-	var credited := int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty)))
+	var credited := int(round(reward * Difficulty.reward_mult(GameFlow.selected_difficulty))) + maxi(extra_gold, 0)
 	gold += credited
 	# 金币获取反馈（✅ 0.8.17.1）：真实入账额随击杀点广播给表现层（只读）。
 	if credited > 0:

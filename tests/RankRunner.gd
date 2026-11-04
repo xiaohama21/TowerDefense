@@ -194,7 +194,7 @@ func _test_panel_transaction() -> void:
 	await get_tree().process_frame
 	panel._select_character("guan_yu")
 	panel._refresh()
-	_check(panel._tab_container.get_tab_count() == 4 and panel._tab_container.get_tab_title(1) == "品阶" and panel._tab_container.get_tab_title(2) == "装备", "养成页签清理")
+	_check(panel._tab_container.get_tab_count() == 4 and panel._tab_container.get_tab_title(1) == "品阶" and panel._tab_container.get_tab_title(2) == "装备" and panel._talent_button != null, "养成四页签与属性卡天赋入口")
 	var numeric_row: Control = panel._rank_value("stat_range", "×1.01 → ×1.03", "射程倍率")
 	_check((numeric_row.get_child(1) as Label).autowrap_mode == TextServer.AUTOWRAP_OFF, "品阶数值单行防竖排")
 	numeric_row.free()

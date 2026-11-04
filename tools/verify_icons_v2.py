@@ -65,6 +65,16 @@ preview=ROOT/'docs/ui_concept/icons_v2.html'
 for path in re.findall(r'src="([^"]+)"',preview.read_text(encoding='utf-8')):
     if not (preview.parent/path).is_file():errors.append('preview path: '+path)
 report={'count':len(manifest['icons']),'categories':dict(Counter(i['category'] for i in manifest['icons'])),'current_skill_icons':len(current_skills),'distinct_current_skill_pngs':len(skill_hashes),'legacy_files_preserved':len(checked_legacy),'tracked_legacy_files_preserved':len(legacy),'workspace_snapshot_checked':workspace.exists(),'errors':errors}
+talents=[item for item in manifest['icons'] if item['category']=='talent']
+talent_pixels={hashlib.sha256(Image.open(BASE/item['png']).convert('RGBA').tobytes()).hexdigest() for item in talents}
+if len(talents)!=110 or len(talent_pixels)!=110: errors.append('talent count/independent pixels')
+for file in (ROOT/'resources/talents').glob('*.tres'):
+    text=file.read_text(encoding='utf-8')
+    nodes=json.loads(text.split('nodes = Array[Dictionary](',1)[1].rsplit(')',1)[0])
+    for node in nodes:
+        key=node.get('icon_key','')
+        if key!='talent_'+node['id'].replace('.','_') or key not in entries or entries[key]['category']!='talent':errors.append('talent resource icon: '+node['id'])
+report.update(talent_icons=len(talents),distinct_talent_pixels=len(talent_pixels))
 (ROOT/'docs/ui_concept/icons_v2_verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False))
 raise SystemExit(1 if errors else 0)

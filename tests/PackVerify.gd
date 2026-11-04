@@ -54,6 +54,7 @@ func _run() -> void:
 	_check("幂等：重复调用不重复发放", _initial_characters_idempotent(profile))
 	_check("编队角色链路（SquadSelect 同款）", _squad_select_link(profile))
 	_check("全量角色/职业模板资源", _characters_integrity())
+	_check("11棵天赋树/110节点与武将独立三树", _talents_integrity())
 	_check("全量关卡/波次/敌人资源", _stages_integrity())
 	_check("羁绊/遗物/道具/科技/数值/模板资源", _misc_integrity())
 	_check("新版光标素材（原创 SVG ×2 尺寸 + 热点落点）", _cursor_assets_integrity())
@@ -282,3 +283,16 @@ func _spine_assets_integrity() -> bool:
 		missing.append("SpineSprite 类未注册（bin/ DLL 未加载）")
 	details.append("spine 素材：关羽 4 文件 + 注册表 %d 项 + 头像 %d 枚 + 运行时 %s；缺失=%s" % [Tower.SPINE_CHARACTERS.size(), avatars.size(), SPINE_EXTENSION_PATH, str(missing)])
 	return missing.is_empty()
+
+
+func _talents_integrity() -> bool:
+	var count := 0
+	for id in TalentRegistry.IDS:
+		var tree := TalentRegistry.get_tree_data(id)
+		if tree == null or tree.nodes.size() != 10 or UITheme.hud_icon(tree.icon_key) == null: return false
+		for node in tree.nodes:
+			if str(node.name).is_empty() or str(node.description).is_empty(): return false
+			count += 1
+	for id in GameFlow.get_all_character_ids():
+		if TalentRegistry.tree_ids(id).size() != 3: return false
+	return count == 110 and PlayerProfile.CURRENT_SCHEMA_VERSION == 11

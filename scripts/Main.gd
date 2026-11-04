@@ -1,5 +1,7 @@
 extends Node2D
 
+var _talent_leak_wave: int = -1
+
 const DEFAULT_STAGE_ID: StringName = &"ch01_s01"
 ## 局内军需（✅ 0.8.16 重构）：目录内 .tres 即道具配置（BattleSupplyData，多级承载 L1~L3）。
 ## 军需目录（BattleSupplyData.DIRECTORY）——局内面板与大厅「军需处」共用。
@@ -371,6 +373,10 @@ func _on_tower_sell_requested() -> void:
 ## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（黄忠固有 /
 ## 借东风全图 / 舞娘 3 阶光环），或改用范围盲压；每局一次。
 func _on_enemy_leaked(_damage: int) -> void:
+	if _talent_leak_wave != GameManager.current_wave:
+		_talent_leak_wave = GameManager.current_wave
+		for tower in get_tree().get_nodes_in_group(Tower.TOWER_GROUP):
+			if tower is Tower and not tower.is_queued_for_deletion(): TalentCombat.on_leak(tower)
 	if _stealth_hint_shown or not GameManager.last_leak_was_stealth:
 		return
 	_stealth_hint_shown = true

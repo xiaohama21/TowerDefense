@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "magic_area"
+display_name = "天火"
+role = "魔法群体爆发"
+icon_key = "dmg_magic"
+nodes = Array[Dictionary]([
+  {
+    "id": "magic_area.focus",
+    "name": "凝神",
+    "tier": 1,
+    "description": "基础魔法攻击每级+0.6%。",
+    "effects": {
+      "attack_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_focus"
+  },
+  {
+    "id": "magic_area.chant",
+    "name": "疾吟",
+    "tier": 1,
+    "description": "攻击速度每级+0.6%。",
+    "effects": {
+      "speed_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_chant"
+  },
+  {
+    "id": "magic_area.reach",
+    "name": "远谋",
+    "tier": 1,
+    "description": "射程每级+0.6%。",
+    "effects": {
+      "range_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_reach"
+  },
+  {
+    "id": "magic_area.fire",
+    "name": "天焰",
+    "tier": 2,
+    "description": "魔法伤害每级+0.9%。",
+    "effects": {
+      "magic_damage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_fire"
+  },
+  {
+    "id": "magic_area.spread",
+    "name": "扩散",
+    "tier": 2,
+    "description": "普攻溅射半径每级+0.9%；没有溅射的普攻不新增溅射。",
+    "effects": {
+      "splash_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_spread"
+  },
+  {
+    "id": "magic_area.critical",
+    "name": "慧心",
+    "tier": 2,
+    "description": "暴击伤害每级+1.5%。",
+    "effects": {
+      "crit_damage": 0.015
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_critical"
+  },
+  {
+    "id": "magic_area.control",
+    "name": "困敌",
+    "tier": 3,
+    "description": "对受控目标伤害每级+0.9%。",
+    "effects": {
+      "controlled_damage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_control"
+  },
+  {
+    "id": "magic_area.wisdom",
+    "name": "奇谋",
+    "tier": 3,
+    "description": "所有技能增幅每级+0.5%。",
+    "effects": {
+      "skill_amp": 0.005
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_wisdom"
+  },
+  {
+    "id": "magic_area.elite",
+    "name": "破阵",
+    "tier": 3,
+    "description": "对精英与Boss伤害每级+0.9%。",
+    "effects": {
+      "elite_boss_damage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_magic_area_elite"
+  },
+  {
+    "id": "magic_area.inferno",
+    "name": "天火燎原",
+    "tier": 4,
+    "description": "大招专属增幅每级+0.9%；2级另加射程3%。",
+    "effects": {
+      "ultimate_amp": 0.009
+    },
+    "level2_overrides": {
+      "range_pct": 0.03
+    },
+    "icon_key": "talent_magic_area_inferno"
+  }
+])

@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "support_control"
+display_name = "镇军"
+role = "辅助控制"
+icon_key = "status_fear"
+nodes = Array[Dictionary]([
+  {
+    "id": "support_control.reach",
+    "name": "警戒",
+    "tier": 1,
+    "description": "射程每级+0.6%。",
+    "effects": {
+      "range_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_reach"
+  },
+  {
+    "id": "support_control.swift",
+    "name": "迅令",
+    "tier": 1,
+    "description": "攻击速度每级+0.6%。",
+    "effects": {
+      "speed_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_swift"
+  },
+  {
+    "id": "support_control.attack",
+    "name": "威势",
+    "tier": 1,
+    "description": "基础攻击每级+0.6%。",
+    "effects": {
+      "attack_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_attack"
+  },
+  {
+    "id": "support_control.duration",
+    "name": "震慑",
+    "tier": 2,
+    "description": "自身施加的减速与恐惧时长每级+0.9%。",
+    "effects": {
+      "control_duration_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_duration"
+  },
+  {
+    "id": "support_control.punish",
+    "name": "压制",
+    "tier": 2,
+    "description": "对受控目标伤害每级+0.9%。",
+    "effects": {
+      "controlled_damage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_punish"
+  },
+  {
+    "id": "support_control.rage",
+    "name": "战意",
+    "tier": 2,
+    "description": "常规怒气获取每级+0.9%。",
+    "effects": {
+      "rage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_rage"
+  },
+  {
+    "id": "support_control.slow",
+    "name": "迟滞",
+    "tier": 3,
+    "description": "自身施加的减速强度每级+0.9%。",
+    "effects": {
+      "slow_strength_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_slow"
+  },
+  {
+    "id": "support_control.ultimate",
+    "name": "号令",
+    "tier": 3,
+    "description": "大招专属增幅每级+0.9%。",
+    "effects": {
+      "ultimate_amp": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_ultimate"
+  },
+  {
+    "id": "support_control.kill",
+    "name": "振军",
+    "tier": 3,
+    "description": "自身击杀返怒每级+1。",
+    "effects": {
+      "kill_rage_flat": 1.0
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_support_control_kill"
+  },
+  {
+    "id": "support_control.command",
+    "name": "镇军威令",
+    "tier": 4,
+    "description": "自身施加的控制时长每级+1.5%；2级另加普攻命中4%减速、持续2s。",
+    "effects": {
+      "control_duration_pct": 0.015
+    },
+    "level2_overrides": {
+      "slow_on_hit": 0.04
+    },
+    "icon_key": "talent_support_control_command"
+  }
+])

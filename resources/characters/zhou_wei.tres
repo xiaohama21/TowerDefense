@@ -39,3 +39,5 @@ skill_params = {
     "low_hp_mult": 2.0
   }
 }
+
+talent_tree_ids = Array[String](["physical_burst", "armor_break", "control"])

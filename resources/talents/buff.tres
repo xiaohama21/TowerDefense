@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "buff"
+display_name = "鼓舞"
+role = "友方增益"
+icon_key = "stat_skill_amp"
+nodes = Array[Dictionary]([
+  {
+    "id": "buff.power",
+    "name": "鼓劲",
+    "tier": 1,
+    "description": "自身施加的攻击与攻速增益强度每级+0.5%。",
+    "effects": {
+      "buff_power_pct": 0.005
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_power"
+  },
+  {
+    "id": "buff.duration",
+    "name": "余音",
+    "tier": 1,
+    "description": "自身施加的限时友方增益时长每级+0.5%。",
+    "effects": {
+      "buff_duration_pct": 0.005
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_duration"
+  },
+  {
+    "id": "buff.reach",
+    "name": "广济",
+    "tier": 1,
+    "description": "射程每级+0.6%。",
+    "effects": {
+      "range_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_reach"
+  },
+  {
+    "id": "buff.rage",
+    "name": "积势",
+    "tier": 2,
+    "description": "常规怒气获取每级+0.9%。",
+    "effects": {
+      "rage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_rage"
+  },
+  {
+    "id": "buff.critical",
+    "name": "慧心",
+    "tier": 2,
+    "description": "暴击伤害每级+1.5%。",
+    "effects": {
+      "crit_damage": 0.015
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_critical"
+  },
+  {
+    "id": "buff.power_skill",
+    "name": "谋略",
+    "tier": 2,
+    "description": "所有技能增幅每级+0.5%。",
+    "effects": {
+      "skill_amp": 0.005
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_power_skill"
+  },
+  {
+    "id": "buff.ally",
+    "name": "协心",
+    "tier": 3,
+    "description": "月华施加的友方积怒比例额外每级+0.9%；无月华不新增光环。",
+    "effects": {
+      "ally_rage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_ally"
+  },
+  {
+    "id": "buff.swift",
+    "name": "奋进",
+    "tier": 3,
+    "description": "攻击速度每级+0.9%。",
+    "effects": {
+      "speed_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_swift"
+  },
+  {
+    "id": "buff.pulse",
+    "name": "振奋",
+    "tier": 3,
+    "description": "辅助普攻脉冲额外怒气每级+0.5。",
+    "effects": {
+      "support_hit_rage": 0.5
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_buff_pulse"
+  },
+  {
+    "id": "buff.inspire",
+    "name": "鼓舞三军",
+    "tier": 4,
+    "description": "自身施加的攻击与攻速增益强度每级+1.5%；2级另加限时友方增益时长2%。",
+    "effects": {
+      "buff_power_pct": 0.015
+    },
+    "level2_overrides": {
+      "buff_duration_pct": 0.02
+    },
+    "icon_key": "talent_buff_inspire"
+  }
+])

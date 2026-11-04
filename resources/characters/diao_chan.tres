@@ -38,3 +38,5 @@ skill_params = {
     "duration": 8.0
   }
 }
+
+talent_tree_ids = Array[String](["support_buff", "buff", "rage"])

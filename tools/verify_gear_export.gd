@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.4.3", "project version 0.9.4.3")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.5.1", "project version 0.9.5.1")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -23,17 +23,29 @@ func _run() -> void:
 	store.configure_paths("user://.gear_export_%d.json" % Time.get_ticks_usec())
 	_check(flow.start_new_game(), "isolated new profile")
 	var profile = store.get_profile()
-	_check(profile.to_dict().schema_version == 10, "schema v10")
+	_check(profile.to_dict().schema_version == 11, "schema v11")
 	_check(profile.ingots == 0 and profile.lord_exp == 0 and profile.shop_state.rotation.size() == 2, "new profile economic defaults")
 	_check(shop.all_offers().size() == 31 and shop.exp_for_level(100) == 27225 and shop.data().tier_levels == [1,10,20,40,60,80], "packaged catalog and lord curve")
 	var migrated = store._migrate_to_current({"schema_version":9,"military_merit":321,"weapons":{"equipment_long_spear_1":1}})
-	_check(migrated.ok and migrated.data.schema_version == 10 and migrated.data.ingots == 0 and migrated.data.lord_exp == 0 and migrated.data.military_merit == 321 and migrated.data.weapons.equipment_long_spear_1 == 1, "packaged v9 migration preserves existing economy and gear")
+	_check(migrated.ok and migrated.data.schema_version == 11 and migrated.data.ingots == 0 and migrated.data.lord_exp == 0 and migrated.data.military_merit == 321 and migrated.data.weapons.equipment_long_spear_1 == 1, "packaged v9 migration preserves existing economy and gear")
 	_check(flow.get_all_character_ids().size() == 9, "nine three-skill characters retained")
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/ui/icons/v2/manifest.json"))
 	var count := 0
 	for entry in manifest.icons:
 		if load("res://assets/ui/icons/v2/" + str(entry.png)) != null: count += 1
-	_check(count == 283, "283 packaged icons")
+	_check(count == 393, "393 packaged icons including 110 talents")
+
+	var talents = load("res://scripts/data/TalentRegistry.gd")
+	_check(talents.IDS.size() == 11, "11 packaged talent trees")
+	var talent_nodes := 0
+	for tree_id in talents.IDS:
+		var tree = talents.get_tree_data(tree_id)
+		_check(tree != null and tree.nodes.size() == 10, "packaged talent tree " + str(tree_id))
+		for node in tree.nodes:
+			talent_nodes += 1
+			_check(load("res://assets/ui/icons/v2/" + str(node.get("icon_key", "")) + ".png") != null, "packaged dedicated talent icon " + str(node.id))
+			_check(not str(node.name).is_empty() and not str(node.description).is_empty() and not node.effects.is_empty(), "packaged talent node " + str(node.id))
+	_check(talent_nodes == 110, "110 packaged talent nodes")
 	var theme = load("res://scripts/ui_screens/ui_theme.gd")
 	for icon_id in ["ingot", "lord_level", "lord_exp", "equipment_rarity_0", "equipment_rarity_1", "equipment_rarity_2", "equipment_rarity_3", "equipment_rarity_4", "trait_vanguard", "ultimate_death_fight"]:
 		_check(theme.hud_icon(icon_id) != null, "packaged economic/quality icon " + icon_id)
@@ -54,6 +66,23 @@ func _run() -> void:
 	panel._refresh()
 	_check(panel._tab_container.get_tab_count() == 4 and panel._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged equipment UI")
 	_check(_items_readable(panel._weapon_tab), "packaged develop weapon names and brief descriptions")
+	profile.add_character_exp("guan_yu", LevelCurve.exp_total_for_level(100))
+	panel._on_shown()
+	panel._select_character("guan_yu")
+	panel._refresh()
+	panel._talent_button.pressed.emit()
+	_check(panel._talent_panel.node_buttons.size() == 30 and profile.talent_points_remaining("guan_yu") == 40, "packaged talent popup and 40 points")
+	_check(panel._allocate_talent("physical_burst.slash", 0) and profile.get_talent_alloc("guan_yu").get("physical_burst.slash") == 1, "packaged talent allocation saves")
+	panel._talent_panel.node_buttons["physical_burst.slash"].pressed.emit()
+	_check(panel._talent_panel.detail_panel != null and panel._talent_panel.detail_action != null, "packaged node opens talent detail")
+	panel._talent_panel.close_detail()
+	var talent_snapshot = profile.get_talent_alloc("guan_yu")
+	store._writes_blocked = true
+	_check(not panel._allocate_talent("physical_burst.swift", 0) and profile.get_talent_alloc("guan_yu") == talent_snapshot, "packaged talent failed save rolls back")
+	store._writes_blocked = false
+	_check(panel._reset_talents("guan_yu", talent_snapshot) and profile.talent_points_remaining("guan_yu") == 40, "packaged free talent reset")
+
+	panel._talent_panel.dismiss()
 	_check(panel._equip_weapon("guan_yu", "equipment_long_spear_1") and profile.get_character_weapon_id("guan_yu") == "equipment_long_spear_1", "packaged equip and save")
 	_check(not profile.set_character_weapon("zhuge_liang", "equipment_long_spear_1"), "packaged profession restriction")
 	hub._show_panel(&"encyclopedia")
@@ -64,6 +93,14 @@ func _run() -> void:
 	enc._on_sim_changed()
 	await process_frame
 	_check(profile.to_dict() == snapshot and enc._weapon_tab.find_children("WeaponCard_*", "Button", true, false).size() == 2, "packaged read-only weapon preview")
+	enc._sim_level = 100
+	enc._on_sim_changed()
+	enc._talent_button.pressed.emit()
+	var talent_sim_snapshot = profile.to_dict()
+	enc._allocate_sim_talent("magic_area.focus", 0)
+	_check(enc._sim_talent_alloc.get("magic_area.focus") == 1 and profile.to_dict() == talent_sim_snapshot, "packaged talent simulation read-only")
+
+	enc._talent_panel.dismiss()
 	_check(_items_readable(enc._weapon_tab), "packaged encyclopedia weapon names and brief descriptions")
 	var skill_margin = panel._skill_tab.find_child("SkillContentMargin", true, false)
 	_check(skill_margin != null and skill_margin.get_theme_constant("margin_left") == 16 and skill_margin.get_theme_constant("margin_top") == 14 and skill_margin.get_child(0).get_theme_constant("separation") == 12, "packaged develop skill page spacing")
@@ -145,7 +182,12 @@ func _run() -> void:
 	main.ui.skip_dialogue()
 	var character = flow.load_character_data("guan_yu")
 	var tower = main.tower_manager.build_tower(Vector2(240, 200), character, null, flow.get_battle_loadout(profile, "guan_yu"))
-	_check(tower != null and tower.damage == character.base_damage + 6 and absf(tower.crit_rate - 0.09) < 0.001, "packaged battle uses weapon attack and crit")
+	var character_level: int = flow.get_character_level(profile, "guan_yu")
+	var growth: float = 1.0 + character.attack_pct * (character_level - 1)
+	_check(tower != null and tower.damage == int(round((character.base_damage + 6) * growth)) and absf(tower.crit_rate - 0.09) < 0.001, "packaged battle uses weapon attack and crit")
+	_check(profile.allocate_talent("guan_yu", "physical_burst.slash", 0) and store.save_profile(profile), "packaged battle talent fixture saved")
+	tower.apply_character(character, flow.get_battle_loadout(profile, "guan_yu"))
+	_check(tower.damage == int(round((character.base_damage + 6) * growth * 1.006)) and absf(tower.talent_bonuses.attack_pct - 0.006) < 0.00001, "packaged battle applies talent loadout")
 	main._try_start_wave()
 	await create_timer(2.0).timeout
 	_check(root.get_node("GameManager").is_wave_active and main.enemy_manager.get_alive_enemies().size() > 0, "first wave starts")

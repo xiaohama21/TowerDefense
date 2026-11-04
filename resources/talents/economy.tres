@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "economy"
+display_name = "筹谋"
+role = "局内经济"
+icon_key = "coin"
+nodes = Array[Dictionary]([
+  {
+    "id": "economy.cost",
+    "name": "节用",
+    "tier": 1,
+    "description": "自身局内升阶费用每级降低0.6%，最终向上取整。",
+    "effects": {
+      "upgrade_discount_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_cost"
+  },
+  {
+    "id": "economy.gold",
+    "name": "聚财",
+    "tier": 1,
+    "description": "自身击杀金币每级+0.6%，小数在本塔本局累计。",
+    "effects": {
+      "kill_gold_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_gold"
+  },
+  {
+    "id": "economy.reach",
+    "name": "巡营",
+    "tier": 1,
+    "description": "射程每级+0.6%。",
+    "effects": {
+      "range_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_reach"
+  },
+  {
+    "id": "economy.elite",
+    "name": "赏功",
+    "tier": 2,
+    "description": "自身击杀精英金币每级+0.6%。",
+    "effects": {
+      "elite_gold_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_elite"
+  },
+  {
+    "id": "economy.boss",
+    "name": "破寨",
+    "tier": 2,
+    "description": "自身击杀Boss金币每级+0.9%。",
+    "effects": {
+      "boss_gold_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_boss"
+  },
+  {
+    "id": "economy.cost2",
+    "name": "善算",
+    "tier": 2,
+    "description": "自身局内升阶费用每级再降低0.9%。",
+    "effects": {
+      "upgrade_discount_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_cost2"
+  },
+  {
+    "id": "economy.pulse",
+    "name": "犒士",
+    "tier": 3,
+    "description": "辅助普攻脉冲额外怒气每级+0.9。",
+    "effects": {
+      "support_hit_rage": 0.9
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_pulse"
+  },
+  {
+    "id": "economy.skill",
+    "name": "奇计",
+    "tier": 3,
+    "description": "所有技能增幅每级+0.9%。",
+    "effects": {
+      "skill_amp": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_skill"
+  },
+  {
+    "id": "economy.cost3",
+    "name": "精筹",
+    "tier": 3,
+    "description": "自身局内升阶费用每级再降低0.9%。",
+    "effects": {
+      "upgrade_discount_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_economy_cost3"
+  },
+  {
+    "id": "economy.plan",
+    "name": "运筹帷幄",
+    "tier": 4,
+    "description": "自身局内升阶费用每级再降低1.5%；2级另加自身击杀金币2%。",
+    "effects": {
+      "upgrade_discount_pct": 0.015
+    },
+    "level2_overrides": {
+      "kill_gold_pct": 0.02
+    },
+    "icon_key": "talent_economy_plan"
+  }
+])

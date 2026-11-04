@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="TalentTreeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TalentTreeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tree_id = "physical_area"
+display_name = "火阵"
+role = "物理群体伤害"
+icon_key = "stat_splash"
+nodes = Array[Dictionary]([
+  {
+    "id": "physical_area.edge",
+    "name": "锋芒",
+    "tier": 1,
+    "description": "基础物理攻击每级+0.6%。",
+    "effects": {
+      "attack_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_edge"
+  },
+  {
+    "id": "physical_area.charge",
+    "name": "蓄力",
+    "tier": 1,
+    "description": "攻击速度每级+0.6%。",
+    "effects": {
+      "speed_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_charge"
+  },
+  {
+    "id": "physical_area.spread",
+    "name": "扩阵",
+    "tier": 1,
+    "description": "普攻溅射半径每级+0.6%。",
+    "effects": {
+      "splash_pct": 0.006
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_spread"
+  },
+  {
+    "id": "physical_area.crowd",
+    "name": "破众",
+    "tier": 2,
+    "description": "普攻伤害每级+0.9%。",
+    "effects": {
+      "attack_damage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_crowd"
+  },
+  {
+    "id": "physical_area.critical",
+    "name": "会心",
+    "tier": 2,
+    "description": "暴击率每级+0.5%。",
+    "effects": {
+      "crit_rate": 0.005
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_critical"
+  },
+  {
+    "id": "physical_area.flame",
+    "name": "火势",
+    "tier": 2,
+    "description": "所有技能增幅每级+0.9%。",
+    "effects": {
+      "skill_amp": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_flame"
+  },
+  {
+    "id": "physical_area.ember",
+    "name": "余烬",
+    "tier": 3,
+    "description": "自身击杀后2s，攻速每级+0.9%。",
+    "effects": {
+      "kill_speed_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_ember"
+  },
+  {
+    "id": "physical_area.siege",
+    "name": "攻坚",
+    "tier": 3,
+    "description": "对精英与Boss伤害每级+0.9%。",
+    "effects": {
+      "elite_boss_damage_pct": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_siege"
+  },
+  {
+    "id": "physical_area.camps",
+    "name": "连营",
+    "tier": 3,
+    "description": "大招专属增幅每级+0.9%。",
+    "effects": {
+      "ultimate_amp": 0.009
+    },
+    "level2_overrides": {},
+    "icon_key": "talent_physical_area_camps"
+  },
+  {
+    "id": "physical_area.formation",
+    "name": "火阵连环",
+    "tier": 4,
+    "description": "所有技能增幅每级+1.2%；2级另加普攻溅射半径3%。",
+    "effects": {
+      "skill_amp": 0.012
+    },
+    "level2_overrides": {
+      "splash_pct": 0.03
+    },
+    "icon_key": "talent_physical_area_formation"
+  }
+])

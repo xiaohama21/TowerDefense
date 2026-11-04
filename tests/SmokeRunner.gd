@@ -327,6 +327,7 @@ func _test_combat_sync_0816(main: Node) -> void:
 			sync_target.global_position = sync_tower.global_position + Vector2(60, 0)
 			sync_target.max_hp = 9999
 			sync_target.current_hp = 9999
+			sync_tower.crit_rate = 0.0
 			var hp_before_swing := sync_target.current_hp
 			sync_tower.schedule_melee_hit(sync_target, 50)
 			_check(sync_tower.has_pending_combat_steps(), "近战伤害应进入命中帧队列")
@@ -535,7 +536,7 @@ func _test_merit_supply_0816() -> void:
 				_check(false, "军需目录出现未登记条目: %s" % supply_id)
 
 	# 解锁 / 强化（不可逆、封顶 L3）与军需带槽位（基础 2 + 科技「军府调度」1 → 3）。
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 10, "存档 schema 应为 v10（商店）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 11, "存档 schema 应为 v11（天赋）")
 	_check(PlayerProfile.SUPPLY_MAX_LEVEL == 3 and PlayerProfile.BASE_SUPPLY_SLOTS == 2,
 		"军需强化上限应为 3 级、军需带基础槽位应为 2")
 	_check(PlayerProfile.supply_upgrade_cost(1) == 150 and PlayerProfile.supply_upgrade_cost(2) == 300
@@ -2237,7 +2238,7 @@ func _run() -> void:
 		wheel_ui.set("_wheel_rolled", false)
 
 	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 10, "存档 schema 应为 v10（商店；保留军功/军需与双槽迁移）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 11, "存档 schema 应为 v11（天赋；保留军功/军需与双槽迁移）")
 	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
 	var c14_exclusive_count := 0
 	var c14_optional: Array[RelicData] = []
