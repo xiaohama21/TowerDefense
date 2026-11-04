@@ -121,6 +121,14 @@ def drum(fill=RED):
 def flag(fill=RED):
     return path('M26 14 V83','none',WOOD,7)+path('M29 20 Q54 10 76 22 L65 37 L78 51 Q55 40 29 50 Z',fill)+circle(26,13,4,GOLD,INK,3)
 
+def faction_flag(fill):
+    # Faction names are rendered as always-visible UI labels beside the flags.
+    return (path('M21 16 V84','none',WOOD,7)
+            +path('M25 20 Q49 13 77 23 L71 42 L79 61 Q50 53 25 62 Z',fill)
+            +path('M31 26 Q48 22 65 27 M31 54 Q48 50 65 54','none',CREAM,3)
+            +path('M66 28 Q60 40 66 50','none',INK,2)
+            +circle(21,13,5,GOLD,INK,3))
+
 def coin(fill=GOLD):
     return circle(48,48,32,fill)+rect(38,38,20,20,'none',2)+path('M27 34 Q30 24 40 23','none',CREAM,4)+path('M57 72 Q65 69 69 62','none',INK,3)
 
@@ -314,7 +322,8 @@ def catalogue():
     for k,l,s in future_passives:add('passive_'+k,l,'planned_skill',s,planned=True)
     add('bond_taoyuan_oath','桃园结义','bond',lotus(JADE)+circle(28,28,5,RED,INK,2)+circle(68,28,5,RED,INK,2))
     add('bond_five_tigers','五虎将','bond',tiger()+path('M16 78 H27 M69 78 H80','none',RED,5))
-    for k,l,s in [('wei','魏',shield(BLUE)),('shu','蜀',sword(JADE)),('wu','吴',path('M18 42 H78 L66 65 H30 Z',RED)+path('M17 76 Q32 66 47 76 T79 76','none',BLUE,6)),('qun','群',flag(VIOLET))]:add('faction_'+k,l,'faction',s,planned=True)
+    for k,l,c in [('wei','魏',BLUE),('shu','蜀',JADE),('wu','吴',RED),('qun','群',VIOLET)]:
+        add('faction_'+k,l,'faction',faction_flag(c),'军旗图徽；运行时同时显示'+l+'字，颜色仅辅助识别')
     controls={
       'ui_close':path('M25 25 L71 71 M71 25 L25 71','none',RED,10),
       'ui_check':path('M18 47 L39 69 L79 25','none',JADE,11),

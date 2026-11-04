@@ -9,6 +9,7 @@ character_id = &"diao_chan"
 display_name = "貂蝉"
 description = "以倾城之姿鼓舞战阵，为邻近人物提供支援。"
 profession = ExtResource("2_profession")
+faction = &"qun"
 tags = [&"support", &"dancer"]
 build_cost = 60
 base_damage = 18

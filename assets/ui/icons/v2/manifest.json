@@ -1326,8 +1326,8 @@
       "id": "faction_wei",
       "label": "魏",
       "category": "faction",
-      "description": "魏",
-      "planned": true,
+      "description": "军旗图徽；运行时同时显示魏字，颜色仅辅助识别",
+      "planned": false,
       "svg": "faction_wei.svg",
       "png": "faction_wei.png",
       "pixels": 256
@@ -1336,8 +1336,8 @@
       "id": "faction_shu",
       "label": "蜀",
       "category": "faction",
-      "description": "蜀",
-      "planned": true,
+      "description": "军旗图徽；运行时同时显示蜀字，颜色仅辅助识别",
+      "planned": false,
       "svg": "faction_shu.svg",
       "png": "faction_shu.png",
       "pixels": 256
@@ -1346,8 +1346,8 @@
       "id": "faction_wu",
       "label": "吴",
       "category": "faction",
-      "description": "吴",
-      "planned": true,
+      "description": "军旗图徽；运行时同时显示吴字，颜色仅辅助识别",
+      "planned": false,
       "svg": "faction_wu.svg",
       "png": "faction_wu.png",
       "pixels": 256
@@ -1356,8 +1356,8 @@
       "id": "faction_qun",
       "label": "群",
       "category": "faction",
-      "description": "群",
-      "planned": true,
+      "description": "军旗图徽；运行时同时显示群字，颜色仅辅助识别",
+      "planned": false,
       "svg": "faction_qun.svg",
       "png": "faction_qun.png",
       "pixels": 256

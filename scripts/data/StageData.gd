@@ -11,6 +11,7 @@ class_name StageData
 @export var stage_scene: PackedScene
 
 @export_category("Rules")
+@export var faction_rule: Dictionary = {}
 @export_range(1, 99, 1) var starting_lives: int = 20
 @export_range(0, 99999, 1) var starting_currency: int = 100
 @export_range(1, 99, 1) var squad_size: int = 4
@@ -70,6 +71,7 @@ class_name StageData
 
 
 func is_valid() -> bool:
+	if not FactionRegistry.valid_rule(faction_rule): return false
 	if stage_id.is_empty() or chapter_id.is_empty() or display_name.is_empty() or waves.is_empty():
 		return false
 	for wave in waves:
@@ -79,6 +81,9 @@ func is_valid() -> bool:
 		if slot == null:
 			return false
 	return _are_rewards_valid(first_clear_rewards) and _are_rewards_valid(repeat_clear_rewards)
+
+func allows_character(character: CharacterData) -> bool:
+	return FactionRegistry.rule_allows(faction_rule, character)
 
 
 ## 生效建造位（v0.14.1）：build_slots 非空时用之；否则由 build_slot_positions 推导

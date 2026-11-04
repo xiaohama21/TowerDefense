@@ -305,6 +305,12 @@ func _set_character_relic_slot(character_id: String, slot: String, relic_id: Str
 		return false
 	if not relic_id.strip_edges().is_empty() and not has_relic(relic_id):
 		return false
+	var relic_path := "res://resources/relics/" + relic_id.strip_edges() + ".tres"
+	if not relic_id.strip_edges().is_empty() and ResourceLoader.exists(relic_path):
+		var relic := load(relic_path) as RelicData
+		if relic != null and not relic.faction_limit.is_empty():
+			var character := load("res://resources/characters/" + key + ".tres") as CharacterData
+			if not relic.fits(character): return false
 	ensure_character(key)
 	var entry = characters.get(key, {})
 	if not entry is Dictionary:

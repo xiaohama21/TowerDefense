@@ -1,5 +1,7 @@
 # 关卡设计（STAGES）
 
+> 0.9.6限制接口（2026-11-04 / GDD v0.37.82）：StageData.faction_rule默认空；allow/deny数组、禁用优先、无效配置拒绝，编队恢复/点选/确认与最终入场同源。第一章八关不启用，第二章另行排期。权威见FACTIONS §3。
+
 > 隶属《烽火连营·三国塔防》设计文档体系，总纲见 [../GAME_DESIGN.md](../GAME_DESIGN.md)。
 > 承载总纲原章节：5.1、5.2、5.4、5.6、6。章节编号沿用全局稳定 ID。
 > 经济与数值基调见 [NUMBERS.md](NUMBERS.md)（5.3 / 10.3）；敌人设计见 [ENEMIES.md](ENEMIES.md)。

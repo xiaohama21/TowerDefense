@@ -36,6 +36,7 @@ static func display_order(supply: BattleSupplyData) -> int:
 
 @export_category("Identity")
 @export var supply_id: StringName
+@export var faction_limit: Array[StringName] = []
 @export var display_name: String = ""
 @export_multiline var description: String = ""
 ## 局外解锁消耗（军功）：0 = 基础件（默认已解锁）。
@@ -67,7 +68,10 @@ static func display_order(supply: BattleSupplyData) -> int:
 
 
 func is_valid() -> bool:
-	return not supply_id.is_empty() and not display_name.is_empty() and level_costs.size() > 0
+	return not supply_id.is_empty() and not display_name.is_empty() and level_costs.size() > 0 and FactionRegistry.valid_limits(faction_limit)
+
+func fits(character: CharacterData) -> bool:
+	return FactionRegistry.item_allows(faction_limit, character)
 
 
 ## 强化等级 → 数组索引（1~3 → 0~2；越界夹取，缺项回退末位）。

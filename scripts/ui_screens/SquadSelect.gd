@@ -163,7 +163,7 @@ func _apply_saved_memory() -> void:
 	var character_source := saved_characters if not saved_characters.is_empty() else GameFlow.squad_character_ids
 	for character_data in _roster:
 		var character_id := str(character_data.character_id)
-		if _is_owned(character_id) and character_source.has(character_id) \
+		if _is_owned(character_id) and _stage_data != null and _stage_data.allows_character(character_data) and character_source.has(character_id) \
 				and _selected_ids.size() < _squad_cap():
 			_selected_ids.append(character_id)
 	var saved_relics := GameFlow.load_saved_squad_relics(profile)
@@ -268,6 +268,22 @@ func _build_page_content(page: Panel) -> void:
 
 	root.add_child(_build_title_bar())
 	root.add_child(_build_zone_bar())
+	if _stage_data != null and not _stage_data.faction_rule.is_empty():
+		var rules := HBoxContainer.new()
+		rules.name = "StageFactionRules"
+		rules.add_theme_constant_override("separation", 16)
+		if FactionRegistry.valid_rule(_stage_data.faction_rule):
+			for key in ["allow", "deny"]:
+				var values: Array[StringName] = []
+				for value in _stage_data.faction_rule.get(key, []): values.append(StringName(value))
+				if not values.is_empty(): rules.add_child(FactionUI.limit_row(values, "限用" if key == "allow" else "禁用"))
+		else:
+			var invalid := Label.new()
+			invalid.name = "FactionRuleInvalid"
+			invalid.text = "本关出战规则异常，暂时无法出战。"
+			invalid.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
+			rules.add_child(invalid)
+		root.add_child(rules)
 
 	var cols := HBoxContainer.new()
 	cols.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -432,6 +448,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	rank_badge.name = "CardRank"
 	rank_badge.set_rank(ProfileStore.get_profile().get_character_rank(character_id))
 	name_row.add_child(rank_badge)
+	name_row.add_child(FactionUI.badge(character_data.faction, 20))
 
 	var sub_label := Label.new()
 	sub_label.text = _character_sub_text(character_data, owned)
@@ -1000,7 +1017,7 @@ func _relic_effect_text(relic: BattleRelicData) -> String:
 
 func _on_character_toggled(pressed: bool, character_id: String) -> void:
 	if pressed:
-		if not _selected_ids.has(character_id) and _selected_ids.size() < _squad_cap():
+		if _is_owned(character_id) and _stage_data != null and _stage_data.allows_character(GameFlow.load_character_data(character_id)) and not _selected_ids.has(character_id) and _selected_ids.size() < _squad_cap():
 			_selected_ids.append(character_id)
 	else:
 		_selected_ids.erase(character_id)
@@ -1046,8 +1063,10 @@ func _sync_character_card(character_id: String) -> void:
 		card.modulate = Color.WHITE
 		return
 	var cap_full := _selected_ids.size() >= _squad_cap() and not selected
-	card.disabled = cap_full
-	card.modulate = Color(1, 1, 1, 0.55) if cap_full else Color.WHITE
+	var restricted := _stage_data == null or not _stage_data.allows_character(GameFlow.load_character_data(character_id))
+	card.disabled = cap_full or restricted
+	card.modulate = Color(1, 1, 1, 0.55) if card.disabled else Color.WHITE
+	card.tooltip_text = "出战阵营不符合本关要求。" if restricted else ""
 
 
 func _sync_relic_pill(relic_id: String) -> void:
@@ -1299,7 +1318,7 @@ func _unlocked_tech_sources(profile: PlayerProfile) -> Dictionary:
 # ---------------------------------------------------------------- 二次确认弹窗
 
 func _open_confirm_popup() -> void:
-	if _selected_ids.is_empty() or _confirm_popup != null:
+	if not GameFlow.squad_allowed_for_stage(_stage_data, _selected_ids) or _confirm_popup != null:
 		return
 	var overlay := Control.new()
 	overlay.name = "DeployConfirm"
@@ -1545,6 +1564,7 @@ func _confirm_character_row(character_data: CharacterData, profile: PlayerProfil
 	var rank_badge := ConceptIcon.new("", 22)
 	rank_badge.set_rank(profile.get_character_rank(str(character_data.character_id)))
 	row.add_child(rank_badge)
+	row.add_child(FactionUI.badge(character_data.faction, 22))
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
@@ -1656,7 +1676,7 @@ func _close_confirm_popup() -> void:
 
 
 func _on_confirm_deploy() -> void:
-	if _selected_ids.is_empty():
+	if not GameFlow.squad_allowed_for_stage(_stage_data, _selected_ids):
 		return
 	GameFlow.set_squad(_selected_ids)
 	GameFlow.set_squad_relics(_selected_relic_ids)

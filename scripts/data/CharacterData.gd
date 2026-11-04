@@ -8,6 +8,7 @@ class_name CharacterData
 @export_multiline var description: String = ""
 @export var portrait: Texture2D
 @export var profession: ProfessionData
+@export var faction: StringName = &"qun"
 @export var tags: Array[StringName] = []
 @export var talent_tree_ids: Array[String] = []
 
@@ -103,7 +104,7 @@ func get_battle_rank_steps() -> Dictionary:
 
 
 func is_valid() -> bool:
-	return not character_id.is_empty() and not display_name.is_empty() and profession != null
+	return not character_id.is_empty() and not display_name.is_empty() and profession != null and FactionRegistry.is_valid_id(faction)
 
 
 ## Bare growth and legacy guard are compared before relics and battle modifiers.
@@ -126,6 +127,7 @@ func remaining_guard(level: int, rank: int, guard: Dictionary) -> Dictionary:
 	return result
 
 func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}, weapon: WeaponData = null, talent_alloc: Dictionary = {}) -> Dictionary:
+	if relic != null and not relic.fits(self): relic = null
 	var r := clampi(rank, 0, 5)
 	var equipment := WeaponRegistry.bonuses(weapon, self)
 	var talents := TalentRegistry.bonuses(str(character_id), TalentRegistry.normalize(str(character_id), level, talent_alloc))

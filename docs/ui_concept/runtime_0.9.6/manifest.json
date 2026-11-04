@@ -1,0 +1,237 @@
+{
+  "version": "0.9.6.0",
+  "document_version": "v0.37.83",
+  "date": "2026-11-04",
+  "faction_checks": 294,
+  "layout_checks": 856,
+  "packaged_checks": 388,
+  "regression": {
+    "FactionRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "FACTION_RESULT: PASS checks=294 failures=0"
+      ],
+      "passed": true
+    },
+    "Stage0Runner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [],
+      "passed": true,
+      "expected_negative_test_errors": [
+        "ERROR: Parse JSON failed. Error at line 0: Expected key",
+        "ERROR: SaveManager: 只有胜利且尚未提交的战局才能结算",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    "PackVerify": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "SmokeRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "FlowRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "ExitFlowRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "RankRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "RANK_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "DevelopRefreshRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "SupplyStateRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [
+        "SUPPLY_STATE_OK failures=0"
+      ],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "ShopRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [
+        "SHOP_RESULT: PASS checks=461 failures=0"
+      ],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "SkillKitRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [
+        "SKILL_KIT_RESULT: PASS failures=0"
+      ],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "GearRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "summary": [
+        "GEAR_RESULT: PASS checks=446 failures=0"
+      ],
+      "passed": true,
+      "expected_negative_test_errors": []
+    },
+    "ItemUiRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "ITEM_UI_RESULT: PASS checks=91 failures=0"
+      ],
+      "passed": true
+    },
+    "TalentRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [
+        "ERROR: SaveManager: 无法写入 user://（错误码 12）",
+        "ERROR: SaveManager: 无法写入 user://（错误码 12）"
+      ],
+      "summary": [
+        "TALENT_RESULT: PASS checks=389 failures=0"
+      ],
+      "passed": true
+    }
+  },
+  "captures": [
+    {
+      "file": "encyclopedia_factions_all.png",
+      "purpose": "全部九将；军旗与中文归属、人数、默认张飞详情折行",
+      "width": 1280,
+      "height": 720,
+      "bytes": 234834,
+      "sha256": "ff59c94c10f56db4635c8e9565c39b4952c0b55af91afeaa0b9b59a95cbfcef1"
+    },
+    {
+      "file": "encyclopedia_factions_last_card.png",
+      "purpose": "末卡诸葛亮完整滚动可见并实际点击选择",
+      "width": 1280,
+      "height": 720,
+      "bytes": 229925,
+      "sha256": "434a5cbd5b11e7ff0af775d317a18af5f7d9cf76646211ccd3571ed44080e785"
+    },
+    {
+      "file": "encyclopedia_factions_shu.png",
+      "purpose": "蜀7名；保留关羽选中及Lv35模拟",
+      "width": 1280,
+      "height": 720,
+      "bytes": 226425,
+      "sha256": "3139dbecbe5a3ad5294c5784c6a1bf317adb7a78d5047ae22081515716f7184e"
+    },
+    {
+      "file": "encyclopedia_factions_qun.png",
+      "purpose": "群2名；切首名且重置模拟",
+      "width": 1280,
+      "height": 720,
+      "bytes": 207785,
+      "sha256": "a05af30c502f4a89fb700cc4b2438b0a0201dd2c649d20ba0edadbb9c5e4ebcd"
+    },
+    {
+      "file": "encyclopedia_factions_wei.png",
+      "purpose": "魏0名；明确空态，无旧详情或天赋入口",
+      "width": 1280,
+      "height": 720,
+      "bytes": 106263,
+      "sha256": "2733628b90c7e72b51e1ead9f61f5e9f5370f40545f227cf43a21106f1f8061a"
+    },
+    {
+      "file": "encyclopedia_factions_wu.png",
+      "purpose": "吴0名；明确空态，无旧详情或模拟器",
+      "width": 1280,
+      "height": 720,
+      "bytes": 106208,
+      "sha256": "77b077ad27572097e5651ab5d987c5ae32199e19151278e728bd341fd417e697"
+    },
+    {
+      "file": "encyclopedia_factions_enemy.png",
+      "purpose": "敌人图鉴独立，不显示武将阵营筛选",
+      "width": 1280,
+      "height": 720,
+      "bytes": 263344,
+      "sha256": "04e386424f4eef13f395e6f70fbe1aac97007746cf04971209297b439e55c204"
+    },
+    {
+      "file": "encyclopedia_factions_return.png",
+      "purpose": "返回武将图鉴保留群筛选",
+      "width": 1280,
+      "height": 720,
+      "bytes": 207785,
+      "sha256": "a05af30c502f4a89fb700cc4b2438b0a0201dd2c649d20ba0edadbb9c5e4ebcd"
+    },
+    {
+      "file": "encyclopedia_factions_restored.png",
+      "purpose": "恢复全部9名且浏览不写档",
+      "width": 1280,
+      "height": 720,
+      "bytes": 237436,
+      "sha256": "59ee532240f0d2de69a38f39dffa115e7a12756a1bfcc62288160b9efd8329c7"
+    },
+    {
+      "file": "develop_faction_badge.png",
+      "purpose": "养成属性军旗＋中文归属与天赋入口",
+      "width": 1280,
+      "height": 720,
+      "bytes": 217915,
+      "sha256": "23e44f69a63e2c7d975bf4474776cdf53c08423c7884347263ceb8ab48fa4418"
+    },
+    {
+      "file": "squad_faction_badges.png",
+      "purpose": "编队九将军旗与中文归属",
+      "width": 1280,
+      "height": 720,
+      "bytes": 180460,
+      "sha256": "d3a03ce69add10e6acd0422b6d47a64e8a01dd69465b70f6db4bba8e54d379e0"
+    },
+    {
+      "file": "squad_faction_confirm.png",
+      "purpose": "确认出战三名武将的军旗与中文归属",
+      "width": 1280,
+      "height": 720,
+      "bytes": 180728,
+      "sha256": "65df38313f247ed8b07611c8dd54508114db97a82782334486b8e17bca8023cc"
+    },
+    {
+      "file": "squad_faction_rule_preview.png",
+      "purpose": "测试限定群阵营的提示、记忆过滤与真实点击禁选（第一章正式规则不限）",
+      "width": 1280,
+      "height": 720,
+      "bytes": 172244,
+      "sha256": "e327a7901eeebb92f759d8dec0d384e547831f3d0fe33cf37182707dc6a047c4"
+    }
+  ]
+}

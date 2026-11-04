@@ -340,7 +340,9 @@ func _populate_info_card(character: CharacterData, level: int, stats, progress) 
 
 	_detail_name_label.text = character.display_name
 	for child in _detail_chips.get_children():
+		_detail_chips.remove_child(child)
 		child.queue_free()
+	_detail_chips.add_child(FactionUI.badge(character.faction, 20))
 	if character.profession != null:
 		var melee_tag: bool = character.profession.tags.has(&"melee")
 		var ranged_tag: bool = character.profession.tags.has(&"ranged")
@@ -1050,6 +1052,7 @@ func _build_optional_relic_row(relic: RelicData, equipped_id: String) -> PanelCo
 		"%s%s" % [relic.display_name, "（已装备）" if is_equipped else ("（未持有）" if not owned else "")],
 		UITheme.LIGHT_GOLD_TEXT if owned else UITheme.LIGHT_LOCK))
 	text_box.add_child(_make_relic_line("效果：%s" % relic.effect_summary(), UITheme.LIGHT_ACCENT, 13))
+	if not relic.faction_limit.is_empty(): text_box.add_child(FactionUI.limit_row(relic.faction_limit))
 	if not relic.acquisition_hint.is_empty():
 		text_box.add_child(_make_relic_line("获取：%s" % relic.acquisition_hint, UITheme.LIGHT_MUTED, 13))
 	var action := Button.new()
@@ -1057,7 +1060,7 @@ func _build_optional_relic_row(relic: RelicData, equipped_id: String) -> PanelCo
 	action.focus_mode = Control.FOCUS_NONE
 	action.add_theme_font_size_override("font_size", 15)
 	action.text = "卸下" if is_equipped else "装备"
-	action.disabled = not owned
+	action.disabled = not owned or (not is_equipped and not relic.fits(GameFlow.load_character_data(_selected_id)))
 	UITheme.apply_kenney_rect_button(action, "blue", Color.WHITE)
 	action.pressed.connect(_on_optional_relic_pressed.bind(str(relic.relic_id), is_equipped))
 	row.add_child(action)
