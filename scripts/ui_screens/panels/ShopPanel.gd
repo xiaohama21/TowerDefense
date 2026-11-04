@@ -73,7 +73,7 @@ func _refresh() -> void:
 		currency_icon.position = Vector2(10, 7)
 		currency_icon.size = Vector2(22, 22)
 		button.add_child(currency_icon)
-		UITheme.apply_light_selectable(button)
+		UITheme.apply_kenney_rect_button(button, "blue" if page == _page else "grey", Color.WHITE if page == _page else UITheme.INK, 5)
 		button.pressed.connect(_switch_page.bind(page))
 		tabs.add_child(button)
 	for index in range(ShopRegistry.data().tier_levels.size()):
@@ -129,7 +129,7 @@ func _refresh() -> void:
 		refresh.text = "刷新"
 		refresh.disabled = profile.ingots < ShopRegistry.refresh_price(profile)
 		refresh.custom_minimum_size = Vector2(86, 34)
-		UITheme.apply_light_selectable(refresh)
+		UITheme.apply_kenney_rect_button(refresh, "grey", UITheme.LIGHT_INK, 5)
 		refresh.pressed.connect(_refresh_offers.bind(int(profile.shop_state.revision)))
 		action.add_child(refresh)
 		action.add_child(ConceptIcon.new("ingot", 24, "刷新费用"))
@@ -200,7 +200,7 @@ func _offer_card(profile: PlayerProfile, entry: Dictionary, compact: bool = fals
 	button.text = status
 	button.disabled = status != "购买"
 	button.custom_minimum_size = Vector2(72, 28 if compact else 30)
-	UITheme.apply_light_selectable(button)
+	UITheme.apply_kenney_rect_button(button, "yellow", UITheme.INK, 4)
 	button.pressed.connect(_buy.bind(str(entry.id), int(profile.shop_state.revision)))
 	action.add_child(button)
 	return card

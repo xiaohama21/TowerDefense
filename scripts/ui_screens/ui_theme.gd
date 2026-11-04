@@ -6,6 +6,97 @@ extends RefCounted
 
 class_name UITheme
 
+static func button_focus_style(radius: int = 8) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color.TRANSPARENT
+	style.border_color = Color("#e7ad24")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(radius)
+	return style
+
+static func apply_kenney_round_button(button: Button, color_key: String, font_color: Color) -> void:
+	button.set_meta("ui_button_role", "round_action")
+	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var style := StyleBoxTexture.new()
+		var source_state: String = "pressed" if state == "hover_pressed" else ("normal" if state == "disabled" else state)
+		var color: String = "grey" if state == "disabled" else color_key
+		style.texture = load("res://assets/ui/buttons/round/%s/%s.png" % [color, source_state])
+		# 圆盘缩放整图，不能按矩形切片，否则46px圆弧会被压成十字。
+		style.set_content_margin_all(2)
+		button.add_theme_stylebox_override(state, style)
+	button.add_theme_stylebox_override("focus", button_focus_style(24))
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]: button.add_theme_color_override(key, font_color)
+	button.add_theme_color_override("font_disabled_color", LIGHT_LOCK)
+	CursorIcons.apply_hover(button)
+
+## 默认控件也有皮肤，避免确认框/下拉/勾选回落Godot默认灰色。
+static func install_button_theme(theme: Theme) -> void:
+	var sample := Button.new()
+	for type_name in ["Button", "MenuButton", "OptionButton", "CheckButton", "CheckBox"]:
+		apply_kenney_rect_button(sample, "grey" if type_name != "Button" else "blue", LIGHT_INK if type_name != "Button" else Color.WHITE, 4)
+		if type_name in ["CheckButton", "CheckBox"]: apply_light_selectable(sample)
+		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+			var style := sample.get_theme_stylebox(state)
+			for target in [theme, ThemeDB.get_default_theme()]: target.set_stylebox(state, type_name, style)
+		for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color", "font_disabled_color"]:
+			var color := sample.get_theme_color(color_name)
+			if type_name in ["CheckButton", "CheckBox"]: color = LIGHT_LOCK if color_name == "font_disabled_color" else LIGHT_INK
+			for target in [theme, ThemeDB.get_default_theme()]: target.set_color(color_name, type_name, color)
+	for target in [theme, ThemeDB.get_default_theme()]:
+		target.set_stylebox("panel", "PopupMenu", light_panel_style())
+		target.set_stylebox("hover", "PopupMenu", light_card_style(LIGHT_BLUE_SELECT, LIGHT_BORDER_SOFT))
+		target.set_color("font_color", "PopupMenu", LIGHT_INK)
+		target.set_color("font_hover_color", "PopupMenu", LIGHT_INK)
+		target.set_color("font_disabled_color", "PopupMenu", LIGHT_LOCK)
+		target.set_stylebox("panel", "AcceptDialog", light_panel_style())
+		target.set_constant("buttons_min_width", "AcceptDialog", 88)
+		target.set_constant("buttons_min_height", "AcceptDialog", 34)
+		for margin in ["margin_left", "margin_right", "margin_top", "margin_bottom"]: target.set_constant(margin, "AcceptDialog", 16)
+		var border := light_panel_style()
+		border.expand_margin_top = 32
+		target.set_stylebox("embedded_border", "Window", border)
+		target.set_stylebox("embedded_unfocused_border", "Window", border)
+		target.set_constant("title_height", "Window", 32)
+		target.set_color("title_color", "Window", LIGHT_INK)
+		target.set_color("title_outline_modulate", "Window", Color.TRANSPARENT)
+	sample.free()
+
+## 动态弹窗和自绘卡片在构建后补齐交互状态，不改变动作或选中逻辑。
+static func complete_button_states(button: Button) -> void:
+	if not is_instance_valid(button): return
+	var ancestor := button.get_parent()
+	while ancestor != null:
+		if ancestor is AcceptDialog:
+			ancestor.get_label().add_theme_color_override("font_color", LIGHT_INK)
+			if ancestor.ok_button_text in ["", "OK"]: ancestor.ok_button_text = "确认"
+			if ancestor is ConfirmationDialog and ancestor.cancel_button_text == "Cancel": ancestor.cancel_button_text = "取消"
+			button.custom_minimum_size = Vector2(88, 34)
+			apply_kenney_rect_button(button, "yellow" if button == ancestor.get_ok_button() else "grey", LIGHT_INK, 5)
+			break
+		ancestor = ancestor.get_parent()
+	if not button.has_meta("ui_button_role"):
+		if not button.has_theme_stylebox_override("normal"):
+			button.set_meta("ui_button_role", "default_control")
+		elif button.get_theme_stylebox("normal") is StyleBoxFlat and not button.text.is_empty() and button.get_child_count() == 0:
+			var close := button.text in ["×", "关闭", "返回", "取消"]
+			apply_kenney_rect_button(button, "red" if close else "grey", Color.WHITE if close else LIGHT_INK, 3)
+		else: button.set_meta("ui_button_role", "node_card")
+	if button.has_theme_stylebox_override("normal"):
+		if not button.has_theme_stylebox_override("hover_pressed"): button.add_theme_stylebox_override("hover_pressed", button.get_theme_stylebox("pressed"))
+		if not button.has_theme_stylebox_override("disabled"):
+			var disabled := button.get_theme_stylebox("normal").duplicate() as StyleBox
+			if disabled is StyleBoxFlat:
+				disabled.bg_color = Color("#eef3f7")
+				disabled.border_color = Color("#d5e0e8")
+			button.add_theme_stylebox_override("disabled", disabled)
+		var focus := button.get_theme_stylebox("focus")
+		if focus is StyleBoxEmpty or not button.has_theme_stylebox_override("focus"):
+			var normal := button.get_theme_stylebox("normal")
+			var radius := maxi(normal.corner_radius_top_left, normal.corner_radius_top_right) if normal is StyleBoxFlat else 8
+			button.add_theme_stylebox_override("focus", button_focus_style(radius))
+
 const GOLD := Color(0.92, 0.78, 0.42)
 const GREEN := Color(0.55, 0.92, 0.80)
 const RED := Color(0.90, 0.45, 0.40)
@@ -91,6 +182,7 @@ static func apply_card_style(button: Button, state_color: Color, selected: bool 
 ## content_margin 默认 12（大按钮）；局内顶栏等紧凑按钮行传更小值，避免九宫格最小宽撑破整行。
 static func apply_kenney_rect_button(button: Button, color_key: String, font_color: Color,
 		content_margin: float = 12.0) -> void:
+	button.set_meta("ui_button_role", "action")
 	var pressed_style: StyleBoxTexture = null
 	for state_name in ["normal", "hover", "pressed"]:
 		var style := StyleBoxTexture.new()
@@ -107,7 +199,7 @@ static func apply_kenney_rect_button(button: Button, color_key: String, font_col
 	var disabled_style: StyleBoxTexture = pressed_style.duplicate()
 	disabled_style.texture = load("res://assets/ui/buttons/rect/grey/normal.png")
 	button.add_theme_stylebox_override("disabled", disabled_style)
-	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	button.add_theme_stylebox_override("focus", button_focus_style(8))
 	button.add_theme_color_override("font_color", font_color)
 	button.add_theme_color_override("font_hover_color", font_color)
 	button.add_theme_color_override("font_focus_color", font_color)
@@ -276,6 +368,7 @@ static func character_avatar_color_key(character_id: String) -> String:
 
 ## 浅色可点选卡片按钮四态（正常浅蓝卡 / 悬停亮蓝描边 / 禁用灰 / 选中金框米黄底）。
 static func apply_light_selectable(button: Button, locked: bool = false) -> void:
+	button.set_meta("ui_button_role", "card")
 	var normal := light_card_style()
 	var hover := light_card_style(LIGHT_CARD_BG, LIGHT_BORDER_SOFT)
 	var disabled := light_card_style(Color("#eef3f7"), Color("#d5e0e8"))
@@ -288,7 +381,7 @@ static func apply_light_selectable(button: Button, locked: bool = false) -> void
 	button.add_theme_stylebox_override("disabled", disabled)
 	button.add_theme_stylebox_override("pressed", selected)
 	button.add_theme_stylebox_override("hover_pressed", selected)
-	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	button.add_theme_stylebox_override("focus", button_focus_style(12))
 	button.add_theme_color_override("font_color", LIGHT_LOCK if locked else LIGHT_INK)
 	button.add_theme_color_override("font_hover_color", LIGHT_LOCK if locked else LIGHT_INK)
 	button.add_theme_color_override("font_pressed_color", LIGHT_INK)
@@ -406,6 +499,7 @@ static func supply_effect_bbcode(supply: BattleSupplyData, level: int) -> String
 ## Install icons on the project's theme; all other font/skin settings are preserved.
 static func install_icon_theme() -> void:
 	var theme := load("res://assets/ui/ui_theme.tres") as Theme
+	install_button_theme(theme)
 	var groups := {
 		"OptionButton": {"arrow": "ui_arrow_down"},
 		"CheckBox": {"checked": "ui_checkbox_on", "unchecked": "ui_checkbox_off", "checked_disabled": "ui_checkbox_on", "unchecked_disabled": "ui_checkbox_off", "radio_checked": "ui_radio_on", "radio_unchecked": "ui_radio_off"},

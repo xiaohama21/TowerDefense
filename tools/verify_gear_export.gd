@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.6.1", "project version 0.9.6.1")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.6.2", "project version 0.9.6.2")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -71,6 +71,27 @@ func _run() -> void:
 			_check(not str(node.name).is_empty() and not str(node.description).is_empty() and not node.effects.is_empty(), "packaged talent node " + str(node.id))
 	_check(talent_nodes == 110, "110 packaged talent nodes")
 	var theme = load("res://scripts/ui_screens/ui_theme.gd")
+	var dian = flow.load_character_data("zhou_wei")
+	var execute: Dictionary = dian.skill_params.ultimate_death_fight
+	_check(execute.mult == 4.0 and execute.target_hp_threshold == 0.5 and execute.execute_bonus_mult == 4.0 and not execute.has("base_hp_threshold") and not execute.has("low_hp_mult"), "packaged Dian Wei target-health execution parameters")
+	var preview_text: String = skills.damage_preview(dian,&"ultimate_death_fight",2,0.0,{"damage":137})
+	_check(preview_text.contains("合计1129点") and preview_text.contains("目标生命≤50%"), "packaged execution preview rounding and condition")
+	var action := Button.new()
+	theme.apply_kenney_round_button(action,"yellow",theme.INK)
+	for state in ["normal","hover","pressed","hover_pressed","disabled"]:
+		var round_style = action.get_theme_stylebox(state)
+		_check(round_style is StyleBoxTexture and round_style.texture != null and round_style.texture_margin_left == 0 and round_style.texture_margin_top == 0, "packaged round action whole-image scaling " + state)
+	action.free()
+	var dialog := ConfirmationDialog.new()
+	root.add_child(dialog)
+	dialog.popup_centered(Vector2i(440,160))
+	await process_frame
+	await process_frame
+	_check(dialog.get_label().get_theme_color("font_color") == theme.LIGHT_INK and dialog.ok_button_text == "确认" and dialog.cancel_button_text == "取消", "packaged confirmation readable Chinese actions")
+	for button in [dialog.get_ok_button(),dialog.get_cancel_button()]:
+		for state in ["normal","hover","pressed","hover_pressed","disabled","focus"]:
+			_check(not button.get_theme_stylebox(state) is StyleBoxEmpty, "packaged dialog complete button state " + state)
+	dialog.queue_free()
 	for icon_id in ["ingot", "lord_level", "lord_exp", "equipment_rarity_0", "equipment_rarity_1", "equipment_rarity_2", "equipment_rarity_3", "equipment_rarity_4", "trait_vanguard", "ultimate_death_fight"]:
 		_check(theme.hud_icon(icon_id) != null, "packaged economic/quality icon " + icon_id)
 	_check(registry.IDS.size() == 12, "12 packaged weapons")
@@ -250,7 +271,10 @@ func _check_skill_cards(panel, character, skills, context: String) -> void:
 			for label in card.find_children("*", "Label", true, false): labels.append(label.text)
 		for row in skills.effect_rows(character, id, 1, 0.0):
 			for entry in row:
-				readable = readable and entry.size() == 4 and labels.has(str(entry[3]))
+				readable = readable and entry.size() == 5 and labels.has(str(entry[3]))
+		var trigger = card.find_child("SkillTrigger",true,false) if card != null else null
+		var table = card.find_child("EffectBreakdown",true,false) if card != null else null
+		readable = readable and trigger != null and trigger.text == "触发条件：" + skills.trigger_text(id) and table != null and table.columns == 5
 		_check(readable, "%s skill name, description and effect labels: %s" % [context, id])
 
 func _items_readable(container) -> bool:

@@ -632,7 +632,7 @@ func _refresh() -> void:
 	var progress := LevelCurve.progress_at(_profile.get_character_exp(_selected_id))
 	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}), _profile.get_character(_selected_id).get("skill_levels", {}), WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)), _profile.get_talent_alloc(_selected_id))
 	_populate_info_card(character, level, stats, progress)
-	_refresh_skill_tab(character)
+	_refresh_skill_tab(character, stats)
 	_refresh_talents()
 	_refresh_rank_tab(character, level)
 	_refresh_relic(character)
@@ -643,7 +643,7 @@ func _refresh() -> void:
 
 # ============ 技能页签（概念图 .skrow/.skcard） ============
 
-func _refresh_skill_tab(character: CharacterData) -> void:
+func _refresh_skill_tab(character: CharacterData, stats: Dictionary = {}) -> void:
 	for child in _skill_tab.get_children():
 		_skill_tab.remove_child(child)
 		child.queue_free()
@@ -669,7 +669,8 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()
 		content.add_child(card)
-		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), character.per_rank_skill_amp * rank + float(WeaponRegistry.bonuses(WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)), character).get("skill_amp", 0.0)) + TalentRegistry.skill_amp(_selected_id, _profile.get_talent_alloc(_selected_id), id == character.ultimate_id), _profile.skill_upgrade_status(_selected_id, id), true)
+		var amp := float(stats.get("skill_amp", 0.0)) + (float(stats.get("talents", {}).get("ultimate_amp", 0.0)) if id == character.ultimate_id else 0.0)
+		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), amp, _profile.skill_upgrade_status(_selected_id, id), true, stats)
 		card.upgrade_requested.connect(_upgrade_skill)
 
 func _upgrade_skill(character_id: String, skill_id: StringName, expected_level: int) -> void:

@@ -1218,10 +1218,13 @@ func _stat_pill_box(key_text: String, value_text: String, gold: bool = false, ic
 func _refresh_skill_tab(character: CharacterData) -> void:
 	_clear_tab(_skill_tab)
 	var rank := maxi(_sim_rank_option.selected, 0) if _sim_rank_option != null else 0
+	var stats := character.compute_stats_at(_sim_level, rank, null, _sim_battle_rank, {}, {}, WeaponRegistry.get_weapon(_sim_weapon_id), _sim_talent_alloc)
+	stats["battle_rank"] = _sim_battle_rank
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()
 		_skill_tab.add_child(card)
-		card.configure(character, id, rank, 1, character.per_rank_skill_amp * rank + float(WeaponRegistry.bonuses(WeaponRegistry.get_weapon(_sim_weapon_id), character).get("skill_amp", 0.0)) + TalentRegistry.skill_amp(_selected_character_id, _sim_talent_alloc, id == character.ultimate_id))
+		var amp := float(stats.skill_amp) + (float(stats.talents.get("ultimate_amp", 0.0)) if id == character.ultimate_id else 0.0)
+		card.configure(character, id, rank, 1, amp, "", false, stats)
 
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
@@ -1696,7 +1699,7 @@ func _refresh_weapon_tab(character: CharacterData) -> void:
 	var reset := Button.new()
 	reset.text = "清空预览" if not _sim_weapon_id.is_empty() else "选择下方装备进行预览"
 	reset.disabled = _sim_weapon_id.is_empty()
-	UITheme.apply_light_selectable(reset)
+	UITheme.apply_kenney_rect_button(reset, "grey", UITheme.LIGHT_INK, 5)
 	reset.pressed.connect(func() -> void: _sim_weapon_id = ""; _on_sim_changed())
 	_weapon_tab.add_child(reset)
 	for weapon in WeaponRegistry.for_character(character):

@@ -25,7 +25,10 @@ func _run() -> void:
 		var hero := GameFlow.load_character_data(id)
 		var old := load("res://tests/fixtures/roster_0.9.6.0/%s.tres" % id) as CharacterData
 		_check(hero.character_id == old.character_id and hero.display_name == expected[id][0] and hero.faction == expected[id][1], "稳定键与新身份 " + id)
-		_check(hero.get_skill_ids() == old.get_skill_ids() and hero.skill_params == old.skill_params, "技能ID及全部效果参数不变 " + id)
+		_check(hero.get_skill_ids() == old.get_skill_ids(), "技能ID保持 " + id)
+		for skill in hero.get_skill_ids():
+			if skill == &"ultimate_death_fight": continue
+			_check(hero.skill_params[str(skill)] == old.skill_params[str(skill)], "未调整技能效果保持 " + str(skill))
 		_check(hero.profession == old.profession and hero.unlock_stage_id == old.unlock_stage_id and hero.talent_tree_ids == old.talent_tree_ids, "职业/解锁/天赋不变 " + id)
 		for property in ["build_cost","base_damage","base_range","attack_interval","projectile_speed","attack_pct","range_pct_per_level","speed_pct_per_level","per_rank_crit_rate","per_rank_crit_damage","per_rank_skill_amp","rage_gain_mode"]:
 			_check(hero.get(property) == old.get(property), "基础数值不变 " + id + " " + property)

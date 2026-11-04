@@ -1187,11 +1187,7 @@ func _build_supply_title() -> Control:
 	close_button.focus_mode = Control.FOCUS_NONE
 	close_button.add_theme_font_size_override("font_size", 15)
 	close_button.add_theme_color_override("font_color", Color.WHITE)
-	for state in ["normal", "hover", "pressed"]:
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(1, 1, 1, 0.3 if state == "normal" else 0.45)
-		style.set_corner_radius_all(15)
-		close_button.add_theme_stylebox_override(state, style)
+	UITheme.apply_kenney_round_button(close_button, "red", Color.WHITE)
 	close_button.pressed.connect(_close_battle_supply_popup)
 	row.add_child(close_button)
 	return bar

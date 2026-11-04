@@ -36,8 +36,8 @@ skill_params = {
   },
   "ultimate_death_fight": {
     "mult": 4.0,
-    "base_hp_threshold": 0.5,
-    "low_hp_mult": 2.0
+    "target_hp_threshold": 0.5,
+    "execute_bonus_mult": 4.0
   }
 }
 

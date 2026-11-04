@@ -51,7 +51,7 @@ func configure(weapon: WeaponData, count: int = -1, available: int = -1, action:
 		button.text = action
 		button.disabled = not enabled
 		button.custom_minimum_size.y = 30
-		UITheme.apply_light_selectable(button)
+		UITheme.apply_kenney_rect_button(button, "blue", Color.WHITE, 5)
 		button.pressed.connect(func() -> void: action_requested.emit(str(weapon.weapon_id)))
 		body.add_child(button)
 	body.minimum_size_changed.connect(func() -> void:
