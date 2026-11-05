@@ -6,12 +6,12 @@
 
 ## 当前状态
 
-- **0.9.6.3技能平衡校准已完成**，设计总纲 **v0.37.86**，交付分支 **0.9.6**。
-- 青龙势必暴增伤0~27%，淬毒箭20~25.4/秒；温酒/燕颔/破阵双戟每级6%，拜月/乘势8%。七项低收益技能总书耗25→9本，schema12自动退还旧档差价并保留等级。伤害积怒贡献每次封顶12怒（赵云16），减速独立到期，Boss持续效果按阶段100%/70%/40%执行。
-- 三拍真伤、典韦半血斩杀、孙尚香固有破隐及九将身份保持；27技能卡中文分区同源显示实际成长和成本。权威见[CHARACTER_SKILLS v0.19](docs/modules/CHARACTER_SKILLS.md)与[完整实施报告](docs/reviews/SKILL_BALANCE_IMPLEMENTATION_2026-11-05.md)。
-- 18项功能回归、97项新增专项、159组输出审查、18组辅助覆盖、首章16组预算模拟和33张原生截图通过；Benchmark原±3%容差复测通过。Windows独立启动、423项包内检查、实际Spine DLL与PE版本0.9.6.3通过。[Windows包](build/FengHuoLianYing_v0.9.6.3_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.6.3/README.md)。
-- 上一版技能/按钮优化、395图标与110天赋保持；[0.9.6.2包](build/FengHuoLianYing_v0.9.6.2_Windows.zip)及[45张截图](docs/ui_concept/runtime_0.9.6.2/README.md)保留。
-- 修复/延伸留在 **0.9.6** 分支交付；main保持 **2cfd28c**，按AGENTS §5.3在开始下一编号提交时同步。
+- **0.9.7.0养成平衡收尾已完成**，设计总纲 **v0.37.88**，交付分支 **0.9.7**，schema12。
+- 从初始Lv1白阶出发，两种合法策略均无需额外刷关通完首章；真实经验/池分配、材料、装备、天赋和结算重载已验证。保留连续经验曲线、材料/商店价格和天赋数值，保留0.9.6.3技能成长/书耗差价继承/积怒/控制校准。
+- 20项回归、4518项连续养成、441组合法属性、74组天赋实战、原±3%战斗基准、原生20项/7张截图和424项包内检查通过；Windows独立启动、实际Spine DLL与PE版本0.9.7.0通过。
+- [完整实施报告](docs/reviews/PROGRESSION_BALANCE_IMPLEMENTATION_2026-11-05.md) / [平衡协议与结论](docs/modules/PROGRESSION_BALANCE.md) / [Windows包](build/FengHuoLianYing_v0.9.7.0_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.7/README.md)。
+- 下一编号 **0.9.8战场视觉样板**：初始武将、普通敌人/Boss和一个地图主题；先文档/素材尺度验收再独立开发。
+- 修复/延伸留在 **0.9.7** 分支；main保持 **e689e67**，仅在启动0.9.8时按AGENTS §5.3同步。旧[0.9.6.3包](build/FengHuoLianYing_v0.9.6.3_Windows.zip)和[技能平衡报告](docs/reviews/SKILL_BALANCE_IMPLEMENTATION_2026-11-05.md)保留。
 
 ## 历史交付记录
 

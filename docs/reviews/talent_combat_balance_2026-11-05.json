@@ -1,0 +1,1394 @@
+{
+	"armor": 20,
+	"failures": [],
+	"level": 100,
+	"program": "0.9.7.0",
+	"rank": 5,
+	"rows": [
+		{
+			"damage": [
+				572.083333333333,
+				572.083333333333,
+				574.35
+			],
+			"dps": 572.838888888889,
+			"hero": "guan_yu",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"damage": [
+				643.533333333333,
+				638.6,
+				638.6
+			],
+			"dps": 640.244444444444,
+			"hero": "guan_yu",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.11766930783331,
+			"targets": 1,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				617.816666666667,
+				612.833333333333,
+				610.366666666667
+			],
+			"dps": 613.672222222222,
+			"hero": "guan_yu",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.07128240439914,
+			"targets": 1,
+			"ultimates": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"damage": [
+				664.583333333333,
+				664.583333333333,
+				664.583333333333
+			],
+			"dps": 664.583333333333,
+			"hero": "guan_yu",
+			"option": "rage",
+			"points": 20,
+			"ratio": 1.16015750016972,
+			"targets": 1,
+			"ultimates": [
+				11,
+				11,
+				11
+			],
+			"ults": 11.0
+		},
+		{
+			"damage": [
+				814.833333333333,
+				820.7,
+				808.966666666667
+			],
+			"dps": 814.833333333333,
+			"hero": "guan_yu",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.42244765349963,
+			"targets": 1,
+			"ultimates": [
+				12,
+				12,
+				12
+			],
+			"ults": 12.0
+		},
+		{
+			"damage": [
+				581.15,
+				576.616666666667,
+				576.616666666667
+			],
+			"dps": 578.127777777778,
+			"hero": "guan_yu",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"damage": [
+				638.6,
+				638.6,
+				638.6
+			],
+			"dps": 638.6,
+			"hero": "guan_yu",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.10460009801755,
+			"targets": 3,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				612.85,
+				612.85,
+				610.366666666667
+			],
+			"dps": 612.022222222222,
+			"hero": "guan_yu",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.05862794653239,
+			"targets": 3,
+			"ultimates": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"damage": [
+				660.05,
+				660.05,
+				669.116666666667
+			],
+			"dps": 663.072222222222,
+			"hero": "guan_yu",
+			"option": "rage",
+			"points": 20,
+			"ratio": 1.14693022495988,
+			"targets": 3,
+			"ultimates": [
+				11,
+				11,
+				11
+			],
+			"ults": 11.0
+		},
+		{
+			"damage": [
+				806.033333333333,
+				811.9,
+				829.5
+			],
+			"dps": 815.811111111111,
+			"hero": "guan_yu",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.41112595254798,
+			"targets": 3,
+			"ultimates": [
+				12,
+				12,
+				12
+			],
+			"ults": 12.0
+		},
+		{
+			"damage": [
+				391.533333333333,
+				429.1,
+				423.416666666667
+			],
+			"dps": 414.683333333333,
+			"hero": "zhang_fei",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				385.116666666667,
+				382.066666666667,
+				412.8
+			],
+			"dps": 393.327777777778,
+			"hero": "zhang_fei",
+			"option": "support_control",
+			"points": 20,
+			"ratio": 0.948501533968356,
+			"targets": 1,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				418.15,
+				409.1,
+				427.583333333333
+			],
+			"dps": 418.277777777778,
+			"hero": "zhang_fei",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.0086679259944,
+			"targets": 1,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				427.166666666667,
+				421.033333333333,
+				399.933333333333
+			],
+			"dps": 416.044444444444,
+			"hero": "zhang_fei",
+			"option": "buff",
+			"points": 20,
+			"ratio": 1.00328229036882,
+			"targets": 1,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				475.35,
+				455.6,
+				463.966666666667
+			],
+			"dps": 464.972222222222,
+			"hero": "zhang_fei",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.12127058130032,
+			"targets": 1,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				470.1,
+				504.95,
+				497.966666666667
+			],
+			"dps": 491.005555555556,
+			"hero": "zhang_fei",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				505.783333333333,
+				504.9,
+				503.433333333333
+			],
+			"dps": 504.705555555556,
+			"hero": "zhang_fei",
+			"option": "support_control",
+			"points": 20,
+			"ratio": 1.02790192462181,
+			"targets": 3,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				495.45,
+				504.516666666667,
+				484.55
+			],
+			"dps": 494.838888888889,
+			"hero": "zhang_fei",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.00780710786255,
+			"targets": 3,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				520.9,
+				500.366666666667,
+				488.966666666667
+			],
+			"dps": 503.411111111111,
+			"hero": "zhang_fei",
+			"option": "buff",
+			"points": 20,
+			"ratio": 1.02526561138706,
+			"targets": 3,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				569.366666666667,
+				571.016666666667,
+				564.016666666667
+			],
+			"dps": 568.133333333333,
+			"hero": "zhang_fei",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.15708127312431,
+			"targets": 3,
+			"ultimates": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"damage": [
+				265.6,
+				265.566666666667,
+				270.2
+			],
+			"dps": 267.122222222222,
+			"hero": "huang_zhong",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				304.8,
+				296.483333333333,
+				289.383333333333
+			],
+			"dps": 296.888888888889,
+			"hero": "huang_zhong",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.11143463250281,
+			"targets": 1,
+			"ultimates": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"damage": [
+				295.9,
+				299.433333333333,
+				298.733333333333
+			],
+			"dps": 298.022222222222,
+			"hero": "huang_zhong",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.1156773844682,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				286.783333333333,
+				273.1,
+				278.816666666667
+			],
+			"dps": 279.566666666667,
+			"hero": "huang_zhong",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.04658708040431,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				339.516666666667,
+				349.966666666667,
+				349.433333333333
+			],
+			"dps": 346.305555555556,
+			"hero": "huang_zhong",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.29643109687617,
+			"targets": 1,
+			"ultimates": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"damage": [
+				260.866666666667,
+				265.966666666667,
+				259.2
+			],
+			"dps": 262.011111111111,
+			"hero": "huang_zhong",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				304.25,
+				290.866666666667,
+				293.0
+			],
+			"dps": 296.038888888889,
+			"hero": "huang_zhong",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.12987150672151,
+			"targets": 3,
+			"ultimates": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"damage": [
+				295.983333333333,
+				289.916666666667,
+				300.1
+			],
+			"dps": 295.333333333333,
+			"hero": "huang_zhong",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.12717866078623,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				284.8,
+				272.983333333333,
+				277.6
+			],
+			"dps": 278.461111111111,
+			"hero": "huang_zhong",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.06278359696366,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				355.283333333333,
+				351.45,
+				351.166666666667
+			],
+			"dps": 352.633333333333,
+			"hero": "huang_zhong",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.3458716763496,
+			"targets": 3,
+			"ultimates": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"damage": [
+				219.25,
+				219.25,
+				228.35
+			],
+			"dps": 222.283333333333,
+			"hero": "huang_fu_song",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				235.483333333333,
+				225.933333333333,
+				235.483333333333
+			],
+			"dps": 232.3,
+			"hero": "huang_fu_song",
+			"option": "physical_area",
+			"points": 20,
+			"ratio": 1.04506260778286,
+			"targets": 1,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				246.15,
+				242.833333333333,
+				246.166666666667
+			],
+			"dps": 245.05,
+			"hero": "huang_fu_song",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.10242183399565,
+			"targets": 1,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				220.2,
+				214.133333333333,
+				211.1
+			],
+			"dps": 215.144444444444,
+			"hero": "huang_fu_song",
+			"option": "economy",
+			"points": 20,
+			"ratio": 0.967883831946215,
+			"targets": 1,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				257.816666666667,
+				257.816666666667,
+				261.45
+			],
+			"dps": 259.027777777778,
+			"hero": "huang_fu_song",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.16530454125116,
+			"targets": 1,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				654.716666666667,
+				660.783333333333,
+				648.65
+			],
+			"dps": 654.716666666667,
+			"hero": "huang_fu_song",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				690.533333333333,
+				684.166666666667,
+				703.266666666667
+			],
+			"dps": 692.655555555555,
+			"hero": "huang_fu_song",
+			"option": "physical_area",
+			"points": 20,
+			"ratio": 1.05794703391628,
+			"targets": 3,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				723.75,
+				710.466666666667,
+				713.8
+			],
+			"dps": 716.005555555555,
+			"hero": "huang_fu_song",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.09361131617578,
+			"targets": 3,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				651.5,
+				651.5,
+				642.4
+			],
+			"dps": 648.466666666667,
+			"hero": "huang_fu_song",
+			"option": "economy",
+			"points": 20,
+			"ratio": 0.990453885904844,
+			"targets": 3,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				784.35,
+				784.35,
+				780.716666666667
+			],
+			"dps": 783.138888888889,
+			"hero": "huang_fu_song",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.19614930970988,
+			"targets": 3,
+			"ultimates": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"damage": [
+				665.233333333333,
+				643.766666666667,
+				654.5
+			],
+			"dps": 654.5,
+			"hero": "zhao_yun",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				23,
+				23,
+				23
+			],
+			"ults": 23.0
+		},
+		{
+			"damage": [
+				710.2,
+				730.733333333333,
+				724.866666666667
+			],
+			"dps": 721.933333333333,
+			"hero": "zhao_yun",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.1030303030303,
+			"targets": 1,
+			"ultimates": [
+				24,
+				24,
+				24
+			],
+			"ults": 24.0
+		},
+		{
+			"damage": [
+				700.55,
+				681.766666666667,
+				687.133333333333
+			],
+			"dps": 689.816666666667,
+			"hero": "zhao_yun",
+			"option": "rage",
+			"points": 20,
+			"ratio": 1.05395976572447,
+			"targets": 1,
+			"ultimates": [
+				24,
+				24,
+				24
+			],
+			"ults": 24.0
+		},
+		{
+			"damage": [
+				727.933333333333,
+				742.683333333333,
+				745.633333333333
+			],
+			"dps": 738.75,
+			"hero": "zhao_yun",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.12872421695951,
+			"targets": 1,
+			"ultimates": [
+				23,
+				23,
+				23
+			],
+			"ults": 23.0
+		},
+		{
+			"damage": [
+				870.133333333333,
+				894.633333333333,
+				891.133333333333
+			],
+			"dps": 885.3,
+			"hero": "zhao_yun",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.35263559969442,
+			"targets": 1,
+			"ultimates": [
+				24,
+				24,
+				24
+			],
+			"ults": 24.0
+		},
+		{
+			"damage": [
+				909.416666666667,
+				933.566666666667,
+				904.05
+			],
+			"dps": 915.677777777778,
+			"hero": "zhao_yun",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				23,
+				23,
+				23
+			],
+			"ults": 23.0
+		},
+		{
+			"damage": [
+				994.733333333333,
+				1006.46666666667,
+				977.133333333333
+			],
+			"dps": 992.777777777778,
+			"hero": "zhao_yun",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.08419992476732,
+			"targets": 3,
+			"ultimates": [
+				24,
+				24,
+				24
+			],
+			"ults": 24.0
+		},
+		{
+			"damage": [
+				976.883333333333,
+				963.466666666667,
+				963.466666666667
+			],
+			"dps": 967.938888888889,
+			"hero": "zhao_yun",
+			"option": "rage",
+			"points": 20,
+			"ratio": 1.05707369161884,
+			"targets": 3,
+			"ultimates": [
+				24,
+				24,
+				24
+			],
+			"ults": 24.0
+		},
+		{
+			"damage": [
+				993.433333333333,
+				981.633333333333,
+				1011.13333333333
+			],
+			"dps": 995.4,
+			"hero": "zhao_yun",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.0870636201478,
+			"targets": 3,
+			"ultimates": [
+				23,
+				23,
+				23
+			],
+			"ults": 23.0
+		},
+		{
+			"damage": [
+				1239.53333333333,
+				1239.53333333333,
+				1218.53333333333
+			],
+			"dps": 1232.53333333333,
+			"hero": "zhao_yun",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.34603390324107,
+			"targets": 3,
+			"ultimates": [
+				24,
+				24,
+				24
+			],
+			"ults": 24.0
+		},
+		{
+			"damage": [
+				617.4,
+				668.933333333333,
+				715.85
+			],
+			"dps": 667.394444444445,
+			"hero": "zhou_wei",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				693.816666666667,
+				812.466666666667,
+				693.633333333333
+			],
+			"dps": 733.305555555556,
+			"hero": "zhou_wei",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.09875885491672,
+			"targets": 1,
+			"ultimates": [
+				11,
+				11,
+				11
+			],
+			"ults": 11.0
+		},
+		{
+			"damage": [
+				713.233333333333,
+				636.516666666667,
+				716.333333333333
+			],
+			"dps": 688.694444444444,
+			"hero": "zhou_wei",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.03191515928445,
+			"targets": 1,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				630.85,
+				694.8,
+				679.183333333333
+			],
+			"dps": 668.277777777778,
+			"hero": "zhou_wei",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.001323555119,
+			"targets": 1,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				864.033333333333,
+				811.433333333333,
+				868.1
+			],
+			"dps": 847.855555555556,
+			"hero": "zhou_wei",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.27039648383848,
+			"targets": 1,
+			"ultimates": [
+				11,
+				11,
+				11
+			],
+			"ults": 11.0
+		},
+		{
+			"damage": [
+				656.05,
+				669.316666666667,
+				661.433333333333
+			],
+			"dps": 662.266666666667,
+			"hero": "zhou_wei",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				724.066666666667,
+				782.216666666667,
+				820.8
+			],
+			"dps": 775.694444444444,
+			"hero": "zhou_wei",
+			"option": "physical_burst",
+			"points": 20,
+			"ratio": 1.1712720622777,
+			"targets": 3,
+			"ultimates": [
+				11,
+				11,
+				11
+			],
+			"ults": 11.0
+		},
+		{
+			"damage": [
+				758.633333333333,
+				735.933333333333,
+				673.683333333333
+			],
+			"dps": 722.75,
+			"hero": "zhou_wei",
+			"option": "armor_break",
+			"points": 20,
+			"ratio": 1.09132776323737,
+			"targets": 3,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				659.766666666667,
+				646.783333333333,
+				620.05
+			],
+			"dps": 642.2,
+			"hero": "zhou_wei",
+			"option": "control",
+			"points": 20,
+			"ratio": 0.969700020132877,
+			"targets": 3,
+			"ultimates": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"damage": [
+				793.266666666667,
+				815.5,
+				868.1
+			],
+			"dps": 825.622222222222,
+			"hero": "zhou_wei",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.24666129789947,
+			"targets": 3,
+			"ultimates": [
+				11,
+				11,
+				11
+			],
+			"ults": 11.0
+		},
+		{
+			"damage": [
+				840.016666666667,
+				841.9,
+				841.9
+			],
+			"dps": 841.272222222222,
+			"hero": "zhuge_liang",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				860.783333333333,
+				854.383333333333,
+				862.916666666667
+			],
+			"dps": 859.361111111111,
+			"hero": "zhuge_liang",
+			"option": "magic_area",
+			"points": 20,
+			"ratio": 1.02150182593823,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				855.766666666667,
+				845.85,
+				847.833333333333
+			],
+			"dps": 849.816666666667,
+			"hero": "zhuge_liang",
+			"option": "buff",
+			"points": 20,
+			"ratio": 1.01015657502856,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				843.85,
+				845.783333333333,
+				849.65
+			],
+			"dps": 846.427777777778,
+			"hero": "zhuge_liang",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.00612828454259,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				907.683333333333,
+				899.583333333333,
+				899.583333333333
+			],
+			"dps": 902.283333333333,
+			"hero": "zhuge_liang",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.07252243625726,
+			"targets": 1,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				2152.53333333333,
+				2154.41666666667,
+				2156.3
+			],
+			"dps": 2154.41666666667,
+			"hero": "zhuge_liang",
+			"option": "bare",
+			"points": 0,
+			"ratio": 1.0,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				2169.55,
+				2171.68333333333,
+				2169.55
+			],
+			"dps": 2170.26111111111,
+			"hero": "zhuge_liang",
+			"option": "magic_area",
+			"points": 20,
+			"ratio": 1.00735440116556,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				2156.6,
+				2154.61666666667,
+				2160.56666666667
+			],
+			"dps": 2157.26111111111,
+			"hero": "zhuge_liang",
+			"option": "buff",
+			"points": 20,
+			"ratio": 1.00132028520223,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				2158.41666666667,
+				2160.35,
+				2162.28333333333
+			],
+			"dps": 2160.35,
+			"hero": "zhuge_liang",
+			"option": "control",
+			"points": 20,
+			"ratio": 1.00275403241403,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				2208.35,
+				2213.75,
+				2205.65
+			],
+			"dps": 2209.25,
+			"hero": "zhuge_liang",
+			"option": "mixed_gear_talents",
+			"points": 40,
+			"ratio": 1.02545159169149,
+			"targets": 3,
+			"ultimates": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"damage": [
+				113.4,
+				110.566666666667,
+				111.133333333333
+			],
+			"hero": "liu_bei",
+			"option": "bare",
+			"ratio": 1.0,
+			"receiver": "guan_yu_L1_white",
+			"receiver_dps": 111.7
+		},
+		{
+			"damage": [
+				114.516666666667,
+				111.116666666667,
+				112.25
+			],
+			"hero": "liu_bei",
+			"option": "mixed_gear_talents",
+			"ratio": 1.00830597831493,
+			"receiver": "guan_yu_L1_white",
+			"receiver_dps": 112.627777777778
+		},
+		{
+			"damage": [
+				118.933333333333,
+				118.933333333333,
+				118.4
+			],
+			"hero": "diao_chan",
+			"option": "bare",
+			"ratio": 1.0,
+			"receiver": "guan_yu_L1_white",
+			"receiver_dps": 118.755555555556
+		},
+		{
+			"damage": [
+				124.266666666667,
+				124.266666666667,
+				121.6
+			],
+			"hero": "diao_chan",
+			"option": "mixed_gear_talents",
+			"ratio": 1.03892215568862,
+			"receiver": "guan_yu_L1_white",
+			"receiver_dps": 123.377777777778
+		}
+	],
+	"samples": 3,
+	"seconds": 60.0,
+	"skill_level": 1,
+	"target_tags": [
+		"elite",
+		"yellow_turban"
+	]
+}
