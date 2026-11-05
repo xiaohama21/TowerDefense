@@ -1,0 +1,5 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+AUDIT_ROW {"armor":20,"attack":158,"character":"zhou_wei","dps":475.022222222222,"dps_samples":[474.0,485.55,465.516666666667],"fear_uptime":0.0,"interval":0.845597630823349,"setup":{"level":40,"rank":2,"skill_level":10,"target_hp_ratio":0.49},"targets":1,"ult_samples":[12,12,12],"ults":12.0}
+AUDIT_ROW {"armor":20,"attack":334,"character":"zhou_wei","dps":1600.45555555556,"dps_samples":[1593.23333333333,1630.76666666667,1577.36666666667],"fear_uptime":0.0,"interval":0.786608772261028,"setup":{"level":100,"rank":5,"skill_level":10,"target_hp_ratio":0.49},"targets":1,"ult_samples":[25,25,25],"ults":25.0}
+AUDIT_EXTRA_COMPLETE

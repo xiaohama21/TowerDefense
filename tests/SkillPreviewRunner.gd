@@ -5,11 +5,13 @@ extends Node
 var _slot := ""
 var _capture_dir := "res://build/verify_0.9.2"
 var _skills_only := false
+var _max_skills := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for argument in OS.get_cmdline_user_args():
 		if argument == "--skills-only": _skills_only = true
+		if argument == "--max-skills": _max_skills = true
 		if argument.begins_with("--capture-dir="):
 			_capture_dir = argument.trim_prefix("--capture-dir=")
 	_slot = "user://.skill_preview_%d.json" % Time.get_ticks_usec()
@@ -22,6 +24,8 @@ func _run() -> void:
 		profile.unlock_character(id)
 		profile.add_character_exp(id, LevelCurve.exp_total_for_level(40))
 		if _skills_only: profile.characters[id]["rank"] = 2
+		if _max_skills:
+			for skill in GameFlow.load_character_data(id).get_skill_ids(): profile.characters[id].skill_levels[str(skill)] = 10
 	for id in CharacterRank.MATERIALS + ["skill_book"]:
 		profile.add_item(id, 100)
 	profile.exp_pool = 10000
@@ -43,7 +47,7 @@ func _run() -> void:
 	develop._select_character("guan_yu")
 	develop._refresh()
 	await _shot("develop_guan_skills")
-	develop._upgrade_skill("guan_yu", &"char_green_dragon", 1)
+	if not _max_skills: develop._upgrade_skill("guan_yu", &"char_green_dragon", 1)
 	await get_tree().process_frame
 	var ultimate_card = develop._skill_tab.find_child("SkillCard_char_green_dragon", true, false)
 	var skill_scroll = develop._skill_tab.get_child(0) as ScrollContainer
@@ -54,12 +58,17 @@ func _run() -> void:
 	await _shot("develop_fire_skills")
 	if _skills_only:
 		for id in GameFlow.get_all_character_ids():
+			if _max_skills: profile.characters[id].rank = 2
 			develop._select_character(id)
 			develop._refresh()
 			await _shot("skills_" + id)
 			var data := GameFlow.load_character_data(id)
+			var passive_card := develop._skill_tab.find_child("SkillCard_" + str(data.passive_ids[1]), true, false) as Control
+			var scroll := develop._skill_tab.get_child(0) as ScrollContainer
+			scroll.scroll_vertical = roundi(passive_card.global_position.y - scroll.global_position.y + scroll.scroll_vertical - 14)
+			await _shot("passive2_" + id)
 			var card := develop._skill_tab.find_child("SkillCard_" + str(data.ultimate_id), true, false) as Control
-			(develop._skill_tab.get_child(0) as ScrollContainer).ensure_control_visible(card)
+			scroll.scroll_vertical = roundi(card.global_position.y - scroll.global_position.y + scroll.scroll_vertical - 14)
 			await _shot("ultimate_" + id)
 		hub._show_panel(&"encyclopedia")
 		var encyclopedia = hub._panels[&"encyclopedia"]

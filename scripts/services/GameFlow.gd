@@ -313,7 +313,8 @@ func get_battle_loadout(profile: PlayerProfile, character_id: String) -> Diction
 func get_equipped_relic(profile: PlayerProfile, character_id: String) -> RelicData:
 	if profile == null:
 		return null
-	return load_relic_data(profile.get_character_relic_id(character_id, "optional"))
+	var relic := load_relic_data(profile.get_character_relic_id(character_id, "optional"))
+	return relic if relic != null and relic.fits(load_character_data(character_id)) else null
 
 
 ## 该武将专属槽的占位信物（characters[id].relic_exclusive；本版锁住、不参与计算，仅展示）。
@@ -577,7 +578,16 @@ func goto_squad_select(difficulty: int = Difficulty.NORMAL) -> void:
 
 
 func goto_battle() -> void:
+	if not squad_allowed_for_stage(load_stage_data(selected_stage_id), squad_character_ids):
+		push_warning("出战阵营不符合本关要求，请重新编队。")
+		return
 	_change_scene(BATTLE_SCENE)
+
+func squad_allowed_for_stage(stage: StageData, ids: Array) -> bool:
+	if stage == null or ids.is_empty() or not FactionRegistry.valid_rule(stage.faction_rule): return false
+	for id in ids:
+		if not stage.allows_character(load_character_data(str(id))): return false
+	return true
 
 
 func _change_scene(scene_path: String) -> void:

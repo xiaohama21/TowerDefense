@@ -6,7 +6,7 @@ var _burn_owner: WeakRef
 var _burn_source_id := ""
 var _poison_owner: WeakRef
 var _poison_source_id := ""
-var poison_dps := 0
+var poison_dps: float = 0.0
 var _poison_time_left := 0.0
 var _poison_acc := 0.0
 var _forced_reveal_left := 0.0
@@ -138,6 +138,7 @@ var _armor_aura_bonus: int = 0
 ## 甲光环剩余窗口（秒，B-097 改战斗时钟）：随 _process 递减，暂停时冻结。
 var _armor_aura_time_left: float = 0.0
 var _slow_time_left: float = 0.0
+var _slow_sources: Dictionary = {}
 ## 灼烧（阶段 8 军需·火攻，为阶段 9 特性铺路）：每秒 burn_dps，取更大值刷新时长。
 var burn_dps: int = 0
 var _burn_time_left: float = 0.0
@@ -156,6 +157,7 @@ var _fear_time_left: float = 0.0
 var _fear_pulse: float = 0.0
 var _fear_follow_slow_factor: float = 0.0
 var _fear_follow_slow_duration: float = 0.0
+var _fear_follow_slow_source: String = ""
 ## 易伤（天师·奇门，提交 7）：剩余秒数内受所有来源伤害 +_vulnerability_bonus；
 ## 同类不叠加（取更强加成）、时长刷新（NUMBERS 10.10）。
 var _vulnerability_bonus: float = 0.0
@@ -236,10 +238,7 @@ func _process(delta: float) -> void:
 		_reveal_flash_left = maxf(_reveal_flash_left - delta, 0.0)
 		queue_redraw()
 
-	if _slow_time_left > 0.0:
-		_slow_time_left = maxf(_slow_time_left - delta, 0.0)
-		if _slow_time_left <= 0.0:
-			slow_factor = 1.0
+	_tick_slow_sources(delta)
 
 	# 甲光环窗口倒计时（B-097）：真实时钟改战斗时钟，暂停（设置/结算）时不再走表。
 	if _armor_aura_time_left > 0.0:
@@ -272,9 +271,10 @@ func _process(delta: float) -> void:
 		_fear_pulse += delta
 		if _fear_time_left <= 0.0:
 			if _fear_follow_slow_factor > 0.0 and _fear_follow_slow_duration > 0.0:
-				apply_slow(_fear_follow_slow_factor, _fear_follow_slow_duration)
+				apply_slow(_fear_follow_slow_factor, _fear_follow_slow_duration, _fear_follow_slow_source)
 			_fear_follow_slow_factor = 0.0
 			_fear_follow_slow_duration = 0.0
+			_fear_follow_slow_source = ""
 		queue_redraw()
 
 	# 阶段推进表现（✅ 0.8.13.5 张角三阶段）：扩散环衰减，结束即停重绘。
@@ -315,27 +315,54 @@ func has_mark(character_id: String) -> bool:
 	return not character_id.is_empty() and character_id in marks and float(marks.get(character_id, 0.0)) > 0.0
 
 
-## 施加减速：多来源叠加时取最强因子（最小值），时长刷新。
-func apply_slow(factor: float, duration: float) -> void:
-	slow_factor = minf(slow_factor, clampf(factor, 0.05, 1.0))
-	_slow_time_left = maxf(_slow_time_left, duration)
+## 每个来源独立到期，兼容无来源调用按强度归组。
+func apply_slow(factor: float, duration: float, source_id: String = "") -> void:
+	if is_dead or duration <= 0.0: return
+	factor = clampf(factor, 0.05, 1.0)
+	duration *= status_duration_multiplier()
+	var key := source_id if not source_id.is_empty() else "legacy:%s" % String.num(factor, 8)
+	var previous: Dictionary = _slow_sources.get(key, {})
+	if is_equal_approx(float(previous.get("factor", 1.0)), factor):
+		duration = maxf(duration, float(previous.get("left", 0.0)))
+	_slow_sources[key] = {"factor": factor, "left": duration}
+	_recalculate_slow()
+
+func _tick_slow_sources(delta: float) -> void:
+	if _slow_sources.is_empty(): return
+	for key in _slow_sources.keys():
+		_slow_sources[key].left = maxf(float(_slow_sources[key].left) - delta, 0.0)
+		if float(_slow_sources[key].left) <= 0.0: _slow_sources.erase(key)
+	_recalculate_slow()
+
+func _recalculate_slow() -> void:
+	slow_factor = 1.0
+	_slow_time_left = 0.0
+	for entry in _slow_sources.values():
+		slow_factor = minf(slow_factor, float(entry.factor))
+		_slow_time_left = maxf(_slow_time_left, float(entry.left))
+
+func status_duration_multiplier() -> float:
+	if not tags.has(&"boss"): return 1.0
+	return 1.0 - 0.3 * clampi(phase_index - 1, 0, 2)
 
 
 ## 施加灼烧：多来源叠加时取更大每秒伤害，时长刷新。
 func apply_burn(dps: int, duration: float, source: Tower = null) -> void:
 	if is_dead or dps <= 0 or duration <= 0.0: return
+	duration *= status_duration_multiplier()
 	if dps >= burn_dps:
 		_burn_owner = weakref(source) if is_instance_valid(source) else null
 		_burn_source_id = source.character_id if is_instance_valid(source) else ""
 	burn_dps = maxi(burn_dps, dps)
 	_burn_time_left = maxf(_burn_time_left, duration)
 
-func apply_poison(dps: int, duration: float, source_id: String, source: Tower = null) -> void:
+func apply_poison(dps: float, duration: float, source_id: String, source: Tower = null) -> void:
 	if is_dead or dps <= 0 or duration <= 0.0: return
+	duration *= status_duration_multiplier()
 	if dps >= poison_dps:
 		_poison_source_id = source_id
 		_poison_owner = weakref(source) if is_instance_valid(source) else null
-	poison_dps = maxi(poison_dps, dps)
+	poison_dps = maxf(poison_dps, dps)
 	_poison_time_left = maxf(_poison_time_left, duration)
 
 func _tick_status_damage(delta: float) -> void:
@@ -366,6 +393,8 @@ func _tick_status_damage(delta: float) -> void:
 			_poison_source_id = ""
 
 func apply_reveal(duration: float) -> void:
+	if is_dead or duration <= 0.0: return
+	duration *= status_duration_multiplier()
 	_forced_reveal_left = maxf(_forced_reveal_left, duration)
 	_set_stealth_revealed(true)
 
@@ -378,6 +407,7 @@ func is_controlled() -> bool:
 func apply_stun(duration: float) -> void:
 	if is_dead or duration <= 0.0:
 		return
+	duration *= status_duration_multiplier()
 	_stun_time_left = maxf(_stun_time_left, duration)
 	queue_redraw()
 
@@ -385,13 +415,15 @@ func apply_stun(duration: float) -> void:
 ## 施加恐惧（张飞·当阳桥，v0.35.2 / 0.8.10.1）：时长类控制——期间沿路径反向
 ## 行军、移速不变（不受减速影响）；可携带随附减速（两段顺序控制，恐惧结束时施加）。
 ## 同类不叠加只刷新时长（NUMBERS 10.10）；Boss 抗性折减随阶段 9 统一落地。
-func apply_fear(duration: float, follow_slow_factor: float = 0.0, follow_slow_duration: float = 0.0) -> void:
+func apply_fear(duration: float, follow_slow_factor: float = 0.0, follow_slow_duration: float = 0.0, source_id: String = "") -> void:
 	if is_dead or duration <= 0.0:
 		return
+	duration *= status_duration_multiplier()
 	_fear_time_left = maxf(_fear_time_left, duration)
 	if follow_slow_factor > 0.0 and follow_slow_duration > 0.0:
 		_fear_follow_slow_factor = follow_slow_factor
 		_fear_follow_slow_duration = follow_slow_duration
+		_fear_follow_slow_source = source_id
 	queue_redraw()
 
 
@@ -400,6 +432,7 @@ func apply_fear(duration: float, follow_slow_factor: float = 0.0, follow_slow_du
 func apply_vulnerability(bonus: float, duration: float) -> void:
 	if is_dead or duration <= 0.0 or bonus <= 0.0:
 		return
+	duration *= status_duration_multiplier()
 	_vulnerability_bonus = maxf(_vulnerability_bonus, bonus)
 	_vulnerability_time_left = maxf(_vulnerability_time_left, duration)
 	queue_redraw()

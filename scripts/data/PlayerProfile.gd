@@ -4,7 +4,7 @@ class_name PlayerProfile
 
 ## The on-disk profile schema. Derived values such as level are intentionally
 ## calculated from total_exp by the caller and are not duplicated here.
-const CURRENT_SCHEMA_VERSION: int = 11
+const CURRENT_SCHEMA_VERSION: int = 12
 ## 军需（✅ 0.8.16 / NUMBERS 10.15）：强化上限 3 级、L1→L2 / L2→L3 消耗、军需带基础槽位。
 const SUPPLY_MAX_LEVEL: int = 3
 const SUPPLY_UPGRADE_COSTS: Array[int] = [0, 150, 300]
@@ -305,6 +305,12 @@ func _set_character_relic_slot(character_id: String, slot: String, relic_id: Str
 		return false
 	if not relic_id.strip_edges().is_empty() and not has_relic(relic_id):
 		return false
+	var relic_path := "res://resources/relics/" + relic_id.strip_edges() + ".tres"
+	if not relic_id.strip_edges().is_empty() and ResourceLoader.exists(relic_path):
+		var relic := load(relic_path) as RelicData
+		if relic != null and not relic.faction_limit.is_empty():
+			var character := load("res://resources/characters/" + key + ".tres") as CharacterData
+			if not relic.fits(character): return false
 	ensure_character(key)
 	var entry = characters.get(key, {})
 	if not entry is Dictionary:
@@ -736,13 +742,13 @@ func skill_upgrade_status(character_id: String, skill_id: StringName) -> String:
 	var level := get_skill_level(character_id, skill_id)
 	if level >= SkillRegistry.MAX_LEVEL:
 		return "已满级"
-	return "升级" if int(items.get("skill_book", 0)) >= SkillRegistry.upgrade_cost(level) else "不足"
+	return "升级" if int(items.get("skill_book", 0)) >= SkillRegistry.upgrade_cost(level, skill_id) else "不足"
 
 func upgrade_skill(character_id: String, skill_id: StringName) -> bool:
 	if skill_upgrade_status(character_id, skill_id) != "升级":
 		return false
 	var level := get_skill_level(character_id, skill_id)
-	if not spend_item("skill_book", SkillRegistry.upgrade_cost(level)):
+	if not spend_item("skill_book", SkillRegistry.upgrade_cost(level, skill_id)):
 		return false
 	var levels := SkillRegistry.normalize_levels(character_id, characters[character_id].get("skill_levels", {}))
 	levels[str(skill_id)] = level + 1

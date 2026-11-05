@@ -51,6 +51,7 @@ var _talent_reset_dialog: ConfirmationDialog
 var _skill_tab: VBoxContainer
 ## 信物页签：专属槽锁定占位标签 + 可选槽（Boss 签名信物）列表容器（✅ 0.8.14 双槽）。
 var _relic_label: Label
+var _exclusive_relic_preview: VBoxContainer
 var _relic_optional_box: VBoxContainer
 ## 经验池行（✅ 0.8.15 / NUMBERS 10.14）：余额 + 分配入口 + 直接升级。
 var _exp_pool_label: Label
@@ -340,7 +341,9 @@ func _populate_info_card(character: CharacterData, level: int, stats, progress) 
 
 	_detail_name_label.text = character.display_name
 	for child in _detail_chips.get_children():
+		_detail_chips.remove_child(child)
 		child.queue_free()
+	_detail_chips.add_child(FactionUI.badge(character.faction, 20))
 	if character.profession != null:
 		var melee_tag: bool = character.profession.tags.has(&"melee")
 		var ranged_tag: bool = character.profession.tags.has(&"ranged")
@@ -512,12 +515,13 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 	content.offset_right = -9.0
 	content.offset_top = 8.0
 	content.offset_bottom = -8.0
-	content.add_theme_constant_override("separation", 9)
+	content.add_theme_constant_override("separation", 6)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var avatar_char := character.display_name.left(1)
 	var avatar := UITheme.avatar_label(avatar_char,
-		"grey" if locked else AVATAR_COLORS[abs(hash(avatar_char)) % AVATAR_COLORS.size()], 44.0, 20)
+		"grey" if locked else UITheme.character_avatar_color_key(str(character.character_id)), 36.0, 18)
 	avatar.name = "CardAvatar"
+	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	content.add_child(avatar)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -546,18 +550,24 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 		src.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 		src.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		info.add_child(src)
+	var progress := VBoxContainer.new()
+	progress.name = "CardProgress"
+	progress.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	progress.add_theme_constant_override("separation", 2)
+	content.add_child(progress)
 	var lvl := Label.new()
 	lvl.name = "CardLv"
 	lvl.text = "Lv%d" % level
 	lvl.add_theme_font_size_override("font_size", 14)
 	lvl.add_theme_color_override("font_color", UITheme.LIGHT_LOCK if locked else UITheme.LIGHT_ACCENT)
-	lvl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	content.add_child(lvl)
+	lvl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	progress.add_child(lvl)
 	var badge := ConceptIcon.new("", 22)
 	badge.name = "CardRank"
 	badge.visible = not locked
 	badge.set_rank(_profile.get_character_rank(str(character.character_id)))
-	content.add_child(badge)
+	badge.size_flags_horizontal = Control.SIZE_SHRINK_END
+	progress.add_child(badge)
 	return content
 
 
@@ -622,7 +632,7 @@ func _refresh() -> void:
 	var progress := LevelCurve.progress_at(_profile.get_character_exp(_selected_id))
 	var stats := character.compute_stats_at(level, _profile.get_character_rank(_selected_id), GameFlow.get_equipped_relic(_profile, _selected_id), 0, _profile.get_character(_selected_id).get("growth_guard", {}), _profile.get_character(_selected_id).get("skill_levels", {}), WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)), _profile.get_talent_alloc(_selected_id))
 	_populate_info_card(character, level, stats, progress)
-	_refresh_skill_tab(character)
+	_refresh_skill_tab(character, stats)
 	_refresh_talents()
 	_refresh_rank_tab(character, level)
 	_refresh_relic(character)
@@ -633,7 +643,7 @@ func _refresh() -> void:
 
 # ============ 技能页签（概念图 .skrow/.skcard） ============
 
-func _refresh_skill_tab(character: CharacterData) -> void:
+func _refresh_skill_tab(character: CharacterData, stats: Dictionary = {}) -> void:
 	for child in _skill_tab.get_children():
 		_skill_tab.remove_child(child)
 		child.queue_free()
@@ -659,7 +669,8 @@ func _refresh_skill_tab(character: CharacterData) -> void:
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()
 		content.add_child(card)
-		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), character.per_rank_skill_amp * rank + float(WeaponRegistry.bonuses(WeaponRegistry.get_weapon(_profile.get_character_weapon_id(_selected_id)), character).get("skill_amp", 0.0)) + TalentRegistry.skill_amp(_selected_id, _profile.get_talent_alloc(_selected_id), id == character.ultimate_id), _profile.skill_upgrade_status(_selected_id, id), true)
+		var amp := float(stats.get("skill_amp", 0.0)) + (float(stats.get("talents", {}).get("ultimate_amp", 0.0)) if id == character.ultimate_id else 0.0)
+		card.configure(character, id, rank, _profile.get_skill_level(_selected_id, id), amp, _profile.skill_upgrade_status(_selected_id, id), true, stats)
 		card.upgrade_requested.connect(_upgrade_skill)
 
 func _upgrade_skill(character_id: String, skill_id: StringName, expected_level: int) -> void:
@@ -685,6 +696,9 @@ func _build_relic_tab() -> void:
 	_relic_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_relic_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	exclusive_slot.add_child(_relic_label)
+	_exclusive_relic_preview = VBoxContainer.new()
+	_exclusive_relic_preview.name = "ExclusiveRelicPreview"
+	page.add_child(_exclusive_relic_preview)
 	var optional_title := Label.new()
 	optional_title.text = "可选信物槽（Boss 签名信物 · 通用件，可自由装卸）"
 	optional_title.add_theme_font_size_override("font_size", 15)
@@ -1015,6 +1029,11 @@ func _close_exp_pool_dialog(overlay: Control) -> void:
 func _refresh_relic(_character: CharacterData) -> void:
 	_relic_label.text = "未开放"
 	_relic_label.tooltip_text = "专属信物槽暂未开放。"
+	for child in _exclusive_relic_preview.get_children():
+		_exclusive_relic_preview.remove_child(child)
+		child.queue_free()
+	var exclusive := GameFlow.get_relic_for_character(_selected_id)
+	if exclusive != null: _exclusive_relic_preview.add_child(preload("res://scripts/ui_screens/locked_relic_card.gd").new(exclusive))
 	for child in _relic_optional_box.get_children():
 		_relic_optional_box.remove_child(child)
 		child.queue_free()
@@ -1050,6 +1069,7 @@ func _build_optional_relic_row(relic: RelicData, equipped_id: String) -> PanelCo
 		"%s%s" % [relic.display_name, "（已装备）" if is_equipped else ("（未持有）" if not owned else "")],
 		UITheme.LIGHT_GOLD_TEXT if owned else UITheme.LIGHT_LOCK))
 	text_box.add_child(_make_relic_line("效果：%s" % relic.effect_summary(), UITheme.LIGHT_ACCENT, 13))
+	if not relic.faction_limit.is_empty(): text_box.add_child(FactionUI.limit_row(relic.faction_limit))
 	if not relic.acquisition_hint.is_empty():
 		text_box.add_child(_make_relic_line("获取：%s" % relic.acquisition_hint, UITheme.LIGHT_MUTED, 13))
 	var action := Button.new()
@@ -1057,7 +1077,7 @@ func _build_optional_relic_row(relic: RelicData, equipped_id: String) -> PanelCo
 	action.focus_mode = Control.FOCUS_NONE
 	action.add_theme_font_size_override("font_size", 15)
 	action.text = "卸下" if is_equipped else "装备"
-	action.disabled = not owned
+	action.disabled = not owned or (not is_equipped and not relic.fits(GameFlow.load_character_data(_selected_id)))
 	UITheme.apply_kenney_rect_button(action, "blue", Color.WHITE)
 	action.pressed.connect(_on_optional_relic_pressed.bind(str(relic.relic_id), is_equipped))
 	row.add_child(action)

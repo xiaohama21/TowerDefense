@@ -1,0 +1,372 @@
+{
+  "version": "0.9.6.1",
+  "document_version": "v0.37.84",
+  "date": "2026-11-04",
+  "roster_checks": 83,
+  "faction_checks": 293,
+  "layout_checks": 902,
+  "packaged_checks": 398,
+  "regression": {
+    "RosterRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "ROSTER_RESULT: PASS checks=83 failures=0"
+      ],
+      "passed": true
+    },
+    "FactionRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "FACTION_RESULT: PASS checks=293 failures=0"
+      ],
+      "passed": true
+    },
+    "Stage0Runner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [
+        "ERROR: Parse JSON failed. Error at line 0: Expected key",
+        "ERROR: SaveManager: 只有胜利且尚未提交的战局才能结算",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ],
+      "summary": [],
+      "passed": true
+    },
+    "PackVerify": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "SmokeRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "FlowRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "ExitFlowRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "RankRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "RANK_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "DevelopRefreshRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "SupplyStateRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "SUPPLY_STATE_OK failures=0"
+      ],
+      "passed": true
+    },
+    "ShopRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "SHOP_RESULT: PASS checks=461 failures=0"
+      ],
+      "passed": true
+    },
+    "SkillKitRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "SKILL_KIT_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "GearRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "GEAR_RESULT: PASS checks=446 failures=0"
+      ],
+      "passed": true
+    },
+    "ItemUiRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "ITEM_UI_RESULT: PASS checks=91 failures=0"
+      ],
+      "passed": true
+    },
+    "TalentRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [
+        "ERROR: SaveManager: 无法写入 user://（错误码 12）",
+        "ERROR: SaveManager: 无法写入 user://（错误码 12）"
+      ],
+      "summary": [
+        "TALENT_RESULT: PASS checks=389 failures=0"
+      ],
+      "passed": true
+    }
+  },
+  "release": {
+    "import": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "export": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "standalone_boot": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "standalone_spine_module": "F:\\godotProject\\TowerDefense\\build\\release_0.9.6.1\\libspine_godot.windows.template_release.x86_64.dll",
+    "expected_editor_feature_bootstrap_errors": [
+      "ERROR: Condition \"!FileAccess::exists(path)\" is true. Returning: ERR_FILE_NOT_FOUND",
+      "ERROR: GDExtension dynamic library not found: 'res://bin/spine_godot_extension.gdextension'.",
+      "ERROR: Error loading extension: 'res://bin/spine_godot_extension.gdextension'."
+    ],
+    "package_probe": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "packaged_checks": 398,
+    "pe_versions": {
+      "FileVersion": "0.9.6.1",
+      "ProductVersion": "0.9.6.1"
+    }
+  },
+  "captures": [
+    {
+      "file": "encyclopedia_factions_all.png",
+      "purpose": "全部九将，阵营人数与新身份常显",
+      "width": 1280,
+      "height": 720,
+      "bytes": 236476,
+      "sha256": "1b1b6ff20992d76119cce9584dd3034c0a277fcb8586270722740d2c7f154990"
+    },
+    {
+      "file": "encyclopedia_factions_last_card.png",
+      "purpose": "末卡诸葛亮完整滚入并真实点击选择",
+      "width": 1280,
+      "height": 720,
+      "bytes": 232267,
+      "sha256": "50934944eeeaac8edd776946a38d12719d9a8d522b0a0282c26e1b12061dfee4"
+    },
+    {
+      "file": "encyclopedia_factions_shu.png",
+      "purpose": "蜀5名，保留关羽与Lv35模拟",
+      "width": 1280,
+      "height": 720,
+      "bytes": 217225,
+      "sha256": "c162f16c88bb34e40f80057dbc233291e0a2b640a207987d7f21a9a29334c9ff"
+    },
+    {
+      "file": "encyclopedia_factions_qun.png",
+      "purpose": "群2名，筛选与只读模拟",
+      "width": 1280,
+      "height": 720,
+      "bytes": 207865,
+      "sha256": "52e4edee3fd25b43539a3e158b4ed1bd252e70d05f1d57a5994aff81138f0ee8"
+    },
+    {
+      "file": "encyclopedia_factions_wei.png",
+      "purpose": "魏1名典韦，军旗与中文归属",
+      "width": 1280,
+      "height": 720,
+      "bytes": 200116,
+      "sha256": "19fd62fd8abfcc3e84406fd987cfaf0f7118097d78c53cacdf9a613c697cfe02"
+    },
+    {
+      "file": "encyclopedia_factions_wu.png",
+      "purpose": "吴1名孙尚香，三字姓名与中文归属",
+      "width": 1280,
+      "height": 720,
+      "bytes": 201415,
+      "sha256": "9f6a889b6ef7b553a778e7ba01b7b46359a18380de5ded37e51c2d2777d8ac9a"
+    },
+    {
+      "file": "encyclopedia_factions_enemy.png",
+      "purpose": "敌人图鉴独立，不受武将阵营筛选影响",
+      "width": 1280,
+      "height": 720,
+      "bytes": 263437,
+      "sha256": "efadab665a0a378b1f26018e1de538dfe5a1f76baded1fa9d397f82c1ae31619"
+    },
+    {
+      "file": "encyclopedia_factions_return.png",
+      "purpose": "返回武将图鉴保留群筛选",
+      "width": 1280,
+      "height": 720,
+      "bytes": 207865,
+      "sha256": "52e4edee3fd25b43539a3e158b4ed1bd252e70d05f1d57a5994aff81138f0ee8"
+    },
+    {
+      "file": "encyclopedia_factions_restored.png",
+      "purpose": "恢复全部九将，浏览不写档",
+      "width": 1280,
+      "height": 720,
+      "bytes": 239733,
+      "sha256": "0f900714a62f7b080517b2e3c86f1e11466eb1b6693e1ce93567b7445c9aec74"
+    },
+    {
+      "file": "develop_faction_badge.png",
+      "purpose": "属性军旗与中文阵营，天赋入口",
+      "width": 1280,
+      "height": 720,
+      "bytes": 219199,
+      "sha256": "cf06fc2a391c5c7db7f8a4ad54c6c4526789db76fe383375b8c9387d50f19fa2"
+    },
+    {
+      "file": "huang_zhong_develop_skills.png",
+      "purpose": "孙尚香养成两被动，姓名在Lv100完整可见",
+      "width": 1280,
+      "height": 720,
+      "bytes": 231285,
+      "sha256": "045aa34512f45d0268f411472fcf8f7f17f80a0fd99041854206e1b91d7e5bb3"
+    },
+    {
+      "file": "huang_zhong_develop_ultimate.png",
+      "purpose": "孙尚香养成滚动至大招，专属人物动作图徽",
+      "width": 1280,
+      "height": 720,
+      "bytes": 223725,
+      "sha256": "510e9ae3f25e8463857b53b521d5ff838cb08e9614fa6e739704c2c93d217230"
+    },
+    {
+      "file": "huang_zhong_develop_relic.png",
+      "purpose": "孙尚香的鹊画弓名称、简述与未开放说明",
+      "width": 1280,
+      "height": 720,
+      "bytes": 235628,
+      "sha256": "5127b48866e1f8a040276d578f53d7c8b5c34be130627e53f3d9351895d5ec0b"
+    },
+    {
+      "file": "huang_zhong_develop_talents.png",
+      "purpose": "孙尚香独立三大类天赋分叉树，原节点与效果保持",
+      "width": 1280,
+      "height": 720,
+      "bytes": 170496,
+      "sha256": "aadef7f152ce976cde3032bb1708ef140b3e532c204fc9f92c83567c487d6cba"
+    },
+    {
+      "file": "huang_zhong_encyclopedia_skills.png",
+      "purpose": "孙尚香百科技能，同源名称、图徽与效果",
+      "width": 1280,
+      "height": 720,
+      "bytes": 206299,
+      "sha256": "081e139adf6232a067b61f506e786f30226ea67d4ab3b1766f30442f33f6831f"
+    },
+    {
+      "file": "huang_zhong_encyclopedia_relic.png",
+      "purpose": "孙尚香百科鹊画弓，可选信物仍为原两件",
+      "width": 1280,
+      "height": 720,
+      "bytes": 193107,
+      "sha256": "53017e8c74687c91738f2b81ae95f47193fef140ba45570951a4a18a5db604b4"
+    },
+    {
+      "file": "zhou_wei_develop_skills.png",
+      "purpose": "典韦养成两被动，姓名在Lv100完整可见",
+      "width": 1280,
+      "height": 720,
+      "bytes": 223066,
+      "sha256": "ee8b5f5fdf0910597abf15dd3e0c64ed6be0bd8ff7fbc27c57b10531976145a3"
+    },
+    {
+      "file": "zhou_wei_develop_ultimate.png",
+      "purpose": "典韦养成滚动至大招，专属人物动作图徽",
+      "width": 1280,
+      "height": 720,
+      "bytes": 227209,
+      "sha256": "000621eb1989ecd8d0445b1edff16797a72e82a615e00da080b010ebb121a9c1"
+    },
+    {
+      "file": "zhou_wei_develop_relic.png",
+      "purpose": "典韦的双铁戟名称、简述与未开放说明",
+      "width": 1280,
+      "height": 720,
+      "bytes": 236962,
+      "sha256": "80f3e9491f87fead1327c8c25146611b340c42b5fe3c48cacaf8581e82a29c2f"
+    },
+    {
+      "file": "zhou_wei_develop_talents.png",
+      "purpose": "典韦独立三大类天赋分叉树，原节点与效果保持",
+      "width": 1280,
+      "height": 720,
+      "bytes": 169594,
+      "sha256": "308472d7fdc5dd93e2f80f90bb3ee3403778d569008afc5714f98c069fd798a5"
+    },
+    {
+      "file": "zhou_wei_encyclopedia_skills.png",
+      "purpose": "典韦百科技能，同源名称、图徽与效果",
+      "width": 1280,
+      "height": 720,
+      "bytes": 195881,
+      "sha256": "c693bfd6c554ff72c130eb67edf4bfb0be901682d5f1a1df72ca9a0978eec9c7"
+    },
+    {
+      "file": "zhou_wei_encyclopedia_relic.png",
+      "purpose": "典韦百科双铁戟，可选信物仍为原两件",
+      "width": 1280,
+      "height": 720,
+      "bytes": 192246,
+      "sha256": "0bf27f92cfaacd662e76c061b88c052bb89399606ce93c2a324756c785509a42"
+    },
+    {
+      "file": "squad_faction_badges.png",
+      "purpose": "九将编队卡的新身份和军旗归属",
+      "width": 1280,
+      "height": 720,
+      "bytes": 179980,
+      "sha256": "b8efdcd1a49e22ee4db8f16540eb6530c8da9643421c1104836283a6dc44f56a"
+    },
+    {
+      "file": "squad_faction_confirm.png",
+      "purpose": "出战确认三将军旗与中文归属",
+      "width": 1280,
+      "height": 720,
+      "bytes": 180483,
+      "sha256": "18e2913058cceb5c1e978576a71533ed3cad0f882ec06a0348475497b7a1988c"
+    },
+    {
+      "file": "squad_faction_rule_preview.png",
+      "purpose": "隔离测试群阵营限制提示、记忆过滤与真实禁选",
+      "width": 1280,
+      "height": 720,
+      "bytes": 173480,
+      "sha256": "fe5ebd9e663e78606f1a7ef011119f363d1590d6b460a9ba215fe2f75bc2397c"
+    }
+  ]
+}

@@ -6,6 +6,8 @@
 
 ## 1. 预览 / 修改
 
+- 阵营当前口径（0.9.6.0）：军旗＋常显魏/蜀/吴/群文字，颜色辅助；最终原生界面见[阵营验收](../runtime_0.9.6/README.md)，覆盖筛选、武将归属、空态与限制行。
+
 - 当前三技能界面（0.9.2）：[运行截图](../runtime_0.9.2/)，共13张；由Godot隔离档案生成，图徽／锁定／独立等级／升级与战斗均与运行代码同源。
 - 在仓库根目录复现：`& 'F:\Godot\Godot_v4.7.1-stable_win64.exe\Godot_v4.7.1-stable_win64_console.exe' --path . res://tests/SkillPreviewRunner.tscn -- --capture-dir=res://docs/ui_concept/runtime_0.9.2`。
 - 直接双击任意 `*.html` 用浏览器打开即可（无构建步骤），固定画布 **1280×720**。

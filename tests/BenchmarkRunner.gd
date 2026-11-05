@@ -452,6 +452,7 @@ func _run_bucket_asserts() -> void:
 
 ## ============ 基线快照 ============
 func _load_baseline() -> Dictionary:
+	if "--record-baseline" in OS.get_cmdline_user_args(): return {}
 	if not FileAccess.file_exists(BASELINE_PATH):
 		return {}
 	var file := FileAccess.open(BASELINE_PATH, FileAccess.READ)
@@ -482,8 +483,8 @@ func _save_baseline() -> void:
 		push_error("无法写入基线快照：" + BASELINE_PATH)
 		return
 	var payload := {
-		"program_version": "0.9.2.0",
-		"note": "阶段 9·提交 2（六阶品阶、百分比成长与暴击）数值基准基线；由 tests/BenchmarkRunner.gd 生成；后续运行 ±3% 容差对比防回退。",
+		"program_version": str(ProjectSettings.get_setting("application/config/version")),
+		"note": "0.9.6.3已定稿技能成长与伤害积怒上限基线；由 BenchmarkRunner --record-baseline 生成，旧快照见docs/reviews/benchmark_before_0.9.6.3.json；±3%容差保持。",
 	}
 	for key in flat:
 		payload[key] = flat[key]

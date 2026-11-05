@@ -165,13 +165,7 @@ func _style_hud_controls() -> void:
 	menu_button.text = ""
 	menu_button.icon = UITheme.hud_icon_sized("ui_menu", 28)
 	menu_button.tooltip_text = "打开菜单"
-	menu_button.add_theme_stylebox_override("normal", _make_flat_style(
-		UITheme.HUD_CARD_BG, Color(UITheme.HUD_LINE.r, UITheme.HUD_LINE.g, UITheme.HUD_LINE.b, 0.55), 10, 2))
-	menu_button.add_theme_stylebox_override("hover", _make_flat_style(
-		Color(0.09, 0.16, 0.12, 0.95), UITheme.HUD_LINE, 10, 2))
-	menu_button.add_theme_stylebox_override("pressed", _make_flat_style(
-		UITheme.HUD_BG_DEEP, UITheme.HUD_LINE, 10, 2))
-	menu_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	UITheme.apply_kenney_rect_button(menu_button, "grey", UITheme.HUD_VALUE, 3)
 	menu_button.add_theme_color_override("font_color", UITheme.HUD_VALUE)
 	menu_button.add_theme_color_override("font_hover_color", Color("#ffe9b0"))
 	menu_button.add_theme_color_override("font_pressed_color", UITheme.HUD_VALUE)
@@ -184,11 +178,10 @@ func _style_hud_controls() -> void:
 	popup.add_icon_item(UITheme.hud_icon_sized("ui_settings", 20), "设置", MENU_SETTINGS)
 	popup.add_icon_item(UITheme.hud_icon_sized("ui_restart", 20), "重开", MENU_RESTART)
 	popup.add_icon_item(UITheme.hud_icon_sized("ui_close", 20), "退出", MENU_EXIT)
-	popup.add_theme_stylebox_override("panel", _make_flat_style(UITheme.HUD_BG, UITheme.HUD_LINE, 8, 2))
-	popup.add_theme_stylebox_override("hover", _make_flat_style(
-		Color(0.12, 0.2, 0.15, 0.98), UITheme.HUD_LINE, 6, 1))
-	popup.add_theme_color_override("font_color", UITheme.HUD_TEXT)
-	popup.add_theme_color_override("font_hover_color", UITheme.HUD_VALUE)
+	popup.add_theme_stylebox_override("panel", UITheme.light_panel_style())
+	popup.add_theme_stylebox_override("hover", UITheme.light_card_style(UITheme.LIGHT_BLUE_SELECT, UITheme.LIGHT_BORDER_SOFT))
+	popup.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	popup.add_theme_color_override("font_hover_color", UITheme.LIGHT_INK)
 	popup.add_theme_font_size_override("font_size", 17)
 	popup.id_pressed.connect(activate_menu_action)
 
@@ -749,7 +742,7 @@ func _refresh_tower_bar() -> void:
 		if not actions.is_empty():
 			var ready := bool(actions[0].get("ready", false))
 			_tower_bar.add_child(_make_action_slot(
-				"大招 R", "gold", 0, ready, false,
+				"大招\nR", "gold", 0, ready, false,
 				func() -> void: ultimate_cast_requested.emit(), true))
 
 
@@ -834,18 +827,8 @@ func _make_action_slot(text: String, kind: String, cost: int, affordable: bool, 
 	disc.focus_mode = Control.FOCUS_NONE
 	disc.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	disc.add_theme_font_size_override("font_size", 13)
-	var top := UITheme.HUD_DISC_GOLD if kind == "gold" else UITheme.HUD_DISC_RED
-	var bottom := UITheme.HUD_DISC_GOLD_DEEP if kind == "gold" else UITheme.HUD_DISC_RED_DEEP
-	var ink := Color("#2a1c05") if kind == "gold" else Color.WHITE
-	disc.add_theme_stylebox_override("normal", _make_flat_style(bottom, top, int(HUD_DISC_SIZE * 0.5), 2))
-	disc.add_theme_stylebox_override("hover", _make_flat_style(top, Color.WHITE, int(HUD_DISC_SIZE * 0.5), 2))
-	disc.add_theme_stylebox_override("pressed", _make_flat_style(top, Color.WHITE, int(HUD_DISC_SIZE * 0.5), 3))
-	disc.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	disc.add_theme_color_override("font_color", ink)
-	disc.add_theme_color_override("font_hover_color", ink)
-	disc.add_theme_color_override("font_pressed_color", ink)
-	if maxed:
-		disc.modulate = Color(1, 1, 1, 0.45)
+	UITheme.apply_kenney_round_button(disc, "yellow" if kind == "gold" else "red", UITheme.INK if kind == "gold" else Color.WHITE)
+	disc.disabled = maxed
 	disc.pressed.connect(on_pressed)
 	body.add_child(disc)
 	if not maxed and not no_cost:
@@ -939,12 +922,12 @@ func _create_dialogue_layer() -> void:
 
 	_dialogue_speaker_label = Label.new()
 	_dialogue_speaker_label.add_theme_font_size_override("font_size", 21)
-	_dialogue_speaker_label.add_theme_color_override("font_color", Color(1.0, 0.82, 0.3))
+	_dialogue_speaker_label.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
 	vbox.add_child(_dialogue_speaker_label)
 
 	_dialogue_text_label = Label.new()
 	_dialogue_text_label.add_theme_font_size_override("font_size", 19)
-	_dialogue_text_label.add_theme_color_override("font_color", Color(0.92, 0.93, 0.9))
+	_dialogue_text_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_dialogue_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(_dialogue_text_label)
@@ -956,7 +939,7 @@ func _create_dialogue_layer() -> void:
 	var hint := Label.new()
 	hint.text = "点击对话框继续 ▼（地图可正常建造）"
 	hint.add_theme_font_size_override("font_size", 15)
-	hint.add_theme_color_override("font_color", UITheme.BLUE)
+	hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hint_row.add_child(hint)
 

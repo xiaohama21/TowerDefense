@@ -611,6 +611,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 				data = _migrate_v10_to_v11(data)
 				version = 11
 				migrated = true
+			11:
+				data = _migrate_v11_to_v12(data)
+				version = 12
+				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}
 	if not _validate_current_shape(data):
@@ -788,4 +792,34 @@ func _migrate_v10_to_v11(old_data: Dictionary) -> Dictionary:
 				elif exp_value is String and exp_value.is_valid_int(): exp_total = maxi(int(exp_value), 0)
 				characters[id]["talent_alloc"] = TalentRegistry.normalize(str(id), LevelCurve.level_from_total_exp(exp_total), characters[id].get("talent_alloc", {}))
 	data["schema_version"] = 11
+	return data
+
+func _migrate_v11_to_v12(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	var refund := 0
+	var characters = data.get("characters", {})
+	if characters is Dictionary:
+		for character_id in characters:
+			var entry = characters[character_id]
+			if not entry is Dictionary: continue
+			var character := GameFlow.load_character_data(str(character_id))
+			if character == null: continue
+			var raw = entry.get("skill_levels", {})
+			if not raw is Dictionary: continue
+			var rank := clampi(_coerce_non_negative_int(entry.get("rank", 0)), 0, 5)
+			for id in character.get_skill_ids():
+				if not str(id) in SkillRegistry.CHEAP_SKILLS or not character.is_skill_unlocked(id, rank): continue
+				var value = raw.get(str(id), 1)
+				var numeric := 1.0
+				if typeof(value) in [TYPE_INT, TYPE_FLOAT]: numeric = float(value)
+				elif value is String and value.is_valid_int(): numeric = float(value)
+				else: continue
+				if not is_finite(numeric) or numeric < 1.0 or numeric > SkillRegistry.MAX_LEVEL or numeric != floor(numeric): continue
+				for level in range(1, int(numeric)):
+					refund += int(SkillRegistry.COSTS[level - 1]) - SkillRegistry.upgrade_cost(level, id)
+	var items = data.get("items", {})
+	if items is Dictionary:
+		items["skill_book"] = _coerce_non_negative_int(items.get("skill_book", 0)) + refund
+		data["items"] = items
+	data["schema_version"] = 12
 	return data

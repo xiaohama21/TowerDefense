@@ -121,6 +121,14 @@ def drum(fill=RED):
 def flag(fill=RED):
     return path('M26 14 V83','none',WOOD,7)+path('M29 20 Q54 10 76 22 L65 37 L78 51 Q55 40 29 50 Z',fill)+circle(26,13,4,GOLD,INK,3)
 
+def faction_flag(fill):
+    # Faction names are rendered as always-visible UI labels beside the flags.
+    return (path('M21 16 V84','none',WOOD,7)
+            +path('M25 20 Q49 13 77 23 L71 42 L79 61 Q50 53 25 62 Z',fill)
+            +path('M31 26 Q48 22 65 27 M31 54 Q48 50 65 54','none',CREAM,3)
+            +path('M66 28 Q60 40 66 50','none',INK,2)
+            +circle(21,13,5,GOLD,INK,3))
+
 def coin(fill=GOLD):
     return circle(48,48,32,fill)+rect(38,38,20,20,'none',2)+path('M27 34 Q30 24 40 23','none',CREAM,4)+path('M57 72 Q65 69 69 62','none',INK,3)
 
@@ -264,6 +272,8 @@ def catalogue():
       ('provision_bag','军粮袋',pouch()+path('M46 47 V69 M37 51 L46 57 L56 49','none',JADE,5)),
       ('relic_guanyu_blade','青龙偃月断刃',sword(JADE)+path('M55 30 L66 37 L62 47','none',RED,5)),
       ('relic_huangfusong_torch','火攻图卷',scroll(WOOD)+group(flame(),'translate(42 40) scale(.45)')),
+      ('relic_sunshangxiang_bow','鹊画弓',bow(RED)+path('M35 29 L49 38 M43 54 L34 68','none',GOLD,4)),
+      ('relic_dianwei_halberds','双铁戟',path('M25 82 L66 20 M63 19 L72 12 L75 24 M59 28 Q81 30 69 44 L60 35','none',BLUE,6)+path('M70 81 L30 20 M32 20 L24 12 L20 24 M37 31 Q14 28 26 44 L37 37','none',WOOD,6)),
       ('relic_zhangfei_spear','蛇矛精锻',spear()+path('M62 32 Q79 50 69 57','none',GOLD,5)),
       ('relic_tiangong_leizhao','天公雷诏',scroll(VIOLET)+group(bolt(),'translate(25 19) scale(.6)')),
       ('relic_taiping_yaoshu','太平要术·残卷',scroll(JADE)+path('M50 32 L61 45 L46 60','none',GOLD,6)),
@@ -288,7 +298,7 @@ def catalogue():
       ('char_green_dragon','青龙偃月',sword(JADE)+path('M18 33 Q30 14 49 16 M17 45 Q25 29 35 26','none',GOLD,6)),
       ('char_dangyang_roar','当阳怒吼',tiger(RED)+path('M9 45 V59 M87 45 V59','none',GOLD,4)),
       ('char_carry_people','携民渡江',path('M14 60 H82 L66 80 H30 Z',WOOD)+circle(34,33,8,CREAM)+circle(61,33,8,CREAM)+path('M24 55 V48 Q34 40 43 48 V55 M52 55 V48 Q61 40 71 48 V55','none',JADE,8)),
-      ('char_dingjun','定军山',path('M14 77 L41 24 L57 48 L66 35 L83 77 Z',JADE)+group(reticle(RED),'translate(46 1) scale(.44)')),
+      ('char_dingjun','枭姬奋威',path('M14 77 L41 24 L57 48 L66 35 L83 77 Z',JADE)+group(reticle(RED),'translate(46 1) scale(.44)')),
       ('char_moon_dance','月舞',moon()+path('M18 71 Q38 55 60 83','none',RED,8)),
       ('char_burn_camp','长社焚营',path('M16 80 L48 29 L80 80 Z',WOOD)+group(flame(),'translate(19 0) scale(.68)')),
       ('char_seven_charges','七进七出',horse(BLUE)+path('M13 17 H29 M9 29 H22 M9 41 H17','none',GOLD,5)),
@@ -297,7 +307,7 @@ def catalogue():
       ('trait_wusheng','武圣',sword(JADE)+star(26,26,12,GOLD,4)),
       ('trait_yanyan_roar','燕人咆哮',tiger(WOOD)+group(bolt(),'translate(37 47) scale(.4)')),
       ('trait_benevolence','仁德',heart(JADE)+path('M17 76 Q48 91 79 76','none',GOLD,5)),
-      ('trait_hundred_step','百步穿杨',bow(JADE)+group(leaf(),'translate(45 7) scale(.38)')),
+      ('trait_hundred_step','弓腰姬',bow(JADE)+group(leaf(),'translate(45 7) scale(.38)')),
       ('trait_moon_veil','月华',moon(VIOLET)+circle(74,75,5,JADE,INK,2)),
       ('trait_royal_fire','皇家火',flame()+path('M29 24 L20 12 L38 15','none',GOLD,5)),
       ('trait_dragon_spirit','龙魂',horse(JADE)+group(bolt(),'translate(1 43) scale(.42)')),
@@ -306,15 +316,16 @@ def catalogue():
     ]
     for k,l,s in skills:add(k,l,'skill',s)
     add('trait_vanguard', '陷阵', 'skill', gate(JADE)+group(spear(BLUE),'translate(40 7) scale(.5)'),
-        '周卫被动；城墙与矛尖，命中时增加穿甲')
-    add('ultimate_death_fight', '麦城死战', 'skill', group(gate(WOOD),'translate(12 12) scale(.8)')
+        '典韦被动；城墙与矛尖，命中时增加穿甲')
+    add('ultimate_death_fight', '宛城死战', 'skill', group(gate(WOOD),'translate(12 12) scale(.8)')
         +path('M50 27 L43 41 L53 51 L42 72','none',INK,4)
-        +group(sword(RED),'translate(5 -3) scale(.88)'), '周卫大招；红斩刃与裂损城门，低基地生命时加强')
+        +group(sword(RED),'translate(5 -3) scale(.88)'), '典韦大招；红斩刃与裂损城门，低基地生命时加强')
     future_passives=[('green_dragon_stance','青龙势',sword(JADE)),('warm_wine','温酒',path('M25 27 H70 L65 60 Q48 76 30 60 Z',RED)+path('M48 68 V83 M34 83 H62','none',GOLD,6)),('yanhan','燕颔',tiger(RED)),('diligence','砥砺',group(reticle(),'translate(8 8) scale(.8)')+path('M16 76 L25 85','none',JADE,6)),('sentry','哨戒',eye(BLUE)),('worship_moon','拜月',moon(JADE)),('fierce_flame','烈焰',flame(WOOD)),('detonation','爆燃',star(fill=RED,points=7)+group(flame(GOLD),'translate(24 20) scale(.5)')),('dragon_courage','龙胆',heart(BLUE)+group(bolt(),'translate(25 30) scale(.5)')),('momentum','乘势',path('M17 68 L43 43 L57 57 L79 19 M60 20 H79 V39','none',JADE,8))]
     for k,l,s in future_passives:add('passive_'+k,l,'planned_skill',s,planned=True)
     add('bond_taoyuan_oath','桃园结义','bond',lotus(JADE)+circle(28,28,5,RED,INK,2)+circle(68,28,5,RED,INK,2))
     add('bond_five_tigers','五虎将','bond',tiger()+path('M16 78 H27 M69 78 H80','none',RED,5))
-    for k,l,s in [('wei','魏',shield(BLUE)),('shu','蜀',sword(JADE)),('wu','吴',path('M18 42 H78 L66 65 H30 Z',RED)+path('M17 76 Q32 66 47 76 T79 76','none',BLUE,6)),('qun','群',flag(VIOLET))]:add('faction_'+k,l,'faction',s,planned=True)
+    for k,l,c in [('wei','魏',BLUE),('shu','蜀',JADE),('wu','吴',RED),('qun','群',VIOLET)]:
+        add('faction_'+k,l,'faction',faction_flag(c),'军旗图徽；运行时同时显示'+l+'字，颜色仅辅助识别')
     controls={
       'ui_close':path('M25 25 L71 71 M71 25 L25 71','none',RED,10),
       'ui_check':path('M18 47 L39 69 L79 25','none',JADE,11),

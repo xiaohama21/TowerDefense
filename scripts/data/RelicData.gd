@@ -18,6 +18,7 @@ const SLOT_OPTIONAL: StringName = &"optional"
 @export var slot: StringName = SLOT_EXCLUSIVE
 ## 绑定武将（专属槽必填；可选槽留空 = 通用件）。
 @export var character_id: StringName
+@export var faction_limit: Array[StringName] = []
 ## 获取途径文案（可选槽列表展示；空 = 不显示获取行，如已取消获取的专属占位）。
 @export var acquisition_hint: String = ""
 ## 全伤害加成（0.12 = +12%）。
@@ -38,12 +39,16 @@ func is_optional_slot() -> bool:
 
 
 func is_valid() -> bool:
+	if not FactionRegistry.valid_limits(faction_limit): return false
 	if relic_id.is_empty() or display_name.is_empty():
 		return false
 	# 专属槽必须绑定武将；可选槽（Boss 签名信物）为通用件、不绑武将。
 	if not is_optional_slot() and character_id.is_empty():
 		return false
 	return true
+
+func fits(character: CharacterData) -> bool:
+	return FactionRegistry.item_allows(faction_limit, character)
 
 
 ## 效果摘要（养成面板 / 图鉴共用唯一文案源，禁止两处各写一份）。

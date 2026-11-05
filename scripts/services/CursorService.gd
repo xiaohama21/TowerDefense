@@ -21,6 +21,8 @@ func _on_node_added(node: Node) -> void:
 func _polish(node: Node) -> void:
 	if node is BaseButton or node is TabBar:
 		CursorIcons.apply_hover(node as Control)
+	if node is Button:
+		UITheme.complete_button_states.call_deferred(node)
 
 
 func _exit_tree() -> void:

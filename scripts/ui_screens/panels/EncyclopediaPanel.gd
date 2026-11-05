@@ -78,16 +78,16 @@ const CHARACTER_ORDER: Array[String] = [
 ]
 
 ## 武将头像概念配色键（概念 ui_encyclopedia.html .lcard .ava 九色：金/红/蓝/绿/紫/橙/棕/粉/青；
-## 键映射 UITheme.avatar_label 渐变键，缺失回退蓝）。周仓=棕、赵云=粉、诸葛亮=青为概念色，
+## 键映射 UITheme.avatar_label 渐变键，缺失回退蓝）。孙尚香=橙、典韦=蓝、赵云=粉、诸葛亮=青为概念色，
 ## 不再按职业色着色。
 const CHARACTER_AVATAR_COLORS := {
 	"liu_bei": "gold",
 	"guan_yu": "red",
 	"zhang_fei": "blue",
-	"huang_zhong": "green",
+	"huang_zhong": "orange",
 	"huang_fu_song": "purple",
 	"diao_chan": "orange",
-	"zhou_wei": "brown",
+	"zhou_wei": "blue",
 	"zhao_yun": "pink",
 	"zhuge_liang": "teal",
 }
@@ -269,6 +269,9 @@ var _character_ids: Array[String] = []
 var _enemy_ids: Array[String] = []
 var _selected_character_id: String = ""
 var _selected_enemy_id: String = ""
+var _faction_filter: StringName = &""
+var _faction_row: HBoxContainer
+var _faction_buttons: Dictionary = {}
 
 ## 模拟器状态（只读假设视图，不写档）。
 var _sim_weapon_id := ""
@@ -288,7 +291,7 @@ var _kind_note: Label
 var _list_header: Label
 var _list_count: Label
 var _sim_panel: PanelContainer
-var _character_chips: HBoxContainer
+var _character_chips: HFlowContainer
 var _enemy_chips: HBoxContainer
 var _enemy_appear_label: Label
 var _detail_box: VBoxContainer
@@ -485,6 +488,7 @@ func _build_ui() -> void:
 	var head_spacer := Control.new()
 	head_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list_head.add_child(head_spacer)
+	_build_faction_filters(list_column)
 	_left_scroll = ScrollContainer.new()
 	_left_scroll.name = "LeftScroll"
 	_left_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -602,9 +606,70 @@ func _make_segment_button(label_text: String, mode: StringName) -> Button:
 	button.pressed.connect(_switch_mode.bind(mode))
 	return button
 
+func _filtered_character_ids() -> Array[String]:
+	var result: Array[String] = []
+	for id in _character_ids:
+		var character := GameFlow.load_character_data(id)
+		if character != null and (_faction_filter.is_empty() or character.faction == _faction_filter): result.append(id)
+	return result
+
+func _build_faction_filters(parent: Control) -> void:
+	_faction_row = HBoxContainer.new()
+	_faction_row.name = "FactionFilters"
+	_faction_row.add_theme_constant_override("separation", 6)
+	parent.add_child(_faction_row)
+	var keys: Array[StringName] = [&""]
+	keys.append_array(FactionRegistry.IDS)
+	for faction in keys:
+		var button := Button.new()
+		button.name = "FactionFilter_" + ("all" if faction.is_empty() else str(faction))
+		button.toggle_mode = true
+		button.custom_minimum_size = Vector2(56, 34)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.add_theme_font_size_override("font_size", 13)
+		if not faction.is_empty(): button.icon = UITheme.hud_icon_sized(FactionRegistry.icon_key(faction), 22)
+		button.pressed.connect(_apply_faction_filter.bind(faction))
+		_faction_row.add_child(button)
+		_faction_buttons[faction] = button
+	_sync_faction_filters()
+
+func _sync_faction_filters() -> void:
+	_faction_row.visible = _mode == &"character"
+	for faction in _faction_buttons:
+		var count := 0
+		for id in _character_ids:
+			var character := GameFlow.load_character_data(id)
+			if faction == &"" or (character != null and character.faction == faction): count += 1
+		var button: Button = _faction_buttons[faction]
+		button.text = "全部 %d" % count if faction == &"" else "%s %d" % [FactionRegistry.display_name(faction), count]
+		button.tooltip_text = "显示全部武将" if faction == &"" else "%s阵营 · %d名" % [FactionRegistry.display_name(faction), count]
+		button.set_pressed_no_signal(faction == _faction_filter)
+		UITheme.apply_kenney_rect_button(button, "blue" if faction == _faction_filter else "grey", Color.WHITE if faction == _faction_filter else UITheme.LIGHT_BODY, 4)
+
+func _apply_faction_filter(faction: StringName) -> void:
+	if _mode != &"character" or (not faction.is_empty() and not FactionRegistry.is_valid_id(faction)): return
+	_faction_filter = faction
+	var ids := _filtered_character_ids()
+	var previous := _selected_character_id
+	if not ids.has(previous): _selected_character_id = ids[0] if not ids.is_empty() else ""
+	_rebuild_left_list()
+	_sync_faction_filters()
+	_sim_panel.visible = not ids.is_empty()
+	_list_count.text = "%d / %d 名" % [ids.size(), _character_ids.size()]
+	_count_chip.text = "武将 %d 名 · 全量可见" % ids.size()
+	if previous != _selected_character_id or ids.is_empty():
+		_rebuild_detail()
+		if not _selected_character_id.is_empty(): _select_character(_selected_character_id)
+	else: _sync_selected_buttons()
+	_left_scroll.scroll_vertical = 0
+
 
 func _switch_mode(mode: StringName) -> void:
 	_mode = mode
+	_sync_faction_filters()
+	var visible_ids := _filtered_character_ids()
+	if mode == &"character" and not visible_ids.has(_selected_character_id):
+		_selected_character_id = _default_character_id() if visible_ids.has(_default_character_id()) else (visible_ids[0] if not visible_ids.is_empty() else "")
 	_character_button.set_pressed_no_signal(mode == &"character")
 	_enemy_button.set_pressed_no_signal(mode == &"enemy")
 	for button in [_character_button, _enemy_button]:
@@ -615,22 +680,22 @@ func _switch_mode(mode: StringName) -> void:
 	if _chapter_flow != null:
 		_chapter_flow.visible = mode == &"enemy"
 	if _count_chip != null:
-		_count_chip.text = "武将 %d 名 · 全量可见" % _character_ids.size() if mode == &"character" \
+		_count_chip.text = "武将 %d 名 · 全量可见" % visible_ids.size() if mode == &"character" \
 			else "敌人 %d 种 · 第一章 · 黄巾军" % _enemy_ids.size()
 	if _kind_note != null:
 		_kind_note.text = "解锁规则：当前版本全量可见 · 「发现解锁」随阶段 10 接入" if mode == &"character" \
 			else "解锁规则：当前版本全量可见 · 「难度面板 / 关卡信息解锁」随阶段 10 接入"
 	if _sim_panel != null:
-		_sim_panel.visible = mode == &"character"
+		_sim_panel.visible = mode == &"character" and not visible_ids.is_empty()
 	if _list_header != null:
 		_list_header.text = "武将列表" if mode == &"character" else "敌人列表"
 	if _list_count != null:
-		_list_count.text = "%d 名 · 含未拥有" % _character_ids.size() if mode == &"character" \
+		_list_count.text = "%d / %d 名" % [visible_ids.size(), _character_ids.size()] if mode == &"character" \
 			else "%d 种 · 第一章全部敌人" % _enemy_ids.size()
 	_rebuild_left_list()
 	_rebuild_detail()
 	if mode == &"character":
-		if _selected_character_id.is_empty() and not _character_ids.is_empty():
+		if _selected_character_id.is_empty() and not visible_ids.is_empty():
 			_selected_character_id = _default_character_id()
 		if not _selected_character_id.is_empty():
 			_select_character(_selected_character_id)
@@ -658,12 +723,14 @@ func _rebuild_left_list() -> void:
 	_left_box.add_child(grid)
 	if _mode == &"character":
 		grid.name = "CharacterGrid"
-		for character_id in _character_ids:
+		for character_id in _filtered_character_ids():
 			var character := GameFlow.load_character_data(character_id)
 			if character == null:
 				continue
 			var button := Button.new()
 			button.focus_mode = Control.FOCUS_NONE
+			# 挂在按钮上的内容层不参与最小尺寸计算；44px双徽记+上下18px留白。
+			button.custom_minimum_size.y = 64
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			button.toggle_mode = true
@@ -672,9 +739,15 @@ func _rebuild_left_list() -> void:
 			button.add_child(_make_left_card_content(
 				character.display_name.left(1), _avatar_color_key(character),
 				_character_card_text(character)))
-			var badge := ConceptIcon.new("", 22)
+			var badges := VBoxContainer.new()
+			badges.name = "CharacterBadges"
+			badges.add_theme_constant_override("separation", 4)
+			badges.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			var badge := ConceptIcon.new("", 20)
 			badge.set_rank(ProfileStore.get_profile().get_character_rank(str(character_id)))
-			button.get_child(0).add_child(badge)
+			badges.add_child(badge)
+			badges.add_child(FactionUI.badge(character.faction, 20))
+			button.get_child(0).add_child(badges)
 			grid.add_child(button)
 			_character_buttons[str(character_id)] = button
 	else:
@@ -713,7 +786,17 @@ func _character_card_text(character: CharacterData) -> String:
 func _rebuild_detail() -> void:
 	if is_instance_valid(_talent_panel): _talent_panel.dismiss()
 	for child in _detail_box.get_children():
+		_detail_box.remove_child(child)
 		child.queue_free()
+	if _mode == &"character" and _selected_character_id.is_empty():
+		_talent_button = null
+		_tab_container = null
+		_character_chips = null
+		var empty := _make_body_label("暂无武将，可切换筛选查看。", UITheme.LIGHT_MUTED, 17)
+		empty.name = "FactionEmpty"
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_detail_box.add_child(empty)
+		return
 	if _mode == &"enemy":
 		_build_enemy_detail()
 	else:
@@ -742,9 +825,10 @@ func _build_character_detail() -> void:
 	_header_name_label.add_theme_font_size_override("font_size", 21)
 	_header_name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	who.add_child(_header_name_label)
-	_character_chips = HBoxContainer.new()
+	_character_chips = HFlowContainer.new()
 	_character_chips.name = "CharacterChips"
-	_character_chips.add_theme_constant_override("separation", 6)
+	_character_chips.add_theme_constant_override("h_separation", 6)
+	_character_chips.add_theme_constant_override("v_separation", 4)
 	who.add_child(_character_chips)
 	_talent_button = TalentTreePanel._button("天赋", _open_talents, "blue")
 	_talent_button.name = "TalentEntry"
@@ -1024,7 +1108,9 @@ func _refresh_character_chips(character: CharacterData) -> void:
 	if _character_chips == null:
 		return
 	for child in _character_chips.get_children():
+		_character_chips.remove_child(child)
 		child.queue_free()
+	_character_chips.add_child(FactionUI.badge(character.faction, 20))
 	var profession := character.profession
 	var prof_name := profession.display_name if profession != null else "未知职业"
 	var role_short := _profession_role_short(profession)
@@ -1132,13 +1218,18 @@ func _stat_pill_box(key_text: String, value_text: String, gold: bool = false, ic
 func _refresh_skill_tab(character: CharacterData) -> void:
 	_clear_tab(_skill_tab)
 	var rank := maxi(_sim_rank_option.selected, 0) if _sim_rank_option != null else 0
+	var stats := character.compute_stats_at(_sim_level, rank, null, _sim_battle_rank, {}, {}, WeaponRegistry.get_weapon(_sim_weapon_id), _sim_talent_alloc)
+	stats["battle_rank"] = _sim_battle_rank
 	for id in character.get_skill_ids():
 		var card := SkillCard.new()
 		_skill_tab.add_child(card)
-		card.configure(character, id, rank, 1, character.per_rank_skill_amp * rank + float(WeaponRegistry.bonuses(WeaponRegistry.get_weapon(_sim_weapon_id), character).get("skill_amp", 0.0)) + TalentRegistry.skill_amp(_selected_character_id, _sim_talent_alloc, id == character.ultimate_id))
+		var amp := float(stats.skill_amp) + (float(stats.talents.get("ultimate_amp", 0.0)) if id == character.ultimate_id else 0.0)
+		card.configure(character, id, rank, 1, amp, "", false, stats)
 
 func _refresh_relic_tab(character: CharacterData) -> void:
 	_clear_tab(_relic_tab)
+	var exclusive := GameFlow.get_relic_for_character(str(character.character_id))
+	if exclusive != null: _relic_tab.add_child(preload("res://scripts/ui_screens/locked_relic_card.gd").new(exclusive))
 	var exclusive_state := _make_body_label("未开放", UITheme.LIGHT_LOCK)
 	exclusive_state.name = "ExclusiveRelicState"
 	exclusive_state.tooltip_text = "专属信物槽暂未开放。"
@@ -1151,6 +1242,7 @@ func _refresh_relic_tab(character: CharacterData) -> void:
 		_relic_tab.add_child(_make_body_label("暂无通用信物", UITheme.LIGHT_LOCK))
 		return
 	for relic in relics:
+		if not relic.faction_limit.is_empty(): _relic_tab.add_child(FactionUI.limit_row(relic.faction_limit))
 		_relic_tab.add_child(ConceptIcon.new(str(relic.relic_id), 38, relic.display_name))
 		var owned := profile != null and profile.has_relic(str(relic.relic_id))
 		var state := "已装备" if owned and equipped_id == str(relic.relic_id) else ("已持有" if owned else "未持有")
@@ -1340,7 +1432,7 @@ func _refresh_enemy_detail() -> void:
 	if enemy.stealth:
 		body.add_child(_make_labeled_card("隐匿机制",
 			"无目标框、不显示血条，不可被「以单位为目标」的攻击选中；范围 / 无差别区域效果仍可命中。"
-			+ "破隐来源：黄忠（固有）/ 诸葛亮·借东风（全图 8s）/ 貂蝉 3 阶光环（半径 = 射程）"))
+			+ "破隐来源：孙尚香（固有）/ 诸葛亮·借东风（全图 8s）/ 貂蝉 3 阶光环（半径 = 射程）"))
 
 	# ③ 各档难度面板（概念 .diffrow，随 difficulty_presets 自动扩档）
 	var diff_row := HBoxContainer.new()
@@ -1607,7 +1699,7 @@ func _refresh_weapon_tab(character: CharacterData) -> void:
 	var reset := Button.new()
 	reset.text = "清空预览" if not _sim_weapon_id.is_empty() else "选择下方装备进行预览"
 	reset.disabled = _sim_weapon_id.is_empty()
-	UITheme.apply_light_selectable(reset)
+	UITheme.apply_kenney_rect_button(reset, "grey", UITheme.LIGHT_INK, 5)
 	reset.pressed.connect(func() -> void: _sim_weapon_id = ""; _on_sim_changed())
 	_weapon_tab.add_child(reset)
 	for weapon in WeaponRegistry.for_character(character):
@@ -1619,6 +1711,7 @@ func _refresh_weapon_tab(character: CharacterData) -> void:
 
 
 func _open_talents() -> void:
+	if _selected_character_id.is_empty(): return
 	if is_instance_valid(_talent_panel): return
 	_talent_panel = TalentTreePanel.open(self, _talent_button)
 	_talent_panel.allocate_requested.connect(_allocate_sim_talent)

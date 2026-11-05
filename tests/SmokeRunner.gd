@@ -536,7 +536,7 @@ func _test_merit_supply_0816() -> void:
 				_check(false, "军需目录出现未登记条目: %s" % supply_id)
 
 	# 解锁 / 强化（不可逆、封顶 L3）与军需带槽位（基础 2 + 科技「军府调度」1 → 3）。
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 11, "存档 schema 应为 v11（天赋）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 12, "存档 schema 应为 v12（技能书差价）")
 	_check(PlayerProfile.SUPPLY_MAX_LEVEL == 3 and PlayerProfile.BASE_SUPPLY_SLOTS == 2,
 		"军需强化上限应为 3 级、军需带基础槽位应为 2")
 	_check(PlayerProfile.supply_upgrade_cost(1) == 150 and PlayerProfile.supply_upgrade_cost(2) == 300
@@ -2238,7 +2238,7 @@ func _run() -> void:
 		wheel_ui.set("_wheel_rolled", false)
 
 	# ===== 0.8.14 信物重构（v0.37.41 / GDD 4.8 · NUMBERS 10.13 · SAVE_DATA 8）=====
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 11, "存档 schema 应为 v11（天赋；保留军功/军需与双槽迁移）")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 12, "存档 schema 应为 v12（保留天赋/军需与双槽迁移）")
 	# ① 信物目录：3 件专属槽占位（不删除）+ 2 件可选槽（Boss 签名信物 = 通用件）
 	var c14_exclusive_count := 0
 	var c14_optional: Array[RelicData] = []
@@ -2252,7 +2252,9 @@ func _run() -> void:
 		else:
 			c14_exclusive_count += 1
 			_check(not c14_relic.character_id.is_empty(), "专属槽信物应绑定武将: %s" % c14_relic_path)
-	_check(c14_exclusive_count == 3, "旧 3 件专属信物应保留为专属槽占位数据（不删除）")
+	_check(c14_exclusive_count == 5, "旧3件专属信物保留，孙尚香/典韦新增2件锁槽展示")
+	for relic_id in ["relic_guanyu_blade","relic_zhangfei_spear","relic_huangfusong_torch"]:
+		_check(GameFlow.load_relic_data(relic_id) != null, "旧专属信物保留 " + relic_id)
 	_check(c14_optional.size() == 2, "可选槽应有 2 件 Boss 签名信物")
 	var c14_tiangong := GameFlow.load_relic_data("relic_tiangong_leizhao")
 	var c14_taiping := GameFlow.load_relic_data("relic_taiping_yaoshu")

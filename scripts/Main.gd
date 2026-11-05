@@ -370,7 +370,7 @@ func _on_tower_sell_requested() -> void:
 		ui.hide_tower_bar()
 
 
-## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（黄忠固有 /
+## 漏怪提示（✅ 0.8.13.1）：隐匿单位突破防线时引导玩家补破隐来源（孙尚香固有 /
 ## 借东风全图 / 舞娘 3 阶光环），或改用范围盲压；每局一次。
 func _on_enemy_leaked(_damage: int) -> void:
 	if _talent_leak_wave != GameManager.current_wave:
@@ -380,7 +380,7 @@ func _on_enemy_leaked(_damage: int) -> void:
 	if _stealth_hint_shown or not GameManager.last_leak_was_stealth:
 		return
 	_stealth_hint_shown = true
-	ui.show_status("隐匿单位突破防线：黄忠（固有）/ 借东风 / 舞娘 3 阶可破隐，或改用范围盲压", 3.5)
+	ui.show_status("隐匿单位突破防线：孙尚香（固有）/ 借东风 / 舞娘 3 阶可破隐，或改用范围盲压", 3.5)
 
 
 ## Boss 登场横幅（v0.15.0）：2.5 秒内只播一次。
@@ -1187,11 +1187,7 @@ func _build_supply_title() -> Control:
 	close_button.focus_mode = Control.FOCUS_NONE
 	close_button.add_theme_font_size_override("font_size", 15)
 	close_button.add_theme_color_override("font_color", Color.WHITE)
-	for state in ["normal", "hover", "pressed"]:
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(1, 1, 1, 0.3 if state == "normal" else 0.45)
-		style.set_corner_radius_all(15)
-		close_button.add_theme_stylebox_override(state, style)
+	UITheme.apply_kenney_round_button(close_button, "red", Color.WHITE)
 	close_button.pressed.connect(_close_battle_supply_popup)
 	row.add_child(close_button)
 	return bar
@@ -1982,7 +1978,7 @@ func _apply_battle_supply(supply: BattleSupplyData, level: int) -> void:
 	if slow < 1.0:
 		var slowed := 0
 		for enemy in enemy_manager.get_alive_enemies():
-			enemy.apply_slow(slow, supply.duration_at(level))
+			enemy.apply_slow(slow, supply.duration_at(level), "supply:%s" % supply.supply_id)
 			slowed += 1
 		ui.show_status("%s：全场减速 %d%%（%ds，%d 名敌人）" % [
 			supply_name, roundi((1.0 - slow) * 100.0), int(supply.duration_at(level)), slowed

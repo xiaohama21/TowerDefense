@@ -400,6 +400,7 @@ class BranchCanvas extends Control:
 				button.add_theme_stylebox_override("normal", TalentTreePanel._style(bg, border, 28, 3))
 				button.add_theme_stylebox_override("hover", TalentTreePanel._style(Color("#fff5ce"), Color("#d5ad45"), 28, 3))
 				button.add_theme_stylebox_override("pressed", TalentTreePanel._style(Color("#ffe8a5"), Color("#c69a30"), 28, 3))
+				button.add_theme_stylebox_override("hover_pressed", TalentTreePanel._style(Color("#ffe8a5"), Color("#c69a30"), 28, 3))
 				button.add_theme_stylebox_override("focus", TalentTreePanel._style(Color.TRANSPARENT, Color("#e8b736"), 28, 3))
 				button.pressed.connect(func() -> void: node_selected.emit(node_id))
 				add_child(button)

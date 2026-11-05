@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CharacterData.gd" id="1_character"]
+[ext_resource type="Resource" path="res://resources/professions/archer.tres" id="2_profession"]
+
+[resource]
+script = ExtResource("1_character")
+character_id = &"huang_zhong"
+display_name = "黄忠"
+description = "百步穿杨，能够从远处稳定削弱敌军。"
+profession = ExtResource("2_profession")
+faction = &"shu"
+tags = [&"archer"]
+build_cost = 65
+base_damage = 48
+base_range = 205.0
+attack_interval = 1.25
+projectile_speed = 520.0
+titles = ["神射手"]
+unlock_stage_id = &"ch01_s03"
+attack_pct = 0.03
+range_pct_per_level = 0.001
+per_rank_crit_rate = 0.01
+
+passive_ids = Array[StringName]([&"trait_hundred_step", &"passive_sentry"])
+ultimate_id = &"char_dingjun"
+rage_gain_mode = &"hit+damage"
+skill_params = {
+  "trait_hundred_step": {
+    "attack_step": 0.05,
+    "attack_cap": 0.3
+  },
+  "passive_sentry": {
+    "poison_dps": 20.0,
+    "duration": 3.0
+  },
+  "char_dingjun": {
+    "vulnerability": 0.1,
+    "attack_bonus": 0.2,
+    "speed_bonus": 0.2,
+    "crit_rate": 0.2,
+    "duration": 3.0
+  }
+}
+
+talent_tree_ids = Array[String](["physical_burst", "armor_break", "control"])

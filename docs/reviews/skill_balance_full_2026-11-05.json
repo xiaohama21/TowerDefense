@@ -1,0 +1,3706 @@
+{
+	"measurements": [
+		{
+			"armor": 20,
+			"attack": 338,
+			"character": "guan_yu",
+			"dps": 1554.0,
+			"dps_samples": [
+				1554.0,
+				1556.88333333333,
+				1551.11666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.974970860070934,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_long_spear_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 309,
+			"character": "guan_yu",
+			"dps": 1476.74444444444,
+			"dps_samples": [
+				1476.75,
+				1476.75,
+				1476.73333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.974970860070934,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_horse_sword_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 338,
+			"character": "guan_yu",
+			"dps": 1673.70555555556,
+			"dps_samples": [
+				1644.58333333333,
+				1690.93333333333,
+				1685.6
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.974970860070934,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_long_spear_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				28,
+				28,
+				28
+			],
+			"ults": 28.0
+		},
+		{
+			"armor": 20,
+			"attack": 309,
+			"character": "guan_yu",
+			"dps": 1562.56666666667,
+			"dps_samples": [
+				1517.81666666667,
+				1562.56666666667,
+				1607.31666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.974970860070934,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_horse_sword_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				27,
+				28
+			],
+			"ults": 27.0
+		},
+		{
+			"armor": 20,
+			"attack": 334,
+			"character": "guan_yu",
+			"dps": 1558.89444444444,
+			"dps_samples": [
+				1545.23333333333,
+				1588.93333333333,
+				1542.51666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_long_spear_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				27,
+				28,
+				27
+			],
+			"ults": 27.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 1490.56666666667,
+			"dps_samples": [
+				1478.1,
+				1475.63333333333,
+				1517.96666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_horse_sword_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				26,
+				27
+			],
+			"ults": 26.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 562,
+			"character": "huang_fu_song",
+			"dps": 502.538888888889,
+			"dps_samples": [
+				506.233333333333,
+				506.216666666667,
+				495.166666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.19587176108915,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_area.camps": 2,
+					"physical_area.charge": 2,
+					"physical_area.critical": 2,
+					"physical_area.crowd": 2,
+					"physical_area.edge": 2,
+					"physical_area.ember": 2,
+					"physical_area.flame": 2,
+					"physical_area.formation": 2,
+					"physical_area.siege": 2,
+					"physical_area.spread": 2
+				},
+				"weapon": "equipment_thunder_cart_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 529,
+			"character": "huang_fu_song",
+			"dps": 487.772222222222,
+			"dps_samples": [
+				491.25,
+				491.233333333333,
+				480.833333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.19587176108915,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_area.camps": 2,
+					"physical_area.charge": 2,
+					"physical_area.critical": 2,
+					"physical_area.crowd": 2,
+					"physical_area.edge": 2,
+					"physical_area.ember": 2,
+					"physical_area.flame": 2,
+					"physical_area.formation": 2,
+					"physical_area.siege": 2,
+					"physical_area.spread": 2
+				},
+				"weapon": "equipment_wood_mortar_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 563,
+			"character": "huang_fu_song",
+			"dps": 471.85,
+			"dps_samples": [
+				475.266666666667,
+				475.266666666667,
+				465.016666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.19587176108915,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"economy.boss": 2,
+					"economy.cost": 2,
+					"economy.cost2": 2,
+					"economy.cost3": 2,
+					"economy.elite": 2,
+					"economy.gold": 2,
+					"economy.plan": 2,
+					"economy.pulse": 2,
+					"economy.reach": 2,
+					"economy.skill": 2,
+					"physical_area.camps": 2,
+					"physical_area.charge": 2,
+					"physical_area.critical": 2,
+					"physical_area.crowd": 2,
+					"physical_area.edge": 2,
+					"physical_area.ember": 2,
+					"physical_area.flame": 2,
+					"physical_area.formation": 2,
+					"physical_area.siege": 2,
+					"physical_area.spread": 2
+				},
+				"weapon": "equipment_thunder_cart_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 530,
+			"character": "huang_fu_song",
+			"dps": 459.55,
+			"dps_samples": [
+				462.75,
+				462.75,
+				453.15
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.19587176108915,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"economy.boss": 2,
+					"economy.cost": 2,
+					"economy.cost2": 2,
+					"economy.cost3": 2,
+					"economy.elite": 2,
+					"economy.gold": 2,
+					"economy.plan": 2,
+					"economy.pulse": 2,
+					"economy.reach": 2,
+					"economy.skill": 2,
+					"physical_area.camps": 2,
+					"physical_area.charge": 2,
+					"physical_area.critical": 2,
+					"physical_area.crowd": 2,
+					"physical_area.edge": 2,
+					"physical_area.ember": 2,
+					"physical_area.flame": 2,
+					"physical_area.formation": 2,
+					"physical_area.siege": 2,
+					"physical_area.spread": 2
+				},
+				"weapon": "equipment_wood_mortar_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 554,
+			"character": "huang_fu_song",
+			"dps": 480.411111111111,
+			"dps_samples": [
+				484.0,
+				483.966666666667,
+				473.266666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.22222222222222,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"economy.boss": 2,
+					"economy.cost": 2,
+					"economy.cost2": 2,
+					"economy.cost3": 2,
+					"economy.elite": 2,
+					"economy.gold": 2,
+					"economy.plan": 2,
+					"economy.pulse": 2,
+					"economy.reach": 2,
+					"economy.skill": 2
+				},
+				"weapon": "equipment_thunder_cart_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 522,
+			"character": "huang_fu_song",
+			"dps": 467.822222222222,
+			"dps_samples": [
+				471.2,
+				471.183333333333,
+				461.083333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.22222222222222,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"economy.boss": 2,
+					"economy.cost": 2,
+					"economy.cost2": 2,
+					"economy.cost3": 2,
+					"economy.elite": 2,
+					"economy.gold": 2,
+					"economy.plan": 2,
+					"economy.pulse": 2,
+					"economy.reach": 2,
+					"economy.skill": 2
+				},
+				"weapon": "equipment_wood_mortar_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 277,
+			"character": "huang_zhong",
+			"dps": 573.294444444444,
+			"dps_samples": [
+				568.866666666667,
+				576.416666666667,
+				574.6
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.1436832089006,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_horn_bow_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				31,
+				32,
+				31
+			],
+			"ults": 31.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 251,
+			"character": "huang_zhong",
+			"dps": 551.405555555556,
+			"dps_samples": [
+				540.1,
+				559.666666666667,
+				554.45
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.1436832089006,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_mulberry_bow_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				27,
+				28
+			],
+			"ults": 27.0
+		},
+		{
+			"armor": 20,
+			"attack": 277,
+			"character": "huang_zhong",
+			"dps": 541.833333333333,
+			"dps_samples": [
+				535.3,
+				545.933333333333,
+				544.266666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.1436832089006,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_horn_bow_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				32,
+				32,
+				32
+			],
+			"ults": 32.0
+		},
+		{
+			"armor": 20,
+			"attack": 251,
+			"character": "huang_zhong",
+			"dps": 515.633333333333,
+			"dps_samples": [
+				508.4,
+				520.0,
+				518.5
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.1436832089006,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_mulberry_bow_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				27,
+				27,
+				28
+			],
+			"ults": 27.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 274,
+			"character": "huang_zhong",
+			"dps": 550.177777777778,
+			"dps_samples": [
+				536.216666666667,
+				556.233333333333,
+				558.083333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15740740740741,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_horn_bow_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				30,
+				32,
+				31
+			],
+			"ults": 31.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "huang_zhong",
+			"dps": 518.222222222222,
+			"dps_samples": [
+				506.266666666667,
+				524.95,
+				523.45
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15740740740741,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_mulberry_bow_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				26,
+				27
+			],
+			"ults": 26.0
+		},
+		{
+			"armor": 20,
+			"attack": 275,
+			"character": "zhang_fei",
+			"dps": 543.605555555556,
+			"dps_samples": [
+				542.116666666667,
+				555.816666666667,
+				532.883333333333
+			],
+			"fear_uptime": 0.678777777777778,
+			"interval": 0.582768514089478,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"support_control.attack": 2,
+					"support_control.command": 2,
+					"support_control.duration": 2,
+					"support_control.kill": 2,
+					"support_control.punish": 2,
+					"support_control.rage": 2,
+					"support_control.reach": 2,
+					"support_control.slow": 2,
+					"support_control.swift": 2,
+					"support_control.ultimate": 2
+				},
+				"weapon": "equipment_ring_blade_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				25,
+				25
+			],
+			"ults": 25.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 251,
+			"character": "zhang_fei",
+			"dps": 505.422222222222,
+			"dps_samples": [
+				503.583333333333,
+				516.8,
+				495.883333333333
+			],
+			"fear_uptime": 0.704333333333333,
+			"interval": 0.582768514089478,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"support_control.attack": 2,
+					"support_control.command": 2,
+					"support_control.duration": 2,
+					"support_control.kill": 2,
+					"support_control.punish": 2,
+					"support_control.rage": 2,
+					"support_control.reach": 2,
+					"support_control.slow": 2,
+					"support_control.swift": 2,
+					"support_control.ultimate": 2
+				},
+				"weapon": "equipment_bone_mace_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				25,
+				25
+			],
+			"ults": 25.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 275,
+			"character": "zhang_fei",
+			"dps": 558.722222222222,
+			"dps_samples": [
+				557.266666666667,
+				570.866666666667,
+				548.033333333333
+			],
+			"fear_uptime": 0.686555555555556,
+			"interval": 0.572584209959759,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"support_control.attack": 2,
+					"support_control.command": 2,
+					"support_control.duration": 2,
+					"support_control.kill": 2,
+					"support_control.punish": 2,
+					"support_control.rage": 2,
+					"support_control.reach": 2,
+					"support_control.slow": 2,
+					"support_control.swift": 2,
+					"support_control.ultimate": 2
+				},
+				"weapon": "equipment_ring_blade_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				27,
+				26,
+				26
+			],
+			"ults": 26.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 251,
+			"character": "zhang_fei",
+			"dps": 519.1,
+			"dps_samples": [
+				517.3,
+				530.416666666667,
+				509.583333333333
+			],
+			"fear_uptime": 0.710777777777778,
+			"interval": 0.572584209959759,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"support_control.attack": 2,
+					"support_control.command": 2,
+					"support_control.duration": 2,
+					"support_control.kill": 2,
+					"support_control.punish": 2,
+					"support_control.rage": 2,
+					"support_control.reach": 2,
+					"support_control.slow": 2,
+					"support_control.swift": 2,
+					"support_control.ultimate": 2
+				},
+				"weapon": "equipment_bone_mace_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				27,
+				26,
+				26
+			],
+			"ults": 26.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 272,
+			"character": "zhang_fei",
+			"dps": 549.566666666667,
+			"dps_samples": [
+				548.066666666667,
+				561.666666666667,
+				538.966666666667
+			],
+			"fear_uptime": 0.676777777777778,
+			"interval": 0.579333729134137,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_ring_blade_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				27,
+				26,
+				26
+			],
+			"ults": 26.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "zhang_fei",
+			"dps": 509.655555555556,
+			"dps_samples": [
+				507.85,
+				520.883333333333,
+				500.233333333333
+			],
+			"fear_uptime": 0.703,
+			"interval": 0.579333729134137,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_bone_mace_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				27,
+				26,
+				26
+			],
+			"ults": 26.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 326,
+			"character": "zhao_yun",
+			"dps": 1236.20555555556,
+			"dps_samples": [
+				1220.16666666667,
+				1242.48333333333,
+				1245.96666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.624394836524441,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_long_spear_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				57,
+				58,
+				58
+			],
+			"ults": 57.6666666666667
+		},
+		{
+			"armor": 20,
+			"attack": 295,
+			"character": "zhao_yun",
+			"dps": 1178.83333333333,
+			"dps_samples": [
+				1169.18333333333,
+				1182.05,
+				1185.26666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.624394836524441,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_horse_sword_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				59,
+				59,
+				59
+			],
+			"ults": 59.0
+		},
+		{
+			"armor": 20,
+			"attack": 326,
+			"character": "zhao_yun",
+			"dps": 1329.12222222222,
+			"dps_samples": [
+				1316.08333333333,
+				1327.43333333333,
+				1343.85
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.624394836524441,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_long_spear_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				57,
+				57,
+				58
+			],
+			"ults": 57.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 295,
+			"character": "zhao_yun",
+			"dps": 1280.75,
+			"dps_samples": [
+				1270.25,
+				1284.25,
+				1287.75
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.624394836524441,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_horse_sword_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				59,
+				59,
+				59
+			],
+			"ults": 59.0
+		},
+		{
+			"armor": 20,
+			"attack": 322,
+			"character": "zhao_yun",
+			"dps": 1262.76111111111,
+			"dps_samples": [
+				1250.51666666667,
+				1261.11666666667,
+				1276.65
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_long_spear_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				56,
+				56,
+				57
+			],
+			"ults": 56.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 1170.89444444444,
+			"dps_samples": [
+				1166.51666666667,
+				1179.65,
+				1166.51666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"rage.fight": 2,
+					"rage.fury": 2,
+					"rage.gather": 2,
+					"rage.glare": 2,
+					"rage.leak": 2,
+					"rage.resolve": 2,
+					"rage.rise": 2,
+					"rage.steady": 2,
+					"rage.tide": 2,
+					"rage.unstoppable": 2
+				},
+				"weapon": "equipment_horse_sword_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				56,
+				56,
+				56
+			],
+			"ults": 56.0
+		},
+		{
+			"armor": 20,
+			"attack": 362,
+			"character": "zhou_wei",
+			"dps": 1364.84444444444,
+			"dps_samples": [
+				1351.3,
+				1391.93333333333,
+				1351.3
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.77728139551485,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_ring_blade_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				26,
+				26
+			],
+			"ults": 26.0
+		},
+		{
+			"armor": 20,
+			"attack": 338,
+			"character": "zhou_wei",
+			"dps": 1299.88333333333,
+			"dps_samples": [
+				1285.85,
+				1327.96666666667,
+				1285.83333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.77728139551485,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_bone_mace_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 362,
+			"character": "zhou_wei",
+			"dps": 1279.35555555556,
+			"dps_samples": [
+				1266.6,
+				1304.91666666667,
+				1266.55
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.77728139551485,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_ring_blade_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				26,
+				26,
+				26
+			],
+			"ults": 26.0
+		},
+		{
+			"armor": 20,
+			"attack": 338,
+			"character": "zhou_wei",
+			"dps": 1218.56111111111,
+			"dps_samples": [
+				1205.35,
+				1245.03333333333,
+				1205.3
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.77728139551485,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"physical_burst.chain": 2,
+					"physical_burst.critical": 2,
+					"physical_burst.dragon": 2,
+					"physical_burst.fatal": 2,
+					"physical_burst.pierce": 2,
+					"physical_burst.power": 2,
+					"physical_burst.rupture": 2,
+					"physical_burst.slash": 2,
+					"physical_burst.swift": 2,
+					"physical_burst.triumph": 2
+				},
+				"weapon": "equipment_bone_mace_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 358,
+			"character": "zhou_wei",
+			"dps": 1284.07777777778,
+			"dps_samples": [
+				1276.11666666667,
+				1319.63333333333,
+				1256.48333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_ring_blade_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 1248.5,
+			"dps_samples": [
+				1239.98333333333,
+				1284.06666666667,
+				1221.45
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"armor_break.aura": 2,
+					"armor_break.boss": 2,
+					"armor_break.edge": 2,
+					"armor_break.elite": 2,
+					"armor_break.kill": 2,
+					"armor_break.pierce": 2,
+					"armor_break.repeat": 2,
+					"armor_break.steel": 2,
+					"armor_break.ultimate": 2,
+					"armor_break.unbreakable": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_bone_mace_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 303,
+			"character": "zhuge_liang",
+			"dps": 483.238888888889,
+			"dps_samples": [
+				484.983333333333,
+				482.366666666667,
+				482.366666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.16864437252787,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"magic_area.chant": 2,
+					"magic_area.control": 2,
+					"magic_area.critical": 2,
+					"magic_area.elite": 2,
+					"magic_area.fire": 2,
+					"magic_area.focus": 2,
+					"magic_area.inferno": 2,
+					"magic_area.reach": 2,
+					"magic_area.spread": 2,
+					"magic_area.wisdom": 2
+				},
+				"weapon": "equipment_ritual_staff_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 273,
+			"character": "zhuge_liang",
+			"dps": 376.922222222222,
+			"dps_samples": [
+				378.433333333333,
+				376.166666666667,
+				376.166666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.16864437252787,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"magic_area.chant": 2,
+					"magic_area.control": 2,
+					"magic_area.critical": 2,
+					"magic_area.elite": 2,
+					"magic_area.fire": 2,
+					"magic_area.focus": 2,
+					"magic_area.inferno": 2,
+					"magic_area.reach": 2,
+					"magic_area.spread": 2,
+					"magic_area.wisdom": 2
+				},
+				"weapon": "equipment_bamboo_banner_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 303,
+			"character": "zhuge_liang",
+			"dps": 476.411111111111,
+			"dps_samples": [
+				487.566666666667,
+				470.833333333333,
+				470.833333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.18943053725662,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"magic_area.chant": 2,
+					"magic_area.control": 2,
+					"magic_area.critical": 2,
+					"magic_area.elite": 2,
+					"magic_area.fire": 2,
+					"magic_area.focus": 2,
+					"magic_area.inferno": 2,
+					"magic_area.reach": 2,
+					"magic_area.spread": 2,
+					"magic_area.wisdom": 2
+				},
+				"weapon": "equipment_ritual_staff_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				17,
+				16,
+				16
+			],
+			"ults": 16.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 273,
+			"character": "zhuge_liang",
+			"dps": 370.027777777778,
+			"dps_samples": [
+				367.183333333333,
+				377.9,
+				365.0
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.18943053725662,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2,
+					"magic_area.chant": 2,
+					"magic_area.control": 2,
+					"magic_area.critical": 2,
+					"magic_area.elite": 2,
+					"magic_area.fire": 2,
+					"magic_area.focus": 2,
+					"magic_area.inferno": 2,
+					"magic_area.reach": 2,
+					"magic_area.spread": 2,
+					"magic_area.wisdom": 2
+				},
+				"weapon": "equipment_bamboo_banner_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				12,
+				13,
+				12
+			],
+			"ults": 12.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 299,
+			"character": "zhuge_liang",
+			"dps": 450.877777777778,
+			"dps_samples": [
+				461.366666666667,
+				445.633333333333,
+				445.633333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.18242014116277,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_ritual_staff_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				17,
+				16,
+				16
+			],
+			"ults": 16.3333333333333
+		},
+		{
+			"armor": 20,
+			"attack": 270,
+			"character": "zhuge_liang",
+			"dps": 350.338888888889,
+			"dps_samples": [
+				347.683333333333,
+				357.733333333333,
+				345.6
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.18242014116277,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10,
+				"talent_alloc": {
+					"buff.ally": 2,
+					"buff.critical": 2,
+					"buff.duration": 2,
+					"buff.inspire": 2,
+					"buff.power": 2,
+					"buff.power_skill": 2,
+					"buff.pulse": 2,
+					"buff.rage": 2,
+					"buff.reach": 2,
+					"buff.swift": 2,
+					"control.duration": 2,
+					"control.elite": 2,
+					"control.hit": 2,
+					"control.lock": 2,
+					"control.power": 2,
+					"control.punish": 2,
+					"control.reach": 2,
+					"control.reveal": 2,
+					"control.slow": 2,
+					"control.ultimate": 2
+				},
+				"weapon": "equipment_bamboo_banner_1"
+			},
+			"targets": 1,
+			"ult_samples": [
+				12,
+				13,
+				12
+			],
+			"ults": 12.3333333333333
+		}
+	],
+	"options": {
+		"diao_chan": [
+			{
+				"attack": 93,
+				"crit_damage": 1.53,
+				"crit_rate": 0.06,
+				"skill_amp": 0.185,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.048,
+					"buff_power_pct": 0.088,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"high_rage_speed_pct": 0.018,
+					"rage_pct": 0.03,
+					"range_pct": 0.024,
+					"skill_amp": 0.01,
+					"speed_pct": 0.03,
+					"support_hit_rage": 4.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"support_buff",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_silk_bells_1"
+			},
+			{
+				"attack": 93,
+				"crit_damage": 1.53,
+				"crit_rate": 0.06,
+				"skill_amp": 0.145,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.048,
+					"buff_power_pct": 0.088,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"high_rage_speed_pct": 0.018,
+					"rage_pct": 0.03,
+					"range_pct": 0.024,
+					"skill_amp": 0.01,
+					"speed_pct": 0.03,
+					"support_hit_rage": 4.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"support_buff",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_clay_flute_1"
+			},
+			{
+				"attack": 93,
+				"crit_damage": 1.5,
+				"crit_rate": 0.06,
+				"skill_amp": 0.175,
+				"talents": {
+					"buff_duration_pct": 0.018,
+					"buff_power_pct": 0.048,
+					"crit_rate": 0.01,
+					"high_rage_speed_pct": 0.038,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.024,
+					"range_pct": 0.012,
+					"speed_pct": 0.012,
+					"support_hit_rage": 3.0,
+					"ultimate_amp": 0.048,
+					"ultimate_kill_rage": 4.0
+				},
+				"trees": [
+					"support_buff",
+					"rage"
+				],
+				"ultimate_amp": 0.048,
+				"weapon": "equipment_silk_bells_1"
+			},
+			{
+				"attack": 93,
+				"crit_damage": 1.5,
+				"crit_rate": 0.06,
+				"skill_amp": 0.135,
+				"talents": {
+					"buff_duration_pct": 0.018,
+					"buff_power_pct": 0.048,
+					"crit_rate": 0.01,
+					"high_rage_speed_pct": 0.038,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.024,
+					"range_pct": 0.012,
+					"speed_pct": 0.012,
+					"support_hit_rage": 3.0,
+					"ultimate_amp": 0.048,
+					"ultimate_kill_rage": 4.0
+				},
+				"trees": [
+					"support_buff",
+					"rage"
+				],
+				"ultimate_amp": 0.048,
+				"weapon": "equipment_clay_flute_1"
+			},
+			{
+				"attack": 93,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.185,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"crit_damage": 0.03,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.03,
+					"range_pct": 0.012,
+					"skill_amp": 0.01,
+					"speed_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 4.0
+				},
+				"trees": [
+					"buff",
+					"rage"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_silk_bells_1"
+			},
+			{
+				"attack": 93,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.145,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"crit_damage": 0.03,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.03,
+					"range_pct": 0.012,
+					"skill_amp": 0.01,
+					"speed_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 4.0
+				},
+				"trees": [
+					"buff",
+					"rage"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_clay_flute_1"
+			}
+		],
+		"guan_yu": [
+			{
+				"attack": 338,
+				"crit_damage": 1.655,
+				"crit_rate": 0.1,
+				"skill_amp": 0.02,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_long_spear_1"
+			},
+			{
+				"attack": 309,
+				"crit_damage": 1.655,
+				"crit_rate": 0.06,
+				"skill_amp": 0.08,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_horse_sword_1"
+			},
+			{
+				"attack": 338,
+				"crit_damage": 1.655,
+				"crit_rate": 0.1,
+				"skill_amp": 0.02,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"kill_speed_pct": 0.018,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.06,
+					"ultimate_kill_rage": 11.0
+				},
+				"trees": [
+					"physical_burst",
+					"rage"
+				],
+				"ultimate_amp": 0.06,
+				"weapon": "equipment_long_spear_1"
+			},
+			{
+				"attack": 309,
+				"crit_damage": 1.655,
+				"crit_rate": 0.06,
+				"skill_amp": 0.08,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"kill_speed_pct": 0.018,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.06,
+					"ultimate_kill_rage": 11.0
+				},
+				"trees": [
+					"physical_burst",
+					"rage"
+				],
+				"ultimate_amp": 0.06,
+				"weapon": "equipment_horse_sword_1"
+			},
+			{
+				"attack": 334,
+				"crit_damage": 1.625,
+				"crit_rate": 0.09,
+				"skill_amp": 0.0,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_pen_flat": 6.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"physical_damage_pct": 0.01,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"same_target_pen_pct": 0.018,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 4.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"armor_break",
+					"rage"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_long_spear_1"
+			},
+			{
+				"attack": 306,
+				"crit_damage": 1.625,
+				"crit_rate": 0.05,
+				"skill_amp": 0.06,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_pen_flat": 6.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"physical_damage_pct": 0.01,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"same_target_pen_pct": 0.018,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 4.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"armor_break",
+					"rage"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_horse_sword_1"
+			}
+		],
+		"huang_fu_song": [
+			{
+				"attack": 562,
+				"crit_damage": 1.5,
+				"crit_rate": 0.11,
+				"skill_amp": 0.042,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"attack_damage_pct": 0.018,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.042,
+					"speed_pct": 0.012,
+					"splash_pct": 0.042,
+					"ultimate_amp": 0.018,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_area",
+					"armor_break"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_thunder_cart_1"
+			},
+			{
+				"attack": 529,
+				"crit_damage": 1.5,
+				"crit_rate": 0.11,
+				"skill_amp": 0.102,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"attack_damage_pct": 0.018,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.042,
+					"speed_pct": 0.012,
+					"splash_pct": 0.042,
+					"ultimate_amp": 0.018,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_area",
+					"armor_break"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_wood_mortar_1"
+			},
+			{
+				"attack": 563,
+				"crit_damage": 1.5,
+				"crit_rate": 0.11,
+				"skill_amp": 0.06,
+				"talents": {
+					"attack_damage_pct": 0.018,
+					"attack_pct": 0.012,
+					"boss_gold_pct": 0.018,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_gold_pct": 0.012,
+					"kill_gold_pct": 0.032,
+					"kill_speed_pct": 0.018,
+					"range_pct": 0.012,
+					"skill_amp": 0.06,
+					"speed_pct": 0.012,
+					"splash_pct": 0.042,
+					"support_hit_rage": 1.8,
+					"ultimate_amp": 0.018,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"physical_area",
+					"economy"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_thunder_cart_1"
+			},
+			{
+				"attack": 530,
+				"crit_damage": 1.5,
+				"crit_rate": 0.11,
+				"skill_amp": 0.12,
+				"talents": {
+					"attack_damage_pct": 0.018,
+					"attack_pct": 0.012,
+					"boss_gold_pct": 0.018,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_gold_pct": 0.012,
+					"kill_gold_pct": 0.032,
+					"kill_speed_pct": 0.018,
+					"range_pct": 0.012,
+					"skill_amp": 0.06,
+					"speed_pct": 0.012,
+					"splash_pct": 0.042,
+					"support_hit_rage": 1.8,
+					"ultimate_amp": 0.018,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"physical_area",
+					"economy"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_wood_mortar_1"
+			},
+			{
+				"attack": 554,
+				"crit_damage": 1.5,
+				"crit_rate": 0.1,
+				"skill_amp": 0.018,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"boss_gold_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"elite_gold_pct": 0.012,
+					"kill_gold_pct": 0.032,
+					"kill_pen_flat": 6.0,
+					"physical_damage_pct": 0.01,
+					"range_pct": 0.012,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.018,
+					"support_hit_rage": 1.8,
+					"ultimate_pen_pct": 0.02,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"armor_break",
+					"economy"
+				],
+				"ultimate_amp": 0.0,
+				"weapon": "equipment_thunder_cart_1"
+			},
+			{
+				"attack": 522,
+				"crit_damage": 1.5,
+				"crit_rate": 0.1,
+				"skill_amp": 0.078,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"boss_gold_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"elite_gold_pct": 0.012,
+					"kill_gold_pct": 0.032,
+					"kill_pen_flat": 6.0,
+					"physical_damage_pct": 0.01,
+					"range_pct": 0.012,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.018,
+					"support_hit_rage": 1.8,
+					"ultimate_pen_pct": 0.02,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"armor_break",
+					"economy"
+				],
+				"ultimate_amp": 0.0,
+				"weapon": "equipment_wood_mortar_1"
+			}
+		],
+		"huang_zhong": [
+			{
+				"attack": 277,
+				"crit_damage": 1.53,
+				"crit_rate": 0.11,
+				"skill_amp": 0.02,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_horn_bow_1"
+			},
+			{
+				"attack": 251,
+				"crit_damage": 1.53,
+				"crit_rate": 0.11,
+				"skill_amp": 0.08,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_mulberry_bow_1"
+			},
+			{
+				"attack": 277,
+				"crit_damage": 1.53,
+				"crit_rate": 0.11,
+				"skill_amp": 0.03,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"kill_speed_pct": 0.018,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.03,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.042,
+					"ultimate_kill_rage": 7.0
+				},
+				"trees": [
+					"physical_burst",
+					"control"
+				],
+				"ultimate_amp": 0.042,
+				"weapon": "equipment_horn_bow_1"
+			},
+			{
+				"attack": 251,
+				"crit_damage": 1.53,
+				"crit_rate": 0.11,
+				"skill_amp": 0.09,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"kill_speed_pct": 0.018,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.03,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.042,
+					"ultimate_kill_rage": 7.0
+				},
+				"trees": [
+					"physical_burst",
+					"control"
+				],
+				"ultimate_amp": 0.042,
+				"weapon": "equipment_mulberry_bow_1"
+			},
+			{
+				"attack": 274,
+				"crit_damage": 1.5,
+				"crit_rate": 0.1,
+				"skill_amp": 0.01,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"physical_damage_pct": 0.01,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"ultimate_amp": 0.012,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"armor_break",
+					"control"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_horn_bow_1"
+			},
+			{
+				"attack": 248,
+				"crit_damage": 1.5,
+				"crit_rate": 0.1,
+				"skill_amp": 0.07,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"physical_damage_pct": 0.01,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"ultimate_amp": 0.012,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"armor_break",
+					"control"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_mulberry_bow_1"
+			}
+		],
+		"liu_bei": [
+			{
+				"attack": 222,
+				"crit_damage": 1.68,
+				"crit_rate": 0.06,
+				"skill_amp": 0.085,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.048,
+					"buff_power_pct": 0.088,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"high_rage_speed_pct": 0.018,
+					"rage_pct": 0.03,
+					"range_pct": 0.024,
+					"skill_amp": 0.01,
+					"speed_pct": 0.03,
+					"support_hit_rage": 4.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"support_buff",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 196,
+				"crit_damage": 1.53,
+				"crit_rate": 0.06,
+				"skill_amp": 0.145,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.048,
+					"buff_power_pct": 0.088,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"high_rage_speed_pct": 0.018,
+					"rage_pct": 0.03,
+					"range_pct": 0.024,
+					"skill_amp": 0.01,
+					"speed_pct": 0.03,
+					"support_hit_rage": 4.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"support_buff",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_bone_mace_1"
+			},
+			{
+				"attack": 222,
+				"crit_damage": 1.65,
+				"crit_rate": 0.06,
+				"skill_amp": 0.093,
+				"talents": {
+					"boss_gold_pct": 0.018,
+					"buff_duration_pct": 0.018,
+					"buff_power_pct": 0.048,
+					"crit_rate": 0.01,
+					"elite_gold_pct": 0.012,
+					"high_rage_speed_pct": 0.018,
+					"kill_gold_pct": 0.032,
+					"rage_pct": 0.012,
+					"range_pct": 0.024,
+					"skill_amp": 0.018,
+					"speed_pct": 0.012,
+					"support_hit_rage": 4.8,
+					"ultimate_amp": 0.018,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"support_buff",
+					"economy"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 196,
+				"crit_damage": 1.5,
+				"crit_rate": 0.06,
+				"skill_amp": 0.153,
+				"talents": {
+					"boss_gold_pct": 0.018,
+					"buff_duration_pct": 0.018,
+					"buff_power_pct": 0.048,
+					"crit_rate": 0.01,
+					"elite_gold_pct": 0.012,
+					"high_rage_speed_pct": 0.018,
+					"kill_gold_pct": 0.032,
+					"rage_pct": 0.012,
+					"range_pct": 0.024,
+					"skill_amp": 0.018,
+					"speed_pct": 0.012,
+					"support_hit_rage": 4.8,
+					"ultimate_amp": 0.018,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"support_buff",
+					"economy"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_bone_mace_1"
+			},
+			{
+				"attack": 222,
+				"crit_damage": 1.68,
+				"crit_rate": 0.05,
+				"skill_amp": 0.103,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"boss_gold_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"crit_damage": 0.03,
+					"elite_gold_pct": 0.012,
+					"kill_gold_pct": 0.032,
+					"rage_pct": 0.018,
+					"range_pct": 0.024,
+					"skill_amp": 0.028,
+					"speed_pct": 0.018,
+					"support_hit_rage": 2.8,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"buff",
+					"economy"
+				],
+				"ultimate_amp": 0.0,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 196,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.163,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"boss_gold_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"crit_damage": 0.03,
+					"elite_gold_pct": 0.012,
+					"kill_gold_pct": 0.032,
+					"rage_pct": 0.018,
+					"range_pct": 0.024,
+					"skill_amp": 0.028,
+					"speed_pct": 0.018,
+					"support_hit_rage": 2.8,
+					"upgrade_discount_pct": 0.078
+				},
+				"trees": [
+					"buff",
+					"economy"
+				],
+				"ultimate_amp": 0.0,
+				"weapon": "equipment_bone_mace_1"
+			}
+		],
+		"zhang_fei": [
+			{
+				"attack": 275,
+				"crit_damage": 1.65,
+				"crit_rate": 0.05,
+				"skill_amp": 0.085,
+				"talents": {
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.066,
+					"controlled_damage_pct": 0.03,
+					"controlled_elite_damage_pct": 0.018,
+					"kill_rage_flat": 2.0,
+					"rage_pct": 0.018,
+					"range_pct": 0.022,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.082,
+					"slow_strength_pct": 0.058,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03
+				},
+				"trees": [
+					"support_control",
+					"control"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 251,
+				"crit_damage": 1.5,
+				"crit_rate": 0.05,
+				"skill_amp": 0.145,
+				"talents": {
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.066,
+					"controlled_damage_pct": 0.03,
+					"controlled_elite_damage_pct": 0.018,
+					"kill_rage_flat": 2.0,
+					"rage_pct": 0.018,
+					"range_pct": 0.022,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.082,
+					"slow_strength_pct": 0.058,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03
+				},
+				"trees": [
+					"support_control",
+					"control"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_bone_mace_1"
+			},
+			{
+				"attack": 275,
+				"crit_damage": 1.68,
+				"crit_rate": 0.05,
+				"skill_amp": 0.085,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"attack_pct": 0.012,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"control_duration_pct": 0.048,
+					"controlled_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"kill_rage_flat": 2.0,
+					"rage_pct": 0.036,
+					"range_pct": 0.024,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.04,
+					"slow_strength_pct": 0.018,
+					"speed_pct": 0.03,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"support_control",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 251,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.145,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"attack_pct": 0.012,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"control_duration_pct": 0.048,
+					"controlled_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"kill_rage_flat": 2.0,
+					"rage_pct": 0.036,
+					"range_pct": 0.024,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.04,
+					"slow_strength_pct": 0.018,
+					"speed_pct": 0.03,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"support_control",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_bone_mace_1"
+			},
+			{
+				"attack": 272,
+				"crit_damage": 1.68,
+				"crit_rate": 0.05,
+				"skill_amp": 0.095,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"rage_pct": 0.018,
+					"range_pct": 0.022,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.02,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.012
+				},
+				"trees": [
+					"control",
+					"buff"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 248,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.155,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"rage_pct": 0.018,
+					"range_pct": 0.022,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.02,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.012
+				},
+				"trees": [
+					"control",
+					"buff"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_bone_mace_1"
+			}
+		],
+		"zhao_yun": [
+			{
+				"attack": 326,
+				"crit_damage": 1.85385,
+				"crit_rate": 0.47385,
+				"skill_amp": 0.02,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"kill_speed_pct": 0.018,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.06,
+					"ultimate_kill_rage": 11.0
+				},
+				"trees": [
+					"physical_burst",
+					"rage"
+				],
+				"ultimate_amp": 0.06,
+				"weapon": "equipment_long_spear_1"
+			},
+			{
+				"attack": 295,
+				"crit_damage": 1.8729,
+				"crit_rate": 0.4529,
+				"skill_amp": 0.08,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_rage_flat": 2.0,
+					"kill_speed_pct": 0.018,
+					"leak_rage_flat": 10.0,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.06,
+					"ultimate_kill_rage": 11.0
+				},
+				"trees": [
+					"physical_burst",
+					"rage"
+				],
+				"ultimate_amp": 0.06,
+				"weapon": "equipment_horse_sword_1"
+			},
+			{
+				"attack": 326,
+				"crit_damage": 1.85385,
+				"crit_rate": 0.47385,
+				"skill_amp": 0.02,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_long_spear_1"
+			},
+			{
+				"attack": 295,
+				"crit_damage": 1.8729,
+				"crit_rate": 0.4529,
+				"skill_amp": 0.08,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_horse_sword_1"
+			},
+			{
+				"attack": 322,
+				"crit_damage": 1.8175,
+				"crit_rate": 0.4575,
+				"skill_amp": 0.0,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_pen_flat": 6.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"physical_damage_pct": 0.01,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"same_target_pen_pct": 0.018,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 4.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"rage",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_long_spear_1"
+			},
+			{
+				"attack": 292,
+				"crit_damage": 1.83655,
+				"crit_rate": 0.43655,
+				"skill_amp": 0.06,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"high_rage_speed_pct": 0.02,
+					"hit_rage_flat": 1.0,
+					"kill_pen_flat": 6.0,
+					"kill_rage_flat": 2.0,
+					"leak_rage_flat": 10.0,
+					"physical_damage_pct": 0.01,
+					"post_ultimate_hit_rage": 3.0,
+					"post_ultimate_rage_pct": 0.02,
+					"rage_pct": 0.012,
+					"same_target_pen_pct": 0.018,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 4.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"rage",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_horse_sword_1"
+			}
+		],
+		"zhou_wei": [
+			{
+				"attack": 362,
+				"crit_damage": 1.78,
+				"crit_rate": 0.06,
+				"skill_amp": 0.02,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 338,
+				"crit_damage": 1.63,
+				"crit_rate": 0.06,
+				"skill_amp": 0.08,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.06,
+					"attack_pct": 0.012,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"kill_speed_pct": 0.018,
+					"physical_damage_pct": 0.01,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.02,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.03,
+					"ultimate_kill_rage": 7.0,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"physical_burst",
+					"armor_break"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_bone_mace_1"
+			},
+			{
+				"attack": 362,
+				"crit_damage": 1.78,
+				"crit_rate": 0.06,
+				"skill_amp": 0.03,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"kill_speed_pct": 0.018,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.03,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.042,
+					"ultimate_kill_rage": 7.0
+				},
+				"trees": [
+					"physical_burst",
+					"control"
+				],
+				"ultimate_amp": 0.042,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 338,
+				"crit_damage": 1.63,
+				"crit_rate": 0.06,
+				"skill_amp": 0.09,
+				"talents": {
+					"armor_pen_pct": 0.04,
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"crit_rate": 0.01,
+					"elite_boss_damage_pct": 0.018,
+					"kill_speed_pct": 0.018,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.03,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.012,
+					"ultimate_amp": 0.042,
+					"ultimate_kill_rage": 7.0
+				},
+				"trees": [
+					"physical_burst",
+					"control"
+				],
+				"ultimate_amp": 0.042,
+				"weapon": "equipment_bone_mace_1"
+			},
+			{
+				"attack": 358,
+				"crit_damage": 1.75,
+				"crit_rate": 0.05,
+				"skill_amp": 0.01,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"physical_damage_pct": 0.01,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"ultimate_amp": 0.012,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"armor_break",
+					"control"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_ring_blade_1"
+			},
+			{
+				"attack": 334,
+				"crit_damage": 1.6,
+				"crit_rate": 0.05,
+				"skill_amp": 0.07,
+				"talents": {
+					"armor_ignore_every": 5.0,
+					"armor_ignore_mult": 0.1,
+					"armor_pen_flat": 4.0,
+					"armor_pen_pct": 0.02,
+					"aura_armor_damage_pct": 0.018,
+					"boss_damage_pct": 0.018,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"elite_damage_pct": 0.012,
+					"kill_pen_flat": 6.0,
+					"physical_damage_pct": 0.01,
+					"range_pct": 0.01,
+					"reveal_duration_pct": 0.018,
+					"same_target_pen_pct": 0.018,
+					"skill_amp": 0.01,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"ultimate_amp": 0.012,
+					"ultimate_pen_pct": 0.02
+				},
+				"trees": [
+					"armor_break",
+					"control"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_bone_mace_1"
+			}
+		],
+		"zhuge_liang": [
+			{
+				"attack": 303,
+				"crit_damage": 1.56,
+				"crit_rate": 0.05,
+				"skill_amp": 0.12,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"attack_pct": 0.012,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"controlled_damage_pct": 0.018,
+					"crit_damage": 0.06,
+					"elite_boss_damage_pct": 0.018,
+					"magic_damage_pct": 0.018,
+					"rage_pct": 0.018,
+					"range_pct": 0.054,
+					"skill_amp": 0.02,
+					"speed_pct": 0.03,
+					"splash_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"magic_area",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_ritual_staff_1"
+			},
+			{
+				"attack": 273,
+				"crit_damage": 1.56,
+				"crit_rate": 0.05,
+				"skill_amp": 0.18,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"attack_pct": 0.012,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"controlled_damage_pct": 0.018,
+					"crit_damage": 0.06,
+					"elite_boss_damage_pct": 0.018,
+					"magic_damage_pct": 0.018,
+					"rage_pct": 0.018,
+					"range_pct": 0.054,
+					"skill_amp": 0.02,
+					"speed_pct": 0.03,
+					"splash_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.018
+				},
+				"trees": [
+					"magic_area",
+					"buff"
+				],
+				"ultimate_amp": 0.018,
+				"weapon": "equipment_bamboo_banner_1"
+			},
+			{
+				"attack": 303,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.12,
+				"talents": {
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.03,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"elite_boss_damage_pct": 0.018,
+					"magic_damage_pct": 0.018,
+					"range_pct": 0.052,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.02,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.012,
+					"splash_pct": 0.018,
+					"ultimate_amp": 0.03
+				},
+				"trees": [
+					"magic_area",
+					"control"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_ritual_staff_1"
+			},
+			{
+				"attack": 273,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.18,
+				"talents": {
+					"attack_pct": 0.012,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.03,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"elite_boss_damage_pct": 0.018,
+					"magic_damage_pct": 0.018,
+					"range_pct": 0.052,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.02,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.012,
+					"splash_pct": 0.018,
+					"ultimate_amp": 0.03
+				},
+				"trees": [
+					"magic_area",
+					"control"
+				],
+				"ultimate_amp": 0.03,
+				"weapon": "equipment_bamboo_banner_1"
+			},
+			{
+				"attack": 299,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.12,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"rage_pct": 0.018,
+					"range_pct": 0.022,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.02,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.012
+				},
+				"trees": [
+					"buff",
+					"control"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_ritual_staff_1"
+			},
+			{
+				"attack": 270,
+				"crit_damage": 1.53,
+				"crit_rate": 0.05,
+				"skill_amp": 0.18,
+				"talents": {
+					"ally_rage_pct": 0.018,
+					"buff_duration_pct": 0.03,
+					"buff_power_pct": 0.04,
+					"control_duration_pct": 0.018,
+					"controlled_damage_pct": 0.012,
+					"controlled_elite_damage_pct": 0.018,
+					"crit_damage": 0.03,
+					"rage_pct": 0.018,
+					"range_pct": 0.022,
+					"reveal_duration_pct": 0.018,
+					"skill_amp": 0.02,
+					"slow_on_hit": 0.042,
+					"slow_strength_pct": 0.04,
+					"speed_pct": 0.018,
+					"support_hit_rage": 1.0,
+					"ultimate_amp": 0.012
+				},
+				"trees": [
+					"buff",
+					"control"
+				],
+				"ultimate_amp": 0.012,
+				"weapon": "equipment_bamboo_banner_1"
+			}
+		]
+	}
+}

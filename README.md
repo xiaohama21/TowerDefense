@@ -6,10 +6,12 @@
 
 ## 当前状态
 
-- **0.9.5.1** 天赋树弹窗与节点专属图标已完成，设计总纲 **v0.37.81**，交付分支 **0.9.5**。属性面板“天赋”按钮打开三大类分叉树，点击节点查看详情后分配；110枚专属图标按人物动作、武器、器物和效果区分，图标目录共393枚。权威文档：[TALENTS v0.2](docs/modules/TALENTS.md)。
-- 13项回归、389项天赋专项、1553项原生窗口检查及360项包内检查全部通过，Windows独立启动、实际Spine DLL加载和PE版本 **0.9.5.1** 已验证。24张1280×720截图及SHA256清单见[原生界面验收](docs/ui_concept/runtime_0.9.5.1/README.md)，110枚图标见[专属图集](docs/ui_concept/talent_icons_preview.png)。完整包：`build/FengHuoLianYing_v0.9.5.1_Windows.zip`；独立EXE：`build/release_0.9.5.1/FengHuoLianYing_v0.9.5.1.exe`。
-- 上一版本 **0.9.5.0** 已完成并推送（d765416）；13项回归、271项天赋检查、750项布局和249项包内检查通过。完整包 `build/FengHuoLianYing_v0.9.5.0_Windows.zip` 保留。
-- main保持 **ecba0ed**，本次延伸修复在0.9.5分支交付。
+- **0.9.6.3技能平衡校准已完成**，设计总纲 **v0.37.86**，交付分支 **0.9.6**。
+- 青龙势必暴增伤0~27%，淬毒箭20~25.4/秒；温酒/燕颔/破阵双戟每级6%，拜月/乘势8%。七项低收益技能总书耗25→9本，schema12自动退还旧档差价并保留等级。伤害积怒贡献每次封顶12怒（赵云16），减速独立到期，Boss持续效果按阶段100%/70%/40%执行。
+- 三拍真伤、典韦半血斩杀、孙尚香固有破隐及九将身份保持；27技能卡中文分区同源显示实际成长和成本。权威见[CHARACTER_SKILLS v0.19](docs/modules/CHARACTER_SKILLS.md)与[完整实施报告](docs/reviews/SKILL_BALANCE_IMPLEMENTATION_2026-11-05.md)。
+- 18项功能回归、97项新增专项、159组输出审查、18组辅助覆盖、首章16组预算模拟和33张原生截图通过；Benchmark原±3%容差复测通过。Windows独立启动、423项包内检查、实际Spine DLL与PE版本0.9.6.3通过。[Windows包](build/FengHuoLianYing_v0.9.6.3_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.6.3/README.md)。
+- 上一版技能/按钮优化、395图标与110天赋保持；[0.9.6.2包](build/FengHuoLianYing_v0.9.6.2_Windows.zip)及[45张截图](docs/ui_concept/runtime_0.9.6.2/README.md)保留。
+- 修复/延伸留在 **0.9.6** 分支交付；main保持 **2cfd28c**，按AGENTS §5.3在开始下一编号提交时同步。
 
 ## 历史交付记录
 

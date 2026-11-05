@@ -194,18 +194,18 @@ is_boss_wave = false
 
 [sub_resource type="Resource" id="DialogueLine_1"]
 script = ExtResource("9_dline")
-speaker = "黄忠"
+speaker = "孙尚香"
 text = "颖川贼兵中多有弓手，诸位切莫立在平地。"
 
 [sub_resource type="Resource" id="DialogueLine_2"]
 script = ExtResource("9_dline")
 speaker = "刘备"
-text = "黄老将军破敌之策，备受教了。"
+text = "孙姑娘精于弓术，今日还请助我等破敌。"
 
 [sub_resource type="Resource" id="DialogueLine_3"]
 script = ExtResource("9_dline")
-speaker = "黄忠"
-text = "老夫的箭，可比他们的快三分。"
+speaker = "孙尚香"
+text = "江东弓腰姬的箭，定叫他们不敢再进一步！"
 
 [sub_resource type="Resource" id="DialogueData_1"]
 script = ExtResource("10_ddata")

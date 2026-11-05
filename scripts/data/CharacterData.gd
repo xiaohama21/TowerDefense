@@ -8,6 +8,7 @@ class_name CharacterData
 @export_multiline var description: String = ""
 @export var portrait: Texture2D
 @export var profession: ProfessionData
+@export var faction: StringName = &"qun"
 @export var tags: Array[StringName] = []
 @export var talent_tree_ids: Array[String] = []
 
@@ -37,6 +38,7 @@ class_name CharacterData
 @export var rage_gain_mode: StringName = &"hit+damage"
 @export var rage_gain_per_hit: int = 4
 @export var rage_gain_per_damage: float = 0.1
+@export var rage_gain_damage_cap: float = 12.0
 @export var support_rage_per_tick: int = 2
 
 func get_skill_ids() -> Array[StringName]:
@@ -55,7 +57,7 @@ func skill_param(skill_id: StringName, key: String, fallback: float = 0.0) -> fl
 	return float(params.get(key, fallback))
 
 func skill_strength(skill_id: StringName, rank: int, levels: Dictionary = {}, equipment_amp: float = 0.0) -> float:
-	return SkillRegistry.level_multiplier(int(levels.get(str(skill_id), 1))) * (1.0 + per_rank_skill_amp * clampi(rank, 0, 5) + equipment_amp)
+	return SkillRegistry.level_multiplier(int(levels.get(str(skill_id), 1)), skill_id) * (1.0 + per_rank_skill_amp * clampi(rank, 0, 5) + equipment_amp)
 
 @export_category("Battle Rank Override (阶段 8，NUMBERS.md 10.9)")
 ## 角色级局内升阶步进覆盖（-1 = 继承职业配置；辅助定位角色如刘备在此配置辅助行数值）。
@@ -103,7 +105,7 @@ func get_battle_rank_steps() -> Dictionary:
 
 
 func is_valid() -> bool:
-	return not character_id.is_empty() and not display_name.is_empty() and profession != null
+	return not character_id.is_empty() and not display_name.is_empty() and profession != null and FactionRegistry.is_valid_id(faction)
 
 
 ## Bare growth and legacy guard are compared before relics and battle modifiers.
@@ -126,6 +128,7 @@ func remaining_guard(level: int, rank: int, guard: Dictionary) -> Dictionary:
 	return result
 
 func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle_rank: int = 0, guard: Dictionary = {}, skill_levels: Dictionary = {}, weapon: WeaponData = null, talent_alloc: Dictionary = {}) -> Dictionary:
+	if relic != null and not relic.fits(self): relic = null
 	var r := clampi(rank, 0, 5)
 	var equipment := WeaponRegistry.bonuses(weapon, self)
 	var talents := TalentRegistry.bonuses(str(character_id), TalentRegistry.normalize(str(character_id), level, talent_alloc))
@@ -164,7 +167,7 @@ func compute_stats_at(level: int, rank: int = 0, relic: RelicData = null, battle
 		var params: Dictionary = skill_params.get(str(id), {})
 		if id == &"passive_worship_moon":
 			if battle_rank >= int(params.get("battle_rank", 3)):
-				stats.skill_amp += float(params.get("skill_amp", 0.05)) * SkillRegistry.level_multiplier(int(skill_levels.get(str(id), 1)))
+				stats.skill_amp += float(params.get("skill_amp", 0.05)) * SkillRegistry.level_multiplier(int(skill_levels.get(str(id), 1)), id)
 			continue
 		if id == &"passive_fierce_flame":
 			stats.damage += int(round(float(params.get("attack_flat", 0.0)) * power * (1.0 + attack_pct * (steps + bonus)) * CharacterRank.ATTACK[r] * (1.0 + float(talents.get("attack_pct", 0.0)))))

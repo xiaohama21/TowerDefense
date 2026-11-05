@@ -92,18 +92,10 @@ func _build_card(supply: BattleSupplyData) -> Control:
 	card.custom_minimum_size = Vector2(CARD_WIDTH, CARD_HEIGHT)
 	card.focus_mode = Control.FOCUS_NONE
 	card.clip_contents = true
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color.WHITE
-	style.border_color = UITheme.LIGHT_PANEL_BORDER
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(13)
-	card.add_theme_stylebox_override("normal", style)
-	var hover_style := style.duplicate() as StyleBoxFlat
-	hover_style.bg_color = Color("#fbfdff")
-	card.add_theme_stylebox_override("hover", hover_style)
-	var pressed_style := style.duplicate() as StyleBoxFlat
-	pressed_style.bg_color = Color("#f2f9fd")
-	card.add_theme_stylebox_override("pressed", pressed_style)
+	UITheme.apply_light_selectable(card)
+	var style := card.get_theme_stylebox("normal") as StyleBoxFlat
+	var hover_style := card.get_theme_stylebox("hover") as StyleBoxFlat
+	var pressed_style := card.get_theme_stylebox("pressed") as StyleBoxFlat
 	card.pressed.connect(_on_card_pressed.bind(supply_id))
 
 	var margin := MarginContainer.new()
@@ -229,15 +221,9 @@ func _build_slot(index: int) -> Control:
 	var slot := Button.new()
 	slot.custom_minimum_size = Vector2(SLOT_WIDTH, SLOT_HEIGHT)
 	slot.focus_mode = Control.FOCUS_NONE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#f7fbfe")
-	style.border_color = UITheme.LIGHT_PANEL_BORDER
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(13)
-	slot.add_theme_stylebox_override("normal", style)
-	var hover_style := style.duplicate() as StyleBoxFlat
-	hover_style.bg_color = Color("#f0f8fd")
-	slot.add_theme_stylebox_override("hover", hover_style)
+	UITheme.apply_light_selectable(slot)
+	var style := slot.get_theme_stylebox("normal") as StyleBoxFlat
+	var hover_style := slot.get_theme_stylebox("hover") as StyleBoxFlat
 	slot.pressed.connect(_on_slot_pressed.bind(index))
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

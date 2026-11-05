@@ -1,0 +1,496 @@
+{
+  "version": "0.9.6.2",
+  "document_version": "v0.37.85",
+  "date": "2026-11-04",
+  "layout_checks": 19064,
+  "button_audit_records": 1688,
+  "button_count_note": "逐界面巡检记录数，同一按钮重复出现，不代表独立按钮数量",
+  "packaged_checks": 418,
+  "regression": {
+    "SkillKitRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "SKILL_KIT_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "RosterRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "ROSTER_RESULT: PASS checks=88 failures=0"
+      ],
+      "passed": true
+    },
+    "PolishRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "POLISH_RESULT: PASS checks=19019 failures=0 buttons=1688 captures=0"
+      ],
+      "passed": true
+    },
+    "FactionRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "FACTION_RESULT: PASS checks=293 failures=0"
+      ],
+      "passed": true
+    },
+    "PackVerify": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "SmokeRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "FlowRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "ExitFlowRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "RankRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "RANK_RESULT: PASS failures=0"
+      ],
+      "passed": true
+    },
+    "DevelopRefreshRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [],
+      "passed": true
+    },
+    "SupplyStateRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "SUPPLY_STATE_OK failures=0"
+      ],
+      "passed": true
+    },
+    "ShopRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "SHOP_RESULT: PASS checks=461 failures=0"
+      ],
+      "passed": true
+    },
+    "GearRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "GEAR_RESULT: PASS checks=446 failures=0"
+      ],
+      "passed": true
+    },
+    "ItemUiRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [],
+      "summary": [
+        "ITEM_UI_RESULT: PASS checks=91 failures=0"
+      ],
+      "passed": true
+    },
+    "TalentRunner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [
+        "ERROR: SaveManager: 无法写入 user://（错误码 12）",
+        "ERROR: SaveManager: 无法写入 user://（错误码 12）"
+      ],
+      "summary": [
+        "TALENT_RESULT: PASS checks=389 failures=0"
+      ],
+      "passed": true
+    },
+    "Stage0Runner": {
+      "exit_code": 0,
+      "errors": [],
+      "expected_negative_test_errors": [
+        "ERROR: Parse JSON failed. Error at line 0: Expected key",
+        "ERROR: SaveManager: 只有胜利且尚未提交的战局才能结算",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ],
+      "summary": [],
+      "passed": true
+    }
+  },
+  "release": {
+    "import": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "export": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "standalone_boot": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "standalone_spine_module": "F:\\godotProject\\TowerDefense\\build\\release_0.9.6.2\\libspine_godot.windows.template_release.x86_64.dll",
+    "expected_editor_feature_bootstrap_errors": [
+      "ERROR: Condition \"!FileAccess::exists(path)\" is true. Returning: ERR_FILE_NOT_FOUND",
+      "ERROR: GDExtension dynamic library not found: 'res://bin/spine_godot_extension.gdextension'.",
+      "ERROR: Error loading extension: 'res://bin/spine_godot_extension.gdextension'."
+    ],
+    "package_probe": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "packaged_checks": 418,
+    "pe_versions": {
+      "FileVersion": "0.9.6.2",
+      "ProductVersion": "0.9.6.2"
+    }
+  },
+  "captures": [
+    {
+      "file": "main_menu_buttons.png",
+      "purpose": "主菜单导航与新档/继续动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3b5069a5afb66860ef9059afa2661dc3d71cab9be0caf96f3e4b50a22443d125"
+    },
+    {
+      "file": "buttons_map.png",
+      "purpose": "地图/难度/出战按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "0532aa285f602fc75f93955a95e33edca91caadb38cb949628111781828e1110"
+    },
+    {
+      "file": "buttons_develop.png",
+      "purpose": "养成与角色/动作按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "65ed7520d52b61fcef7acf663004f39a6de45e480d7560a64d24bb9b4c595c2f"
+    },
+    {
+      "file": "buttons_tech.png",
+      "purpose": "科技树节点、强化与重置动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "fe10a6708017a9b6e9b2b4ae6cd26f2d6b67b1c462968434dcb12f7ad7ba0e43"
+    },
+    {
+      "file": "buttons_supply.png",
+      "purpose": "局外军需卡、解锁与选带按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3caca9a7a8acc57bb22c38bb956c4f8c0604464e54fcfba2635e191eafe8e836"
+    },
+    {
+      "file": "buttons_shop.png",
+      "purpose": "余额不足与未解锁购买状态",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b6c2764abe2c18b396de7a280d1230d42339993c128942c8c47475fd2fc12626"
+    },
+    {
+      "file": "buttons_inventory.png",
+      "purpose": "背包分类、物品卡及详情",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a4cc593c7bd4ea09c2ee817a5b24a488443e652ba067edb8d93807f881b2e527"
+    },
+    {
+      "file": "buttons_settings.png",
+      "purpose": "显示模式与玩法勾选控件",
+      "width": 1280,
+      "height": 720,
+      "sha256": "5c6d501d16a1b02f4da13c0891171344f8e5fe99d742158b4207283f2f7ab6f1"
+    },
+    {
+      "file": "buttons_encyclopedia.png",
+      "purpose": "百科筛选、页签和模拟控件",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b7748f0bbab958184c0d3d19e602204112f83cee21fd85792c589b42e7f38b99"
+    },
+    {
+      "file": "diao_chan_skills.png",
+      "purpose": "貂蝉技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "65ed7520d52b61fcef7acf663004f39a6de45e480d7560a64d24bb9b4c595c2f"
+    },
+    {
+      "file": "diao_chan_ultimate.png",
+      "purpose": "貂蝉大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a61298761b16db3e6ae11937ba43963d2f04bd8c17821df7ca84da15739e1149"
+    },
+    {
+      "file": "guan_yu_skills.png",
+      "purpose": "关羽技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "76744b32985c66e091f7599bb2ff8e66c7323551b98c5e3c5498b84d696d5470"
+    },
+    {
+      "file": "guan_yu_ultimate.png",
+      "purpose": "关羽大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "ee4c035a09299a378a5cbe8ad582c6b2f7bbb1a10aae78259fa7fdc2bb92ef50"
+    },
+    {
+      "file": "huang_fu_song_skills.png",
+      "purpose": "皇甫嵩技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "6522c67ab8e481564f7d103027088517d5970acbbfbb4e8b95cb56405ab4943c"
+    },
+    {
+      "file": "huang_fu_song_ultimate.png",
+      "purpose": "皇甫嵩大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "0c11d7f817d88a99d9b98a938d4898f58e0680e222725567e8710aaeed7aab65"
+    },
+    {
+      "file": "huang_zhong_skills.png",
+      "purpose": "孙尚香技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "365f9c187ec48526a2d41c8503fc05af71df3112a1ca0d5ffb80623849989159"
+    },
+    {
+      "file": "huang_zhong_ultimate.png",
+      "purpose": "孙尚香大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c386e8a04581b8dd8c1168f66592a7d6081a83bdc99deae9c33c599f99e23248"
+    },
+    {
+      "file": "liu_bei_skills.png",
+      "purpose": "刘备技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "608041bfae5c8e8a84cd9ebed47d856ae2174485a40e778303d2b4a4696c8e71"
+    },
+    {
+      "file": "liu_bei_ultimate.png",
+      "purpose": "刘备大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "52c2cff1ccc0d164cc7b9ab746943ba3af21496fa4ec20843bbf46bcecb351b6"
+    },
+    {
+      "file": "zhang_fei_skills.png",
+      "purpose": "张飞技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "cddd7fabb508b7c70a3afcd107c7dea2a79c30d52c865fea4b2fe4782654ddd9"
+    },
+    {
+      "file": "zhang_fei_ultimate.png",
+      "purpose": "张飞大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "dc3d2150276fd192ca0e2a7d7b11c0bc732d095fd6d6b46905cb2df787bfd490"
+    },
+    {
+      "file": "zhao_yun_skills.png",
+      "purpose": "赵云技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "11daf98d77b26a2100341a26d5d0e035956956026f841c489e5ac53e7f088661"
+    },
+    {
+      "file": "zhao_yun_ultimate.png",
+      "purpose": "赵云大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "6c3650e79103bac09a07df73408e2632349e082b2a5f96032c37b605fe658fbe"
+    },
+    {
+      "file": "zhou_wei_skills.png",
+      "purpose": "典韦技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "8dd9f28bf867e1eb9ff70a321ecf72f2433a5c4528ed4243c42d95bc7f69b963"
+    },
+    {
+      "file": "zhou_wei_ultimate.png",
+      "purpose": "典韦大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c321dafa65cd4db2ffecd3a551969ff2c7c7b09bf6256ba5667f7d60402813a6"
+    },
+    {
+      "file": "zhou_wei_ultimate_top.png",
+      "purpose": "典韦大招标题、触发、斩杀门槛与五列数值表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "eb40ed2389a8816835549b537fa536452e9091431d7877b56c3f6aba874cdab4"
+    },
+    {
+      "file": "zhuge_liang_skills.png",
+      "purpose": "诸葛亮技能顶部、触发与基础/加成表",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3cf81671d30e94487766ca0f4fc4f47fdec3755e336c2a816a347dafe1e63939"
+    },
+    {
+      "file": "zhuge_liang_ultimate.png",
+      "purpose": "诸葛亮大招滚动、伤害分解与升级动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "18d7ae3a43795a98a835a963b523e87a9cab783161264e38a4a9d4c243181917"
+    },
+    {
+      "file": "talent_buttons.png",
+      "purpose": "独立天赋树、节点及重置/关闭动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "1cfaf006f2a735f2b1065bef97bd0d49a024208cf23b48f55cbc7ddaf551fde2"
+    },
+    {
+      "file": "talent_detail_buttons.png",
+      "purpose": "天赋详情、分配及关闭动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "8f635f5d65bacd54a38e2aa9d929a9c00bd86fa1a69f6b74f44a3f7e68172bae"
+    },
+    {
+      "file": "encyclopedia_skill_numbers.png",
+      "purpose": "百科模拟属性、局内阶数及技能同源数值",
+      "width": 1280,
+      "height": 720,
+      "sha256": "da4550ba2027018c490d3ac8c4865e18fa7145fc1eada07e645a0eef09d743e1"
+    },
+    {
+      "file": "shop_available_buttons.png",
+      "purpose": "足额购买可用状态，随后验证真实扣款与发货",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f49357265d3e2c5b372c825f717d77914956ac3561092cd646e45d7543d1fd30"
+    },
+    {
+      "file": "shop_exchange_buttons.png",
+      "purpose": "军功兑换筛选与按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "43984710032d47a67eaaee43dc4902fa74a9b4d0f8135af0615d5136ce9f15a1"
+    },
+    {
+      "file": "confirmation_buttons.png",
+      "purpose": "浅底确认正文、标题背景、中文确认/取消按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f06c0a0c4f4c944399a16197d27792e1b26c46bb65c1ba285d66913888d46a5f"
+    },
+    {
+      "file": "squad_buttons.png",
+      "purpose": "编队角色/遗物选择与动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "104138dd017d871b0fe28dbf5b8ea1bd3b35d30e6f67def29c53f4e550ebbb4e"
+    },
+    {
+      "file": "squad_confirm_buttons.png",
+      "purpose": "编队确认弹窗",
+      "width": 1280,
+      "height": 720,
+      "sha256": "70cdea5f7ad5eb05c99564f782f372e04a68acbc4230baff06d9ad52048506a1"
+    },
+    {
+      "file": "battle_buttons.png",
+      "purpose": "战斗初始HUD与剧情按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "10831bed12f0ffce9ce6813b297c4f1fec2c68453a6241e4e4690236440219f0"
+    },
+    {
+      "file": "battle_dialogue.png",
+      "purpose": "浅底对白及跳过动作",
+      "width": 1280,
+      "height": 720,
+      "sha256": "2de7553d4b2181b4325d680aeb84770b9064b2a7db0bb343cc6ba10b973f8a51"
+    },
+    {
+      "file": "battle_tower_buttons.png",
+      "purpose": "升阶/回收/手动大招圆形按钮、整图缩放",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c90d0b72e903f3d8d6959e28e31728e1e8410bd6489a230888def9d2958abb9c"
+    },
+    {
+      "file": "battle_tower_max_buttons.png",
+      "purpose": "满阶禁用灰色圆盘与手动大招",
+      "width": 1280,
+      "height": 720,
+      "sha256": "345f877cdeefa3d58c6544967c40a6554d399bfaf3b8998204f28e860ab00a73"
+    },
+    {
+      "file": "battle_menu_buttons.png",
+      "purpose": "暂停/设置/重开/退出菜单",
+      "width": 1280,
+      "height": 720,
+      "sha256": "8b687de16c198b24f4042df16dcc79ead1a7d8259f3899b47f0c39100edafa11"
+    },
+    {
+      "file": "battle_supply_buttons.png",
+      "purpose": "局内军需、购买与红色圆盘关闭按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "495ce270ad5e786bbb76a167e30edf6910ed915963282a1a244bcab9af813845"
+    },
+    {
+      "file": "victory_buttons.png",
+      "purpose": "胜利、转盘、下一关/重试/返回按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "5c2cd5656893ef7e759a4a8f065d57ef534ff363d71c17828b3b9b2a4ce2d6d6"
+    },
+    {
+      "file": "victory_claimed_buttons.png",
+      "purpose": "领取后转盘按钮禁用",
+      "width": 1280,
+      "height": 720,
+      "sha256": "240a2549d5c228993cc7b18e0a4c6f8630479f764f7bdb7b391f5f612004fdaa"
+    },
+    {
+      "file": "defeat_buttons.png",
+      "purpose": "战败、重试与返回按钮",
+      "width": 1280,
+      "height": 720,
+      "sha256": "830f9d137b837e202f4277b4abbc22f734f3aeadfb3e86e75d6b4815e49e221d"
+    }
+  ]
+}

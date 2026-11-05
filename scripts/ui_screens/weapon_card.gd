@@ -40,6 +40,7 @@ func configure(weapon: WeaponData, count: int = -1, available: int = -1, action:
 	description.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	description.add_theme_font_size_override("font_size", 13)
 	body.add_child(description)
+	if not weapon.faction_limit.is_empty(): body.add_child(FactionUI.limit_row(weapon.faction_limit))
 	if count >= 0:
 		var label := _label("持有 %d · 可用 %d" % [count, maxi(available, 0)])
 		label.tooltip_text = "持有%d件，未占用%d件（最多3件）" % [count, maxi(available, 0)]
@@ -50,7 +51,7 @@ func configure(weapon: WeaponData, count: int = -1, available: int = -1, action:
 		button.text = action
 		button.disabled = not enabled
 		button.custom_minimum_size.y = 30
-		UITheme.apply_light_selectable(button)
+		UITheme.apply_kenney_rect_button(button, "blue", Color.WHITE, 5)
 		button.pressed.connect(func() -> void: action_requested.emit(str(weapon.weapon_id)))
 		body.add_child(button)
 	body.minimum_size_changed.connect(func() -> void:

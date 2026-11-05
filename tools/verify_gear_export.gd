@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.5.1", "project version 0.9.5.1")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.6.3", "project version 0.9.6.3")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")
@@ -23,17 +23,48 @@ func _run() -> void:
 	store.configure_paths("user://.gear_export_%d.json" % Time.get_ticks_usec())
 	_check(flow.start_new_game(), "isolated new profile")
 	var profile = store.get_profile()
-	_check(profile.to_dict().schema_version == 11, "schema v11")
+	_check(profile.to_dict().schema_version == 12, "schema v12")
 	_check(profile.ingots == 0 and profile.lord_exp == 0 and profile.shop_state.rotation.size() == 2, "new profile economic defaults")
 	_check(shop.all_offers().size() == 31 and shop.exp_for_level(100) == 27225 and shop.data().tier_levels == [1,10,20,40,60,80], "packaged catalog and lord curve")
 	var migrated = store._migrate_to_current({"schema_version":9,"military_merit":321,"weapons":{"equipment_long_spear_1":1}})
-	_check(migrated.ok and migrated.data.schema_version == 11 and migrated.data.ingots == 0 and migrated.data.lord_exp == 0 and migrated.data.military_merit == 321 and migrated.data.weapons.equipment_long_spear_1 == 1, "packaged v9 migration preserves existing economy and gear")
+	_check(migrated.ok and migrated.data.schema_version == 12 and migrated.data.ingots == 0 and migrated.data.lord_exp == 0 and migrated.data.military_merit == 321 and migrated.data.weapons.equipment_long_spear_1 == 1, "packaged v9 migration preserves existing economy and gear")
+	_check(skills.upgrade_cost(9, &"passive_warm_wine") == 1 and skills.upgrade_cost(9, &"char_green_dragon") == 5, "packaged per skill book costs")
+	var refund: Dictionary = store._migrate_to_current({"schema_version":11,"characters":{"guan_yu":{"rank":2,"skill_levels":{"passive_warm_wine":10}}},"items":{"skill_book":3}})
+	_check(refund.ok and refund.data.items.skill_book == 19 and store._migrate_to_current(refund.data).data.items.skill_book == 19, "packaged refund once")
+	var sun = flow.load_character_data("huang_zhong")
+	_check(is_equal_approx(skills.effect_value(sun,&"passive_sentry","poison_dps",10,3.0),25.4), "packaged fractional poison growth")
+	_check(is_equal_approx(skills.effect_value(flow.load_character_data("guan_yu"),&"passive_green_dragon_stance","forced_bonus_per_level",10,3.0),.27), "packaged forced critical growth")
+	_check(flow.load_character_data("zhao_yun").rage_gain_damage_cap == 16 and sun.rage_gain_damage_cap == 12, "packaged damage rage caps")
 	_check(flow.get_all_character_ids().size() == 9, "nine three-skill characters retained")
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/ui/icons/v2/manifest.json"))
 	var count := 0
 	for entry in manifest.icons:
 		if load("res://assets/ui/icons/v2/" + str(entry.png)) != null: count += 1
-	_check(count == 393, "393 packaged icons including 110 talents")
+	_check(count == 395, "395 packaged icons including 110 talents")
+	var factions = load("res://scripts/data/FactionRegistry.gd")
+	var faction_counts := {"wei":0, "shu":0, "wu":0, "qun":0}
+	var faction_ui = load("res://scripts/ui_screens/faction_ui.gd")
+	for faction in factions.IDS:
+		var badge = faction_ui.badge(faction)
+		_check(badge.find_child("FactionName",true,false).text == factions.display_name(faction) and badge.find_child("FactionFlag",true,false).texture != null, "packaged faction flag and visible name " + str(faction))
+		badge.free()
+	for id in flow.get_all_character_ids():
+		var hero = flow.load_character_data(str(id))
+		_check(factions.is_valid_id(hero.faction) and not hero.tags.has(&"shu") and not hero.tags.has(&"han"), "packaged faction resource " + str(id))
+		faction_counts[str(hero.faction)] += 1
+	_check(faction_counts == {"wei":1, "shu":5, "wu":1, "qun":2}, "packaged nine faction assignments")
+	for entry in [["huang_zhong","孙尚香","鹊画弓",["弓腰姬","淬毒箭","枭姬奋威"]],["zhou_wei","典韦","双铁戟",["破阵双戟","古之恶来","宛城死战"]]]:
+		var hero = flow.load_character_data(entry[0])
+		_check(hero.display_name == entry[1], "packaged replacement identity " + str(entry[1]))
+		var relic = flow.get_relic_for_character(entry[0])
+		_check(relic != null and relic.display_name == entry[2] and relic.effect_lines().is_empty() and not relic.is_optional_slot(), "packaged locked relic " + str(entry[2]))
+		var ids = hero.get_skill_ids()
+		for index in range(ids.size()): _check(skills.get_skill_name(ids[index]) == entry[3][index], "packaged replacement skill " + str(entry[3][index]))
+	for stage in flow.get_sorted_stages(flow.get_chapter()):
+		_check(stage.faction_rule.is_empty() and stage.allows_character(flow.load_character_data("guan_yu")), "packaged unrestricted chapter " + str(stage.stage_id))
+	var rule_stage = flow.load_stage_data(&"ch01_s01").duplicate(true)
+	rule_stage.faction_rule = {"allow":["shu","qun"],"deny":["shu"]}
+	_check(not flow.squad_allowed_for_stage(rule_stage,["guan_yu"]) and flow.squad_allowed_for_stage(rule_stage,["diao_chan"]), "packaged stage faction intersection")
 
 	var talents = load("res://scripts/data/TalentRegistry.gd")
 	_check(talents.IDS.size() == 11, "11 packaged talent trees")
@@ -47,6 +78,27 @@ func _run() -> void:
 			_check(not str(node.name).is_empty() and not str(node.description).is_empty() and not node.effects.is_empty(), "packaged talent node " + str(node.id))
 	_check(talent_nodes == 110, "110 packaged talent nodes")
 	var theme = load("res://scripts/ui_screens/ui_theme.gd")
+	var dian = flow.load_character_data("zhou_wei")
+	var execute: Dictionary = dian.skill_params.ultimate_death_fight
+	_check(execute.mult == 4.0 and execute.target_hp_threshold == 0.5 and execute.execute_bonus_mult == 4.0 and not execute.has("base_hp_threshold") and not execute.has("low_hp_mult"), "packaged Dian Wei target-health execution parameters")
+	var preview_text: String = skills.damage_preview(dian,&"ultimate_death_fight",2,0.0,{"damage":137})
+	_check(preview_text.contains("合计1129点") and preview_text.contains("目标生命≤50%"), "packaged execution preview rounding and condition")
+	var action := Button.new()
+	theme.apply_kenney_round_button(action,"yellow",theme.INK)
+	for state in ["normal","hover","pressed","hover_pressed","disabled"]:
+		var round_style = action.get_theme_stylebox(state)
+		_check(round_style is StyleBoxTexture and round_style.texture != null and round_style.texture_margin_left == 0 and round_style.texture_margin_top == 0, "packaged round action whole-image scaling " + state)
+	action.free()
+	var dialog := ConfirmationDialog.new()
+	root.add_child(dialog)
+	dialog.popup_centered(Vector2i(440,160))
+	await process_frame
+	await process_frame
+	_check(dialog.get_label().get_theme_color("font_color") == theme.LIGHT_INK and dialog.ok_button_text == "确认" and dialog.cancel_button_text == "取消", "packaged confirmation readable Chinese actions")
+	for button in [dialog.get_ok_button(),dialog.get_cancel_button()]:
+		for state in ["normal","hover","pressed","hover_pressed","disabled","focus"]:
+			_check(not button.get_theme_stylebox(state) is StyleBoxEmpty, "packaged dialog complete button state " + state)
+	dialog.queue_free()
 	for icon_id in ["ingot", "lord_level", "lord_exp", "equipment_rarity_0", "equipment_rarity_1", "equipment_rarity_2", "equipment_rarity_3", "equipment_rarity_4", "trait_vanguard", "ultimate_death_fight"]:
 		_check(theme.hud_icon(icon_id) != null, "packaged economic/quality icon " + icon_id)
 	_check(registry.IDS.size() == 12, "12 packaged weapons")
@@ -101,6 +153,16 @@ func _run() -> void:
 	_check(enc._sim_talent_alloc.get("magic_area.focus") == 1 and profile.to_dict() == talent_sim_snapshot, "packaged talent simulation read-only")
 
 	enc._talent_panel.dismiss()
+	enc._faction_buttons[&"shu"].pressed.emit()
+	_check(enc._character_buttons.size() == 5, "packaged shu filter")
+	enc._faction_buttons[&"qun"].pressed.emit()
+	_check(enc._character_buttons.size() == 2, "packaged qun filter")
+	for faction in [&"wei", &"wu"]:
+		enc._faction_buttons[faction].pressed.emit()
+		_check(enc._character_buttons.size() == 1 and enc._talent_button != null and enc._sim_panel.visible, "packaged faction replacement " + str(faction))
+	enc._faction_buttons[&""].pressed.emit()
+	enc._select_character("zhuge_liang")
+	_check(enc._character_buttons.size() == 9 and profile.to_dict() == talent_sim_snapshot, "packaged restore faction filter without saves")
 	_check(_items_readable(enc._weapon_tab), "packaged encyclopedia weapon names and brief descriptions")
 	var skill_margin = panel._skill_tab.find_child("SkillContentMargin", true, false)
 	_check(skill_margin != null and skill_margin.get_theme_constant("margin_left") == 16 and skill_margin.get_theme_constant("margin_top") == 14 and skill_margin.get_child(0).get_theme_constant("separation") == 12, "packaged develop skill page spacing")
@@ -216,7 +278,10 @@ func _check_skill_cards(panel, character, skills, context: String) -> void:
 			for label in card.find_children("*", "Label", true, false): labels.append(label.text)
 		for row in skills.effect_rows(character, id, 1, 0.0):
 			for entry in row:
-				readable = readable and entry.size() == 4 and labels.has(str(entry[3]))
+				readable = readable and entry.size() == 5 and labels.has(str(entry[3]))
+		var trigger = card.find_child("SkillTrigger",true,false) if card != null else null
+		var table = card.find_child("EffectBreakdown",true,false) if card != null else null
+		readable = readable and trigger != null and trigger.text == "触发条件：" + skills.trigger_text(id) and table != null and table.columns == 5
 		_check(readable, "%s skill name, description and effect labels: %s" % [context, id])
 
 func _items_readable(container) -> bool:

@@ -6,16 +6,17 @@
 [resource]
 script = ExtResource("1_character")
 character_id = &"zhou_wei"
-display_name = "周仓"
-description = "关将军的贴身部将，专啃硬骨头。"
+display_name = "典韦"
+description = "曹操麾下的双戟猛将，擅长破甲重击与绝境死守。"
 profession = ExtResource("2_profession")
-tags = [&"shu", &"tiger_guard"]
+faction = &"wei"
+tags = [&"tiger_guard"]
 build_cost = 65
 base_damage = 70
 base_range = 115.0
 attack_interval = 0.9
 projectile_speed = 400.0
-titles = ["忠勇护卫"]
+titles = ["古之恶来"]
 unlock_stage_id = &"ch01_s05"
 
 attack_pct = 0.027
@@ -35,8 +36,8 @@ skill_params = {
   },
   "ultimate_death_fight": {
     "mult": 4.0,
-    "base_hp_threshold": 0.5,
-    "low_hp_mult": 2.0
+    "target_hp_threshold": 0.5,
+    "execute_bonus_mult": 4.0
   }
 }
 
