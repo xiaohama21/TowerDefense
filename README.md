@@ -6,7 +6,8 @@
 
 ## 当前状态
 
-- **0.9.7.0养成平衡收尾已完成**，设计总纲 **v0.37.88**，交付分支 **0.9.7**，schema12。
+- **0.9.8战场视觉样板设计/开发中**，设计总纲 **v0.37.89**，当前已交付程序0.9.7.0，schema12保持。
+- 样板规格见[BATTLE_VISUALS](docs/modules/BATTLE_VISUALS.md)：初始武将、三种常见敌人/张梁、草地军营，独立尺度和动画时标，战斗数值保持。
 - 从初始Lv1白阶出发，两种合法策略均无需额外刷关通完首章；真实经验/池分配、材料、装备、天赋和结算重载已验证。保留连续经验曲线、材料/商店价格和天赋数值，保留0.9.6.3技能成长/书耗差价继承/积怒/控制校准。
 - 20项回归、4518项连续养成、441组合法属性、74组天赋实战、原±3%战斗基准、原生20项/7张截图和424项包内检查通过；Windows独立启动、实际Spine DLL与PE版本0.9.7.0通过。
 - [完整实施报告](docs/reviews/PROGRESSION_BALANCE_IMPLEMENTATION_2026-11-05.md) / [平衡协议与结论](docs/modules/PROGRESSION_BALANCE.md) / [Windows包](build/FengHuoLianYing_v0.9.7.0_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.7/README.md)。

@@ -1,5 +1,8 @@
 # 《烽火连营·三国塔防》设计方案（GDD·总纲）
 
+> 文档版本：v0.37.89（2026-11-05）
+> v0.37.89：0.9.8战场视觉样板设计先行：BATTLE_VISUALS v0.1登记初始关羽/刘备、黄巾步卒/轻骑/伍长/张梁和草地军营尺度/挂点/动画合同；新增身份原创SVG/PNG/Spine骨架，关羽保留原素材，刘备原0.110s命中与即时辅助大招保持。80px网格/路径/数值/schema12不变；ART_ASSETS v0.28。目标程序0.9.8.0，已按启动新编号入口合并0.9.7进main。
+
 > 文档版本：v0.37.88（2026-11-05）
 > v0.37.88：0.9.7养成平衡实测与收尾完成：真实Lv1白阶两组策略均直通首章，441组合法属性/74组天赋实战、4518项连续养成检查通过；经验尾段880/+2、现有掉落/价格/天赋保持，关闭经济图徽旧待办，B-172修复历史审查报告覆盖。PROGRESSION_BALANCE v0.2 / SHOP v0.5 / WEAPONS v0.6 / TALENTS v0.4 / UI_CONCEPT v0.45 / BUGS v0.84 / 重构提案v1.6；程序0.9.7.0、schema12。
 > 0.9.7验收：20项回归、原±3%基准、16场新档胜利+1场失败零收益、原生20项/7张截图、424项包内检查、实际Spine DLL和PE版本通过。交付留0.9.7，main保持e689e67，下一编号0.9.8战场视觉样板待开发。见[实施报告](reviews/PROGRESSION_BALANCE_IMPLEMENTATION_2026-11-05.md)。
@@ -362,6 +365,7 @@ ext_promotion_ids` 落地为正式规则（候选必须 parent_id=当前生效�
 | [modules/TALENTS.md](modules/TALENTS.md) | 武将独立天赋：11棵定位共享树、110节点、40点、本树门槛、属性与事件、树形弹窗/节点详情、免费重置与模拟 | 重构提案§3.4 / §10 / §12 / §14 |
 | [modules/FACTIONS.md](modules/FACTIONS.md) | 四阵营归属、百科筛选/徽记、关卡与物品限制接口，阵营不提供直接数值 | 重构提案§7 / §12 / §14 |
 | [modules/ART_ASSETS.md](modules/ART_ASSETS.md) | 美术资产规范：分类目录、UI/地图素材台账、角色 spine 素材（v0.4 试点登记、v0.5 朝向定稿、v0.6 接入试点登记、v0.7 接入落地、v0.15 素材与运行时入库跨环境同步）、来源许可 | 13 美术风格行实现侧、附录资源映射（v0.33.4 新增；v0.4 角色 spine 试点登记；v0.5 朝向定稿；v0.6 接入试点登记；v0.7 关羽接入落地；v0.15 素材入库） |
+| [modules/BATTLE_VISUALS.md](modules/BATTLE_VISUALS.md) | 战场视觉样板：初始武将/常见敌人与Boss、军营主题、尺度/动画/挂点合同及原生验收 | 阶段9提交8 / 13战场美术实现侧 |
 | [modules/UI_CONCEPT.md](modules/UI_CONCEPT.md) | UI 概念图生成与归档：概念图工作流、v3 视觉语言、PNG↔源码映射、复现/维护 | 13 美术风格设计侧（v0.34.3 新增） |
 | [modules/MAP_EDITOR.md](modules/MAP_EDITOR.md) | 地图编辑器：布局数据生产工具（宿主、数据模型、校验导出、里程碑） | 5.1/5.6 工具侧、13 地图素材实现侧（v0.35.4 新增；v0.35.5 M1 骨架落地） |
 | [modules/ART_PROMPTS.md](modules/ART_PROMPTS.md) | AI 出图提示词库：Leonardo 技能/物品图标统一风格底座与负面词、分类提示词 | 13 美术风格实现侧补充（v0.37.9 新增；入库目录与许可主档=ART_ASSETS） |
