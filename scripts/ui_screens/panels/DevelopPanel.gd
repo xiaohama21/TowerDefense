@@ -337,7 +337,7 @@ func _populate_info_card(character: CharacterData, level: int, stats, progress) 
 		avatar_slot.remove_child(child)
 		child.queue_free()
 	var color_key: String = AVATAR_COLORS[abs(hash(str(character.character_id))) % AVATAR_COLORS.size()]
-	avatar_slot.add_child(UITheme.avatar_label(character.display_name.left(1), color_key, 64.0, 28))
+	avatar_slot.add_child(UITheme.hero_avatar(str(character.character_id), character.display_name, color_key, 64.0, 28))
 
 	_detail_name_label.text = character.display_name
 	for child in _detail_chips.get_children():
@@ -518,7 +518,7 @@ func _make_roster_content(character: CharacterData, level: int, locked: bool) ->
 	content.add_theme_constant_override("separation", 6)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var avatar_char := character.display_name.left(1)
-	var avatar := UITheme.avatar_label(avatar_char,
+	var avatar := UITheme.hero_avatar(str(character.character_id), avatar_char,
 		"grey" if locked else UITheme.character_avatar_color_key(str(character.character_id)), 36.0, 18)
 	avatar.name = "CardAvatar"
 	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER

@@ -14,7 +14,28 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.7.0", "project version 0.9.7.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.0", "project version 0.9.8.0")
+	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
+	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
+	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 5 and art_manifest.native_measurements.size() == 6, "battle visual manifest and native bounds")
+	for id in ["guan_yu", "liu_bei", "yellow_turban_soldier", "yellow_turban_cavalry", "yellow_turban_sergeant", "yellow_turban_general"]:
+		var spec: Dictionary = visuals.hero(id) if id in ["guan_yu", "liu_bei"] else visuals.enemy(id)
+		var actor = visuals.create_actor(spec)
+		_check(actor != null, "packaged Spine identity " + id)
+		if actor == null: continue
+		root.add_child(actor)
+		for pose in ["Idle", "Move", "Attack_A", "XX", "Stun", "Death"]:
+			_check(actor.get_animation_state().set_animation(pose, false, 0) != null, "packaged animation " + id + "." + pose)
+		actor.queue_free()
+		await process_frame
+	for id in ["grass", "road", "tree", "rock", "banner", "torch", "gate", "base"]:
+		_check(load("res://assets/battle_visuals/grass_camp/%s.png" % id) != null, "packaged grass camp " + id)
+	for id in visuals.PORTRAITS:
+		var avatar = load("res://scripts/ui_screens/ui_theme.gd").hero_avatar(id, id)
+		_check(avatar is TextureRect and avatar.texture.resource_path == visuals.PORTRAITS[id], "same identity portrait " + str(id))
+		avatar.free()
+	_check(is_equal_approx(float(visuals.hero("liu_bei").hit), .11) and float(visuals.hero("liu_bei").ult_hit) == 0 and float(visuals.hero("guan_yu").hit) == .4, "packaged independent hit timing")
+	_check(not FileAccess.file_exists("res://assets/battle_visuals/liu_bei/source/head.svg"), "authoring layers excluded from release")
 	var curve = load("res://scripts/data/LevelCurve.gd")
 	_check(curve.exp_total_for_level(30) == 13340 and curve.exp_total_for_level(31) == 14220 and curve.exp_total_for_level(100) == 79770, "packaged continuous tail and retained investment")
 	var flow = root.get_node("GameFlow")

@@ -2,6 +2,7 @@ extends Node2D
 
 ## 建造成功（拖拽松手直建，与旧点击路径同一 build_tower 链路）。
 signal tower_built(character_id: String)
+signal placement_grid_changed(active: bool)
 ## 拖拽结束（放置= true / 取消= false），UI 据此复位卡片按下高亮。
 signal drag_finished(placed: bool)
 
@@ -101,6 +102,7 @@ func begin_drag(character_data: CharacterData) -> bool:
 	_drag_character = character_data
 	_drag_loadout = GameFlow.get_battle_loadout(ProfileStore.get_profile(), str(character_data.character_id))
 	_drag_active = true
+	placement_grid_changed.emit(true)
 	_drag_cell = Vector2i(-1, -1)
 	_drag_valid = false
 	_drag_over_ui = false
@@ -210,6 +212,7 @@ func cancel_drag() -> void:
 
 func _end_drag(placed: bool) -> void:
 	_drag_active = false
+	placement_grid_changed.emit(false)
 	_drag_character = null
 	_drag_loadout.clear()
 	_drag_cell = Vector2i(-1, -1)

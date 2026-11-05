@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "errors": [],
+  "summary": [
+    "NATIVE_PROGRESSION_RESULT: PASS checks=25 failures=0"
+  ]
+}

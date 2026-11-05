@@ -561,7 +561,7 @@ func _chapter_arrow_icon() -> ImageTexture:
 ## 左列卡片内容层（概念 .lcard：头像 + 姓名 + 副行；鼠标穿透，点击落到底层按钮）。
 ## 武将=概念九色圆形头像（avatar_key=UITheme.avatar_label 色键）；敌人=方形对角渐变头像（enemy_id 非空）。
 func _make_left_card_content(avatar_char: String, avatar_key: String, card_text: String,
-		enemy_id: String = "") -> Control:
+		enemy_id: String = "", character_id: String = "") -> Control:
 	var content := HBoxContainer.new()
 	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	content.offset_left = 10.0
@@ -572,7 +572,7 @@ func _make_left_card_content(avatar_char: String, avatar_key: String, card_text:
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var avatar: Control
 	if enemy_id.is_empty():
-		avatar = UITheme.avatar_label(avatar_char, avatar_key, 40.0, 18)
+		avatar = UITheme.hero_avatar(character_id, avatar_char, avatar_key, 40.0, 18)
 	else:
 		avatar = _enemy_avatar(enemy_id, avatar_char, 40.0, 15, UITheme.LIGHT_CARD_BG)
 	content.add_child(avatar)
@@ -738,7 +738,7 @@ func _rebuild_left_list() -> void:
 			button.pressed.connect(_select_character.bind(str(character_id)))
 			button.add_child(_make_left_card_content(
 				character.display_name.left(1), _avatar_color_key(character),
-				_character_card_text(character)))
+				_character_card_text(character), "", str(character_id)))
 			var badges := VBoxContainer.new()
 			badges.name = "CharacterBadges"
 			badges.add_theme_constant_override("separation", 4)
@@ -1092,7 +1092,7 @@ func _refresh_character_detail() -> void:
 	for child in avatar_slot.get_children():
 		avatar_slot.remove_child(child)
 		child.queue_free()
-	avatar_slot.add_child(UITheme.avatar_label(character.display_name.left(1),
+	avatar_slot.add_child(UITheme.hero_avatar(str(character.character_id), character.display_name,
 		_avatar_color_key(character), 52.0, 22))
 	var acquisition_label := acquisition_box_lookup()
 	if acquisition_label != null:

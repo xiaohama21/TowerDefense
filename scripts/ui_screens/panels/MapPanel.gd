@@ -733,7 +733,7 @@ func _append_reward_glyphs(holder: Control, stage: StageData, compact: bool) -> 
 		var character := GameFlow.load_character_data(str(character_id))
 		if character == null:
 			continue
-		var avatar := UITheme.avatar_label(character.display_name.left(1), UITheme.character_avatar_color_key(str(character_id)), 18.0 if compact else 24.0, 11)
+		var avatar := UITheme.hero_avatar(str(character_id), character.display_name, UITheme.character_avatar_color_key(str(character_id)), 18.0 if compact else 24.0, 11)
 		var unlock := _reward_glyph("", "解锁", character.display_name, compact, CHIP_GREEN)
 		var old_icon := unlock.get_child(0)
 		unlock.remove_child(old_icon)

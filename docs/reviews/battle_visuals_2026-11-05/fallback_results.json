@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "errors": [],
+  "summary": [
+    "BATTLE_VISUAL_RESULT: PASS checks=33 native=false failures=0"
+  ]
+}

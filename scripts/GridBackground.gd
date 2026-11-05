@@ -66,11 +66,16 @@ const THEMES := {
 var _palette: Dictionary = {}
 var _road_set: Dictionary = {}
 var _decor_textures: Dictionary = {}
+var _camp_textures: Dictionary = {}
+var placement_grid_visible := false
 
 
 func _ready() -> void:
 	z_index = -15
 	_load_decor_textures()
+	for id in ["grass", "road", "tree", "rock", "banner", "torch", "gate", "base"]:
+		var path := "res://assets/battle_visuals/grass_camp/%s.png" % id
+		if ResourceLoader.exists(path): _camp_textures[id] = load(path) as Texture2D
 	queue_redraw()
 
 
@@ -107,6 +112,10 @@ func _draw() -> void:
 	_draw_decorations()
 	_draw_ambient()
 
+func set_placement_grid_visible(active: bool) -> void:
+	placement_grid_visible = active
+	queue_redraw()
+
 
 ## 禁建地形（阶段 8 提交 3）：深色块 + 山形标记，明确覆盖表示不可建造。
 func _draw_forbidden() -> void:
@@ -139,23 +148,41 @@ func _draw_tiles() -> void:
 			var cell := Vector2i(col, row)
 			if _road_set.has(cell):
 				continue
+			if theme_name == &"grass" and _camp_textures.has("grass"):
+				draw_texture_rect(_camp_textures.grass, Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE)), false)
+				continue
 			var color: Color = _palette["tile_a"] if (col + row) % 2 == 0 else _palette["tile_b"]
 			draw_rect(Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE)), color)
 
 
 func _draw_grid_lines() -> void:
+	if theme_name == &"grass" and not placement_grid_visible: return
+	var color := Color(0.8, 0.89, 0.72, .18) if theme_name == &"grass" else GRID_LINE_COLOR
 	for col in range(COLS + 1):
 		var x := col * GRID_SIZE
-		draw_line(Vector2(x, 0), Vector2(x, ROWS * GRID_SIZE), GRID_LINE_COLOR, 1.0)
+		draw_line(Vector2(x, 0), Vector2(x, ROWS * GRID_SIZE), color, 1.0)
 	for row in range(ROWS + 1):
 		var y := row * GRID_SIZE
-		draw_line(Vector2(0, y), Vector2(COLS * GRID_SIZE, y), GRID_LINE_COLOR, 1.0)
+		draw_line(Vector2(0, y), Vector2(COLS * GRID_SIZE, y), color, 1.0)
 
 
 func _draw_road() -> void:
 	for index in range(road_cells.size()):
 		var cell := road_cells[index]
 		var rect := Rect2(cell_origin(cell), Vector2(GRID_SIZE, GRID_SIZE))
+		if theme_name == &"grass" and _camp_textures.has("road"):
+			draw_texture_rect(_camp_textures.road, rect, false)
+			for side in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				if _road_set.has(cell + side): continue
+				var a := rect.position + Vector2(0 if side.x <= 0 else GRID_SIZE, 0 if side.y <= 0 else GRID_SIZE)
+				var b := a + (Vector2(0, GRID_SIZE) if side.x != 0 else Vector2(GRID_SIZE, 0))
+				draw_line(a, b, Color("#665b44"), 2.5, true)
+			if index % 3 == 1 and index + 1 < road_cells.size() and _are_adjacent(cell, road_cells[index + 1]):
+				var heading := Vector2(road_cells[index + 1] - cell)
+				var center := cell_center(cell)
+				var wing := Vector2(-heading.y, heading.x)
+				draw_polyline(PackedVector2Array([center - heading * 5 + wing * 4, center + heading * 3, center - heading * 5 - wing * 4]), Color("#d5c090"), 1.6, true)
+			continue
 		draw_rect(rect, _palette["road"])
 		draw_rect(rect, _palette["road_edge"], false, 2.0)
 		# Centre line dashes help show the lane direction.
@@ -173,6 +200,7 @@ func _are_adjacent(a: Vector2i, b: Vector2i) -> bool:
 
 
 func _draw_landmarks() -> void:
+	if theme_name == &"grass": return
 	if entry_cell.x >= 0:
 		var entrance := cell_center(entry_cell)
 		draw_circle(entrance + Vector2(0, -18), 10.0, ENTRANCE_COLOR)
@@ -190,6 +218,7 @@ func _draw_decorations() -> void:
 		var center := cell_center(cell)
 		var decor_type := _decor_type_for_cell(cell)
 		var texture: Texture2D = _decor_textures.get(decor_type)
+		if theme_name == &"grass": texture = _camp_textures.get(str(decor_type), texture)
 		if texture != null:
 			draw_texture_rect(texture, Rect2(center - Vector2(DECOR_TEXTURE_SIZE, DECOR_TEXTURE_SIZE) * 0.5, Vector2(DECOR_TEXTURE_SIZE, DECOR_TEXTURE_SIZE)), false)
 			continue

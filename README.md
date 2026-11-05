@@ -6,13 +6,13 @@
 
 ## 当前状态
 
-- **0.9.8战场视觉样板设计/开发中**，设计总纲 **v0.37.89**，当前已交付程序0.9.7.0，schema12保持。
+- **0.9.8.0战场视觉样板已交付**，设计总纲 **v0.37.91**，schema12保持。
 - 样板规格见[BATTLE_VISUALS](docs/modules/BATTLE_VISUALS.md)：初始武将、三种常见敌人/张梁、草地军营，独立尺度和动画时标，战斗数值保持。
 - 从初始Lv1白阶出发，两种合法策略均无需额外刷关通完首章；真实经验/池分配、材料、装备、天赋和结算重载已验证。保留连续经验曲线、材料/商店价格和天赋数值，保留0.9.6.3技能成长/书耗差价继承/积怒/控制校准。
-- 20项回归、4518项连续养成、441组合法属性、74组天赋实战、原±3%战斗基准、原生20项/7张截图和424项包内检查通过；Windows独立启动、实际Spine DLL与PE版本0.9.7.0通过。
-- [完整实施报告](docs/reviews/PROGRESSION_BALANCE_IMPLEMENTATION_2026-11-05.md) / [平衡协议与结论](docs/modules/PROGRESSION_BALANCE.md) / [Windows包](build/FengHuoLianYing_v0.9.7.0_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.7/README.md)。
-- 下一编号 **0.9.8战场视觉样板**：初始武将、普通敌人/Boss和一个地图主题；先文档/素材尺度验收再独立开发。
-- 修复/延伸留在 **0.9.7** 分支；main保持 **e689e67**，仅在启动0.9.8时按AGENTS §5.3同步。旧[0.9.6.3包](build/FengHuoLianYing_v0.9.6.3_Windows.zip)和[技能平衡报告](docs/reviews/SKILL_BALANCE_IMPLEMENTATION_2026-11-05.md)保留。
+- 21项回归、4518项连续养成、74组天赋实战、原±3%战斗基准、63项视觉专项、33项无运行库回退、226项骨架帧和25项原生实战通过；Windows独立启动、实际Spine DLL、PE版本0.9.8.0和479项包内检查通过。
+- [战场视觉报告](docs/reviews/BATTLE_VISUALS_IMPLEMENTATION_2026-11-05.md) / [Windows包](build/FengHuoLianYing_v0.9.8.0_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.8/README.md) / [养成平衡报告](docs/reviews/PROGRESSION_BALANCE_IMPLEMENTATION_2026-11-05.md)。
+- 0.9.8首批完成关羽/刘备、步卒/轻骑/伍长/张梁、草地军营与同源头像；后续阶段10按独立编号启动。
+- 修复/延伸留在 **0.9.8** 分支；main保持 **c7860ec**，仅在启动下一编号时按AGENTS §5.3同步。旧[0.9.7.0包](build/FengHuoLianYing_v0.9.7.0_Windows.zip)、[0.9.6.3包](build/FengHuoLianYing_v0.9.6.3_Windows.zip)和历史平衡报告保留。
 
 ## 历史交付记录
 

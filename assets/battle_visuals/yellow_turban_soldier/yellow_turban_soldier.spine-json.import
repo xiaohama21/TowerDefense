@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://c3tt6ixsq1c6n"
+path="res://.godot/imported/yellow_turban_soldier.spine-json-ef33f7628e57333c22cf097687812010.spjson"
+
+[deps]
+
+source_file="res://assets/battle_visuals/yellow_turban_soldier/yellow_turban_soldier.spine-json"
+dest_files=["res://.godot/imported/yellow_turban_soldier.spine-json-ef33f7628e57333c22cf097687812010.spjson"]
+
+[params]
+

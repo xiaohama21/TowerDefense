@@ -42,7 +42,10 @@ const MELEE_SLASH_RADIUS := 38.0
 ## 素材缺失 / SpineSprite 类不可用（未随包 spine-godot GDExtension）→ 自动回退程序化绘制。
 const SPINE_CHARACTERS: Dictionary = {
 	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a-data-res.tres",
+	"liu_bei": "res://assets/battle_visuals/liu_bei/liu_bei-data.tres",
 }
+var _spine_profile: Dictionary = {}
+var _spine_visual_id := ""
 ## 阶段 8·提交 11（0.8.11.0）：0.22 → 0.33 试点调大（身体 ≈27px → ≈41px、约半格，
 ## 实机截图验收后定稿；其余角色接入沿用「每角色调一次 + 截图验收」流程）。
 const SPINE_BASE_SCALE: float = 0.33
@@ -449,20 +452,18 @@ func _swing_offset() -> float:
 
 ## —— 角色 spine 战斗接入试点（ART_ASSETS §5.7，v0.6 / 0.8.10.33）——
 func _setup_spine_visual() -> void:
+	if _spine != null and _spine_visual_id != str(character_id):
+		remove_child(_spine); _spine.queue_free(); _spine = null
+		_use_spine_visual = false
+		_spine_attack_busy = false
+		_spine_cast_busy_left = 0.0
 	if _use_spine_visual or _spine != null:
 		return
-	var res_path: String = SPINE_CHARACTERS.get(str(character_id), "")
-	if res_path.is_empty() or not ResourceLoader.exists(res_path):
-		return
-	if not ClassDB.class_exists(&"SpineSprite"):
-		return
-	var data: Resource = load(res_path)
-	if data == null:
-		return
-	_spine = ClassDB.instantiate(&"SpineSprite")
-	_spine.set("skeleton_data_res", data)
+	_spine_profile = BattleVisualRegistry.hero(str(character_id))
+	_spine = BattleVisualRegistry.create_actor(_spine_profile)
+	if _spine == null: return
 	add_child(_spine)
-	_spine.position = Vector2(0.0, SPINE_Y_OFFSET)
+	_spine_visual_id = str(character_id)
 	_use_spine_visual = true
 	_apply_spine_facing()
 	_play_spine_idle()
@@ -472,7 +473,8 @@ func _apply_spine_facing() -> void:
 	if _spine == null:
 		return
 	# 素材原生朝左：朝左（facing=-1）→ scale.x=+基准；朝右（facing=+1）→ 镜像 -基准。
-	_spine.scale = Vector2(SPINE_BASE_SCALE * -_facing, SPINE_BASE_SCALE)
+	var size := float(_spine_profile.get("scale", SPINE_BASE_SCALE))
+	_spine.scale = Vector2(size * _facing * float(_spine_profile.get("native_facing", -1.0)), size)
 
 
 func _play_spine_idle() -> void:
@@ -577,7 +579,7 @@ func _process_pending_steps(delta: float) -> void:
 ## 近战命中帧延迟（秒）：spine 角色取素材 Attack_A Effect 事件；程序化角色取挥击弧中点；
 ## 上限 = 攻击间隔 × 0.8（高攻速时不把伤害拖到下一击之后）。
 func melee_hit_delay() -> float:
-	var base := MELEE_HIT_DELAY_SPINE if _use_spine_visual else MELEE_HIT_DELAY_PROCEDURAL
+	var base := float(_spine_profile.get("hit", MELEE_HIT_DELAY_PROCEDURAL))
 	return minf(base, maxf(attack_cooldown * 0.8, 0.02))
 
 
@@ -610,14 +612,14 @@ func begin_melee_flurry(swings: int) -> void:
 
 ## 连击单次挥击的时标：Attack_A 时长 / 单次周期（spine 未启用时无意义）。
 func spine_flurry_time_scale() -> float:
-	return SPINE_ATTACK_A_DURATION / maxf(SKILL_FLURRY_PERIOD, 0.01)
+	return float(_spine_profile.get("attack_duration", SPINE_ATTACK_A_DURATION)) / maxf(SKILL_FLURRY_PERIOD, 0.01)
 
 
 ## 连击第 index 拍的命中帧（自技能起手计时）：节拍起点 + 单次挥击命中帧（加速后等比提前）。
 func flurry_hit_delay(index: int) -> float:
 	var swing_hit := MELEE_HIT_DELAY_PROCEDURAL
-	if _use_spine_visual:
-		swing_hit = MELEE_HIT_DELAY_SPINE / maxf(spine_flurry_time_scale(), 0.01)
+	if _spine_profile.has("hit"):
+		swing_hit = float(_spine_profile.hit) / maxf(spine_flurry_time_scale(), 0.01)
 	return float(maxi(index, 0)) * SKILL_FLURRY_PERIOD + swing_hit
 
 
@@ -629,7 +631,7 @@ func _play_flurry_swing() -> void:
 
 ## 大招命中帧延迟（秒）：spine 角色对齐 XX 首个 Effect 事件；其余职业即时（0，口径不变）。
 func ultimate_hit_delay() -> float:
-	return SPINE_XX_HIT_FRAME if _use_spine_visual else 0.0
+	return float(_spine_profile.get("ult_hit", 0.0))
 
 
 ## 大招演出（0.8.16.6）：关羽接素材 XX（0.80s）；其它角色 / 无 spine 自动跳过（仅程序化斩弧）。
@@ -647,7 +649,7 @@ func _play_spine_ultimate() -> void:
 	state.set_animation("XX", false, 0)
 	_set_spine_track_time_scale(state, 1.0)
 	_spine_attack_busy = true
-	_spine_cast_busy_left = maxf(_spine_cast_busy_left, SPINE_XX_DURATION)
+	_spine_cast_busy_left = maxf(_spine_cast_busy_left, float(_spine_profile.get("ult_duration", SPINE_XX_DURATION)))
 
 
 ## 轨道时标设置（0.8.16.6）：spine-godot 的 AnimationStateTrack.set_time_scale（1 参）。

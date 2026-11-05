@@ -127,6 +127,7 @@ func _ready():
 	ui.result_menu_pressed.connect(_on_result_menu_pressed)
 	ui.result_wheel_pressed.connect(_on_result_wheel_pressed)
 	build_manager.tower_built.connect(_on_tower_built)
+	build_manager.placement_grid_changed.connect(grid_background.set_placement_grid_visible)
 	build_manager.drag_finished.connect(_on_drag_finished)
 	tower_manager.tower_created.connect(_on_tower_created)
 
@@ -205,6 +206,18 @@ func _apply_stage_layout() -> void:
 
 	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
 	base_marker.position = _first_in_map_point(stage_data.path_points, false)
+	if stage_data.theme == &"grass":
+		for marker in [spawn_marker, base_marker]:
+			var key := "gate" if marker == spawn_marker else "base"
+			var path := "res://assets/battle_visuals/grass_camp/%s.png" % key
+			if not ResourceLoader.exists(path): continue
+			for child in marker.get_children():
+				if child is CanvasItem: child.visible = false
+			var sprite := Sprite2D.new()
+			sprite.texture = load(path)
+			sprite.position.y = -8
+			marker.add_child(sprite)
+			marker.z_index = -1
 
 
 ## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v2）：点击开波（可开波期金色光晕就绪）；

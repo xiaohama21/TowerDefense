@@ -1,0 +1,1174 @@
+{
+	"delta": 0.02,
+	"difficulty": "normal",
+	"equipment": "none",
+	"program": "0.9.8.0",
+	"rank": 1,
+	"rows": [
+		{
+			"cleared": 6,
+			"gold": 91,
+			"level": 20,
+			"lives": 20,
+			"seconds": 48.6599999999995,
+			"spent": 738,
+			"squad": [
+				"guan_yu",
+				"liu_bei"
+			],
+			"stage": "ch01_s01",
+			"towers": 4,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 35,
+					"lives": 20,
+					"seconds": 5.57999999999997,
+					"wave": 1
+				},
+				{
+					"gold": 50,
+					"lives": 20,
+					"seconds": 6.71999999999994,
+					"wave": 2
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 9.09999999999989,
+					"wave": 3
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 9.77999999999988,
+					"wave": 4
+				},
+				{
+					"gold": 108,
+					"lives": 20,
+					"seconds": 10.2199999999999,
+					"wave": 5
+				},
+				{
+					"gold": 91,
+					"lives": 20,
+					"seconds": 7.25999999999993,
+					"wave": 6
+				}
+			],
+			"waves": 6
+		},
+		{
+			"cleared": 6,
+			"gold": 91,
+			"level": 30,
+			"lives": 20,
+			"seconds": 48.5399999999995,
+			"spent": 738,
+			"squad": [
+				"guan_yu",
+				"liu_bei"
+			],
+			"stage": "ch01_s01",
+			"towers": 4,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 35,
+					"lives": 20,
+					"seconds": 5.57999999999997,
+					"wave": 1
+				},
+				{
+					"gold": 50,
+					"lives": 20,
+					"seconds": 6.71999999999994,
+					"wave": 2
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 9.0799999999999,
+					"wave": 3
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 9.77999999999988,
+					"wave": 4
+				},
+				{
+					"gold": 108,
+					"lives": 20,
+					"seconds": 10.2199999999999,
+					"wave": 5
+				},
+				{
+					"gold": 91,
+					"lives": 20,
+					"seconds": 7.15999999999994,
+					"wave": 6
+				}
+			],
+			"waves": 6
+		},
+		{
+			"cleared": 7,
+			"gold": 41,
+			"level": 20,
+			"lives": 20,
+			"seconds": 78.9799999999989,
+			"spent": 976,
+			"squad": [
+				"guan_yu",
+				"liu_bei"
+			],
+			"stage": "ch01_s02",
+			"towers": 5,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 45,
+					"lives": 20,
+					"seconds": 15.6999999999998,
+					"wave": 1
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 9.43999999999989,
+					"wave": 2
+				},
+				{
+					"gold": 48,
+					"lives": 20,
+					"seconds": 10.5799999999999,
+					"wave": 3
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 10.9199999999999,
+					"wave": 4
+				},
+				{
+					"gold": 72,
+					"lives": 20,
+					"seconds": 11.5199999999998,
+					"wave": 5
+				},
+				{
+					"gold": 120,
+					"lives": 20,
+					"seconds": 10.3199999999999,
+					"wave": 6
+				},
+				{
+					"gold": 41,
+					"lives": 20,
+					"seconds": 10.4999999999999,
+					"wave": 7
+				}
+			],
+			"waves": 7
+		},
+		{
+			"cleared": 7,
+			"gold": 41,
+			"level": 30,
+			"lives": 20,
+			"seconds": 78.5399999999989,
+			"spent": 976,
+			"squad": [
+				"guan_yu",
+				"liu_bei"
+			],
+			"stage": "ch01_s02",
+			"towers": 5,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 45,
+					"lives": 20,
+					"seconds": 15.6999999999998,
+					"wave": 1
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 9.41999999999989,
+					"wave": 2
+				},
+				{
+					"gold": 48,
+					"lives": 20,
+					"seconds": 10.5799999999999,
+					"wave": 3
+				},
+				{
+					"gold": 20,
+					"lives": 20,
+					"seconds": 10.8999999999999,
+					"wave": 4
+				},
+				{
+					"gold": 72,
+					"lives": 20,
+					"seconds": 11.5199999999998,
+					"wave": 5
+				},
+				{
+					"gold": 120,
+					"lives": 20,
+					"seconds": 10.3199999999999,
+					"wave": 6
+				},
+				{
+					"gold": 41,
+					"lives": 20,
+					"seconds": 10.0999999999999,
+					"wave": 7
+				}
+			],
+			"waves": 7
+		},
+		{
+			"cleared": 8,
+			"gold": 161,
+			"level": 20,
+			"lives": 20,
+			"seconds": 95.3199999999987,
+			"spent": 1203,
+			"squad": [
+				"guan_yu",
+				"zhang_fei",
+				"liu_bei"
+			],
+			"stage": "ch01_s03",
+			"towers": 5,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 55,
+					"lives": 20,
+					"seconds": 7.69999999999992,
+					"wave": 1
+				},
+				{
+					"gold": 29,
+					"lives": 20,
+					"seconds": 9.37999999999989,
+					"wave": 2
+				},
+				{
+					"gold": 25,
+					"lives": 20,
+					"seconds": 11.2399999999998,
+					"wave": 3
+				},
+				{
+					"gold": 41,
+					"lives": 20,
+					"seconds": 10.9199999999999,
+					"wave": 4
+				},
+				{
+					"gold": 17,
+					"lives": 20,
+					"seconds": 14.3999999999998,
+					"wave": 5
+				},
+				{
+					"gold": 30,
+					"lives": 20,
+					"seconds": 7.31999999999993,
+					"wave": 6
+				},
+				{
+					"gold": 92,
+					"lives": 20,
+					"seconds": 10.3999999999999,
+					"wave": 7
+				},
+				{
+					"gold": 161,
+					"lives": 20,
+					"seconds": 23.9599999999996,
+					"wave": 8
+				}
+			],
+			"waves": 8
+		},
+		{
+			"cleared": 8,
+			"gold": 161,
+			"level": 30,
+			"lives": 20,
+			"seconds": 89.7999999999988,
+			"spent": 1203,
+			"squad": [
+				"guan_yu",
+				"zhang_fei",
+				"liu_bei"
+			],
+			"stage": "ch01_s03",
+			"towers": 5,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 55,
+					"lives": 20,
+					"seconds": 7.69999999999992,
+					"wave": 1
+				},
+				{
+					"gold": 29,
+					"lives": 20,
+					"seconds": 9.37999999999989,
+					"wave": 2
+				},
+				{
+					"gold": 25,
+					"lives": 20,
+					"seconds": 11.2399999999998,
+					"wave": 3
+				},
+				{
+					"gold": 41,
+					"lives": 20,
+					"seconds": 10.8199999999999,
+					"wave": 4
+				},
+				{
+					"gold": 17,
+					"lives": 20,
+					"seconds": 14.3999999999998,
+					"wave": 5
+				},
+				{
+					"gold": 30,
+					"lives": 20,
+					"seconds": 7.31999999999993,
+					"wave": 6
+				},
+				{
+					"gold": 92,
+					"lives": 20,
+					"seconds": 9.99999999999988,
+					"wave": 7
+				},
+				{
+					"gold": 161,
+					"lives": 20,
+					"seconds": 18.9399999999997,
+					"wave": 8
+				}
+			],
+			"waves": 8
+		},
+		{
+			"cleared": 9,
+			"gold": 106,
+			"level": 20,
+			"lives": 20,
+			"seconds": 150.599999999998,
+			"spent": 1388,
+			"squad": [
+				"guan_yu",
+				"huang_zhong",
+				"huang_fu_song",
+				"liu_bei"
+			],
+			"stage": "ch01_s04",
+			"towers": 6,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 30,
+					"lives": 20,
+					"seconds": 16.5799999999997,
+					"wave": 1
+				},
+				{
+					"gold": 90,
+					"lives": 20,
+					"seconds": 19.6199999999997,
+					"wave": 2
+				},
+				{
+					"gold": 46,
+					"lives": 20,
+					"seconds": 19.9999999999997,
+					"wave": 3
+				},
+				{
+					"gold": 98,
+					"lives": 20,
+					"seconds": 15.1799999999998,
+					"wave": 4
+				},
+				{
+					"gold": 110,
+					"lives": 20,
+					"seconds": 17.6999999999997,
+					"wave": 5
+				},
+				{
+					"gold": 54,
+					"lives": 20,
+					"seconds": 14.3599999999998,
+					"wave": 6
+				},
+				{
+					"gold": 122,
+					"lives": 20,
+					"seconds": 12.3599999999998,
+					"wave": 7
+				},
+				{
+					"gold": 127,
+					"lives": 20,
+					"seconds": 16.9199999999997,
+					"wave": 8
+				},
+				{
+					"gold": 96,
+					"lives": 20,
+					"seconds": 17.8799999999997,
+					"wave": 9
+				}
+			],
+			"waves": 9
+		},
+		{
+			"cleared": 9,
+			"gold": 70,
+			"level": 30,
+			"lives": 20,
+			"seconds": 151.099999999998,
+			"spent": 1424,
+			"squad": [
+				"guan_yu",
+				"huang_zhong",
+				"huang_fu_song",
+				"liu_bei"
+			],
+			"stage": "ch01_s04",
+			"towers": 6,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 30,
+					"lives": 20,
+					"seconds": 16.5799999999997,
+					"wave": 1
+				},
+				{
+					"gold": 90,
+					"lives": 20,
+					"seconds": 19.6199999999997,
+					"wave": 2
+				},
+				{
+					"gold": 46,
+					"lives": 20,
+					"seconds": 19.9199999999997,
+					"wave": 3
+				},
+				{
+					"gold": 98,
+					"lives": 20,
+					"seconds": 15.0999999999998,
+					"wave": 4
+				},
+				{
+					"gold": 58,
+					"lives": 20,
+					"seconds": 17.5399999999997,
+					"wave": 5
+				},
+				{
+					"gold": 26,
+					"lives": 20,
+					"seconds": 14.2999999999998,
+					"wave": 6
+				},
+				{
+					"gold": 146,
+					"lives": 20,
+					"seconds": 12.2199999999998,
+					"wave": 7
+				},
+				{
+					"gold": 79,
+					"lives": 20,
+					"seconds": 17.9999999999997,
+					"wave": 8
+				},
+				{
+					"gold": 60,
+					"lives": 20,
+					"seconds": 17.8199999999997,
+					"wave": 9
+				}
+			],
+			"waves": 9
+		},
+		{
+			"cleared": 9,
+			"gold": 124,
+			"level": 20,
+			"lives": 20,
+			"seconds": 96.8599999999987,
+			"spent": 1257,
+			"squad": [
+				"guan_yu",
+				"huang_zhong",
+				"huang_fu_song",
+				"diao_chan"
+			],
+			"stage": "ch01_s05",
+			"towers": 6,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 30,
+					"lives": 20,
+					"seconds": 6.45999999999995,
+					"wave": 1
+				},
+				{
+					"gold": 70,
+					"lives": 20,
+					"seconds": 8.9399999999999,
+					"wave": 2
+				},
+				{
+					"gold": 22,
+					"lives": 20,
+					"seconds": 11.3599999999998,
+					"wave": 3
+				},
+				{
+					"gold": 54,
+					"lives": 20,
+					"seconds": 11.5399999999998,
+					"wave": 4
+				},
+				{
+					"gold": 65,
+					"lives": 20,
+					"seconds": 14.7399999999998,
+					"wave": 5
+				},
+				{
+					"gold": 104,
+					"lives": 20,
+					"seconds": 8.31999999999991,
+					"wave": 6
+				},
+				{
+					"gold": 58,
+					"lives": 20,
+					"seconds": 11.8999999999998,
+					"wave": 7
+				},
+				{
+					"gold": 43,
+					"lives": 20,
+					"seconds": 12.6599999999998,
+					"wave": 8
+				},
+				{
+					"gold": 114,
+					"lives": 20,
+					"seconds": 10.9399999999999,
+					"wave": 9
+				}
+			],
+			"waves": 9
+		},
+		{
+			"cleared": 9,
+			"gold": 116,
+			"level": 30,
+			"lives": 20,
+			"seconds": 93.1599999999988,
+			"spent": 1265,
+			"squad": [
+				"guan_yu",
+				"huang_zhong",
+				"huang_fu_song",
+				"diao_chan"
+			],
+			"stage": "ch01_s05",
+			"towers": 6,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 30,
+					"lives": 20,
+					"seconds": 6.45999999999995,
+					"wave": 1
+				},
+				{
+					"gold": 70,
+					"lives": 20,
+					"seconds": 8.9199999999999,
+					"wave": 2
+				},
+				{
+					"gold": 22,
+					"lives": 20,
+					"seconds": 11.2999999999998,
+					"wave": 3
+				},
+				{
+					"gold": 54,
+					"lives": 20,
+					"seconds": 10.3199999999999,
+					"wave": 4
+				},
+				{
+					"gold": 65,
+					"lives": 20,
+					"seconds": 14.8199999999998,
+					"wave": 5
+				},
+				{
+					"gold": 104,
+					"lives": 20,
+					"seconds": 6.09999999999996,
+					"wave": 6
+				},
+				{
+					"gold": 58,
+					"lives": 20,
+					"seconds": 11.7599999999998,
+					"wave": 7
+				},
+				{
+					"gold": 51,
+					"lives": 20,
+					"seconds": 12.6799999999998,
+					"wave": 8
+				},
+				{
+					"gold": 106,
+					"lives": 20,
+					"seconds": 10.7999999999999,
+					"wave": 9
+				}
+			],
+			"waves": 9
+		},
+		{
+			"cleared": 10,
+			"gold": 154,
+			"level": 20,
+			"lives": 20,
+			"seconds": 171.619999999997,
+			"spent": 1805,
+			"squad": [
+				"guan_yu",
+				"zhou_wei",
+				"huang_fu_song",
+				"huang_zhong"
+			],
+			"stage": "ch01_s06",
+			"towers": 7,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 50,
+					"lives": 20,
+					"seconds": 11.6999999999998,
+					"wave": 1
+				},
+				{
+					"gold": 85,
+					"lives": 20,
+					"seconds": 24.1199999999996,
+					"wave": 2
+				},
+				{
+					"gold": 76,
+					"lives": 20,
+					"seconds": 10.6599999999999,
+					"wave": 3
+				},
+				{
+					"gold": 31,
+					"lives": 20,
+					"seconds": 13.9799999999998,
+					"wave": 4
+				},
+				{
+					"gold": 23,
+					"lives": 20,
+					"seconds": 10.9999999999999,
+					"wave": 5
+				},
+				{
+					"gold": 14,
+					"lives": 20,
+					"seconds": 14.5199999999998,
+					"wave": 6
+				},
+				{
+					"gold": 108,
+					"lives": 20,
+					"seconds": 17.2399999999997,
+					"wave": 7
+				},
+				{
+					"gold": 105,
+					"lives": 20,
+					"seconds": 19.4399999999997,
+					"wave": 8
+				},
+				{
+					"gold": 125,
+					"lives": 20,
+					"seconds": 23.8199999999996,
+					"wave": 9
+				},
+				{
+					"gold": 144,
+					"lives": 20,
+					"seconds": 25.1399999999996,
+					"wave": 10
+				}
+			],
+			"waves": 10
+		},
+		{
+			"cleared": 10,
+			"gold": 154,
+			"level": 30,
+			"lives": 20,
+			"seconds": 168.539999999997,
+			"spent": 1805,
+			"squad": [
+				"guan_yu",
+				"zhou_wei",
+				"huang_fu_song",
+				"huang_zhong"
+			],
+			"stage": "ch01_s06",
+			"towers": 7,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 50,
+					"lives": 20,
+					"seconds": 11.6999999999998,
+					"wave": 1
+				},
+				{
+					"gold": 85,
+					"lives": 20,
+					"seconds": 22.9599999999996,
+					"wave": 2
+				},
+				{
+					"gold": 76,
+					"lives": 20,
+					"seconds": 10.6599999999999,
+					"wave": 3
+				},
+				{
+					"gold": 31,
+					"lives": 20,
+					"seconds": 13.9799999999998,
+					"wave": 4
+				},
+				{
+					"gold": 23,
+					"lives": 20,
+					"seconds": 10.9399999999999,
+					"wave": 5
+				},
+				{
+					"gold": 74,
+					"lives": 20,
+					"seconds": 13.6599999999998,
+					"wave": 6
+				},
+				{
+					"gold": 108,
+					"lives": 20,
+					"seconds": 16.4399999999997,
+					"wave": 7
+				},
+				{
+					"gold": 105,
+					"lives": 20,
+					"seconds": 19.4199999999997,
+					"wave": 8
+				},
+				{
+					"gold": 21,
+					"lives": 20,
+					"seconds": 23.5599999999996,
+					"wave": 9
+				},
+				{
+					"gold": 144,
+					"lives": 20,
+					"seconds": 25.2199999999996,
+					"wave": 10
+				}
+			],
+			"waves": 10
+		},
+		{
+			"cleared": 10,
+			"gold": 169,
+			"level": 20,
+			"lives": 20,
+			"seconds": 150.499999999998,
+			"spent": 1649,
+			"squad": [
+				"zhao_yun",
+				"zhou_wei",
+				"huang_fu_song",
+				"huang_zhong"
+			],
+			"stage": "ch01_s07",
+			"towers": 7,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 50,
+					"lives": 20,
+					"seconds": 11.3599999999998,
+					"wave": 1
+				},
+				{
+					"gold": 23,
+					"lives": 20,
+					"seconds": 12.5799999999998,
+					"wave": 2
+				},
+				{
+					"gold": 34,
+					"lives": 20,
+					"seconds": 13.5199999999998,
+					"wave": 3
+				},
+				{
+					"gold": 44,
+					"lives": 20,
+					"seconds": 13.1999999999998,
+					"wave": 4
+				},
+				{
+					"gold": 32,
+					"lives": 20,
+					"seconds": 13.4799999999998,
+					"wave": 5
+				},
+				{
+					"gold": 112,
+					"lives": 20,
+					"seconds": 11.8799999999998,
+					"wave": 6
+				},
+				{
+					"gold": 119,
+					"lives": 20,
+					"seconds": 9.99999999999988,
+					"wave": 7
+				},
+				{
+					"gold": 27,
+					"lives": 20,
+					"seconds": 23.2199999999996,
+					"wave": 8
+				},
+				{
+					"gold": 55,
+					"lives": 20,
+					"seconds": 26.8599999999995,
+					"wave": 9
+				},
+				{
+					"gold": 159,
+					"lives": 20,
+					"seconds": 14.3999999999998,
+					"wave": 10
+				}
+			],
+			"waves": 10
+		},
+		{
+			"cleared": 10,
+			"gold": 169,
+			"level": 30,
+			"lives": 20,
+			"seconds": 144.619999999998,
+			"spent": 1649,
+			"squad": [
+				"zhao_yun",
+				"zhou_wei",
+				"huang_fu_song",
+				"huang_zhong"
+			],
+			"stage": "ch01_s07",
+			"towers": 7,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 50,
+					"lives": 20,
+					"seconds": 11.3599999999998,
+					"wave": 1
+				},
+				{
+					"gold": 23,
+					"lives": 20,
+					"seconds": 12.5799999999998,
+					"wave": 2
+				},
+				{
+					"gold": 34,
+					"lives": 20,
+					"seconds": 13.1799999999998,
+					"wave": 3
+				},
+				{
+					"gold": 44,
+					"lives": 20,
+					"seconds": 13.1399999999998,
+					"wave": 4
+				},
+				{
+					"gold": 32,
+					"lives": 20,
+					"seconds": 13.7399999999998,
+					"wave": 5
+				},
+				{
+					"gold": 112,
+					"lives": 20,
+					"seconds": 11.8399999999998,
+					"wave": 6
+				},
+				{
+					"gold": 119,
+					"lives": 20,
+					"seconds": 9.37999999999989,
+					"wave": 7
+				},
+				{
+					"gold": 27,
+					"lives": 20,
+					"seconds": 24.0199999999996,
+					"wave": 8
+				},
+				{
+					"gold": 55,
+					"lives": 20,
+					"seconds": 21.0399999999996,
+					"wave": 9
+				},
+				{
+					"gold": 159,
+					"lives": 20,
+					"seconds": 14.3399999999998,
+					"wave": 10
+				}
+			],
+			"waves": 10
+		},
+		{
+			"cleared": 12,
+			"gold": 31,
+			"level": 20,
+			"lives": 8,
+			"seconds": 198.74,
+			"spent": 2522,
+			"squad": [
+				"guan_yu",
+				"zhao_yun",
+				"huang_fu_song",
+				"zhuge_liang"
+			],
+			"stage": "ch01_s08",
+			"towers": 8,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 45,
+					"lives": 20,
+					"seconds": 17.6999999999997,
+					"wave": 1
+				},
+				{
+					"gold": 53,
+					"lives": 20,
+					"seconds": 17.4599999999997,
+					"wave": 2
+				},
+				{
+					"gold": 68,
+					"lives": 20,
+					"seconds": 12.5399999999998,
+					"wave": 3
+				},
+				{
+					"gold": 32,
+					"lives": 20,
+					"seconds": 11.4399999999998,
+					"wave": 4
+				},
+				{
+					"gold": 48,
+					"lives": 20,
+					"seconds": 8.6999999999999,
+					"wave": 5
+				},
+				{
+					"gold": 27,
+					"lives": 20,
+					"seconds": 10.5799999999999,
+					"wave": 6
+				},
+				{
+					"gold": 41,
+					"lives": 20,
+					"seconds": 8.21999999999991,
+					"wave": 7
+				},
+				{
+					"gold": 66,
+					"lives": 20,
+					"seconds": 12.4999999999998,
+					"wave": 8
+				},
+				{
+					"gold": 69,
+					"lives": 20,
+					"seconds": 8.05999999999992,
+					"wave": 9
+				},
+				{
+					"gold": 37,
+					"lives": 16,
+					"seconds": 25.9599999999995,
+					"wave": 10
+				},
+				{
+					"gold": 55,
+					"lives": 16,
+					"seconds": 15.9599999999997,
+					"wave": 11
+				},
+				{
+					"gold": 21,
+					"lives": 8,
+					"seconds": 49.6200000000022,
+					"wave": 12
+				}
+			],
+			"waves": 12
+		},
+		{
+			"cleared": 12,
+			"gold": 16,
+			"level": 30,
+			"lives": 12,
+			"seconds": 171.64,
+			"spent": 2562,
+			"squad": [
+				"guan_yu",
+				"zhao_yun",
+				"huang_fu_song",
+				"zhuge_liang"
+			],
+			"stage": "ch01_s08",
+			"towers": 8,
+			"victory": true,
+			"wave_results": [
+				{
+					"gold": 45,
+					"lives": 20,
+					"seconds": 13.6199999999998,
+					"wave": 1
+				},
+				{
+					"gold": 53,
+					"lives": 20,
+					"seconds": 14.6999999999998,
+					"wave": 2
+				},
+				{
+					"gold": 68,
+					"lives": 20,
+					"seconds": 9.19999999999989,
+					"wave": 3
+				},
+				{
+					"gold": 32,
+					"lives": 20,
+					"seconds": 10.0999999999999,
+					"wave": 4
+				},
+				{
+					"gold": 56,
+					"lives": 20,
+					"seconds": 8.31999999999991,
+					"wave": 5
+				},
+				{
+					"gold": 27,
+					"lives": 20,
+					"seconds": 11.6999999999998,
+					"wave": 6
+				},
+				{
+					"gold": 41,
+					"lives": 20,
+					"seconds": 8.6799999999999,
+					"wave": 7
+				},
+				{
+					"gold": 122,
+					"lives": 20,
+					"seconds": 11.8999999999998,
+					"wave": 8
+				},
+				{
+					"gold": 109,
+					"lives": 20,
+					"seconds": 8.6599999999999,
+					"wave": 9
+				},
+				{
+					"gold": 62,
+					"lives": 20,
+					"seconds": 10.9599999999999,
+					"wave": 10
+				},
+				{
+					"gold": 80,
+					"lives": 20,
+					"seconds": 15.3199999999998,
+					"wave": 11
+				},
+				{
+					"gold": 6,
+					"lives": 12,
+					"seconds": 48.480000000002,
+					"wave": 12
+				}
+			],
+			"waves": 12
+		}
+	],
+	"skill_level": 1,
+	"supplies": "none",
+	"talents": "none"
+}

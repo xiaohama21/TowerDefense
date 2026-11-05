@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://xbrqdrxjtogq"
+path="res://.godot/imported/yellow_turban_general.atlas-1092b8904898e717bbab97b9f53a28e5.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/yellow_turban_general/yellow_turban_general.atlas"
+dest_files=["res://.godot/imported/yellow_turban_general.atlas-1092b8904898e717bbab97b9f53a28e5.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"
