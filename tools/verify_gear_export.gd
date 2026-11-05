@@ -14,7 +14,9 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.6.3", "project version 0.9.6.3")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.7.0", "project version 0.9.7.0")
+	var curve = load("res://scripts/data/LevelCurve.gd")
+	_check(curve.exp_total_for_level(30) == 13340 and curve.exp_total_for_level(31) == 14220 and curve.exp_total_for_level(100) == 79770, "packaged continuous tail and retained investment")
 	var flow = root.get_node("GameFlow")
 	var store = root.get_node("ProfileStore")
 	var registry = load("res://scripts/data/WeaponRegistry.gd")

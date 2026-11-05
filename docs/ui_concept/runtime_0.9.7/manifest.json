@@ -1,0 +1,33 @@
+{
+  "program": "0.9.7.0",
+  "files": {
+    "new_save_battle.png": {
+      "bytes": 69469,
+      "sha256": "9a4b950b2e7361576d44fc09486b4d8231f48e75fbd51d4d77d26babdd1bcdff"
+    },
+    "new_save_develop.png": {
+      "bytes": 230240,
+      "sha256": "e1dd030afb48716986c3e15561548e6292d2c433b7b296d6cedc5b2700d1bd4a"
+    },
+    "new_save_inventory.png": {
+      "bytes": 120460,
+      "sha256": "a602300658ebaaf1f16fe163dd6240cc7e6470b5ef04290c38fa1de44032ceff"
+    },
+    "new_save_map.png": {
+      "bytes": 281515,
+      "sha256": "29bc2bf08d058dcf370c939f7ae18249d123f86f00b8041170515863f5cf01f4"
+    },
+    "new_save_shop.png": {
+      "bytes": 182623,
+      "sha256": "998195f73aebb79b6f8defcdc2fac04ccdeae1aa5c8fae2890e9b7a8877f0c1b"
+    },
+    "new_save_start.png": {
+      "bytes": 101343,
+      "sha256": "061e8c92a481b6fb3129c4cf9c6bec523cd5428a8936452215152d0f30cac340"
+    },
+    "new_save_victory.png": {
+      "bytes": 105897,
+      "sha256": "cb0937e04b3caab1ed66eaaed6f67bb37d2625e13a5fe61dde4c79a0e4b21e4e"
+    }
+  }
+}

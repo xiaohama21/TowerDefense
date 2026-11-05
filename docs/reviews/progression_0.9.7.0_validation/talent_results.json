@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "errors": [],
+  "summary": [
+    "TALENT_BALANCE_RESULT: PASS rows=74 failures=0"
+  ]
+}

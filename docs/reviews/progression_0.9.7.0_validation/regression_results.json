@@ -1,0 +1,176 @@
+{
+  "ProgressionRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "PROGRESSION_RESULT: PASS checks=4518 attempts=17 failures=0"
+    ],
+    "passed": true
+  },
+  "SkillBalanceRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "SKILL_BALANCE_RESULT: PASS checks=97 failures=0"
+    ],
+    "passed": true
+  },
+  "SkillKitRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "SKILL_KIT_RESULT: PASS failures=0"
+    ],
+    "passed": true
+  },
+  "Stage0Runner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [
+      "ERROR: Parse JSON failed. Error at line 0: Expected key",
+      "ERROR: SaveManager: 只有胜利且尚未提交的战局才能结算",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ],
+    "summary": [],
+    "passed": true
+  },
+  "SmokeRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "ExitFlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "RankRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "RANK_RESULT: PASS failures=0"
+    ],
+    "passed": true
+  },
+  "DevelopRefreshRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "SupplyStateRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "SUPPLY_STATE_OK failures=0"
+    ],
+    "passed": true
+  },
+  "ShopRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "SHOP_RESULT: PASS checks=461 failures=0"
+    ],
+    "passed": true
+  },
+  "GearRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "GEAR_RESULT: PASS checks=446 failures=0"
+    ],
+    "passed": true
+  },
+  "ItemUiRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "ITEM_UI_RESULT: PASS checks=91 failures=0"
+    ],
+    "passed": true
+  },
+  "TalentRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [
+      "ERROR: SaveManager: 无法写入 user://（错误码 12）",
+      "ERROR: SaveManager: 无法写入 user://（错误码 12）"
+    ],
+    "summary": [
+      "TALENT_RESULT: PASS checks=389 failures=0"
+    ],
+    "passed": true
+  },
+  "RosterRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "ROSTER_RESULT: PASS checks=88 failures=0"
+    ],
+    "passed": true
+  },
+  "FactionRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "FACTION_RESULT: PASS checks=293 failures=0"
+    ],
+    "passed": true
+  },
+  "PackVerify": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "PolishRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "POLISH_RESULT: PASS checks=19025 failures=0 buttons=1688 captures=0"
+    ],
+    "passed": true
+  },
+  "ChapterBalanceRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "CHAPTER_BALANCE_RESULT: PASS rows=16 failures=0"
+    ],
+    "passed": true
+  },
+  "TalentBalanceRunner": {
+    "passed": true,
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "TALENT_BALANCE_RESULT: PASS rows=74 failures=0"
+    ]
+  }
+}

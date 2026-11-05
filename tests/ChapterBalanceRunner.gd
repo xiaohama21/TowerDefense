@@ -13,6 +13,7 @@ var chapter_level := 20
 var spend := 0
 var build_index := 0
 var next_economy := 0.0
+var seed_offset := 0
 
 func _run() -> void:
 	ProfileStore.create_new_profile(false)
@@ -23,8 +24,12 @@ func _run() -> void:
 	for stage_number in range(1, 9):
 		for level in [20, 30]:
 			await _simulate_stage(stage_number, level)
-	var file := FileAccess.open("res://docs/reviews/chapter_balance_after_2026-11-05.json", FileAccess.WRITE)
-	file.store_string(JSON.stringify({"program": "0.9.6.3", "rank": 1, "skill_level": 1, "equipment": "none", "talents": "none", "supplies": "none", "difficulty": "normal", "delta": VIRTUAL_DELTA, "rows": chapter_rows}, "\t")); file.close()
+	var report_path := "res://build/chapter_balance_latest.json"
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--report-path="): report_path = argument.trim_prefix("--report-path=")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(report_path.get_base_dir()))
+	var file := FileAccess.open(report_path, FileAccess.WRITE)
+	file.store_string(JSON.stringify({"program": ProjectSettings.get_setting("application/config/version"), "rank": 1, "skill_level": 1, "equipment": "none", "talents": "none", "supplies": "none", "difficulty": "normal", "delta": VIRTUAL_DELTA, "rows": chapter_rows}, "\t")); file.close()
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(_profile_file + suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(_profile_file + suffix))
 	GameFlow.set_gameplay_flag("manual_ultimate", prior_manual)
@@ -50,7 +55,7 @@ func _simulate_stage(number: int, level: int) -> void:
 		var cell := Vector2i(floori(position.x / 80), floori(position.y / 80))
 		if not road.has(cell) and not chapter_stage.forbidden_cells.has(cell): slots.append(position)
 	chapter_groups.clear(); spend = 0; build_index = 0; next_economy = 0
-	seed(20261105 + number)
+	seed(20261105 + number + seed_offset)
 	var seconds := 0.0
 	var cleared := 0
 	var waves: Array = []
@@ -85,11 +90,14 @@ func _simulate_stage(number: int, level: int) -> void:
 		GameManager.wave_completed(); cleared += 1
 		await get_tree().process_frame
 	var row := {"stage": str(chapter_stage.stage_id), "level": level, "squad": squad.duplicate(), "cleared": cleared, "waves": chapter_stage.waves.size(), "victory": cleared == chapter_stage.waves.size() and GameManager.lives > 0, "lives": GameManager.lives, "seconds": seconds, "gold": GameManager.gold, "spent": spend, "towers": chapter_groups.size(), "wave_results": waves}
-	_check(row.victory and GameManager.gold >= 0, "首章合法预算通关 %s Lv%d" % [chapter_stage.stage_id, level])
+	_validate_stage_row(row)
 	chapter_rows.append(row); print("CHAPTER_ROW " + JSON.stringify(row))
 	for child in get_children(): child.queue_free()
 	await get_tree().process_frame
 	chapter_fork = null; chapter_groups.clear()
+
+func _validate_stage_row(row: Dictionary) -> void:
+	_check(row.victory and GameManager.gold >= 0, "首章合法预算通关 %s Lv%d" % [chapter_stage.stage_id, row.level])
 
 func _new_path(label: String, points: Array[Vector2]) -> Path2D:
 	var path := Path2D.new(); path.name = label; path.curve = Curve2D.new()
