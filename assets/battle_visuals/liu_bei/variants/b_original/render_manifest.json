@@ -1,0 +1,151 @@
+{
+  "entries": [
+    {
+      "svg": "liu_bei/variants/b_original/source/cape.svg",
+      "png": "liu_bei/variants/b_original/source/cape.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/cape_tail.svg",
+      "png": "liu_bei/variants/b_original/source/cape_tail.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/trousers.svg",
+      "png": "liu_bei/variants/b_original/source/trousers.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/boot.svg",
+      "png": "liu_bei/variants/b_original/source/boot.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/body.svg",
+      "png": "liu_bei/variants/b_original/source/body.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/shoulder.svg",
+      "png": "liu_bei/variants/b_original/source/shoulder.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/upper_arm.svg",
+      "png": "liu_bei/variants/b_original/source/upper_arm.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/forearm.svg",
+      "png": "liu_bei/variants/b_original/source/forearm.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/hand.svg",
+      "png": "liu_bei/variants/b_original/source/hand.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/head.svg",
+      "png": "liu_bei/variants/b_original/source/head.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/hair_ribbon.svg",
+      "png": "liu_bei/variants/b_original/source/hair_ribbon.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/weapon.svg",
+      "png": "liu_bei/variants/b_original/source/weapon.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 512
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/offhand.svg",
+      "png": "liu_bei/variants/b_original/source/offhand.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 512
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/scabbard.svg",
+      "png": "liu_bei/variants/b_original/source/scabbard.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/pendant.svg",
+      "png": "liu_bei/variants/b_original/source/pendant.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/sash.svg",
+      "png": "liu_bei/variants/b_original/source/sash.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/insignia.svg",
+      "png": "liu_bei/variants/b_original/source/insignia.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/slash.svg",
+      "png": "liu_bei/variants/b_original/source/slash.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/aura.svg",
+      "png": "liu_bei/variants/b_original/source/aura.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/hair_locks.svg",
+      "png": "liu_bei/variants/b_original/source/hair_locks.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    },
+    {
+      "svg": "liu_bei/variants/b_original/source/forelock.svg",
+      "png": "liu_bei/variants/b_original/source/forelock.png",
+      "pixels": 128,
+      "width": 256,
+      "height": 256
+    }
+  ]
+}

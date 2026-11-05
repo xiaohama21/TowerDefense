@@ -46,6 +46,7 @@ const SPINE_CHARACTERS: Dictionary = {
 }
 var _spine_profile: Dictionary = {}
 var _spine_visual_id := ""
+var _support_visual_cooldown := 0.0
 ## 阶段 8·提交 11（0.8.11.0）：0.22 → 0.33 试点调大（身体 ≈27px → ≈41px、约半格，
 ## 实机截图验收后定稿；其余角色接入沿用「每角色调一次 + 截图验收」流程）。
 const SPINE_BASE_SCALE: float = 0.33
@@ -504,11 +505,12 @@ func _play_spine_attack(time_scale: float = 1.0, force: bool = false) -> void:
 		if anim != null and str(anim.get_name()) == "Attack_A":
 			return  # 攻击动画播放中不打断重播。
 	state.set_animation("Attack_A", false, 0)
-	_set_spine_track_time_scale(state, time_scale)
+	_set_spine_track_time_scale(state, time_scale * float(_spine_profile.get("attack_time_scale", 1.0)))
 	_spine_attack_busy = true
 
 
 func _update_spine_animation(_delta: float) -> void:
+	_support_visual_cooldown = maxf(_support_visual_cooldown - _delta, 0.0)
 	# 技能连击 / 大招演出计时（0.8.16.6）：期间普攻动画被抑制，计时到点后恢复正常优先级。
 	if _spine_cast_busy_left > 0.0:
 		_spine_cast_busy_left = maxf(_spine_cast_busy_left - _delta, 0.0)
@@ -520,6 +522,27 @@ func _update_spine_animation(_delta: float) -> void:
 	var track: Object = state.get_track(0)
 	if track == null or track.is_complete():
 		_play_spine_idle()
+
+
+func _play_spine_critical() -> void:
+	if not _use_spine_visual or _spine == null or _spine_cast_busy_left > 0.0 or not _spine_profile.has("critical"): return
+	var state: Object = _spine.get_animation_state()
+	var track: Object = state.set_animation(str(_spine_profile.critical), false, 0)
+	if track == null: return
+	if track.has_method("set_mix_duration"): track.set_mix_duration(0.0)
+	# Critical is known at the original damage frame; enter this pose at that frame.
+	track.set_track_time(float(_spine_profile.get("critical_start", _spine_profile.hit)))
+	_set_spine_track_time_scale(state, float(_spine_profile.get("critical_time_scale", 1.0)))
+	_spine.update_skeleton(0.0)
+	_spine_attack_busy = true
+
+
+func play_support_animation() -> void:
+	if not _use_spine_visual or _spine == null or not _spine_profile.has("support") or _support_visual_cooldown > 0.0: return
+	if _spine_attack_busy or _spine_cast_busy_left > 0.0: return
+	_support_visual_cooldown = 1.6
+	_spine.get_animation_state().set_animation(str(_spine_profile.support), false, 0)
+	_spine_attack_busy = true
 
 
 ## —— 命中帧结算（0.8.16.6 / BEHAVIORS B.3.1.1）——
@@ -641,13 +664,14 @@ func _play_spine_ultimate() -> void:
 	var state: Object = _spine.get_animation_state()
 	if state == null:
 		return
+	var animation_name := str(_spine_profile.get("ultimate", "XX"))
 	var track: Object = state.get_track(0)
 	if track != null and not track.is_complete():
 		var anim: Object = track.get_animation()
-		if anim != null and str(anim.get_name()) == "XX":
+		if anim != null and str(anim.get_name()) == animation_name:
 			return
-	state.set_animation("XX", false, 0)
-	_set_spine_track_time_scale(state, 1.0)
+	state.set_animation(animation_name, false, 0)
+	_set_spine_track_time_scale(state, float(_spine_profile.get("ult_time_scale", 1.0)))
 	_spine_attack_busy = true
 	_spine_cast_busy_left = maxf(_spine_cast_busy_left, float(_spine_profile.get("ult_duration", SPINE_XX_DURATION)))
 
@@ -1645,9 +1669,12 @@ func _draw_range() -> void:
 func attack_hit_damage(amount: int, roll: float = -1.0) -> int:
 	var force := has_skill(&"passive_green_dragon_stance") and (skill_hit_counter + 1) % int(get_skill_param(&"passive_green_dragon_stance", "hit_every", 3)) == 0
 	if force:
+		_play_spine_critical()
 		var bonus := get_skill_param(&"passive_green_dragon_stance", "forced_bonus_per_level", 0.03) * (get_skill_level(&"passive_green_dragon_stance") - 1)
 		return int(round(amount * crit_damage * (1.0 + bonus)))
-	return roll_attack_critical(amount, crit_rate, crit_damage, roll)
+	var sample := randf() if roll < 0.0 else roll
+	if sample < clampf(crit_rate, 0.0, 0.75): _play_spine_critical()
+	return roll_attack_critical(amount, crit_rate, crit_damage, sample)
 
 static func roll_attack_critical(amount: int, rate: float, multiplier: float, roll: float = -1.0) -> int:
 	var sample := randf() if roll < 0.0 else roll

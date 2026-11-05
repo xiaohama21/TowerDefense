@@ -1,0 +1,20 @@
+{
+	"checks": 25,
+	"failures": [],
+	"gold": 91,
+	"ingots": 30,
+	"items": {
+		"general_seal": 3,
+		"refined_iron": 3,
+		"skill_book": 1
+	},
+	"lives": 20,
+	"lord_exp": 80,
+	"pool": 314,
+	"program": "0.9.8.1",
+	"stage": "ch01_s01",
+	"waves": 6,
+	"weapons": {
+		"equipment_ring_blade_1": 1
+	}
+}

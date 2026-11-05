@@ -32,24 +32,30 @@ func run() -> void:
 		view.add_child(actor)
 		actor.position += Vector2(128, 170)
 		actor.set_process(false); actor.set_physics_process(false)
+		actor.set("update_mode", 2) # Spine Manual: native screenshots have exact timestamps.
 		var state: Object = actor.get_animation_state()
 		for facing in [-1, 1]:
 			actor.scale.x = facing * float(spec.get("native_facing", -1)) * float(spec.scale)
-			for pose in ["Idle", "Move", "Attack_A", "XX", "Stun", "Death"]:
+			var poses := ["Idle", "Move", "Attack_A", str(spec.get("ultimate", "XX")), "Stun", "Death"]
+			if id == "liu_bei": poses.append("Critical")
+			for pose in poses:
 				state.clear_tracks()
 				actor.get_skeleton().set_to_setup_pose()
 				var track: Object = state.set_animation(pose, false, 0)
 				check(track != null, id + " " + pose)
 				if track == null: continue
+				track.set_mix_duration(0)
 				var at := .125
 				if pose == "Idle": at = 0.0
-				if pose == "Attack_A": at = float(spec.get("hit", .11))
+				if pose == "Attack_A": at = float(spec.get("attack_source_hit", spec.get("hit", .11)))
 				if pose == "XX": at = float(spec.get("ult_hit", 0.0))
 				if pose == "Death": at = .3
+				if pose == "Critical": at = float(spec.get("critical_start", .11))
 				track.set_track_time(at)
 				actor.update_skeleton(0.0)
 				await get_tree().process_frame
 				await RenderingServer.frame_post_draw
+				check(is_equal_approx(track.get_track_time(), at), id + " " + pose + " exact frame time")
 				var frame := view.get_texture().get_image()
 				var bounds := frame.get_used_rect()
 				var filename := "%s_%s_%s.png" % [id, "left" if facing < 0 else "right", pose]
@@ -58,7 +64,7 @@ func run() -> void:
 				rows.append({"id": id, "pose": pose, "facing": facing, "at": at, "bbox": [bounds.position.x, bounds.position.y, bounds.size.x, bounds.size.y], "file": filename})
 		if id == "liu_bei":
 			view.size = Vector2i(512, 512)
-			actor.scale = Vector2.ONE * 2
+			actor.scale = Vector2(float(spec.get("native_facing", -1)), 1) * 2
 			actor.position = Vector2(256, 390)
 			state.clear_tracks(); actor.get_skeleton().set_to_setup_pose()
 			state.set_animation("Idle", false, 0); actor.update_skeleton(0)

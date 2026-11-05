@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.0", "project version 0.9.8.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.1", "project version 0.9.8.1")
 	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
 	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
 	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 5 and art_manifest.native_measurements.size() == 6, "battle visual manifest and native bounds")
@@ -24,7 +24,9 @@ func _run() -> void:
 		_check(actor != null, "packaged Spine identity " + id)
 		if actor == null: continue
 		root.add_child(actor)
-		for pose in ["Idle", "Move", "Attack_A", "XX", "Stun", "Death"]:
+		var poses := ["Idle", "Move", "Attack_A", str(spec.get("ultimate", "XX")), "Stun", "Death"]
+		if id == "liu_bei": poses.append("Critical")
+		for pose in poses:
 			_check(actor.get_animation_state().set_animation(pose, false, 0) != null, "packaged animation " + id + "." + pose)
 		actor.queue_free()
 		await process_frame
@@ -36,6 +38,10 @@ func _run() -> void:
 		avatar.free()
 	_check(is_equal_approx(float(visuals.hero("liu_bei").hit), .11) and float(visuals.hero("liu_bei").ult_hit) == 0 and float(visuals.hero("guan_yu").hit) == .4, "packaged independent hit timing")
 	_check(not FileAccess.file_exists("res://assets/battle_visuals/liu_bei/source/head.svg"), "authoring layers excluded from release")
+	_check(not FileAccess.file_exists("res://assets/battle_visuals/liu_bei/variants/a_158/liu_bei_158-data.tres"), "abandoned candidates excluded from release")
+	# Export remaps PNGs to imported textures; source byte hashes are checked before export.
+	var liu_texture: Texture2D = load("res://assets/battle_visuals/liu_bei/Hero_LiBai_A.png")
+	_check(liu_texture != null and liu_texture.get_size() == Vector2(222,222), "original 158 imported atlas texture")
 	var curve = load("res://scripts/data/LevelCurve.gd")
 	_check(curve.exp_total_for_level(30) == 13340 and curve.exp_total_for_level(31) == 14220 and curve.exp_total_for_level(100) == 79770, "packaged continuous tail and retained investment")
 	var flow = root.get_node("GameFlow")

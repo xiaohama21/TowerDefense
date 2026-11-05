@@ -1,21 +1,24 @@
 {
   "version": 2,
-  "license": "Original project SVG parts and rigs; existing Guan Yu remains under ART_ASSETS D69 terms.",
+  "license": "Original project enemy/map art; Guan Yu and original D69 #158 Liu Bei use ART_ASSETS section 6. See liu_bei/provenance.json.",
   "actors": {
     "liu_bei": {
-      "scale": 0.34,
+      "scale": 0.53,
       "foot": 8,
-      "top": 139,
-      "width": 102,
-      "coat": "#438864",
-      "trim": "#daba66",
-      "skin": "#eac59b",
-      "role": "hero",
-      "native_facing": 1,
+      "native_facing": -1,
       "hit": 0.11,
-      "attack_duration": 0.33,
+      "attack_source_hit": 0.5333,
+      "attack_duration": 0.1787680480030002,
       "ult_hit": 0,
-      "ult_duration": 0.55
+      "ult_duration": 0.55,
+      "ultimate": "Appear",
+      "critical": "Critical",
+      "role": "hero",
+      "source": "D69 #158 / Hero_LiBai_A",
+      "attack_time_scale": 4.848181818181818,
+      "critical_start": 0.3,
+      "critical_time_scale": 3.2324242424242424,
+      "ult_time_scale": 2.666727272727272
     },
     "yellow_turban_soldier": {
       "scale": 0.28,
@@ -79,27 +82,15 @@
     "grass_camp/source/tree.svg": "46ba01dc198a4fbb9dfbf60e9ea30f61685fab9f93b6d7c0409ad12cd2b4b922",
     "grass_camp/torch.png": "5474c391947a373cca386a654f82d538ff1d12bb61ff2138da8fdba44f17e04d",
     "grass_camp/tree.png": "45520229c9f6d468c6e32a4c9085c5dcc68d02d64ca7393ebdf72ec6d9248856",
-    "liu_bei/avatar.png": "e6c613ae9ef0f282b849c2528cf7bce5b0a527664881d9a70ae90058a8cb0479",
-    "liu_bei/liu_bei-data.tres": "0addea1ce40402e29406736b3cd602871402c084b60752241f508770b39857c1",
-    "liu_bei/liu_bei.atlas": "41924abdb907974a0ceb0cb7380532080d1ff7cb6badd95db43b4567d19f4b90",
-    "liu_bei/liu_bei.png": "2efbab923585a7a748124c5441fd541203be5ef9c4588037af78245efb3ff19f",
-    "liu_bei/liu_bei.spine-json": "c19035a4708601d1eabe91521dcba8bf8de31061f3ae6138bea4daf212f3bd15",
-    "liu_bei/source/arm.png": "0c66d5f03c865742a7a3da7a42e66684c237b28dfee8181fa58d68be7d2364b2",
-    "liu_bei/source/arm.svg": "4ba3b486702152fd5b4adc442e951847a41af458054357ce123175345ed08222",
-    "liu_bei/source/body.png": "a7cdb2403018ae70070ed1d06409bf827962e0e77b56337c02aeb6b6451ce09b",
-    "liu_bei/source/body.svg": "b042af9656a77db6a74d2046285cdc6e8aa38965925498ac594d111ac1ede579",
-    "liu_bei/source/boot.png": "49e344e168e8d17cdec797e3173479f15d6fbfc50a36abc20c508e6f889aceec",
-    "liu_bei/source/boot.svg": "7fae726c2d2f148b46dc59618d787ac152ec87c9a7e9f4689323059b9629c44b",
-    "liu_bei/source/cape.png": "a3ff366a2d66d30b5d621b7e3fdd7e0e0cd72dcb0eebe59873011572fa6cee72",
-    "liu_bei/source/cape.svg": "a0ea488b90239bed8ee3c6c8470b7b4c270aae8bb643ab4e32eed01344cd8aca",
-    "liu_bei/source/head.png": "a042c5a4ed6b7990a190d2686e13497902bdf2b3ff511582a108aa827a398d32",
-    "liu_bei/source/head.svg": "68099d6b41ddf05ece4781c9e72b9a881ea5f6696bd45ae8819c4fab5a8ba6f6",
-    "liu_bei/source/horse.png": "deab0ed3a6d9163804d1adf1eab5bbaf79926b2a02e35adece306a3e77081916",
-    "liu_bei/source/horse.svg": "66d55cadf279e3e684af2a4b639ee42765a19610d703f1156afd924c9caf2ddd",
-    "liu_bei/source/offhand.png": "8c27be96191d782621fa395792dc3ab4afc77c235e8eea1e7a46e53cd944ee3e",
-    "liu_bei/source/offhand.svg": "d10d34a39fb0574877cd82d2d7eb35183e09eefbcd6e8ef4a8a842204c872822",
-    "liu_bei/source/weapon.png": "8c27be96191d782621fa395792dc3ab4afc77c235e8eea1e7a46e53cd944ee3e",
-    "liu_bei/source/weapon.svg": "d10d34a39fb0574877cd82d2d7eb35183e09eefbcd6e8ef4a8a842204c872822",
+    "liu_bei/avatar.png": "eb5761baad5838e0809dce6f8fd3d80d846e87a9074f4c16e3d0b5ac557e32ba",
+    "liu_bei/Hero_LiBai_A.png": "5a76b2fdc30c620f72644f97e12bfb7812f06eb1d1939bfe027ca012f58a0911",
+    "liu_bei/liu_bei-data.tres": "89b119919c31decf6f2ea669f9d24885ea979ee7f245a5354d76c0ced86c10f7",
+    "liu_bei/liu_bei.atlas": "0ba24736bdc3ad925618662d4ce4763dc05c728dc36c7e39f74f5ae0d6e09641",
+    "liu_bei/liu_bei.spine-json": "4d96150cf29d4078904a9a440c830870f646e4aee9ee22c8a074b140e3fff50a",
+    "liu_bei/source/d69_158/Hero_LiBai_A.atlas": "0ba24736bdc3ad925618662d4ce4763dc05c728dc36c7e39f74f5ae0d6e09641",
+    "liu_bei/source/d69_158/Hero_LiBai_A.json": "66f0211ad68820ce7335817bc93133cc19ddb72c06bcc77c710232476c784f5d",
+    "liu_bei/source/d69_158/Hero_LiBai_A.png": "5a76b2fdc30c620f72644f97e12bfb7812f06eb1d1939bfe027ca012f58a0911",
+    "liu_bei/source/d69_158/免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141",
     "yellow_turban_cavalry/source/arm.png": "280c504a314d977112d379fb91009049816f0df08a38892a36d5b36034a39c70",
     "yellow_turban_cavalry/source/arm.svg": "052c0be7d4214706383a58a1cf905a7f7cc20fa4091f291ea82b6e455539147c",
     "yellow_turban_cavalry/source/body.png": "e6c8d39186ce559aa8e3dc5ddc05a84f30e3522fcb89e01f6efd73b583568e15",
@@ -116,7 +107,7 @@
     "yellow_turban_cavalry/source/offhand.svg": "052c0be7d4214706383a58a1cf905a7f7cc20fa4091f291ea82b6e455539147c",
     "yellow_turban_cavalry/source/weapon.png": "9f8f3c21e4f0a2799ca68b19788eaea5c92165a697628993df3fb8c1acf8c633",
     "yellow_turban_cavalry/source/weapon.svg": "72c3bfa2eb0caca17ad99b09fe53a58f57a438af97cb7da0541738424cac7912",
-    "yellow_turban_cavalry/yellow_turban_cavalry-data.tres": "a2455b9b81f400525f9ef572485b401e2252687b348eb0ed784237b41f4fbbf1",
+    "yellow_turban_cavalry/yellow_turban_cavalry-data.tres": "bbcfdc71a2d461e39b34599ac95b3b968bad93e09ecc8b94d148edd1a67aaa42",
     "yellow_turban_cavalry/yellow_turban_cavalry.atlas": "4ca20871e8575acf222ddb719fb91c707943f0e5d46ace6c75b61e10cfdca6a2",
     "yellow_turban_cavalry/yellow_turban_cavalry.png": "77d5e3f41cf5ae8211b0bbc0007dd430b3c6f92313a84f020ae71ddda1a233cb",
     "yellow_turban_cavalry/yellow_turban_cavalry.spine-json": "dea719a5dda8ca2daaa5df09d2879440a53a2217fd4e4d487aa1ccebb6c8343b",
@@ -136,7 +127,7 @@
     "yellow_turban_general/source/offhand.svg": "d967bdb81d1097118d2e4f0d6f1e6fc92f405a23e931d675c32741819c10120a",
     "yellow_turban_general/source/weapon.png": "91779a80d114d6946c514ce18ba797009e450c4f1e539ba6b3a2aa570ae82e60",
     "yellow_turban_general/source/weapon.svg": "f80c8e847e260d9d7cb3bfbe2cc34d5b400e7c4ed593462da301a6688f7d3b92",
-    "yellow_turban_general/yellow_turban_general-data.tres": "f4a5b9f2a7c9724c0d42083b1530790418ae9b33f2c98dd5ba14e99a2446a0da",
+    "yellow_turban_general/yellow_turban_general-data.tres": "828199f611b2686e4caff2993e455562d295787bb728c6d92456e22f2653c516",
     "yellow_turban_general/yellow_turban_general.atlas": "2e98a591c6be4724ec52ec90bfeb0bcdaf4e6aa1fc5d90819a7856ddc11c55a3",
     "yellow_turban_general/yellow_turban_general.png": "cebb316ec970f4eaf6461270b5ebf0e2d9784a041313481001820d5de5b64b23",
     "yellow_turban_general/yellow_turban_general.spine-json": "a03f80d1a6366ee60d2d546f8d4ad8c36dfc1e8d6a368344f29ad6d91ed1a261",
@@ -156,7 +147,7 @@
     "yellow_turban_sergeant/source/offhand.svg": "dd58f82a6548d8af1e1916a772d93531df4437623353b693502f1cc4aa8559ae",
     "yellow_turban_sergeant/source/weapon.png": "aee11c5a56922988ec54723659e0d89c19b7a66a9b4bb57419fc751028700f5c",
     "yellow_turban_sergeant/source/weapon.svg": "efa12bd7fc1ad89f762322a4e1a0adb0452e9e81c1c1b27e6708abb0c561595c",
-    "yellow_turban_sergeant/yellow_turban_sergeant-data.tres": "673f6712244315f117ae7a37a74d60905c9f507ebd85718e7751beb7ee2d8bf7",
+    "yellow_turban_sergeant/yellow_turban_sergeant-data.tres": "91c9c7949d1601de7c41d6c872475404a6f099ee6e4374435568d07bff13a349",
     "yellow_turban_sergeant/yellow_turban_sergeant.atlas": "ddcbfea468b3e6a394fe7a1c0da169c52a63acdbea2d79a6f8ccc1c6990b9209",
     "yellow_turban_sergeant/yellow_turban_sergeant.png": "535dec17cc4211fdfbb4c1682aed012ef262e14d4a71e79b25351b17ee81fa05",
     "yellow_turban_sergeant/yellow_turban_sergeant.spine-json": "c19035a4708601d1eabe91521dcba8bf8de31061f3ae6138bea4daf212f3bd15",
@@ -176,12 +167,12 @@
     "yellow_turban_soldier/source/offhand.svg": "94a86bbae8aa06e862f28142b1c11c28f685e7399cb09aed56b189cb8d9adb38",
     "yellow_turban_soldier/source/weapon.png": "fba976ae0c901022febc50bfe04b625fab2298567b8c5f3ce24ae8f18947bc09",
     "yellow_turban_soldier/source/weapon.svg": "a32ae7149e05c70523f823f66651deb5212f399825902ee1b5037c71b4f8b9b2",
-    "yellow_turban_soldier/yellow_turban_soldier-data.tres": "48e07939256ef0f537db8eb48afb2a7a1eda9183abba028d666968dc668fb093",
+    "yellow_turban_soldier/yellow_turban_soldier-data.tres": "3cafa851bf7744fedbf65d2471ddebc8b113b2698070198146c0f3c53fed7f94",
     "yellow_turban_soldier/yellow_turban_soldier.atlas": "240ea09186223d6d49e17f9102644a59617a057819fca938bcd52a5692eef786",
     "yellow_turban_soldier/yellow_turban_soldier.png": "e35ea8824458b1284b3349015614e3b3937c9e17c69df2b390fcb79acb25e06f",
     "yellow_turban_soldier/yellow_turban_soldier.spine-json": "c19035a4708601d1eabe91521dcba8bf8de31061f3ae6138bea4daf212f3bd15"
   },
-  "program": "0.9.8.0",
+  "program": "0.9.8.1",
   "native_measurements": [
     {
       "at": 0.0,
@@ -199,10 +190,10 @@
     {
       "at": 0.0,
       "bbox": [
-        111,
-        129,
-        32,
-        50
+        85,
+        97,
+        69,
+        80
       ],
       "facing": 1,
       "file": "liu_bei_right_Idle.png",
@@ -265,15 +256,15 @@
   "portrait": {
     "source": "native Liu Bei Idle frame at scale 2",
     "crop": [
-      182,
-      99,
-      328,
-      245
+      151,
+      75,
+      379,
+      303
     ],
     "size": [
       160,
       160
     ]
   },
-  "export": "Packed actor atlases/rigs, map PNGs, portrait and manifest; source SVG/part PNGs stay in repository."
+  "export": "Packed actor atlases/rigs, map PNGs, portrait and manifest; authoring sources and abandoned variants stay in repository."
 }

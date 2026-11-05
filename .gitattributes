@@ -15,3 +15,7 @@
 *.atlas -text
 *.spine-json -text
 *.gdextension text eol=lf
+
+# User-selected original #158 inputs: keep provenance hashes equal to source bytes.
+assets/battle_visuals/liu_bei/source/d69_158/* -text
+assets/battle_visuals/liu_bei/variants/a_158/source/d69_158/* -text

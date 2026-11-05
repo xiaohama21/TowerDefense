@@ -1,15 +1,17 @@
 """Original battle SVG parts and Spine 4.3 rigs. Rasterize with Godot, then --pack.
 
-No external character images are copied. Coordinate art stays editable in source/.
+Enemy/map art stays editable; Liu Bei imports the archived, user-selected original #158.
 """
 from pathlib import Path
 import json, sys, hashlib
+import liu_bei_art
+import import_liu_bei_158
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'assets/battle_visuals'
 INK = '#302b28'
 ACTORS = {
-    'liu_bei': dict(scale=.34, foot=8, top=139, width=102, coat='#438864', trim='#daba66', skin='#eac59b', role='hero'),
+    'liu_bei': dict(scale=.53, foot=8, native_facing=-1, hit=.11, attack_source_hit=.5333, attack_duration=.8667*.11/.5333, ult_hit=0, ult_duration=.55, ultimate='Appear', critical='Critical', role='hero', source='D69 #158 / Hero_LiBai_A'),
     'yellow_turban_soldier': dict(scale=.28, foot=16, top=131, width=95, coat='#a5966b', trim='#dbb450', skin='#daba8e', role='soldier'),
     'yellow_turban_cavalry': dict(scale=.30, foot=20, top=167, width=160, coat='#8b7858', trim='#ddbb53', skin='#daba8e', role='cavalry'),
     'yellow_turban_sergeant': dict(scale=.33, foot=18, top=134, width=126, coat='#5b6265', trim='#dbc259', skin='#daba8e', role='sergeant'),
@@ -22,12 +24,13 @@ def path(d, fill, stroke=INK, width=3):
 def ellipse(x,y,rx,ry,fill,stroke=INK,width=3):
     return f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{width}"/>'
 
-def svg(body, part=True):
-    box='-64 -64 128 128' if part else '0 0 80 80'
-    size=128 if part else 80
-    return f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="{box}">{body}</svg>'
+def svg(body, part=True, dimensions=(128,128)):
+    w,h=dimensions if part else (80,80)
+    box=f'{-w//2} {-h//2} {w} {h}' if part else '0 0 80 80'
+    return f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="{box}">{body}</svg>'
 
 def parts(spec):
+    if spec['role']=='hero': return liu_bei_art.parts()
     role=spec['role']; coat=spec['coat']; trim=spec['trim']; skin=spec['skin']
     head=ellipse(0,0,23,25,skin)
     head+=path('M-23 -4 Q-25 -26 -8 -29 Q14 -31 24 -16 L23 1 Q15 -9 12 -15 Q-9 -13 -23 -4', '#393331')
@@ -94,6 +97,7 @@ def animation_cycle(a,b,duration,field='value'):
     return [{'time':0,field:a},{'time':duration/2,field:b},{'time':duration,field:a}]
 
 def rig(spec):
+    if spec['role']=='hero': return liu_bei_art.rig()
     mounted=spec['role']=='cavalry'; lift=34 if mounted else 0
     bones=[dict(name='root'),dict(name='torso',parent='root',y=54+lift),dict(name='cape',parent='torso'),
         dict(name='boot_l',parent='root',x=-10,y=15),dict(name='boot_r',parent='root',x=10,y=15),
@@ -164,10 +168,15 @@ def map_art():
 def generate():
     entries=[]
     for id,spec in ACTORS.items():
+        if id == 'liu_bei':
+            import_liu_bei_158.generate()
+            continue
         folder=BASE/id; (folder/'source').mkdir(parents=True,exist_ok=True)
         for name,body in parts(spec).items():
-            relative=f'{id}/source/{name}.svg'; (BASE/relative).write_text(svg(body),encoding='utf-8')
-            entries.append(dict(svg=relative,png=f'{id}/source/{name}.png',pixels=128))
+            size=liu_bei_art.dimensions(name) if spec['role']=='hero' else (128,128)
+            relative=f'{id}/source/{name}.svg'; (BASE/relative).write_text(svg(body,dimensions=size),encoding='utf-8',newline='\n')
+            density=2 if spec['role']=='hero' else 1
+            entries.append(dict(svg=relative,png=f'{id}/source/{name}.png',pixels=128,width=size[0]*density,height=size[1]*density))
         (folder/f'{id}.spine-json').write_text(json.dumps(rig(spec),separators=(',',':')),encoding='utf-8')
         (folder/f'{id}-data.tres').write_text(f'''[gd_resource type="SpineSkeletonDataResource" load_steps=3 format=3]
 
@@ -178,10 +187,10 @@ def generate():
 atlas_res = ExtResource("1")
 skeleton_file_res = ExtResource("2")
 default_mix = 0.08
-''',encoding='utf-8')
+''',encoding='utf-8',newline='\n')
     (BASE/'grass_camp/source').mkdir(parents=True,exist_ok=True)
     for name,body in map_art().items():
-        relative=f'grass_camp/source/{name}.svg'; (BASE/relative).write_text(svg(body,False),encoding='utf-8')
+        relative=f'grass_camp/source/{name}.svg'; (BASE/relative).write_text(svg(body,False),encoding='utf-8',newline='\n')
         entries.append(dict(svg=relative,png=f'grass_camp/{name}.png',pixels=80))
     (BASE/'render_manifest.json').write_text(json.dumps(dict(entries=entries),indent=2),encoding='utf-8')
     print('GENERATED',len(entries),'original SVG parts')
@@ -189,16 +198,26 @@ default_mix = 0.08
 def pack():
     from PIL import Image
     for id,spec in ACTORS.items():
-        folder=BASE/id; names=list(parts(spec)); atlas=Image.new('RGBA',(512,256))
-        text=f'{id}.png\nsize: 512,256\nformat: RGBA8888\nfilter: Linear,Linear\nrepeat: none\n'
-        for index,name in enumerate(names):
-            x=(index%4)*128; y=(index//4)*128
-            atlas.alpha_composite(Image.open(folder/'source'/f'{name}.png').convert('RGBA'),(x,y))
-            text+=f'{name}\n  rotate: false\n  xy: {x}, {y}\n  size: 128, 128\n  orig: 128, 128\n  offset: 0, 0\n  index: -1\n'
+        if id == 'liu_bei':
+            import_liu_bei_158.generate()
+            continue
+        folder=BASE/id; names=list(parts(spec)); height=1
+        regions=[]; x=y=row_height=0
+        for name in names:
+            part=Image.open(folder/'source'/f'{name}.png').convert('RGBA')
+            if x+part.width>512: x=0; y+=row_height; row_height=0
+            regions.append((name,part,x,y))
+            x+=part.width; row_height=max(row_height,part.height)
+        while height < y+row_height: height*=2
+        atlas=Image.new('RGBA',(512,height))
+        text=f'{id}.png\nsize: 512,{height}\nformat: RGBA8888\nfilter: Linear,Linear\nrepeat: none\n'
+        for name,part,x,y in regions:
+            atlas.alpha_composite(part,(x,y))
+            text+=f'{name}\n  rotate: false\n  xy: {x}, {y}\n  size: {part.width}, {part.height}\n  orig: {part.width}, {part.height}\n  offset: 0, 0\n  index: -1\n'
         atlas.save(folder/f'{id}.png'); (folder/f'{id}.atlas').write_text(text,encoding='utf-8')
-    data={'version':1,'license':'Original project SVG parts and rigs; existing Guan Yu remains under ART_ASSETS D69 terms.','actors':ACTORS,'files':{}}
+    data={'version':1,'license':'Original project enemy/map SVG parts and rigs; Guan Yu and original #158 Liu Bei use ART_ASSETS D69 terms.','actors':ACTORS,'files':{}}
     for path in BASE.rglob('*'):
-        if path.is_file() and path.suffix in ['.svg','.png','.atlas','.spine-json','.tres']:
+        if path.is_file() and 'variants' not in path.relative_to(BASE).parts and (path.suffix in ['.svg','.png','.atlas','.spine-json','.tres'] or ('d69_158' in path.parts and path.suffix != '.import')):
             data['files'][path.relative_to(BASE).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
     (BASE/'manifest.json').write_text(json.dumps(data,indent=2),encoding='utf-8')
     print('PACKED',len(ACTORS),'actors')

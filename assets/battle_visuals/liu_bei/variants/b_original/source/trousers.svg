@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="-64 -64 128 128"><defs>
+    <linearGradient id="jade" x1="0%" y1="0%" x2="100%" y2="65%"><stop stop-color="#628773"/><stop offset=".34" stop-color="#345f4d"/><stop offset=".75" stop-color="#234b3e"/><stop offset="1" stop-color="#173a32"/></linearGradient>
+    <linearGradient id="cape" x1="0%" y1="0%" x2="100%" y2="70%"><stop stop-color="#315c4b"/><stop offset=".5" stop-color="#24483d"/><stop offset="1" stop-color="#142f2b"/></linearGradient>
+    <linearGradient id="gold" x1="0%" x2="100%"><stop stop-color="#766344"/><stop offset=".3" stop-color="#b29c68"/><stop offset=".53" stop-color="#e3cf94"/><stop offset=".75" stop-color="#aa8e58"/><stop offset="1" stop-color="#725a3e"/></linearGradient>
+    <linearGradient id="steel" x1="0%" x2="100%"><stop stop-color="#738f95"/><stop offset=".45" stop-color="#d8e6e2"/><stop offset=".49" stop-color="#f7f8e9"/><stop offset=".52" stop-color="#9bb6b9"/><stop offset="1" stop-color="#e7eee7"/></linearGradient>
+    <linearGradient id="armor" x1="0%" y1="0%" x2="90%" y2="100%"><stop stop-color="#718081"/><stop offset=".35" stop-color="#4b6060"/><stop offset="1" stop-color="#2c3c3e"/></linearGradient>
+    <linearGradient id="skin" x1="0%" y1="25%" x2="100%" y2="65%"><stop stop-color="#c99c78"/><stop offset=".38" stop-color="#edcda6"/><stop offset=".75" stop-color="#f2d6af"/><stop offset="1" stop-color="#cca17d"/></linearGradient>
+    <linearGradient id="ivory" x1="0%" y1="0%" x2="100%" y2="80%"><stop stop-color="#f1e9cd"/><stop offset=".45" stop-color="#dfd9be"/><stop offset="1" stop-color="#a0ab94"/></linearGradient>
+    <linearGradient id="leather" x1="0%" x2="100%"><stop stop-color="#695343"/><stop offset=".5" stop-color="#443a32"/><stop offset="1" stop-color="#302c29"/></linearGradient>
+    </defs><path d="M-16 -17 L15 -17 L17 16 L5 20 L0 -3 L-5 17 L-18 13 Z" fill="#afb69d" stroke="#242d2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M-10 -9 L-8 9 M9 -8 L10 11" fill="none" stroke="#6f8475" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>

@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://cror7jtvbbct2"
+path="res://.godot/imported/liu_bei_original.atlas-91984dc61a226a267d5a2adb54d29dc2.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/liu_bei/variants/b_original/liu_bei_original.atlas"
+dest_files=["res://.godot/imported/liu_bei_original.atlas-91984dc61a226a267d5a2adb54d29dc2.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

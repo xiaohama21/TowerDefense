@@ -1,0 +1,25 @@
+{
+  "identity": "D69 #158 / Hero_LiBai_A",
+  "usage": "User-selected original visual for Liu Bei; ART_ASSETS section 6",
+  "adaptation": "Spine 3.8 to 4.3 format only; original images, slots, bones and animation poses/times retained",
+  "bones": 46,
+  "slots": 36,
+  "animations": [
+    "Active_A",
+    "Appear",
+    "Attack_A",
+    "Critical",
+    "Death",
+    "Idle",
+    "Move",
+    "Stiff",
+    "Stun",
+    "UI_Death"
+  ],
+  "files": {
+    "Hero_LiBai_A.json": "66f0211ad68820ce7335817bc93133cc19ddb72c06bcc77c710232476c784f5d",
+    "Hero_LiBai_A.atlas": "0ba24736bdc3ad925618662d4ce4763dc05c728dc36c7e39f74f5ae0d6e09641",
+    "Hero_LiBai_A.png": "5a76b2fdc30c620f72644f97e12bfb7812f06eb1d1939bfe027ca012f58a0911",
+    "免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141"
+  }
+}

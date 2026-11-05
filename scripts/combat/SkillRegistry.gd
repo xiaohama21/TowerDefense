@@ -172,7 +172,9 @@ static func tick(tower: Tower, delta: float) -> void:
 		tower.skill_support_tick -= 0.25
 		if tower.skill_support_tick <= 0.0:
 			tower.skill_support_tick = tower.attack_cooldown
-			tower.record_support_contribution(tower.allies_in_range())
+			var allies := tower.allies_in_range()
+			tower.record_support_contribution(allies)
+			if not allies.is_empty(): tower.play_support_animation()
 
 static func execute_ultimate(id: StringName, tower: Tower) -> bool:
 	var enemies := tower.enemies_in_range()

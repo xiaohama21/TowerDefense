@@ -4,7 +4,7 @@ class_name BattleVisualRegistry
 ## Render metadata only. Combat timing stays explicit per hero.
 const HEROES := {
 	"guan_yu": {"data": "res://assets/characters/guan_yu/hero_guan_yu_a-data-res.tres", "scale": .33, "foot": 8.0, "hit": .4, "attack_duration": .733, "ult_hit": .267, "ult_duration": .8},
-	"liu_bei": {"data": "res://assets/battle_visuals/liu_bei/liu_bei-data.tres", "scale": .34, "foot": 8.0, "native_facing": 1.0, "hit": .11, "attack_duration": .33, "ult_hit": 0.0, "ult_duration": .55},
+	"liu_bei": {"data": "res://assets/battle_visuals/liu_bei/liu_bei-data.tres", "scale": .53, "foot": 8.0, "native_facing": -1.0, "hit": .11, "attack_source_hit": .5333, "attack_time_scale": .5333 / .11, "attack_duration": .8667 * .11 / .5333, "ult_hit": 0.0, "ult_duration": .55, "ultimate": "Appear", "ult_time_scale": 1.4667 / .55, "critical": "Critical", "critical_start": .3, "critical_time_scale": (1.3667 - .3) / .33},
 }
 const ENEMIES := {
 	"yellow_turban_soldier": {"scale": .28, "foot": 16.0, "top": 136.0, "width": 95.0},
