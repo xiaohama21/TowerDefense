@@ -56,7 +56,7 @@ func _run() -> void:
 	var before := p.to_dict()
 	_check(ProfileStore.save_profile(p), "旧档保存")
 	var restored := ProfileStore.get_profile()
-	_check(restored.to_dict() == before and PlayerProfile.CURRENT_SCHEMA_VERSION == 11, "旧档全部进度及schema保持")
+	_check(restored.to_dict() == before and PlayerProfile.CURRENT_SCHEMA_VERSION == 12, "保存往返保留全部进度及当前schema")
 	for id in expected:
 		_check(restored.characters[id].skill_levels == p.characters[id].skill_levels and restored.get_talent_alloc(id) == p.get_talent_alloc(id), "技能等级/天赋继承 " + id)
 	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()

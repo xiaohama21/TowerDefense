@@ -26,6 +26,7 @@ per_rank_crit_rate = 0.01
 passive_ids = Array[StringName]([&"trait_dragon_spirit", &"passive_dragon_courage"])
 ultimate_id = &"char_seven_charges"
 rage_gain_mode = &"hit+damage"
+rage_gain_damage_cap = 16.0
 skill_params = {
   "trait_dragon_spirit": {
     "penetration": 0.1,

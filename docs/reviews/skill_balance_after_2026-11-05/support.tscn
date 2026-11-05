@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://docs/reviews/skill_balance_after_2026-11-05/support.gd" id="1"]
+
+[node name="SupportAudit" type="Node"]
+script = ExtResource("1")

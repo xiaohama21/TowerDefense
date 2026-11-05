@@ -1,0 +1,2940 @@
+{
+	"delta": 0.02,
+	"measurements": [
+		{
+			"armor": 20,
+			"attack": 64,
+			"character": "guan_yu",
+			"dps": 72.7611111111111,
+			"dps_samples": [
+				73.0166666666667,
+				72.6333333333333,
+				72.6333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				5,
+				5,
+				5
+			],
+			"ults": 5.0
+		},
+		{
+			"armor": 20,
+			"attack": 102,
+			"character": "guan_yu",
+			"dps": 149.766666666667,
+			"dps_samples": [
+				150.4,
+				149.766666666667,
+				149.133333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.110570311655,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 145,
+			"character": "guan_yu",
+			"dps": 244.683333333333,
+			"dps_samples": [
+				245.316666666667,
+				244.366666666667,
+				244.366666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.07231306319747,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 575.105555555556,
+			"dps_samples": [
+				576.616666666667,
+				574.35,
+				574.35
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"armor": 20,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 756.688888888889,
+			"dps_samples": [
+				758.2,
+				755.933333333333,
+				755.933333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 64,
+			"character": "guan_yu",
+			"dps": 72.7611111111111,
+			"dps_samples": [
+				73.0166666666667,
+				72.6333333333333,
+				72.6333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				5,
+				5,
+				5
+			],
+			"ults": 5.0
+		},
+		{
+			"armor": 20,
+			"attack": 102,
+			"character": "guan_yu",
+			"dps": 149.766666666667,
+			"dps_samples": [
+				150.4,
+				149.766666666667,
+				149.133333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.110570311655,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 145,
+			"character": "guan_yu",
+			"dps": 244.683333333333,
+			"dps_samples": [
+				245.316666666667,
+				244.366666666667,
+				244.366666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.07231306319747,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 575.105555555556,
+			"dps_samples": [
+				576.616666666667,
+				574.35,
+				574.35
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"armor": 20,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 756.688888888889,
+			"dps_samples": [
+				758.2,
+				755.933333333333,
+				755.933333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 145,
+			"character": "guan_yu",
+			"dps": 259.016666666667,
+			"dps_samples": [
+				259.65,
+				258.7,
+				258.7
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.07231306319747,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_green_dragon_stance": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 145,
+			"character": "guan_yu",
+			"dps": 268.016666666667,
+			"dps_samples": [
+				268.65,
+				267.7,
+				267.7
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.07231306319747,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_warm_wine": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"armor": 20,
+			"attack": 145,
+			"character": "guan_yu",
+			"dps": 275.883333333333,
+			"dps_samples": [
+				276.516666666667,
+				275.566666666667,
+				275.566666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.07231306319747,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_green_dragon": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 0,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 903.727777777778,
+			"dps_samples": [
+				905.85,
+				902.666666666667,
+				902.666666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 60,
+			"attack": 306,
+			"character": "guan_yu",
+			"dps": 622.516666666667,
+			"dps_samples": [
+				623.483333333333,
+				622.033333333333,
+				622.033333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.986670510391785,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 52,
+			"character": "zhang_fei",
+			"dps": 58.3,
+			"dps_samples": [
+				58.3,
+				58.3,
+				58.3
+			],
+			"fear_uptime": 0.114333333333333,
+			"interval": 0.7,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 83,
+			"character": "zhang_fei",
+			"dps": 110.883333333333,
+			"dps_samples": [
+				109.616666666667,
+				112.816666666667,
+				110.216666666667
+			],
+			"fear_uptime": 0.349666666666667,
+			"interval": 0.673478419827205,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 117,
+			"character": "zhang_fei",
+			"dps": 165.166666666667,
+			"dps_samples": [
+				163.333333333333,
+				167.933333333333,
+				164.233333333333
+			],
+			"fear_uptime": 0.401111111111111,
+			"interval": 0.647812245502332,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "zhang_fei",
+			"dps": 386.527777777778,
+			"dps_samples": [
+				382.45,
+				392.583333333333,
+				384.55
+			],
+			"fear_uptime": 0.457777777777778,
+			"interval": 0.589761736258551,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "zhang_fei",
+			"dps": 424.716666666667,
+			"dps_samples": [
+				420.316666666667,
+				436.483333333333,
+				417.35
+			],
+			"fear_uptime": 0.518888888888889,
+			"interval": 0.589761736258551,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"armor": 20,
+			"attack": 52,
+			"character": "zhang_fei",
+			"dps": 66.9333333333333,
+			"dps_samples": [
+				66.9333333333333,
+				66.9333333333333,
+				66.9333333333333
+			],
+			"fear_uptime": 0.114333333333333,
+			"interval": 0.7,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 83,
+			"character": "zhang_fei",
+			"dps": 130.883333333333,
+			"dps_samples": [
+				129.616666666667,
+				132.816666666667,
+				130.216666666667
+			],
+			"fear_uptime": 0.349666666666667,
+			"interval": 0.673478419827205,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 117,
+			"character": "zhang_fei",
+			"dps": 202.433333333333,
+			"dps_samples": [
+				200.6,
+				205.2,
+				201.5
+			],
+			"fear_uptime": 0.401111111111111,
+			"interval": 0.647812245502332,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "zhang_fei",
+			"dps": 475.661111111111,
+			"dps_samples": [
+				471.583333333333,
+				481.716666666667,
+				473.683333333333
+			],
+			"fear_uptime": 0.457777777777778,
+			"interval": 0.589761736258551,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "zhang_fei",
+			"dps": 537.65,
+			"dps_samples": [
+				533.25,
+				549.416666666667,
+				530.283333333333
+			],
+			"fear_uptime": 0.518888888888889,
+			"interval": 0.589761736258551,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				14,
+				14,
+				14
+			],
+			"ults": 14.0
+		},
+		{
+			"armor": 20,
+			"attack": 117,
+			"character": "zhang_fei",
+			"dps": 175.65,
+			"dps_samples": [
+				174.183333333333,
+				181.433333333333,
+				171.333333333333
+			],
+			"fear_uptime": 0.459111111111111,
+			"interval": 0.647812245502332,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"trait_yanyan_roar": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 117,
+			"character": "zhang_fei",
+			"dps": 165.166666666667,
+			"dps_samples": [
+				163.333333333333,
+				167.933333333333,
+				164.233333333333
+			],
+			"fear_uptime": 0.401111111111111,
+			"interval": 0.647812245502332,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_yanhan": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 117,
+			"character": "zhang_fei",
+			"dps": 170.15,
+			"dps_samples": [
+				168.316666666667,
+				172.916666666667,
+				169.216666666667
+			],
+			"fear_uptime": 0.401111111111111,
+			"interval": 0.647812245502332,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_dangyang_roar": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				13,
+				13,
+				13
+			],
+			"ults": 13.0
+		},
+		{
+			"armor": 20,
+			"attack": 48,
+			"character": "huang_zhong",
+			"dps": 30.7944444444444,
+			"dps_samples": [
+				30.9833333333333,
+				31.4666666666667,
+				29.9333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				4,
+				4,
+				4
+			],
+			"ults": 4.0
+		},
+		{
+			"armor": 20,
+			"attack": 79,
+			"character": "huang_zhong",
+			"dps": 69.8166666666667,
+			"dps_samples": [
+				69.9,
+				71.0,
+				68.55
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.22549019607843,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 115,
+			"character": "huang_zhong",
+			"dps": 124.5,
+			"dps_samples": [
+				124.166666666667,
+				124.2,
+				125.133333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.20192307692308,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "huang_zhong",
+			"dps": 264.894444444444,
+			"dps_samples": [
+				263.833333333333,
+				265.1,
+				265.75
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15740740740741,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "huang_zhong",
+			"dps": 301.894444444444,
+			"dps_samples": [
+				300.75,
+				304.933333333333,
+				300.0
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15740740740741,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 48,
+			"character": "huang_zhong",
+			"dps": 30.7944444444444,
+			"dps_samples": [
+				30.9833333333333,
+				31.4666666666667,
+				29.9333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				4,
+				4,
+				4
+			],
+			"ults": 4.0
+		},
+		{
+			"armor": 20,
+			"attack": 79,
+			"character": "huang_zhong",
+			"dps": 69.8166666666667,
+			"dps_samples": [
+				69.9,
+				71.0,
+				68.55
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.22549019607843,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 115,
+			"character": "huang_zhong",
+			"dps": 124.516666666667,
+			"dps_samples": [
+				124.183333333333,
+				124.216666666667,
+				125.15
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.20192307692308,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "huang_zhong",
+			"dps": 264.911111111111,
+			"dps_samples": [
+				263.85,
+				265.116666666667,
+				265.766666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15740740740741,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 248,
+			"character": "huang_zhong",
+			"dps": 301.911111111111,
+			"dps_samples": [
+				300.766666666667,
+				304.95,
+				300.016666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.15740740740741,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 115,
+			"character": "huang_zhong",
+			"dps": 130.983333333333,
+			"dps_samples": [
+				130.633333333333,
+				130.666666666667,
+				131.65
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.20192307692308,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"trait_hundred_step": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 115,
+			"character": "huang_zhong",
+			"dps": 129.883333333333,
+			"dps_samples": [
+				129.55,
+				129.583333333333,
+				130.516666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.20192307692308,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_sentry": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 115,
+			"character": "huang_zhong",
+			"dps": 136.0,
+			"dps_samples": [
+				135.066666666667,
+				136.0,
+				136.933333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.20192307692308,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_dingjun": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "huang_fu_song",
+			"dps": 54.45,
+			"dps_samples": [
+				55.2666666666667,
+				54.45,
+				53.6333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.4,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 203,
+			"character": "huang_fu_song",
+			"dps": 84.2222222222222,
+			"dps_samples": [
+				85.0333333333333,
+				85.0333333333333,
+				82.6
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.35294117647059,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 267,
+			"character": "huang_fu_song",
+			"dps": 110.811111111111,
+			"dps_samples": [
+				111.866666666667,
+				111.866666666667,
+				108.7
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 509,
+			"character": "huang_fu_song",
+			"dps": 219.25,
+			"dps_samples": [
+				222.283333333333,
+				222.283333333333,
+				213.183333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.22222222222222,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 518,
+			"character": "huang_fu_song",
+			"dps": 230.5,
+			"dps_samples": [
+				233.583333333333,
+				233.583333333333,
+				224.333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.22222222222222,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "huang_fu_song",
+			"dps": 160.627777777778,
+			"dps_samples": [
+				160.9,
+				160.9,
+				160.083333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.4,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 203,
+			"character": "huang_fu_song",
+			"dps": 249.422222222222,
+			"dps_samples": [
+				249.016666666667,
+				249.016666666667,
+				250.233333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.35294117647059,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 267,
+			"character": "huang_fu_song",
+			"dps": 329.266666666667,
+			"dps_samples": [
+				329.266666666667,
+				329.266666666667,
+				329.266666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 509,
+			"character": "huang_fu_song",
+			"dps": 649.661111111111,
+			"dps_samples": [
+				651.683333333333,
+				651.683333333333,
+				645.616666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.22222222222222,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 518,
+			"character": "huang_fu_song",
+			"dps": 683.277777777778,
+			"dps_samples": [
+				685.333333333333,
+				685.333333333333,
+				679.166666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.22222222222222,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 272,
+			"character": "huang_fu_song",
+			"dps": 112.588888888889,
+			"dps_samples": [
+				113.666666666667,
+				113.666666666667,
+				110.433333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_fierce_flame": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 267,
+			"character": "huang_fu_song",
+			"dps": 110.811111111111,
+			"dps_samples": [
+				111.866666666667,
+				111.866666666667,
+				108.7
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_detonation": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 267,
+			"character": "huang_fu_song",
+			"dps": 114.711111111111,
+			"dps_samples": [
+				115.766666666667,
+				115.766666666667,
+				112.6
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_burn_camp": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 267,
+			"character": "huang_fu_song",
+			"dps": 547.194444444444,
+			"dps_samples": [
+				549.833333333333,
+				546.666666666667,
+				545.083333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 5,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 267,
+			"character": "huang_fu_song",
+			"dps": 1098.08333333333,
+			"dps_samples": [
+				1102.83333333333,
+				1098.08333333333,
+				1093.33333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 2.30769230769231,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 10,
+			"ult_samples": [
+				3,
+				3,
+				3
+			],
+			"ults": 3.0
+		},
+		{
+			"armor": 20,
+			"attack": 55,
+			"character": "zhuge_liang",
+			"dps": 42.2944444444444,
+			"dps_samples": [
+				42.55,
+				42.1666666666667,
+				42.1666666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.3,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				4,
+				4,
+				4
+			],
+			"ults": 4.0
+		},
+		{
+			"armor": 20,
+			"attack": 88,
+			"character": "zhuge_liang",
+			"dps": 71.1222222222222,
+			"dps_samples": [
+				71.5333333333333,
+				70.9166666666667,
+				70.9166666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.27450980392157,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				5,
+				5,
+				5
+			],
+			"ults": 5.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 109.261111111111,
+			"dps_samples": [
+				109.85,
+				108.966666666667,
+				108.966666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 270,
+			"character": "zhuge_liang",
+			"dps": 246.944444444444,
+			"dps_samples": [
+				248.2,
+				246.316666666667,
+				246.316666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.2037037037037,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 270,
+			"character": "zhuge_liang",
+			"dps": 263.744444444444,
+			"dps_samples": [
+				265.0,
+				263.116666666667,
+				263.116666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.2037037037037,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 55,
+			"character": "zhuge_liang",
+			"dps": 55.3277777777778,
+			"dps_samples": [
+				55.5833333333333,
+				55.2,
+				55.2
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.3,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				4,
+				4,
+				4
+			],
+			"ults": 4.0
+		},
+		{
+			"armor": 20,
+			"attack": 88,
+			"character": "zhuge_liang",
+			"dps": 96.1222222222222,
+			"dps_samples": [
+				96.5333333333333,
+				95.9166666666667,
+				95.9166666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.27450980392157,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				5,
+				5,
+				5
+			],
+			"ults": 5.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 156.761111111111,
+			"dps_samples": [
+				157.35,
+				156.466666666667,
+				156.466666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 270,
+			"character": "zhuge_liang",
+			"dps": 370.844444444444,
+			"dps_samples": [
+				372.1,
+				370.216666666667,
+				370.216666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.2037037037037,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 270,
+			"character": "zhuge_liang",
+			"dps": 428.944444444444,
+			"dps_samples": [
+				430.2,
+				428.316666666667,
+				428.316666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.2037037037037,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				7,
+				7,
+				7
+			],
+			"ults": 7.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 109.261111111111,
+			"dps_samples": [
+				109.85,
+				108.966666666667,
+				108.966666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"trait_star_gazer": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 109.661111111111,
+			"dps_samples": [
+				110.25,
+				109.366666666667,
+				109.366666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_momentum": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 115.361111111111,
+			"dps_samples": [
+				115.95,
+				115.066666666667,
+				115.066666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_borrow_wind": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 207.861111111111,
+			"dps_samples": [
+				208.45,
+				207.566666666667,
+				207.566666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 5,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 127,
+			"character": "zhuge_liang",
+			"dps": 328.861111111111,
+			"dps_samples": [
+				329.45,
+				328.566666666667,
+				328.566666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 1.25,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 10,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 58,
+			"character": "zhao_yun",
+			"dps": 69.45,
+			"dps_samples": [
+				69.45,
+				69.45,
+				69.45
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.75,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 94,
+			"character": "zhao_yun",
+			"dps": 134.477777777778,
+			"dps_samples": [
+				134.383333333333,
+				133.516666666667,
+				135.533333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.721584021243434,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				12,
+				12,
+				12
+			],
+			"ults": 12.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 256.666666666667,
+			"dps_samples": [
+				253.75,
+				258.75,
+				257.5
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 658.077777777778,
+			"dps_samples": [
+				654.5,
+				662.55,
+				657.183333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				23,
+				23,
+				23
+			],
+			"ults": 23.0
+		},
+		{
+			"armor": 20,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 794.288888888889,
+			"dps_samples": [
+				787.366666666667,
+				805.166666666667,
+				790.333333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 58,
+			"character": "zhao_yun",
+			"dps": 85.9833333333333,
+			"dps_samples": [
+				85.9833333333333,
+				85.9833333333333,
+				85.9833333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.75,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				8,
+				8,
+				8
+			],
+			"ults": 8.0
+		},
+		{
+			"armor": 20,
+			"attack": 94,
+			"character": "zhao_yun",
+			"dps": 176.077777777778,
+			"dps_samples": [
+				175.983333333333,
+				175.116666666667,
+				177.133333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.721584021243434,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				12,
+				12,
+				12
+			],
+			"ults": 12.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 341.666666666667,
+			"dps_samples": [
+				338.75,
+				343.75,
+				342.5
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 904.944444444444,
+			"dps_samples": [
+				901.366666666667,
+				909.416666666667,
+				904.05
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				23,
+				23,
+				23
+			],
+			"ults": 23.0
+		},
+		{
+			"armor": 20,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 1137.62222222222,
+			"dps_samples": [
+				1130.7,
+				1148.5,
+				1133.66666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 262.355555555556,
+			"dps_samples": [
+				259.166666666667,
+				264.633333333333,
+				263.266666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"trait_dragon_spirit": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 266.25,
+			"dps_samples": [
+				260.0,
+				270.0,
+				268.75
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"passive_dragon_courage": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 277.416666666667,
+			"dps_samples": [
+				274.5,
+				279.5,
+				278.25
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_seven_charges": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				18,
+				18,
+				18
+			],
+			"ults": 18.0
+		},
+		{
+			"armor": 0,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 1071.91111111111,
+			"dps_samples": [
+				1062.61666666667,
+				1086.51666666667,
+				1066.6
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 60,
+			"attack": 292,
+			"character": "zhao_yun",
+			"dps": 523.894444444445,
+			"dps_samples": [
+				519.383333333333,
+				530.983333333333,
+				521.316666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.631887574562734,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				25,
+				25,
+				25
+			],
+			"ults": 25.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 426.666666666667,
+			"dps_samples": [
+				423.75,
+				428.75,
+				427.5
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 5,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 136,
+			"character": "zhao_yun",
+			"dps": 426.666666666667,
+			"dps_samples": [
+				423.75,
+				428.75,
+				427.5
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.694084548752499,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 10,
+			"ult_samples": [
+				17,
+				17,
+				17
+			],
+			"ults": 17.0
+		},
+		{
+			"armor": 20,
+			"attack": 70,
+			"character": "zhou_wei",
+			"dps": 76.9444444444444,
+			"dps_samples": [
+				77.0833333333333,
+				77.0833333333333,
+				76.6666666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.9,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 111,
+			"character": "zhou_wei",
+			"dps": 147.011111111111,
+			"dps_samples": [
+				147.25,
+				147.25,
+				146.533333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.872407495725203,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"armor": 20,
+			"attack": 158,
+			"character": "zhou_wei",
+			"dps": 273.566666666667,
+			"dps_samples": [
+				269.7,
+				278.483333333333,
+				272.516666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.845597630823349,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 610.35,
+			"dps_samples": [
+				591.25,
+				630.283333333333,
+				609.516666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 755.344444444444,
+			"dps_samples": [
+				748.033333333333,
+				786.033333333333,
+				731.966666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 70,
+			"character": "zhou_wei",
+			"dps": 76.9444444444444,
+			"dps_samples": [
+				77.0833333333333,
+				77.0833333333333,
+				76.6666666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.9,
+			"setup": {
+				"level": 1,
+				"rank": 0,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				6,
+				6,
+				6
+			],
+			"ults": 6.0
+		},
+		{
+			"armor": 20,
+			"attack": 111,
+			"character": "zhou_wei",
+			"dps": 147.011111111111,
+			"dps_samples": [
+				147.25,
+				147.25,
+				146.533333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.872407495725203,
+			"setup": {
+				"level": 20,
+				"rank": 1,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				9,
+				9,
+				9
+			],
+			"ults": 9.0
+		},
+		{
+			"armor": 20,
+			"attack": 158,
+			"character": "zhou_wei",
+			"dps": 273.566666666667,
+			"dps_samples": [
+				269.7,
+				278.483333333333,
+				272.516666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.845597630823349,
+			"setup": {
+				"level": 40,
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 610.35,
+			"dps_samples": [
+				591.25,
+				630.283333333333,
+				609.516666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 1
+			},
+			"targets": 3,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 755.344444444444,
+			"dps_samples": [
+				748.033333333333,
+				786.033333333333,
+				731.966666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 3,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 158,
+			"character": "zhou_wei",
+			"dps": 280.283333333333,
+			"dps_samples": [
+				276.333333333333,
+				285.316666666667,
+				279.2
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.845597630823349,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"trait_vanguard": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 158,
+			"character": "zhou_wei",
+			"dps": 309.066666666667,
+			"dps_samples": [
+				308.033333333333,
+				319.483333333333,
+				299.683333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.845597630823349,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"char_death_fight": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"attack": 158,
+			"character": "zhou_wei",
+			"dps": 294.733333333333,
+			"dps_samples": [
+				290.866666666667,
+				299.65,
+				293.683333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.845597630823349,
+			"setup": {
+				"level": 40,
+				"overrides": {
+					"ultimate_death_fight": 10
+				},
+				"rank": 2,
+				"skill_level": 1
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 0,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 988.222222222222,
+			"dps_samples": [
+				978.666666666667,
+				1028.33333333333,
+				957.666666666667
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 60,
+			"attack": 334,
+			"character": "zhou_wei",
+			"dps": 514.316666666667,
+			"dps_samples": [
+				509.35,
+				535.166666666667,
+				498.433333333333
+			],
+			"fear_uptime": 0.0,
+			"interval": 0.786608772261028,
+			"setup": {
+				"level": 100,
+				"rank": 5,
+				"skill_level": 10
+			},
+			"targets": 1,
+			"ult_samples": [
+				10,
+				10,
+				10
+			],
+			"ults": 10.0
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				733.1,
+				730.25,
+				730.25
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 731.2
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				955.7,
+				952.85,
+				952.85
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 953.8
+		},
+		{
+			"armor": 20,
+			"battle_rank": 3,
+			"dps_samples": [
+				1777.13333333333,
+				1768.8,
+				1772.13333333333
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 1772.68888888889
+		},
+		{
+			"armor": 20,
+			"battle_rank": 3,
+			"dps_samples": [
+				2295.8,
+				2289.13333333333,
+				2289.13333333333
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 2291.35555555556
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1028.46666666667,
+				1021.36666666667,
+				1018.36666666667
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 1022.73333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1345.36666666667,
+				1339.01666666667,
+				1335.5
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 1339.96111111111
+		},
+		{
+			"armor": 20,
+			"battle_rank": 3,
+			"dps_samples": [
+				2415.7,
+				2398.36666666667,
+				2401.83333333333
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "liu_bei",
+			"support_ults": 14.0,
+			"team_dps": 2405.3
+		},
+		{
+			"armor": 20,
+			"battle_rank": 3,
+			"dps_samples": [
+				3119.36666666667,
+				3123.53333333333,
+				3115.33333333333
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "liu_bei",
+			"support_ults": 14.0,
+			"team_dps": 3119.41111111111
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1138.4,
+				1134.6,
+				1135.55
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "diao_chan",
+			"support_ults": 5.0,
+			"team_dps": 1136.18333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1481.3,
+				1476.55,
+				1476.55
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "diao_chan",
+			"support_ults": 6.0,
+			"team_dps": 1478.13333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 3,
+			"dps_samples": [
+				2784.2,
+				2769.2,
+				2770.86666666667
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "diao_chan",
+			"support_ults": 8.0,
+			"team_dps": 2774.75555555556
+		},
+		{
+			"armor": 20,
+			"battle_rank": 3,
+			"dps_samples": [
+				3471.56666666667,
+				3458.23333333333,
+				3458.23333333333
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "diao_chan",
+			"support_ults": 9.0,
+			"team_dps": 3462.67777777778
+		}
+	],
+	"probes": {
+		"weak_slow_refresh": {
+			"actual_factor": 0.92,
+			"after_seconds": 10,
+			"expected_factor": 0.92,
+			"remaining": 0.36
+		},
+		"zero_growth": {
+			"passive_green_dragon_stance": {
+				"lv1": [
+					{
+						"amp_bonus": 0.0,
+						"base": 3.0,
+						"current": 3.0,
+						"hint": "必定暴击的命中周期",
+						"icon": "passive_green_dragon_stance",
+						"key": "hit_every",
+						"label": "必暴间隔",
+						"level_bonus": 0.0
+					},
+					{
+						"amp_bonus": 0.0,
+						"base": 0.0,
+						"current": 0.0,
+						"hint": "仅每第三次命中的必暴普攻获得等级增伤，不受技能增幅影响",
+						"icon": "stat_crit_damage",
+						"key": "forced_bonus_per_level",
+						"label": "必暴增伤",
+						"level_bonus": 0.0
+					}
+				],
+				"lv10": [
+					{
+						"amp_bonus": 0.0,
+						"base": 3.0,
+						"current": 3.0,
+						"hint": "必定暴击的命中周期",
+						"icon": "passive_green_dragon_stance",
+						"key": "hit_every",
+						"label": "必暴间隔",
+						"level_bonus": 0.0
+					},
+					{
+						"amp_bonus": 0.0,
+						"base": 0.0,
+						"current": 0.27,
+						"hint": "仅每第三次命中的必暴普攻获得等级增伤，不受技能增幅影响",
+						"icon": "stat_crit_damage",
+						"key": "forced_bonus_per_level",
+						"label": "必暴增伤",
+						"level_bonus": 0.27
+					}
+				]
+			},
+			"passive_sentry": {
+				"lv1": [
+					{
+						"amp_bonus": 0.0,
+						"base": 20.0,
+						"current": 20.0,
+						"hint": "固定中毒秒伤",
+						"icon": "status_poison",
+						"key": "poison_dps",
+						"label": "中毒秒伤",
+						"level_bonus": 0.0
+					},
+					{
+						"amp_bonus": 0.0,
+						"base": 3.0,
+						"current": 3.0,
+						"hint": "持续时间",
+						"icon": "cooldown",
+						"key": "duration",
+						"label": "持续时间",
+						"level_bonus": 0.0
+					}
+				],
+				"lv10": [
+					{
+						"amp_bonus": 0.0,
+						"base": 20.0,
+						"current": 25.4,
+						"hint": "固定中毒秒伤",
+						"icon": "status_poison",
+						"key": "poison_dps",
+						"label": "中毒秒伤",
+						"level_bonus": 5.4
+					},
+					{
+						"amp_bonus": 0.0,
+						"base": 3.0,
+						"current": 3.0,
+						"hint": "持续时间",
+						"icon": "cooldown",
+						"key": "duration",
+						"label": "持续时间",
+						"level_bonus": 0.0
+					}
+				]
+			}
+		}
+	},
+	"program": "0.9.6.3",
+	"samples": 3,
+	"seconds": 60.0
+}

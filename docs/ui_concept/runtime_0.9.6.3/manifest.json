@@ -1,0 +1,141 @@
+{
+  "program": "0.9.6.3",
+  "dimensions": [
+    1280,
+    720
+  ],
+  "captures": [
+    {
+      "file": "develop_fire_skills.png",
+      "sha256": "4d5bfe10c142df5cf2fe2220b0685a3675b7f207efe4ab148a888f8c748b69c4"
+    },
+    {
+      "file": "develop_guan_skills.png",
+      "sha256": "45d5094d5e00a2c05b594c4766c21cf9b437920d50ce91c78e149ba8f4ef37f2"
+    },
+    {
+      "file": "develop_rank.png",
+      "sha256": "858f3f7019259125c9b0fd73ea87edba56896e48d77fa08105e8eaaf095e103b"
+    },
+    {
+      "file": "develop_skill_upgrade.png",
+      "sha256": "d82c973d3f490be190f84841d75ab0497f5e282ca18b40a08d587f6ab940261c"
+    },
+    {
+      "file": "develop_skills_locked.png",
+      "sha256": "15507381aca6d3c6c20ea3bb9a098a7b910efe05f95ef888d4e5810bae78db7c"
+    },
+    {
+      "file": "encyclopedia_skills.png",
+      "sha256": "ce4f4cc9cf81bd676ddce6a5cf7185fee658aabd23ad5d76cf222e0c5feb894b"
+    },
+    {
+      "file": "passive2_diao_chan.png",
+      "sha256": "5e71550f9481198526812c3abf381c43e86880959ce3fa32736e7acfeebcc2aa"
+    },
+    {
+      "file": "passive2_guan_yu.png",
+      "sha256": "64a2fb932e8f0ee71930d98c6675c65339ff7174b55743a2e762d6706780ccbb"
+    },
+    {
+      "file": "passive2_huang_fu_song.png",
+      "sha256": "6c465c625a6abe6f784a73e375e8b7940fdaa72b63f1bbb72346033819bc4068"
+    },
+    {
+      "file": "passive2_huang_zhong.png",
+      "sha256": "4f4290726d1d1a52af5a57f94e9b3417b0903804f63ee3bf0fb79764054ff7c6"
+    },
+    {
+      "file": "passive2_liu_bei.png",
+      "sha256": "7fa986c0ed95ad959052baba03a25a2ed5a40fff986848d116a52fce56143c60"
+    },
+    {
+      "file": "passive2_zhang_fei.png",
+      "sha256": "5404888f7e15d50f7f8e0bf29b397bffc5f0ce850992b53271cb6467422ee663"
+    },
+    {
+      "file": "passive2_zhao_yun.png",
+      "sha256": "8b90a1fbb5ee28b602526de2055beacbc0470c0237369046443028d81e94a5ec"
+    },
+    {
+      "file": "passive2_zhou_wei.png",
+      "sha256": "e269970b1eba28f3834680a33c0f6d6d70fcd56942ab093b99888f9b5b2b4735"
+    },
+    {
+      "file": "passive2_zhuge_liang.png",
+      "sha256": "235d22e448dd8c3bd15e4608dc0ed5c657941453d27c29966d8a3fc62141e5e8"
+    },
+    {
+      "file": "skills_diao_chan.png",
+      "sha256": "e9411041cf42f48553fae1779d36581dc0c2d875b5d7d86a6ec031ce3a892683"
+    },
+    {
+      "file": "skills_guan_yu.png",
+      "sha256": "45d5094d5e00a2c05b594c4766c21cf9b437920d50ce91c78e149ba8f4ef37f2"
+    },
+    {
+      "file": "skills_huang_fu_song.png",
+      "sha256": "4d5bfe10c142df5cf2fe2220b0685a3675b7f207efe4ab148a888f8c748b69c4"
+    },
+    {
+      "file": "skills_huang_zhong.png",
+      "sha256": "415477bcdfc961f3c7d7a4662aa17165db258626f19677e439d2bcec913b5569"
+    },
+    {
+      "file": "skills_liu_bei.png",
+      "sha256": "e2c212cecb780b93c3d1d34186a01f148205d935789a2479debf51c64017d3ad"
+    },
+    {
+      "file": "skills_zhang_fei.png",
+      "sha256": "42a1f9470506805924ad353beb6e90f31ee4bb5301e85ddfdc8c6de2c30d6993"
+    },
+    {
+      "file": "skills_zhao_yun.png",
+      "sha256": "5752c2e6c5522679860698720b022d63337c039cf76d098b9ebe4955960f6ef2"
+    },
+    {
+      "file": "skills_zhou_wei.png",
+      "sha256": "d225368280b8076c5ab583f54671bab1e7561d5ac5f5de80214728cc6316c277"
+    },
+    {
+      "file": "skills_zhuge_liang.png",
+      "sha256": "92b581b6dd4f0dbd017e9bf97a08ea3b812de0d5b8914047393972c8311f6054"
+    },
+    {
+      "file": "ultimate_diao_chan.png",
+      "sha256": "3aedaa0d6e249e541dea20c5387e60375b1f34011ba6351b1a5460bf3bf1c0dc"
+    },
+    {
+      "file": "ultimate_guan_yu.png",
+      "sha256": "3e220b7646ae9577f2bdc5bb4b9067450ccb901d13bed0897f6d4be1a097c6fe"
+    },
+    {
+      "file": "ultimate_huang_fu_song.png",
+      "sha256": "de8759fe9d91b621e72ea986034604d7a75fa4a87806d80def5b5a8b2b794529"
+    },
+    {
+      "file": "ultimate_huang_zhong.png",
+      "sha256": "ae0467dce2009c1763921c0309406e0c8787fddc889fa9608a439fa18b4c87c7"
+    },
+    {
+      "file": "ultimate_liu_bei.png",
+      "sha256": "57757a5154595779905a8aa8915c67800e84a34c722caebd15f31b452b431d1e"
+    },
+    {
+      "file": "ultimate_zhang_fei.png",
+      "sha256": "a0a20975ec24b28e2e49974684e3aa890123ecc34b384e82fe5585ab9afcf61a"
+    },
+    {
+      "file": "ultimate_zhao_yun.png",
+      "sha256": "f565e2367bf62d771d60214a84d88a8c51617e7cbc40c34338e9da6cbe30a479"
+    },
+    {
+      "file": "ultimate_zhou_wei.png",
+      "sha256": "aea98a31a79a800b2ea79ed13081893ed7ed8827da5fd95313571f7e62062032"
+    },
+    {
+      "file": "ultimate_zhuge_liang.png",
+      "sha256": "c3c50ceb77a79961df3ab0fd77455cfde8965cc376d7ee188dae1d3f6c41f822"
+    }
+  ]
+}

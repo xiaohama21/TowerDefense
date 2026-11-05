@@ -33,7 +33,7 @@ skill_params = {
     "fear_duration": 1.0
   },
   "passive_yanhan": {
-    "kill_rage": 2.0
+    "kill_rage": 3.0
   },
   "char_dangyang_roar": {
     "mult": 1.0,

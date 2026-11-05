@@ -1,0 +1,295 @@
+{
+	"measurements": [
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				245.316666666667,
+				244.366666666667,
+				244.366666666667
+			],
+			"followers": 1,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 244.683333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				319.516666666667,
+				318.566666666667,
+				318.566666666667
+			],
+			"followers": 1,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 318.883333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				733.1,
+				730.25,
+				730.25
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 731.2
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				955.7,
+				952.85,
+				952.85
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 953.8
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1470.0,
+				1462.4,
+				1462.4
+			],
+			"followers": 6,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 1464.93333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1915.2,
+				1908.55,
+				1907.6
+			],
+			"followers": 6,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "",
+			"support_ults": 0.0,
+			"team_dps": 1910.45
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				398.683333333333,
+				397.683333333333,
+				394.683333333333
+			],
+			"followers": 1,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 397.016666666667
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				501.75,
+				505.266666666667,
+				501.666666666667
+			],
+			"followers": 1,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 502.894444444444
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1028.46666666667,
+				1021.36666666667,
+				1018.36666666667
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 1022.73333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1345.36666666667,
+				1339.01666666667,
+				1335.5
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 1339.96111111111
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1969.41666666667,
+				1963.31666666667,
+				1963.86666666667
+			],
+			"followers": 6,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 1965.53333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				2600.16666666667,
+				2594.15,
+				2600.25
+			],
+			"followers": 6,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "liu_bei",
+			"support_ults": 9.0,
+			"team_dps": 2598.18888888889
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				357.4,
+				356.45,
+				356.45
+			],
+			"followers": 1,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "diao_chan",
+			"support_ults": 3.0,
+			"team_dps": 356.766666666667
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				461.316666666667,
+				460.366666666667,
+				460.366666666667
+			],
+			"followers": 1,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "diao_chan",
+			"support_ults": 3.0,
+			"team_dps": 460.683333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1138.4,
+				1134.6,
+				1135.55
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "diao_chan",
+			"support_ults": 5.0,
+			"team_dps": 1136.18333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				1481.3,
+				1476.55,
+				1476.55
+			],
+			"followers": 3,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "diao_chan",
+			"support_ults": 6.0,
+			"team_dps": 1478.13333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				2317.5,
+				2311.8,
+				2313.7
+			],
+			"followers": 6,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 1,
+			"support": "diao_chan",
+			"support_ults": 9.0,
+			"team_dps": 2314.33333333333
+		},
+		{
+			"armor": 20,
+			"battle_rank": 0,
+			"dps_samples": [
+				3067.0,
+				3064.15,
+				3065.1
+			],
+			"followers": 6,
+			"level": 40,
+			"rank": 2,
+			"skill_level": 10,
+			"support": "diao_chan",
+			"support_ults": 11.0,
+			"team_dps": 3065.41666666667
+		}
+	],
+	"program": "0.9.6.3",
+	"samples": 3,
+	"seconds": 60
+}

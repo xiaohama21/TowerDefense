@@ -342,7 +342,7 @@ func _test_probability_and_kills() -> void:
 	zhang.rage = 0
 	second.rage = 0
 	zhang.deal_damage(kill, 10)
-	_check(is_equal_approx(zhang.rage, 2.06) and second.rage == 0, "同将击杀只返实际塔")
+	_check(is_equal_approx(zhang.rage, 3.09) and second.rage == 0, "同将击杀只返实际塔")
 
 func _test_permanent_preview() -> void:
 	for id in ["huang_fu_song", "zhao_yun", "zhuge_liang"]:

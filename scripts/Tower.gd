@@ -140,6 +140,7 @@ var _battle_relic_damage_bonus: float = 0.0
 var _rage_mode: StringName = &"hit+damage"
 var _gain_per_hit: int = 4
 var _gain_per_damage: float = 0.1
+var _gain_damage_cap: float = 12.0
 var _support_gain_per_tick: int = 2
 var _ultimate_id: StringName = StringName()
 ## 技能参数（v0.15.0，GDD BEHAVIORS.md B.3.5）：skill_id -> 数值字典，旧执行器兼容参数；当前版本不授予职业技能。
@@ -355,6 +356,7 @@ func apply_character(character_data: CharacterData, loadout: Dictionary = {}) ->
 	_rage_mode = character_data.rage_gain_mode
 	_gain_per_hit = character_data.rage_gain_per_hit
 	_gain_per_damage = character_data.rage_gain_per_damage
+	_gain_damage_cap = maxf(character_data.rage_gain_damage_cap, 0.0)
 	_support_gain_per_tick = character_data.support_rage_per_tick
 	_hero_color = PROFESSION_COLORS.get(_profession_id, Color(0.45, 0.55, 0.65, 1.0))
 	name_label.text = display_name
@@ -782,7 +784,7 @@ func _process(_delta: float) -> void:
 func gain_rage_for_attack(dealt: int) -> void:
 	if dealt <= 0: return
 	var gain := float(_weapon_bonuses.get("hit_rage_flat", 0.0)) + TalentCombat.hit_rage(self)
-	if _rage_mode == &"hit+damage": gain += float(_gain_per_hit) + float(dealt) * _gain_per_damage
+	if _rage_mode == &"hit+damage": gain += float(_gain_per_hit) + minf(float(dealt) * _gain_per_damage, _gain_damage_cap)
 	gain_rage(gain)
 
 
@@ -1640,7 +1642,10 @@ func _draw_range() -> void:
 ## Hit-time critical roll: skills and damage-over-time never call this method.
 func attack_hit_damage(amount: int, roll: float = -1.0) -> int:
 	var force := has_skill(&"passive_green_dragon_stance") and (skill_hit_counter + 1) % int(get_skill_param(&"passive_green_dragon_stance", "hit_every", 3)) == 0
-	return int(round(amount * crit_damage)) if force else roll_attack_critical(amount, crit_rate, crit_damage, roll)
+	if force:
+		var bonus := get_skill_param(&"passive_green_dragon_stance", "forced_bonus_per_level", 0.03) * (get_skill_level(&"passive_green_dragon_stance") - 1)
+		return int(round(amount * crit_damage * (1.0 + bonus)))
+	return roll_attack_critical(amount, crit_rate, crit_damage, roll)
 
 static func roll_attack_critical(amount: int, rate: float, multiplier: float, roll: float = -1.0) -> int:
 	var sample := randf() if roll < 0.0 else roll
@@ -1673,7 +1678,7 @@ func _recalc_skill_stats() -> void:
 	crit_rate = clampf(_base_crit_rate + crit_bonus, 0.0, 0.75)
 	skill_amp = _base_skill_amp
 	if has_skill(&"passive_worship_moon") and battle_rank >= int(get_skill_param(&"passive_worship_moon", "battle_rank", 3)):
-		skill_amp += get_skill_param(&"passive_worship_moon", "skill_amp") * SkillRegistry.level_multiplier(get_skill_level(&"passive_worship_moon"))
+		skill_amp += get_skill_param(&"passive_worship_moon", "skill_amp") * SkillRegistry.level_multiplier(get_skill_level(&"passive_worship_moon"), &"passive_worship_moon")
 
 func splash_radius(base: float) -> float:
 	var extra := get_skill_param(&"passive_fierce_flame", "splash_flat") * SkillRegistry.strength(self, &"passive_fierce_flame") if has_skill(&"passive_fierce_flame") else 0.0

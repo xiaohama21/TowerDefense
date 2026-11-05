@@ -52,7 +52,7 @@ static func penetration(tower: Tower, enemy: Enemy = null, kind: StringName = &"
 static func on_attack_target(tower: Tower, enemy: Enemy) -> void:
 	if not is_instance_valid(enemy): return
 	if not enemy.is_dead and value(tower, "slow_on_hit") > 0.0:
-		enemy.apply_slow(maxf(1.0 - value(tower, "slow_on_hit") * (1.0 + value(tower, "slow_strength_pct")), 0.05), 2.0 * (1.0 + value(tower, "control_duration_pct")))
+		enemy.apply_slow(maxf(1.0 - value(tower, "slow_on_hit") * (1.0 + value(tower, "slow_strength_pct")), 0.05), 2.0 * (1.0 + value(tower, "control_duration_pct")), SkillRegistry.slow_source(tower, &"talent_slow_on_hit"))
 
 static func on_attack(tower: Tower, enemy: Enemy) -> void:
 	if tower.talent_bonuses.is_empty(): return

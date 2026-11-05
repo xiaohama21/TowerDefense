@@ -6,12 +6,11 @@
 
 ## 当前状态
 
-- **0.9.6.2技能与按钮优化已完成**，设计总纲 **v0.37.85**，交付分支 **0.9.6**。
-- 典韦“宛城死战”改为敌方半血斩杀：基础攻击×4，目标生命≤50%再追加×4；基础和追加均受技能等级/增幅影响，取消基地生命条件。
-- 27技能卡分区展示触发、基础数值、等级/养成加成、当前值、伤害预览与规则；养成和百科共用。权威见[CHARACTER_SKILLS v0.18](docs/modules/CHARACTER_SKILLS.md)和[UI_LAYOUT v0.20.87](docs/modules/UI_LAYOUT.md)。
-- 玩家动作、圆形动作与默认控件统一Kenney皮肤及完整状态，卡片/树节点保留形状；确认框与对白浅底深字、中文默认动作、圆盘等比缩放已修正。
-- 16项功能回归（含技能/按钮专项）、19064项原生窗口检查、45张1280×720截图和418项包内检查通过；Windows独立启动、实际Spine DLL加载及PE版本0.9.6.2通过。 [Windows包](build/FengHuoLianYing_v0.9.6.2_Windows.zip) / [45张原生截图](docs/ui_concept/runtime_0.9.6.2/README.md)。
-- 0.9.6.1孙尚香/典韦身份替换、395图标、27技能/110天赋独立图像及旧档继承保持；当前魏1/蜀5/吴1/群2。[上一版Windows包](build/FengHuoLianYing_v0.9.6.1_Windows.zip)及[25张截图](docs/ui_concept/runtime_0.9.6.1/README.md)保留。
+- **0.9.6.3技能平衡校准已完成**，设计总纲 **v0.37.86**，交付分支 **0.9.6**。
+- 青龙势必暴增伤0~27%，淬毒箭20~25.4/秒；温酒/燕颔/破阵双戟每级6%，拜月/乘势8%。七项低收益技能总书耗25→9本，schema12自动退还旧档差价并保留等级。伤害积怒贡献每次封顶12怒（赵云16），减速独立到期，Boss持续效果按阶段100%/70%/40%执行。
+- 三拍真伤、典韦半血斩杀、孙尚香固有破隐及九将身份保持；27技能卡中文分区同源显示实际成长和成本。权威见[CHARACTER_SKILLS v0.19](docs/modules/CHARACTER_SKILLS.md)与[完整实施报告](docs/reviews/SKILL_BALANCE_IMPLEMENTATION_2026-11-05.md)。
+- 18项功能回归、97项新增专项、159组输出审查、18组辅助覆盖、首章16组预算模拟和33张原生截图通过；Benchmark原±3%容差复测通过。Windows独立启动、423项包内检查、实际Spine DLL与PE版本0.9.6.3通过。[Windows包](build/FengHuoLianYing_v0.9.6.3_Windows.zip) / [原生截图](docs/ui_concept/runtime_0.9.6.3/README.md)。
+- 上一版技能/按钮优化、395图标与110天赋保持；[0.9.6.2包](build/FengHuoLianYing_v0.9.6.2_Windows.zip)及[45张截图](docs/ui_concept/runtime_0.9.6.2/README.md)保留。
 - 修复/延伸留在 **0.9.6** 分支交付；main保持 **2cfd28c**，按AGENTS §5.3在开始下一编号提交时同步。
 
 ## 历史交付记录

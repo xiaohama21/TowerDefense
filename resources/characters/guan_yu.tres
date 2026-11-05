@@ -27,7 +27,8 @@ ultimate_id = &"char_green_dragon"
 rage_gain_mode = &"hit+damage"
 skill_params = {
   "passive_green_dragon_stance": {
-    "hit_every": 3
+    "hit_every": 3,
+    "forced_bonus_per_level": 0.03
   },
   "passive_warm_wine": {
     "speed_bonus": 0.2,

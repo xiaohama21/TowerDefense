@@ -162,7 +162,7 @@ func _test_numbers() -> void:
 			for item in SkillRegistry.effect_breakdown(hero,skill,10,0.2):
 				_check(is_equal_approx(item.base + item.level_bonus + item.amp_bonus,item.current), "基础与增量合计 " + str(skill) + " " + item.key)
 	var sun := GameFlow.load_character_data("huang_zhong")
-	_check(SkillRegistry.effect_value(sun,&"passive_sentry","poison_dps",10,2.0) == 20.0, "固定毒秒伤不受等级或增幅影响")
+	_check(is_equal_approx(SkillRegistry.effect_value(sun,&"passive_sentry","poison_dps",10,2.0),25.4), "毒秒伤按等级锁定且不受增幅影响")
 	_check(is_equal_approx(SkillRegistry.effect_value(sun,&"passive_sentry","duration",10,0.2),3.6), "时长只受增幅不受等级")
 	var dian := GameFlow.load_character_data("zhou_wei")
 	_check(is_equal_approx(SkillRegistry.effect_value(dian,&"char_death_fight","chance",10,5.0),0.254), "概率只按等级增长")

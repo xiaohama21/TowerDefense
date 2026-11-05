@@ -3,6 +3,8 @@ class_name SkillRegistry
 
 const MAX_LEVEL := 10
 const COSTS := [1, 1, 2, 2, 3, 3, 4, 4, 5]
+const CHEAP_SKILLS := ["passive_warm_wine", "passive_yanhan", "passive_fierce_flame", "trait_dragon_spirit", "trait_vanguard", "passive_worship_moon", "passive_momentum"]
+const LEVEL_GROWTH := {"passive_warm_wine": 0.06, "passive_yanhan": 0.06, "trait_vanguard": 0.06, "passive_worship_moon": 0.08, "passive_momentum": 0.08}
 const KITS := {
 	"guan_yu": ["passive_green_dragon_stance", "passive_warm_wine", "char_green_dragon"],
 	"zhang_fei": ["trait_yanyan_roar", "passive_yanhan", "char_dangyang_roar"],
@@ -67,6 +69,7 @@ const EFFECT_LABELS := {
 	"radius": "效果半径", "targets": "目标数", "segments": "连击数",
 	"hit_every": "必暴间隔", "max_stacks": "叠层上限", "chance": "触发率",
 	"battle_rank": "局内阶数", "target_hp_threshold": "斩杀生命线", "execute_bonus_mult": "斩杀追加",
+	"forced_bonus_per_level": "必暴增伤",
 }
 
 static func is_known(id: StringName) -> bool:
@@ -78,11 +81,18 @@ static func get_skill_name(id: StringName) -> String:
 static func description_text(id: StringName) -> String:
 	return str(DESCRIPTIONS.get(str(id), ""))
 
-static func level_multiplier(level: int) -> float:
-	return 1.0 + 0.03 * (clampi(level, 1, MAX_LEVEL) - 1)
+static func level_growth(id: StringName = &"") -> float:
+	return float(LEVEL_GROWTH.get(str(id), 0.03))
 
-static func upgrade_cost(level: int) -> int:
-	return int(COSTS[level - 1]) if level >= 1 and level < MAX_LEVEL else 0
+static func level_multiplier(level: int, id: StringName = &"") -> float:
+	return 1.0 + level_growth(id) * (clampi(level, 1, MAX_LEVEL) - 1)
+
+static func upgrade_cost(level: int, id: StringName = &"") -> int:
+	if level < 1 or level >= MAX_LEVEL: return 0
+	return 1 if str(id) in CHEAP_SKILLS else int(COSTS[level - 1])
+
+static func slow_source(tower: Tower, id: StringName) -> String:
+	return "%d:%s" % [tower.get_instance_id(), id]
 
 static func normalize_levels(character_id: String, raw) -> Dictionary:
 	var result := {}
@@ -100,7 +110,7 @@ static func param(tower: Tower, id: StringName, key: String, fallback: float = 0
 	return tower.get_skill_param(id, key, fallback)
 
 static func strength(tower: Tower, id: StringName) -> float:
-	return level_multiplier(tower.get_skill_level(id)) * output_multiplier(tower, id)
+	return level_multiplier(tower.get_skill_level(id), id) * output_multiplier(tower, id)
 
 static func output_multiplier(tower: Tower, id: StringName) -> float:
 	return tower.skill_output_multiplier() + (TalentCombat.value(tower, "ultimate_amp") if id == tower._ultimate_id else 0.0)
@@ -131,15 +141,15 @@ static func on_attack_hit(tower: Tower, victim: Enemy, _dealt: int) -> void:
 		tower.skill_last_target_id = victim_id
 	if not is_instance_valid(victim) or victim.is_dead: return
 	if tower.has_skill(&"passive_sentry"):
-		victim.apply_poison(int(param(tower, &"passive_sentry", "poison_dps")), duration(tower, &"passive_sentry"), tower.character_id, tower)
+		victim.apply_poison(param(tower, &"passive_sentry", "poison_dps") * level_multiplier(tower.get_skill_level(&"passive_sentry"), &"passive_sentry"), duration(tower, &"passive_sentry"), tower.character_id, tower)
 	for id in [&"trait_yanyan_roar", &"char_death_fight"]:
 		if not tower.has_skill(id): continue
 		# Upgrade affects configured probability; no pity and no amplification of probability.
-		var chance := clampf(param(tower, id, "chance") * level_multiplier(tower.get_skill_level(id)), 0.0, 1.0)
+		var chance := clampf(param(tower, id, "chance") * level_multiplier(tower.get_skill_level(id), id), 0.0, 1.0)
 		if randf() < chance:
 			var amount := tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * strength(tower, id))), victim, DamageTypes.PHYSICAL)
 			tower.deal_damage(victim, amount, DamageTypes.PHYSICAL)
-			if id == &"trait_yanyan_roar" and not victim.is_dead: victim.apply_fear(duration(tower, id, "fear_duration"))
+			if id == &"trait_yanyan_roar" and not victim.is_dead: victim.apply_fear(duration(tower, id, "fear_duration"), 0.0, 0.0, slow_source(tower, id))
 			tower.play_skill_effect()
 
 static func on_kill(tower: Tower) -> void:
@@ -157,7 +167,7 @@ static func tick(tower: Tower, delta: float) -> void:
 	tower.skill_aura_tick = 0.25
 	if tower.has_skill(&"trait_star_gazer"):
 		var slow := param(tower, &"trait_star_gazer", "slow_strength") * strength(tower, &"trait_star_gazer") * (1.0 + TalentCombat.value(tower, "slow_strength_pct"))
-		for enemy in tower.enemies_in_range(): enemy.apply_slow(maxf(1.0 - slow, 0.05), 0.5 * tower.skill_output_multiplier() * (1.0 + TalentCombat.value(tower, "control_duration_pct")))
+		for enemy in tower.enemies_in_range(): enemy.apply_slow(maxf(1.0 - slow, 0.05), 0.5 * tower.skill_output_multiplier() * (1.0 + TalentCombat.value(tower, "control_duration_pct")), slow_source(tower, &"trait_star_gazer"))
 	if tower.has_skill(&"trait_benevolence") or tower.has_skill(&"passive_diligence"):
 		tower.skill_support_tick -= 0.25
 		if tower.skill_support_tick <= 0.0:
@@ -174,7 +184,7 @@ static func execute_ultimate(id: StringName, tower: Tower) -> bool:
 			if enemies.is_empty(): return false
 			for enemy in enemies:
 				tower.deal_damage(enemy, tower.finalize_damage(int(round(tower.damage * param(tower, id, "mult") * power)), enemy, DamageTypes.PHYSICAL), DamageTypes.PHYSICAL, &"ultimate")
-				if not enemy.is_dead: enemy.apply_fear(duration(tower, id, "fear_duration"), maxf(1.0 - param(tower, id, "slow_strength") * power * (1.0 + TalentCombat.value(tower, "slow_strength_pct")), 0.05), duration(tower, id, "slow_duration"))
+				if not enemy.is_dead: enemy.apply_fear(duration(tower, id, "fear_duration"), maxf(1.0 - param(tower, id, "slow_strength") * power * (1.0 + TalentCombat.value(tower, "slow_strength_pct")), 0.05), duration(tower, id, "slow_duration"), slow_source(tower, id))
 		&"char_carry_people", &"char_moon_dance":
 			var allies := tower.allies_in_range() if id == &"char_carry_people" else _all_towers(tower)
 			if allies.is_empty(): return false
@@ -213,8 +223,8 @@ static func execute_ultimate(id: StringName, tower: Tower) -> bool:
 			if tower.has_skill(&"passive_momentum"):
 				for enemy in enemies:
 					if enemy.is_controlled(): controlled += 1
-				var extra := minf(controlled * param(tower, &"passive_momentum", "amp_per_enemy"), param(tower, &"passive_momentum", "amp_cap")) * level_multiplier(tower.get_skill_level(&"passive_momentum"))
-				power = level_multiplier(tower.get_skill_level(id)) * (output_multiplier(tower, id) + extra)
+				var extra := minf(controlled * param(tower, &"passive_momentum", "amp_per_enemy"), param(tower, &"passive_momentum", "amp_cap")) * level_multiplier(tower.get_skill_level(&"passive_momentum"), &"passive_momentum")
+				power = level_multiplier(tower.get_skill_level(id), id) * (output_multiplier(tower, id) + extra)
 			for node in all_enemies:
 				var enemy := node as Enemy
 				if enemy == null or enemy.is_dead: continue
@@ -292,6 +302,8 @@ static func effect_rows(character: CharacterData, id: StringName, level: int, am
 	var params: Dictionary = character.skill_params.get(str(id), {})
 	var icons := {"mult": "dmg_magic" if id == &"char_borrow_wind" else ("dmg_true" if id == &"char_green_dragon" else "dmg_physical"), "speed_bonus": "stat_attack_speed", "attack_flat": "dmg_physical", "range_flat": "stat_range", "range_bonus": "stat_range", "splash_flat": "stat_splash", "crit_rate": "stat_crit_rate", "crit_damage": "stat_crit_damage", "penetration": "stat_armor_pen", "kill_rage": "rage", "kill_cap": "rage", "self_rage": "rage", "ally_rage": "rage", "vulnerability": "status_vulnerable", "attack_bonus": "dmg_physical", "attack_step": "dmg_physical", "attack_cap": "dmg_physical", "slow_strength": "status_slow", "fear_duration": "status_fear", "poison_dps": "status_poison", "burn_ratio": "status_burn", "skill_amp": "stat_skill_amp", "amp_per_enemy": "stat_skill_amp", "amp_cap": "stat_skill_amp", "reveal_duration": "status_reveal", "duration": "cooldown", "slow_duration": "status_slow", "radius": "stat_splash", "targets": str(id), "segments": str(id), "hit_every": str(id), "max_stacks": str(id), "chance": str(id), "battle_rank": "battle_rank_3", "target_hp_threshold": "stat_hp", "execute_bonus_mult": "dmg_physical"}
 	var hints := {"speed_bonus": "攻击速度提升", "range_flat": "射程固定加值", "range_bonus": "射程百分比提升", "splash_flat": "溅射范围固定加值", "crit_rate": "暴击率提升", "crit_damage": "暴击伤害提升", "penetration": "百分比穿甲", "kill_rage": "每次击杀返怒", "vulnerability": "受所有来源伤害提升", "attack_bonus": "自身物理攻击提升", "slow_strength": "减速强度", "fear_duration": "恐惧时长", "poison_dps": "固定中毒秒伤", "skill_amp": "自身技能增幅", "amp_per_enemy": "每个受控目标增加本次技能增幅", "amp_cap": "本次增幅上限", "reveal_duration": "命中现形时长", "slow_duration": "恐惧结束后减速时长", "radius": "效果半径（px）", "targets": "最多目标数", "segments": "连击段数", "hit_every": "必定暴击的命中周期", "battle_rank": "局内升阶门槛", "mult": "技能伤害倍率", "chance": "命中触发概率（无保底）", "attack_flat": "基础攻击固定加值", "duration": "持续时间", "attack_step": "连续同目标每次增加", "attack_cap": "连续同目标加成上限", "kill_cap": "单次返怒上限", "self_rage": "自身怒气获取", "ally_rage": "射程内友方怒气获取", "max_stacks": "不同刘备覆盖的最多层数", "burn_ratio": "面板攻击乘该倍率，固定秒伤", "target_hp_threshold": "命中前目标生命比例条件", "execute_bonus_mult": "满足斩杀条件时追加的攻击倍率"}
+	icons["forced_bonus_per_level"] = "stat_crit_damage"
+	hints["forced_bonus_per_level"] = "仅每第三次命中的必暴普攻获得等级增伤，不受技能增幅影响"
 	for key in params:
 		var value := effect_value(character, id, key, level, amp)
 		var text := format_effect_value(key, value)
@@ -308,7 +320,7 @@ static func effect_rows(character: CharacterData, id: StringName, level: int, am
 
 static func rule_text(id: StringName) -> String:
 	match id:
-		&"passive_green_dragon_stance": return "每累计3次命中，第3次必定触发；换目标不重置。"
+		&"passive_green_dragon_stance": return "每累计3次命中，第3次必暴并获得下表等级增伤；换目标不重置。仍为普攻，不受技能增幅放大。"
 		&"passive_warm_wine": return "最后一击完成后生效。"
 		&"char_green_dragon": return "三击逐拍结算；溢血带入下一击，击杀返还。"
 		&"trait_yanyan_roar", &"char_death_fight": return "命中后概率追加；无保底，追加不再触发普攻事件。"
@@ -317,7 +329,7 @@ static func rule_text(id: StringName) -> String:
 		&"trait_benevolence", &"passive_diligence": return "每名覆盖者增加一层；离开覆盖移除。"
 		&"char_carry_people": return "射程内一次施加；同源只刷新。"
 		&"trait_hundred_step": return "连续命中同目标累加；换目标重置，只作用于普攻。"
-		&"passive_sentry": return "命中后持续生效；固定秒伤，不受增减伤影响。"
+		&"passive_sentry": return "施加时按技能等级锁定秒伤；不受技能增幅、护甲、易伤、暴击或增减伤影响。时长受技能增幅和Boss阶段抗性影响。"
 		&"char_dingjun": return "射程内同类不叠加，自身同时获得三项限时提升。"
 		&"trait_moon_veil": return "自身与射程内友方分别生效。"
 		&"passive_worship_moon": return "升至局内3阶后生效；需先解锁本技能。"
@@ -338,7 +350,9 @@ static func effect_value(character: CharacterData, id: StringName, key: String, 
 	var talents: Dictionary = context.get("talents", {})
 	var rank := int(context.get("battle_rank", 0))
 	var steps := character.get_battle_rank_steps()
-	var power := level_multiplier(level) * (1.0 + maxf(amp, 0.0))
+	var power := level_multiplier(level, id) * (1.0 + maxf(amp, 0.0))
+	if key == "forced_bonus_per_level": return value * (clampi(level, 1, MAX_LEVEL) - 1)
+	if key == "poison_dps": return value * level_multiplier(level, id)
 	if key in ["duration", "fear_duration", "slow_duration", "reveal_duration"]:
 		value *= 1.0 + maxf(amp, 0.0)
 		if key in ["fear_duration", "slow_duration"]: value *= 1.0 + float(talents.get("control_duration_pct", 0.0))
@@ -346,8 +360,8 @@ static func effect_value(character: CharacterData, id: StringName, key: String, 
 		if key == "duration" and id in [&"char_carry_people", &"char_moon_dance"]:
 			value *= CharacterData.rank_scale(steps.buff_duration, rank) * (1.0 + float(talents.get("buff_duration_pct", 0.0)))
 		return value
-	if key == "chance": return clampf(value * level_multiplier(level), 0.0, 1.0)
-	if key in ["amp_per_enemy", "amp_cap", "skill_amp"]: return value * level_multiplier(level)
+	if key == "chance": return clampf(value * level_multiplier(level, id), 0.0, 1.0)
+	if key in ["amp_per_enemy", "amp_cap", "skill_amp"]: return value * level_multiplier(level, id)
 	if key == "radius" and id == &"char_burn_camp": return value * CharacterData.rank_scale(steps.aoe, rank)
 	if key in ["radius", "targets", "segments", "hit_every", "max_stacks", "battle_rank", "target_hp_threshold", "poison_dps", "burn_ratio"]: return value
 	value *= power
@@ -363,7 +377,7 @@ static func format_effect_value(key: String, value: float, delta: bool = false) 
 	if key in ["mult", "execute_bonus_mult"]:
 		return (sign + String.num(value, 2) + "×") if delta else "×" + String.num(value, 2)
 	if key in ["duration", "fear_duration", "slow_duration", "reveal_duration"]: return (sign if delta else "") + String.num(value, 2) + "s"
-	if key == "poison_dps": return (sign if delta else "") + String.num(value, 0) + "/秒"
+	if key == "poison_dps": return (sign if delta else "") + String.num(value, 1) + "/秒"
 	if key == "burn_ratio": return (sign if delta else "×") + String.num(value, 2) + "/秒"
 	if key == "target_hp_threshold": return "≤" + String.num(value * 100.0, 1) + "%"
 	if key in ["radius", "range_flat", "splash_flat"]: return (sign if delta or key != "radius" else "") + String.num(value, 1) + "px"

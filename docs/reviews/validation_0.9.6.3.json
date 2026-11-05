@@ -1,0 +1,122 @@
+{
+  "program": "0.9.6.3",
+  "gdd": "v0.37.86",
+  "schema": 12,
+  "branch": "0.9.6",
+  "main": "2cfd28ce11aafb6cb674a7cf9041c224614aca9f",
+  "regressions": {
+    "SkillBalanceRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "SkillKitRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "Stage0Runner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 3
+    },
+    "SmokeRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "FlowRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "ExitFlowRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "RankRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "DevelopRefreshRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "SupplyStateRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "ShopRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "GearRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "ItemUiRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "TalentRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 2
+    },
+    "RosterRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "FactionRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "PackVerify": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "PolishRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    },
+    "ChapterBalanceRunner": {
+      "passed": true,
+      "exit_code": 0,
+      "expected_negative_test_errors": 0
+    }
+  },
+  "skill_balance_checks": 97,
+  "output_scenarios": 159,
+  "support_scenarios": 18,
+  "chapter_scenarios": 16,
+  "captures": 33,
+  "benchmark_record_pass": true,
+  "benchmark_verify_tolerance": 0.03,
+  "release": {
+    "standalone_boot": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "package_probe": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "packaged_checks": 423,
+    "pe_versions": {
+      "FileVersion": "0.9.6.3",
+      "ProductVersion": "0.9.6.3"
+    }
+  },
+  "spine_dll_loaded": true
+}

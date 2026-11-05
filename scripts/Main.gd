@@ -1978,7 +1978,7 @@ func _apply_battle_supply(supply: BattleSupplyData, level: int) -> void:
 	if slow < 1.0:
 		var slowed := 0
 		for enemy in enemy_manager.get_alive_enemies():
-			enemy.apply_slow(slow, supply.duration_at(level))
+			enemy.apply_slow(slow, supply.duration_at(level), "supply:%s" % supply.supply_id)
 			slowed += 1
 		ui.show_status("%s：全场减速 %d%%（%ds，%d 名敌人）" % [
 			supply_name, roundi((1.0 - slow) * 100.0), int(supply.duration_at(level)), slowed

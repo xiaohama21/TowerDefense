@@ -134,7 +134,7 @@ func _test_items() -> void:
 func _test_legacy() -> void:
 	var p := PlayerProfile.from_dict({"schema_version": 11, "characters": {"guan_yu": {"total_exp": LevelCurve.exp_total_for_level(100), "rank": 2, "talent_alloc": {"physical_burst.slash": 2}, "skill_levels": {"dragon_sweep": 3}}}, "squad_character_ids": ["guan_yu"]})
 	var raw := p.to_dict()
-	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 11 and raw.schema_version == 11, "schema11保持")
+	_check(PlayerProfile.CURRENT_SCHEMA_VERSION == 12 and raw.schema_version == 12, "schema12且阵营不写档")
 	_check(not raw.characters.guan_yu.has("faction") and p.get_talent_alloc("guan_yu").get("physical_burst.slash") == 2, "阵营不写进度且天赋保留")
 	_check(PlayerProfile.from_dict(raw).to_dict() == raw, "旧档幂等")
 

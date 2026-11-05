@@ -149,12 +149,12 @@ func _migration() -> void:
 	_check(TalentRegistry.normalize("guan_yu", 5, _all("guan_yu")) == {"physical_burst.slash": 2}, "低等级存档预算截断")
 	var old := {"schema_version": 10, "characters": {"guan_yu": {"total_exp": LevelCurve.exp_total_for_level(100), "rank": 4, "skill_levels": {"char_green_dragon": 8}, "talent_alloc": _all("guan_yu", 2)}}, "ingots": 123, "military_merit": 456}
 	var result := ProfileStore._migrate_to_current(old)
-	_check(result.ok and result.data.schema_version == 11, "v10迁移v11")
-	_check(ProfileStore._migrate_v10_to_v11(result.data) == result.data, "迁移幂等")
+	_check(result.ok and result.data.schema_version == PlayerProfile.CURRENT_SCHEMA_VERSION, "v10迁移当前schema")
+	_check(ProfileStore._migrate_to_current(result.data).data == result.data, "迁移幂等")
 	var p := PlayerProfile.from_dict(result.data)
 	_check(p.ingots == 123 and p.military_merit == 456 and p.get_character_rank("guan_yu") == 4 and p.get_skill_level("guan_yu", &"char_green_dragon") == 8 and p.talent_points_remaining("guan_yu") == 0, "有效成长/货币/技能/天赋保留")
 	_check(not p.get_character("guan_yu").has("faction"), "不预置阵营")
-	_check(not ProfileStore._migrate_to_current({"schema_version":12}).ok, "未来档保护")
+	_check(not ProfileStore._migrate_to_current({"schema_version":PlayerProfile.CURRENT_SCHEMA_VERSION + 1}).ok, "未来档保护")
 	var missing := ProfileStore._migrate_to_current({"schema_version":10,"characters":{"guan_yu":{}}})
 	_check(missing.ok and missing.data.characters.guan_yu.talent_alloc == {}, "缺失补空")
 

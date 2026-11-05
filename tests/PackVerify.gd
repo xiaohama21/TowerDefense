@@ -295,4 +295,4 @@ func _talents_integrity() -> bool:
 			count += 1
 	for id in GameFlow.get_all_character_ids():
 		if TalentRegistry.tree_ids(id).size() != 3: return false
-	return count == 110 and PlayerProfile.CURRENT_SCHEMA_VERSION == 11
+	return count == 110 and PlayerProfile.CURRENT_SCHEMA_VERSION == 12

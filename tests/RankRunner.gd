@@ -138,7 +138,7 @@ func _test_combat() -> void:
 	_check(int(round(100 * tower.skill_output_multiplier())) == 140 and tower.finalize_damage(100, enemy, DamageTypes.TRUE, false) == 100, "技能增幅不进入普攻")
 	tower.rage = 0.0
 	tower.notify_attack_damage_dealt(enemy, tower.attack_hit_damage(100, 0.0))
-	_check(is_equal_approx(tower.rage, 19.0), "暴击打甲前伤害参与单次积怒")
+	_check(is_equal_approx(tower.rage, 16.0), "暴击打甲前伤害积怒贡献封顶12")
 	var bullet := Bullet.new()
 	bullet.source_tower = tower
 	bullet.damage = 100
@@ -164,10 +164,10 @@ func _test_combat() -> void:
 	add_child(bullet)
 	bullet._explode()
 	_check([hp1 - enemy.current_hp, hp2 - enemy2.current_hp].has(100) and [hp1 - enemy.current_hp, hp2 - enemy2.current_hp].has(150), "范围普攻逐目标独立判定")
-	_check(is_equal_approx(tower.rage, 19.0), "范围普攻按最高命中伤害仅积怒一次")
+	_check(is_equal_approx(tower.rage, 16.0), "范围普攻按最高命中伤害封顶且仅积怒一次")
 	bullet.lob_landing = Vector2(5000, 5000)
 	bullet._explode()
-	_check(is_equal_approx(tower.rage, 19.0), "空爆不积怒")
+	_check(is_equal_approx(tower.rage, 16.0), "空爆不积怒")
 	bullet.queue_free()
 	var in_flight := Bullet.new()
 	in_flight.source_tower = tower

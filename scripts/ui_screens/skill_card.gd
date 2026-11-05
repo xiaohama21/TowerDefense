@@ -69,7 +69,7 @@ func configure(character: CharacterData, skill_id: StringName, rank: int, level:
 			value.name = str(item.key) + "_" + key
 			value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			grid.add_child(value)
-	var source := _label("等级只提升可成长项；固定数值和时长不随等级增长。养成加成含品阶、装备、天赋与当前模拟阶数。", 11, UITheme.LIGHT_MUTED)
+	var source := _label("每级成长%d%%；Lv.1→10共耗%d本技能书。等级只提升可成长项，时长不随等级增长。养成加成含品阶、装备、天赋与当前模拟阶数。" % [roundi(SkillRegistry.level_growth(skill_id) * 100.0), 9 if str(skill_id) in SkillRegistry.CHEAP_SKILLS else 25], 11, UITheme.LIGHT_MUTED)
 	source.name = "SkillGrowthSources"
 	body.add_child(source)
 	var damage_text := SkillRegistry.damage_preview(character, skill_id, level, amp, context)
@@ -96,7 +96,7 @@ func configure(character: CharacterData, skill_id: StringName, rank: int, level:
 		row.add_child(button)
 		if level < SkillRegistry.MAX_LEVEL:
 			row.add_child(ConceptIcon.new("skill_book", 24, "升级消耗"))
-			row.add_child(_label("×%d" % SkillRegistry.upgrade_cost(level), 13, UITheme.LIGHT_INK, false))
+			row.add_child(_label("×%d" % SkillRegistry.upgrade_cost(level, skill_id), 13, UITheme.LIGHT_INK, false))
 
 func _label(text: String, font_size: int, color: Color, wrap: bool = true) -> Label:
 	var label := Label.new()
