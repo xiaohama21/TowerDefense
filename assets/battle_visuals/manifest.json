@@ -149,22 +149,34 @@
     "diao_chan/source/d69_072/Hero_Diaochan_A.json": "b5df635cfa41e4dad544b8eed4e17ba4b979da4a3d43a68192eba55f9b16edee",
     "diao_chan/source/d69_072/Hero_Diaochan_A.png": "63b0d2fc135277e34a52733378ac9abfabb54c803b46024a37f7c10c9062d037",
     "diao_chan/source/d69_072/免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141",
-    "grass_camp/banner.png": "efede652e1c5c998e570fffdf7df4db5b4d2fe46d88adaa8f9d20fbf635a9787",
-    "grass_camp/base.png": "19ad8b4e7aff179612f68425768b1ac2bf5a67c8e616b39f2f4f72fc369a0223",
-    "grass_camp/gate.png": "b5fcfdd791ce5c88344dd424630447bfacb94d0794338e74ea0fe92d5bdd653b",
-    "grass_camp/grass.png": "d1a3ff6fb85800521043801687944c4e304dc1b42e980fa197f1ce8743302153",
-    "grass_camp/road.png": "ffdadd7805222e39b42c798ff42d8a61d3d99fb0b17aaeea6c2bfa24466ec5e3",
-    "grass_camp/rock.png": "a48b96c4959fa12a5f3d94c753feb8093d18e008a5091297a37dff529bced224",
-    "grass_camp/source/banner.svg": "a20d5131f4815da683f5bdb139ab8b3c3260a844abab2dc425362fdff373993e",
-    "grass_camp/source/base.svg": "d07d4b0f8fea827f924ba2b90db21fdb67250971fef9caf6f1276aad06017c40",
-    "grass_camp/source/gate.svg": "5c5539ac4679c462147fe61783b8c6e242f94f19d94c85399756239e132696eb",
-    "grass_camp/source/grass.svg": "63edcce79f31d639db942a7d3b5ce467fb1ccf5094441caa8d2590faa9699762",
-    "grass_camp/source/road.svg": "8266fd1536a5b4a65099b3567d851112b78364a280a9c6136d5cb1f70a79ed2a",
-    "grass_camp/source/rock.svg": "821763a5d9b78d5aef4abc5f8493e11fb0b27456983b5af3e684aa3c487fa56a",
-    "grass_camp/source/torch.svg": "31fc0b56d7ae6f1357dc92794f9c2c8efb39e3f2b951822759280f5f45811601",
-    "grass_camp/source/tree.svg": "46ba01dc198a4fbb9dfbf60e9ea30f61685fab9f93b6d7c0409ad12cd2b4b922",
-    "grass_camp/torch.png": "5474c391947a373cca386a654f82d538ff1d12bb61ff2138da8fdba44f17e04d",
-    "grass_camp/tree.png": "45520229c9f6d468c6e32a4c9085c5dcc68d02d64ca7393ebdf72ec6d9248856",
+    "grass_camp/banner.png": "23ea840bac13089ad801d5a8b01382e8beaa3a54a9940914bd3a2beb3fdb89f7",
+    "grass_camp/base.png": "9ab064c7ebd8996f44eb305ab5f0fa2acb773b31b18c70acbc5113345958b003",
+    "grass_camp/gate.png": "ac8118d0f3656685dde6776f1a8bc005dca44a361e9dfd4bae23598f21ca02ee",
+    "grass_camp/grass.png": "597fddb15d63554506792cc728fe84ffd7c2e7a893b84410579467cfc5bc9fdd",
+    "grass_camp/grass_1.png": "8ea90cf186c30ebb089ddb08e59bc32a79b0ea2e5e8db2506b8e6f363e3e243d",
+    "grass_camp/grass_2.png": "5e680cde9631d7297cf0a7e7c69a12761bf7ae3b378b185856c5ba7532a75fc6",
+    "grass_camp/grass_3.png": "ce06429dafe8bd686029166a6ccffb526e5fef558d1a7594f3aa9527671aa33b",
+    "grass_camp/road.png": "8e1b789765991445409f3d22e867713f0129d5a10915858f55dfe7652cb59f50",
+    "grass_camp/rock.png": "9095a475f8d9d406513c7a30fabed39d01fdb20c3249d4d239f073f8dc3026e2",
+    "grass_camp/rock_cluster.png": "34c15e1e7c562a386b805c0587d8c010afdb2e533a7644f16f3fee9bc35f24bb",
+    "grass_camp/source/banner.svg": "5434f50d1534957493530a6c6d187d7ccd7b015fe32a8f968a69b0da337f6eb3",
+    "grass_camp/source/base.svg": "357d15ecf6e52d5f002bfd34e02ab0e3818ee2f5ab5ec47b956cba126a5eec6d",
+    "grass_camp/source/gate.svg": "0792b8711009e6fd2fb0db98828b511ef7f583fd582e147f89f8c599bd2b8070",
+    "grass_camp/source/grass.svg": "b67aa0ae39eb36fe10b8f4fabdf4d8caedb607df0604827263f71d79043bccfd",
+    "grass_camp/source/grass_1.svg": "be216dd1701375be7f1e984e89de69de41a23a48ad950f07ce740afa608bec95",
+    "grass_camp/source/grass_2.svg": "1aea276999dfbcd1a603e501f109abcf37a7dd5d876d4870e795a5e1cc6bbd49",
+    "grass_camp/source/grass_3.svg": "fa53bb8c1d2cf2eebba63ce60ffebd366d9651062d4ee76490c9f517dbf4c8d8",
+    "grass_camp/source/road.svg": "9c53c2d5690351ecda829ee09c783f7cd5a5dfa35e9399cc33b5c88be5c35cdb",
+    "grass_camp/source/rock.svg": "61ddbc3a7f795cbdd2aedda5a2725bcd91749ecd94ee6cf928ff4aefcf288f26",
+    "grass_camp/source/rock_cluster.svg": "f0b465450f09741e57898219ad2e93b38f3beffccc455f6ab899347857294053",
+    "grass_camp/source/stump.svg": "cf653cb8e561975894bd55b023866fd1d09c9f3c7e5c3f5e0953b6c0e6b792b2",
+    "grass_camp/source/torch.svg": "6506c4b6bf8ac1905d8d4c77088e9d77a09cf4dba11e92f91657de9acf7ba70a",
+    "grass_camp/source/tree.svg": "649528718cff6355773962e478757a47a872eec93f4153f6618c24d082162878",
+    "grass_camp/source/tree_1.svg": "dc81c1a93820ef4195c5a564c56a339809f551448b5f119216f3857186278b60",
+    "grass_camp/stump.png": "57f0e46da337cf0d623bff5e5fa0af6affeac1bae245be405fb81749c8a1cad1",
+    "grass_camp/torch.png": "77cfac7e69c27b627622d0236a6c102b666e81d34cc4fbee1cd1928241d52eb4",
+    "grass_camp/tree.png": "ad2dc5cf9305e463f109370e0c50e05e29b3b3d1f1c3180cc4298e0bd4055999",
+    "grass_camp/tree_1.png": "0e94a6fc1e0744a3413b16f61aa9a1537afbf77f53c9f076c19e965c453b0ecf",
     "liu_bei/avatar.png": "eb5761baad5838e0809dce6f8fd3d80d846e87a9074f4c16e3d0b5ac557e32ba",
     "liu_bei/Hero_LiBai_A.png": "5a76b2fdc30c620f72644f97e12bfb7812f06eb1d1939bfe027ca012f58a0911",
     "liu_bei/liu_bei-data.tres": "89b119919c31decf6f2ea669f9d24885ea979ee7f245a5354d76c0ced86c10f7",
@@ -274,7 +286,7 @@
     "zhuge_liang/zhuge_liang.atlas": "04077ddde3e25c223ce3b3fc29869e718c991cad9e9ffb9ec4f62bf2d075c380",
     "zhuge_liang/zhuge_liang.spine-json": "e6b52e4bea8ec61d9c193725cb0c0f2b87f14051cad1b9effc48eadedc0c9646"
   },
-  "program": "0.9.8.2",
+  "program": "0.9.8.3",
   "native_measurements": [
     {
       "at": 0.0,
@@ -487,5 +499,26 @@
       ],
       "render_magnification": 4
     }
+  },
+  "map_style": {
+    "version": 2,
+    "themes": [
+      "grass",
+      "fire",
+      "night"
+    ],
+    "texture_size": [
+      160,
+      160
+    ],
+    "source_canvas": [
+      80,
+      80
+    ],
+    "grid_size": 80,
+    "geometry": "authored orthogonal route union; connected shoulders and rounded external corners",
+    "generator": "tools/map_field_art.py",
+    "topology_version": 1,
+    "route_generator": "tools/generate_chapter_layouts.py"
   }
 }

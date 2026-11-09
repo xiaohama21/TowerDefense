@@ -1,0 +1,18 @@
+{
+  "program": "0.9.8.3",
+  "manifest_assets": 145,
+  "non_map_assets_preserved": 117,
+  "layout_resources_changed": 8,
+  "wave_economy_reward_character_values_preserved": true,
+  "behavior_sha256": {
+    "resources/stages/chapter_01/ch01_s01.tres": "9c4eb8af2d96a2237977d28e26bf13c5848fb92589596aa6f3a28407b2acd57a",
+    "resources/stages/chapter_01/ch01_s02.tres": "5c0ed0f12383a19b7147e36402cd2073c4b9a53cefe21e53f17b67501aabdf49",
+    "resources/stages/chapter_01/ch01_s03.tres": "755b9871f2a8dba73b7828afaefef9a880db2bda422734fa9eac2b26c7c7571f",
+    "resources/stages/chapter_01/ch01_s04.tres": "8a8d73d2b75d9f35d9476afae43b06c0d409ed0f2815e8f58dc0d36e35ae4ebd",
+    "resources/stages/chapter_01/ch01_s05.tres": "77ffef3eb5cdf958458de3d985fdcedbffbe10730bc436eda668954e17e2fc13",
+    "resources/stages/chapter_01/ch01_s06.tres": "0d410bc0d0bf7c6c568ab4c1777ebf6dd880075f24995321622ed1226175e192",
+    "resources/stages/chapter_01/ch01_s07.tres": "305e019ed4635c0b95491a3e429e67c4ab2b01f793a7846e24a9ab809da0786a",
+    "resources/stages/chapter_01/ch01_s08.tres": "dd6f8337f4c1f4c98a01e35c2c22e0cdc3cc43780223605debe4387728122261"
+  },
+  "passed": true
+}

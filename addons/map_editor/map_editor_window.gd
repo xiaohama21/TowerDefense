@@ -72,6 +72,8 @@ var _selected_decor_type: StringName = &"tree"
 var _hover_cell := Vector2i(-1, -1)
 
 var _stage_option: OptionButton
+var _route_option: OptionButton
+var _route_id: StringName = &"main"
 var _theme_option: OptionButton
 var _load_button: Button
 var _undo_button: Button
@@ -277,6 +279,10 @@ func _build_ui() -> void:
 	brush_caption.text = "笔刷"
 	brush_caption.add_theme_font_size_override("font_size", 15)
 	brush_bar.add_child(brush_caption)
+	_route_option = OptionButton.new()
+	_route_option.focus_mode = Control.FOCUS_NONE
+	_route_option.item_selected.connect(_on_route_selected)
+	brush_bar.add_child(_route_option)
 
 	var brush_group := ButtonGroup.new()
 	var brush_defs := [
@@ -464,6 +470,8 @@ func _create_new_stage(file_name: String, display_name: String) -> void:
 	_stage = stage
 	_stage_path = path
 	_path_cells.clear()
+	_route_id = &"main"
+	_refresh_route_picker()
 	_green_history.clear()
 	_hover_cell = Vector2i(-1, -1)
 	_dirty = false
@@ -486,7 +494,9 @@ func _load_stage(path: String) -> void:
 		return
 	_stage = stage
 	_stage_path = path
-	_path_cells = GridBackground.derive_road_cells(_stage.path_points)
+	_route_id = &"main"
+	_path_cells = GridBackground.trace_road_cells(_stage.path_points)
+	_refresh_route_picker()
 	_hover_cell = Vector2i(-1, -1)
 	_green_history.clear()
 	_dirty = false
@@ -502,6 +512,22 @@ func _load_stage(path: String) -> void:
 
 
 # ============ M3 保存与导出 ============
+
+func _refresh_route_picker() -> void:
+	_route_option.clear()
+	for id in _stage.get_paths():
+		_route_option.add_item("主路" if id == &"main" else "Boss援路" if id == &"fork" else "支路 " + str(id))
+		var index := _route_option.item_count - 1
+		_route_option.set_item_metadata(index, id)
+		if id == _route_id: _route_option.select(index)
+
+
+func _on_route_selected(index: int) -> void:
+	_route_id = _route_option.get_item_metadata(index)
+	var points: Array[Vector2] = []
+	points.assign(_stage.get_paths()[_route_id])
+	_path_cells = GridBackground.trace_road_cells(points)
+	_refresh_from_stage()
 
 ## 保存结果码：0 = 成功，1 = 被校验阻止，2 = 写盘失败。
 func _on_save_pressed() -> void:
@@ -553,9 +579,12 @@ func _export_base_map(path: String) -> int:
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
 		path = "%s/layout_%s.png" % [dir, _stage.stage_id]
 	_overlay.visible = false
+	var had_grid := _grid.placement_grid_visible
+	_grid.set_placement_grid_visible(false)
 	await RenderingServer.frame_post_draw
 	var img: Image = _viewport.get_texture().get_image()
 	_overlay.visible = true
+	_grid.set_placement_grid_visible(had_grid)
 	var err := img.save_png(ProjectSettings.globalize_path(path))
 	if err != OK:
 		_set_status("底图导出失败（错误码 %d）" % err, true)
@@ -792,6 +821,8 @@ func _path_edit_at(cell: Vector2i) -> void:
 			_path_cells.pop_front()
 		elif cell == _path_cells[_path_cells.size() - 1]:
 			_path_cells.pop_back()
+		elif _is_adjacent(cell, _path_cells.back()) and cell != _path_cells[-2]:
+			_path_cells.append(cell)
 		else:
 			_set_status("路径刷只能退格端点（链首/链尾），中间格不可删除", true)
 			return
@@ -846,7 +877,7 @@ func _regenerate_path_points() -> void:
 	var pts: Array[Vector2] = []
 	var n := _path_cells.size()
 	if n == 0:
-		_stage.path_points = pts
+		_stage.set_path_points(_route_id, pts)
 		return
 	for i in range(n):
 		if i == 0 or i == n - 1:
@@ -859,9 +890,12 @@ func _regenerate_path_points() -> void:
 	if n >= 2:
 		var head_dir := Vector2(_path_cells[0] - _path_cells[1])
 		var tail_dir := Vector2(_path_cells[n - 1] - _path_cells[n - 2])
-		pts.insert(0, _cell_center(_path_cells[0]) + head_dir * GridBackground.GRID_SIZE)
-		pts.append(_cell_center(_path_cells[n - 1]) + tail_dir * GridBackground.GRID_SIZE)
-	_stage.path_points = pts
+		var head_stub := _cell_center(_path_cells[0]) + head_dir * GridBackground.GRID_SIZE
+		var tail_stub := _cell_center(_path_cells[n - 1]) + tail_dir * GridBackground.GRID_SIZE
+		var bounds := Rect2(0,0,1280,720)
+		if not bounds.has_point(head_stub): pts.insert(0,head_stub)
+		if not bounds.has_point(tail_stub): pts.append(tail_stub)
+	_stage.set_path_points(_route_id, pts)
 
 
 func _cell_center(cell: Vector2i) -> Vector2:
@@ -889,6 +923,8 @@ func _record_green_snapshot() -> void:
 func _snapshot() -> Dictionary:
 	return {
 		"path": _path_cells.duplicate(),
+		"routes": _stage.get_paths().duplicate(true),
+		"route_id": _route_id,
 		"decor": _stage.decor_cells.duplicate(),
 		"decor_types": _stage.decor_types.duplicate(),
 		"forbidden": _stage.forbidden_cells.duplicate(),
@@ -901,6 +937,12 @@ func _restore_snapshot(snap: Dictionary) -> void:
 	var path_cells: Array[Vector2i] = []
 	path_cells.assign(snap["path"])
 	_path_cells = path_cells
+	_route_id = snap.get("route_id", &"main")
+	for id in snap.get("routes", {}):
+		var points: Array[Vector2] = []
+		points.assign(snap.routes[id])
+		_stage.set_path_points(id, points)
+	_refresh_route_picker()
 	var decor: Array[Vector2i] = []
 	decor.assign(snap["decor"])
 	_stage.decor_cells = decor
@@ -927,7 +969,7 @@ func _editor_errors() -> Array[String]:
 	if _stage == null:
 		return errors
 	var road := {}
-	for cell in _path_cells:
+	for cell in GridBackground.derive_stage_road_cells(_stage):
 		road[cell] = true
 	for pos in _stage.build_slot_positions:
 		var cell := Vector2i(floori(pos.x / GridBackground.GRID_SIZE), floori(pos.y / GridBackground.GRID_SIZE))
@@ -944,7 +986,7 @@ func _editor_warnings() -> Array[String]:
 	if _stage == null:
 		return warnings
 	var road := {}
-	for cell in _path_cells:
+	for cell in GridBackground.derive_stage_road_cells(_stage):
 		road[cell] = true
 	for cell in _stage.decor_cells:
 		if road.has(cell):
@@ -957,17 +999,18 @@ func _editor_warnings() -> Array[String]:
 func _refresh_from_stage() -> void:
 	if _stage == null or _grid == null:
 		return
-	var road_cells: Array[Vector2i] = []
-	road_cells.assign(_path_cells)
+	var road_cells := GridBackground.derive_stage_road_cells(_stage)
 	var entry_cell := Vector2i(-1, -1)
 	var base_cell := Vector2i(-1, -1)
-	if not _path_cells.is_empty():
-		entry_cell = _path_cells[0]
-		base_cell = _path_cells[_path_cells.size() - 1]
-	_grid.configure(road_cells, _stage.decor_cells, entry_cell, base_cell, String(_stage.theme), _stage.forbidden_cells, _stage.decor_types)
+	var primary := GridBackground.trace_road_cells(_stage.path_points)
+	if not primary.is_empty():
+		entry_cell = primary[0]
+		base_cell = primary.back()
+	_grid.configure(road_cells, _stage.decor_cells, entry_cell, base_cell, String(_stage.theme), _stage.forbidden_cells, _stage.decor_types, _stage.get_paths())
+	_grid.set_placement_grid_visible(true)
 	_overlay.stage = _stage
-	_overlay.entry_cell = entry_cell
-	_overlay.base_cell = base_cell
+	_overlay.entry_cell = _path_cells.front() if not _path_cells.is_empty() else entry_cell
+	_overlay.base_cell = _path_cells.back() if not _path_cells.is_empty() else base_cell
 	_overlay.hover_cell = _hover_cell
 	_overlay.show_endpoints = _brush == Brush.PATH
 	_overlay.queue_redraw()
@@ -996,8 +1039,8 @@ func _update_data_panel(road_cells: Array[Vector2i], entry_cell: Vector2i, base_
 		_stage.waves.size(),
 		"有" if _stage.dialogue != null and not _stage.dialogue.lines.is_empty() else "无",
 	])
-	if not _stage.fork_path_points.is_empty():
-		lines.append("分叉路径：%d 点（v2 只读）" % _stage.fork_path_points.size())
+	lines.append("路线：%d · 当前编辑 %s" % [_stage.get_paths().size(), _route_id])
+	lines.append("普通出怪：%s" % "/".join(_stage.get_normal_path_ids()))
 	lines.append("")
 	lines.append("校验：")
 	var issues: Array[String] = []

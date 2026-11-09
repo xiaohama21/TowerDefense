@@ -12,12 +12,45 @@ const PHASE_SWITCH_WINDOW: float = 3.0
 
 ## 分叉路径（s08 试点，Main 按 StageData.fork_path_points 注入）。
 var fork_path: Path2D = null
+var paths: Dictionary = {}
+var normal_path_ids: Array[StringName] = [&"main"]
+var _path_cursor := 0
+
+
+func configure_stage_paths(stage: StageData) -> void:
+	for id in paths:
+		if paths[id] != path: paths[id].queue_free()
+	paths.clear()
+	fork_path = null
+	for id in stage.get_paths():
+		var route: Path2D = path if id == &"main" else Path2D.new()
+		route.curve = Curve2D.new()
+		for point in stage.get_paths()[id]: route.curve.add_point(point)
+		if route != path:
+			route.name = "Route_" + str(id)
+			get_parent().add_child(route)
+		paths[id] = route
+		if id == &"fork": fork_path = route
+	normal_path_ids.assign(stage.get_normal_path_ids())
+	reset_path_cycle()
+
+
+func reset_path_cycle() -> void:
+	_path_cursor = 0
 
 
 ## Spawn an enemy from an EnemyData resource. Configure before add_child(),
 ## because add_child triggers Enemy._ready().
-func spawn_enemy_from_data(enemy_data: EnemyData) -> Enemy:
-	return _spawn_on(path, enemy_data)
+func spawn_enemy_from_data(enemy_data: EnemyData, path_id: StringName = &"main") -> Enemy:
+	var selected := path_id
+	if selected == &"auto":
+		selected = normal_path_ids[_path_cursor % normal_path_ids.size()]
+		_path_cursor += 1
+	var target: Path2D = paths.get(selected, path if selected == &"main" else fork_path if selected == &"fork" else null)
+	if target == null:
+		push_error("未知出怪路线: " + str(selected))
+		return null
+	return _spawn_on(target, enemy_data)
 
 
 func _spawn_on(target_path: Path2D, enemy_data: EnemyData) -> Enemy:
@@ -261,7 +294,7 @@ func _summon_guards(boss: Enemy) -> void:
 	if count <= 0:
 		return
 	for _i in range(count):
-		var guard := _spawn_on(fork_path if fork_path != null else path, guard_data)
+		var guard := _spawn_on(fork_path if fork_path != null else boss.get_parent() as Path2D, guard_data)
 		if guard == null:
 			continue
 		# 召唤物标记（阶段 8 提交 2）：连击计入召唤物、图鉴/百科可见性后续按此区分。

@@ -1,0 +1,86 @@
+{
+  "MapVisualRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "MAP_VISUAL_RESULT: PASS checks=1348 failures=0"
+    ],
+    "passed": true
+  },
+  "MapEditorRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "Stage0Runner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [
+      "ERROR: Parse JSON failed. Error at line 0: Expected key",
+      "ERROR: SaveManager: 只有胜利且尚未提交的战局才能结算",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ],
+    "summary": [],
+    "passed": true
+  },
+  "BattleVisualRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "BATTLE_VISUAL_RESULT: PASS checks=63 native=true failures=0"
+    ],
+    "passed": true
+  },
+  "HeroModelRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "HERO_MODEL_RESULT: PASS checks=131 native=true failures=0"
+    ],
+    "passed": true
+  },
+  "SmokeRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "PackVerify": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "MapRouteRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "MAP_ROUTE_RESULT: PASS checks=660 failures=0"
+    ],
+    "passed": true
+  },
+  "ProgressionRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "PROGRESSION_RESULT: PASS checks=4518 attempts=17 failures=0"
+    ],
+    "passed": true
+  }
+}

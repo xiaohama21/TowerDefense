@@ -139,7 +139,7 @@ func _ready():
 	ui.update_gold(GameManager.gold, true)
 	ui.update_lives(GameManager.lives)
 	ui.update_wave(GameManager.current_wave, GameManager.total_waves)
-	ui.show_status("按住顶部武将卡片拖到空地建造：松手放置 · 右键 / ESC 取消", 4.0)
+	ui.show_status("从底部拖到空地建造：松手放置 · 右键 / ESC 取消", 4.0)
 
 	# 开场剧情（GDD modules/STAGES.md 5.1）：设置开启"剧情速进"时自动跳过。
 	if stage_data.dialogue != null and not stage_data.dialogue.lines.is_empty() 			and not GameFlow.is_gameplay_flag_enabled("skip_dialogue"):
@@ -182,42 +182,19 @@ func _apply_stage_layout() -> void:
 		push_warning("关卡 %s 未配置布局数据，沿用场景默认" % stage_data.stage_id)
 		return
 
-	var curve := Curve2D.new()
-	for point in stage_data.path_points:
-		curve.add_point(point)
-	path_2d.curve = curve
-
-	var road_cells := GridBackground.derive_road_cells(stage_data.path_points)
-	# 分叉路径（s08 试点）：召唤护卫自岔路进场；岔路道路格并入背景绘制。
-	if not stage_data.fork_path_points.is_empty():
-		var fork_curve := Curve2D.new()
-		for point in stage_data.fork_path_points:
-			fork_curve.add_point(point)
-		var fork_path := Path2D.new()
-		fork_path.name = "ForkPath2D"
-		fork_path.curve = fork_curve
-		add_child(fork_path)
-		enemy_manager.fork_path = fork_path
-		road_cells.append_array(GridBackground.derive_road_cells(stage_data.fork_path_points))
-	var entry_cell := _first_in_map_road_cell(road_cells, true)
-	var base_cell := _first_in_map_road_cell(road_cells, false)
-	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme, stage_data.forbidden_cells, stage_data.decor_types)
+	enemy_manager.configure_stage_paths(stage_data)
+	var primary_cells := GridBackground.derive_road_cells(stage_data.path_points)
+	var entry_cell := _first_in_map_road_cell(primary_cells, true)
+	var base_cell := _first_in_map_road_cell(primary_cells, false)
+	var road_cells := GridBackground.derive_stage_road_cells(stage_data)
+	grid_background.configure(road_cells, stage_data.decor_cells, entry_cell, base_cell, stage_data.theme, stage_data.forbidden_cells, stage_data.decor_types, stage_data.get_paths())
 	build_manager.setup_free_build(road_cells, stage_data.forbidden_cells)
 
-	spawn_marker.position = _first_in_map_point(stage_data.path_points, true)
-	base_marker.position = _first_in_map_point(stage_data.path_points, false)
-	if stage_data.theme == &"grass":
-		for marker in [spawn_marker, base_marker]:
-			var key := "gate" if marker == spawn_marker else "base"
-			var path := "res://assets/battle_visuals/grass_camp/%s.png" % key
-			if not ResourceLoader.exists(path): continue
-			for child in marker.get_children():
-				if child is CanvasItem: child.visible = false
-			var sprite := Sprite2D.new()
-			sprite.texture = load(path)
-			sprite.position.y = -8
-			marker.add_child(sprite)
-			marker.z_index = -1
+	spawn_marker.position = grid_background.cell_center(entry_cell)
+	base_marker.position = grid_background.cell_center(base_cell)
+	# GridBackground owns the shared landmarks, including the editor and fallback.
+	spawn_marker.visible = false
+	base_marker.visible = false
 
 
 ## 出口波次旗帜（0.8.17.0 / UI_LAYOUT §10 v2）：点击开波（可开波期金色光晕就绪）；

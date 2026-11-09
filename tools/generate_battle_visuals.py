@@ -135,37 +135,9 @@ def rig(spec):
             Death={'bones':{'torso':{'rotate':[{'value':0},{'time':.4,'value':72}]}}}))
 
 def map_art():
-    grass='<rect width="80" height="80" fill="#365a40"/>'
-    grass+='<path d="M0 27 Q28 14 52 27 T80 28 V60 Q42 45 0 62 Z" fill="#436548" opacity=".35"/>'
-    for x,y in [(9,12),(54,51),(24,62),(69,17),(40,29)]: grass+=path(f'M{x-2} {y+3} L{x} {y-2} L{x+2} {y+3}', '#557554','none',0)
-    road='<rect width="80" height="80" fill="#aa906e"/>'
-    road+='<path d="M0 20 Q30 17 80 21 M0 57 Q45 65 80 56" fill="none" stroke="#c9b58e" stroke-width="6" opacity=".28"/>'
-    for x,y in [(18,14),(68,37),(27,65),(44,43)]: road+=ellipse(x,y,2,1,'#8f7a5c','none',0)
-    tree=ellipse(40,70,26,6,'#1e3e2d','none',0)+path('M34 40 L44 40 L45 69 L33 69 Z','#705237')
-    tree+=path('M40 6 Q58 6 60 22 Q77 26 67 45 Q72 59 54 59 L29 57 Q8 55 12 37 Q7 21 24 17 Q25 6 40 6 Z','#3c7849')
-    tree+=path('M30 14 Q48 5 54 21 Q63 20 64 34 Q40 25 18 36 Q15 22 30 14 Z','#62945b',INK,2)
-    tree+=path('M20 45 Q33 53 50 46 M43 19 L48 29','none','#2b5c3b',2)
-    rock=ellipse(40,67,27,6,'#254432','none',0)+path('M13 60 L20 36 L39 23 L58 32 L69 59 L48 67 L27 66 Z','#808b7d')
-    rock+=path('M20 36 L39 23 L43 42 L13 60 Z','#a3aa91',INK,2)
-    rock+=path('M43 42 L58 32 L69 59 L48 67 Z','#67766d',INK,2)
-    flag=ellipse(38,69,15,4,'#254432','none',0)+path('M33 9 L38 9 L38 68 L33 68 Z','#86623d')
-    flag+=path('M38 13 L65 16 L60 30 L67 43 L38 40 Z','#b69347')
-    flag+=path('M42 20 L58 21 L56 33 L42 32 Z','#e1ca7b',INK,1.5)
-    torch=ellipse(40,69,15,4,'#254432','none',0)+path('M36 31 L43 31 L44 69 L34 69 Z','#785535')
-    torch+=path('M40 9 Q56 22 46 36 Q38 45 29 33 Q23 24 35 17 L35 27 Z','#d68b3a')
-    torch+=path('M41 20 Q49 30 39 35 Q32 31 35 26 Z','#f0d980',INK,1.5)
-    gate=ellipse(40,67,35,7,'#29442f','none',0)+path('M12 15 L20 15 L21 68 L11 68 Z M58 15 L66 15 L67 68 L57 68 Z','#8d6740')
-    gate+=path('M9 13 L68 13 L68 23 L9 23 Z','#b48e54')
-    gate+=path('M18 27 L61 27 L61 54 L18 54 Z','#665841',INK,2)
-    gate+=path('M37 28 L43 28 L43 55 L37 55 Z M19 35 L60 35','none','#baa36c',2.5)
-    base=ellipse(40,70,36,7,'#29442f','none',0)+path('M10 31 L63 21 L70 61 L41 73 L11 61 Z','#bda77b')
-    base+=path('M10 32 L40 43 L70 30 L63 21 L36 17 Z','#42694b')
-    base+=path('M40 43 L70 30 L70 61 L41 73 Z','#877354')
-    base+=path('M26 42 L36 45 L36 65 L25 62 Z','#51422f')
-    base+=path('M9 34 L6 21 L18 14 L22 36 Z M57 27 L57 8 L69 11 L71 32 Z','#ab9667')
-    base+=path('M5 22 L17 13 L25 22 Z M53 9 L65 3 L74 14 Z','#45674d')
-    base+=path('M50 17 L50 5 L40 6 L43 12 L50 12','#dcc675',INK,2)
-    return dict(grass=grass,road=road,tree=tree,rock=rock,banner=flag,torch=torch,gate=gate,base=base)
+    from map_field_art import map_art as field_art
+    return field_art()
+
 
 def generate():
     import_d69_heroes.generate()
@@ -195,7 +167,7 @@ default_mix = 0.08
     (BASE/'grass_camp/source').mkdir(parents=True,exist_ok=True)
     for name,body in map_art().items():
         relative=f'grass_camp/source/{name}.svg'; (BASE/relative).write_text(svg(body,False),encoding='utf-8',newline='\n')
-        entries.append(dict(svg=relative,png=f'grass_camp/{name}.png',pixels=80))
+        entries.append(dict(svg=relative,png=f'grass_camp/{name}.png',pixels=160))
     (BASE/'render_manifest.json').write_text(json.dumps(dict(entries=entries),indent=2),encoding='utf-8')
     print('GENERATED',len(entries),'original SVG parts')
 

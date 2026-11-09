@@ -26,11 +26,12 @@ func start_wave(wave_index: int):
 	var wave: WaveData = waves[wave_index]
 	is_spawning = true
 	spawn_cancel_requested = false
+	enemy_manager.reset_path_cycle()
 
 	for group in wave.spawn_groups:
 		for i in range(group.count):
 			if group.enemy != null:
-				enemy_manager.spawn_enemy_from_data(group.enemy)
+				enemy_manager.spawn_enemy_from_data(group.enemy, group.path_id)
 			if group.spawn_interval > 0.0:
 				# 波次计时器随游戏暂停，避免暂停时仍在后台刷怪。
 				await get_tree().create_timer(group.spawn_interval, false).timeout

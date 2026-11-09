@@ -42,63 +42,55 @@ static func validate_stage(stage: StageData, issues: Array[String] = []) -> bool
 	if stage == null:
 		issues.append("关卡数据为空")
 		return false
-	var ok := true
-	var road := _to_set(GridBackground.derive_road_cells(stage.path_points))
-	var fork_road := _to_set(GridBackground.derive_road_cells(stage.fork_path_points))
+	var paths := stage.get_paths()
+	var all_road := _to_set(GridBackground.derive_stage_road_cells(stage))
 	var forbidden := _to_set(stage.forbidden_cells)
-	var entry_cell := _first_road_cell(stage.path_points, road)
-	var base_cell := _last_road_cell(stage.path_points, road)
-
-	# 1. 禁建地形不与道路/入口/基地重叠。
-	for cell in forbidden.keys():
-		if road.has(cell) or fork_road.has(cell):
-			issues.append("禁建格 %s 与道路重叠" % cell)
-			ok = false
-	if forbidden.has(entry_cell) or forbidden.has(base_cell):
-		issues.append("入口/基地格被禁建地形覆盖")
-		ok = false
-
-	# 2. 每条路线存在完整通路（入口 → 基地，4 连通）。
-	var all_road := road.duplicate()
-	for cell in fork_road.keys():
-		all_road[cell] = true
-	if entry_cell == Vector2i(-1, -1) or base_cell == Vector2i(-1, -1):
-		issues.append("入口/基地不在图内道路上")
-		ok = false
-	elif not _is_connected(entry_cell, base_cell, all_road):
-		issues.append("主路径不通（入口 %s → 基地 %s）" % [entry_cell, base_cell])
-		ok = false
-	if not fork_road.is_empty():
-		var fork_entry := _first_road_cell(stage.fork_path_points, fork_road)
-		var fork_join := _nearest_road_cell(fork_entry, road)
-		if fork_join == Vector2i(-1, -1):
-			issues.append("分叉路径未汇入主路径")
-			ok = false
-
-	# 3. 每条路线至少 2 个有效覆盖区（贴路可建格 ≥2 组/总数 ≥4）。
-	var buildable := _buildable_cells(road, forbidden)
-	if buildable.size() < 4:
-		issues.append("贴路可建格不足（%d < 4）" % buildable.size())
-		ok = false
-	elif _road_adjacent_groups(road, buildable) < 2:
-		issues.append("有效覆盖区不足 2 组")
-		ok = false
-
-	# 4. 每种职业至少 1 个可用位置：近战贴路位 + 中/远程 2 格内位。
-	var melee_found := false
-	var ranged_found := false
-	for cell in buildable:
-		if _distance_to_road(cell, road) == 1:
-			melee_found = true
-		if _distance_to_road(cell, road) <= 2:
-			ranged_found = true
-	if not melee_found:
-		issues.append("缺少贴路位（近战职业无可用位置）")
-		ok = false
-	if not ranged_found:
-		issues.append("缺少中/远程位（远程职业无可用位置）")
-		ok = false
-	return ok
+	var primary := GridBackground.trace_road_cells(stage.path_points)
+	var base: Vector2i = primary.back() if not primary.is_empty() else Vector2i(-1,-1)
+	for id in stage.alternate_paths:
+		if id.is_empty() or id in [&"main", &"fork", &"auto"]:
+			issues.append("支路ID为空或使用保留ID: " + str(id))
+	for id in stage.get_normal_path_ids():
+		if not paths.has(id): issues.append("普通出怪引用未知路线: " + str(id))
+	for wave in stage.waves:
+		if wave == null: continue
+		for group in wave.spawn_groups:
+			if group != null and group.path_id != &"auto" and not paths.has(group.path_id):
+				issues.append("波次引用未知路线: " + str(group.path_id))
+	for cell in forbidden:
+		if all_road.has(cell): issues.append("禁建格 %s 与道路重叠" % cell)
+	for id in paths:
+		var points: Array[Vector2] = []
+		points.assign(paths[id])
+		if points.size() < 2:
+			issues.append("路线 %s 少于两个路径点" % id)
+			continue
+		for i in range(points.size()):
+			var at := points[i]
+			if not is_equal_approx(fposmod(at.x-40,80),0) or not is_equal_approx(fposmod(at.y-40,80),0):
+				issues.append("路线 %s 路径点未对齐80px格中心" % id)
+			if i > 0:
+				var delta := at-points[i-1]
+				if delta == Vector2.ZERO or (not is_zero_approx(delta.x) and not is_zero_approx(delta.y)):
+					issues.append("路线 %s 包含零长或斜向路段" % id)
+		var cells := GridBackground.trace_road_cells(points)
+		if cells.is_empty():
+			issues.append("路线 %s 无图内通路" % id)
+			continue
+		if cells.back() != base: issues.append("路线 %s 未汇入同一基地" % id)
+		for i in range(1,cells.size()):
+			var step := cells[i]-cells[i-1]
+			if absi(step.x)+absi(step.y) != 1:
+				issues.append("路线 %s 图内路段不连续" % id)
+		var road := _to_set(cells)
+		var buildable: Array[Vector2i] = []
+		for cell in _buildable_cells(road,forbidden):
+			if not all_road.has(cell): buildable.append(cell)
+		if buildable.size() < 4:
+			issues.append("路线 %s 贴路可建格不足4格" % id)
+		elif _road_adjacent_groups(road,buildable) < 2:
+			issues.append("路线 %s 有效覆盖区不足2组" % id)
+	return issues.is_empty()
 
 
 static func _to_set(cells: Array[Vector2i]) -> Dictionary:

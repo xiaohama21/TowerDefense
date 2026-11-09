@@ -165,11 +165,11 @@ func _run() -> void:
 			break
 	_check(extend_cell.x >= 0, "基地端应存在可延伸邻格")
 	editor._brush = editor.Brush.PATH
-	var points_before: int = editor._stage.path_points.size()
 	editor._apply_brush_at(extend_cell)
 	_check(editor._path_cells.size() == 22, "路径延伸后链长应 22，实测 %d" % editor._path_cells.size())
 	_check((editor._data_label.text as String).contains("路格：22"), "面板路格数应刷新为 22")
-	_check(editor._stage.path_points.size() == points_before + 1, "延伸应新增 path_points 点（含延长段）")
+	_check(GridBackground.trace_road_cells(editor._stage.path_points) == editor._path_cells,
+		"保存路径必须与编辑链一致，内部端点不能多出延长格")
 	var expected_tail_center: Vector2 = Vector2(extend_cell * GridBackground.GRID_SIZE) + Vector2(40, 40)
 	_check(editor._stage.path_points.back().distance_to(expected_tail_center) <= 80.01,
 		"末点应在新端点中心 ±80px 外延段，实测 %s" % str(editor._stage.path_points.back()))
@@ -236,6 +236,7 @@ func _run() -> void:
 	_check(grid_probe._decor_type_for_cell(hash_cell) == &"banner", "显式类型应优先于哈希回退")
 	_check(grid_probe._decor_type_for_cell(Vector2i(15, 8)) == grid_probe._decor_type_for_cell(Vector2i(15, 8)),
 		"哈希回退应保持确定性")
+	grid_probe.free()
 
 	# ===== v0.7：新建空白画布 + 保存阻断/强制 + .tres 往返 =====
 	editor._create_new_stage("map_editor_roundtrip", "往返测试关")
@@ -248,7 +249,7 @@ func _run() -> void:
 	_check(editor._path_cells.size() == 1, "空画布路径刷首格应落链（1 格）")
 	editor._apply_brush_at(Vector2i(6, 4))
 	_check(editor._path_cells.size() == 2, "邻格点击应延伸（2 格）")
-	_check(editor._stage.path_points.size() == 4, "2 格链应生成 4 点（2 中心 + 2 图外延长）")
+	_check(editor._stage.path_points.size() == 2, "画布内部2格链仅生成2点，不添加假图外延长")
 	_check(editor._dirty, "编辑后应置脏标记")
 	editor._on_brush_pressed(editor.Brush.DECOR)
 	editor._selected_decor_type = &"torch"
@@ -277,7 +278,7 @@ func _run() -> void:
 	_check(reloaded != null, "往返：保存的 .tres 应可载入")
 	if reloaded != null:
 		_check(reloaded.stage_id == editor._stage.stage_id, "往返 stage_id 一致")
-		_check(reloaded.path_points.size() == 4, "往返 path_points 应一致（4 点）")
+		_check(reloaded.path_points.size() == 2, "往返 path_points 应一致（2点）")
 		_check(reloaded.decor_types.get(roundtrip_decor, &"") == &"torch", "往返 decor_types 应保留（火把）")
 	var tmp_abs := ProjectSettings.globalize_path(roundtrip_path)
 	if FileAccess.file_exists(roundtrip_path):

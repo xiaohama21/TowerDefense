@@ -14,10 +14,11 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.2", "project version 0.9.8.2")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.3", "project version 0.9.8.3")
 	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
 	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
 	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 8 and art_manifest.native_measurements.size() == 9, "battle visual manifest and native bounds")
+	_check(art_manifest.program == "0.9.8.3" and art_manifest.map_style.version == 2 and art_manifest.map_style.topology_version == 1, "packaged map style and route topology metadata")
 	for id in visuals.HEROES.keys() + visuals.ENEMIES.keys():
 		var spec: Dictionary = visuals.hero(id) if visuals.HEROES.has(id) else visuals.enemy(id)
 		var actor = visuals.create_actor(spec)
@@ -43,8 +44,9 @@ func _run() -> void:
 			_check(actor.get_animation_state().set_animation(pose, false, 0) != null, "packaged animation " + id + "." + pose)
 		actor.queue_free()
 		await process_frame
-	for id in ["grass", "road", "tree", "rock", "banner", "torch", "gate", "base"]:
-		_check(load("res://assets/battle_visuals/grass_camp/%s.png" % id) != null, "packaged grass camp " + id)
+	for id in load("res://scripts/GridBackground.gd").MAP_TEXTURES:
+		var map_texture: Texture2D = load("res://assets/battle_visuals/grass_camp/%s.png" % id)
+		_check(map_texture != null and map_texture.get_size() == Vector2(160,160), "packaged map art " + id)
 	for id in visuals.PORTRAITS:
 		var avatar = load("res://scripts/ui_screens/ui_theme.gd").hero_avatar(id, id)
 		_check(avatar is TextureRect and avatar.texture.resource_path == visuals.PORTRAITS[id], "same identity portrait " + str(id))
@@ -304,6 +306,36 @@ func _run() -> void:
 	paused = false
 	main.queue_free()
 	await process_frame
+	flow.set_gameplay_flag("skip_dialogue",true)
+	flow.set_gameplay_flag("auto_next_wave",false)
+	var grid_script = load("res://scripts/GridBackground.gd")
+	var soldier = load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres")
+	for number in range(1,9):
+		flow.selected_stage_id = StringName("ch01_s%02d" % number)
+		var battle = load("res://scenes/Main.tscn").instantiate()
+		root.add_child(battle)
+		await process_frame
+		var stage = battle.stage_data
+		var ids = stage.get_normal_path_ids()
+		_check(battle.enemy_manager.paths.size() == stage.get_paths().size(),"packaged route registry " + str(stage.stage_id))
+		var road_ok := true
+		for cell in grid_script.derive_stage_road_cells(stage):
+			road_ok = road_ok and battle.grid_background._road_set.has(cell) and not battle.build_manager.can_build_at(cell) and cell.y >= 1 and cell.y <= 7
+		_check(road_ok,"packaged all-route occupancy and HUD clearance " + str(stage.stage_id))
+		for route_id in stage.get_paths():
+			var points: Array[Vector2] = []
+			points.assign(stage.get_paths()[route_id])
+			var cells = grid_script.trace_road_cells(points)
+			_check(cells.back() == battle.grid_background.base_cell,"packaged shared base " + str(stage.stage_id) + "." + str(route_id))
+		battle.enemy_manager.reset_path_cycle()
+		var split_ok := true
+		for i in range(6):
+			var unit = battle.enemy_manager.spawn_enemy_from_data(soldier,&"auto")
+			split_ok = split_ok and unit.get_parent() == battle.enemy_manager.paths[ids[i%ids.size()]]
+			unit.queue_free()
+		_check(split_ok,"packaged deterministic route split " + str(stage.stage_id))
+		battle.queue_free()
+		await process_frame
 	print("PACKAGE_VERIFY_" + ("FAIL" if failed else "OK"))
 	quit(1 if failed else 0)
 
