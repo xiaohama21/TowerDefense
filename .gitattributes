@@ -19,3 +19,7 @@
 # User-selected original #158 inputs: keep provenance hashes equal to source bytes.
 assets/battle_visuals/liu_bei/source/d69_158/* -text
 assets/battle_visuals/liu_bei/variants/a_158/source/d69_158/* -text
+# Archive upstream bytes verbatim (including whitespace); review via provenance hashes.
+assets/battle_visuals/diao_chan/source/d69_072/* -text -diff
+assets/battle_visuals/zhao_yun/source/d69_312/* -text -diff
+assets/battle_visuals/zhuge_liang/source/d69_314/* -text -diff

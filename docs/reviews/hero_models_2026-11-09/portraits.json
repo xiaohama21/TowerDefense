@@ -1,0 +1,80 @@
+{
+  "guan_yu": {
+    "crop": [
+      666,
+      505,
+      862,
+      701
+    ],
+    "color": "#3d6f4d",
+    "source": "guan_yu_right_Idle_00.png",
+    "size": [
+      160,
+      160
+    ],
+    "render_magnification": 4
+  },
+  "diao_chan": {
+    "crop": [
+      664,
+      504,
+      904,
+      744
+    ],
+    "color": "#695077",
+    "capture": {
+      "at": 0,
+      "combat_resources_modified": false,
+      "facing": 1,
+      "hidden_slots": [
+        "weapon",
+        "weapon2",
+        "weapon_stick"
+      ],
+      "id": "diao_chan",
+      "origin": [
+        768,
+        780
+      ],
+      "pose": "Idle",
+      "program": "0.9.8.2",
+      "render_magnification": 4
+    },
+    "source": "diao_chan_portrait.png",
+    "size": [
+      160,
+      160
+    ],
+    "render_magnification": 4
+  },
+  "zhao_yun": {
+    "crop": [
+      644,
+      507,
+      904,
+      767
+    ],
+    "color": "#405e7c",
+    "source": "zhao_yun_right_Idle_00.png",
+    "size": [
+      160,
+      160
+    ],
+    "render_magnification": 4
+  },
+  "zhuge_liang": {
+    "crop": [
+      620,
+      448,
+      884,
+      712
+    ],
+    "color": "#826346",
+    "source": "zhuge_liang_right_Idle_00.png",
+    "size": [
+      160,
+      160
+    ],
+    "render_magnification": 4
+  }
+}

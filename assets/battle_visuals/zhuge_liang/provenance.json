@@ -1,0 +1,26 @@
+{
+  "identity": "D69 #314 / Hero_ZhugeLiang_A",
+  "character_id": "zhuge_liang",
+  "usage": "User-selected original visual; ART_ASSETS section 6",
+  "adaptation": "Spine 3.8 to 4.3 format only; original PNG/atlas, bones, slots and animation poses/times retained",
+  "bones": 56,
+  "slots": 30,
+  "animations": [
+    "Active_A",
+    "Appear",
+    "Attack_A",
+    "Critical",
+    "Death",
+    "Idle",
+    "Move",
+    "Stiff",
+    "Stun",
+    "UI_Death"
+  ],
+  "files": {
+    "Hero_ZhugeLiang_A.png": "cb505d5c220d79bd7ac990cb5a9d9d373ea4563cd2fe09d72e33377ef080c3d7",
+    "Hero_ZhugeLiang_A.atlas": "04077ddde3e25c223ce3b3fc29869e718c991cad9e9ffb9ec4f62bf2d075c380",
+    "Hero_ZhugeLiang_A.json": "6a0062f0eb71376f322f07bb6a4551a6a5cf19cf4d484ec79908c9b64d91a5f5",
+    "免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141"
+  }
+}

@@ -1,0 +1,13 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://cebtcacinrxaf"
+path="res://.godot/imported/diao_chan.spine-json-92e44f252020f1e638cb867aa1823f14.spjson"
+
+[deps]
+
+source_file="res://assets/battle_visuals/diao_chan/diao_chan.spine-json"
+dest_files=["res://.godot/imported/diao_chan.spine-json-92e44f252020f1e638cb867aa1823f14.spjson"]
+
+[params]

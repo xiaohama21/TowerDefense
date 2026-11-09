@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://dggevdfxoybrb"
+path="res://.godot/imported/Hero_ZhaoYun_A.atlas-623c7ca6c19171031d95ad37c0c0abbc.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/zhao_yun/source/d69_312/Hero_ZhaoYun_A.atlas"
+dest_files=["res://.godot/imported/Hero_ZhaoYun_A.atlas-623c7ca6c19171031d95ad37c0c0abbc.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

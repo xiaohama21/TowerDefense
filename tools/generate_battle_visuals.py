@@ -6,6 +6,7 @@ from pathlib import Path
 import json, sys, hashlib
 import liu_bei_art
 import import_liu_bei_158
+import import_d69_heroes
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / 'assets/battle_visuals'
@@ -17,6 +18,7 @@ ACTORS = {
     'yellow_turban_sergeant': dict(scale=.33, foot=18, top=134, width=126, coat='#5b6265', trim='#dbc259', skin='#daba8e', role='sergeant'),
     'yellow_turban_general': dict(scale=.43, foot=24, top=137, width=144, coat='#68594c', trim='#dab44c', skin='#cead85', role='boss'),
 }
+ACTORS.update(import_d69_heroes.actor_specs())
 
 def path(d, fill, stroke=INK, width=3):
     return f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{width}" stroke-linecap="round" stroke-linejoin="round"/>'
@@ -166,8 +168,10 @@ def map_art():
     return dict(grass=grass,road=road,tree=tree,rock=rock,banner=flag,torch=torch,gate=gate,base=base)
 
 def generate():
+    import_d69_heroes.generate()
     entries=[]
     for id,spec in ACTORS.items():
+        if id in import_d69_heroes.MODELS: continue
         if id == 'liu_bei':
             import_liu_bei_158.generate()
             continue
@@ -196,8 +200,10 @@ default_mix = 0.08
     print('GENERATED',len(entries),'original SVG parts')
 
 def pack():
+    import_d69_heroes.generate()
     from PIL import Image
     for id,spec in ACTORS.items():
+        if id in import_d69_heroes.MODELS: continue
         if id == 'liu_bei':
             import_liu_bei_158.generate()
             continue
@@ -215,9 +221,9 @@ def pack():
             atlas.alpha_composite(part,(x,y))
             text+=f'{name}\n  rotate: false\n  xy: {x}, {y}\n  size: {part.width}, {part.height}\n  orig: {part.width}, {part.height}\n  offset: 0, 0\n  index: -1\n'
         atlas.save(folder/f'{id}.png'); (folder/f'{id}.atlas').write_text(text,encoding='utf-8')
-    data={'version':1,'license':'Original project enemy/map SVG parts and rigs; Guan Yu and original #158 Liu Bei use ART_ASSETS D69 terms.','actors':ACTORS,'files':{}}
+    data={'version':1,'license':'Original project enemy/map SVG parts and rigs; Guan Yu and original #158/#072/#312/#314 heroes use ART_ASSETS D69 terms.','actors':ACTORS,'files':{}}
     for path in BASE.rglob('*'):
-        if path.is_file() and 'variants' not in path.relative_to(BASE).parts and (path.suffix in ['.svg','.png','.atlas','.spine-json','.tres'] or ('d69_158' in path.parts and path.suffix != '.import')):
+        if path.is_file() and 'variants' not in path.relative_to(BASE).parts and (path.suffix in ['.svg','.png','.atlas','.spine-json','.tres'] or (any(part.startswith('d69_') for part in path.parts) and path.suffix != '.import')):
             data['files'][path.relative_to(BASE).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
     (BASE/'manifest.json').write_text(json.dumps(data,indent=2),encoding='utf-8')
     print('PACKED',len(ACTORS),'actors')

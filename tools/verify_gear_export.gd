@@ -14,18 +14,31 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.1", "project version 0.9.8.1")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.2", "project version 0.9.8.2")
 	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
 	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
-	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 5 and art_manifest.native_measurements.size() == 6, "battle visual manifest and native bounds")
-	for id in ["guan_yu", "liu_bei", "yellow_turban_soldier", "yellow_turban_cavalry", "yellow_turban_sergeant", "yellow_turban_general"]:
-		var spec: Dictionary = visuals.hero(id) if id in ["guan_yu", "liu_bei"] else visuals.enemy(id)
+	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 8 and art_manifest.native_measurements.size() == 9, "battle visual manifest and native bounds")
+	for id in visuals.HEROES.keys() + visuals.ENEMIES.keys():
+		var spec: Dictionary = visuals.hero(id) if visuals.HEROES.has(id) else visuals.enemy(id)
 		var actor = visuals.create_actor(spec)
 		_check(actor != null, "packaged Spine identity " + id)
 		if actor == null: continue
 		root.add_child(actor)
+		if spec.has("skin"):
+			_check(actor.get_skeleton().get_skin() != null, "packaged selected skin " + id)
+			var active := true
+			for bone_data in actor.get_skeleton().get_skin().get_bones():
+				active = active and actor.get_skeleton().find_bone(bone_data.get_bone_name()).is_active()
+			_check(active, "packaged skin-dependent bones active " + id)
+		if spec.has("root_motion_bone"):
+			var track = actor.get_animation_state().set_animation("Active_A", false, 0)
+			track.set_mix_duration(0)
+			track.set_track_time(.5059)
+			actor.update_skeleton(0)
+			var bone = actor.get_skeleton().find_bone(str(spec.root_motion_bone))
+			_check(absf(float(bone.get_pose().get_y()) - float(bone.get_data().get_setup_pose().get_y())) < 35, "packaged Zhao root motion stays near build point")
 		var poses := ["Idle", "Move", "Attack_A", str(spec.get("ultimate", "XX")), "Stun", "Death"]
-		if id == "liu_bei": poses.append("Critical")
+		if spec.has("critical"): poses.append(str(spec.critical))
 		for pose in poses:
 			_check(actor.get_animation_state().set_animation(pose, false, 0) != null, "packaged animation " + id + "." + pose)
 		actor.queue_free()

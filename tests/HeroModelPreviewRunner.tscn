@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/HeroModelPreviewRunner.gd" id="1"]
+
+[node name="HeroModelPreview" type="Node"]
+script = ExtResource("1")

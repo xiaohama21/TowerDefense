@@ -1,0 +1,258 @@
+
+Hero_Diaochan_A.png
+size: 301,301
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+A/B_hair
+  rotate: false
+  xy: 84, 170
+  size: 65, 73
+  orig: 65, 73
+  offset: 0, 0
+  index: -1
+A/B_hairTop
+  rotate: false
+  xy: 107, 75
+  size: 48, 35
+  orig: 50, 37
+  offset: 1, 1
+  index: -1
+A/B_hairTop_ACC
+  rotate: true
+  xy: 84, 41
+  size: 32, 35
+  orig: 34, 37
+  offset: 1, 1
+  index: -1
+A/B_hairTop_tassle
+  rotate: false
+  xy: 286, 123
+  size: 12, 27
+  orig: 12, 27
+  offset: 0, 0
+  index: -1
+A/B_hair_L
+  rotate: true
+  xy: 2, 226
+  size: 17, 80
+  orig: 17, 80
+  offset: 0, 0
+  index: -1
+A/F_hair
+  rotate: false
+  xy: 2, 177
+  size: 74, 47
+  orig: 74, 47
+  offset: 0, 0
+  index: -1
+A/L_arm1
+  rotate: true
+  xy: 121, 45
+  size: 28, 31
+  orig: 30, 33
+  offset: 1, 1
+  index: -1
+A/L_arm2_B
+  rotate: true
+  xy: 2, 52
+  size: 32, 40
+  orig: 34, 42
+  offset: 1, 1
+  index: -1
+A/L_arm2_F
+  rotate: true
+  xy: 270, 222
+  size: 30, 26
+  orig: 32, 28
+  offset: 1, 1
+  index: -1
+A/L_earing
+  rotate: true
+  xy: 201, 152
+  size: 9, 14
+  orig: 11, 16
+  offset: 1, 1
+  index: -1
+A/L_hand
+  rotate: true
+  xy: 205, 44
+  size: 18, 21
+  orig: 18, 21
+  offset: 0, 0
+  index: -1
+A/L_leg
+  rotate: true
+  xy: 205, 81
+  size: 24, 44
+  orig: 24, 44
+  offset: 0, 0
+  index: -1
+A/L_leg_Idle
+  rotate: true
+  xy: 251, 81
+  size: 24, 44
+  orig: 24, 44
+  offset: 0, 0
+  index: -1
+A/R_arm1
+  rotate: false
+  xy: 154, 52
+  size: 27, 21
+  orig: 29, 23
+  offset: 1, 1
+  index: -1
+A/R_arm2
+  rotate: false
+  xy: 183, 50
+  size: 20, 23
+  orig: 22, 25
+  offset: 1, 1
+  index: -1
+A/R_arm2_B
+  rotate: true
+  xy: 205, 64
+  size: 15, 39
+  orig: 17, 41
+  offset: 1, 1
+  index: -1
+A/R_arm2_F
+  rotate: true
+  xy: 2, 86
+  size: 15, 41
+  orig: 17, 43
+  offset: 1, 1
+  index: -1
+A/R_earing
+  rotate: false
+  xy: 107, 122
+  size: 9, 14
+  orig: 11, 16
+  offset: 1, 1
+  index: -1
+A/R_hand
+  rotate: true
+  xy: 178, 152
+  size: 9, 21
+  orig: 11, 23
+  offset: 1, 1
+  index: -1
+A/R_leg
+  rotate: false
+  xy: 274, 254
+  size: 25, 45
+  orig: 25, 45
+  offset: 0, 0
+  index: -1
+A/body
+  rotate: false
+  xy: 178, 109
+  size: 52, 41
+  orig: 54, 43
+  offset: 1, 1
+  index: -1
+A/cloth_B
+  rotate: false
+  xy: 157, 222
+  size: 111, 56
+  orig: 111, 56
+  offset: 0, 0
+  index: -1
+A/cloth_L
+  rotate: true
+  xy: 151, 163
+  size: 57, 70
+  orig: 57, 70
+  offset: 0, 0
+  index: -1
+A/cloth_L_parts
+  rotate: false
+  xy: 122, 112
+  size: 54, 49
+  orig: 54, 49
+  offset: 0, 0
+  index: -1
+A/cloth_R
+  rotate: true
+  xy: 2, 144
+  size: 31, 61
+  orig: 31, 61
+  offset: 0, 0
+  index: -1
+A/cloth_R_parts
+  rotate: true
+  xy: 2, 103
+  size: 39, 51
+  orig: 39, 51
+  offset: 0, 0
+  index: -1
+A/head
+  rotate: false
+  xy: 223, 152
+  size: 69, 68
+  orig: 71, 70
+  offset: 1, 1
+  index: -1
+A/head_ACC1
+  rotate: false
+  xy: 65, 138
+  size: 55, 30
+  orig: 57, 32
+  offset: 1, 1
+  index: -1
+A/head_ACC2
+  rotate: true
+  xy: 157, 75
+  size: 32, 46
+  orig: 34, 49
+  offset: 1, 2
+  index: -1
+A/head_ACC3
+  rotate: true
+  xy: 246, 43
+  size: 36, 38
+  orig: 38, 40
+  offset: 1, 1
+  index: -1
+A/skirt
+  rotate: false
+  xy: 55, 104
+  size: 50, 32
+  orig: 50, 32
+  offset: 0, 0
+  index: -1
+A/skirt_B
+  rotate: false
+  xy: 232, 107
+  size: 52, 43
+  orig: 52, 43
+  offset: 0, 0
+  index: -1
+A/skirt_cloth
+  rotate: true
+  xy: 55, 78
+  size: 24, 42
+  orig: 24, 42
+  offset: 0, 0
+  index: -1
+A/waist
+  rotate: false
+  xy: 44, 56
+  size: 38, 20
+  orig: 40, 22
+  offset: 1, 1
+  index: -1
+A/weapon
+  rotate: true
+  xy: 2, 245
+  size: 54, 153
+  orig: 56, 155
+  offset: 1, 1
+  index: -1
+A/weapon_stick
+  rotate: true
+  xy: 157, 280
+  size: 19, 115
+  orig: 21, 117
+  offset: 1, 1
+  index: -1

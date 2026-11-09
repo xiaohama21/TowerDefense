@@ -506,6 +506,12 @@ func _play_spine_attack(time_scale: float = 1.0, force: bool = false) -> void:
 			return  # 攻击动画播放中不打断重播。
 	state.set_animation("Attack_A", false, 0)
 	_set_spine_track_time_scale(state, time_scale * float(_spine_profile.get("attack_time_scale", 1.0)))
+	var start := float(_spine_profile.get("attack_start", 0.0))
+	if start > 0.0:
+		# Ranged shots and support pulses already release immediately; match that pose.
+		state.get_track(0).set_track_time(start)
+		state.get_track(0).set_mix_duration(0.0)
+		_spine.update_skeleton(0.0)
 	_spine_attack_busy = true
 
 

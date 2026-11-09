@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://b3e6y0sd8alff"
+path="res://.godot/imported/Hero_Diaochan_A.atlas-9b58501bf0985564c1dff3291e871364.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/diao_chan/source/d69_072/Hero_Diaochan_A.atlas"
+dest_files=["res://.godot/imported/Hero_Diaochan_A.atlas-9b58501bf0985564c1dff3291e871364.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

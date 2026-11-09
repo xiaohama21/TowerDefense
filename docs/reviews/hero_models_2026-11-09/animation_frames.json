@@ -1,0 +1,10822 @@
+{
+	"clipped": [],
+	"frames": [
+		{
+			"at": 0.0,
+			"bbox": [
+				551,
+				430,
+				322,
+				349
+			],
+			"duration": 2.13330006599426,
+			"facing": -1,
+			"file": "guan_yu_left_Idle_00.png",
+			"game_scale": 0.33,
+			"id": "guan_yu",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				663,
+				430,
+				322,
+				349
+			],
+			"duration": 2.13330006599426,
+			"facing": 1,
+			"file": "guan_yu_right_Idle_00.png",
+			"game_scale": 0.33,
+			"id": "guan_yu",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				666,
+				456,
+				273,
+				321
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "liu_bei_left_Idle_00.png",
+			"game_scale": 0.53,
+			"id": "liu_bei",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				597,
+				456,
+				273,
+				321
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "liu_bei_right_Idle_00.png",
+			"game_scale": 0.53,
+			"id": "liu_bei",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				569,
+				472,
+				324,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0777800003687541,
+			"bbox": [
+				572,
+				471,
+				320,
+				311
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.155560000737508,
+			"bbox": [
+				570,
+				470,
+				319,
+				312
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.233340001106262,
+			"bbox": [
+				565,
+				470,
+				322,
+				312
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.311120001475016,
+			"bbox": [
+				557,
+				470,
+				329,
+				312
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.38890000184377,
+			"bbox": [
+				548,
+				471,
+				337,
+				311
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466680002212524,
+			"bbox": [
+				539,
+				472,
+				345,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.544460002581278,
+			"bbox": [
+				532,
+				472,
+				352,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622240002950033,
+			"bbox": [
+				528,
+				473,
+				357,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.700020003318787,
+			"bbox": [
+				529,
+				473,
+				358,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.777800003687541,
+			"bbox": [
+				533,
+				473,
+				357,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.855580004056295,
+			"bbox": [
+				540,
+				473,
+				352,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933360004425049,
+			"bbox": [
+				547,
+				473,
+				346,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0111400047938,
+			"bbox": [
+				555,
+				473,
+				338,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.08892000516256,
+			"bbox": [
+				562,
+				472,
+				331,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.16670000553131,
+			"bbox": [
+				569,
+				472,
+				324,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": -1,
+			"file": "diao_chan_left_Idle_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				570,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				579,
+				475,
+				316,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				589,
+				479,
+				308,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				590,
+				480,
+				308,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				583,
+				480,
+				319,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				606,
+				481,
+				298,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				628,
+				481,
+				275,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				558,
+				474,
+				341,
+				323
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				569,
+				461,
+				322,
+				339
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				627,
+				415,
+				289,
+				382
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				640,
+				477,
+				390,
+				317
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				634,
+				473,
+				393,
+				319
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				634,
+				468,
+				386,
+				322
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				631,
+				462,
+				375,
+				326
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				632,
+				464,
+				257,
+				324
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				570,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Attack_A_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				570,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				567,
+				483,
+				328,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				588,
+				487,
+				309,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				592,
+				488,
+				306,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				583,
+				489,
+				319,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				603,
+				489,
+				301,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				624,
+				489,
+				279,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				608,
+				482,
+				291,
+				321
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				599,
+				470,
+				292,
+				340
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				627,
+				416,
+				289,
+				383
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				640,
+				477,
+				298,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				634,
+				473,
+				304,
+				319
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				634,
+				468,
+				303,
+				322
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				632,
+				462,
+				282,
+				335
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				632,
+				464,
+				257,
+				324
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				570,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Critical_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				570,
+				472,
+				323,
+				310
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0822199980417887,
+			"bbox": [
+				632,
+				475,
+				265,
+				322
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.164439996083577,
+			"bbox": [
+				632,
+				475,
+				267,
+				315
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.246659994125366,
+			"bbox": [
+				632,
+				475,
+				264,
+				313
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.328879992167155,
+			"bbox": [
+				632,
+				475,
+				249,
+				314
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.411099990208944,
+			"bbox": [
+				610,
+				475,
+				258,
+				308
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.493319988250732,
+			"bbox": [
+				618,
+				439,
+				262,
+				344
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.575539986292521,
+			"bbox": [
+				613,
+				489,
+				271,
+				293
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.65775998433431,
+			"bbox": [
+				614,
+				475,
+				267,
+				307
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.739979982376099,
+			"bbox": [
+				615,
+				436,
+				266,
+				347
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.822199980417887,
+			"bbox": [
+				622,
+				480,
+				265,
+				301
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.904419978459676,
+			"bbox": [
+				617,
+				475,
+				266,
+				306
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.986639976501465,
+			"bbox": [
+				609,
+				448,
+				269,
+				334
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06885997454325,
+			"bbox": [
+				617,
+				475,
+				269,
+				309
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.15107997258504,
+			"bbox": [
+				629,
+				475,
+				258,
+				310
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.23329997062683,
+			"bbox": [
+				570,
+				472,
+				323,
+				310
+			],
+			"duration": 1.23329997062683,
+			"facing": -1,
+			"file": "diao_chan_left_Active_A_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				590,
+				468,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0577799995740255,
+			"bbox": [
+				590,
+				472,
+				313,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.115559999148051,
+			"bbox": [
+				589,
+				475,
+				315,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.173339998722076,
+			"bbox": [
+				586,
+				474,
+				318,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.231119998296102,
+			"bbox": [
+				583,
+				468,
+				319,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.288899997870127,
+			"bbox": [
+				581,
+				465,
+				319,
+				314
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.346679997444153,
+			"bbox": [
+				579,
+				465,
+				318,
+				315
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.404459997018178,
+			"bbox": [
+				578,
+				468,
+				316,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.462239996592204,
+			"bbox": [
+				577,
+				473,
+				316,
+				311
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.520019996166229,
+			"bbox": [
+				578,
+				475,
+				314,
+				311
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.577799995740255,
+			"bbox": [
+				580,
+				476,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.63557999531428,
+			"bbox": [
+				582,
+				471,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.693359994888306,
+			"bbox": [
+				584,
+				465,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.751139994462331,
+			"bbox": [
+				586,
+				460,
+				312,
+				317
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.808919994036357,
+			"bbox": [
+				588,
+				462,
+				312,
+				314
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866699993610382,
+			"bbox": [
+				590,
+				468,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": -1,
+			"file": "diao_chan_left_Move_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				642,
+				471,
+				297,
+				317
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				637,
+				471,
+				297,
+				317
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				633,
+				471,
+				299,
+				316
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				631,
+				473,
+				301,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				633,
+				472,
+				304,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				636,
+				471,
+				308,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				641,
+				469,
+				310,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				646,
+				468,
+				312,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				651,
+				468,
+				313,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				655,
+				468,
+				313,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				658,
+				469,
+				311,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				658,
+				470,
+				309,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				655,
+				471,
+				307,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				651,
+				473,
+				303,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				647,
+				473,
+				299,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				642,
+				471,
+				297,
+				317
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "diao_chan_left_Stun_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				660,
+				475,
+				279,
+				306
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0444466670354207,
+			"bbox": [
+				665,
+				472,
+				282,
+				308
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0888933340708415,
+			"bbox": [
+				674,
+				473,
+				285,
+				311
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133340001106262,
+			"bbox": [
+				655,
+				486,
+				303,
+				312
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.177786668141683,
+			"bbox": [
+				632,
+				504,
+				315,
+				307
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.222233335177104,
+			"bbox": [
+				560,
+				517,
+				358,
+				300
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266680002212524,
+			"bbox": [
+				512,
+				525,
+				385,
+				278
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.311126669247945,
+			"bbox": [
+				508,
+				516,
+				384,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.355573336283366,
+			"bbox": [
+				507,
+				514,
+				386,
+				289
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.400020003318787,
+			"bbox": [
+				506,
+				513,
+				387,
+				293
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444466670354207,
+			"bbox": [
+				505,
+				512,
+				394,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.488913337389628,
+			"bbox": [
+				504,
+				517,
+				398,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533360004425049,
+			"bbox": [
+				502,
+				523,
+				401,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.57780667146047,
+			"bbox": [
+				501,
+				527,
+				400,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.62225333849589,
+			"bbox": [
+				500,
+				531,
+				398,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666700005531311,
+			"bbox": [
+				500,
+				532,
+				395,
+				283
+			],
+			"duration": 0.666700005531311,
+			"facing": -1,
+			"file": "diao_chan_left_Death_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				643,
+				472,
+				324,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0777800003687541,
+			"bbox": [
+				644,
+				471,
+				320,
+				311
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.155560000737508,
+			"bbox": [
+				647,
+				470,
+				319,
+				312
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.233340001106262,
+			"bbox": [
+				649,
+				470,
+				322,
+				312
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.311120001475016,
+			"bbox": [
+				650,
+				470,
+				329,
+				312
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.38890000184377,
+			"bbox": [
+				651,
+				471,
+				337,
+				311
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466680002212524,
+			"bbox": [
+				652,
+				472,
+				345,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.544460002581278,
+			"bbox": [
+				652,
+				472,
+				352,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622240002950033,
+			"bbox": [
+				651,
+				473,
+				357,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.700020003318787,
+			"bbox": [
+				649,
+				473,
+				358,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.777800003687541,
+			"bbox": [
+				646,
+				473,
+				357,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.855580004056295,
+			"bbox": [
+				644,
+				473,
+				352,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933360004425049,
+			"bbox": [
+				643,
+				473,
+				346,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0111400047938,
+			"bbox": [
+				643,
+				473,
+				338,
+				309
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.08892000516256,
+			"bbox": [
+				643,
+				472,
+				331,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.16670000553131,
+			"bbox": [
+				643,
+				472,
+				324,
+				310
+			],
+			"duration": 1.16670000553131,
+			"facing": 1,
+			"file": "diao_chan_right_Idle_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				642,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				641,
+				475,
+				316,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				639,
+				479,
+				308,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				638,
+				480,
+				308,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				634,
+				480,
+				319,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				632,
+				481,
+				298,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				633,
+				481,
+				275,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				637,
+				474,
+				341,
+				323
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				645,
+				461,
+				322,
+				339
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				620,
+				415,
+				289,
+				382
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				506,
+				477,
+				390,
+				317
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				509,
+				473,
+				393,
+				319
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				516,
+				468,
+				386,
+				322
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				530,
+				462,
+				375,
+				326
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				647,
+				464,
+				257,
+				324
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				642,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Attack_A_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				642,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				641,
+				483,
+				328,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				639,
+				487,
+				309,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				638,
+				488,
+				306,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				634,
+				489,
+				319,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				632,
+				489,
+				301,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				633,
+				489,
+				279,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				637,
+				482,
+				291,
+				321
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				645,
+				470,
+				292,
+				340
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				620,
+				416,
+				289,
+				383
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				598,
+				477,
+				298,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				598,
+				473,
+				304,
+				319
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				599,
+				468,
+				303,
+				322
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				622,
+				462,
+				282,
+				335
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				647,
+				464,
+				257,
+				324
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				642,
+				472,
+				324,
+				316
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Critical_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				643,
+				472,
+				323,
+				310
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0822199980417887,
+			"bbox": [
+				639,
+				475,
+				265,
+				322
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.164439996083577,
+			"bbox": [
+				637,
+				475,
+				267,
+				315
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.246659994125366,
+			"bbox": [
+				640,
+				475,
+				264,
+				313
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.328879992167155,
+			"bbox": [
+				655,
+				475,
+				249,
+				314
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.411099990208944,
+			"bbox": [
+				668,
+				475,
+				258,
+				308
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.493319988250732,
+			"bbox": [
+				656,
+				439,
+				262,
+				344
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.575539986292521,
+			"bbox": [
+				652,
+				489,
+				271,
+				293
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.65775998433431,
+			"bbox": [
+				655,
+				475,
+				267,
+				307
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.739979982376099,
+			"bbox": [
+				655,
+				436,
+				266,
+				347
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.822199980417887,
+			"bbox": [
+				649,
+				480,
+				265,
+				301
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.904419978459676,
+			"bbox": [
+				653,
+				475,
+				266,
+				306
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.986639976501465,
+			"bbox": [
+				658,
+				448,
+				269,
+				334
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06885997454325,
+			"bbox": [
+				650,
+				475,
+				269,
+				309
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.15107997258504,
+			"bbox": [
+				649,
+				475,
+				258,
+				310
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.23329997062683,
+			"bbox": [
+				643,
+				472,
+				323,
+				310
+			],
+			"duration": 1.23329997062683,
+			"facing": 1,
+			"file": "diao_chan_right_Active_A_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				634,
+				468,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0577799995740255,
+			"bbox": [
+				633,
+				472,
+				313,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.115559999148051,
+			"bbox": [
+				632,
+				475,
+				315,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.173339998722076,
+			"bbox": [
+				632,
+				474,
+				318,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.231119998296102,
+			"bbox": [
+				634,
+				468,
+				319,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.288899997870127,
+			"bbox": [
+				636,
+				465,
+				319,
+				314
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.346679997444153,
+			"bbox": [
+				639,
+				465,
+				318,
+				315
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.404459997018178,
+			"bbox": [
+				642,
+				468,
+				316,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.462239996592204,
+			"bbox": [
+				643,
+				473,
+				316,
+				311
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.520019996166229,
+			"bbox": [
+				644,
+				475,
+				314,
+				311
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.577799995740255,
+			"bbox": [
+				644,
+				476,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.63557999531428,
+			"bbox": [
+				642,
+				471,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.693359994888306,
+			"bbox": [
+				640,
+				465,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.751139994462331,
+			"bbox": [
+				638,
+				460,
+				312,
+				317
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.808919994036357,
+			"bbox": [
+				636,
+				462,
+				312,
+				314
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866699993610382,
+			"bbox": [
+				634,
+				468,
+				312,
+				312
+			],
+			"duration": 0.866699993610382,
+			"facing": 1,
+			"file": "diao_chan_right_Move_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				597,
+				471,
+				297,
+				317
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				602,
+				471,
+				297,
+				317
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				604,
+				471,
+				299,
+				316
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				604,
+				473,
+				301,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				599,
+				472,
+				304,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				592,
+				471,
+				308,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				585,
+				469,
+				310,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				578,
+				468,
+				312,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				572,
+				468,
+				313,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				568,
+				468,
+				313,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				567,
+				469,
+				311,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				569,
+				470,
+				309,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				574,
+				471,
+				307,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				582,
+				473,
+				303,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				590,
+				473,
+				299,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				597,
+				471,
+				297,
+				317
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "diao_chan_right_Stun_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				597,
+				475,
+				279,
+				306
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_00.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0444466670354207,
+			"bbox": [
+				589,
+				472,
+				282,
+				308
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_01.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0888933340708415,
+			"bbox": [
+				577,
+				473,
+				285,
+				311
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_02.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133340001106262,
+			"bbox": [
+				578,
+				486,
+				303,
+				312
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_03.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.177786668141683,
+			"bbox": [
+				589,
+				504,
+				315,
+				307
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_04.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.222233335177104,
+			"bbox": [
+				618,
+				517,
+				358,
+				300
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_05.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266680002212524,
+			"bbox": [
+				639,
+				525,
+				385,
+				278
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_06.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.311126669247945,
+			"bbox": [
+				644,
+				516,
+				384,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_07.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.355573336283366,
+			"bbox": [
+				643,
+				514,
+				386,
+				289
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_08.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.400020003318787,
+			"bbox": [
+				643,
+				513,
+				387,
+				293
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_09.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444466670354207,
+			"bbox": [
+				637,
+				512,
+				394,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_10.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.488913337389628,
+			"bbox": [
+				634,
+				517,
+				398,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_11.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533360004425049,
+			"bbox": [
+				633,
+				523,
+				401,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_12.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.57780667146047,
+			"bbox": [
+				635,
+				527,
+				400,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_13.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.62225333849589,
+			"bbox": [
+				638,
+				531,
+				398,
+				282
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_14.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666700005531311,
+			"bbox": [
+				641,
+				532,
+				395,
+				283
+			],
+			"duration": 0.666700005531311,
+			"facing": 1,
+			"file": "diao_chan_right_Death_15.png",
+			"game_scale": 0.5,
+			"id": "diao_chan",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				471,
+				457,
+				417,
+				327
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				472,
+				457,
+				419,
+				327
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				472,
+				456,
+				421,
+				328
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				473,
+				456,
+				420,
+				328
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				473,
+				456,
+				419,
+				328
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				472,
+				457,
+				417,
+				327
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				471,
+				457,
+				414,
+				327
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				471,
+				458,
+				411,
+				326
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				470,
+				458,
+				413,
+				326
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				469,
+				459,
+				416,
+				325
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				469,
+				459,
+				417,
+				325
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				469,
+				459,
+				418,
+				325
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				469,
+				459,
+				418,
+				325
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				470,
+				459,
+				417,
+				325
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				471,
+				458,
+				416,
+				326
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				471,
+				457,
+				417,
+				327
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Idle_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				471,
+				466,
+				468,
+				318
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0622200012207031,
+			"bbox": [
+				536,
+				476,
+				350,
+				327
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.124440002441406,
+			"bbox": [
+				631,
+				371,
+				234,
+				427
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.186660003662109,
+			"bbox": [
+				625,
+				341,
+				230,
+				443
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.248880004882813,
+			"bbox": [
+				465,
+				445,
+				382,
+				336
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.311100006103516,
+			"bbox": [
+				644,
+				430,
+				228,
+				443
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.373320007324219,
+			"bbox": [
+				464,
+				419,
+				457,
+				324
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.435540008544922,
+			"bbox": [
+				465,
+				417,
+				491,
+				321
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.497760009765625,
+			"bbox": [
+				469,
+				423,
+				487,
+				321
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.559980010986328,
+			"bbox": [
+				473,
+				439,
+				498,
+				320
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622200012207031,
+			"bbox": [
+				401,
+				469,
+				522,
+				295
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.684420013427734,
+			"bbox": [
+				226,
+				477,
+				640,
+				328
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.746640014648438,
+			"bbox": [
+				232,
+				439,
+				613,
+				364
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.808860015869141,
+			"bbox": [
+				292,
+				430,
+				562,
+				335
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.871080017089844,
+			"bbox": [
+				310,
+				482,
+				600,
+				308
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933300018310547,
+			"bbox": [
+				471,
+				466,
+				468,
+				318
+			],
+			"duration": 0.933300018310547,
+			"facing": -1,
+			"file": "zhao_yun_left_Attack_A_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				473,
+				471,
+				421,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				479,
+				471,
+				432,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				479,
+				482,
+				466,
+				332
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				475,
+				445,
+				408,
+				347
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				658,
+				379,
+				235,
+				388
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				580,
+				461,
+				290,
+				322
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				688,
+				484,
+				429,
+				287
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				671,
+				482,
+				228,
+				425
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				628,
+				434,
+				397,
+				320
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				654,
+				431,
+				389,
+				304
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				652,
+				443,
+				408,
+				289
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				653,
+				446,
+				416,
+				290
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				662,
+				458,
+				410,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				329,
+				487,
+				548,
+				320
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				446,
+				462,
+				480,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				473,
+				471,
+				421,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Critical_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				473,
+				456,
+				421,
+				328
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0888866662979126,
+			"bbox": [
+				560,
+				465,
+				395,
+				325
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.177773332595825,
+			"bbox": [
+				458,
+				431,
+				415,
+				327
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266659998893738,
+			"bbox": [
+				657,
+				410,
+				402,
+				331
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.35554666519165,
+			"bbox": [
+				536,
+				313,
+				339,
+				401
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444433331489563,
+			"bbox": [
+				503,
+				459,
+				397,
+				289
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533319997787476,
+			"bbox": [
+				434,
+				381,
+				397,
+				403
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622206664085388,
+			"bbox": [
+				427,
+				381,
+				515,
+				407
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.711093330383301,
+			"bbox": [
+				388,
+				381,
+				500,
+				403
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.799979996681213,
+			"bbox": [
+				384,
+				381,
+				541,
+				477
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.888866662979126,
+			"bbox": [
+				607,
+				496,
+				295,
+				491
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.977753329277039,
+			"bbox": [
+				645,
+				456,
+				332,
+				273
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06663999557495,
+			"bbox": [
+				634,
+				335,
+				293,
+				394
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.15552666187286,
+			"bbox": [
+				561,
+				452,
+				334,
+				334
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.24441332817078,
+			"bbox": [
+				473,
+				445,
+				412,
+				337
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.33329999446869,
+			"bbox": [
+				473,
+				456,
+				421,
+				328
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhao_yun_left_Active_A_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				670,
+				458,
+				439,
+				326
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0333333333333333,
+			"bbox": [
+				676,
+				462,
+				432,
+				320
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				675,
+				465,
+				433,
+				315
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.1,
+			"bbox": [
+				672,
+				464,
+				435,
+				319
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				668,
+				458,
+				438,
+				323
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.166666666666667,
+			"bbox": [
+				665,
+				448,
+				442,
+				336
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				660,
+				437,
+				447,
+				349
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.233333333333333,
+			"bbox": [
+				656,
+				446,
+				452,
+				334
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				652,
+				455,
+				455,
+				325
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				651,
+				460,
+				455,
+				326
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				653,
+				460,
+				452,
+				327
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.366666666666667,
+			"bbox": [
+				657,
+				457,
+				448,
+				326
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				659,
+				450,
+				449,
+				331
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.433333333333333,
+			"bbox": [
+				662,
+				444,
+				447,
+				337
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				665,
+				450,
+				445,
+				330
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.5,
+			"bbox": [
+				670,
+				458,
+				439,
+				326
+			],
+			"duration": 0.5,
+			"facing": -1,
+			"file": "zhao_yun_left_Move_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				471,
+				494,
+				403,
+				291
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				472,
+				496,
+				403,
+				288
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				475,
+				498,
+				403,
+				286
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				479,
+				497,
+				403,
+				287
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				483,
+				493,
+				403,
+				291
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				487,
+				489,
+				403,
+				295
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				491,
+				485,
+				403,
+				299
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				493,
+				483,
+				411,
+				301
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				494,
+				481,
+				417,
+				303
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				491,
+				479,
+				422,
+				308
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				488,
+				478,
+				419,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				484,
+				479,
+				416,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				479,
+				482,
+				412,
+				308
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				476,
+				486,
+				405,
+				303
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				473,
+				490,
+				403,
+				297
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				471,
+				494,
+				403,
+				291
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhao_yun_left_Stun_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				473,
+				457,
+				421,
+				327
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0555533329645793,
+			"bbox": [
+				458,
+				458,
+				436,
+				324
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.111106665929159,
+			"bbox": [
+				566,
+				434,
+				343,
+				362
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.166659998893738,
+			"bbox": [
+				663,
+				214,
+				315,
+				595
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.222213331858317,
+			"bbox": [
+				669,
+				151,
+				324,
+				678
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.277766664822896,
+			"bbox": [
+				689,
+				196,
+				394,
+				647
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333319997787476,
+			"bbox": [
+				666,
+				288,
+				472,
+				509
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.388873330752055,
+			"bbox": [
+				677,
+				491,
+				464,
+				284
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444426663716634,
+			"bbox": [
+				688,
+				592,
+				449,
+				184
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.499979996681213,
+			"bbox": [
+				692,
+				595,
+				446,
+				196
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.555533329645793,
+			"bbox": [
+				691,
+				596,
+				447,
+				200
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.611086662610372,
+			"bbox": [
+				691,
+				596,
+				447,
+				198
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666639995574951,
+			"bbox": [
+				691,
+				596,
+				447,
+				198
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.72219332853953,
+			"bbox": [
+				691,
+				596,
+				447,
+				202
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.77774666150411,
+			"bbox": [
+				691,
+				596,
+				447,
+				204
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.833299994468689,
+			"bbox": [
+				691,
+				596,
+				447,
+				204
+			],
+			"duration": 0.833299994468689,
+			"facing": -1,
+			"file": "zhao_yun_left_Death_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				648,
+				457,
+				417,
+				327
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				645,
+				457,
+				419,
+				327
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				643,
+				456,
+				421,
+				328
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				643,
+				456,
+				420,
+				328
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				644,
+				456,
+				419,
+				328
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				647,
+				457,
+				417,
+				327
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				651,
+				457,
+				414,
+				327
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				654,
+				458,
+				411,
+				326
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				653,
+				458,
+				413,
+				326
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				651,
+				459,
+				416,
+				325
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				650,
+				459,
+				417,
+				325
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				649,
+				459,
+				418,
+				325
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				649,
+				459,
+				418,
+				325
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				649,
+				459,
+				417,
+				325
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				649,
+				458,
+				416,
+				326
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				648,
+				457,
+				417,
+				327
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Idle_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				597,
+				466,
+				468,
+				318
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0622200012207031,
+			"bbox": [
+				650,
+				476,
+				350,
+				327
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.124440002441406,
+			"bbox": [
+				671,
+				371,
+				234,
+				427
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.186660003662109,
+			"bbox": [
+				681,
+				341,
+				230,
+				443
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.248880004882813,
+			"bbox": [
+				689,
+				445,
+				382,
+				336
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.311100006103516,
+			"bbox": [
+				664,
+				430,
+				228,
+				443
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.373320007324219,
+			"bbox": [
+				615,
+				419,
+				457,
+				324
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.435540008544922,
+			"bbox": [
+				580,
+				417,
+				491,
+				321
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.497760009765625,
+			"bbox": [
+				580,
+				423,
+				487,
+				321
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.559980010986328,
+			"bbox": [
+				565,
+				439,
+				498,
+				320
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622200012207031,
+			"bbox": [
+				613,
+				469,
+				522,
+				295
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.684420013427734,
+			"bbox": [
+				670,
+				477,
+				640,
+				328
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.746640014648438,
+			"bbox": [
+				691,
+				439,
+				613,
+				364
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.808860015869141,
+			"bbox": [
+				682,
+				430,
+				562,
+				335
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.871080017089844,
+			"bbox": [
+				626,
+				482,
+				600,
+				308
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933300018310547,
+			"bbox": [
+				597,
+				466,
+				468,
+				318
+			],
+			"duration": 0.933300018310547,
+			"facing": 1,
+			"file": "zhao_yun_right_Attack_A_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				642,
+				471,
+				421,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				625,
+				471,
+				432,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				591,
+				482,
+				466,
+				332
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				653,
+				445,
+				408,
+				347
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				643,
+				379,
+				235,
+				388
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				666,
+				461,
+				290,
+				322
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				419,
+				484,
+				429,
+				287
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				637,
+				482,
+				228,
+				425
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				511,
+				434,
+				397,
+				320
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				493,
+				431,
+				389,
+				304
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				476,
+				443,
+				408,
+				289
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				467,
+				446,
+				416,
+				290
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				464,
+				458,
+				410,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				659,
+				487,
+				548,
+				320
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				610,
+				462,
+				480,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				642,
+				471,
+				421,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Critical_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				642,
+				456,
+				421,
+				328
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0888866662979126,
+			"bbox": [
+				581,
+				465,
+				395,
+				325
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.177773332595825,
+			"bbox": [
+				663,
+				431,
+				415,
+				327
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266659998893738,
+			"bbox": [
+				477,
+				410,
+				402,
+				331
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.35554666519165,
+			"bbox": [
+				661,
+				313,
+				339,
+				401
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444433331489563,
+			"bbox": [
+				636,
+				459,
+				397,
+				289
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533319997787476,
+			"bbox": [
+				705,
+				381,
+				397,
+				403
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622206664085388,
+			"bbox": [
+				594,
+				381,
+				515,
+				407
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.711093330383301,
+			"bbox": [
+				648,
+				381,
+				500,
+				403
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.799979996681213,
+			"bbox": [
+				611,
+				381,
+				541,
+				477
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.888866662979126,
+			"bbox": [
+				634,
+				496,
+				295,
+				491
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.977753329277039,
+			"bbox": [
+				559,
+				456,
+				332,
+				273
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06663999557495,
+			"bbox": [
+				609,
+				335,
+				293,
+				394
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.15552666187286,
+			"bbox": [
+				641,
+				452,
+				334,
+				334
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.24441332817078,
+			"bbox": [
+				651,
+				445,
+				412,
+				337
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.33329999446869,
+			"bbox": [
+				642,
+				456,
+				421,
+				328
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhao_yun_right_Active_A_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Active_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				427,
+				458,
+				439,
+				326
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0333333333333333,
+			"bbox": [
+				428,
+				462,
+				432,
+				320
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				428,
+				465,
+				433,
+				315
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.1,
+			"bbox": [
+				429,
+				464,
+				435,
+				319
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				430,
+				458,
+				438,
+				323
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.166666666666667,
+			"bbox": [
+				429,
+				448,
+				442,
+				336
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				429,
+				437,
+				447,
+				349
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.233333333333333,
+			"bbox": [
+				428,
+				446,
+				452,
+				334
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				429,
+				455,
+				455,
+				325
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				430,
+				460,
+				455,
+				326
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				431,
+				460,
+				452,
+				327
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.366666666666667,
+			"bbox": [
+				431,
+				457,
+				448,
+				326
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				428,
+				450,
+				449,
+				331
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.433333333333333,
+			"bbox": [
+				427,
+				444,
+				447,
+				337
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				426,
+				450,
+				445,
+				330
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.5,
+			"bbox": [
+				427,
+				458,
+				439,
+				326
+			],
+			"duration": 0.5,
+			"facing": 1,
+			"file": "zhao_yun_right_Move_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				662,
+				494,
+				403,
+				291
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				661,
+				496,
+				403,
+				288
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				658,
+				498,
+				403,
+				286
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				654,
+				497,
+				403,
+				287
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				650,
+				493,
+				403,
+				291
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				646,
+				489,
+				403,
+				295
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				642,
+				485,
+				403,
+				299
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				632,
+				483,
+				411,
+				301
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				625,
+				481,
+				417,
+				303
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				623,
+				479,
+				422,
+				308
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				629,
+				478,
+				419,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				636,
+				479,
+				416,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				645,
+				482,
+				412,
+				308
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				655,
+				486,
+				405,
+				303
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				660,
+				490,
+				403,
+				297
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				662,
+				494,
+				403,
+				291
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhao_yun_right_Stun_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				642,
+				457,
+				421,
+				327
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_00.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0555533329645793,
+			"bbox": [
+				642,
+				458,
+				436,
+				324
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_01.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.111106665929159,
+			"bbox": [
+				627,
+				434,
+				343,
+				362
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_02.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.166659998893738,
+			"bbox": [
+				558,
+				214,
+				315,
+				595
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_03.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.222213331858317,
+			"bbox": [
+				543,
+				151,
+				324,
+				678
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_04.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.277766664822896,
+			"bbox": [
+				453,
+				196,
+				394,
+				647
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_05.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333319997787476,
+			"bbox": [
+				398,
+				288,
+				472,
+				509
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_06.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.388873330752055,
+			"bbox": [
+				395,
+				491,
+				464,
+				284
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_07.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444426663716634,
+			"bbox": [
+				399,
+				592,
+				449,
+				184
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_08.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.499979996681213,
+			"bbox": [
+				398,
+				595,
+				446,
+				196
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_09.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.555533329645793,
+			"bbox": [
+				398,
+				596,
+				447,
+				200
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_10.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.611086662610372,
+			"bbox": [
+				398,
+				596,
+				447,
+				198
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_11.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666639995574951,
+			"bbox": [
+				398,
+				596,
+				447,
+				198
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_12.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.72219332853953,
+			"bbox": [
+				398,
+				596,
+				447,
+				202
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_13.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.77774666150411,
+			"bbox": [
+				398,
+				596,
+				447,
+				204
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_14.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.833299994468689,
+			"bbox": [
+				398,
+				596,
+				447,
+				204
+			],
+			"duration": 0.833299994468689,
+			"facing": 1,
+			"file": "zhao_yun_right_Death_15.png",
+			"game_scale": 0.46,
+			"id": "zhao_yun",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				526,
+				466,
+				350,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				524,
+				466,
+				352,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				523,
+				466,
+				352,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				522,
+				465,
+				353,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				522,
+				465,
+				353,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				523,
+				465,
+				352,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				525,
+				464,
+				350,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				527,
+				465,
+				348,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				529,
+				465,
+				346,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				529,
+				465,
+				346,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				528,
+				466,
+				348,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				528,
+				466,
+				348,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				527,
+				466,
+				349,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Idle_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0511133352915446,
+			"bbox": [
+				513,
+				464,
+				360,
+				315
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.102226670583089,
+			"bbox": [
+				566,
+				461,
+				303,
+				318
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.153340005874634,
+			"bbox": [
+				645,
+				418,
+				221,
+				361
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.204453341166178,
+			"bbox": [
+				646,
+				463,
+				244,
+				316
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.255566676457723,
+			"bbox": [
+				623,
+				469,
+				257,
+				311
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.306680011749268,
+			"bbox": [
+				604,
+				481,
+				261,
+				302
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.357793347040812,
+			"bbox": [
+				597,
+				484,
+				279,
+				301
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.408906682332357,
+			"bbox": [
+				608,
+				465,
+				266,
+				319
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.460020017623901,
+			"bbox": [
+				410,
+				456,
+				419,
+				321
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.511133352915446,
+			"bbox": [
+				470,
+				395,
+				335,
+				384
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.562246688206991,
+			"bbox": [
+				490,
+				410,
+				324,
+				374
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.613360023498535,
+			"bbox": [
+				521,
+				435,
+				331,
+				345
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.66447335879008,
+			"bbox": [
+				518,
+				460,
+				350,
+				323
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.715586694081624,
+			"bbox": [
+				498,
+				472,
+				365,
+				316
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.766700029373169,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 0.766700029373169,
+			"facing": -1,
+			"file": "zhuge_liang_left_Attack_A_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				532,
+				460,
+				326,
+				324
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				566,
+				465,
+				272,
+				322
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				566,
+				468,
+				269,
+				320
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				551,
+				471,
+				279,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				551,
+				483,
+				274,
+				298
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				552,
+				492,
+				276,
+				289
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				471,
+				441,
+				386,
+				338
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				450,
+				387,
+				456,
+				346
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				465,
+				380,
+				450,
+				342
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				505,
+				378,
+				414,
+				340
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				571,
+				320,
+				352,
+				396
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				630,
+				306,
+				295,
+				424
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				620,
+				352,
+				309,
+				399
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				549,
+				430,
+				379,
+				335
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Critical_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0888866662979126,
+			"bbox": [
+				538,
+				467,
+				386,
+				313
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.177773332595825,
+			"bbox": [
+				599,
+				453,
+				358,
+				326
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266659998893738,
+			"bbox": [
+				648,
+				430,
+				302,
+				349
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.35554666519165,
+			"bbox": [
+				651,
+				433,
+				296,
+				346
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444433331489563,
+			"bbox": [
+				659,
+				464,
+				287,
+				315
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533319997787476,
+			"bbox": [
+				647,
+				465,
+				261,
+				314
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622206664085388,
+			"bbox": [
+				693,
+				466,
+				204,
+				313
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.711093330383301,
+			"bbox": [
+				693,
+				464,
+				205,
+				315
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.799979996681213,
+			"bbox": [
+				697,
+				465,
+				199,
+				314
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.888866662979126,
+			"bbox": [
+				689,
+				468,
+				203,
+				311
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.977753329277039,
+			"bbox": [
+				671,
+				473,
+				212,
+				306
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06663999557495,
+			"bbox": [
+				657,
+				471,
+				216,
+				308
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.15552666187286,
+			"bbox": [
+				657,
+				467,
+				218,
+				313
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.24441332817078,
+			"bbox": [
+				677,
+				463,
+				273,
+				317
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.33329999446869,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.33329999446869,
+			"facing": -1,
+			"file": "zhuge_liang_left_Appear_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				616,
+				468,
+				238,
+				311
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				613,
+				462,
+				239,
+				313
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				612,
+				456,
+				246,
+				318
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				618,
+				460,
+				249,
+				314
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				620,
+				465,
+				261,
+				315
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				620,
+				459,
+				255,
+				317
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				619,
+				457,
+				244,
+				315
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				617,
+				464,
+				252,
+				311
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06666666666667,
+			"bbox": [
+				615,
+				465,
+				261,
+				313
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.2,
+			"bbox": [
+				612,
+				458,
+				271,
+				317
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.33333333333333,
+			"bbox": [
+				615,
+				456,
+				271,
+				316
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.46666666666667,
+			"bbox": [
+				620,
+				465,
+				265,
+				313
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.6,
+			"bbox": [
+				620,
+				462,
+				260,
+				317
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.73333333333333,
+			"bbox": [
+				619,
+				456,
+				247,
+				318
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.86666666666667,
+			"bbox": [
+				618,
+				459,
+				240,
+				313
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 2.0,
+			"bbox": [
+				616,
+				468,
+				238,
+				311
+			],
+			"duration": 2.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Move_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				526,
+				473,
+				337,
+				306
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				528,
+				474,
+				336,
+				305
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				533,
+				474,
+				330,
+				305
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				536,
+				473,
+				325,
+				306
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				538,
+				471,
+				318,
+				308
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				539,
+				469,
+				321,
+				310
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				541,
+				467,
+				324,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				543,
+				464,
+				325,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				545,
+				463,
+				326,
+				316
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				547,
+				462,
+				327,
+				317
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				546,
+				461,
+				328,
+				322
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				541,
+				461,
+				328,
+				319
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				536,
+				462,
+				326,
+				317
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				531,
+				464,
+				326,
+				315
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				527,
+				469,
+				334,
+				310
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				526,
+				473,
+				337,
+				306
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Stun_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				527,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				543,
+				463,
+				377,
+				314
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				571,
+				463,
+				367,
+				313
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				597,
+				465,
+				351,
+				311
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				619,
+				468,
+				333,
+				308
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				625,
+				470,
+				318,
+				307
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				671,
+				470,
+				339,
+				297
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				719,
+				503,
+				364,
+				277
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				730,
+				595,
+				409,
+				206
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				717,
+				619,
+				418,
+				162
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				713,
+				629,
+				415,
+				157
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				711,
+				634,
+				417,
+				152
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				711,
+				635,
+				417,
+				151
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				711,
+				636,
+				417,
+				150
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				711,
+				636,
+				417,
+				150
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				711,
+				636,
+				417,
+				150
+			],
+			"duration": 1.0,
+			"facing": -1,
+			"file": "zhuge_liang_left_Death_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				660,
+				466,
+				350,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				660,
+				466,
+				352,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				661,
+				466,
+				352,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				661,
+				465,
+				353,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				661,
+				465,
+				353,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				661,
+				465,
+				352,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				661,
+				464,
+				350,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				661,
+				465,
+				348,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				661,
+				465,
+				346,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				661,
+				465,
+				346,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				660,
+				466,
+				348,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				660,
+				466,
+				348,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				660,
+				466,
+				349,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Idle_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Idle",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0511133352915446,
+			"bbox": [
+				663,
+				464,
+				360,
+				315
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.102226670583089,
+			"bbox": [
+				667,
+				461,
+				303,
+				318
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.153340005874634,
+			"bbox": [
+				670,
+				418,
+				221,
+				361
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.204453341166178,
+			"bbox": [
+				646,
+				463,
+				244,
+				316
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.255566676457723,
+			"bbox": [
+				656,
+				469,
+				257,
+				311
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.306680011749268,
+			"bbox": [
+				671,
+				481,
+				261,
+				302
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.357793347040812,
+			"bbox": [
+				660,
+				484,
+				279,
+				301
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.408906682332357,
+			"bbox": [
+				662,
+				465,
+				266,
+				319
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.460020017623901,
+			"bbox": [
+				707,
+				456,
+				419,
+				321
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.511133352915446,
+			"bbox": [
+				731,
+				395,
+				335,
+				384
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.562246688206991,
+			"bbox": [
+				722,
+				410,
+				324,
+				374
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.613360023498535,
+			"bbox": [
+				684,
+				435,
+				331,
+				345
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.66447335879008,
+			"bbox": [
+				668,
+				460,
+				350,
+				323
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.715586694081624,
+			"bbox": [
+				673,
+				472,
+				365,
+				316
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.766700029373169,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 0.766700029373169,
+			"facing": 1,
+			"file": "zhuge_liang_right_Attack_A_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Attack_A",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				678,
+				460,
+				326,
+				324
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				698,
+				465,
+				272,
+				322
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				701,
+				468,
+				269,
+				320
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				706,
+				471,
+				279,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				711,
+				483,
+				274,
+				298
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				708,
+				492,
+				276,
+				289
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				679,
+				441,
+				386,
+				338
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				630,
+				387,
+				456,
+				346
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				621,
+				380,
+				450,
+				342
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				617,
+				378,
+				414,
+				340
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				613,
+				320,
+				352,
+				396
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				611,
+				306,
+				295,
+				424
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				607,
+				352,
+				309,
+				399
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				608,
+				430,
+				379,
+				335
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Critical_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Critical",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0888866662979126,
+			"bbox": [
+				612,
+				467,
+				386,
+				313
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.177773332595825,
+			"bbox": [
+				579,
+				453,
+				358,
+				326
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266659998893738,
+			"bbox": [
+				586,
+				430,
+				302,
+				349
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.35554666519165,
+			"bbox": [
+				589,
+				433,
+				296,
+				346
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.444433331489563,
+			"bbox": [
+				590,
+				464,
+				287,
+				315
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533319997787476,
+			"bbox": [
+				628,
+				465,
+				261,
+				314
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.622206664085388,
+			"bbox": [
+				639,
+				466,
+				204,
+				313
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.711093330383301,
+			"bbox": [
+				638,
+				464,
+				205,
+				315
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.799979996681213,
+			"bbox": [
+				640,
+				465,
+				199,
+				314
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.888866662979126,
+			"bbox": [
+				644,
+				468,
+				203,
+				311
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.977753329277039,
+			"bbox": [
+				653,
+				473,
+				212,
+				306
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06663999557495,
+			"bbox": [
+				663,
+				471,
+				216,
+				308
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.15552666187286,
+			"bbox": [
+				661,
+				467,
+				218,
+				313
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.24441332817078,
+			"bbox": [
+				586,
+				463,
+				273,
+				317
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.33329999446869,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.33329999446869,
+			"facing": 1,
+			"file": "zhuge_liang_right_Appear_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Appear",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				682,
+				468,
+				238,
+				311
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				684,
+				462,
+				239,
+				313
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				678,
+				456,
+				246,
+				318
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				669,
+				460,
+				249,
+				314
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				655,
+				465,
+				261,
+				315
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				661,
+				459,
+				255,
+				317
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				673,
+				457,
+				244,
+				315
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				667,
+				464,
+				252,
+				311
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.06666666666667,
+			"bbox": [
+				660,
+				465,
+				261,
+				313
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.2,
+			"bbox": [
+				653,
+				458,
+				271,
+				317
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.33333333333333,
+			"bbox": [
+				650,
+				456,
+				271,
+				316
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.46666666666667,
+			"bbox": [
+				651,
+				465,
+				265,
+				313
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.6,
+			"bbox": [
+				656,
+				462,
+				260,
+				317
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.73333333333333,
+			"bbox": [
+				670,
+				456,
+				247,
+				318
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.86666666666667,
+			"bbox": [
+				678,
+				459,
+				240,
+				313
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 2.0,
+			"bbox": [
+				682,
+				468,
+				238,
+				311
+			],
+			"duration": 2.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Move_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Move",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				673,
+				473,
+				337,
+				306
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				672,
+				474,
+				336,
+				305
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				673,
+				474,
+				330,
+				305
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				675,
+				473,
+				325,
+				306
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				680,
+				471,
+				318,
+				308
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				676,
+				469,
+				321,
+				310
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				671,
+				467,
+				324,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				668,
+				464,
+				325,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				665,
+				463,
+				326,
+				316
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				662,
+				462,
+				327,
+				317
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				662,
+				461,
+				328,
+				322
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				667,
+				461,
+				328,
+				319
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				674,
+				462,
+				326,
+				317
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				679,
+				464,
+				326,
+				315
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				675,
+				469,
+				334,
+				310
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				673,
+				473,
+				337,
+				306
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Stun_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Stun",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				660,
+				467,
+				349,
+				312
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_00.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.0666666666666667,
+			"bbox": [
+				616,
+				463,
+				377,
+				314
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_01.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.133333333333333,
+			"bbox": [
+				598,
+				463,
+				367,
+				313
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_02.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.2,
+			"bbox": [
+				588,
+				465,
+				351,
+				311
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_03.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.266666666666667,
+			"bbox": [
+				584,
+				468,
+				333,
+				308
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_04.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.333333333333333,
+			"bbox": [
+				593,
+				470,
+				318,
+				307
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_05.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				526,
+				470,
+				339,
+				297
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_06.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.466666666666667,
+			"bbox": [
+				453,
+				503,
+				364,
+				277
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_07.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.533333333333333,
+			"bbox": [
+				397,
+				595,
+				409,
+				206
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_08.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.6,
+			"bbox": [
+				401,
+				619,
+				418,
+				162
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_09.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.666666666666667,
+			"bbox": [
+				408,
+				629,
+				415,
+				157
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_10.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.733333333333333,
+			"bbox": [
+				408,
+				634,
+				417,
+				152
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_11.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.8,
+			"bbox": [
+				408,
+				635,
+				417,
+				151
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_12.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.866666666666667,
+			"bbox": [
+				408,
+				636,
+				417,
+				150
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_13.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 0.933333333333333,
+			"bbox": [
+				408,
+				636,
+				417,
+				150
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_14.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		},
+		{
+			"at": 1.0,
+			"bbox": [
+				408,
+				636,
+				417,
+				150
+			],
+			"duration": 1.0,
+			"facing": 1,
+			"file": "zhuge_liang_right_Death_15.png",
+			"game_scale": 0.47,
+			"id": "zhuge_liang",
+			"pose": "Death",
+			"render_magnification": 4
+		}
+	],
+	"program": "0.9.8.2"
+}

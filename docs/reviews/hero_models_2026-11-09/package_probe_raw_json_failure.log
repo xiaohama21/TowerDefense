@@ -1,0 +1,73 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+
+
+PACKAGE_PASS: load shipped Spine DLL
+
+PACKAGE_PASS: Spine runtime
+
+PACKAGE_PASS: project version 0.9.8.2
+
+PACKAGE_PASS: battle visual manifest and native bounds
+
+PACKAGE_PASS: packaged Spine identity guan_yu
+
+PACKAGE_PASS: packaged animation guan_yu.Idle
+
+PACKAGE_PASS: packaged animation guan_yu.Move
+
+PACKAGE_PASS: packaged animation guan_yu.Attack_A
+
+PACKAGE_PASS: packaged animation guan_yu.XX
+
+PACKAGE_PASS: packaged animation guan_yu.Stun
+
+PACKAGE_PASS: packaged animation guan_yu.Death
+
+PACKAGE_PASS: packaged Spine identity liu_bei
+
+PACKAGE_PASS: packaged animation liu_bei.Idle
+
+PACKAGE_PASS: packaged animation liu_bei.Move
+
+PACKAGE_PASS: packaged animation liu_bei.Attack_A
+
+PACKAGE_PASS: packaged animation liu_bei.Appear
+
+PACKAGE_PASS: packaged animation liu_bei.Stun
+
+PACKAGE_PASS: packaged animation liu_bei.Death
+
+PACKAGE_PASS: packaged animation liu_bei.Critical
+
+PACKAGE_PASS: packaged Spine identity diao_chan
+
+PACKAGE_PASS: packaged selected skin diao_chan
+
+ERROR: Condition "!FileAccess::exists(path)" is true. Returning: ERR_FILE_NOT_FOUND
+
+   at: open_dynamic_library (platform/windows/os_windows.cpp:483)
+
+ERROR: GDExtension dynamic library not found: 'res://bin/spine_godot_extension.gdextension'.
+
+   at: open_library (core/extension/gdextension.cpp:810)
+
+ERROR: Error loading extension: 'res://bin/spine_godot_extension.gdextension'.
+
+   at: load_extensions (core/extension/gdextension_manager.cpp:333)
+
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+
+   at: parse_string (core/io/json.cpp:629)
+
+   GDScript backtrace (most recent call first):
+
+       [0] _run (F:/godotProject/TowerDefense/tools/verify_gear_export.gd:29)
+
+SCRIPT ERROR: Invalid access to property or key 'skins' on a base object of type 'Nil'.
+
+   at: _run (F:/godotProject/TowerDefense/tools/verify_gear_export.gd:31)
+
+   GDScript backtrace (most recent call first):
+
+       [0] _run (F:/godotProject/TowerDefense/tools/verify_gear_export.gd:31)

@@ -24,8 +24,8 @@ func run() -> void:
 	view.transparent_bg = true
 	view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(view)
-	for id in ["guan_yu", "liu_bei", "yellow_turban_soldier", "yellow_turban_cavalry", "yellow_turban_sergeant", "yellow_turban_general"]:
-		var spec := BattleVisualRegistry.hero(id) if id in ["guan_yu", "liu_bei"] else BattleVisualRegistry.enemy(id)
+	for id in BattleVisualRegistry.HEROES.keys() + BattleVisualRegistry.ENEMIES.keys():
+		var spec := BattleVisualRegistry.hero(id) if BattleVisualRegistry.HEROES.has(id) else BattleVisualRegistry.enemy(id)
 		var actor := BattleVisualRegistry.create_actor(spec)
 		check(actor != null, id + " native rig")
 		if actor == null: continue
@@ -37,7 +37,7 @@ func run() -> void:
 		for facing in [-1, 1]:
 			actor.scale.x = facing * float(spec.get("native_facing", -1)) * float(spec.scale)
 			var poses := ["Idle", "Move", "Attack_A", str(spec.get("ultimate", "XX")), "Stun", "Death"]
-			if id == "liu_bei": poses.append("Critical")
+			if spec.has("critical"): poses.append(str(spec.critical))
 			for pose in poses:
 				state.clear_tracks()
 				actor.get_skeleton().set_to_setup_pose()

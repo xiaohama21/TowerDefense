@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "license": "Original project enemy/map art; Guan Yu and original D69 #158 Liu Bei use ART_ASSETS section 6. See liu_bei/provenance.json.",
+  "license": "Original project enemy/map art; Guan Yu and original D69 #158/#072/#312/#314 heroes use ART_ASSETS section 6; see each hero provenance.json.",
   "actors": {
     "liu_bei": {
       "scale": 0.53,
@@ -63,9 +63,92 @@
       "skin": "#cead85",
       "role": "boss",
       "native_facing": 1
+    },
+    "diao_chan": {
+      "number": "072",
+      "name": "Hero_Diaochan_A",
+      "bones": 89,
+      "slots": 48,
+      "scale": 0.5,
+      "attack_start": 0.3333,
+      "attack_source_hit": 0.3333,
+      "attack_time_scale": 1.0,
+      "attack_duration": 0.6667,
+      "critical_start": 0.3333,
+      "critical_time_scale": 2.02030303030303,
+      "ultimate": "Active_A",
+      "ult_duration": 0.7,
+      "ult_time_scale": 1.761857142857143,
+      "skin": "default",
+      "foot": 8,
+      "native_facing": -1,
+      "hit": 0.11,
+      "ult_hit": 0,
+      "critical": "Critical",
+      "role": "hero",
+      "source": "D69 #072"
+    },
+    "zhao_yun": {
+      "number": "312",
+      "name": "Hero_ZhaoYun_A",
+      "bones": 97,
+      "slots": 47,
+      "scale": 0.46,
+      "root_motion_bone": "Character",
+      "root_motion_scale": 0.08,
+      "attack_start": 0.0,
+      "attack_source_hit": 0.6333,
+      "attack_time_scale": 5.757272727272727,
+      "attack_duration": 0.16210800568450973,
+      "critical_start": 0.4667,
+      "critical_time_scale": 1.616060606060606,
+      "ultimate": "Active_A",
+      "ult_duration": 0.6,
+      "ult_time_scale": 2.222166666666667,
+      "skin": "default",
+      "foot": 8,
+      "native_facing": -1,
+      "hit": 0.11,
+      "ult_hit": 0,
+      "critical": "Critical",
+      "role": "hero",
+      "source": "D69 #312"
+    },
+    "zhuge_liang": {
+      "number": "314",
+      "name": "Hero_ZhugeLiang_A",
+      "bones": 56,
+      "slots": 30,
+      "scale": 0.47,
+      "attack_start": 0.4333,
+      "attack_source_hit": 0.4333,
+      "attack_time_scale": 1.0,
+      "attack_duration": 0.3334,
+      "critical_start": 0.4667,
+      "critical_time_scale": 1.616060606060606,
+      "ultimate": "Appear",
+      "ult_duration": 0.65,
+      "ult_time_scale": 2.051230769230769,
+      "skin": "default",
+      "foot": 8,
+      "native_facing": -1,
+      "hit": 0.11,
+      "ult_hit": 0,
+      "critical": "Critical",
+      "role": "hero",
+      "source": "D69 #314"
     }
   },
   "files": {
+    "diao_chan/avatar.png": "c2f1277c056b30a3a4a787ad9e0d2c9095a0ec8d9214bfeb0c6cf06fde6ef4db",
+    "diao_chan/diao_chan-data.tres": "f7b1b3162adf951fef9f7d488db640f18489be7599a0dd0f4445204e770b7dcd",
+    "diao_chan/diao_chan.atlas": "912d8e7b23de4be625b69a8d7cf28e7a526bc1fa58b3b74d27189a017dd8b2da",
+    "diao_chan/diao_chan.spine-json": "39280749efa5e0ddd854562897404e8feb8568a9c875e16022bf63464e255701",
+    "diao_chan/Hero_Diaochan_A.png": "63b0d2fc135277e34a52733378ac9abfabb54c803b46024a37f7c10c9062d037",
+    "diao_chan/source/d69_072/Hero_Diaochan_A.atlas": "912d8e7b23de4be625b69a8d7cf28e7a526bc1fa58b3b74d27189a017dd8b2da",
+    "diao_chan/source/d69_072/Hero_Diaochan_A.json": "b5df635cfa41e4dad544b8eed4e17ba4b979da4a3d43a68192eba55f9b16edee",
+    "diao_chan/source/d69_072/Hero_Diaochan_A.png": "63b0d2fc135277e34a52733378ac9abfabb54c803b46024a37f7c10c9062d037",
+    "diao_chan/source/d69_072/免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141",
     "grass_camp/banner.png": "efede652e1c5c998e570fffdf7df4db5b4d2fe46d88adaa8f9d20fbf635a9787",
     "grass_camp/base.png": "19ad8b4e7aff179612f68425768b1ac2bf5a67c8e616b39f2f4f72fc369a0223",
     "grass_camp/gate.png": "b5fcfdd791ce5c88344dd424630447bfacb94d0794338e74ea0fe92d5bdd653b",
@@ -91,6 +174,7 @@
     "liu_bei/source/d69_158/Hero_LiBai_A.json": "66f0211ad68820ce7335817bc93133cc19ddb72c06bcc77c710232476c784f5d",
     "liu_bei/source/d69_158/Hero_LiBai_A.png": "5a76b2fdc30c620f72644f97e12bfb7812f06eb1d1939bfe027ca012f58a0911",
     "liu_bei/source/d69_158/免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141",
+    "portraits/guan_yu.png": "3eacb18776dad390e20390d20bc1e9a86261cb04a5915eb6d92115f5d80a5193",
     "yellow_turban_cavalry/source/arm.png": "280c504a314d977112d379fb91009049816f0df08a38892a36d5b36034a39c70",
     "yellow_turban_cavalry/source/arm.svg": "052c0be7d4214706383a58a1cf905a7f7cc20fa4091f291ea82b6e455539147c",
     "yellow_turban_cavalry/source/body.png": "e6c8d39186ce559aa8e3dc5ddc05a84f30e3522fcb89e01f6efd73b583568e15",
@@ -170,9 +254,27 @@
     "yellow_turban_soldier/yellow_turban_soldier-data.tres": "3cafa851bf7744fedbf65d2471ddebc8b113b2698070198146c0f3c53fed7f94",
     "yellow_turban_soldier/yellow_turban_soldier.atlas": "240ea09186223d6d49e17f9102644a59617a057819fca938bcd52a5692eef786",
     "yellow_turban_soldier/yellow_turban_soldier.png": "e35ea8824458b1284b3349015614e3b3937c9e17c69df2b390fcb79acb25e06f",
-    "yellow_turban_soldier/yellow_turban_soldier.spine-json": "c19035a4708601d1eabe91521dcba8bf8de31061f3ae6138bea4daf212f3bd15"
+    "yellow_turban_soldier/yellow_turban_soldier.spine-json": "c19035a4708601d1eabe91521dcba8bf8de31061f3ae6138bea4daf212f3bd15",
+    "zhao_yun/avatar.png": "0fa2ff6fa822e7e275d7743cc611010a56c24ceacdf2559c82f0b73c42d03ece",
+    "zhao_yun/Hero_ZhaoYun_A.png": "5bd1cf6af61dc85cea875ae3a0ade9aac2ba5d7c6fb163075530e3d3bec69244",
+    "zhao_yun/source/d69_312/Hero_ZhaoYun_A.atlas": "9cccafa1dba0580d7ed476aac285d5907ab802ec96e532b9940a37304b08836b",
+    "zhao_yun/source/d69_312/Hero_ZhaoYun_A.json": "ddc9aaf0d08633d971da5a00e2bd807bd58e9b8f33ae53709a8c8dcd5f76133e",
+    "zhao_yun/source/d69_312/Hero_ZhaoYun_A.png": "5bd1cf6af61dc85cea875ae3a0ade9aac2ba5d7c6fb163075530e3d3bec69244",
+    "zhao_yun/source/d69_312/免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141",
+    "zhao_yun/zhao_yun-data.tres": "9723e3ab5354619f7c333ff0b9651f900514cc44c0d0627a1f3a80bfd265a125",
+    "zhao_yun/zhao_yun.atlas": "9cccafa1dba0580d7ed476aac285d5907ab802ec96e532b9940a37304b08836b",
+    "zhao_yun/zhao_yun.spine-json": "fee00fe68317bc6f3b0131235fba2a01ff5afc9e32ba8b7fd759b74ced9bc02c",
+    "zhuge_liang/avatar.png": "bfbe2fbddf4438fe01488ba7e73179e6152b441d0570429c1e8d87baab006f01",
+    "zhuge_liang/Hero_ZhugeLiang_A.png": "cb505d5c220d79bd7ac990cb5a9d9d373ea4563cd2fe09d72e33377ef080c3d7",
+    "zhuge_liang/source/d69_314/Hero_ZhugeLiang_A.atlas": "04077ddde3e25c223ce3b3fc29869e718c991cad9e9ffb9ec4f62bf2d075c380",
+    "zhuge_liang/source/d69_314/Hero_ZhugeLiang_A.json": "6a0062f0eb71376f322f07bb6a4551a6a5cf19cf4d484ec79908c9b64d91a5f5",
+    "zhuge_liang/source/d69_314/Hero_ZhugeLiang_A.png": "cb505d5c220d79bd7ac990cb5a9d9d373ea4563cd2fe09d72e33377ef080c3d7",
+    "zhuge_liang/source/d69_314/免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141",
+    "zhuge_liang/zhuge_liang-data.tres": "1fe8f77980161fe65cbecbfbc1215bbd5b4386673385b068f6f70fe956a5eb95",
+    "zhuge_liang/zhuge_liang.atlas": "04077ddde3e25c223ce3b3fc29869e718c991cad9e9ffb9ec4f62bf2d075c380",
+    "zhuge_liang/zhuge_liang.spine-json": "e6b52e4bea8ec61d9c193725cb0c0f2b87f14051cad1b9effc48eadedc0c9646"
   },
-  "program": "0.9.8.1",
+  "program": "0.9.8.2",
   "native_measurements": [
     {
       "at": 0.0,
@@ -198,6 +300,45 @@
       "facing": 1,
       "file": "liu_bei_right_Idle.png",
       "id": "liu_bei",
+      "pose": "Idle"
+    },
+    {
+      "at": 0.0,
+      "bbox": [
+        97,
+        101,
+        81,
+        77
+      ],
+      "facing": 1,
+      "file": "diao_chan_right_Idle.png",
+      "id": "diao_chan",
+      "pose": "Idle"
+    },
+    {
+      "at": 0.0,
+      "bbox": [
+        98,
+        97,
+        104,
+        82
+      ],
+      "facing": 1,
+      "file": "zhao_yun_right_Idle.png",
+      "id": "zhao_yun",
+      "pose": "Idle"
+    },
+    {
+      "at": 0.0,
+      "bbox": [
+        101,
+        100,
+        87,
+        78
+      ],
+      "facing": 1,
+      "file": "zhuge_liang_right_Idle.png",
+      "id": "zhuge_liang",
       "pose": "Idle"
     },
     {
@@ -266,5 +407,85 @@
       160
     ]
   },
-  "export": "Packed actor atlases/rigs, map PNGs, portrait and manifest; authoring sources and abandoned variants stay in repository."
+  "export": "Packed actor atlases/rigs, map PNGs, portrait and manifest; authoring sources and abandoned variants stay in repository.",
+  "portraits": {
+    "guan_yu": {
+      "crop": [
+        666,
+        505,
+        862,
+        701
+      ],
+      "color": "#3d6f4d",
+      "source": "guan_yu_right_Idle_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "render_magnification": 4
+    },
+    "diao_chan": {
+      "crop": [
+        664,
+        504,
+        904,
+        744
+      ],
+      "color": "#695077",
+      "capture": {
+        "at": 0,
+        "combat_resources_modified": false,
+        "facing": 1,
+        "hidden_slots": [
+          "weapon",
+          "weapon2",
+          "weapon_stick"
+        ],
+        "id": "diao_chan",
+        "origin": [
+          768,
+          780
+        ],
+        "pose": "Idle",
+        "program": "0.9.8.2",
+        "render_magnification": 4
+      },
+      "source": "diao_chan_portrait.png",
+      "size": [
+        160,
+        160
+      ],
+      "render_magnification": 4
+    },
+    "zhao_yun": {
+      "crop": [
+        644,
+        507,
+        904,
+        767
+      ],
+      "color": "#405e7c",
+      "source": "zhao_yun_right_Idle_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "render_magnification": 4
+    },
+    "zhuge_liang": {
+      "crop": [
+        620,
+        448,
+        884,
+        712
+      ],
+      "color": "#826346",
+      "source": "zhuge_liang_right_Idle_00.png",
+      "size": [
+        160,
+        160
+      ],
+      "render_magnification": 4
+    }
+  }
 }

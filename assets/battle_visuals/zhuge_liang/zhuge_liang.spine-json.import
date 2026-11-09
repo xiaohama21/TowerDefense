@@ -1,0 +1,13 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://c8uu0sdqmh6kk"
+path="res://.godot/imported/zhuge_liang.spine-json-3084b76ac47098a17506314892911af4.spjson"
+
+[deps]
+
+source_file="res://assets/battle_visuals/zhuge_liang/zhuge_liang.spine-json"
+dest_files=["res://.godot/imported/zhuge_liang.spine-json-3084b76ac47098a17506314892911af4.spjson"]
+
+[params]

@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "errors": [],
+  "summary": [
+    "HERO_MODEL_RESULT: PASS checks=19 native=false failures=0"
+  ]
+}

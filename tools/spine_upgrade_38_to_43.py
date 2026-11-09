@@ -172,7 +172,7 @@ def convert_animation_slots(anim: dict) -> None:
     for slot_name, timelines in slots.items():
         if not isinstance(timelines, dict):
             continue
-        for timeline_key, frames in timelines.items():
+        for timeline_key, frames in list(timelines.items()):
             if not isinstance(frames, list):
                 continue
             # 3.8 的 slot 颜色 timeline 键名 "color" -> 4.3 "rgba"
