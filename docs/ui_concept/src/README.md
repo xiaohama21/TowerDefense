@@ -107,3 +107,7 @@ ingot（金元宝）、lord_level（冠印主公等级）、lord_exp（进度冠
 ### 0.9.5.1天赋节点图徽
 
 110枚节点专属图徽已完成生成、资源绑定与验收，台账见ART_PROMPTS §6.3 / ICONS v1.5。母版与透明PNG沿唯一目录assets/ui/icons/v2/，原283枚保留；对应树状弹窗与节点详情，不修改本目录用户SVG实验稿。
+
+### 0.10.1主城概念与建筑
+
+主城昼/暮SVG与对照HTML归档[city_0.10.1](../city_0.10.1/comparison.html)，由tools/generate_city_art.py重建，Godot SVG渲染生成PNG。用户已选暮色墨绿暖金版；九建筑原创建筑图形直接作为入口，没有新增缺图徽占位项。运行资源在assets/city，最终实机图归档runtime_0.10.1。原有HTML概念稿保留。

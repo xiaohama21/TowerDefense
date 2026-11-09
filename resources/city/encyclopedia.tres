@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"encyclopedia"
+display_name = "藏书阁"
+action = "查阅"
+description = "查看武将、敌人和技能资料。"
+introduction = "百科可预览武将成长与敌人机制，不消耗资源。"
+prerequisite_stage = &""
+implemented = true
+building = true
+position = Vector2(156, 232)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"tech"
+display_name = "军机帐"
+action = "研习"
+description = "分配科技点，调整战术加成。"
+introduction = "科技点来自通关，重置时会全额返还。"
+prerequisite_stage = &"ch01_s05"
+implemented = true
+building = true
+position = Vector2(894, 207)

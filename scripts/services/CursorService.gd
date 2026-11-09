@@ -22,8 +22,14 @@ func _polish(node: Node) -> void:
 	if node is BaseButton or node is TabBar:
 		CursorIcons.apply_hover(node as Control)
 	if node is Button:
-		UITheme.complete_button_states.call_deferred(node)
+		_complete_if_alive.call_deferred(weakref(node))
 
 
 func _exit_tree() -> void:
 	CursorIcons.release_cursors()
+
+
+func _complete_if_alive(reference: WeakRef) -> void:
+	var button := reference.get_ref() as Button
+	if is_instance_valid(button) and not button.is_queued_for_deletion():
+		UITheme.complete_button_states(button)

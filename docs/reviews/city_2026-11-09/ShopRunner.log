@@ -1,0 +1,27 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+SHOP_RESULT: PASS checks=461 failures=0
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:775)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] buy_shop_offer (res://scripts/services/SaveManager.gd:278)
+       [3] _test_transactions_and_ui (res://tests/ShopRunner.gd:138)
+       [4] _run (res://tests/ShopRunner.gd:31)
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:775)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] refresh_shop (res://scripts/services/SaveManager.gd:283)
+       [3] _test_transactions_and_ui (res://tests/ShopRunner.gd:139)
+       [4] _run (res://tests/ShopRunner.gd:31)
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:775)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] commit_victory (res://scripts/services/SaveManager.gd:259)
+       [3] _test_transactions_and_ui (res://tests/ShopRunner.gd:144)
+       [4] _run (res://tests/ShopRunner.gd:31)

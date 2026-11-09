@@ -65,7 +65,7 @@ func _test_refunds() -> void:
 	var result: Dictionary = ProfileStore._migrate_to_current(raw)
 	_check(result.ok and result.data.items.skill_book == 119, "七项满级共退112本")
 	_check(raw == before and result.data.characters == before.characters and result.data.items.general_seal == 9 and result.data.exp_pool == 77, "迁移副本并保留等级/进度")
-	_check(ProfileStore._migrate_to_current(result.data).data == result.data, "schema12重复加载不再退款")
+	_check(ProfileStore._migrate_to_current(result.data).data == result.data, "当前schema重复加载不再退款")
 	var partial := {"schema_version": 11, "items": {"skill_book": 0}, "characters": {"guan_yu": {"rank": 2, "skill_levels": {"passive_warm_wine": 5, "foreign": 10}}, "zhang_fei": {"rank": 1, "skill_levels": {"passive_yanhan": 10}}, "zhou_wei": {"rank": 2, "skill_levels": {"trait_vanguard": 999}}, "zhuge_liang": {"rank": 2, "skill_levels": {"passive_momentum": 2.5}}, "missing": {"rank": 5, "skill_levels": {"passive_warm_wine": 10}}}}
 	_check(ProfileStore._migrate_to_current(partial).data.items.skill_book == 2, "部分退款且未知/未解锁/非法无返书")
 	_check(ProfileStore._migrate_to_current({"schema_version":11,"characters":{"guan_yu":{"rank":2,"skill_levels":{"passive_warm_wine":10}}}}).data.items.skill_book == 16, "缺少items字段仍补齐退款")
@@ -82,7 +82,7 @@ func _test_refunds() -> void:
 	candidate.items.skill_book += 50
 	_check(not ProfileStore.save_profile(candidate) and FileAccess.get_file_as_string(_slot) == saved and ProfileStore.profile.items.skill_book == 119, "拒绝保存不修改磁盘或live")
 	ProfileStore._writes_blocked = false
-	_check(not ProfileStore._migrate_to_current({"schema_version": 13}).ok, "高版本不迁移退款")
+	_check(not ProfileStore._migrate_to_current({"schema_version": PlayerProfile.CURRENT_SCHEMA_VERSION + 1}).ok, "高版本不迁移退款")
 
 func _test_forced_and_poison() -> void:
 	var guan := _tower("guan_yu", 2, {"passive_green_dragon_stance": 10})

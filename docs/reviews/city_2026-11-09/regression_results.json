@@ -1,0 +1,88 @@
+{
+  "CityRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "CITY_RESULT: PASS checks=156 failures=0"
+    ],
+    "passed": true
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "ExitFlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "Stage0Runner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "SmokeRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "PackVerify": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "ShopRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "SHOP_RESULT: PASS checks=461 failures=0"
+    ],
+    "passed": true
+  },
+  "SkillBalanceRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "SKILL_BALANCE_RESULT: PASS checks=97 failures=0"
+    ],
+    "passed": true
+  },
+  "FactionRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "FACTION_RESULT: PASS checks=293 failures=0"
+    ],
+    "passed": true
+  },
+  "RosterRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "ROSTER_RESULT: PASS checks=88 failures=0"
+    ],
+    "passed": true
+  },
+  "MapRouteRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "MAP_ROUTE_RESULT: PASS checks=660 failures=0"
+    ],
+    "passed": true
+  },
+  "ProgressionRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "PROGRESSION_RESULT: PASS checks=4518 attempts=17 failures=0"
+    ],
+    "passed": true
+  }
+}

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"inventory"
+display_name = "库房"
+action = "整理"
+description = "查看物品、装备、信物与遗物。"
+introduction = "通关获得的物品会收入库房，可在这里查看用途。"
+prerequisite_stage = &"ch01_s01"
+implemented = true
+building = true
+position = Vector2(493, 520)

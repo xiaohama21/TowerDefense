@@ -615,6 +615,10 @@ func _migrate_to_current(raw_data: Dictionary) -> Dictionary:
 				data = _migrate_v11_to_v12(data)
 				version = 12
 				migrated = true
+			12:
+				data = _migrate_v12_to_v13(data)
+				version = 13
+				migrated = true
 			_:
 				return {"ok": false, "error": "缺少从版本 %d 开始的迁移器" % version}
 	if not _validate_current_shape(data):
@@ -711,7 +715,7 @@ func _migrate_v9_to_v10(old_data: Dictionary) -> Dictionary:
 func _validate_current_shape(data: Dictionary) -> bool:
 	if _read_schema_version(data) != PlayerProfile.CURRENT_SCHEMA_VERSION:
 		return false
-	for key in ["characters", "stage_progress", "items", "weapons", "shop_state", "gacha_state"]:
+	for key in ["characters", "stage_progress", "items", "weapons", "shop_state", "city_state", "gacha_state"]:
 		if data.has(key) and not data[key] is Dictionary:
 			return false
 	return true
@@ -823,3 +827,20 @@ func _migrate_v11_to_v12(old_data: Dictionary) -> Dictionary:
 		data["items"] = items
 	data["schema_version"] = 12
 	return data
+
+
+func _migrate_v12_to_v13(old_data: Dictionary) -> Dictionary:
+	var data := old_data.duplicate(true)
+	data["city_state"] = CityRegistry.normalize_state(data.get("city_state", {}))
+	data.city_state.legacy_access = true
+	data["schema_version"] = 13
+	return data
+
+
+func mark_city_visited(id: StringName) -> bool:
+	var current := get_profile()
+	if not CityRegistry.is_open(current, id): return false
+	if current.city_state.visited.has(str(id)): return true
+	var candidate := current.duplicate_profile()
+	candidate.city_state.visited.append(str(id))
+	return save_profile(candidate)

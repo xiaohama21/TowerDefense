@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"map"
+display_name = "城门"
+action = "出征"
+description = "选择关卡，编队出征。"
+introduction = "从这里选择关卡并编队出征。"
+prerequisite_stage = &""
+implemented = true
+building = true
+position = Vector2(1100, 300)

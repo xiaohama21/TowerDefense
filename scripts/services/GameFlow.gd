@@ -34,7 +34,7 @@ var squad_character_ids: Array[String] = []
 ## 持久记忆在玩家档案 squad_relic_ids（确认出战写入）。
 var squad_relic_ids: Array[String] = []
 ## 游戏大厅当前页签（map/develop/settings），战斗结算"返回大厅"时恢复。
-var hub_active_panel: StringName = &"map"
+var hub_active_panel: StringName = &"city"
 ## 当前难度（index 对应 difficulty_presets，默认标准=0）。
 var selected_difficulty: int = Difficulty.NORMAL
 ## 敌人出现关卡索引（ENCYCLOPEDIA §3.1/§4）：首查惰性构建，enemy_id → 关卡条目数组。
@@ -562,6 +562,7 @@ func set_gameplay_flag(flag: String, value: bool) -> void:
 
 
 func goto_hub() -> void:
+	hub_active_panel = &"city"
 	_change_scene(GAME_HUB_SCENE)
 
 

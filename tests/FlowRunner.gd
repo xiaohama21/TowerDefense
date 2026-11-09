@@ -142,28 +142,23 @@ func _collect_buttons(root: Node) -> Array[Button]:
 ## 军需处（✅ 0.8.16 / UI_LAYOUT §16 / NUMBERS 10.15 / SAVE_DATA 8）：大厅侧栏第 4 个入口、
 ## 6 件卡片解锁 / 强化（军功扣费、写档即时生效）、右栏选带切换与超槽位拒绝。
 func _test_supply_depot(profile: PlayerProfile) -> void:
+	profile.city_state.legacy_access = true # Existing-feature fixture; new gates are covered by CityRunner.
+	GameFlow.hub_active_panel = &"city"
 	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
 	add_child(hub)
 	await get_tree().process_frame
 
 	var depot := hub.get_node_or_null("HubPanel/Columns/Content/SupplyDepotPanel")
 	_check(depot != null and not depot.visible, "大厅默认不应显示军需处面板")
-	var sidebar_box := hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox")
-	var nav_texts: Array[String] = []
-	var supply_button: Button = null
-	for child in _collect_buttons(sidebar_box):
-		var button := child as Button
-		nav_texts.append(button.text)
-		if button.text == "军需":
-			supply_button = button
-	_check(supply_button != null, "大厅侧栏应含「军需」入口")
-	_check(nav_texts.size() == 9 and nav_texts[3] == "军需" and nav_texts[4] == "商店",
-		"军需第四、商店第五，原入口保留")
+	hub._show_panel(&"command",false)
+	var supply_button: Button = hub._supply_button
+	_check(supply_button != null and not supply_button.disabled, "中军帐保留可用军需管理入口")
 	if supply_button == null or depot == null:
 		hub.queue_free()
 		await get_tree().process_frame
 		return
 	supply_button.pressed.emit()
+	hub._close_intro()
 	await get_tree().process_frame
 	_check(depot.visible, "点击「军需」后应显示军需处面板")
 	_check(ProfileStore.get_profile() == profile, "军需处用例应作用于当前档案")
@@ -229,14 +224,16 @@ func _test_supply_depot(profile: PlayerProfile) -> void:
 ## 游戏大厅（GDD v0.10.1）：左侧功能面板 + 内容区页签切换；
 ## 地图面板含章节预留占位与关卡解锁；养成面板等级/材料不足时转职禁用。
 func _test_hub(profile: PlayerProfile) -> void:
+	profile.city_state.legacy_access = true # Existing-feature fixture; new gates are covered by CityRunner.
+	GameFlow.hub_active_panel = &"city"
 	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
 	add_child(hub)
 	await get_tree().process_frame
 
-	var sidebar_buttons := _collect_buttons(hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox"))
-	_check(sidebar_buttons.size() == 9, "大厅侧栏应有8个功能入口+返回主菜单")
-	var back_button_exists := sidebar_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单")
-	_check(back_button_exists, "大厅侧栏应含返回主菜单按钮")
+	_check(hub._buttons.size() == 9 and not hub._hub_panel.visible, "主城默认显示九建筑全景")
+	var menu_buttons := _collect_buttons(hub._system_menu)
+	_check(menu_buttons.any(func(button: Button) -> bool: return button.text == "返回主菜单"), "系统菜单保留返回主菜单")
+	hub._show_panel(&"map",false)
 
 	var map_panel := hub.get_node("HubPanel/Columns/Content/MapPanel")
 	var develop_panel := hub.get_node("HubPanel/Columns/Content/DevelopPanel")
@@ -577,31 +574,28 @@ func _test_hub(profile: PlayerProfile) -> void:
 
 
 func _show_hub_panel(hub: Node, panel_id: StringName) -> void:
-	hub._show_panel(panel_id)
+	hub._show_panel(panel_id,false)
 
 
 ## 游戏百科（ENCYCLOPEDIA.md，阶段 8·提交 9，布局修订 B-023 于 0.8.9.1）：入口入列、武将/敌人两页签、
 ## 模拟器只读不改档、敌人难度面板与出现关卡反查。
 func _test_encyclopedia(profile: PlayerProfile) -> void:
+	profile.city_state.legacy_access = true # Existing-feature fixture; new gates are covered by CityRunner.
+	GameFlow.hub_active_panel = &"city"
 	var hub := (load("res://scenes/GameHub.tscn") as PackedScene).instantiate()
 	add_child(hub)
 	await get_tree().process_frame
 
 	var encyclopedia := hub.get_node("HubPanel/Columns/Content/EncyclopediaPanel")
 	_check(encyclopedia != null and not encyclopedia.visible, "大厅默认不应显示百科面板")
-	var sidebar_box := hub.get_node("HubPanel/Columns/Sidebar/SidebarMargin/SidebarBox")
-	var encyclopedia_button: Button = null
-	for child in _collect_buttons(sidebar_box):
-		var button := child as Button
-		if button != null and button.text == "百科":
-			encyclopedia_button = button
-			break
-	_check(encyclopedia_button != null, "大厅侧栏应含百科入口")
+	var encyclopedia_button: Button = hub._buttons[&"encyclopedia"]
+	_check(encyclopedia_button != null, "藏书阁承接百科入口")
 	if encyclopedia_button == null:
 		hub.queue_free()
 		await get_tree().process_frame
 		return
 	encyclopedia_button.pressed.emit()
+	hub._close_intro()
 	await get_tree().process_frame
 	_check(encyclopedia.visible, "点击百科后应显示百科面板")
 

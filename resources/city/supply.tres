@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"supply"
+display_name = "军需管理"
+action = "整备"
+description = "强化和选择本次携带的军需。"
+introduction = "在这里解锁、强化并选带军需，进入战斗后用金币购买。"
+prerequisite_stage = &"ch01_s04"
+implemented = true
+building = false
+position = Vector2(0, 0)

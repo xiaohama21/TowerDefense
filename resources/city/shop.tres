@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"shop"
+display_name = "市集"
+action = "选购"
+description = "使用元宝或军功选购物品。"
+introduction = "选购前可直接查看商品用途、限购和持有数量。"
+prerequisite_stage = &"ch01_s02"
+implemented = true
+building = true
+position = Vector2(795, 498)

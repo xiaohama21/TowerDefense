@@ -1,266 +1,299 @@
 extends Control
 
-## 游戏大厅（GDD v0.10.1 / UI_LAYOUT §4）：按概念图 ui_hub_map.png 的 Kenney 亮蓝
-## 换肤落地（v0.18.0 / 程序 0.8.10.11，参照首页 ui_home 同套视觉令牌）：
-## 天空三档渐变 + 顶部柔光 → 居中圆角大面板 → 左侧 204px 亮蓝侧栏（Kenney 导航：
-## 选中蓝 gloss 白字 / 未选灰 flat 深蓝字、底部红「返回主菜单」）→ 右侧内容区。
-
-const NAV_DEFS := [
-	[&"map", "地图选择"], [&"develop", "武将养成"], [&"tech", "科技树"],
-	[&"supply", "军需"], [&"shop", "商店"], [&"inventory", "背包"], [&"settings", "设置"], [&"encyclopedia", "百科"],
-]
-
-const MapPanelScript := preload("res://scripts/ui_screens/panels/MapPanel.gd")
-const DevelopPanelScript := preload("res://scripts/ui_screens/panels/DevelopPanel.gd")
-const SettingsPanelScript := preload("res://scripts/ui_screens/panels/SettingsPanel.gd")
-const TechPanelScript := preload("res://scripts/ui_screens/panels/TechPanel.gd")
-const InventoryPanelScript := preload("res://scripts/ui_screens/panels/InventoryPanel.gd")
-const EncyclopediaPanelScript := preload("res://scripts/ui_screens/panels/EncyclopediaPanel.gd")
-const SupplyDepotPanelScript := preload("res://scripts/ui_screens/panels/SupplyDepotPanel.gd")
-const ShopPanelScript := preload("res://scripts/ui_screens/panels/ShopPanel.gd")
-
-## 概念图色板（src/ui_hub_map.html）
-const HUB_PANEL := Color("#f2faff")
-const HUB_BORDER := Color("#1c9fd7")
-const HUB_BORDER_BOTTOM := Color("#167da8")
-const SIDEBAR_TOP := Color("#e9f6fd")
-const SIDEBAR_BOTTOM := Color("#dcedf8")
-const SIDEBAR_EDGE := Color("#bfe2f4")
-const NAV_IDLE_TEXT := Color("#33566f")
-const LOGO_TEXT := Color("#14538a")
-const SUB_TEXT := Color("#7d9cb4")
-
+## CITY v0.1: fixed camp buildings, shared panels, progress-gated entry points.
+const PANEL_SCRIPTS := {
+	&"map": preload("res://scripts/ui_screens/panels/MapPanel.gd"),
+	&"develop": preload("res://scripts/ui_screens/panels/DevelopPanel.gd"),
+	&"settings": preload("res://scripts/ui_screens/panels/SettingsPanel.gd"),
+	&"tech": preload("res://scripts/ui_screens/panels/TechPanel.gd"),
+	&"inventory": preload("res://scripts/ui_screens/panels/InventoryPanel.gd"),
+	&"encyclopedia": preload("res://scripts/ui_screens/panels/EncyclopediaPanel.gd"),
+	&"supply": preload("res://scripts/ui_screens/panels/SupplyDepotPanel.gd"),
+	&"shop": preload("res://scripts/ui_screens/panels/ShopPanel.gd"),
+}
+const PANEL_NAMES := {&"map":"MapPanel", &"develop":"DevelopPanel", &"settings":"SettingsPanel", &"tech":"TechPanel", &"inventory":"InventoryPanel", &"encyclopedia":"EncyclopediaPanel", &"supply":"SupplyDepotPanel", &"shop":"ShopPanel"}
+const Building := preload("res://scripts/ui_screens/city_building.gd")
+var city_palette := "dusk"
 var _buttons: Dictionary = {}
 var _panels: Dictionary = {}
 var _content: MarginContainer
-
+var _city: Control
+var _hub_panel: Panel
+var _system_menu: PanelContainer
+var _intro: Control
+var _intro_id: StringName
+var _hint: Label
+var _balances: HBoxContainer
+var _title_icon: TextureRect
+var _quit_dialog: ConfirmationDialog
+var _command: VBoxContainer
+var _supply_button: Button
 
 func _ready() -> void:
-	_build_background()
+	_build_city()
 	_build_hub()
-	_show_panel(GameFlow.hub_active_panel)
+	_build_system_menu()
+	resized.connect(_fit_city)
+	_fit_city()
+	refresh_city()
+	var initial := GameFlow.hub_active_panel
+	_show_panel(initial, false)
 
+func _label(value: String, pixels: int = 18, color := Color("#eddfbd")) -> Label:
+	var node := Label.new()
+	node.text = value
+	node.add_theme_font_size_override("font_size", pixels)
+	node.add_theme_color_override("font_color", color)
+	return node
 
-# ---------- 背景：天空渐变 + 顶部柔光（概念图 .bg，同首页视觉） ----------
+func _button(text: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.custom_minimum_size = Vector2(140, 40)
+	button.pressed.connect(callback)
+	UITheme.apply_kenney_rect_button(button, "grey", UITheme.INK)
+	return button
 
-func _build_background() -> void:
-	var sky := TextureRect.new()
-	sky.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	sky.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var sky_gradient := Gradient.new()
-	sky_gradient.offsets = PackedFloat32Array([0.0, 0.48, 1.0])
-	sky_gradient.colors = PackedColorArray([UITheme.SKY_TOP, UITheme.SKY_MID, UITheme.SKY_BOTTOM])
-	var sky_texture := GradientTexture2D.new()
-	sky_texture.gradient = sky_gradient
-	sky_texture.fill_from = Vector2(0.5, 0.0)
-	sky_texture.fill_to = Vector2(0.5, 1.0)
-	sky_texture.width = 8
-	sky_texture.height = 256
-	sky.texture = sky_texture
-	add_child(sky)
+func _build_city() -> void:
+	var fill := ColorRect.new()
+	fill.color = Color("#173832")
+	fill.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(fill)
+	_city = Control.new()
+	_city.name = "City"
+	_city.size = Vector2(1280,720)
+	add_child(_city)
+	var bg := TextureRect.new()
+	bg.name = "Backdrop"
+	bg.texture = load("res://assets/city/%s/background.svg" % city_palette)
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.size = Vector2(1280,720)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_city.add_child(bg)
+	for data in CityRegistry.all():
+		if not data.building: continue
+		var button := Building.new()
+		button.name = "Building_" + str(data.entry_id)
+		button.data = data
+		button.palette = city_palette
+		button.position = data.position - Vector2(100,80)
+		button.pressed.connect(_show_panel.bind(data.entry_id))
+		button.mouse_entered.connect(_describe.bind(data.entry_id))
+		button.focus_entered.connect(_describe.bind(data.entry_id))
+		button.mouse_exited.connect(_reset_hint)
+		_city.add_child(button)
+		_buttons[data.entry_id] = button
+	var bar := Panel.new()
+	bar.position = Vector2(24,18)
+	bar.size = Vector2(1110,55)
+	bar.add_theme_stylebox_override("panel", UITheme.light_card_style(Color("#18352ee8"),Color("#97875b")))
+	_city.add_child(bar)
+	_balances = HBoxContainer.new()
+	_balances.position = Vector2(18,9)
+	_balances.add_theme_constant_override("separation",14)
+	bar.add_child(_balances)
+	_hint = _label("点击建筑进入；ESC返回。",17)
+	_hint.position = Vector2(35,639)
+	_hint.size = Vector2(1130,30)
+	_hint.add_theme_color_override("font_shadow_color",Color("#142a29"))
+	_hint.add_theme_constant_override("shadow_offset_x",1)
+	_hint.add_theme_constant_override("shadow_offset_y",1)
+	_city.add_child(_hint)
 
-	var glow := TextureRect.new()
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	glow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var gradient := Gradient.new()
-	gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
-	gradient.colors = PackedColorArray([Color(1, 1, 1, 0.28), Color(1, 1, 1, 0.14), Color(1, 1, 1, 0.0)])
-	var texture := GradientTexture2D.new()
-	texture.gradient = gradient
-	texture.fill = GradientTexture2D.FILL_RADIAL
-	texture.fill_from = Vector2(0.5, 0.5)
-	texture.fill_to = Vector2(1.0, 0.5)
-	texture.width = 128
-	texture.height = 128
-	glow.texture = texture
-	glow.position = Vector2(640 - 380, -160)
-	glow.size = Vector2(760, 420)
-	add_child(glow)
-
-
-# ---------- 大面板：左侧导航 + 右侧内容（概念图 .hub / .side / .main） ----------
+func _fit_city() -> void:
+	if _city == null: return
+	var factor := minf(size.x/1280.0,size.y/720.0)
+	_city.scale = Vector2.ONE*factor
+	_city.position = (size-Vector2(1280,720)*factor)*.5
 
 func _build_hub() -> void:
-	# 圆角大面板（概念图 .hub：上 36 / 左右 24 / 下 36 边距直接作锚点偏移）
-	var panel := Panel.new()
-	panel.name = "HubPanel"
-	panel.anchor_left = 0.0
-	panel.anchor_right = 1.0
-	panel.anchor_top = 0.0
-	panel.anchor_bottom = 1.0
-	panel.offset_left = 24.0
-	panel.offset_right = -24.0
-	panel.offset_top = 36.0
-	panel.offset_bottom = -36.0
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = HUB_PANEL
-	panel_style.border_color = HUB_BORDER
-	panel_style.set_border_width_all(3)
-	panel_style.border_width_bottom = 7
-	panel_style.set_corner_radius_all(18)
-	panel_style.shadow_color = Color(0.024, 0.11, 0.196, 0.45)
-	panel_style.shadow_size = 26
-	panel_style.shadow_offset = Vector2(0, 12)
-	panel.add_theme_stylebox_override("panel", panel_style)
-	add_child(panel)
-
-	var columns := HBoxContainer.new()
+	_hub_panel = Panel.new()
+	_hub_panel.name = "HubPanel"
+	_hub_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_hub_panel.offset_left=80; _hub_panel.offset_right=-80
+	_hub_panel.offset_top=16; _hub_panel.offset_bottom=-16
+	_hub_panel.add_theme_stylebox_override("panel", UITheme.light_panel_style())
+	add_child(_hub_panel)
+	var columns := Control.new()
 	columns.name = "Columns"
 	columns.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	columns.add_theme_constant_override("separation", 0)
-	panel.add_child(columns)
-
-	columns.add_child(_build_sidebar())
-
-	# 右侧内容区（概念图 .main：上 14 / 左右 20 / 下 12）
+	_hub_panel.add_child(columns)
 	_content = MarginContainer.new()
 	_content.name = "Content"
-	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_content.add_theme_constant_override("margin_left", 20)
-	_content.add_theme_constant_override("margin_right", 20)
-	_content.add_theme_constant_override("margin_top", 14)
-	_content.add_theme_constant_override("margin_bottom", 12)
+	_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_content.add_theme_constant_override("margin_left",20)
+	_content.add_theme_constant_override("margin_right",20)
+	_content.add_theme_constant_override("margin_top",50)
+	_content.add_theme_constant_override("margin_bottom",12)
 	columns.add_child(_content)
+	for id in PANEL_SCRIPTS:
+		var panel: Control = PANEL_SCRIPTS[id].new()
+		panel.name = PANEL_NAMES[id]
+		if panel.has_signal("stage_selected"): panel.stage_selected.connect(_on_stage_selected)
+		_content.add_child(panel)
+		_panels[id] = panel
+	_command = VBoxContainer.new()
+	_command.name = "CommandPanel"
+	_command.add_theme_constant_override("separation",18)
+	_content.add_child(_command)
+	_panels[&"command"] = _command
+	_title_icon = TextureRect.new()
+	_title_icon.position = Vector2(22,0)
+	_title_icon.size = Vector2(58,44)
+	_title_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_title_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_title_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hub_panel.add_child(_title_icon)
+	var back := _button("返回",_show_panel.bind(&"city"))
+	back.name = "BackToCity"
+	back.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	back.offset_left=-250;back.offset_right=-110;back.offset_top=4;back.offset_bottom=44
+	_hub_panel.add_child(back)
 
-	_panels[&"map"] = _make_panel("MapPanel", MapPanelScript)
-	_panels[&"develop"] = _make_panel("DevelopPanel", DevelopPanelScript)
-	_panels[&"tech"] = _make_panel("TechPanel", TechPanelScript)
-	_panels[&"supply"] = _make_panel("SupplyDepotPanel", SupplyDepotPanelScript)
-	_panels[&"shop"] = _make_panel("ShopPanel", ShopPanelScript)
-	_panels[&"inventory"] = _make_panel("InventoryPanel", InventoryPanelScript)
-	_panels[&"settings"] = _make_panel("SettingsPanel", SettingsPanelScript)
-	_panels[&"encyclopedia"] = _make_panel("EncyclopediaPanel", EncyclopediaPanelScript)
+func _build_system_menu() -> void:
+	var menu := _button("☰",func(): _system_menu.visible = not _system_menu.visible)
+	menu.name = "SystemMenuButton"
+	menu.tooltip_text = "设置与退出"
+	menu.custom_minimum_size = Vector2(56,50)
+	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	menu.offset_left=-112;menu.offset_right=-40;menu.offset_top=20;menu.offset_bottom=68
+	add_child(menu)
+	_system_menu = PanelContainer.new()
+	_system_menu.name = "SystemMenu"
+	_system_menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_system_menu.offset_left=-270;_system_menu.offset_right=-40;_system_menu.offset_top=78
+	_system_menu.add_theme_stylebox_override("panel",UITheme.light_panel_style())
+	add_child(_system_menu)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation",8)
+	_system_menu.add_child(box)
+	box.add_child(_button("设置",_show_panel.bind(&"settings")))
+	box.add_child(_button("返回主菜单",func(): GameFlow.goto_menu()))
+	box.add_child(_button("退出游戏",func(): _quit_dialog.popup_centered(Vector2i(380,170))))
+	_system_menu.hide()
+	_quit_dialog = ConfirmationDialog.new()
+	_quit_dialog.title = "退出"
+	_quit_dialog.dialog_text = "确定退出游戏？"
+	_quit_dialog.ok_button_text = "退出"
+	_quit_dialog.cancel_button_text = "取消"
+	_quit_dialog.confirmed.connect(func(): get_tree().quit())
+	add_child(_quit_dialog)
 
+func refresh_city() -> void:
+	var profile := ProfileStore.get_profile()
+	for button in _buttons.values(): button.refresh(profile)
+	for child in _balances.get_children():
+		_balances.remove_child(child); child.queue_free()
+	var progress := ShopRegistry.lord_progress(profile.lord_exp)
+	for pair in [["lord_level","Lv.%d" % progress.level,"主公等级"],["ingot",str(profile.ingots),"元宝"],["merit",str(profile.military_merit),"军功"]]:
+		_balances.add_child(ConceptIcon.new(pair[0],30,pair[2]))
+		_balances.add_child(_label(pair[1],24))
 
-func _build_sidebar() -> Control:
-	var sidebar := Panel.new()
-	sidebar.name = "Sidebar"
-	sidebar.custom_minimum_size = Vector2(204, 0)
-	var sidebar_style := StyleBoxFlat.new()
-	sidebar_style.bg_color = SIDEBAR_TOP
-	sidebar_style.border_color = SIDEBAR_EDGE
-	sidebar_style.border_width_right = 3
-	sidebar.add_theme_stylebox_override("panel", sidebar_style)
-	sidebar.size_flags_vertical = Control.SIZE_FILL
+func _describe(id: StringName) -> void:
+	var data := CityRegistry.entry(id)
+	_hint.text = data.display_name + " · " + (data.description if CityRegistry.is_open(ProfileStore.get_profile(),id) else CityRegistry.locked_reason(id))
 
+func _reset_hint() -> void:
+	_hint.text = "点击建筑进入；ESC返回。"
+
+func _show_panel(id: StringName, show_intro: bool = true) -> void:
+	if is_instance_valid(_intro): return
+	_system_menu.hide()
+	if id != &"city" and id != &"settings" and CityRegistry.entry(id) == null: id = &"city"
+	if id != &"city" and id != &"settings" and not CityRegistry.is_open(ProfileStore.get_profile(),id):
+		_show_panel(&"city",false)
+		_describe(id)
+		return
+	if id != &"city" and not _panels.has(id): id = &"city"
+	GameFlow.hub_active_panel = id
+	_hub_panel.visible = id != &"city"
+	for key in _panels: _panels[key].visible = key == id
+	if id == &"city":
+		refresh_city()
+		return
+	if id == &"command": _refresh_command()
+	if _panels[id].has_method("_on_shown"): _panels[id]._on_shown()
+	_title_icon.texture = load("res://assets/city/%s/%s.svg" % [city_palette,"command" if id == &"supply" else id]) if id != &"settings" else null
+	if show_intro and id != &"settings" and CityRegistry.is_new(ProfileStore.get_profile(),id): _open_intro(id)
+
+func _refresh_command() -> void:
+	for child in _command.get_children():
+		_command.remove_child(child);child.queue_free()
+	var profile := ProfileStore.get_profile()
+	var progress := ShopRegistry.lord_progress(profile.lord_exp)
+	var row := HBoxContainer.new()
+	row.add_child(ConceptIcon.new("lord_level",46,"主公等级"))
+	row.add_child(_label("Lv.%d" % progress.level,32,UITheme.LIGHT_INK))
+	_command.add_child(row)
+	var exp_row := HBoxContainer.new()
+	exp_row.add_child(ConceptIcon.new("lord_exp",28,"主公经验"))
+	exp_row.add_child(_label(str(profile.lord_exp),22,UITheme.LIGHT_BODY))
+	_command.add_child(exp_row)
+	var cleared := 0
+	var chapter_stages := GameFlow.get_sorted_stages(GameFlow.get_chapter())
+	for data in chapter_stages:
+		if profile.stage_progress.get(str(data.stage_id),{}).get("completed",false): cleared+=1
+	var stages := HBoxContainer.new()
+	stages.add_child(ConceptIcon.new("wave_flag",28,"已通关 / 第一章关卡"))
+	stages.add_child(_label("%d / %d" % [cleared,chapter_stages.size()],22,UITheme.LIGHT_BODY))
+	_command.add_child(stages)
+	_command.add_child(_label("通关获得经验，提升等级后逐步开放选购内容。",20,UITheme.LIGHT_BODY))
+	_supply_button = _button("整备",_show_panel.bind(&"supply"))
+	_supply_button.name = "SupplyEntry"
+	_supply_button.tooltip_text = "军需管理"
+	_supply_button.disabled = not CityRegistry.is_open(profile,&"supply")
+	_command.add_child(_supply_button)
+	if _supply_button.disabled: _command.add_child(_label(CityRegistry.locked_reason(&"supply"),18,UITheme.LIGHT_MUTED))
+
+func _open_intro(id: StringName) -> void:
+	_intro_id = id
+	_intro = ColorRect.new()
+	_intro.name = "FirstVisit"
+	_intro.color = Color(0,0,0,.55)
+	_intro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_intro)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_intro.add_child(center)
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(520,210)
+	card.add_theme_stylebox_override("panel",UITheme.light_panel_style())
+	center.add_child(card)
 	var margin := MarginContainer.new()
-	margin.name = "SidebarMargin"
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	sidebar.add_child(margin)
+	for side in ["left","right","top","bottom"]: margin.add_theme_constant_override("margin_"+side,24)
+	card.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation",22)
+	margin.add_child(box)
+	var label := _label(CityRegistry.entry(id).introduction,22,UITheme.LIGHT_INK)
+	label.name = "Explanation"
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(label)
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.add_child(_button("跳过",_close_intro))
+	var next := _button("继续",_close_intro)
+	actions.add_child(next)
+	box.add_child(actions)
+	next.grab_focus()
 
-	var sidebar_box := VBoxContainer.new()
-	sidebar_box.name = "SidebarBox"
-	sidebar_box.add_theme_constant_override("separation", 6)
-	margin.add_child(sidebar_box)
+func _close_intro() -> void:
+	if not is_instance_valid(_intro): return
+	if not ProfileStore.mark_city_visited(_intro_id):
+		_intro.find_child("Explanation",true,false).text = "未能保存，请重试。"
+		return
+	_intro.queue_free(); _intro = null
+	refresh_city()
 
-	# logo（概念图 .logo：中文名 + 英文副标 + 虚线分隔）
-	var logo := VBoxContainer.new()
-	logo.add_theme_constant_override("separation", 0)
-	var title := Label.new()
-	title.text = "烽火连营"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_override("font", UITheme.spaced_font(2))
-	title.add_theme_font_size_override("font_size", 25)
-	title.add_theme_color_override("font_color", LOGO_TEXT)
-	logo.add_child(title)
-	var subtitle := Label.new()
-	subtitle.text = "TOWER DEFENSE · HUB"
-	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 10)
-	subtitle.add_theme_color_override("font_color", SUB_TEXT)
-	logo.add_child(subtitle)
-	sidebar_box.add_child(logo)
-
-	var divider := Panel.new()
-	divider.custom_minimum_size = Vector2(0, 2)
-	var divider_style := StyleBoxFlat.new()
-	divider_style.bg_color = Color("#9fd0ea")
-	divider_style.set_corner_radius_all(1)
-	divider.add_theme_stylebox_override("panel", divider_style)
-	sidebar_box.add_child(divider)
-
-	var nav_spacer := Control.new()
-	nav_spacer.custom_minimum_size = Vector2(0, 4)
-	sidebar_box.add_child(nav_spacer)
-
-	for nav_def in NAV_DEFS:
-		_add_function_button(sidebar_box, nav_def[0], nav_def[1])
-
-	var bottom_spacer := Control.new()
-	bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	sidebar_box.add_child(bottom_spacer)
-
-	var back_button := Button.new()
-	back_button.text = "返回主菜单"
-	back_button.custom_minimum_size = Vector2(0, 50)
-	back_button.focus_mode = Control.FOCUS_NONE
-	back_button.add_theme_font_override("font", UITheme.spaced_font(2))
-	back_button.add_theme_font_size_override("font_size", 18)
-	UITheme.apply_kenney_rect_button(back_button, "red", Color.WHITE)
-	back_button.pressed.connect(func() -> void: GameFlow.goto_menu())
-	sidebar_box.add_child(back_button)
-
-	var version: String = ProjectSettings.get_setting("application/config/version", "")
-	if not version.is_empty():
-		var version_label := Label.new()
-		version_label.text = "v" + version
-		version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		version_label.add_theme_font_size_override("font_size", 12)
-		version_label.add_theme_color_override("font_color", SUB_TEXT)
-		sidebar_box.add_child(version_label)
-	return sidebar
-
-
-func _make_panel(panel_name: String, script: GDScript) -> Control:
-	var panel: Control = script.new()
-	panel.name = panel_name
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	if panel.has_signal("stage_selected"):
-		panel.stage_selected.connect(_on_stage_selected)
-	_content.add_child(panel)
-	return panel
-
-
-func _add_function_button(parent: Node, panel_id: StringName, label: String) -> void:
-	var button := Button.new()
-	button.text = label
-	button.custom_minimum_size = Vector2(0, 46)
-	button.focus_mode = Control.FOCUS_NONE
-	button.add_theme_font_override("font", UITheme.spaced_font(3))
-	button.add_theme_font_size_override("font_size", 21)
-	button.pressed.connect(_on_function_pressed.bind(panel_id))
-	parent.add_child(button)
-	_buttons[panel_id] = button
-
-
-func _on_function_pressed(panel_id: StringName) -> void:
-	_show_panel(panel_id)
-
-
-func _on_stage_selected(stage_id: StringName, difficulty: int) -> void:
-	GameFlow.select_stage(stage_id)
+func _on_stage_selected(id: StringName, difficulty: int) -> void:
+	GameFlow.select_stage(id)
 	GameFlow.goto_squad_select(difficulty)
 
-
-func _show_panel(panel_id: StringName) -> void:
-	GameFlow.hub_active_panel = panel_id
-	for key in _panels.keys():
-		_panels[key].visible = key == panel_id
-	for key in _buttons.keys():
-		var button := _buttons[key] as Button
-		if is_instance_valid(button):
-			var active: bool = key == panel_id
-			button.set_pressed_no_signal(active)
-			# Kenney 换肤（v0.18.0）：选中=蓝 gloss 白字，未选=灰 flat 深蓝字。
-			UITheme.apply_kenney_rect_button(button, "blue" if active else "grey",
-				Color.WHITE if active else NAV_IDLE_TEXT)
-	var panel: Control = _panels.get(panel_id)
-	if panel != null and panel.has_method("_on_shown"):
-		panel._on_shown()
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel"): return
+	if is_instance_valid(_intro): _close_intro()
+	elif _system_menu.visible: _system_menu.hide()
+	elif _hub_panel.visible: _show_panel(&"city")
+	else: _system_menu.show()
+	get_viewport().set_input_as_handled()

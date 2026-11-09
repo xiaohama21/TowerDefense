@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"command"
+display_name = "中军帐"
+action = "查看"
+description = "查看主公进度与管理军需。"
+introduction = "主公等级随通关经验提升；军需管理也在这里。"
+prerequisite_stage = &""
+implemented = true
+building = true
+position = Vector2(635, 205)

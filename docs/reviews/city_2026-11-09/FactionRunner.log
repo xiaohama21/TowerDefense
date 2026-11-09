@@ -1,0 +1,28 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+FACTION_RESULT: PASS checks=293 failures=0
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/ui/icons/v2/faction_wei.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _test_catalog (res://tests/FactionRunner.gd:64)
+       [1] _run (res://tests/FactionRunner.gd:35)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/ui/icons/v2/faction_shu.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _test_catalog (res://tests/FactionRunner.gd:64)
+       [1] _run (res://tests/FactionRunner.gd:35)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/ui/icons/v2/faction_wu.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _test_catalog (res://tests/FactionRunner.gd:64)
+       [1] _run (res://tests/FactionRunner.gd:35)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/ui/icons/v2/faction_qun.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _test_catalog (res://tests/FactionRunner.gd:64)
+       [1] _run (res://tests/FactionRunner.gd:35)
+WARNING: 出战阵营不符合本关要求，请重新编队。
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] goto_battle (res://scripts/services/GameFlow.gd:583)
+       [1] _test_squad (res://tests/FactionRunner.gd:209)

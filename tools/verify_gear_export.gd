@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.3", "project version 0.9.8.3")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.10.1.0", "project version 0.10.1.0")
 	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
 	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
 	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 8 and art_manifest.native_measurements.size() == 9, "battle visual manifest and native bounds")
@@ -67,11 +67,32 @@ func _run() -> void:
 	store.configure_paths("user://.gear_export_%d.json" % Time.get_ticks_usec())
 	_check(flow.start_new_game(), "isolated new profile")
 	var profile = store.get_profile()
-	_check(profile.to_dict().schema_version == 12, "schema v12")
+	_check(profile.to_dict().schema_version == 13, "schema v13")
+	var city = load("res://scripts/data/CityRegistry.gd")
+	_check(city.all().size() == 10 and not profile.city_state.legacy_access, "packaged city entries and new-save gating")
+	_check(city.is_open(profile, &"map") and not city.is_open(profile, &"tech"), "packaged initial entry availability")
+	_check(not city.is_open(profile, &"tavern") and not city.is_open(profile, &"stable"), "packaged construction remains closed")
+	for style in ["day","dusk"]:
+		_check(load("res://assets/city/%s/background.svg" % style) is Texture2D, "packaged city backdrop " + style)
+		for data in city.all():
+			if data.building: _check(load("res://assets/city/%s/%s.svg" % [style,data.entry_id]) is Texture2D, "packaged building " + style + "." + str(data.entry_id))
+	var old_city: Dictionary = store._migrate_to_current({"schema_version":12,"ingots":77})
+	_check(old_city.ok and old_city.data.city_state.legacy_access and old_city.data.ingots==77, "packaged city migration preserves resources and access")
+	var city_hub = load("res://scenes/GameHub.tscn").instantiate()
+	flow.hub_active_panel = &"city"
+	root.add_child(city_hub)
+	await process_frame
+	_check(city_hub._buttons.size()==9 and not city_hub._hub_panel.visible and city_hub.city_palette=="dusk", "packaged dusk city is the default hub")
+	city_hub._buttons[&"map"].pressed.emit()
+	_check(city_hub._panels[&"map"].visible and is_instance_valid(city_hub._intro), "packaged city gate opens stage selection")
+	city_hub._close_intro()
+	_check(profile.city_state.visited.has("map"), "packaged first visit saves")
+	city_hub.queue_free()
+	await process_frame
 	_check(profile.ingots == 0 and profile.lord_exp == 0 and profile.shop_state.rotation.size() == 2, "new profile economic defaults")
 	_check(shop.all_offers().size() == 31 and shop.exp_for_level(100) == 27225 and shop.data().tier_levels == [1,10,20,40,60,80], "packaged catalog and lord curve")
 	var migrated = store._migrate_to_current({"schema_version":9,"military_merit":321,"weapons":{"equipment_long_spear_1":1}})
-	_check(migrated.ok and migrated.data.schema_version == 12 and migrated.data.ingots == 0 and migrated.data.lord_exp == 0 and migrated.data.military_merit == 321 and migrated.data.weapons.equipment_long_spear_1 == 1, "packaged v9 migration preserves existing economy and gear")
+	_check(migrated.ok and migrated.data.schema_version == 13 and migrated.data.ingots == 0 and migrated.data.lord_exp == 0 and migrated.data.military_merit == 321 and migrated.data.weapons.equipment_long_spear_1 == 1, "packaged v9 migration preserves existing economy and gear")
 	_check(skills.upgrade_cost(9, &"passive_warm_wine") == 1 and skills.upgrade_cost(9, &"char_green_dragon") == 5, "packaged per skill book costs")
 	var refund: Dictionary = store._migrate_to_current({"schema_version":11,"characters":{"guan_yu":{"rank":2,"skill_levels":{"passive_warm_wine":10}}},"items":{"skill_book":3}})
 	_check(refund.ok and refund.data.items.skill_book == 19 and store._migrate_to_current(refund.data).data.items.skill_book == 19, "packaged refund once")
@@ -156,7 +177,7 @@ func _run() -> void:
 	var hub = load("res://scenes/GameHub.tscn").instantiate()
 	root.add_child(hub)
 	await process_frame
-	hub._show_panel(&"develop")
+	hub._show_panel(&"develop", false)
 	var panel = hub._panels[&"develop"]
 	panel._select_character("guan_yu")
 	panel._refresh()
@@ -181,7 +202,7 @@ func _run() -> void:
 	panel._talent_panel.dismiss()
 	_check(panel._equip_weapon("guan_yu", "equipment_long_spear_1") and profile.get_character_weapon_id("guan_yu") == "equipment_long_spear_1", "packaged equip and save")
 	_check(not profile.set_character_weapon("zhuge_liang", "equipment_long_spear_1"), "packaged profession restriction")
-	hub._show_panel(&"encyclopedia")
+	hub._show_panel(&"encyclopedia", false)
 	var enc = hub._panels[&"encyclopedia"]
 	enc._select_character("zhuge_liang")
 	var snapshot = profile.to_dict()
@@ -225,10 +246,10 @@ func _run() -> void:
 	profile.ingots = 500
 	profile.military_merit = 500
 	_check(store.save_profile(profile), "packaged shop fixture saved")
-	hub._show_panel(&"shop")
+	hub._show_panel(&"shop", false)
 	var shop_panel = hub._panels[&"shop"]
 	await process_frame
-	_check(hub._buttons.size() == 8 and shop_panel.find_child("LordLevel",true,false).text == "Lv.1" and shop_panel.find_children("ShopOffer_*","PanelContainer",true,false).size() == 21, "packaged shop navigation and initial shelves")
+	_check(hub._buttons.has(&"shop") and shop_panel.visible and shop_panel.find_child("LordLevel",true,false).text == "Lv.1" and shop_panel.find_children("ShopOffer_*","PanelContainer",true,false).size() == 21, "packaged shop navigation and initial shelves")
 	var economic_snapshot = profile.to_dict()
 	store._writes_blocked = true
 	_check(not store.buy_shop_offer("iron_1",int(profile.shop_state.revision)) and not store.refresh_shop(int(profile.shop_state.revision)) and profile.to_dict() == economic_snapshot, "packaged failed saves roll back purchase and refresh")
@@ -252,7 +273,7 @@ func _run() -> void:
 	_check(not store.buy_shop_offer("equipment_ring_blade_1",int(profile.shop_state.revision)) and profile.to_dict() == economic_snapshot, "packaged full equipment rejects deduction")
 	profile.weapons.equipment_ring_blade_1 = 2
 	_check(store.buy_shop_offer("equipment_ring_blade_1",int(profile.shop_state.revision)) and profile.weapon_count("equipment_ring_blade_1") == 3 and profile.ingots == 362, "packaged equipment purchase")
-	hub._show_panel(&"inventory")
+	hub._show_panel(&"inventory", false)
 	var inventory = hub._panels[&"inventory"]
 	inventory._show_detail("iron_shield")
 	_check(inventory.find_child("ShopAcquisition",true,false).text.contains("兑换"), "packaged inventory shop source")
@@ -270,7 +291,7 @@ func _run() -> void:
 	_check(profile.ingots == 392 and profile.lord_exp == 520 and shop.lord_progress(profile.lord_exp).level == 10 and profile.shop_state.refresh_step == 0 and profile.shop_state.rotation.size() == 3 and (profile.shop_state.rotation.has("rot_book_2") or profile.shop_state.rotation.has("rot_seal_3")), "packaged victory level-up and new-tier guaranteed rotation")
 	economic_snapshot = profile.to_dict()
 	_check(store.commit_victory(session) and profile.to_dict() == economic_snapshot, "packaged duplicate victory keeps economy and rotation")
-	hub._show_panel(&"map")
+	hub._show_panel(&"map", false)
 	var map = hub._panels[&"map"]
 	map._select_stage(flow.load_stage_data(&"ch01_s01"))
 	map._on_difficulty_changed(true,1)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/CityEntryData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+entry_id = &"tavern"
+display_name = "酒馆"
+action = "未开放"
+description = "正在筹建，暂未开放。"
+introduction = ""
+prerequisite_stage = &""
+implemented = false
+building = true
+position = Vector2(159, 482)
