@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://dv7jpyad52m8a"
+path="res://.godot/imported/yellow_turban_cavalry.atlas-6b7db056861be47bda52e331f4aa7114.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/yellow_turban_cavalry/yellow_turban_cavalry.atlas"
+dest_files=["res://.godot/imported/yellow_turban_cavalry.atlas-6b7db056861be47bda52e331f4aa7114.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

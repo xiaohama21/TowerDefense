@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://d0jjdcua40jhn"
+path="res://.godot/imported/liu_bei_original.spine-json-88d51247e6fb486cb89a481c8dd2ae0c.spjson"
+
+[deps]
+
+source_file="res://assets/battle_visuals/liu_bei/variants/b_original/liu_bei_original.spine-json"
+dest_files=["res://.godot/imported/liu_bei_original.spine-json-88d51247e6fb486cb89a481c8dd2ae0c.spjson"]
+
+[params]
+

@@ -1,0 +1,28 @@
+{
+  "program": "0.9.8.3",
+  "gdd": "v0.37.105",
+  "branch": "0.9.8",
+  "main": "c7860ecff92ba3dd574c3d99cbd12e73ff5bbe29",
+  "regression_suites": 10,
+  "map_visual_checks": 1348,
+  "route_checks": 660,
+  "progression_checks": 4518,
+  "progression_outcomes": [
+    {
+      "policy": "balanced",
+      "cleared": 8,
+      "farms": 0,
+      "failed_attempts": 0
+    },
+    {
+      "policy": "equipment_talents",
+      "cleared": 8,
+      "farms": 0,
+      "failed_attempts": 0
+    }
+  ],
+  "native_screenshots": 16,
+  "packaged_checks": 560,
+  "matched_build_inputs": 1355,
+  "passed": true
+}

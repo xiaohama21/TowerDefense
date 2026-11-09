@@ -167,6 +167,10 @@ var _vulnerability_time_left: float = 0.0
 var _hit_flash_left: float = 0.0
 ## 体型（Body ColorRect 尺寸；血条宽度 / 头顶挂点均以此为准）。
 var _body_size := Vector2(40.0, 40.0)
+var _visual_actor: Node2D
+var _visual_profile: Dictionary = {}
+var _visual_animation := ""
+var _visual_facing := 1.0
 ## 掉血残影比例与停留计时（血条白段，见 _process）。
 var _hp_ghost_ratio: float = 1.0
 var _hp_ghost_hold: float = 0.0
@@ -190,6 +194,7 @@ func _ready() -> void:
 	progress = 0
 	if body:
 		_body_size = body.size
+	_setup_visual_actor()
 	# Boss 演出（v0.15.0）：登场信号；血条三档由 tags 判定（见 get_hp_bar_tier），绘制在 _draw。
 	if tags.has(&"boss"):
 		GameManager.boss_entered.emit(str(display_name))
@@ -208,7 +213,6 @@ func _process(delta: float) -> void:
 		return
 	if is_dead:
 		return
-
 	if _hit_flash_left > 0.0:
 		_hit_flash_left = maxf(_hit_flash_left - delta, 0.0)
 		if _hit_flash_left <= 0.0:
@@ -297,6 +301,7 @@ func _process(delta: float) -> void:
 		var delta_pos := global_position - before
 		if delta_pos.length_squared() > 0.01:
 			velocity_dir = delta_pos.normalized()
+	_update_visual_actor()
 
 	if progress_ratio >= 1.0 - 0.0001:
 		GameManager.last_leak_was_stealth = stealth
@@ -502,6 +507,7 @@ func _apply_body_modulate() -> void:
 	var tint := Color(1.0, 0.45, 0.4) if _hit_flash_left > 0.0 else Color(1.0, 1.0, 1.0)
 	tint.a = _ghost_alpha()
 	body.modulate = tint
+	if _visual_actor != null: _visual_actor.modulate = tint
 
 
 func _refresh_stealth_visual() -> void:
@@ -602,6 +608,7 @@ func die(give_reward: bool, damage_kind: StringName = &"skill") -> void:
 	if is_dead:
 		return
 	is_dead = true
+	_set_visual_animation("Death", false)
 	# 死亡帧即退出索敌（塔 / 弹道 / 光环的组扫描另有 is_dead 过滤，双保险）。
 	remove_from_group(ENEMY_GROUP)
 	if _kill_bar_flash:
@@ -702,7 +709,11 @@ func _draw() -> void:
 	# 死亡渐隐期（0.8.16.6）跳过血条：定格由 EnemyKillBarFlash 独立补播。
 	if _death_time < 0.0:
 		_draw_hp_bar()
-	# 黄巾头带：横跨头顶的黄色布条
+	if _visual_actor == null: _draw_legacy_face(half)
+	_draw_status_marks(half)
+
+func _draw_legacy_face(half: Vector2) -> void:
+	# 未覆盖身份保留旧绘制。
 	var band_rect := Rect2(
 		Vector2(-half.x * 0.72, -half.y - 7.0),
 		Vector2(half.x * 1.44, 5.0)
@@ -715,6 +726,8 @@ func _draw() -> void:
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 2.0, Color(0.95, 0.96, 0.97, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
 	draw_circle(Vector2(half.x * 0.35, -half.y * 0.3), 1.0, Color(0.1, 0.1, 0.12, 1.0))
+
+func _draw_status_marks(half: Vector2) -> void:
 	# 死亡渐隐期（0.8.16.6）：不再绘制存活状态图标（眩晕星 / 隐匿环 / 阶段点 / 恐惧环）。
 	if _death_time >= 0.0:
 		return
@@ -780,10 +793,11 @@ func get_hp_bar_tier() -> int:
 func get_hp_bar_size() -> Vector2:
 	var tier := get_hp_bar_tier()
 	var width := maxf(_body_size.x, HP_BAR_MIN_WIDTH)
+	if _visual_actor != null: width = maxf(float(_visual_profile.width) * float(_visual_profile.scale), HP_BAR_MIN_WIDTH)
 	if tier == HpBarTier.ELITE:
 		width += HP_BAR_ELITE_WIDTH_BONUS
 	elif tier == HpBarTier.BOSS:
-		width = maxf(HP_BAR_BOSS_MIN_WIDTH, _body_size.x + HP_BAR_BOSS_WIDTH_BONUS)
+		width = maxf(HP_BAR_BOSS_MIN_WIDTH, width + HP_BAR_BOSS_WIDTH_BONUS)
 	return Vector2(width, float(HP_BAR_HEIGHTS[tier]))
 
 
@@ -791,7 +805,31 @@ func get_hp_bar_size() -> Vector2:
 func get_hp_bar_rect() -> Rect2:
 	var bar_size := get_hp_bar_size()
 	var bar_bottom := -_body_size.y * 0.5 - HP_BAR_BOTTOM_OFFSET
+	if _visual_actor != null:
+		bar_bottom = float(_visual_profile.foot) - float(_visual_profile.top) * float(_visual_profile.scale) - HP_BAR_BOTTOM_OFFSET
 	return Rect2(Vector2(-bar_size.x * 0.5, bar_bottom - bar_size.y), bar_size)
+
+func _setup_visual_actor() -> void:
+	_visual_profile = BattleVisualRegistry.enemy(str(enemy_id))
+	_visual_actor = BattleVisualRegistry.create_actor(_visual_profile)
+	if _visual_actor == null: return
+	add_child(_visual_actor)
+	body.visible = false
+	_update_visual_actor()
+
+func _set_visual_animation(animation: String, looped: bool = true) -> void:
+	if _visual_actor == null or _visual_animation == animation: return
+	var state: Object = _visual_actor.get_animation_state()
+	if state != null:
+		state.set_animation(animation, looped, 0)
+		_visual_animation = animation
+
+func _update_visual_actor() -> void:
+	if _visual_actor == null: return
+	if absf(velocity_dir.x) > .05: _visual_facing = signf(velocity_dir.x)
+	var size := float(_visual_profile.scale)
+	_visual_actor.scale = Vector2(float(_visual_profile.native_facing) * _visual_facing * size, size)
+	_set_visual_animation("Stun" if _stun_time_left > 0.0 else "Move" if speed > 0 else "Idle")
 
 
 ## 条顶 y：眩晕三小星（条顶 −7）与阶段点（条顶 −16）的避让锚点。

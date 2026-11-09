@@ -1,0 +1,969 @@
+{
+	"checks": 306,
+	"failures": [],
+	"frames": [
+		{
+			"at": 0.0,
+			"bbox": [
+				74,
+				91,
+				80,
+				87
+			],
+			"facing": -1,
+			"file": "guan_yu_left_Idle.png",
+			"id": "guan_yu",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				56,
+				112,
+				94,
+				67
+			],
+			"facing": -1,
+			"file": "guan_yu_left_Move.png",
+			"id": "guan_yu",
+			"pose": "Move"
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				85,
+				86,
+				109,
+				86
+			],
+			"facing": -1,
+			"file": "guan_yu_left_Attack_A.png",
+			"id": "guan_yu",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.267,
+			"bbox": [
+				0,
+				97,
+				152,
+				81
+			],
+			"facing": -1,
+			"file": "guan_yu_left_XX.png",
+			"id": "guan_yu",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				63,
+				111,
+				89,
+				68
+			],
+			"facing": -1,
+			"file": "guan_yu_left_Stun.png",
+			"id": "guan_yu",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				79,
+				78,
+				70,
+				101
+			],
+			"facing": -1,
+			"file": "guan_yu_left_Death.png",
+			"id": "guan_yu",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				102,
+				91,
+				80,
+				87
+			],
+			"facing": 1,
+			"file": "guan_yu_right_Idle.png",
+			"id": "guan_yu",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				106,
+				112,
+				94,
+				67
+			],
+			"facing": 1,
+			"file": "guan_yu_right_Move.png",
+			"id": "guan_yu",
+			"pose": "Move"
+		},
+		{
+			"at": 0.4,
+			"bbox": [
+				62,
+				86,
+				109,
+				86
+			],
+			"facing": 1,
+			"file": "guan_yu_right_Attack_A.png",
+			"id": "guan_yu",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.267,
+			"bbox": [
+				104,
+				97,
+				152,
+				81
+			],
+			"facing": 1,
+			"file": "guan_yu_right_XX.png",
+			"id": "guan_yu",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				104,
+				111,
+				89,
+				68
+			],
+			"facing": 1,
+			"file": "guan_yu_right_Stun.png",
+			"id": "guan_yu",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				107,
+				78,
+				70,
+				101
+			],
+			"facing": 1,
+			"file": "guan_yu_right_Death.png",
+			"id": "guan_yu",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				102,
+				97,
+				69,
+				80
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Idle.png",
+			"id": "liu_bei",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				52,
+				101,
+				90,
+				91
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Move.png",
+			"id": "liu_bei",
+			"pose": "Move"
+		},
+		{
+			"at": 0.5333,
+			"bbox": [
+				0,
+				88,
+				111,
+				91
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Attack_A.png",
+			"id": "liu_bei",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				103,
+				100,
+				71,
+				78
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Appear.png",
+			"id": "liu_bei",
+			"pose": "Appear"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				60,
+				107,
+				92,
+				77
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Stun.png",
+			"id": "liu_bei",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				121,
+				98,
+				99,
+				77
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Death.png",
+			"id": "liu_bei",
+			"pose": "Death"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				50,
+				103,
+				70,
+				82
+			],
+			"facing": -1,
+			"file": "liu_bei_left_Critical.png",
+			"id": "liu_bei",
+			"pose": "Critical"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				85,
+				97,
+				69,
+				80
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Idle.png",
+			"id": "liu_bei",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				114,
+				101,
+				90,
+				91
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Move.png",
+			"id": "liu_bei",
+			"pose": "Move"
+		},
+		{
+			"at": 0.5333,
+			"bbox": [
+				145,
+				88,
+				111,
+				91
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Attack_A.png",
+			"id": "liu_bei",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				82,
+				100,
+				71,
+				78
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Appear.png",
+			"id": "liu_bei",
+			"pose": "Appear"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				104,
+				107,
+				92,
+				77
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Stun.png",
+			"id": "liu_bei",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				36,
+				98,
+				99,
+				77
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Death.png",
+			"id": "liu_bei",
+			"pose": "Death"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				136,
+				103,
+				70,
+				82
+			],
+			"facing": 1,
+			"file": "liu_bei_right_Critical.png",
+			"id": "liu_bei",
+			"pose": "Critical"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				117,
+				149,
+				25,
+				38
+			],
+			"facing": -1,
+			"file": "yellow_turban_soldier_left_Idle.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				117,
+				149,
+				25,
+				38
+			],
+			"facing": -1,
+			"file": "yellow_turban_soldier_left_Move.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				116,
+				149,
+				28,
+				38
+			],
+			"facing": -1,
+			"file": "yellow_turban_soldier_left_Attack_A.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				117,
+				149,
+				25,
+				38
+			],
+			"facing": -1,
+			"file": "yellow_turban_soldier_left_XX.png",
+			"id": "yellow_turban_soldier",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				117,
+				149,
+				25,
+				38
+			],
+			"facing": -1,
+			"file": "yellow_turban_soldier_left_Stun.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				116,
+				154,
+				32,
+				33
+			],
+			"facing": -1,
+			"file": "yellow_turban_soldier_left_Death.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				114,
+				149,
+				25,
+				38
+			],
+			"facing": 1,
+			"file": "yellow_turban_soldier_right_Idle.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				114,
+				149,
+				25,
+				38
+			],
+			"facing": 1,
+			"file": "yellow_turban_soldier_right_Move.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				112,
+				149,
+				28,
+				38
+			],
+			"facing": 1,
+			"file": "yellow_turban_soldier_right_Attack_A.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				114,
+				149,
+				25,
+				38
+			],
+			"facing": 1,
+			"file": "yellow_turban_soldier_right_XX.png",
+			"id": "yellow_turban_soldier",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				114,
+				149,
+				25,
+				38
+			],
+			"facing": 1,
+			"file": "yellow_turban_soldier_right_Stun.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				108,
+				154,
+				32,
+				33
+			],
+			"facing": 1,
+			"file": "yellow_turban_soldier_right_Death.png",
+			"id": "yellow_turban_soldier",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				104,
+				140,
+				53,
+				51
+			],
+			"facing": -1,
+			"file": "yellow_turban_cavalry_left_Idle.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				104,
+				140,
+				53,
+				51
+			],
+			"facing": -1,
+			"file": "yellow_turban_cavalry_left_Move.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				104,
+				140,
+				53,
+				51
+			],
+			"facing": -1,
+			"file": "yellow_turban_cavalry_left_Attack_A.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				104,
+				140,
+				53,
+				51
+			],
+			"facing": -1,
+			"file": "yellow_turban_cavalry_left_XX.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				104,
+				140,
+				53,
+				51
+			],
+			"facing": -1,
+			"file": "yellow_turban_cavalry_left_Stun.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				104,
+				145,
+				53,
+				46
+			],
+			"facing": -1,
+			"file": "yellow_turban_cavalry_left_Death.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				99,
+				140,
+				53,
+				51
+			],
+			"facing": 1,
+			"file": "yellow_turban_cavalry_right_Idle.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				99,
+				140,
+				53,
+				51
+			],
+			"facing": 1,
+			"file": "yellow_turban_cavalry_right_Move.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				99,
+				140,
+				53,
+				51
+			],
+			"facing": 1,
+			"file": "yellow_turban_cavalry_right_Attack_A.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				99,
+				140,
+				53,
+				51
+			],
+			"facing": 1,
+			"file": "yellow_turban_cavalry_right_XX.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				99,
+				140,
+				53,
+				51
+			],
+			"facing": 1,
+			"file": "yellow_turban_cavalry_right_Stun.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				99,
+				145,
+				53,
+				46
+			],
+			"facing": 1,
+			"file": "yellow_turban_cavalry_right_Death.png",
+			"id": "yellow_turban_cavalry",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": -1,
+			"file": "yellow_turban_sergeant_left_Idle.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": -1,
+			"file": "yellow_turban_sergeant_left_Move.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				113,
+				142,
+				35,
+				47
+			],
+			"facing": -1,
+			"file": "yellow_turban_sergeant_left_Attack_A.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": -1,
+			"file": "yellow_turban_sergeant_left_XX.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": -1,
+			"file": "yellow_turban_sergeant_left_Stun.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				113,
+				149,
+				40,
+				40
+			],
+			"facing": -1,
+			"file": "yellow_turban_sergeant_left_Death.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": 1,
+			"file": "yellow_turban_sergeant_right_Idle.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": 1,
+			"file": "yellow_turban_sergeant_right_Move.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				108,
+				142,
+				35,
+				47
+			],
+			"facing": 1,
+			"file": "yellow_turban_sergeant_right_Attack_A.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": 1,
+			"file": "yellow_turban_sergeant_right_XX.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				112,
+				142,
+				32,
+				47
+			],
+			"facing": 1,
+			"file": "yellow_turban_sergeant_right_Stun.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				103,
+				149,
+				40,
+				40
+			],
+			"facing": 1,
+			"file": "yellow_turban_sergeant_right_Death.png",
+			"id": "yellow_turban_sergeant",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				106,
+				134,
+				58,
+				61
+			],
+			"facing": -1,
+			"file": "yellow_turban_general_left_Idle.png",
+			"id": "yellow_turban_general",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				106,
+				134,
+				57,
+				61
+			],
+			"facing": -1,
+			"file": "yellow_turban_general_left_Move.png",
+			"id": "yellow_turban_general",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				105,
+				134,
+				53,
+				61
+			],
+			"facing": -1,
+			"file": "yellow_turban_general_left_Attack_A.png",
+			"id": "yellow_turban_general",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				106,
+				134,
+				58,
+				61
+			],
+			"facing": -1,
+			"file": "yellow_turban_general_left_XX.png",
+			"id": "yellow_turban_general",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				106,
+				134,
+				58,
+				61
+			],
+			"facing": -1,
+			"file": "yellow_turban_general_left_Stun.png",
+			"id": "yellow_turban_general",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				108,
+				141,
+				53,
+				55
+			],
+			"facing": -1,
+			"file": "yellow_turban_general_left_Death.png",
+			"id": "yellow_turban_general",
+			"pose": "Death"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				92,
+				134,
+				58,
+				61
+			],
+			"facing": 1,
+			"file": "yellow_turban_general_right_Idle.png",
+			"id": "yellow_turban_general",
+			"pose": "Idle"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				93,
+				134,
+				57,
+				61
+			],
+			"facing": 1,
+			"file": "yellow_turban_general_right_Move.png",
+			"id": "yellow_turban_general",
+			"pose": "Move"
+		},
+		{
+			"at": 0.11,
+			"bbox": [
+				98,
+				134,
+				53,
+				61
+			],
+			"facing": 1,
+			"file": "yellow_turban_general_right_Attack_A.png",
+			"id": "yellow_turban_general",
+			"pose": "Attack_A"
+		},
+		{
+			"at": 0.0,
+			"bbox": [
+				92,
+				134,
+				58,
+				61
+			],
+			"facing": 1,
+			"file": "yellow_turban_general_right_XX.png",
+			"id": "yellow_turban_general",
+			"pose": "XX"
+		},
+		{
+			"at": 0.125,
+			"bbox": [
+				92,
+				134,
+				58,
+				61
+			],
+			"facing": 1,
+			"file": "yellow_turban_general_right_Stun.png",
+			"id": "yellow_turban_general",
+			"pose": "Stun"
+		},
+		{
+			"at": 0.3,
+			"bbox": [
+				95,
+				141,
+				53,
+				55
+			],
+			"facing": 1,
+			"file": "yellow_turban_general_right_Death.png",
+			"id": "yellow_turban_general",
+			"pose": "Death"
+		}
+	],
+	"program": "0.9.8.1"
+}

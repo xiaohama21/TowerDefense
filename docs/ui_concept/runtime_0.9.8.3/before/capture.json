@@ -1,0 +1,16 @@
+{
+	"fixture": "isolated Lv1 starters, original stage budgets and routes; no balance conclusion",
+	"program": "0.9.8.2",
+	"screenshots": [
+		"s01_start",
+		"s01_drag",
+		"s01_battle",
+		"s02_start",
+		"s03_start",
+		"s04_start",
+		"s05_start",
+		"s06_start",
+		"s07_start",
+		"s08_start"
+	]
+}

@@ -14,7 +14,49 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.9.7.0", "project version 0.9.7.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.9.8.3", "project version 0.9.8.3")
+	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
+	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
+	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 8 and art_manifest.native_measurements.size() == 9, "battle visual manifest and native bounds")
+	_check(art_manifest.program == "0.9.8.3" and art_manifest.map_style.version == 2 and art_manifest.map_style.topology_version == 1, "packaged map style and route topology metadata")
+	for id in visuals.HEROES.keys() + visuals.ENEMIES.keys():
+		var spec: Dictionary = visuals.hero(id) if visuals.HEROES.has(id) else visuals.enemy(id)
+		var actor = visuals.create_actor(spec)
+		_check(actor != null, "packaged Spine identity " + id)
+		if actor == null: continue
+		root.add_child(actor)
+		if spec.has("skin"):
+			_check(actor.get_skeleton().get_skin() != null, "packaged selected skin " + id)
+			var active := true
+			for bone_data in actor.get_skeleton().get_skin().get_bones():
+				active = active and actor.get_skeleton().find_bone(bone_data.get_bone_name()).is_active()
+			_check(active, "packaged skin-dependent bones active " + id)
+		if spec.has("root_motion_bone"):
+			var track = actor.get_animation_state().set_animation("Active_A", false, 0)
+			track.set_mix_duration(0)
+			track.set_track_time(.5059)
+			actor.update_skeleton(0)
+			var bone = actor.get_skeleton().find_bone(str(spec.root_motion_bone))
+			_check(absf(float(bone.get_pose().get_y()) - float(bone.get_data().get_setup_pose().get_y())) < 35, "packaged Zhao root motion stays near build point")
+		var poses := ["Idle", "Move", "Attack_A", str(spec.get("ultimate", "XX")), "Stun", "Death"]
+		if spec.has("critical"): poses.append(str(spec.critical))
+		for pose in poses:
+			_check(actor.get_animation_state().set_animation(pose, false, 0) != null, "packaged animation " + id + "." + pose)
+		actor.queue_free()
+		await process_frame
+	for id in load("res://scripts/GridBackground.gd").MAP_TEXTURES:
+		var map_texture: Texture2D = load("res://assets/battle_visuals/grass_camp/%s.png" % id)
+		_check(map_texture != null and map_texture.get_size() == Vector2(160,160), "packaged map art " + id)
+	for id in visuals.PORTRAITS:
+		var avatar = load("res://scripts/ui_screens/ui_theme.gd").hero_avatar(id, id)
+		_check(avatar is TextureRect and avatar.texture.resource_path == visuals.PORTRAITS[id], "same identity portrait " + str(id))
+		avatar.free()
+	_check(is_equal_approx(float(visuals.hero("liu_bei").hit), .11) and float(visuals.hero("liu_bei").ult_hit) == 0 and float(visuals.hero("guan_yu").hit) == .4, "packaged independent hit timing")
+	_check(not FileAccess.file_exists("res://assets/battle_visuals/liu_bei/source/head.svg"), "authoring layers excluded from release")
+	_check(not FileAccess.file_exists("res://assets/battle_visuals/liu_bei/variants/a_158/liu_bei_158-data.tres"), "abandoned candidates excluded from release")
+	# Export remaps PNGs to imported textures; source byte hashes are checked before export.
+	var liu_texture: Texture2D = load("res://assets/battle_visuals/liu_bei/Hero_LiBai_A.png")
+	_check(liu_texture != null and liu_texture.get_size() == Vector2(222,222), "original 158 imported atlas texture")
 	var curve = load("res://scripts/data/LevelCurve.gd")
 	_check(curve.exp_total_for_level(30) == 13340 and curve.exp_total_for_level(31) == 14220 and curve.exp_total_for_level(100) == 79770, "packaged continuous tail and retained investment")
 	var flow = root.get_node("GameFlow")
@@ -264,6 +306,36 @@ func _run() -> void:
 	paused = false
 	main.queue_free()
 	await process_frame
+	flow.set_gameplay_flag("skip_dialogue",true)
+	flow.set_gameplay_flag("auto_next_wave",false)
+	var grid_script = load("res://scripts/GridBackground.gd")
+	var soldier = load("res://resources/enemies/yellow_turban/yellow_turban_soldier.tres")
+	for number in range(1,9):
+		flow.selected_stage_id = StringName("ch01_s%02d" % number)
+		var battle = load("res://scenes/Main.tscn").instantiate()
+		root.add_child(battle)
+		await process_frame
+		var stage = battle.stage_data
+		var ids = stage.get_normal_path_ids()
+		_check(battle.enemy_manager.paths.size() == stage.get_paths().size(),"packaged route registry " + str(stage.stage_id))
+		var road_ok := true
+		for cell in grid_script.derive_stage_road_cells(stage):
+			road_ok = road_ok and battle.grid_background._road_set.has(cell) and not battle.build_manager.can_build_at(cell) and cell.y >= 1 and cell.y <= 7
+		_check(road_ok,"packaged all-route occupancy and HUD clearance " + str(stage.stage_id))
+		for route_id in stage.get_paths():
+			var points: Array[Vector2] = []
+			points.assign(stage.get_paths()[route_id])
+			var cells = grid_script.trace_road_cells(points)
+			_check(cells.back() == battle.grid_background.base_cell,"packaged shared base " + str(stage.stage_id) + "." + str(route_id))
+		battle.enemy_manager.reset_path_cycle()
+		var split_ok := true
+		for i in range(6):
+			var unit = battle.enemy_manager.spawn_enemy_from_data(soldier,&"auto")
+			split_ok = split_ok and unit.get_parent() == battle.enemy_manager.paths[ids[i%ids.size()]]
+			unit.queue_free()
+		_check(split_ok,"packaged deterministic route split " + str(stage.stage_id))
+		battle.queue_free()
+		await process_frame
 	print("PACKAGE_VERIFY_" + ("FAIL" if failed else "OK"))
 	quit(1 if failed else 0)
 

@@ -1,0 +1,12 @@
+{
+  "program": "0.9.8.2",
+  "regression_suites": 7,
+  "hero_native_checks": 131,
+  "fallback_checks": 19,
+  "ui_native_checks": 50,
+  "packaged_checks": 516,
+  "full_animation_frames": 676,
+  "key_frames": 116,
+  "key_frame_checks": 477,
+  "manifest_files": 133
+}

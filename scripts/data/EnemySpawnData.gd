@@ -6,7 +6,8 @@ class_name EnemySpawnData
 @export_range(1, 999, 1) var count: int = 1
 @export_range(0.0, 60.0, 0.05) var spawn_interval: float = 1.0
 @export_range(0.0, 300.0, 0.05) var start_delay: float = 0.0
-@export var path_id: StringName = &"main"
+## auto按关卡循环分流；main/fork/额外ID可明确指派固定路线。
+@export var path_id: StringName = &"auto"
 
 
 func is_valid() -> bool:

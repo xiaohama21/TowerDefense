@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://c73rvpos150bm"
+path="res://.godot/imported/yellow_turban_sergeant.atlas-774ec95b43186eb743079c31f8731f63.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/yellow_turban_sergeant/yellow_turban_sergeant.atlas"
+dest_files=["res://.godot/imported/yellow_turban_sergeant.atlas-774ec95b43186eb743079c31f8731f63.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

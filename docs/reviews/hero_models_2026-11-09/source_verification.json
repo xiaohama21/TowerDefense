@@ -1,0 +1,35 @@
+{
+  "program": "0.9.8.2",
+  "heroes": {
+    "diao_chan": {
+      "Hero_Diaochan_A.png": true,
+      "Hero_Diaochan_A.atlas": true,
+      "Hero_Diaochan_A.json": true,
+      "免责声明.txt": true,
+      "png_identical": true,
+      "atlas_identical": true,
+      "rig_reproducible_byte_for_byte": true
+    },
+    "zhao_yun": {
+      "Hero_ZhaoYun_A.png": true,
+      "Hero_ZhaoYun_A.atlas": true,
+      "Hero_ZhaoYun_A.json": true,
+      "免责声明.txt": true,
+      "png_identical": true,
+      "atlas_identical": true,
+      "rig_reproducible_byte_for_byte": true
+    },
+    "zhuge_liang": {
+      "Hero_ZhugeLiang_A.png": true,
+      "Hero_ZhugeLiang_A.atlas": true,
+      "Hero_ZhugeLiang_A.json": true,
+      "免责声明.txt": true,
+      "png_identical": true,
+      "atlas_identical": true,
+      "rig_reproducible_byte_for_byte": true
+    }
+  },
+  "failures": [],
+  "manifest_files_verified": 133,
+  "passed": true
+}

@@ -1,0 +1,29 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+PACK_VERIFY_OK
+DETAILS:
+  发布版本：项目=0.9.8.1 / 文件=FengHuoLianYing_v0.9.8.1.exe / PE=0.9.8.1·0.9.8.1
+  PASS  项目与 Windows 导出版本一致（0.9.8.1）
+  PASS  全新环境：user:// 下无存档
+  PASS  开始游戏：创建新档成功
+  PASS  初始武将入库（刘备/关羽）
+  PASS  幂等：重复调用不重复发放
+  编队可用角色=2（已拥有=2，加载失败=[]）
+  PASS  编队角色链路（SquadSelect 同款）
+  角色=9、职业=6（["archer", "catapult", "cavalry", "dancer", "strategist", "tiger_guard"]）
+  角色/职业/转职缺失=[]
+  PASS  全量角色/职业模板资源
+  PASS  11棵天赋树/110节点与武将独立三树
+  关卡=8（chapter_01~8）
+  波次引用敌人=["yellow_turban_soldier", "yellow_turban_cavalry", "yellow_turban_sergeant", "yellow_turban_archer", "yellow_turban_elite_sergeant", "yellow_turban_general", "yellow_turban_berserker", "yellow_turban_heavy_berserker", "yellow_turban_stealth_assassin", "yellow_turban_rebel_general", "yellow_turban_sorcerer", "yellow_turban_armor_aura_caster", "yellow_turban_stealth_healer", "yellow_turban_heaven_general"]
+  关卡/波次/敌人缺失=[]
+  PASS  全量关卡/波次/敌人资源
+  羁绊=2、局内遗物=5、道具=10
+  羁绊/遗物/道具/科技/数值/模板缺失=[]
+  PASS  羁绊/遗物/道具/科技/数值/模板资源
+  光标素材 9 枚 ×2 尺寸，缺失/异常=[]
+  PASS  新版光标素材（原创 SVG ×2 尺寸 + 热点落点）
+  新版图标 395 枚，缺失/异常=[]
+  PASS  新版图标（全目录透明度／尺寸／当前缺口覆盖）
+  spine 素材：关羽 4 文件 + 注册表 2 项 + 头像 2 枚 + 运行时 res://bin/spine_godot_extension.gdextension；缺失=[]
+  PASS  关羽 spine 素材与运行时（ART_ASSETS §5.8）

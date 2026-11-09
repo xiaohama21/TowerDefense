@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://bhck81mdcuu3e"
+path="res://.godot/imported/zhuge_liang.atlas-098cf58d950c1676689527320521af35.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/zhuge_liang/zhuge_liang.atlas"
+dest_files=["res://.godot/imported/zhuge_liang.atlas-098cf58d950c1676689527320521af35.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

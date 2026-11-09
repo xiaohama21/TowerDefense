@@ -1,0 +1,74 @@
+{
+  "entries": [
+    {
+      "svg": "grass_camp/source/grass.svg",
+      "png": "grass_camp/grass.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/grass_1.svg",
+      "png": "grass_camp/grass_1.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/grass_2.svg",
+      "png": "grass_camp/grass_2.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/grass_3.svg",
+      "png": "grass_camp/grass_3.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/road.svg",
+      "png": "grass_camp/road.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/tree.svg",
+      "png": "grass_camp/tree.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/tree_1.svg",
+      "png": "grass_camp/tree_1.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/stump.svg",
+      "png": "grass_camp/stump.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/rock.svg",
+      "png": "grass_camp/rock.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/rock_cluster.svg",
+      "png": "grass_camp/rock_cluster.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/banner.svg",
+      "png": "grass_camp/banner.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/torch.svg",
+      "png": "grass_camp/torch.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/gate.svg",
+      "png": "grass_camp/gate.png",
+      "pixels": 160
+    },
+    {
+      "svg": "grass_camp/source/base.svg",
+      "png": "grass_camp/base.png",
+      "pixels": 160
+    }
+  ]
+}

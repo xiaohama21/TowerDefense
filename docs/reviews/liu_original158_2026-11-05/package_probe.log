@@ -1,0 +1,514 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+PACKAGE_PASS: load shipped Spine DLL
+PACKAGE_PASS: Spine runtime
+PACKAGE_PASS: project version 0.9.8.1
+PACKAGE_PASS: battle visual manifest and native bounds
+PACKAGE_PASS: packaged Spine identity guan_yu
+PACKAGE_PASS: packaged animation guan_yu.Idle
+PACKAGE_PASS: packaged animation guan_yu.Move
+PACKAGE_PASS: packaged animation guan_yu.Attack_A
+PACKAGE_PASS: packaged animation guan_yu.XX
+PACKAGE_PASS: packaged animation guan_yu.Stun
+PACKAGE_PASS: packaged animation guan_yu.Death
+PACKAGE_PASS: packaged Spine identity liu_bei
+PACKAGE_PASS: packaged animation liu_bei.Idle
+PACKAGE_PASS: packaged animation liu_bei.Move
+PACKAGE_PASS: packaged animation liu_bei.Attack_A
+PACKAGE_PASS: packaged animation liu_bei.Appear
+PACKAGE_PASS: packaged animation liu_bei.Stun
+PACKAGE_PASS: packaged animation liu_bei.Death
+PACKAGE_PASS: packaged animation liu_bei.Critical
+PACKAGE_PASS: packaged Spine identity yellow_turban_soldier
+PACKAGE_PASS: packaged animation yellow_turban_soldier.Idle
+PACKAGE_PASS: packaged animation yellow_turban_soldier.Move
+PACKAGE_PASS: packaged animation yellow_turban_soldier.Attack_A
+PACKAGE_PASS: packaged animation yellow_turban_soldier.XX
+PACKAGE_PASS: packaged animation yellow_turban_soldier.Stun
+PACKAGE_PASS: packaged animation yellow_turban_soldier.Death
+PACKAGE_PASS: packaged Spine identity yellow_turban_cavalry
+PACKAGE_PASS: packaged animation yellow_turban_cavalry.Idle
+PACKAGE_PASS: packaged animation yellow_turban_cavalry.Move
+PACKAGE_PASS: packaged animation yellow_turban_cavalry.Attack_A
+PACKAGE_PASS: packaged animation yellow_turban_cavalry.XX
+PACKAGE_PASS: packaged animation yellow_turban_cavalry.Stun
+PACKAGE_PASS: packaged animation yellow_turban_cavalry.Death
+PACKAGE_PASS: packaged Spine identity yellow_turban_sergeant
+PACKAGE_PASS: packaged animation yellow_turban_sergeant.Idle
+PACKAGE_PASS: packaged animation yellow_turban_sergeant.Move
+PACKAGE_PASS: packaged animation yellow_turban_sergeant.Attack_A
+PACKAGE_PASS: packaged animation yellow_turban_sergeant.XX
+PACKAGE_PASS: packaged animation yellow_turban_sergeant.Stun
+PACKAGE_PASS: packaged animation yellow_turban_sergeant.Death
+PACKAGE_PASS: packaged Spine identity yellow_turban_general
+PACKAGE_PASS: packaged animation yellow_turban_general.Idle
+PACKAGE_PASS: packaged animation yellow_turban_general.Move
+PACKAGE_PASS: packaged animation yellow_turban_general.Attack_A
+PACKAGE_PASS: packaged animation yellow_turban_general.XX
+PACKAGE_PASS: packaged animation yellow_turban_general.Stun
+PACKAGE_PASS: packaged animation yellow_turban_general.Death
+PACKAGE_PASS: packaged grass camp grass
+PACKAGE_PASS: packaged grass camp road
+PACKAGE_PASS: packaged grass camp tree
+PACKAGE_PASS: packaged grass camp rock
+PACKAGE_PASS: packaged grass camp banner
+PACKAGE_PASS: packaged grass camp torch
+PACKAGE_PASS: packaged grass camp gate
+PACKAGE_PASS: packaged grass camp base
+PACKAGE_PASS: same identity portrait guan_yu
+PACKAGE_PASS: same identity portrait liu_bei
+PACKAGE_PASS: packaged independent hit timing
+PACKAGE_PASS: authoring layers excluded from release
+PACKAGE_PASS: abandoned candidates excluded from release
+PACKAGE_PASS: original 158 imported atlas texture
+PACKAGE_PASS: packaged continuous tail and retained investment
+PACKAGE_PASS: isolated new profile
+PACKAGE_PASS: schema v12
+PACKAGE_PASS: new profile economic defaults
+PACKAGE_PASS: packaged catalog and lord curve
+PACKAGE_PASS: packaged v9 migration preserves existing economy and gear
+PACKAGE_PASS: packaged per skill book costs
+PACKAGE_PASS: packaged refund once
+PACKAGE_PASS: packaged fractional poison growth
+PACKAGE_PASS: packaged forced critical growth
+PACKAGE_PASS: packaged damage rage caps
+PACKAGE_PASS: nine three-skill characters retained
+PACKAGE_PASS: 395 packaged icons including 110 talents
+PACKAGE_PASS: packaged faction flag and visible name wei
+PACKAGE_PASS: packaged faction flag and visible name shu
+PACKAGE_PASS: packaged faction flag and visible name wu
+PACKAGE_PASS: packaged faction flag and visible name qun
+PACKAGE_PASS: packaged faction resource diao_chan
+PACKAGE_PASS: packaged faction resource guan_yu
+PACKAGE_PASS: packaged faction resource huang_fu_song
+PACKAGE_PASS: packaged faction resource huang_zhong
+PACKAGE_PASS: packaged faction resource liu_bei
+PACKAGE_PASS: packaged faction resource zhang_fei
+PACKAGE_PASS: packaged faction resource zhao_yun
+PACKAGE_PASS: packaged faction resource zhou_wei
+PACKAGE_PASS: packaged faction resource zhuge_liang
+PACKAGE_PASS: packaged nine faction assignments
+PACKAGE_PASS: packaged replacement identity 孙尚香
+PACKAGE_PASS: packaged locked relic 鹊画弓
+PACKAGE_PASS: packaged replacement skill 弓腰姬
+PACKAGE_PASS: packaged replacement skill 淬毒箭
+PACKAGE_PASS: packaged replacement skill 枭姬奋威
+PACKAGE_PASS: packaged replacement identity 典韦
+PACKAGE_PASS: packaged locked relic 双铁戟
+PACKAGE_PASS: packaged replacement skill 破阵双戟
+PACKAGE_PASS: packaged replacement skill 古之恶来
+PACKAGE_PASS: packaged replacement skill 宛城死战
+PACKAGE_PASS: packaged unrestricted chapter ch01_s01
+PACKAGE_PASS: packaged unrestricted chapter ch01_s02
+PACKAGE_PASS: packaged unrestricted chapter ch01_s03
+PACKAGE_PASS: packaged unrestricted chapter ch01_s04
+PACKAGE_PASS: packaged unrestricted chapter ch01_s05
+PACKAGE_PASS: packaged unrestricted chapter ch01_s06
+PACKAGE_PASS: packaged unrestricted chapter ch01_s07
+PACKAGE_PASS: packaged unrestricted chapter ch01_s08
+PACKAGE_PASS: packaged stage faction intersection
+PACKAGE_PASS: 11 packaged talent trees
+PACKAGE_PASS: packaged talent tree physical_burst
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.slash
+PACKAGE_PASS: packaged talent node physical_burst.slash
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.swift
+PACKAGE_PASS: packaged talent node physical_burst.swift
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.critical
+PACKAGE_PASS: packaged talent node physical_burst.critical
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.fatal
+PACKAGE_PASS: packaged talent node physical_burst.fatal
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.pierce
+PACKAGE_PASS: packaged talent node physical_burst.pierce
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.rupture
+PACKAGE_PASS: packaged talent node physical_burst.rupture
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.chain
+PACKAGE_PASS: packaged talent node physical_burst.chain
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.power
+PACKAGE_PASS: packaged talent node physical_burst.power
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.triumph
+PACKAGE_PASS: packaged talent node physical_burst.triumph
+PACKAGE_PASS: packaged dedicated talent icon physical_burst.dragon
+PACKAGE_PASS: packaged talent node physical_burst.dragon
+PACKAGE_PASS: packaged talent tree physical_area
+PACKAGE_PASS: packaged dedicated talent icon physical_area.edge
+PACKAGE_PASS: packaged talent node physical_area.edge
+PACKAGE_PASS: packaged dedicated talent icon physical_area.charge
+PACKAGE_PASS: packaged talent node physical_area.charge
+PACKAGE_PASS: packaged dedicated talent icon physical_area.spread
+PACKAGE_PASS: packaged talent node physical_area.spread
+PACKAGE_PASS: packaged dedicated talent icon physical_area.crowd
+PACKAGE_PASS: packaged talent node physical_area.crowd
+PACKAGE_PASS: packaged dedicated talent icon physical_area.critical
+PACKAGE_PASS: packaged talent node physical_area.critical
+PACKAGE_PASS: packaged dedicated talent icon physical_area.flame
+PACKAGE_PASS: packaged talent node physical_area.flame
+PACKAGE_PASS: packaged dedicated talent icon physical_area.ember
+PACKAGE_PASS: packaged talent node physical_area.ember
+PACKAGE_PASS: packaged dedicated talent icon physical_area.siege
+PACKAGE_PASS: packaged talent node physical_area.siege
+PACKAGE_PASS: packaged dedicated talent icon physical_area.camps
+PACKAGE_PASS: packaged talent node physical_area.camps
+PACKAGE_PASS: packaged dedicated talent icon physical_area.formation
+PACKAGE_PASS: packaged talent node physical_area.formation
+PACKAGE_PASS: packaged talent tree magic_burst
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.focus
+PACKAGE_PASS: packaged talent node magic_burst.focus
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.swift
+PACKAGE_PASS: packaged talent node magic_burst.swift
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.reach
+PACKAGE_PASS: packaged talent node magic_burst.reach
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.spell
+PACKAGE_PASS: packaged talent node magic_burst.spell
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.critical
+PACKAGE_PASS: packaged talent node magic_burst.critical
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.ultimate
+PACKAGE_PASS: packaged talent node magic_burst.ultimate
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.pierce
+PACKAGE_PASS: packaged talent node magic_burst.pierce
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.execute
+PACKAGE_PASS: packaged talent node magic_burst.execute
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.wisdom
+PACKAGE_PASS: packaged talent node magic_burst.wisdom
+PACKAGE_PASS: packaged dedicated talent icon magic_burst.strategy
+PACKAGE_PASS: packaged talent node magic_burst.strategy
+PACKAGE_PASS: packaged talent tree magic_area
+PACKAGE_PASS: packaged dedicated talent icon magic_area.focus
+PACKAGE_PASS: packaged talent node magic_area.focus
+PACKAGE_PASS: packaged dedicated talent icon magic_area.chant
+PACKAGE_PASS: packaged talent node magic_area.chant
+PACKAGE_PASS: packaged dedicated talent icon magic_area.reach
+PACKAGE_PASS: packaged talent node magic_area.reach
+PACKAGE_PASS: packaged dedicated talent icon magic_area.fire
+PACKAGE_PASS: packaged talent node magic_area.fire
+PACKAGE_PASS: packaged dedicated talent icon magic_area.spread
+PACKAGE_PASS: packaged talent node magic_area.spread
+PACKAGE_PASS: packaged dedicated talent icon magic_area.critical
+PACKAGE_PASS: packaged talent node magic_area.critical
+PACKAGE_PASS: packaged dedicated talent icon magic_area.control
+PACKAGE_PASS: packaged talent node magic_area.control
+PACKAGE_PASS: packaged dedicated talent icon magic_area.wisdom
+PACKAGE_PASS: packaged talent node magic_area.wisdom
+PACKAGE_PASS: packaged dedicated talent icon magic_area.elite
+PACKAGE_PASS: packaged talent node magic_area.elite
+PACKAGE_PASS: packaged dedicated talent icon magic_area.inferno
+PACKAGE_PASS: packaged talent node magic_area.inferno
+PACKAGE_PASS: packaged talent tree support_control
+PACKAGE_PASS: packaged dedicated talent icon support_control.reach
+PACKAGE_PASS: packaged talent node support_control.reach
+PACKAGE_PASS: packaged dedicated talent icon support_control.swift
+PACKAGE_PASS: packaged talent node support_control.swift
+PACKAGE_PASS: packaged dedicated talent icon support_control.attack
+PACKAGE_PASS: packaged talent node support_control.attack
+PACKAGE_PASS: packaged dedicated talent icon support_control.duration
+PACKAGE_PASS: packaged talent node support_control.duration
+PACKAGE_PASS: packaged dedicated talent icon support_control.punish
+PACKAGE_PASS: packaged talent node support_control.punish
+PACKAGE_PASS: packaged dedicated talent icon support_control.rage
+PACKAGE_PASS: packaged talent node support_control.rage
+PACKAGE_PASS: packaged dedicated talent icon support_control.slow
+PACKAGE_PASS: packaged talent node support_control.slow
+PACKAGE_PASS: packaged dedicated talent icon support_control.ultimate
+PACKAGE_PASS: packaged talent node support_control.ultimate
+PACKAGE_PASS: packaged dedicated talent icon support_control.kill
+PACKAGE_PASS: packaged talent node support_control.kill
+PACKAGE_PASS: packaged dedicated talent icon support_control.command
+PACKAGE_PASS: packaged talent node support_control.command
+PACKAGE_PASS: packaged talent tree support_buff
+PACKAGE_PASS: packaged dedicated talent icon support_buff.reach
+PACKAGE_PASS: packaged talent node support_buff.reach
+PACKAGE_PASS: packaged dedicated talent icon support_buff.swift
+PACKAGE_PASS: packaged talent node support_buff.swift
+PACKAGE_PASS: packaged dedicated talent icon support_buff.rage
+PACKAGE_PASS: packaged talent node support_buff.rage
+PACKAGE_PASS: packaged dedicated talent icon support_buff.power
+PACKAGE_PASS: packaged talent node support_buff.power
+PACKAGE_PASS: packaged dedicated talent icon support_buff.duration
+PACKAGE_PASS: packaged talent node support_buff.duration
+PACKAGE_PASS: packaged dedicated talent icon support_buff.critical
+PACKAGE_PASS: packaged talent node support_buff.critical
+PACKAGE_PASS: packaged dedicated talent icon support_buff.ultimate
+PACKAGE_PASS: packaged talent node support_buff.ultimate
+PACKAGE_PASS: packaged dedicated talent icon support_buff.pulse
+PACKAGE_PASS: packaged talent node support_buff.pulse
+PACKAGE_PASS: packaged dedicated talent icon support_buff.momentum
+PACKAGE_PASS: packaged talent node support_buff.momentum
+PACKAGE_PASS: packaged dedicated talent icon support_buff.unity
+PACKAGE_PASS: packaged talent node support_buff.unity
+PACKAGE_PASS: packaged talent tree armor_break
+PACKAGE_PASS: packaged dedicated talent icon armor_break.edge
+PACKAGE_PASS: packaged talent node armor_break.edge
+PACKAGE_PASS: packaged dedicated talent icon armor_break.elite
+PACKAGE_PASS: packaged talent node armor_break.elite
+PACKAGE_PASS: packaged dedicated talent icon armor_break.steel
+PACKAGE_PASS: packaged talent node armor_break.steel
+PACKAGE_PASS: packaged dedicated talent icon armor_break.pierce
+PACKAGE_PASS: packaged talent node armor_break.pierce
+PACKAGE_PASS: packaged dedicated talent icon armor_break.boss
+PACKAGE_PASS: packaged talent node armor_break.boss
+PACKAGE_PASS: packaged dedicated talent icon armor_break.aura
+PACKAGE_PASS: packaged talent node armor_break.aura
+PACKAGE_PASS: packaged dedicated talent icon armor_break.ultimate
+PACKAGE_PASS: packaged talent node armor_break.ultimate
+PACKAGE_PASS: packaged dedicated talent icon armor_break.repeat
+PACKAGE_PASS: packaged talent node armor_break.repeat
+PACKAGE_PASS: packaged dedicated talent icon armor_break.kill
+PACKAGE_PASS: packaged talent node armor_break.kill
+PACKAGE_PASS: packaged dedicated talent icon armor_break.unbreakable
+PACKAGE_PASS: packaged talent node armor_break.unbreakable
+PACKAGE_PASS: packaged talent tree rage
+PACKAGE_PASS: packaged dedicated talent icon rage.gather
+PACKAGE_PASS: packaged talent node rage.gather
+PACKAGE_PASS: packaged dedicated talent icon rage.resolve
+PACKAGE_PASS: packaged talent node rage.resolve
+PACKAGE_PASS: packaged dedicated talent icon rage.glare
+PACKAGE_PASS: packaged talent node rage.glare
+PACKAGE_PASS: packaged dedicated talent icon rage.fight
+PACKAGE_PASS: packaged talent node rage.fight
+PACKAGE_PASS: packaged dedicated talent icon rage.tide
+PACKAGE_PASS: packaged talent node rage.tide
+PACKAGE_PASS: packaged dedicated talent icon rage.leak
+PACKAGE_PASS: packaged talent node rage.leak
+PACKAGE_PASS: packaged dedicated talent icon rage.steady
+PACKAGE_PASS: packaged talent node rage.steady
+PACKAGE_PASS: packaged dedicated talent icon rage.rise
+PACKAGE_PASS: packaged talent node rage.rise
+PACKAGE_PASS: packaged dedicated talent icon rage.unstoppable
+PACKAGE_PASS: packaged talent node rage.unstoppable
+PACKAGE_PASS: packaged dedicated talent icon rage.fury
+PACKAGE_PASS: packaged talent node rage.fury
+PACKAGE_PASS: packaged talent tree control
+PACKAGE_PASS: packaged dedicated talent icon control.reach
+PACKAGE_PASS: packaged talent node control.reach
+PACKAGE_PASS: packaged dedicated talent icon control.slow
+PACKAGE_PASS: packaged talent node control.slow
+PACKAGE_PASS: packaged dedicated talent icon control.punish
+PACKAGE_PASS: packaged talent node control.punish
+PACKAGE_PASS: packaged dedicated talent icon control.duration
+PACKAGE_PASS: packaged talent node control.duration
+PACKAGE_PASS: packaged dedicated talent icon control.elite
+PACKAGE_PASS: packaged talent node control.elite
+PACKAGE_PASS: packaged dedicated talent icon control.power
+PACKAGE_PASS: packaged talent node control.power
+PACKAGE_PASS: packaged dedicated talent icon control.hit
+PACKAGE_PASS: packaged talent node control.hit
+PACKAGE_PASS: packaged dedicated talent icon control.ultimate
+PACKAGE_PASS: packaged talent node control.ultimate
+PACKAGE_PASS: packaged dedicated talent icon control.reveal
+PACKAGE_PASS: packaged talent node control.reveal
+PACKAGE_PASS: packaged dedicated talent icon control.lock
+PACKAGE_PASS: packaged talent node control.lock
+PACKAGE_PASS: packaged talent tree buff
+PACKAGE_PASS: packaged dedicated talent icon buff.power
+PACKAGE_PASS: packaged talent node buff.power
+PACKAGE_PASS: packaged dedicated talent icon buff.duration
+PACKAGE_PASS: packaged talent node buff.duration
+PACKAGE_PASS: packaged dedicated talent icon buff.reach
+PACKAGE_PASS: packaged talent node buff.reach
+PACKAGE_PASS: packaged dedicated talent icon buff.rage
+PACKAGE_PASS: packaged talent node buff.rage
+PACKAGE_PASS: packaged dedicated talent icon buff.critical
+PACKAGE_PASS: packaged talent node buff.critical
+PACKAGE_PASS: packaged dedicated talent icon buff.power_skill
+PACKAGE_PASS: packaged talent node buff.power_skill
+PACKAGE_PASS: packaged dedicated talent icon buff.ally
+PACKAGE_PASS: packaged talent node buff.ally
+PACKAGE_PASS: packaged dedicated talent icon buff.swift
+PACKAGE_PASS: packaged talent node buff.swift
+PACKAGE_PASS: packaged dedicated talent icon buff.pulse
+PACKAGE_PASS: packaged talent node buff.pulse
+PACKAGE_PASS: packaged dedicated talent icon buff.inspire
+PACKAGE_PASS: packaged talent node buff.inspire
+PACKAGE_PASS: packaged talent tree economy
+PACKAGE_PASS: packaged dedicated talent icon economy.cost
+PACKAGE_PASS: packaged talent node economy.cost
+PACKAGE_PASS: packaged dedicated talent icon economy.gold
+PACKAGE_PASS: packaged talent node economy.gold
+PACKAGE_PASS: packaged dedicated talent icon economy.reach
+PACKAGE_PASS: packaged talent node economy.reach
+PACKAGE_PASS: packaged dedicated talent icon economy.elite
+PACKAGE_PASS: packaged talent node economy.elite
+PACKAGE_PASS: packaged dedicated talent icon economy.boss
+PACKAGE_PASS: packaged talent node economy.boss
+PACKAGE_PASS: packaged dedicated talent icon economy.cost2
+PACKAGE_PASS: packaged talent node economy.cost2
+PACKAGE_PASS: packaged dedicated talent icon economy.pulse
+PACKAGE_PASS: packaged talent node economy.pulse
+PACKAGE_PASS: packaged dedicated talent icon economy.skill
+PACKAGE_PASS: packaged talent node economy.skill
+PACKAGE_PASS: packaged dedicated talent icon economy.cost3
+PACKAGE_PASS: packaged talent node economy.cost3
+PACKAGE_PASS: packaged dedicated talent icon economy.plan
+PACKAGE_PASS: packaged talent node economy.plan
+PACKAGE_PASS: 110 packaged talent nodes
+PACKAGE_PASS: packaged Dian Wei target-health execution parameters
+PACKAGE_PASS: packaged execution preview rounding and condition
+PACKAGE_PASS: packaged round action whole-image scaling normal
+PACKAGE_PASS: packaged round action whole-image scaling hover
+PACKAGE_PASS: packaged round action whole-image scaling pressed
+PACKAGE_PASS: packaged round action whole-image scaling hover_pressed
+PACKAGE_PASS: packaged round action whole-image scaling disabled
+PACKAGE_PASS: packaged confirmation readable Chinese actions
+PACKAGE_PASS: packaged dialog complete button state normal
+PACKAGE_PASS: packaged dialog complete button state hover
+PACKAGE_PASS: packaged dialog complete button state pressed
+PACKAGE_PASS: packaged dialog complete button state hover_pressed
+PACKAGE_PASS: packaged dialog complete button state disabled
+PACKAGE_PASS: packaged dialog complete button state focus
+PACKAGE_PASS: packaged dialog complete button state normal
+PACKAGE_PASS: packaged dialog complete button state hover
+PACKAGE_PASS: packaged dialog complete button state pressed
+PACKAGE_PASS: packaged dialog complete button state hover_pressed
+PACKAGE_PASS: packaged dialog complete button state disabled
+PACKAGE_PASS: packaged dialog complete button state focus
+PACKAGE_PASS: packaged economic/quality icon ingot
+PACKAGE_PASS: packaged economic/quality icon lord_level
+PACKAGE_PASS: packaged economic/quality icon lord_exp
+PACKAGE_PASS: packaged economic/quality icon equipment_rarity_0
+PACKAGE_PASS: packaged economic/quality icon equipment_rarity_1
+PACKAGE_PASS: packaged economic/quality icon equipment_rarity_2
+PACKAGE_PASS: packaged economic/quality icon equipment_rarity_3
+PACKAGE_PASS: packaged economic/quality icon equipment_rarity_4
+PACKAGE_PASS: packaged economic/quality icon trait_vanguard
+PACKAGE_PASS: packaged economic/quality icon ultimate_death_fight
+PACKAGE_PASS: 12 packaged weapons
+PACKAGE_PASS: weapon resource equipment_ring_blade_1
+PACKAGE_PASS: weapon resource equipment_long_spear_1
+PACKAGE_PASS: weapon resource equipment_horn_bow_1
+PACKAGE_PASS: weapon resource equipment_silk_bells_1
+PACKAGE_PASS: weapon resource equipment_thunder_cart_1
+PACKAGE_PASS: weapon resource equipment_ritual_staff_1
+PACKAGE_PASS: weapon resource equipment_horse_sword_1
+PACKAGE_PASS: weapon resource equipment_mulberry_bow_1
+PACKAGE_PASS: weapon resource equipment_bamboo_banner_1
+PACKAGE_PASS: weapon resource equipment_bone_mace_1
+PACKAGE_PASS: weapon resource equipment_clay_flute_1
+PACKAGE_PASS: weapon resource equipment_wood_mortar_1
+PACKAGE_PASS: packaged equipment UI
+PACKAGE_PASS: packaged develop weapon names and brief descriptions
+PACKAGE_PASS: packaged talent popup and 40 points
+PACKAGE_PASS: packaged talent allocation saves
+PACKAGE_PASS: packaged node opens talent detail
+PACKAGE_PASS: packaged talent failed save rolls back
+PACKAGE_PASS: packaged free talent reset
+PACKAGE_PASS: packaged equip and save
+PACKAGE_PASS: packaged profession restriction
+PACKAGE_PASS: packaged read-only weapon preview
+PACKAGE_PASS: packaged talent simulation read-only
+PACKAGE_PASS: packaged shu filter
+PACKAGE_PASS: packaged qun filter
+PACKAGE_PASS: packaged faction replacement wei
+PACKAGE_PASS: packaged faction replacement wu
+PACKAGE_PASS: packaged restore faction filter without saves
+PACKAGE_PASS: packaged encyclopedia weapon names and brief descriptions
+PACKAGE_PASS: packaged develop skill page spacing
+PACKAGE_PASS: packaged encyclopedia skill page spacing
+PACKAGE_PASS: develop skill name, description and effect labels: trait_moon_veil
+PACKAGE_PASS: develop skill name, description and effect labels: passive_worship_moon
+PACKAGE_PASS: develop skill name, description and effect labels: char_moon_dance
+PACKAGE_PASS: develop skill name, description and effect labels: passive_green_dragon_stance
+PACKAGE_PASS: develop skill name, description and effect labels: passive_warm_wine
+PACKAGE_PASS: develop skill name, description and effect labels: char_green_dragon
+PACKAGE_PASS: develop skill name, description and effect labels: passive_fierce_flame
+PACKAGE_PASS: develop skill name, description and effect labels: passive_detonation
+PACKAGE_PASS: develop skill name, description and effect labels: char_burn_camp
+PACKAGE_PASS: develop skill name, description and effect labels: trait_hundred_step
+PACKAGE_PASS: develop skill name, description and effect labels: passive_sentry
+PACKAGE_PASS: develop skill name, description and effect labels: char_dingjun
+PACKAGE_PASS: develop skill name, description and effect labels: trait_benevolence
+PACKAGE_PASS: develop skill name, description and effect labels: passive_diligence
+PACKAGE_PASS: develop skill name, description and effect labels: char_carry_people
+PACKAGE_PASS: develop skill name, description and effect labels: trait_yanyan_roar
+PACKAGE_PASS: develop skill name, description and effect labels: passive_yanhan
+PACKAGE_PASS: develop skill name, description and effect labels: char_dangyang_roar
+PACKAGE_PASS: develop skill name, description and effect labels: trait_dragon_spirit
+PACKAGE_PASS: develop skill name, description and effect labels: passive_dragon_courage
+PACKAGE_PASS: develop skill name, description and effect labels: char_seven_charges
+PACKAGE_PASS: develop skill name, description and effect labels: trait_vanguard
+PACKAGE_PASS: develop skill name, description and effect labels: char_death_fight
+PACKAGE_PASS: develop skill name, description and effect labels: ultimate_death_fight
+PACKAGE_PASS: develop skill name, description and effect labels: trait_star_gazer
+PACKAGE_PASS: develop skill name, description and effect labels: passive_momentum
+PACKAGE_PASS: develop skill name, description and effect labels: char_borrow_wind
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_moon_veil
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_worship_moon
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_moon_dance
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_green_dragon_stance
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_warm_wine
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_green_dragon
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_fierce_flame
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_detonation
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_burn_camp
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_hundred_step
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_sentry
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_dingjun
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_benevolence
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_diligence
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_carry_people
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_yanyan_roar
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_yanhan
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_dangyang_roar
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_dragon_spirit
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_dragon_courage
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_seven_charges
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_vanguard
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_death_fight
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: ultimate_death_fight
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: trait_star_gazer
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: passive_momentum
+PACKAGE_PASS: encyclopedia skill name, description and effect labels: char_borrow_wind
+PACKAGE_PASS: skill encyclopedia leaves profile unchanged
+PACKAGE_PASS: packaged shop fixture saved
+PACKAGE_PASS: packaged shop navigation and initial shelves
+PACKAGE_PASS: packaged failed saves roll back purchase and refresh
+PACKAGE_PASS: packaged material purchase button and balance
+PACKAGE_PASS: packaged stale click rejected
+PACKAGE_PASS: packaged refresh button and next price
+PACKAGE_PASS: packaged page switching keeps rotation
+PACKAGE_PASS: packaged merit purchase uses separate currency
+PACKAGE_PASS: packaged relic permanent limit
+PACKAGE_PASS: packaged full equipment rejects deduction
+PACKAGE_PASS: packaged equipment purchase
+PACKAGE_PASS: packaged inventory shop source
+PACKAGE_PASS: development files excluded
+PACKAGE_PASS: packaged first clear three weapons
+PACKAGE_PASS: packaged first-clear economic rewards
+PACKAGE_PASS: packaged overflow three weapons to six seals
+PACKAGE_PASS: packaged victory level-up and new-tier guaranteed rotation
+PACKAGE_PASS: packaged duplicate victory keeps economy and rotation
+PACKAGE_PASS: packaged map hard repeat economy preview
+PACKAGE_PASS: packaged battle uses weapon attack and crit
+PACKAGE_PASS: packaged battle talent fixture saved
+PACKAGE_PASS: packaged battle applies talent loadout
+PACKAGE_PASS: first wave starts
+PACKAGE_PASS: packaged battle victory saves economy and displays level-up
+PACKAGE_PASS: packaged failed settlement hides economic rewards and level-up
+PACKAGE_VERIFY_OK
+ERROR: Condition "!FileAccess::exists(path)" is true. Returning: ERR_FILE_NOT_FOUND
+   at: open_dynamic_library (platform/windows/os_windows.cpp:483)
+ERROR: GDExtension dynamic library not found: 'res://bin/spine_godot_extension.gdextension'.
+   at: open_library (core/extension/gdextension.cpp:810)
+ERROR: Error loading extension: 'res://bin/spine_godot_extension.gdextension'.
+   at: load_extensions (core/extension/gdextension_manager.cpp:333)
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:771)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] _allocate_talent (res://scripts/ui_screens/panels/DevelopPanel.gd:1273)
+       [3] _run (F:/godotProject/TowerDefense/tools/verify_gear_export.gd:162)
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:771)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] buy_shop_offer (res://scripts/services/SaveManager.gd:278)
+       [3] _run (F:/godotProject/TowerDefense/tools/verify_gear_export.gd:219)
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:771)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] refresh_shop (res://scripts/services/SaveManager.gd:283)
+       [3] _run (F:/godotProject/TowerDefense/tools/verify_gear_export.gd:219)
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

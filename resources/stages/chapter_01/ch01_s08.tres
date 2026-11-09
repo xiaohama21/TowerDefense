@@ -434,70 +434,70 @@ lines = [SubResource("DialogueLine_1"), SubResource("DialogueLine_2"), SubResour
 
 [sub_resource type="Resource" id="BuildSlotData_1"]
 script = ExtResource("23_bslot")
-position = Vector2(760, 200)
+position = Vector2(1000, 440)
 slot_type = 1
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_2"]
 script = ExtResource("23_bslot")
-position = Vector2(920, 360)
+position = Vector2(840, 360)
 slot_type = 1
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_3"]
 script = ExtResource("23_bslot")
-position = Vector2(1000, 440)
+position = Vector2(1160, 440)
 slot_type = 2
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_4"]
 script = ExtResource("23_bslot")
-position = Vector2(1160, 280)
+position = Vector2(600, 200)
 slot_type = 1
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_5"]
 script = ExtResource("23_bslot")
-position = Vector2(760, 440)
+position = Vector2(760, 200)
 slot_type = 2
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_6"]
 script = ExtResource("23_bslot")
-position = Vector2(200, 440)
+position = Vector2(440, 360)
 slot_type = 2
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_7"]
 script = ExtResource("23_bslot")
-position = Vector2(480, 440)
+position = Vector2(1000, 280)
 slot_type = 2
 locked = true
 unlock_cost = 50
 
 [sub_resource type="Resource" id="BuildSlotData_8"]
 script = ExtResource("23_bslot")
-position = Vector2(680, 680)
+position = Vector2(760, 440)
 slot_type = 0
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_9"]
 script = ExtResource("23_bslot")
-position = Vector2(200, 120)
+position = Vector2(1240, 520)
 slot_type = 0
 locked = false
 unlock_cost = 60
 
 [sub_resource type="Resource" id="BuildSlotData_10"]
 script = ExtResource("23_bslot")
-position = Vector2(600, 120)
+position = Vector2(40, 440)
 slot_type = 0
 locked = false
 unlock_cost = 60
@@ -569,12 +569,14 @@ sell_refund_ratio = 0.6
 waves = [SubResource("W_s08_w01"), SubResource("W_s08_w02"), SubResource("W_s08_w03"), SubResource("W_s08_w04"), SubResource("W_s08_w05"), SubResource("W_s08_w06"), SubResource("W_s08_w07"), SubResource("W_s08_w08"), SubResource("W_s08_w09"), SubResource("W_s08_w10"), SubResource("W_s08_w11"), SubResource("W_s08_w12")]
 dialogue = SubResource("DialogueData_1")
 theme = &"night"
-path_points = [Vector2(-40, 280), Vector2(40, 280), Vector2(840, 280), Vector2(840, 520), Vector2(1080, 520), Vector2(1080, 120), Vector2(1240, 120), Vector2(1320, 120)]
-fork_path_points = [Vector2(-40, 680), Vector2(40, 680), Vector2(40, 40), Vector2(1240, 40), Vector2(1320, 40)]
-build_slot_positions = [Vector2(760, 200), Vector2(920, 360), Vector2(1000, 440), Vector2(1160, 280), Vector2(760, 440), Vector2(200, 440), Vector2(480, 440), Vector2(680, 680), Vector2(200, 120), Vector2(600, 120)]
+path_points = [Vector2(-40, 280), Vector2(40, 280), Vector2(200, 280), Vector2(200, 120), Vector2(680, 120), Vector2(680, 280), Vector2(920, 280), Vector2(920, 520), Vector2(1080, 520), Vector2(1080, 360), Vector2(1240, 360), Vector2(1320, 360)]
+fork_path_points = [Vector2(-40, 600), Vector2(40, 600), Vector2(360, 600), Vector2(360, 280), Vector2(680, 280), Vector2(920, 280), Vector2(920, 520), Vector2(1080, 520), Vector2(1080, 360), Vector2(1240, 360), Vector2(1320, 360)]
+alternate_paths = {&"lower": PackedVector2Array(-40, 280, 40, 280, 200, 280, 200, 440, 520, 440, 520, 280, 680, 280, 920, 280, 920, 520, 1080, 520, 1080, 360, 1240, 360, 1320, 360)}
+normal_path_ids = [&"main", &"lower"]
+build_slot_positions = [Vector2(1000, 440), Vector2(840, 360), Vector2(1160, 440), Vector2(600, 200), Vector2(760, 200), Vector2(440, 360), Vector2(1000, 280), Vector2(760, 440), Vector2(1240, 520), Vector2(40, 440)]
+decor_cells = [Vector2i(1, 1), Vector2i(10, 1), Vector2i(13, 1), Vector2i(7, 7), Vector2i(10, 7), Vector2i(13, 7), Vector2i(1, 2), Vector2i(4, 2), Vector2i(10, 2), Vector2i(13, 2), Vector2i(1, 6), Vector2i(7, 6)]
+forbidden_cells = [Vector2i(0, 1), Vector2i(15, 1), Vector2i(14, 7), Vector2i(15, 7)]
 build_slots = [SubResource("BuildSlotData_1"), SubResource("BuildSlotData_2"), SubResource("BuildSlotData_3"), SubResource("BuildSlotData_4"), SubResource("BuildSlotData_5"), SubResource("BuildSlotData_6"), SubResource("BuildSlotData_7"), SubResource("BuildSlotData_8"), SubResource("BuildSlotData_9"), SubResource("BuildSlotData_10")]
-decor_cells = [Vector2i(1, 4), Vector2i(5, 6), Vector2i(9, 8), Vector2i(14, 7), Vector2i(0, 5), Vector2i(3, 1), Vector2i(12, 3), Vector2i(15, 6)]
-forbidden_cells = [Vector2i(2, 6), Vector2i(11, 2), Vector2i(12, 8), Vector2i(15, 3)]
 prerequisite_stage_ids = [&"ch01_s07"]
 first_clear_unlock_character_ids = []
 first_clear_relic = ExtResource("21_relic")

@@ -41,19 +41,22 @@ func _simulate_stage(number: int, level: int) -> void:
 	chapter_level = level
 	GameManager.reset(chapter_stage.starting_currency, chapter_stage.starting_lives, chapter_stage.waves.size())
 	GameManager.set_battle_session(BattleSession.new(chapter_stage.stage_id))
-	var choices := [["guan_yu", "liu_bei"], ["guan_yu", "liu_bei"], ["guan_yu", "zhang_fei", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "diao_chan"], ["guan_yu", "zhou_wei", "huang_fu_song", "huang_zhong"], ["zhao_yun", "zhou_wei", "huang_fu_song", "huang_zhong"], ["guan_yu", "zhao_yun", "huang_fu_song", "zhuge_liang"]]
+	var choices := [["guan_yu", "liu_bei"], ["guan_yu", "liu_bei"], ["guan_yu", "zhang_fei", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "diao_chan"], ["guan_yu", "zhou_wei", "huang_fu_song", "huang_zhong"], ["zhao_yun", "zhou_wei", "huang_fu_song", "huang_zhong"], ["guan_yu", "huang_zhong", "huang_fu_song", "zhuge_liang"]]
 	squad.assign(choices[number - 1]); GameFlow.squad_character_ids.assign(squad)
 	chapter_path = _new_path("Path2D", chapter_stage.path_points)
-	if not chapter_stage.fork_path_points.is_empty(): chapter_fork = _new_path("ForkPath", chapter_stage.fork_path_points)
 	chapter_manager = ENEMY_MANAGER.new(); chapter_manager.name = "EnemyManager"; add_child(chapter_manager)
-	chapter_manager.path = chapter_path; chapter_manager.fork_path = chapter_fork; chapter_manager.set_process(false)
+	chapter_manager.path = chapter_path
+	chapter_manager.configure_stage_paths(chapter_stage)
+	chapter_fork = chapter_manager.fork_path
+	chapter_manager.set_process(false)
 	_tower_manager = TOWER_MANAGER_SCRIPT.new(); add_child(_tower_manager)
-	var road := GridBackground.derive_road_cells(chapter_stage.path_points)
-	road.append_array(GridBackground.derive_road_cells(chapter_stage.fork_path_points))
+	var road := GridBackground.derive_stage_road_cells(chapter_stage)
 	slots.clear()
-	for position in chapter_stage.build_slot_positions:
-		var cell := Vector2i(floori(position.x / 80), floori(position.y / 80))
-		if not road.has(cell) and not chapter_stage.forbidden_cells.has(cell): slots.append(position)
+	for y in range(1,8):
+		for x in range(16):
+			var cell := Vector2i(x,y)
+			if not road.has(cell) and not chapter_stage.forbidden_cells.has(cell):
+				slots.append(Vector2(cell)*80+Vector2(40,40))
 	chapter_groups.clear(); spend = 0; build_index = 0; next_economy = 0
 	seed(20261105 + number + seed_offset)
 	var seconds := 0.0
@@ -62,17 +65,18 @@ func _simulate_stage(number: int, level: int) -> void:
 	for wave in chapter_stage.waves:
 		if GameManager.lives <= 0: break
 		_check(GameManager.start_wave(), "正常开波 " + str(chapter_stage.stage_id))
+		chapter_manager.reset_path_cycle()
 		var schedule: Array = []
 		var spawn_time := 0.0
 		for group in wave.spawn_groups:
 			for i in range(group.count):
-				schedule.append({"at": spawn_time, "enemy": group.enemy})
+				schedule.append({"at": spawn_time, "enemy": group.enemy, "path_id": group.path_id})
 				spawn_time += group.spawn_interval
 		var cursor := 0
 		var wave_time := 0.0
 		while wave_time < 400 and GameManager.lives > 0:
 			while cursor < schedule.size() and float(schedule[cursor].at) <= wave_time:
-				chapter_manager.spawn_enemy_from_data(schedule[cursor].enemy); cursor += 1
+				chapter_manager.spawn_enemy_from_data(schedule[cursor].enemy, schedule[cursor].path_id); cursor += 1
 			if wave_time >= next_economy:
 				_use_budget(); next_economy = wave_time + .5
 			_drive_groups(chapter_groups, VIRTUAL_DELTA)
@@ -113,7 +117,7 @@ func _use_budget() -> void:
 			var stats := hero.compute_stats_at(chapter_level, 1)
 			for i in range(slots.size()):
 				var coverage := 0.0
-				for path in [chapter_path, chapter_fork]:
+				for path in chapter_manager.paths.values():
 					if path == null: continue
 					var length: float = path.curve.get_baked_length()
 					for j in range(int(length / 40)):

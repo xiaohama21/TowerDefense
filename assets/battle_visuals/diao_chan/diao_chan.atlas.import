@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://dijugvpl4tt1d"
+path="res://.godot/imported/diao_chan.atlas-ced76fba466901fe97ffe37978712fa9.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/diao_chan/diao_chan.atlas"
+dest_files=["res://.godot/imported/diao_chan.atlas-ced76fba466901fe97ffe37978712fa9.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

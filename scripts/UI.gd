@@ -56,9 +56,7 @@ const LIVES_COLOR_LOW := Color("#ef5b52")
 const LIVES_LOW_RATIO := 0.3
 ## 建造卡立绘头像（0.8.11.1）：character_id → 圆形透明 PNG（SpineSprite Idle 首帧截取，
 ## 素材随仓库入库 / 0.8.16.2·ART_ASSETS §5.8）；无条目/缺素材回退概念色占位圆。
-const CHARACTER_AVATAR_TEXTURES := {
-	"guan_yu": "res://assets/characters/guan_yu/hero_guan_yu_a_avatar.png",
-}
+const CHARACTER_AVATAR_TEXTURES := BattleVisualRegistry.PORTRAITS
 
 @onready var gold_pill: PanelContainer = $Root/TopBar/Margin/Content/CoinPill
 @onready var gold_label: Label = $Root/TopBar/Margin/Content/CoinPill/PillMargin/PillRow/CoinLabel
@@ -391,7 +389,7 @@ func _make_cost_pill(cost: int, affordable: bool) -> Dictionary:
 ## 否则概念色圆 + 姓氏首字占位（avatar_label 同款）。
 func _make_card_avatar(character_id: String, display_name: String) -> Control:
 	const diameter := HUD_SLOT_AVATAR
-	var tex_path: String = CHARACTER_AVATAR_TEXTURES.get(character_id, "")
+	var tex_path: String = BattleVisualRegistry.PORTRAITS.get(character_id, "")
 	if not tex_path.is_empty() and ResourceLoader.exists(tex_path):
 		var tex: Texture2D = load(tex_path)
 		if tex != null:

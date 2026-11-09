@@ -1,0 +1,26 @@
+{
+  "identity": "D69 #072 / Hero_Diaochan_A",
+  "character_id": "diao_chan",
+  "usage": "User-selected original visual; ART_ASSETS section 6",
+  "adaptation": "Spine 3.8 to 4.3 format only; original PNG/atlas, bones, slots and animation poses/times retained",
+  "bones": 89,
+  "slots": 48,
+  "animations": [
+    "Active_A",
+    "Appear",
+    "Attack_A",
+    "Critical",
+    "Death",
+    "Idle",
+    "Move",
+    "Stiff",
+    "Stun",
+    "UI_Death"
+  ],
+  "files": {
+    "Hero_Diaochan_A.png": "63b0d2fc135277e34a52733378ac9abfabb54c803b46024a37f7c10c9062d037",
+    "Hero_Diaochan_A.atlas": "912d8e7b23de4be625b69a8d7cf28e7a526bc1fa58b3b74d27189a017dd8b2da",
+    "Hero_Diaochan_A.json": "b5df635cfa41e4dad544b8eed4e17ba4b979da4a3d43a68192eba55f9b16edee",
+    "免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141"
+  }
+}

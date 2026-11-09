@@ -1,0 +1,28 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+STAGE0_TEST_OK
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_profile_file (res://scripts/services/SaveManager.gd:332)
+       [1] load_profile (res://scripts/services/SaveManager.gd:111)
+       [2] _test_save_manager_corruption_fallback (res://tests/Stage0Runner.gd:306)
+       [3] _run (res://tests/Stage0Runner.gd:70)
+ERROR: SaveManager: 只有胜利且尚未提交的战局才能结算
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://scripts/services/SaveManager.gd:778)
+       [1] commit_victory (res://scripts/services/SaveManager.gd:254)
+       [2] _test_save_manager_corruption_fallback (res://tests/Stage0Runner.gd:341)
+       [3] _run (res://tests/Stage0Runner.gd:70)
+WARNING: SaveManager: 存档版本高于当前游戏版本：为避免覆盖新版存档，本次运行不会写入存档
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _fail_readonly (res://scripts/services/SaveManager.gd:771)
+       [1] save_profile (res://scripts/services/SaveManager.gd:177)
+       [2] _test_save_version_too_new_protection (res://tests/Stage0Runner.gd:382)
+       [3] _run (res://tests/Stage0Runner.gd:75)
+WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

@@ -1,0 +1,268 @@
+{
+  "entries": [
+    {
+      "svg": "yellow_turban_soldier/source/cape.svg",
+      "png": "yellow_turban_soldier/source/cape.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/body.svg",
+      "png": "yellow_turban_soldier/source/body.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/head.svg",
+      "png": "yellow_turban_soldier/source/head.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/boot.svg",
+      "png": "yellow_turban_soldier/source/boot.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/arm.svg",
+      "png": "yellow_turban_soldier/source/arm.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/weapon.svg",
+      "png": "yellow_turban_soldier/source/weapon.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/offhand.svg",
+      "png": "yellow_turban_soldier/source/offhand.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_soldier/source/horse.svg",
+      "png": "yellow_turban_soldier/source/horse.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/cape.svg",
+      "png": "yellow_turban_cavalry/source/cape.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/body.svg",
+      "png": "yellow_turban_cavalry/source/body.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/head.svg",
+      "png": "yellow_turban_cavalry/source/head.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/boot.svg",
+      "png": "yellow_turban_cavalry/source/boot.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/arm.svg",
+      "png": "yellow_turban_cavalry/source/arm.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/weapon.svg",
+      "png": "yellow_turban_cavalry/source/weapon.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/offhand.svg",
+      "png": "yellow_turban_cavalry/source/offhand.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_cavalry/source/horse.svg",
+      "png": "yellow_turban_cavalry/source/horse.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/cape.svg",
+      "png": "yellow_turban_sergeant/source/cape.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/body.svg",
+      "png": "yellow_turban_sergeant/source/body.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/head.svg",
+      "png": "yellow_turban_sergeant/source/head.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/boot.svg",
+      "png": "yellow_turban_sergeant/source/boot.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/arm.svg",
+      "png": "yellow_turban_sergeant/source/arm.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/weapon.svg",
+      "png": "yellow_turban_sergeant/source/weapon.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/offhand.svg",
+      "png": "yellow_turban_sergeant/source/offhand.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_sergeant/source/horse.svg",
+      "png": "yellow_turban_sergeant/source/horse.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/cape.svg",
+      "png": "yellow_turban_general/source/cape.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/body.svg",
+      "png": "yellow_turban_general/source/body.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/head.svg",
+      "png": "yellow_turban_general/source/head.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/boot.svg",
+      "png": "yellow_turban_general/source/boot.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/arm.svg",
+      "png": "yellow_turban_general/source/arm.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/weapon.svg",
+      "png": "yellow_turban_general/source/weapon.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/offhand.svg",
+      "png": "yellow_turban_general/source/offhand.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "yellow_turban_general/source/horse.svg",
+      "png": "yellow_turban_general/source/horse.png",
+      "pixels": 128,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "svg": "grass_camp/source/grass.svg",
+      "png": "grass_camp/grass.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/road.svg",
+      "png": "grass_camp/road.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/tree.svg",
+      "png": "grass_camp/tree.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/rock.svg",
+      "png": "grass_camp/rock.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/banner.svg",
+      "png": "grass_camp/banner.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/torch.svg",
+      "png": "grass_camp/torch.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/gate.svg",
+      "png": "grass_camp/gate.png",
+      "pixels": 80
+    },
+    {
+      "svg": "grass_camp/source/base.svg",
+      "png": "grass_camp/base.png",
+      "pixels": 80
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "identity": "D69 #312 / Hero_ZhaoYun_A",
+  "character_id": "zhao_yun",
+  "usage": "User-selected original visual; ART_ASSETS section 6",
+  "adaptation": "Spine 3.8 to 4.3 format only; original PNG/atlas, bones, slots and animation poses/times retained",
+  "bones": 97,
+  "slots": 47,
+  "animations": [
+    "Active_A",
+    "Appear",
+    "Attack_A",
+    "Critical",
+    "Death",
+    "Idle",
+    "Move",
+    "Stiff",
+    "Stun",
+    "UI_Death"
+  ],
+  "files": {
+    "Hero_ZhaoYun_A.png": "5bd1cf6af61dc85cea875ae3a0ade9aac2ba5d7c6fb163075530e3d3bec69244",
+    "Hero_ZhaoYun_A.atlas": "9cccafa1dba0580d7ed476aac285d5907ab802ec96e532b9940a37304b08836b",
+    "Hero_ZhaoYun_A.json": "ddc9aaf0d08633d971da5a00e2bd807bd58e9b8f33ae53709a8c8dcd5f76133e",
+    "免责声明.txt": "04a4c154cbe2c2b531e1a28d9403b6acaa4f92d7dfe399084b96a9c5a4231141"
+  }
+}

@@ -1,0 +1,13 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://be8a7eq3x6n7q"
+path="res://.godot/imported/zhao_yun.spine-json-cc6c306317403f4c2c56308b21411484.spjson"
+
+[deps]
+
+source_file="res://assets/battle_visuals/zhao_yun/zhao_yun.spine-json"
+dest_files=["res://.godot/imported/zhao_yun.spine-json-cc6c306317403f4c2c56308b21411484.spjson"]
+
+[params]

@@ -1,0 +1,91 @@
+WorkerThreadPool: 4 threads, 1 max low-priority.
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+Loading resource: res://.godot/exported/133200997/export-86c1b7198b18591a83dc286bbf9930e8-ui_theme.res remapped: res://.godot/exported/133200997/export-86c1b7198b18591a83dc286bbf9930e8-ui_theme.res
+Loading resource: res://assets/fonts/ZCOOL-Kuaile.ttf remapped: res://assets/fonts/ZCOOL-Kuaile.ttf
+Loading resource: res://.godot/imported/ZCOOL-Kuaile.ttf-5ff2d3bf502ba0a631b9665cba72c18f.fontdata remapped: res://.godot/imported/ZCOOL-Kuaile.ttf-5ff2d3bf502ba0a631b9665cba72c18f.fontdata
+Completed load for: 'res://assets/fonts/ZCOOL-Kuaile.ttf' remapped 'res://assets/fonts/ZCOOL-Kuaile.ttf' at thread -1
+Completed load for: 'res://assets/ui/ui_theme.tres' remapped 'res://.godot/exported/133200997/export-86c1b7198b18591a83dc286bbf9930e8-ui_theme.res' at thread -1
+CORE API HASH: 0
+EDITOR API HASH: 0
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://scripts/GameManager.gdc remapped: res://scripts/GameManager.gdc
+Loading resource: res://.godot/exported/133200997/export-7cd7e18b2f210ec110de26632df1f5cd-Bullet.scn remapped: res://.godot/exported/133200997/export-7cd7e18b2f210ec110de26632df1f5cd-Bullet.scn
+Loading resource: res://scripts/Bullet.gdc remapped: res://scripts/Bullet.gdc
+Completed load for: 'res://scripts/Bullet.gd' remapped 'res://scripts/Bullet.gdc' at thread -1
+Completed load for: 'res://scenes/Bullet.tscn' remapped 'res://.godot/exported/133200997/export-7cd7e18b2f210ec110de26632df1f5cd-Bullet.scn' at thread -1
+Completed load for: 'res://scripts/GameManager.gd' remapped 'res://scripts/GameManager.gdc' at thread -1
+Loading resource: res://scripts/services/CursorService.gdc remapped: res://scripts/services/CursorService.gdc
+Completed load for: 'res://scripts/services/CursorService.gd' remapped 'res://scripts/services/CursorService.gdc' at thread -1
+Loaded system CA certificates
+Loading resource: res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn remapped: res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn
+Loading resource: res://scripts/ui_screens/MainMenu.gdc remapped: res://scripts/ui_screens/MainMenu.gdc
+Completed load for: 'res://scripts/ui_screens/MainMenu.gd' remapped 'res://scripts/ui_screens/MainMenu.gdc' at thread -1
+Completed load for: 'res://scenes/MainMenu.tscn' remapped 'res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn' at thread -1
+Loading resource: res://assets/ui/buttons/rect/blue/normal.png remapped: res://assets/ui/buttons/rect/blue/normal.png
+Loading resource: res://.godot/imported/normal.png-682db412a5b745ae64204bdd91b9d210.ctex remapped: res://.godot/imported/normal.png-682db412a5b745ae64204bdd91b9d210.ctex
+Completed load for: 'res://assets/ui/buttons/rect/blue/normal.png' remapped 'res://assets/ui/buttons/rect/blue/normal.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/blue/hover.png remapped: res://assets/ui/buttons/rect/blue/hover.png
+Loading resource: res://.godot/imported/hover.png-94541885ec8da31e8e1b4ea37aeb7df6.ctex remapped: res://.godot/imported/hover.png-94541885ec8da31e8e1b4ea37aeb7df6.ctex
+Completed load for: 'res://assets/ui/buttons/rect/blue/hover.png' remapped 'res://assets/ui/buttons/rect/blue/hover.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/blue/pressed.png remapped: res://assets/ui/buttons/rect/blue/pressed.png
+Loading resource: res://.godot/imported/pressed.png-551dfacbcfbb1d2338dc4057a8ef0544.ctex remapped: res://.godot/imported/pressed.png-551dfacbcfbb1d2338dc4057a8ef0544.ctex
+Completed load for: 'res://assets/ui/buttons/rect/blue/pressed.png' remapped 'res://assets/ui/buttons/rect/blue/pressed.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/grey/normal.png remapped: res://assets/ui/buttons/rect/grey/normal.png
+Loading resource: res://.godot/imported/normal.png-7cc40ff92a21c3c0a61a280ffd0a2ef8.ctex remapped: res://.godot/imported/normal.png-7cc40ff92a21c3c0a61a280ffd0a2ef8.ctex
+Completed load for: 'res://assets/ui/buttons/rect/grey/normal.png' remapped 'res://assets/ui/buttons/rect/grey/normal.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/grey/hover.png remapped: res://assets/ui/buttons/rect/grey/hover.png
+Loading resource: res://.godot/imported/hover.png-3231800363539dab9a97033680c6b193.ctex remapped: res://.godot/imported/hover.png-3231800363539dab9a97033680c6b193.ctex
+Completed load for: 'res://assets/ui/buttons/rect/grey/hover.png' remapped 'res://assets/ui/buttons/rect/grey/hover.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/grey/pressed.png remapped: res://assets/ui/buttons/rect/grey/pressed.png
+Loading resource: res://.godot/imported/pressed.png-e42d6b13481ba0e781f8e007d3ada083.ctex remapped: res://.godot/imported/pressed.png-e42d6b13481ba0e781f8e007d3ada083.ctex
+Completed load for: 'res://assets/ui/buttons/rect/grey/pressed.png' remapped 'res://assets/ui/buttons/rect/grey/pressed.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_arrow_down.png remapped: res://assets/ui/icons/v2/ui_arrow_down.png
+Loading resource: res://.godot/imported/ui_arrow_down.png-bfe1f61e13fd006578cbd684b4b89880.ctex remapped: res://.godot/imported/ui_arrow_down.png-bfe1f61e13fd006578cbd684b4b89880.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_down.png' remapped 'res://assets/ui/icons/v2/ui_arrow_down.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_checkbox_on.png remapped: res://assets/ui/icons/v2/ui_checkbox_on.png
+Loading resource: res://.godot/imported/ui_checkbox_on.png-1fe9a8ebaa989061c91648b66f545164.ctex remapped: res://.godot/imported/ui_checkbox_on.png-1fe9a8ebaa989061c91648b66f545164.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_checkbox_on.png' remapped 'res://assets/ui/icons/v2/ui_checkbox_on.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_checkbox_off.png remapped: res://assets/ui/icons/v2/ui_checkbox_off.png
+Loading resource: res://.godot/imported/ui_checkbox_off.png-674e39cd01d354cd04e789b4bb719877.ctex remapped: res://.godot/imported/ui_checkbox_off.png-674e39cd01d354cd04e789b4bb719877.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_checkbox_off.png' remapped 'res://assets/ui/icons/v2/ui_checkbox_off.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_radio_on.png remapped: res://assets/ui/icons/v2/ui_radio_on.png
+Loading resource: res://.godot/imported/ui_radio_on.png-30360e6fb8da0ac4225ce62ccebcbd04.ctex remapped: res://.godot/imported/ui_radio_on.png-30360e6fb8da0ac4225ce62ccebcbd04.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_radio_on.png' remapped 'res://assets/ui/icons/v2/ui_radio_on.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_radio_off.png remapped: res://assets/ui/icons/v2/ui_radio_off.png
+Loading resource: res://.godot/imported/ui_radio_off.png-941b78f761bb24bf2336ebc7f39f95dd.ctex remapped: res://.godot/imported/ui_radio_off.png-941b78f761bb24bf2336ebc7f39f95dd.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_radio_off.png' remapped 'res://assets/ui/icons/v2/ui_radio_off.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_arrow_right.png remapped: res://assets/ui/icons/v2/ui_arrow_right.png
+Loading resource: res://.godot/imported/ui_arrow_right.png-a9cd822a81266506899ea31d5ab0aec2.ctex remapped: res://.godot/imported/ui_arrow_right.png-a9cd822a81266506899ea31d5ab0aec2.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_right.png' remapped 'res://assets/ui/icons/v2/ui_arrow_right.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_arrow_up.png remapped: res://assets/ui/icons/v2/ui_arrow_up.png
+Loading resource: res://.godot/imported/ui_arrow_up.png-ac1d5ce41c7552d7855fba4627d7ea4f.ctex remapped: res://.godot/imported/ui_arrow_up.png-ac1d5ce41c7552d7855fba4627d7ea4f.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_up.png' remapped 'res://assets/ui/icons/v2/ui_arrow_up.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_close.png remapped: res://assets/ui/icons/v2/ui_close.png
+Loading resource: res://.godot/imported/ui_close.png-75583e8c811cf63ec2069835ef1699f5.ctex remapped: res://.godot/imported/ui_close.png-75583e8c811cf63ec2069835ef1699f5.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_close.png' remapped 'res://assets/ui/icons/v2/ui_close.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_arrow_left.png remapped: res://assets/ui/icons/v2/ui_arrow_left.png
+Loading resource: res://.godot/imported/ui_arrow_left.png-5ea734a5b8cd51036d872fc55914473f.ctex remapped: res://.godot/imported/ui_arrow_left.png-5ea734a5b8cd51036d872fc55914473f.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_left.png' remapped 'res://assets/ui/icons/v2/ui_arrow_left.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_star_outline.png remapped: res://assets/ui/icons/v2/ui_star_outline.png
+Loading resource: res://.godot/imported/ui_star_outline.png-5376e7c095914aabf557e16a6822779d.ctex remapped: res://.godot/imported/ui_star_outline.png-5376e7c095914aabf557e16a6822779d.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_star_outline.png' remapped 'res://assets/ui/icons/v2/ui_star_outline.png' at thread -1
+Loading resource: res://assets/ui/icons/v2/ui_star.png remapped: res://assets/ui/icons/v2/ui_star.png
+Loading resource: res://.godot/imported/ui_star.png-89cf4c3e43c4cbc92ef5b790687717e6.ctex remapped: res://.godot/imported/ui_star.png-89cf4c3e43c4cbc92ef5b790687717e6.ctex
+Completed load for: 'res://assets/ui/icons/v2/ui_star.png' remapped 'res://assets/ui/icons/v2/ui_star.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/yellow/normal.png remapped: res://assets/ui/buttons/rect/yellow/normal.png
+Loading resource: res://.godot/imported/normal.png-612327706f6a85e9e2e6993afc36076b.ctex remapped: res://.godot/imported/normal.png-612327706f6a85e9e2e6993afc36076b.ctex
+Completed load for: 'res://assets/ui/buttons/rect/yellow/normal.png' remapped 'res://assets/ui/buttons/rect/yellow/normal.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/yellow/hover.png remapped: res://assets/ui/buttons/rect/yellow/hover.png
+Loading resource: res://.godot/imported/hover.png-95228487ca4cc277c7987e1fe6acd4c8.ctex remapped: res://.godot/imported/hover.png-95228487ca4cc277c7987e1fe6acd4c8.ctex
+Completed load for: 'res://assets/ui/buttons/rect/yellow/hover.png' remapped 'res://assets/ui/buttons/rect/yellow/hover.png' at thread -1
+Loading resource: res://assets/ui/buttons/rect/yellow/pressed.png remapped: res://assets/ui/buttons/rect/yellow/pressed.png
+Loading resource: res://.godot/imported/pressed.png-5271455c3b23829cd85e343e9fcf383b.ctex remapped: res://.godot/imported/pressed.png-5271455c3b23829cd85e343e9fcf383b.ctex
+Completed load for: 'res://assets/ui/buttons/rect/yellow/pressed.png' remapped 'res://assets/ui/buttons/rect/yellow/pressed.png' at thread -1
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"

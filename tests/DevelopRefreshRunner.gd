@@ -44,7 +44,7 @@ func _validate_card(button: Button, character_id: String, locked: bool, profile:
 	var name_label := content.find_child("CardName", true, false) as Label
 	var sub_label := content.find_child("CardSub", true, false) as Label
 	var lv_label := content.find_child("CardLv", true, false) as Label
-	var avatar := content.find_child("CardAvatar", true, false) as Label
+	var avatar := content.find_child("CardAvatar", true, false) as Control
 	if not _check(name_label != null and sub_label != null and lv_label != null and avatar != null,
 		"%s 卡片应齐备 CardName / CardSub / CardLv / CardAvatar" % character_id):
 		return false
@@ -57,8 +57,10 @@ func _validate_card(button: Button, character_id: String, locked: bool, profile:
 		"%s 卡片职业行应为 %s（实际 %s）" % [character_id, expected_sub, sub_label.text])
 	_check(lv_label.text == "Lv%d" % level,
 		"%s 卡片等级应为 Lv%d（实际 %s）" % [character_id, level, lv_label.text])
-	_check(avatar.text == character.display_name.left(1),
-		"%s 头像字不应被覆盖成全名（实际 %s）" % [character_id, avatar.text])
+	if avatar is TextureRect:
+		_check(avatar.texture != null and avatar.texture.resource_path == BattleVisualRegistry.PORTRAITS.get(character_id, ""), "%s 头像应使用同源人物素材" % character_id)
+	else:
+		_check(avatar is Label and avatar.text == character.display_name.left(1), "%s 占位头像应保留姓氏首字" % character_id)
 	_check(button.disabled == locked and button.toggle_mode == (not locked),
 		"%s 卡片交互状态应与拥有状态一致" % character_id)
 	return failures.is_empty()

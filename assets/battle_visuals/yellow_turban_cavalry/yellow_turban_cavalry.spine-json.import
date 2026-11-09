@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://cdu7jj0uno54p"
+path="res://.godot/imported/yellow_turban_cavalry.spine-json-5baf0ea8fb37d2a77c452a2d732b2410.spjson"
+
+[deps]
+
+source_file="res://assets/battle_visuals/yellow_turban_cavalry/yellow_turban_cavalry.spine-json"
+dest_files=["res://.godot/imported/yellow_turban_cavalry.spine-json-5baf0ea8fb37d2a77c452a2d732b2410.spjson"]
+
+[params]
+

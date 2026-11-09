@@ -1,0 +1,16 @@
+{
+  "source": "native Spine captures",
+  "program": "0.9.8.1",
+  "variants": [
+    "a_158",
+    "b_original"
+  ],
+  "slow_motion": 0.5,
+  "capture_frames": 512,
+  "crop": [
+    174,
+    284,
+    950,
+    905
+  ]
+}

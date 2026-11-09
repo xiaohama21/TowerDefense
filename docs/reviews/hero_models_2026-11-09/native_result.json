@@ -1,0 +1,22 @@
+{
+	"checks": 50,
+	"failures": [],
+	"fixture": "isolated unlocked rank2 heroes, 1000 build gold, stationary 100000HP target, 75% critical for native branch coverage; not balance evidence",
+	"observed": {
+		"diao_chan": {
+			"Attack_A": true,
+			"Idle": true
+		},
+		"zhao_yun": {
+			"Attack_A": true,
+			"Critical": true,
+			"Idle": true
+		},
+		"zhuge_liang": {
+			"Attack_A": true,
+			"Critical": true,
+			"Idle": true
+		}
+	},
+	"program": "0.9.8.2"
+}

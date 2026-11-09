@@ -413,7 +413,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(body)
 
-	var avatar := UITheme.avatar_label(character_data.display_name.left(1),
+	var avatar := UITheme.hero_avatar(str(character_data.character_id), character_data.display_name,
 		"grey" if not owned else UITheme.character_avatar_color_key(character_id), 58.0, 27)
 	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	body.add_child(avatar)
@@ -1538,7 +1538,7 @@ func _confirm_character_row(character_data: CharacterData, profile: PlayerProfil
 	var row := HBoxContainer.new()
 	row.custom_minimum_size = Vector2(0, 45)
 	row.add_theme_constant_override("separation", 10)
-	var avatar := UITheme.avatar_label(character_data.display_name.left(1),
+	var avatar := UITheme.hero_avatar(str(character_data.character_id), character_data.display_name,
 		UITheme.character_avatar_color_key(str(character_data.character_id)), 38.0, 17)
 	avatar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(avatar)

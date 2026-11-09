@@ -309,6 +309,21 @@ static func avatar_label(text: String, color_key: String = "blue", diameter: flo
 	return label
 
 
+static func hero_avatar(id: String, name_text: String, color_key: String = "blue", diameter: float = 44.0, font_size: int = 21) -> Control:
+	var path: String = BattleVisualRegistry.PORTRAITS.get(id, "")
+	if not path.is_empty() and ResourceLoader.exists(path):
+		var texture := load(path) as Texture2D
+		if texture != null:
+			var portrait := TextureRect.new()
+			portrait.custom_minimum_size = Vector2(diameter, diameter)
+			portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			portrait.texture = texture
+			portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			return portrait
+	return avatar_label(name_text.left(1), color_key, diameter, font_size)
+
+
 ## 道具方块图标占位（概念图 .tile：类型色渐变圆角方块 + 首字白字；背包卡片/说明条用）。
 static func tile_label(text: String, color_key: String = "blue", size: float = 52.0, font_size: int = 24) -> Label:
 	var label := Label.new()

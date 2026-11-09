@@ -48,8 +48,8 @@ func _draw() -> void:
 
 ## 道路格预览（同 GridBackground 道路配色：棕底 + 深边 + 中央高亮线）。
 func _draw_road(rect: Rect2) -> void:
-	draw_rect(rect, Color(0.47, 0.34, 0.24))
-	draw_rect(rect, Color(0.15, 0.12, 0.1), false, 2.0)
+	draw_rect(rect, Color("#b6a17a"))
+	draw_rect(rect, Color("#777653"), false, 2.0)
 	draw_line(
 		Vector2(rect.position.x + 6, rect.get_center().y),
 		Vector2(rect.end.x - 6, rect.get_center().y),
@@ -59,7 +59,8 @@ func _draw_road(rect: Rect2) -> void:
 
 ## 装饰预览：素材图优先（assets/map/decor/<id>.png），缺失回退程序化绘制。
 func _draw_decor(rect: Rect2) -> void:
-	var path := "res://assets/map/decor/%s.png" % terrain_id
+	var path := "res://assets/battle_visuals/grass_camp/%s.png" % terrain_id
+	if not ResourceLoader.exists(path): path = "res://assets/map/decor/%s.png" % terrain_id
 	if ResourceLoader.exists(path):
 		var tex := load(path) as Texture2D
 		if tex != null:
@@ -82,6 +83,10 @@ func _draw_decor(rect: Rect2) -> void:
 
 ## 禁建山地预览（同 GridBackground._draw_forbidden：深色格 + 双峰）。
 func _draw_mountain(rect: Rect2) -> void:
+	var path := "res://assets/battle_visuals/grass_camp/rock_cluster.png"
+	if ResourceLoader.exists(path):
+		draw_texture_rect(load(path),rect,false)
+		return
 	draw_rect(rect, Color(0.33, 0.31, 0.27))
 	draw_rect(rect, Color(0.52, 0.44, 0.32), false, 2.0)
 	var center := rect.get_center()

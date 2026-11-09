@@ -87,14 +87,18 @@ func _check_layout(stage: StageData, enforce_spec: bool) -> void:
 	_check(slot_data.size() == stage.build_slot_count,
 		"%s 建造位数量应与 build_slot_count 一致" % stage_tag)
 
-	var curve := Curve2D.new()
-	for point in stage.path_points:
-		curve.add_point(point)
+	var curves: Array[Curve2D] = []
+	for points in stage.get_paths().values():
+		var curve := Curve2D.new()
+		for point in points: curve.add_point(point)
+		curves.append(curve)
 	var close_count := 0
 	var far_count := 0
 	for slot_entry in slot_data:
 		var position := slot_entry.position
-		var distance: float = position.distance_to(curve.get_closest_point(position))
+		var distance := INF
+		for curve in curves:
+			distance = minf(distance,position.distance_to(curve.get_closest_point(position)))
 		_check(distance >= 70.0 and distance <= 250.0, "%s 建造位应贴邻道路网格" % stage_tag)
 		if distance <= 90.0:
 			close_count += 1

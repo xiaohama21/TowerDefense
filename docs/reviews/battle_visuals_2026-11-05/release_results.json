@@ -1,0 +1,29 @@
+{
+  "import": {
+    "exit_code": 0,
+    "errors": []
+  },
+  "export": {
+    "exit_code": 0,
+    "errors": []
+  },
+  "standalone_boot": {
+    "exit_code": 0,
+    "errors": []
+  },
+  "standalone_spine_module": "F:\\godotProject\\TowerDefense\\build\\release_0.9.8.0\\libspine_godot.windows.template_release.x86_64.dll",
+  "expected_editor_feature_bootstrap_errors": [
+    "ERROR: Condition \"!FileAccess::exists(path)\" is true. Returning: ERR_FILE_NOT_FOUND",
+    "ERROR: GDExtension dynamic library not found: 'res://bin/spine_godot_extension.gdextension'.",
+    "ERROR: Error loading extension: 'res://bin/spine_godot_extension.gdextension'."
+  ],
+  "package_probe": {
+    "exit_code": 0,
+    "errors": []
+  },
+  "packaged_checks": 479,
+  "pe_versions": {
+    "FileVersion": "0.9.8.0",
+    "ProductVersion": "0.9.8.0"
+  }
+}

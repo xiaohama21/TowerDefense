@@ -1,0 +1,59 @@
+{
+  "HeroModelRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "HERO_MODEL_RESULT: PASS checks=131 native=true failures=0"
+    ],
+    "passed": true
+  },
+  "LiuVisualRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "LIU_VISUAL_RESULT: PASS checks=18 failures=0"
+    ],
+    "passed": true
+  },
+  "BattleVisualRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "BATTLE_VISUAL_RESULT: PASS checks=63 native=true failures=0"
+    ],
+    "passed": true
+  },
+  "SmokeRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "SkillKitRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [
+      "SKILL_KIT_RESULT: PASS failures=0"
+    ],
+    "passed": true
+  },
+  "PackVerify": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "expected_negative_test_errors": [],
+    "summary": [],
+    "passed": true
+  }
+}

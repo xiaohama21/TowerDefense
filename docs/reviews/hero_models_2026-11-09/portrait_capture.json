@@ -1,0 +1,18 @@
+{
+	"at": 0,
+	"combat_resources_modified": false,
+	"facing": 1,
+	"hidden_slots": [
+		"weapon",
+		"weapon2",
+		"weapon_stick"
+	],
+	"id": "diao_chan",
+	"origin": [
+		768,
+		780
+	],
+	"pose": "Idle",
+	"program": "0.9.8.2",
+	"render_magnification": 4
+}

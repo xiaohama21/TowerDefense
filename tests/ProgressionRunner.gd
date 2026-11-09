@@ -7,7 +7,7 @@ var outcomes: Array = []
 var checks := 0
 var no_defense := false
 const REPORT := "res://build/progression_balance_latest.json"
-const CHOICES := [["guan_yu", "liu_bei"], ["guan_yu", "liu_bei"], ["guan_yu", "zhang_fei", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "diao_chan"], ["guan_yu", "zhou_wei", "huang_fu_song", "huang_zhong"], ["zhao_yun", "zhou_wei", "huang_fu_song", "huang_zhong"], ["guan_yu", "zhao_yun", "huang_fu_song", "zhuge_liang"]]
+const CHOICES := [["guan_yu", "liu_bei"], ["guan_yu", "liu_bei"], ["guan_yu", "zhang_fei", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "liu_bei"], ["guan_yu", "huang_zhong", "huang_fu_song", "diao_chan"], ["guan_yu", "zhou_wei", "huang_fu_song", "huang_zhong"], ["zhao_yun", "zhou_wei", "huang_fu_song", "huang_zhong"], ["guan_yu", "huang_zhong", "huang_fu_song", "zhuge_liang"]]
 
 func _check(condition: bool, message: String) -> void:
 	checks += 1
@@ -41,6 +41,7 @@ func _run() -> void:
 			cleared = number
 		outcomes.append({"policy": policy, "cleared": cleared, "farms": farms, "failed_attempts": failed_attempts, "profile": _snapshot()})
 		_check(cleared == 8, "新档可合法推进全章：" + policy)
+		_check(farms == 0 and failed_attempts == 0, "首章标准策略无需额外刷关：" + policy)
 	policy = "defeat_guard"; no_defense = true
 	_check(not await _attempt(1, false), "不建塔的失败不会推进存档或领取收益")
 	var audit := _audit_curves_and_resources()
@@ -146,7 +147,7 @@ func _use_budget() -> void:
 			var stats := hero.compute_stats_at(loadout.level, loadout.rank, loadout.relic, 0, loadout.growth_guard, loadout.skill_levels, loadout.weapon, loadout.talent_alloc)
 			for i in range(slots.size()):
 				var coverage := 0.0
-				for path in [chapter_path, chapter_fork]:
+				for path in chapter_manager.paths.values():
 					if path == null: continue
 					for j in range(int(path.curve.get_baked_length() / 40)):
 						var distance := slots[i].distance_to(path.curve.sample_baked(j * 40.0))

@@ -1,0 +1,16 @@
+[remap]
+
+importer="spine.atlas"
+type="SpineAtlasResource"
+uid="uid://cml4600djr25p"
+path="res://.godot/imported/Hero_LiBai_A.atlas-3bd14e441c0993241faca8cb0526889e.spatlas"
+
+[deps]
+
+source_file="res://assets/battle_visuals/liu_bei/source/d69_158/Hero_LiBai_A.atlas"
+dest_files=["res://.godot/imported/Hero_LiBai_A.atlas-3bd14e441c0993241faca8cb0526889e.spatlas"]
+
+[params]
+
+normal_map_prefix="n"
+specular_map_prefix="s"

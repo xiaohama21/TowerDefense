@@ -1,0 +1,7682 @@
+[
+	{
+		"bbox": [
+			269,
+			374,
+			347,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_00.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			271,
+			372,
+			345,
+			406
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_01.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			275,
+			369,
+			342,
+			409
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_02.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			280,
+			365,
+			337,
+			413
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_03.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			284,
+			360,
+			333,
+			418
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_04.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			282,
+			356,
+			335,
+			422
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_05.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			282,
+			353,
+			336,
+			425
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_06.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			281,
+			350,
+			337,
+			428
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_07.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			281,
+			350,
+			337,
+			428
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_08.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.533333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			281,
+			353,
+			337,
+			425
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_09.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.6,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			281,
+			356,
+			336,
+			422
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_10.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			283,
+			360,
+			334,
+			418
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_11.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.733333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			280,
+			365,
+			337,
+			413
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_12.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.8,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			275,
+			369,
+			342,
+			409
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_13.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.866666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			271,
+			372,
+			345,
+			406
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_14.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.933333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			347,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_Idle_15.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			471,
+			359,
+			374
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_00.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			466,
+			359,
+			375
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_01.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0444466666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			461,
+			360,
+			376
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_02.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0888933333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			457,
+			360,
+			382
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_03.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.13334,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			457,
+			361,
+			385
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_04.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.177786666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			463,
+			363,
+			375
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_05.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.222233333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			470,
+			369,
+			356
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_06.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.26668,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			476,
+			383,
+			327
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_07.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.311126666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			476,
+			394,
+			305
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_08.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.355573333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			470,
+			392,
+			301
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_09.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.40002,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			463,
+			385,
+			312
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_10.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.444466666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			456,
+			376,
+			332
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_11.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.488913333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			457,
+			360,
+			354
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_12.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.53336,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			462,
+			359,
+			371
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_13.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.577806666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			467,
+			359,
+			378
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_14.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.622253333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			471,
+			366,
+			374
+		],
+		"facing": -1,
+		"file": "a_158_left_Move_15.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.6667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			288,
+			434,
+			395,
+			344
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_00.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			394,
+			408,
+			214,
+			443
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_01.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.022,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			365,
+			400,
+			315,
+			338
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_02.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.044,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			339,
+			407,
+			373,
+			334
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_03.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.066,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			282,
+			407,
+			406,
+			367
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_04.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			109,
+			420,
+			446,
+			364
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_05.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			123,
+			416,
+			435,
+			368
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_06.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.132,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			138,
+			412,
+			426,
+			372
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_07.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.154,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			153,
+			409,
+			409,
+			375
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_08.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			214,
+			292,
+			351,
+			494
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_09.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.198,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			219,
+			429,
+			422,
+			356
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_10.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			232,
+			440,
+			415,
+			341
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_11.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.242,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			255,
+			441,
+			324,
+			339
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_12.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			289,
+			439,
+			329,
+			339
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_13.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.286,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			325,
+			435,
+			342,
+			344
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_14.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.308,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			360,
+			434,
+			323,
+			344
+		],
+		"facing": -1,
+		"file": "a_158_left_Attack_A_15.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			288,
+			434,
+			395,
+			344
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_00.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			296,
+			423,
+			323,
+			359
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_01.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			261,
+			389,
+			369,
+			388
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_02.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0586666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			206,
+			458,
+			338,
+			331
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_03.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			375,
+			465,
+			323,
+			397
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_04.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.117333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			361,
+			362,
+			370,
+			420
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_05.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			291,
+			444,
+			448,
+			345
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_06.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			356,
+			435,
+			275,
+			405
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_07.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.205333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			215,
+			434,
+			389,
+			345
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_08.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.234666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			221,
+			438,
+			339,
+			341
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_09.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			226,
+			442,
+			355,
+			337
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_10.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			229,
+			445,
+			360,
+			334
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_11.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.322666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			237,
+			490,
+			329,
+			407
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_12.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.352,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			82,
+			455,
+			594,
+			364
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_13.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.381333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			282,
+			354,
+			335,
+			518
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_14.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.410666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			360,
+			434,
+			323,
+			344
+		],
+		"facing": -1,
+		"file": "a_158_left_Critical_15.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			347,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_00.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			356,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_01.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			365,
+			470
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_02.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0533333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			379,
+			499
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_03.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.08,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			413,
+			486
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_04.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.106666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			482,
+			444
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_05.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			482,
+			444
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_06.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.16,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			482,
+			444
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_07.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.186666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			482,
+			444
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_08.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.213333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			482,
+			444
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_09.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.24,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			463,
+			459
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_10.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			395,
+			495
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_11.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			373,
+			496
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_12.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.32,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			364,
+			460
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_13.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			356,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_14.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.373333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			347,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_Active_A_15.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			347,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_00.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			249,
+			375,
+			385,
+			474
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_01.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0366666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			230,
+			380,
+			471,
+			476
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_02.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0733333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			217,
+			390,
+			625,
+			388
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_03.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			209,
+			404,
+			600,
+			374
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_04.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			377,
+			503,
+			401
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_05.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.183333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			377,
+			503,
+			401
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_06.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			377,
+			503,
+			401
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_07.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.256666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			377,
+			503,
+			401
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_08.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			377,
+			503,
+			401
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_09.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			207,
+			393,
+			517,
+			385
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_10.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			211,
+			399,
+			631,
+			379
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_11.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.403333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			220,
+			387,
+			601,
+			391
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_12.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			233,
+			379,
+			444,
+			489
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_13.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.476666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			250,
+			375,
+			383,
+			465
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_14.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.513333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			269,
+			374,
+			347,
+			404
+		],
+		"facing": -1,
+		"file": "a_158_left_XX_15.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.55,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			232,
+			469,
+			369,
+			397
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_00.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			237,
+			467,
+			363,
+			402
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_01.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			242,
+			466,
+			356,
+			405
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_02.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			246,
+			468,
+			347,
+			403
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_03.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			248,
+			472,
+			341,
+			399
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_04.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			244,
+			478,
+			348,
+			388
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_05.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			236,
+			485,
+			360,
+			376
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_06.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			228,
+			492,
+			372,
+			363
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_07.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			221,
+			498,
+			382,
+			353
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_08.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.533333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			216,
+			501,
+			389,
+			348
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_09.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.6,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			211,
+			500,
+			393,
+			346
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_10.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			210,
+			495,
+			391,
+			350
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_11.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.733333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			212,
+			488,
+			386,
+			359
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_12.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.8,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			218,
+			480,
+			377,
+			373
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_13.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.866666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			226,
+			474,
+			371,
+			386
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_14.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.933333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			232,
+			469,
+			369,
+			397
+		],
+		"facing": -1,
+		"file": "a_158_left_Stun_15.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 1.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			360,
+			434,
+			323,
+			344
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_00.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			398,
+			411,
+			287,
+			351
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_01.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0555533333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			387,
+			401,
+			298,
+			390
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_02.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.111106666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			400,
+			393,
+			299,
+			425
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_03.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.16666,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			455,
+			392,
+			285,
+			444
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_04.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.222213333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			467,
+			427,
+			380,
+			406
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_05.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.277766666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			521,
+			479,
+			433,
+			331
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_06.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.33332,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			513,
+			506,
+			383,
+			372
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_07.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.388873333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			517,
+			529,
+			358,
+			383
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_08.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.444426666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			540,
+			531,
+			290,
+			349
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_09.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.49998,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			543,
+			533,
+			279,
+			347
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_10.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.555533333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			543,
+			535,
+			297,
+			345
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_11.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.611086666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			543,
+			538,
+			276,
+			342
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_12.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.66664,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			543,
+			540,
+			276,
+			340
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_13.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.722193333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			543,
+			542,
+			287,
+			338
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_14.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.777746666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			543,
+			544,
+			303,
+			336
+		],
+		"facing": -1,
+		"file": "a_158_left_Death_15.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.8333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			374,
+			347,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_00.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			372,
+			345,
+			406
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_01.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			369,
+			342,
+			409
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_02.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			365,
+			337,
+			413
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_03.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			360,
+			333,
+			418
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_04.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			356,
+			335,
+			422
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_05.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			406,
+			353,
+			336,
+			425
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_06.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			406,
+			350,
+			337,
+			428
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_07.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			406,
+			350,
+			337,
+			428
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_08.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.533333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			406,
+			353,
+			337,
+			425
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_09.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.6,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			356,
+			336,
+			422
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_10.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			360,
+			334,
+			418
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_11.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.733333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			365,
+			337,
+			413
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_12.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.8,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			369,
+			342,
+			409
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_13.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.866666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			372,
+			345,
+			406
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_14.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.933333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			374,
+			347,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_Idle_15.png",
+		"game_scale": 0.53,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			458,
+			471,
+			359,
+			374
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_00.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			458,
+			466,
+			359,
+			375
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_01.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0444466666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			457,
+			461,
+			360,
+			376
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_02.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0888933333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			457,
+			457,
+			360,
+			382
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_03.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.13334,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			456,
+			457,
+			361,
+			385
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_04.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.177786666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			454,
+			463,
+			363,
+			375
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_05.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.222233333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			448,
+			470,
+			369,
+			356
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_06.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.26668,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			434,
+			476,
+			383,
+			327
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_07.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.311126666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			423,
+			476,
+			394,
+			305
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_08.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.355573333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			425,
+			470,
+			392,
+			301
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_09.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.40002,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			432,
+			463,
+			385,
+			312
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_10.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.444466666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			441,
+			456,
+			376,
+			332
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_11.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.488913333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			457,
+			457,
+			360,
+			354
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_12.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.53336,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			458,
+			462,
+			359,
+			371
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_13.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.577806666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			458,
+			467,
+			359,
+			378
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_14.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.622253333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			451,
+			471,
+			366,
+			374
+		],
+		"facing": 1,
+		"file": "a_158_right_Move_15.png",
+		"game_scale": 0.53,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.6667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			341,
+			434,
+			395,
+			344
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_00.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			416,
+			408,
+			214,
+			443
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_01.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.022,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			344,
+			400,
+			315,
+			338
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_02.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.044,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			312,
+			407,
+			373,
+			334
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_03.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.066,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			336,
+			407,
+			406,
+			367
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_04.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			469,
+			420,
+			446,
+			364
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_05.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			466,
+			416,
+			435,
+			368
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_06.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.132,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			460,
+			412,
+			426,
+			372
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_07.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.154,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			462,
+			409,
+			409,
+			375
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_08.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			459,
+			292,
+			351,
+			494
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_09.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.198,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			383,
+			429,
+			422,
+			356
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_10.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			377,
+			440,
+			415,
+			341
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_11.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.242,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			445,
+			441,
+			324,
+			339
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_12.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			406,
+			439,
+			329,
+			339
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_13.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.286,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			357,
+			435,
+			342,
+			344
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_14.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.308,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			341,
+			434,
+			323,
+			344
+		],
+		"facing": 1,
+		"file": "a_158_right_Attack_A_15.png",
+		"game_scale": 0.53,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			341,
+			434,
+			395,
+			344
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_00.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			405,
+			423,
+			323,
+			359
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_01.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			394,
+			389,
+			369,
+			388
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_02.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0586666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			480,
+			458,
+			338,
+			331
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_03.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			326,
+			465,
+			323,
+			397
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_04.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.117333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			293,
+			362,
+			370,
+			420
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_05.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			285,
+			444,
+			448,
+			345
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_06.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			393,
+			435,
+			275,
+			405
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_07.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.205333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			420,
+			434,
+			389,
+			345
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_08.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.234666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			464,
+			438,
+			339,
+			341
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_09.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			443,
+			442,
+			355,
+			337
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_10.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			435,
+			445,
+			360,
+			334
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_11.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.322666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			458,
+			490,
+			329,
+			407
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_12.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.352,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			348,
+			455,
+			594,
+			364
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_13.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.381333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			407,
+			354,
+			335,
+			518
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_14.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.410666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			341,
+			434,
+			323,
+			344
+		],
+		"facing": 1,
+		"file": "a_158_right_Critical_15.png",
+		"game_scale": 0.53,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			374,
+			347,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_00.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			399,
+			374,
+			356,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_01.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			390,
+			374,
+			365,
+			470
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_02.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0533333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			376,
+			374,
+			379,
+			499
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_03.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.08,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			342,
+			374,
+			413,
+			486
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_04.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.106666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			273,
+			374,
+			482,
+			444
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_05.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			273,
+			374,
+			482,
+			444
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_06.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.16,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			273,
+			374,
+			482,
+			444
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_07.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.186666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			273,
+			374,
+			482,
+			444
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_08.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.213333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			273,
+			374,
+			482,
+			444
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_09.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.24,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			292,
+			374,
+			463,
+			459
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_10.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			360,
+			374,
+			395,
+			495
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_11.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			382,
+			374,
+			373,
+			496
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_12.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.32,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			391,
+			374,
+			364,
+			460
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_13.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			399,
+			374,
+			356,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_14.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.373333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			374,
+			347,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_Active_A_15.png",
+		"game_scale": 0.53,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			374,
+			347,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_00.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			390,
+			375,
+			385,
+			474
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_01.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0366666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			323,
+			380,
+			471,
+			476
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_02.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0733333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			182,
+			390,
+			625,
+			388
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_03.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			215,
+			404,
+			600,
+			374
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_04.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			314,
+			377,
+			503,
+			401
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_05.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.183333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			314,
+			377,
+			503,
+			401
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_06.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			314,
+			377,
+			503,
+			401
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_07.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.256666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			314,
+			377,
+			503,
+			401
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_08.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			314,
+			377,
+			503,
+			401
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_09.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			300,
+			393,
+			517,
+			385
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_10.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			182,
+			399,
+			631,
+			379
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_11.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.403333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			203,
+			387,
+			601,
+			391
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_12.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			347,
+			379,
+			444,
+			489
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_13.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.476666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			391,
+			375,
+			383,
+			465
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_14.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.513333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			408,
+			374,
+			347,
+			404
+		],
+		"facing": 1,
+		"file": "a_158_right_XX_15.png",
+		"game_scale": 0.53,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.55,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			423,
+			469,
+			369,
+			397
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_00.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			424,
+			467,
+			363,
+			402
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_01.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			426,
+			466,
+			356,
+			405
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_02.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			431,
+			468,
+			347,
+			403
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_03.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			435,
+			472,
+			341,
+			399
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_04.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			432,
+			478,
+			348,
+			388
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_05.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			428,
+			485,
+			360,
+			376
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_06.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			424,
+			492,
+			372,
+			363
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_07.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			421,
+			498,
+			382,
+			353
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_08.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.533333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			419,
+			501,
+			389,
+			348
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_09.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.6,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			420,
+			500,
+			393,
+			346
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_10.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.666666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			423,
+			495,
+			391,
+			350
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_11.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.733333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			426,
+			488,
+			386,
+			359
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_12.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.8,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			429,
+			480,
+			377,
+			373
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_13.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.866666666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			427,
+			474,
+			371,
+			386
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_14.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.933333333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			423,
+			469,
+			369,
+			397
+		],
+		"facing": 1,
+		"file": "a_158_right_Stun_15.png",
+		"game_scale": 0.53,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 1.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			341,
+			434,
+			323,
+			344
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_00.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			339,
+			411,
+			287,
+			351
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_01.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0555533333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			339,
+			401,
+			298,
+			390
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_02.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.111106666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			325,
+			393,
+			299,
+			425
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_03.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.16666,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			284,
+			392,
+			285,
+			444
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_04.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.222213333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			177,
+			427,
+			380,
+			406
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_05.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.277766666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			70,
+			479,
+			433,
+			331
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_06.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.33332,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			128,
+			506,
+			383,
+			372
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_07.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.388873333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			149,
+			529,
+			358,
+			383
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_08.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.444426666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			194,
+			531,
+			290,
+			349
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_09.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.49998,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			202,
+			533,
+			279,
+			347
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_10.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.555533333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			184,
+			535,
+			297,
+			345
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_11.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.611086666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			205,
+			538,
+			276,
+			342
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_12.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.66664,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			205,
+			540,
+			276,
+			340
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_13.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.722193333333333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			194,
+			542,
+			287,
+			338
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_14.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.777746666666667,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			178,
+			544,
+			303,
+			336
+		],
+		"facing": 1,
+		"file": "a_158_right_Death_15.png",
+		"game_scale": 0.53,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.8333,
+		"variant": "a_158"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			335,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_00.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			440,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_01.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0866666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			334,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_02.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.173333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_03.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.26,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			439,
+			332,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_04.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			439,
+			332,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_05.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.433333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			439,
+			332,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_06.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.52,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			438,
+			331,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_07.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.606666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			438,
+			331,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_08.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.693333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			439,
+			332,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_09.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.78,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			439,
+			332,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_10.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.866666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			439,
+			332,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_11.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.953333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_12.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.04,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			334,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_13.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.12666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			440,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_14.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.21333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			335,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Idle_15.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.3,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			330,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_00.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			331,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_01.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_02.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			439,
+			334,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_03.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.1,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			438,
+			334,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_04.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			438,
+			337,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_05.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.166666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			437,
+			338,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_06.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			437,
+			339,
+			350
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_07.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.233333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			437,
+			339,
+			350
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_08.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			437,
+			338,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_09.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.3,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			438,
+			337,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_10.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			438,
+			334,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_11.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			439,
+			334,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_12.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_13.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.433333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			440,
+			331,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_14.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			330,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Move_15.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.5,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_00.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			234,
+			440,
+			407,
+			351
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_01.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.022,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			234,
+			440,
+			406,
+			353
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_02.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.044,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			234,
+			440,
+			407,
+			351
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_03.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.066,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			212,
+			441,
+			431,
+			345
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_04.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			183,
+			443,
+			462,
+			339
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_05.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			181,
+			443,
+			464,
+			339
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_06.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.132,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			182,
+			443,
+			463,
+			340
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_07.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.154,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			186,
+			442,
+			459,
+			342
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_08.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			195,
+			442,
+			450,
+			343
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_09.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.198,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			206,
+			442,
+			438,
+			343
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_10.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			222,
+			441,
+			422,
+			345
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_11.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.242,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			240,
+			441,
+			404,
+			346
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_12.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			261,
+			441,
+			382,
+			346
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_13.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.286,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			284,
+			441,
+			359,
+			347
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_14.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.308,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Attack_A_15.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_00.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			234,
+			440,
+			406,
+			352
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_01.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			234,
+			440,
+			406,
+			351
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_02.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0586666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			187,
+			443,
+			455,
+			340
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_03.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			210,
+			446,
+			431,
+			353
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_04.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.117333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			196,
+			445,
+			446,
+			337
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_05.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			186,
+			445,
+			457,
+			337
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_06.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			181,
+			444,
+			463,
+			338
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_07.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.205333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			181,
+			444,
+			463,
+			338
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_08.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.234666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			186,
+			443,
+			459,
+			339
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_09.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			196,
+			443,
+			449,
+			340
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_10.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			211,
+			442,
+			434,
+			342
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_11.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.322666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			230,
+			442,
+			414,
+			344
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_12.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.352,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			253,
+			441,
+			391,
+			345
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_13.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.381333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			280,
+			441,
+			363,
+			347
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_14.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.410666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Critical_15.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_00.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			304,
+			441,
+			338,
+			355
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_01.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			303,
+			441,
+			339,
+			356
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_02.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0533333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			307,
+			431,
+			335,
+			366
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_03.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.08,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			317,
+			410,
+			325,
+			387
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_04.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.106666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			321,
+			405,
+			321,
+			392
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_05.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			315,
+			413,
+			327,
+			384
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_06.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.16,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			311,
+			422,
+			331,
+			375
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_07.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.186666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			307,
+			431,
+			335,
+			366
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_08.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.213333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			305,
+			441,
+			337,
+			356
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_09.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.24,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			303,
+			441,
+			339,
+			356
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_10.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			302,
+			441,
+			340,
+			356
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_11.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			303,
+			441,
+			339,
+			355
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_12.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.32,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			304,
+			441,
+			338,
+			355
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_13.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			306,
+			441,
+			336,
+			355
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_14.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.373333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Active_A_15.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_00.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			293,
+			441,
+			363,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_01.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			291,
+			407,
+			371,
+			382
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_02.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0733333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			304,
+			368,
+			344,
+			421
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_03.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			330,
+			342,
+			320,
+			450
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_04.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			334,
+			289,
+			462
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_05.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.183333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			334,
+			289,
+			465
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_06.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			334,
+			289,
+			469
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_07.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.256666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			334,
+			289,
+			472
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_08.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			334,
+			289,
+			476
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_09.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			347,
+			335,
+			304,
+			478
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_10.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			318,
+			350,
+			331,
+			467
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_11.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.403333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			298,
+			379,
+			355,
+			439
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_12.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			290,
+			415,
+			372,
+			405
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_13.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.476666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			294,
+			441,
+			364,
+			379
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_14.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.513333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_XX_15.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.55,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_00.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_01.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_02.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_03.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.1,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_04.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_05.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.166666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_06.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_07.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.233333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_08.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_09.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.3,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_10.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_11.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_12.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_13.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.433333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_14.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Stun_15.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.5,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			309,
+			441,
+			333,
+			348
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_00.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			324,
+			440,
+			321,
+			355
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_01.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			339,
+			440,
+			319,
+			359
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_02.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0533333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			356,
+			443,
+			314,
+			360
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_03.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.08,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			370,
+			435,
+			311,
+			371
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_04.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.106666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			424,
+			312,
+			384
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_05.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			416,
+			318,
+			394
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_06.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.16,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			386,
+			409,
+			321,
+			401
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_07.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.186666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			389,
+			403,
+			325,
+			406
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_08.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.213333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			388,
+			399,
+			331,
+			408
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_09.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.24,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			388,
+			398,
+			335,
+			406
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_10.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			389,
+			397,
+			336,
+			404
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_11.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			391,
+			399,
+			335,
+			404
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_12.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.32,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			393,
+			402,
+			333,
+			403
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_13.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			396,
+			407,
+			328,
+			398
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_14.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.373333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			400,
+			413,
+			321,
+			392
+		],
+		"facing": -1,
+		"file": "b_original_left_Death_15.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			441,
+			335,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_00.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			440,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_01.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.0866666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			440,
+			334,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_02.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.173333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			440,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_03.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.26,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			439,
+			332,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_04.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			439,
+			332,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_05.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.433333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			439,
+			332,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_06.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.52,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			438,
+			331,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_07.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.606666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			438,
+			331,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_08.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.693333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			439,
+			332,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_09.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.78,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			439,
+			332,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_10.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.866666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			439,
+			332,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_11.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 0.953333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			440,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_12.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.04,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			440,
+			334,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_13.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.12666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			440,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_14.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.21333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			441,
+			335,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Idle_15.png",
+		"game_scale": 0.43,
+		"pose": "Idle",
+		"preview_scale": 4,
+		"time": 1.3,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			385,
+			441,
+			330,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_00.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			440,
+			331,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_01.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			440,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_02.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			439,
+			334,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_03.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.1,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			438,
+			334,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_04.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			378,
+			438,
+			337,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_05.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.166666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			377,
+			437,
+			338,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_06.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			376,
+			437,
+			339,
+			350
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_07.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.233333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			376,
+			437,
+			339,
+			350
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_08.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			377,
+			437,
+			338,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_09.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.3,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			378,
+			438,
+			337,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_10.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			438,
+			334,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_11.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			439,
+			334,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_12.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			440,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_13.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.433333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			440,
+			331,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_14.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			385,
+			441,
+			330,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Move_15.png",
+		"game_scale": 0.43,
+		"pose": "Move",
+		"preview_scale": 4,
+		"time": 0.5,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_00.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			440,
+			407,
+			351
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_01.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.022,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			440,
+			406,
+			353
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_02.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.044,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			440,
+			407,
+			351
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_03.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.066,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			441,
+			431,
+			345
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_04.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			443,
+			462,
+			339
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_05.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			443,
+			464,
+			339
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_06.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.132,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			443,
+			463,
+			340
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_07.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.154,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			442,
+			459,
+			342
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_08.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			442,
+			450,
+			343
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_09.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.198,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			442,
+			438,
+			343
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_10.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			441,
+			422,
+			345
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_11.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.242,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			441,
+			404,
+			346
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_12.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			441,
+			382,
+			346
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_13.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.286,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			441,
+			359,
+			347
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_14.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.308,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Attack_A_15.png",
+		"game_scale": 0.43,
+		"pose": "Attack_A",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_00.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			440,
+			406,
+			352
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_01.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			384,
+			440,
+			406,
+			351
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_02.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.0586666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			443,
+			455,
+			340
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_03.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.088,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			383,
+			446,
+			431,
+			353
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_04.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.117333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			445,
+			446,
+			337
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_05.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			445,
+			457,
+			337
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_06.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.176,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			444,
+			463,
+			338
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_07.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.205333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			444,
+			463,
+			338
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_08.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.234666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			443,
+			459,
+			339
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_09.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.264,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			443,
+			449,
+			340
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_10.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			442,
+			434,
+			342
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_11.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.322666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			442,
+			414,
+			344
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_12.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.352,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			380,
+			441,
+			391,
+			345
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_13.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.381333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			381,
+			441,
+			363,
+			347
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_14.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.410666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Critical_15.png",
+		"game_scale": 0.43,
+		"pose": "Critical",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_00.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			338,
+			355
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_01.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			339,
+			356
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_02.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.0533333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			431,
+			335,
+			366
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_03.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.08,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			410,
+			325,
+			387
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_04.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.106666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			405,
+			321,
+			392
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_05.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			413,
+			327,
+			384
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_06.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.16,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			422,
+			331,
+			375
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_07.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.186666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			431,
+			335,
+			366
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_08.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.213333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			337,
+			356
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_09.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.24,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			339,
+			356
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_10.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			340,
+			356
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_11.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			339,
+			355
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_12.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.32,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			338,
+			355
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_13.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			336,
+			355
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_14.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.373333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Active_A_15.png",
+		"game_scale": 0.43,
+		"pose": "Active_A",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_00.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			368,
+			441,
+			363,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_01.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			407,
+			371,
+			382
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_02.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.0733333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			376,
+			368,
+			344,
+			421
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_03.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.11,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			374,
+			342,
+			320,
+			450
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_04.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.146666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			373,
+			334,
+			289,
+			462
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_05.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.183333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			373,
+			334,
+			289,
+			465
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_06.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.22,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			373,
+			334,
+			289,
+			469
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_07.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.256666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			373,
+			334,
+			289,
+			472
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_08.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			373,
+			334,
+			289,
+			476
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_09.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.33,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			373,
+			335,
+			304,
+			478
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_10.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			375,
+			350,
+			331,
+			467
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_11.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.403333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			371,
+			379,
+			355,
+			439
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_12.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.44,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			362,
+			415,
+			372,
+			405
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_13.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.476666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			366,
+			441,
+			364,
+			379
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_14.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.513333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_XX_15.png",
+		"game_scale": 0.43,
+		"pose": "XX",
+		"preview_scale": 4,
+		"time": 0.55,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_00.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_01.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_02.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.0666666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_03.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.1,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_04.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_05.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.166666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_06.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.2,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_07.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.233333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_08.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_09.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.3,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_10.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.333333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_11.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.366666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_12.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_13.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.433333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_14.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.466666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Stun_15.png",
+		"game_scale": 0.43,
+		"pose": "Stun",
+		"preview_scale": 4,
+		"time": 0.5,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			382,
+			441,
+			333,
+			348
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_00.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			379,
+			440,
+			321,
+			355
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_01.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			366,
+			440,
+			319,
+			359
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_02.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.0533333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			354,
+			443,
+			314,
+			360
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_03.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.08,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			343,
+			435,
+			311,
+			371
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_04.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.106666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			333,
+			424,
+			312,
+			384
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_05.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.133333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			324,
+			416,
+			318,
+			394
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_06.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.16,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			317,
+			409,
+			321,
+			401
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_07.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.186666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			310,
+			403,
+			325,
+			406
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_08.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.213333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			305,
+			399,
+			331,
+			408
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_09.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.24,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			301,
+			398,
+			335,
+			406
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_10.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.266666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			299,
+			397,
+			336,
+			404
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_11.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.293333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			298,
+			399,
+			335,
+			404
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_12.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.32,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			298,
+			402,
+			333,
+			403
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_13.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.346666666666667,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			300,
+			407,
+			328,
+			398
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_14.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.373333333333333,
+		"variant": "b_original"
+	},
+	{
+		"bbox": [
+			303,
+			413,
+			321,
+			392
+		],
+		"facing": 1,
+		"file": "b_original_right_Death_15.png",
+		"game_scale": 0.43,
+		"pose": "Death",
+		"preview_scale": 4,
+		"time": 0.4,
+		"variant": "b_original"
+	}
+]

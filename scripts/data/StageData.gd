@@ -41,6 +41,10 @@ class_name StageData
 @export var path_points: Array[Vector2] = []
 ## 分叉路径（v0.11.3 s08 试点）：召唤护卫自此路径进场；空则无双路。
 @export var fork_path_points: Array[Vector2] = []
+## 完整命名路线：共享前段形成分流，共享后段形成汇流；交叉不改变行走次序。
+@export var alternate_paths: Dictionary[StringName, PackedVector2Array] = {}
+## 普通敌人逐个循环分配；重复ID代表权重，空配置兼容单主路。
+@export var normal_path_ids: Array[StringName] = []
 @export var build_slot_positions: Array[Vector2] = []
 ## 结构化建造位（v0.14.1，GDD 5.1）：位置/类型/预锁位；非空时优先于 build_slot_positions。
 @export var build_slots: Array[BuildSlotData] = []
@@ -84,6 +88,28 @@ func is_valid() -> bool:
 
 func allows_character(character: CharacterData) -> bool:
 	return FactionRegistry.rule_allows(faction_rule, character)
+
+
+func get_paths() -> Dictionary:
+	var result := {&"main": PackedVector2Array(path_points)}
+	if not fork_path_points.is_empty():
+		result[&"fork"] = PackedVector2Array(fork_path_points)
+	for id in alternate_paths:
+		if id != &"main" and id != &"fork":
+			result[id] = alternate_paths[id]
+	return result
+
+
+func get_normal_path_ids() -> Array[StringName]:
+	var result: Array[StringName] = [&"main"]
+	if not normal_path_ids.is_empty(): result.assign(normal_path_ids)
+	return result
+
+
+func set_path_points(id: StringName, points: Array[Vector2]) -> void:
+	if id == &"main": path_points.assign(points)
+	elif id == &"fork": fork_path_points.assign(points)
+	else: alternate_paths[id] = PackedVector2Array(points)
 
 
 ## 生效建造位（v0.14.1）：build_slots 非空时用之；否则由 build_slot_positions 推导
