@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 96 96"><title>烽火连营</title><defs>
+<linearGradient id="ff-bg" x1="0" y1="0" x2=".55" y2="1"><stop stop-color="#CEE4D8"/><stop offset=".55" stop-color="#AFD2C2"/><stop offset="1" stop-color="#91BAAA"/></linearGradient>
+<linearGradient id="ff-stone" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#F0E4C5"/><stop offset=".58" stop-color="#D9CCAB"/><stop offset="1" stop-color="#B6B28F"/></linearGradient>
+<linearGradient id="ff-side" x1="0" y1="0" x2=".75" y2="1"><stop stop-color="#D4C5A0"/><stop offset="1" stop-color="#B3AC86"/></linearGradient>
+<linearGradient id="ff-roof" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#DC9A70"/><stop offset=".5" stop-color="#C17C57"/><stop offset="1" stop-color="#A05F49"/></linearGradient>
+<linearGradient id="ff-flag" x1="0" y1="0" x2="1" y2=".5"><stop stop-color="#D5946A"/><stop offset="1" stop-color="#B57752"/></linearGradient>
+<clipPath id="ff-door-clip"><path d="M39 85V71Q39 64 49 64Q57 64 57 71V85Z"/></clipPath>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+<!-- Bright celadon tile with transparent outer corners. -->
+<rect x="3" y="3" width="90" height="90" rx="18" fill="url(#ff-bg)" stroke="#89AC9A" stroke-opacity=".75" stroke-width=".8"/>
+<!-- One standard behind the tower; only its point is bronze. -->
+<path d="M20 18V62" fill="none" stroke="#A28D6A" stroke-width="1.7"/>
+<path d="M21 21Q30 18 36 22L34 33Q28 29 21 33Z" fill="url(#ff-flag)" stroke="#A47C56" stroke-width=".7"/>
+<path d="M22 22Q28 20.5 33.5 22.5M22 23V30" fill="none" stroke="#E2C48C" stroke-opacity=".5" stroke-width=".55"/>
+<path d="M30 21Q28 26 30 30" fill="none" stroke="#B57752" stroke-opacity=".4" stroke-width=".5"/>
+<path d="M21 15L23 18L21 21L19 18Z" fill="#E2C48C"/>
+<g transform="translate(48,87) scale(1.04,1.1) translate(-48,-89)">
+<!-- Wide fortified wall mass, with a visible right return and low battlements. -->
+<path d="M13 61H82V83L76 88H16Z" fill="#7E9D86" opacity=".16" transform="translate(2,1.5)"/>
+<path d="M14 61H81V83H14Z" fill="url(#ff-stone)" stroke="#9B9D7F" stroke-width=".8"/>
+<path d="M81 61L87 55V78L81 83Z" fill="url(#ff-side)" stroke="#94A082" stroke-width=".7"/>
+<path d="M12 61V53H19V59H25V53H32V62Z" fill="url(#ff-stone)" stroke="#9CA382" stroke-width=".7"/>
+<path d="M65 62V53H72V59H78V53H84V61Z" fill="url(#ff-stone)" stroke="#9CA382" stroke-width=".7"/>
+<path d="M84 54L88 50V59L84 62Z" fill="url(#ff-side)"/>
+<path d="M19 53L21 51V58L19 59ZM32 53L34 51V60L32 62ZM72 53L74 51V58L72 59Z" fill="url(#ff-side)" opacity=".75"/>
+<path d="M13 54H18M26 54H31M66 54H71M79 54H83" fill="none" stroke="#F6EBCE" stroke-width=".65" opacity=".55"/>
+<!-- Sparse joints and narrow arrow loops emphasize masonry rather than housing. -->
+<path d="M15 70H29M15 78H29M68 70H80M68 78H80M23 62V69M20 71V77M73 62V69M77 71V77" fill="none" stroke="#A5A382" stroke-width=".6" opacity=".42"/>
+<path d="M19 63H22V68H19ZM73 63H76V68H73Z" fill="#738C79"/>
+<!-- Central gatehouse is taller and thicker than its adjoining curtain walls. -->
+<path d="M29 58H68V85H29Z" fill="url(#ff-stone)" stroke="#9DA284" stroke-width=".8"/>
+<path d="M68 58L75 53V80L68 85Z" fill="url(#ff-side)"/>
+<path d="M30 60H67V64H30Z" fill="#A7AA86" opacity=".35"/>
+<!-- A shallow arch exposes a substantial jamb and a dark receding passage. -->
+<path d="M36 85V71Q36 61 48 61Q60 61 60 71V85Z" fill="#A9B794"/>
+<path d="M39 85V71Q39 64 49 64Q57 64 57 71V85Z" fill="#496A63"/>
+<!-- The left inner jamb recedes right/up, matching the tower's visible right return. -->
+<path d="M39 85V71Q39 64 49 64L52 62Q42 62 42 69V85Z" fill="#829A85" clip-path="url(#ff-door-clip)"/>
+<path d="M36 71Q36 62 48 61L49 64Q40 64 39 71V84L36 85Z" fill="#E3DABD" opacity=".4"/>
+<path d="M39 83H57V85H39Z" fill="#7F9883"/>
+<path d="M37 68L39 68.7M47 62L47.4 63.5M56.7 66.6L55.3 67.7" fill="none" stroke="#9A9F7F" stroke-width=".55" opacity=".55"/>
+<path d="M31 77H35M61 78H67M31 68H34M63 68H67M64 74V77" fill="none" stroke="#A5A382" stroke-width=".45" opacity=".4"/>
+<path d="M45.7 62L46.4 64L50.5 64.2L51.4 62.2Z" fill="#F0E4C5" opacity=".4"/>
+<!-- One exposed watch-room, broad wood beams and a continuous dark lookout slit. -->
+<path d="M31 46H68V59H31Z" fill="#DED9B9" stroke="#927155" stroke-width=".8"/>
+<path d="M68 46L75 41V54L68 59Z" fill="#BBC7A1"/>
+<path d="M37 49H62V54H37Z" fill="#638273"/>
+<path d="M69 47.5L72 45.5V50.5L69 52.5Z" fill="#638273" opacity=".75"/>
+<path d="M32 47V58M67 47V58M32 58H67M45 49V54M54 49V54" fill="none" stroke="#927155" stroke-width="1.7"/>
+<path d="M34 57H65" fill="none" stroke="#C4A177" stroke-opacity=".6" stroke-width=".65"/>
+<!-- A single broad Han-style projecting roof, without side roofs or temple tiers. -->
+<path d="M20 45Q30 44 37 36H62Q68 43 80 43L75 48L70 50H27L21 47Z" fill="#927155" stroke="#8E8167" stroke-width=".8"/>
+<path d="M20 42Q31 42 37 33H61Q68 41 80 40L73 46H28Z" fill="url(#ff-roof)" stroke="#9A7254" stroke-width=".9"/>
+<path d="M61 33L66 31Q73 38 80 40L73 46Z" fill="#A05F49" opacity=".66"/>
+<path d="M29 41Q46 43 69 41M33 37Q46 39 65 37" fill="none" stroke="#F0BE92" stroke-opacity=".38" stroke-width=".65"/>
+<path d="M38 35L34 42M45 35L43 43M53 35L54 43M60 35L64 42" fill="none" stroke="#A05F49" stroke-opacity=".28" stroke-width=".45"/>
+<path d="M37 33H61" fill="none" stroke="#EDB886" stroke-width="1.1"/>
+<path d="M24 46H73" fill="none" stroke="#BA916C" stroke-width="1"/>
+<!-- A stone footing, with no bright floor triangle or decorative gold bar. -->
+<path d="M12 83H83V86L78 89H18L12 86Z" fill="url(#ff-side)" stroke="#94A082" stroke-width=".7"/>
+<path d="M12.5 83H82L80 84.5H14Z" fill="#D4C5A0" opacity=".65"/>
+<path d="M13 83.5H35M61 83.5H81" fill="none" stroke="#DBD8B4" stroke-opacity=".55" stroke-width=".7"/>
+</g>
+</g></svg>

@@ -3,7 +3,6 @@ from pathlib import Path
 import argparse
 import subprocess
 from PIL import Image, ImageDraw, ImageFont
-from game_icon_fortress_art import build_fortress_crest, FORTRESS_DUSK_COLORS
 
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / 'docs/ui_concept/game_icon_0.10.1.3'
@@ -14,11 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot', default='F:/Godot/Godot_v4.7.1-stable_win64.exe/Godot_v4.7.1-stable_win64_console.exe')
     args = parser.parse_args()
-    paths = []
-    for name, colors in [('fortress', FORTRESS_DUSK_COLORS), ('fortress_warm', None)]:
-        svg = '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 96 96">' + build_fortress_crest(colors) + '</svg>\n'
-        (ARCHIVE / (name + '.svg')).write_text(svg, encoding='utf-8', newline='\n')
-        paths.append('res://docs/ui_concept/game_icon_0.10.1.3/' + name + '.svg')
+    paths = ['res://docs/ui_concept/game_icon_0.10.1.3/' + name + '.svg' for name in ('fortress','fortress_warm')]
     subprocess.run([args.godot, '--headless', '--path', str(ROOT), '--script', str(ROOT / 'tools/render_game_icon_previews.gd'), '--', *paths], check=True)
     sheet = Image.new('RGB', (780, 700), '#faf4e6')
     draw = ImageDraw.Draw(sheet)

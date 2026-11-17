@@ -1,0 +1,36 @@
+{
+  "program": "0.10.1.4",
+  "native_renderer": "Godot 4.7.1 ThorVG",
+  "png": [
+    256,
+    256
+  ],
+  "native_master": [
+    1024,
+    1024
+  ],
+  "ico_sizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "transparent_corners_all_sizes": true,
+  "same_master_recipe": true,
+  "other_icons_preserved": 394,
+  "manifest_count": 395,
+  "sha256": {
+    "game_crest.svg": "a90815aa578ad628303fb13122ba5a4e873077263caa689ffb4f0875f2d1164c",
+    "game_crest.png": "c530fdef9ce2bb532c37b13afa513efc41d96791b4503cd67c294e8ddfe99a1b",
+    "game_crest.ico": "e58311d79897ef5f457beb64ead06836a716b2f4a8e08dedf18acf07c2e37e31"
+  },
+  "flame_removed": true,
+  "basin_removed": true,
+  "brightness_srgb": {
+    "before": 87.06,
+    "after": 179.71
+  }
+}

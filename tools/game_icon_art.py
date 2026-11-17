@@ -1,7 +1,7 @@
-"""Original Three Kingdoms game emblem: thick stone walls, red eaves and a beacon."""
+"""Original Three Kingdoms game emblem: bright stone walls, red eaves and a military standard."""
 from game_icon_fortress_art import build_fortress_crest
 
-DESCRIPTION = "赭瓦石城、低厚城墙与深门洞，军旗与烽火；原创中式城防游戏徽章"
+DESCRIPTION = "明亮青瓷底、暖砂石城与赭瓦，单面军旗；无火焰的中式城防游戏徽章"
 
 
 def build_game_ico_frames(crest):
