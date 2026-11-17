@@ -1,0 +1,91 @@
+"""Reproduce the archived gate emblem's two color studies with native Godot SVG."""
+from pathlib import Path
+import argparse
+import json
+import re
+import subprocess
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT = Path(__file__).resolve().parents[1]
+ARCHIVE = ROOT / 'docs/ui_concept/game_icon_0.10.1.3'
+PALETTES = {
+    'ink_vermilion': {
+        'label': '墨瓦朱墙',
+        'colors': {
+            '#84a58c': '#405868', '#537d65': '#243d50', '#294f3e': '#152b3c',
+            '#b4c19a': '#899b9b',
+            '#ffe4a2': '#e1a07b', '#e7bd70': '#bc644b', '#ae7939': '#874532',
+            '#c5944e': '#94563d', '#805326': '#5e322a',
+            '#5d8973': '#739193', '#3d6a57': '#4d7078', '#244d3d': '#2c4d59',
+            '#96ab77': '#c0c9ae', '#afba85': '#d2d5b5', '#73937a': '#9bafaa',
+            '#203f31': '#1c3441', '#294c38': '#233944',
+            '#79552c': '#b18a4e', '#916334': '#c59b5c', '#594327': '#58422d',
+            '#6c4d2d': '#5c322c', '#3a523a': '#273b42',
+            '#ffe7af': '#edb888', '#ffe6a6': '#f0ca91', '#244c39': '#172e3b',
+            '#638961': '#51717b', '#a27437': '#8d4533', '#173c2c': '#112632',
+            '#d47950': '#e2b970', '#954331': '#ad783e', '#743d2c': '#665033',
+            '#e5ad71': '#f4d89a', '#243f31': '#1b303d', '#e9c779': '#e9c68a',
+            '#8d602d': '#a87942', '#3d3d28': '#473d32', '#433d27': '#564431',
+            '#282f22': '#2f3334', '#ffc075': '#ffca73', '#e88149': '#f58b3d',
+            '#ad422b': '#b94927', '#843d29': '#7f3928', '#fff4bd': '#fff1b0',
+            '#f7c461': '#ffd16c', '#fff5cb': '#fff4c7', '#6b4b2b': '#5c3e2d',
+            '#e5bd72': '#d6b16d'
+        }
+    },
+    'vermilion_stone': {
+        'label': '朱檐青石',
+        'colors': {
+            '#84a58c': '#4b7d82', '#537d65': '#2c5b65', '#294f3e': '#193e4b',
+            '#b4c19a': '#9cafa3',
+            '#ffe4a2': '#e5e7d3', '#e7bd70': '#b4c4b7', '#ae7939': '#7d958d',
+            '#c5944e': '#829c92', '#805326': '#4c6866',
+            '#5d8973': '#cc8162', '#3d6a57': '#a35643', '#244d3d': '#6d372f',
+            '#96ab77': '#e8b48b', '#afba85': '#f0c293', '#73937a': '#d99475',
+            '#203f31': '#56342f', '#294c38': '#623e32',
+            '#79552c': '#996638', '#916334': '#b68148', '#594327': '#634a35',
+            '#6c4d2d': '#445c5c', '#3a523a': '#2f5259',
+            '#ffe7af': '#f2edce', '#ffe6a6': '#f1dfaf', '#244c39': '#1d404a',
+            '#638961': '#729d9b', '#a27437': '#8ba69b', '#173c2c': '#173b42',
+            '#d47950': '#e0af5d', '#954331': '#a6743a', '#743d2c': '#695135',
+            '#e5ad71': '#f3d391', '#243f31': '#20434a', '#e9c779': '#e8c27b',
+            '#8d602d': '#a66e36', '#3d3d28': '#4c4331', '#433d27': '#5d422a',
+            '#282f22': '#353c30', '#ffc075': '#ffc66c', '#e88149': '#f28a3b',
+            '#ad422b': '#b64729', '#843d29': '#823b2b', '#fff4bd': '#fff3b6',
+            '#f7c461': '#ffd071', '#fff5cb': '#fff5ca', '#6b4b2b': '#525849',
+            '#e5bd72': '#d3b47a'
+        }
+    }
+}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--godot', default='F:/Godot/Godot_v4.7.1-stable_win64.exe/Godot_v4.7.1-stable_win64_console.exe')
+    args = parser.parse_args()
+    source = (ARCHIVE / 'gate.svg').read_text(encoding='utf-8')
+    for name, palette in PALETTES.items():
+        svg = re.sub(r'#[0-9a-fA-F]{6}', lambda m: palette['colors'].get(m[0].lower(), m[0]), source)
+        (ARCHIVE / (name + '.svg')).write_text(svg, encoding='utf-8', newline='\n')
+    paths = ['res://docs/ui_concept/game_icon_0.10.1.3/' + name + '.svg' for name in PALETTES]
+    subprocess.run([args.godot, '--headless', '--path', str(ROOT), '--script', str(ROOT / 'tools/render_game_icon_previews.gd'), '--', *paths], check=True)
+    sheet = Image.new('RGB', (1080, 700), '#faf4e6')
+    draw = ImageDraw.Draw(sheet)
+    font = 'C:/Windows/Fonts/msyh.ttc'
+    columns = [('gate', '上一稿 · 青绿暖金')] + [(name, item['label']) for name, item in PALETTES.items()]
+    for column, (name, label) in enumerate(columns):
+        x = column * 360
+        draw.text((x + 24, 18), label, font=ImageFont.truetype(font, 25), fill='#293e43')
+        master = Image.open(ARCHIVE / (name + '_1024.png')).convert('RGBA')
+        sheet.paste(master.resize((310, 310), Image.Resampling.LANCZOS), (x + 25, 55), master.resize((310, 310), Image.Resampling.LANCZOS))
+        for row, size in enumerate((64, 48, 32, 16)):
+            thumb = master.resize((256, 256), Image.Resampling.LANCZOS).resize((size, size), Image.Resampling.LANCZOS)
+            y = 395 + row * 70
+            sheet.paste(thumb, (x + 83 + (64-size)//2, y + (64-size)//2), thumb)
+            draw.text((x + 180, y + 19), str(size) + ' px', font=ImageFont.truetype(font, 17), fill='#415e61')
+    sheet.save(ARCHIVE / 'color_comparison.png')
+    (ARCHIVE / 'palettes.json').write_text(json.dumps(PALETTES, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    print('GAME_ICON_COLOR_PREVIEWS_OK: 2 native color studies')
+
+
+if __name__ == '__main__':
+    main()

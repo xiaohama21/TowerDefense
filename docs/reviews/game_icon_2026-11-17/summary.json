@@ -1,0 +1,123 @@
+{
+  "program": "0.10.1.3",
+  "branch": "0.10.1",
+  "game_icon": {
+    "program": "0.10.1.3",
+    "native_renderer": "Godot 4.7.1 ThorVG",
+    "png": [
+      256,
+      256
+    ],
+    "native_master": [
+      1024,
+      1024
+    ],
+    "ico_sizes": [
+      16,
+      24,
+      32,
+      48,
+      64,
+      128,
+      256
+    ],
+    "transparent_corners_all_sizes": true,
+    "same_master_recipe": true,
+    "other_icons_preserved": 394,
+    "manifest_count": 395,
+    "sha256": {
+      "game_crest.svg": "13208b8e9d2685745530e888f4e198c78e7593a03329c8b07c2bb24971b901a2",
+      "game_crest.png": "f763cc0c38c97d138910c86799806a4bd17ead8daac5ed073fa4da927fa1d07a",
+      "game_crest.ico": "dccd59212ea545981800d4014177c63614f8924485a20319ba91a2e5c88fcb32"
+    }
+  },
+  "icon_catalogue": {
+    "count": 395,
+    "categories": {
+      "hud": 35,
+      "equipment_rarity": 5,
+      "status": 12,
+      "rank": 6,
+      "battle_rank": 9,
+      "item": 17,
+      "supply": 6,
+      "profession": 6,
+      "skill": 36,
+      "bond": 2,
+      "faction": 4,
+      "system": 46,
+      "equipment": 60,
+      "tech": 32,
+      "cursor": 9,
+      "talent": 110
+    },
+    "current_skill_icons": 27,
+    "distinct_current_skill_pngs": 27,
+    "legacy_files_preserved": 290,
+    "tracked_legacy_files_preserved": 168,
+    "workspace_snapshot_checked": true,
+    "errors": [],
+    "talent_icons": 110,
+    "distinct_talent_pixels": 110
+  },
+  "windows": {
+    "import": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "export": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "standalone_boot": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "standalone_spine_module": "F:\\godotProject\\TowerDefense\\build\\release_city_0.10.1.3\\libspine_godot.windows.template_release.x86_64.dll",
+    "expected_editor_feature_bootstrap_errors": [
+      "ERROR: Condition \"!FileAccess::exists(path)\" is true. Returning: ERR_FILE_NOT_FOUND",
+      "ERROR: GDExtension dynamic library not found: 'res://bin/spine_godot_extension.gdextension'.",
+      "ERROR: Error loading extension: 'res://bin/spine_godot_extension.gdextension'."
+    ],
+    "package_probe": {
+      "exit_code": 0,
+      "errors": []
+    },
+    "packaged_checks": 598,
+    "pe_versions": {
+      "FileVersion": "0.10.1.3",
+      "ProductVersion": "0.10.1.3"
+    }
+  },
+  "pe_icon": {
+    "passed": true,
+    "source_ico_sizes": [
+      16,
+      24,
+      32,
+      48,
+      64,
+      128,
+      256
+    ],
+    "pe_icon_sizes": [
+      16,
+      32,
+      48,
+      64,
+      128,
+      256
+    ],
+    "decoded_pixels_match_source": true,
+    "source_sha256": "dccd59212ea545981800d4014177c63614f8924485a20319ba91a2e5c88fcb32",
+    "matching_groups": 1
+  },
+  "export_source_icon_hashes_match": true,
+  "gameplay_and_city_sources_unchanged": true,
+  "zip": {
+    "path": "build/FengHuoLianYing_v0.10.1.3_Windows.zip",
+    "sha256": "ac6d3dc8445119d2b5ff8757d58cb33febe1ec398aa31c886d6795bf2807a957",
+    "crc_ok": true
+  },
+  "main": "e1d8ab24af841920d05aade8583061b80732f8e9"
+}

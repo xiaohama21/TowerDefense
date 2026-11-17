@@ -6,6 +6,8 @@
 
 ## 当前状态
 
+- **0.10.1.3中式城防游戏图标完成**：按用户反馈重绘为中央高城楼、低厚石墙与深门洞，赭瓦/暖石/深灰青配色，细化瓦檐、木梁、旗面与烽火。GDD v0.37.110 / ICONS v1.10 / schema13；395目录、七档ICO、EXE六档图标像素一致及598项包内检查通过。[最终图标](docs/ui_concept/game_icon_0.10.1.3/after_1024.png) / [城楼对照](docs/ui_concept/game_icon_0.10.1.3/fortress_comparison.png) / [验收](docs/reviews/GAME_ICON_2026-11-17.md) / [Windows包](build/FengHuoLianYing_v0.10.1.3_Windows.zip)。交付留0.10.1。
+
 - **0.10.1.2明亮营地与全界面协调完成**：九建筑定稿名常显、主体独立；全局暖纸/青绿/木金界面与按钮统一，游戏图标重绘为烽火城楼徽章。GDD v0.37.108 / CITY v0.3 / UI_LAYOUT v0.21.2 / ICONS v1.9 / schema13。六项回归、184项主城、19615项全界面、65张原生图与598项包检查通过，EXE新图标像素一致。[主城对照](docs/ui_concept/runtime_0.10.1.2/before_after.png) / [界面总览](docs/ui_concept/runtime_0.10.1.2/interface_overview.png) / [新图标](docs/ui_concept/game_icon_0.10.1.2/size_comparison.png) / [验收](docs/reviews/CAMP_UI_2026-11-17.md) / [Windows包](build/FengHuoLianYing_v0.10.1.2_Windows.zip)。交付留0.10.1。
 
 - **0.10.1.1主城美术升级完成**：九建筑增加立体侧面、屋瓦木纹与暖灯，营地增加山林/草木/土石道路和营垒；锁定保留细节，入口、顶栏和菜单统一墨绿暖金。GDD v0.37.107 / CITY v0.2 / schema13。四项回归、156项主城、16张原生图与587项Windows包检查通过。[前后对照](docs/ui_concept/runtime_0.10.1.1/before_after.png) / [验收](docs/reviews/CITY_ART_2026-11-17.md) / [Windows包](build/FengHuoLianYing_v0.10.1.1_Windows.zip)。交付留0.10.1。

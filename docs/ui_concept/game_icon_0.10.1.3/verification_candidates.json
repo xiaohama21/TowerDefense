@@ -1,0 +1,79 @@
+{
+  "status": "candidates",
+  "program_unchanged": "0.10.1.2",
+  "candidates": {
+    "gate": {
+      "png": [
+        256,
+        256
+      ],
+      "native_master": [
+        1024,
+        1024
+      ],
+      "transparent_corners": true,
+      "unclipped": true,
+      "native_vector": true,
+      "sha256": {
+        "gate.png": "643814ab0e238dddb6bc50e8fe3d6e2d8f05f55498e9390e17d944086585ae81",
+        "gate_1024.png": "36f16c87100e5d0fc80fdf2705549a46a839a126540340f8dab42d17e972ead1",
+        "gate.svg": "d8cb306d316f6a7810dad70627d2d333af516058c98def5c7ccc6b23406a9919"
+      }
+    },
+    "beacon": {
+      "png": [
+        256,
+        256
+      ],
+      "native_master": [
+        1024,
+        1024
+      ],
+      "transparent_corners": true,
+      "unclipped": true,
+      "native_vector": true,
+      "sha256": {
+        "beacon.png": "e757c89be1750c8ca5b2f8c09fe82648091333d5488e69a67726bb842ebbacb9",
+        "beacon_1024.png": "a05d8d4a35df2a8bc342eec9a408f09b492a8714212bab2c6f6a37e7791c196d",
+        "beacon.svg": "42d86cedf774a33bc4872890c8eb0190e3520a9d42bcb3663f92ea4994295340"
+      }
+    },
+    "ink_vermilion": {
+      "png": [
+        256,
+        256
+      ],
+      "native_master": [
+        1024,
+        1024
+      ],
+      "transparent_corners": true,
+      "unclipped": true,
+      "native_vector": true,
+      "sha256": {
+        "ink_vermilion.png": "5638bd9603d8886da840e399a98914930357fc44d6fd722ddda6ae7f45c87d4b",
+        "ink_vermilion_1024.png": "7cb20fd40a348d16f93137ab4521ae5c666444ee2da12c632ee69ba47523f6d7",
+        "ink_vermilion.svg": "e2bbd75f720831b8870846ce623129228e758e2a44760c2bed3817633a7f1fcb"
+      }
+    },
+    "vermilion_stone": {
+      "png": [
+        256,
+        256
+      ],
+      "native_master": [
+        1024,
+        1024
+      ],
+      "transparent_corners": true,
+      "unclipped": true,
+      "native_vector": true,
+      "sha256": {
+        "vermilion_stone.png": "5aa628444feaa48eecf19a4012cdf70977b8e487006b7c8b7ee7ffdaecc549ca",
+        "vermilion_stone_1024.png": "0271cb5b35dd0433dfa2d0ab4b8b2ba73102f715c3621d9a5ae57e623dd3059a",
+        "vermilion_stone.svg": "09d7ae9bf6f4afb219e1c030b4f6138633bb0cf77659f4ab46b8b3149d217965"
+      }
+    }
+  },
+  "previous_assets_preserved": true
+}
