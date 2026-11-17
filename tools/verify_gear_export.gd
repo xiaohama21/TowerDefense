@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.10.1.0", "project version 0.10.1.0")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.10.1.1", "project version 0.10.1.1")
 	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
 	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
 	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 8 and art_manifest.native_measurements.size() == 9, "battle visual manifest and native bounds")
@@ -73,9 +73,12 @@ func _run() -> void:
 	_check(city.is_open(profile, &"map") and not city.is_open(profile, &"tech"), "packaged initial entry availability")
 	_check(not city.is_open(profile, &"tavern") and not city.is_open(profile, &"stable"), "packaged construction remains closed")
 	for style in ["day","dusk"]:
-		_check(load("res://assets/city/%s/background.svg" % style) is Texture2D, "packaged city backdrop " + style)
+		var background: Texture2D = load("res://assets/city/%s/background.svg" % style)
+		_check(background != null and background.get_size()==Vector2(2560,1440), "packaged 2x city backdrop " + style)
 		for data in city.all():
-			if data.building: _check(load("res://assets/city/%s/%s.svg" % [style,data.entry_id]) is Texture2D, "packaged building " + style + "." + str(data.entry_id))
+			if data.building:
+				var building_texture: Texture2D = load("res://assets/city/%s/%s.svg" % [style,data.entry_id])
+				_check(building_texture != null and building_texture.get_size()==Vector2(400,350), "packaged 2x building " + style + "." + str(data.entry_id))
 	var old_city: Dictionary = store._migrate_to_current({"schema_version":12,"ingots":77})
 	_check(old_city.ok and old_city.data.city_state.legacy_access and old_city.data.ingots==77, "packaged city migration preserves resources and access")
 	var city_hub = load("res://scenes/GameHub.tscn").instantiate()

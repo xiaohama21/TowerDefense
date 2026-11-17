@@ -1,6 +1,6 @@
 extends Control
 
-## CITY v0.1: fixed camp buildings, shared panels, progress-gated entry points.
+## CITY v0.2: illustrated camp, shared panels, progress-gated entry points.
 const PANEL_SCRIPTS := {
 	&"map": preload("res://scripts/ui_screens/panels/MapPanel.gd"),
 	&"develop": preload("res://scripts/ui_screens/panels/DevelopPanel.gd"),
@@ -69,6 +69,7 @@ func _build_city() -> void:
 	bg.texture = load("res://assets/city/%s/background.svg" % city_palette)
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.size = Vector2(1280,720)
+	bg.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_city.add_child(bg)
 	for data in CityRegistry.all():
@@ -85,21 +86,38 @@ func _build_city() -> void:
 		_city.add_child(button)
 		_buttons[data.entry_id] = button
 	var bar := Panel.new()
-	bar.position = Vector2(24,18)
-	bar.size = Vector2(1110,55)
-	bar.add_theme_stylebox_override("panel", UITheme.light_card_style(Color("#18352ee8"),Color("#97875b")))
+	bar.position = Vector2(28,20)
+	bar.size = Vector2(486,54)
+	bar.add_theme_stylebox_override("panel", _city_plate(Color("#192e29f2"),Color("#ab8955")))
 	_city.add_child(bar)
 	_balances = HBoxContainer.new()
 	_balances.position = Vector2(18,9)
 	_balances.add_theme_constant_override("separation",14)
 	bar.add_child(_balances)
 	_hint = _label("点击建筑进入；ESC返回。",17)
-	_hint.position = Vector2(35,639)
-	_hint.size = Vector2(1130,30)
+	var hint_plate := Panel.new()
+	hint_plate.position = Vector2(28,638)
+	hint_plate.size = Vector2(1130,34)
+	hint_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint_plate.add_theme_stylebox_override("panel",_city_plate(Color("#172c25d9"),Color("#6e7657")))
+	_city.add_child(hint_plate)
+	_hint.position = Vector2(42,640)
+	_hint.size = Vector2(1100,30)
 	_hint.add_theme_color_override("font_shadow_color",Color("#142a29"))
 	_hint.add_theme_constant_override("shadow_offset_x",1)
 	_hint.add_theme_constant_override("shadow_offset_y",1)
 	_city.add_child(_hint)
+
+func _city_plate(fill: Color, edge: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = edge
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.shadow_color = Color(0.04,0.1,0.07,0.4)
+	style.shadow_size = 3
+	style.shadow_offset = Vector2(0,3)
+	return style
 
 func _fit_city() -> void:
 	if _city == null: return
@@ -158,6 +176,10 @@ func _build_system_menu() -> void:
 	menu.custom_minimum_size = Vector2(56,50)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	menu.offset_left=-112;menu.offset_right=-40;menu.offset_top=20;menu.offset_bottom=68
+	for state in ["normal","hover","pressed","hover_pressed","focus"]:
+		menu.add_theme_stylebox_override(state,_city_plate(Color("#284137") if state=="hover" else Color("#192e29"),Color("#dfb76b") if state=="focus" else Color("#ab8955")))
+	for color_name in ["font_color","font_hover_color","font_pressed_color","font_hover_pressed_color","font_focus_color"]:
+		menu.add_theme_color_override(color_name,Color("#f0d49a"))
 	add_child(menu)
 	_system_menu = PanelContainer.new()
 	_system_menu.name = "SystemMenu"
@@ -187,8 +209,12 @@ func refresh_city() -> void:
 		_balances.remove_child(child); child.queue_free()
 	var progress := ShopRegistry.lord_progress(profile.lord_exp)
 	for pair in [["lord_level","Lv.%d" % progress.level,"主公等级"],["ingot",str(profile.ingots),"元宝"],["merit",str(profile.military_merit),"军功"]]:
-		_balances.add_child(ConceptIcon.new(pair[0],30,pair[2]))
-		_balances.add_child(_label(pair[1],24))
+		var group := HBoxContainer.new()
+		group.custom_minimum_size = Vector2(132,35)
+		group.add_theme_constant_override("separation",8)
+		group.add_child(ConceptIcon.new(pair[0],28,pair[2]))
+		group.add_child(_label(pair[1],22))
+		_balances.add_child(group)
 
 func _describe(id: StringName) -> void:
 	var data := CityRegistry.entry(id)

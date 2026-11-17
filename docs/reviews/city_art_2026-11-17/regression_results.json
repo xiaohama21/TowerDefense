@@ -1,0 +1,28 @@
+{
+  "CityRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "CITY_RESULT: PASS checks=156 failures=0"
+    ],
+    "passed": true
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "ExitFlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "PackVerify": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  }
+}

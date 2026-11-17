@@ -111,3 +111,7 @@ ingot（金元宝）、lord_level（冠印主公等级）、lord_exp（进度冠
 ### 0.10.1主城概念与建筑
 
 主城昼/暮SVG与对照HTML归档[city_0.10.1](../city_0.10.1/comparison.html)，由tools/generate_city_art.py重建，Godot SVG渲染生成PNG。用户已选暮色墨绿暖金版；九建筑原创建筑图形直接作为入口，没有新增缺图徽占位项。运行资源在assets/city，最终实机图归档runtime_0.10.1。原有HTML概念稿保留。
+
+### 0.10.1.1主城美术升级
+
+沿现有原创SVG素材升级营地插画。九建筑与背景由tools/generate_city_art.py调用city_building_art.py、city_backdrop_art.py重建，运行源仍在assets/city；概念稿独立归档city_0.10.1.1，原生图归档runtime_0.10.1.1。保留既有九入口图形与通用图徽，不新增图徽缺口；原city_0.10.1与runtime_0.10.1保留。

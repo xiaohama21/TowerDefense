@@ -1,0 +1,16 @@
+{
+  "program": "0.10.1.1",
+  "gdd": "v0.37.107",
+  "schema": 13,
+  "branch": "0.10.1",
+  "main": "e1d8ab24af841920d05aade8583061b80732f8e9",
+  "palette": "dusk",
+  "regression_suites": 4,
+  "city_checks": 156,
+  "native_screenshots": 16,
+  "city_assets": 31,
+  "packaged_checks": 587,
+  "matched_build_inputs": 1425,
+  "combat_resources_preserved": true,
+  "passed": true
+}
