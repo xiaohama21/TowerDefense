@@ -1,0 +1,24 @@
+{
+	"program": "0.10.1.2",
+	"screenshots": [
+		"day_new",
+		"dusk_new",
+		"city_unlocked",
+		"gate_hover",
+		"gate_focus",
+		"first_visit",
+		"encyclopedia",
+		"map",
+		"command",
+		"develop",
+		"shop",
+		"settings",
+		"inventory",
+		"tech",
+		"supply",
+		"system_menu",
+		"menu_pressed",
+		"construction",
+		"wide_city"
+	]
+}

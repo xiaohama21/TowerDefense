@@ -1,9 +1,9 @@
 extends TextureRect
 class_name ConceptIcon
 
-var placeholder_color := Color("#7d9cb4")
+var placeholder_color := UITheme.LIGHT_MUTED
 
-func _init(icon_name: String = "", pixels: int = 24, hint: String = "", tint: Color = Color("#7d9cb4")) -> void:
+func _init(icon_name: String = "", pixels: int = 24, hint: String = "", tint: Color = UITheme.LIGHT_MUTED) -> void:
 	expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	custom_minimum_size = Vector2(pixels, pixels)

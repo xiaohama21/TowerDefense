@@ -66,9 +66,12 @@ func run() -> void:
 	add_child(hub)
 	for i in range(3): await get_tree().process_frame
 	check(not hub._hub_panel.visible and hub._buttons.size()==9,"default full city, no sidebar")
+	check(hub.city_palette == "day","bright camp is default")
 	for data in CityRegistry.all():
 		if not data.building: continue
 		var button: Control=hub._buttons[data.entry_id]
+		check(button._name_label.text == data.display_name and button._name_label.visible,"canonical building name visible "+str(data.entry_id))
+		check(button._art.modulate == Color.WHITE,"locked building remains bright "+str(data.entry_id))
 		check(Rect2(Vector2.ZERO,Vector2(1280,720)).encloses(button.get_rect()),"building bounds "+str(data.entry_id))
 		for other in CityRegistry.all():
 			if other.building and str(other.entry_id)>str(data.entry_id): check(not button.get_rect().intersects(hub._buttons[other.entry_id].get_rect()),"building hit regions separate %s/%s" % [data.entry_id,other.entry_id])
@@ -87,6 +90,7 @@ func run() -> void:
 		hub._show_panel(id,false)
 		for i in range(3): await get_tree().process_frame
 		check(hub._panels[id].visible and hub._hub_panel.visible,"real panel "+str(id))
+		check(not hub._panel_title.text.is_empty(),"visible current building/title "+str(id))
 		hub._show_panel(&"city")
 		check(not hub._hub_panel.visible,"back to city from "+str(id))
 	var escape:=InputEventKey.new();escape.keycode=KEY_ESCAPE;escape.pressed=true

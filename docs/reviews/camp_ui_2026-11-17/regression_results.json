@@ -1,0 +1,46 @@
+{
+  "CityRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "CITY_RESULT: PASS checks=184 failures=0"
+    ],
+    "passed": true
+  },
+  "FlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "ExitFlowRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "TechUnlockRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  },
+  "TalentRunner": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [
+      "TALENT_RESULT: PASS checks=389 failures=0"
+    ],
+    "passed": true,
+    "expected_injected_write_errors": [
+      "ERROR: SaveManager: 无法写入 user://（错误码 12）",
+      "ERROR: SaveManager: 无法写入 user://（错误码 12）"
+    ]
+  },
+  "PackVerify": {
+    "exit_code": 0,
+    "errors": [],
+    "summary": [],
+    "passed": true
+  }
+}

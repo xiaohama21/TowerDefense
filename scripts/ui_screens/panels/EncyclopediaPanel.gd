@@ -148,7 +148,7 @@ const ENEMY_BEHAVIOR_HINTS := {
 class DashedLine:
 	extends Control
 
-	var _dash_color := Color("#d7e9f5")
+	var _dash_color := UITheme.LIGHT_PANEL_BORDER
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -173,9 +173,9 @@ class EnemyAvatar:
 
 	var _text := ""
 	var _font_size := 15
-	var _top := Color("#7ec8ea")
-	var _bottom := Color("#2eaadc")
-	var _cut_color := Color("#f7fbfe")
+	var _top := UITheme.LIGHT_BORDER_SOFT
+	var _bottom := UITheme.LIGHT_ACCENT
+	var _cut_color := UITheme.LIGHT_CARD_BG
 	var _radius := 10.0
 	var _texture: ImageTexture = null
 
@@ -256,7 +256,7 @@ class EnemyAvatar:
 ## 敌人方形渐变头像构建（概念 .eava；id 未收录回退蓝渐变）。
 func _enemy_avatar(enemy_id: String, avatar_char: String, size: float,
 		font_size: int, bg: Color) -> Control:
-	var colors: Array = ENEMY_AVATAR_GRADIENTS.get(enemy_id, [Color("#7ec8ea"), Color("#2eaadc")])
+	var colors: Array = ENEMY_AVATAR_GRADIENTS.get(enemy_id, [UITheme.LIGHT_BORDER_SOFT, UITheme.LIGHT_ACCENT])
 	var avatar := EnemyAvatar.new()
 	avatar.custom_minimum_size = Vector2(size, size)
 	avatar.setup(avatar_char, colors[0], colors[1], font_size, bg, clampf(size * 0.19, 8.0, 11.0))
@@ -374,7 +374,7 @@ func _build_ui() -> void:
 	_count_chip.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_count_chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_count_chip)
-	var readonly_tag := UITheme.tag_label("可自由预览", Color("#14538a"), UITheme.LIGHT_BLUE_SOFT, 13)
+	var readonly_tag := UITheme.tag_label("可自由预览", UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 13)
 	readonly_tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(readonly_tag)
 
@@ -534,18 +534,12 @@ func _build_ui() -> void:
 
 ## 下拉/选择框概念 .pick 样式（白底蓝边圆角；转职选择与章节下拉同构）。
 func _apply_pick_style(option: OptionButton) -> void:
-	var pick_style := UITheme.light_card_style(Color("#f3f9fd"), UITheme.LIGHT_BORDER_SOFT)
-	pick_style.set_border_width_all(2)
-	pick_style.set_corner_radius_all(9)
-	pick_style.content_margin_left = 12.0
-	pick_style.content_margin_right = 10.0
-	pick_style.content_margin_top = 4.0
-	pick_style.content_margin_bottom = 4.0
-	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
-		option.add_theme_stylebox_override(state, pick_style)
-	option.add_theme_color_override("font_color", Color("#14538a"))
-	option.add_theme_color_override("font_hover_color", Color("#14538a"))
-	option.add_theme_color_override("font_pressed_color", Color("#14538a"))
+	UITheme.apply_light_selectable(option)
+	for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var style := option.get_theme_stylebox(state)
+		style.set_content_margin_all(4)
+		style.content_margin_left = 12.0
+		style.content_margin_right = 10.0
 	option.add_theme_font_size_override("font_size", 14)
 	option.add_theme_font_override("font", UITheme.spaced_font(1))
 	option.add_theme_icon_override("arrow", _chapter_arrow_icon())
@@ -920,7 +914,7 @@ func _build_simulator(parent: PanelContainer) -> void:
 	sim_title.text = "数值模拟器"
 	sim_title.add_theme_font_override("font", UITheme.spaced_font(2))
 	sim_title.add_theme_font_size_override("font_size", 16)
-	sim_title.add_theme_color_override("font_color", Color("#14538a"))
+	sim_title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	sim_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row1.add_child(sim_title)
 
@@ -941,7 +935,7 @@ func _build_simulator(parent: PanelContainer) -> void:
 	_sim_level_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sim_level_num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_sim_level_num.add_theme_font_size_override("font_size", 18)
-	_sim_level_num.add_theme_color_override("font_color", Color("#1b4d78"))
+	_sim_level_num.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	lv_group.add_child(_sim_level_num)
 	_sim_plus_button = _make_step_button("＋")
 	_sim_plus_button.pressed.connect(_step_sim_level.bind(1))
@@ -992,7 +986,7 @@ func _build_simulator(parent: PanelContainer) -> void:
 	var equal_label := Label.new()
 	equal_label.text = "="
 	equal_label.add_theme_font_size_override("font_size", 22)
-	equal_label.add_theme_color_override("font_color", Color("#9fd0ea"))
+	equal_label.add_theme_color_override("font_color", UITheme.LIGHT_BORDER_SOFT)
 	equal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row2.add_child(equal_label)
 	for result_key in ["伤害", "攻速", "射程", "暴击率", "暴击伤害", "技能增幅"]:
@@ -1029,25 +1023,14 @@ func _make_step_button(text_value: String) -> Button:
 	button.custom_minimum_size = Vector2(32, 32)
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", 18)
-	var normal := UITheme.light_card_style(UITheme.LIGHT_BLUE_SOFT, Color(1, 1, 1, 0))
-	normal.set_border_width_all(0)
-	normal.set_corner_radius_all(9)
-	button.add_theme_stylebox_override("normal", normal)
-	var pressed: StyleBoxFlat = normal.duplicate()
-	pressed.bg_color = UITheme.LIGHT_BORDER_SOFT
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("hover", pressed)
-	button.add_theme_stylebox_override("hover_pressed", pressed)
-	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	button.add_theme_color_override("font_color", Color("#14538a"))
-	button.add_theme_color_override("font_pressed_color", Color("#14538a"))
+	UITheme.apply_kenney_rect_button(button, "grey", UITheme.LIGHT_INK, 3)
 	return button
 
 
 func _sim_result_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#fff6d8")
-	style.border_color = Color("#f0d98a")
+	style.bg_color = UITheme.TAG_OPEN_BG
+	style.border_color = UITheme.LIGHT_PANEL_BORDER
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(9)
 	style.content_margin_left = 6.0
@@ -1115,7 +1098,7 @@ func _refresh_character_chips(character: CharacterData) -> void:
 	var prof_name := profession.display_name if profession != null else "未知职业"
 	var role_short := _profession_role_short(profession)
 	_character_chips.add_child(UITheme.tag_label(
-		"%s · %s" % [prof_name, role_short], Color("#14538a"), UITheme.LIGHT_BLUE_SOFT, 12))
+		"%s · %s" % [prof_name, role_short], UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 12))
 	var title_text := character.titles[0] if not character.titles.is_empty() else "无"
 	_character_chips.add_child(UITheme.tag_label(
 		"称号 · %s" % title_text, UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 12))
@@ -1278,15 +1261,18 @@ func _sync_rank_buttons() -> void:
 			continue
 		button.set_pressed_no_signal(int(rank) == _sim_battle_rank)
 		var on := int(rank) == _sim_battle_rank
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color("#1c9fd7") if on else Color("#e1f1fb")
+		UITheme.apply_light_selectable(button)
+		var style := UITheme.light_card_style(UITheme.LIGHT_BLUE_SELECT if on else UITheme.LIGHT_CARD_BG,
+			UITheme.LIGHT_ACCENT if on else UITheme.LIGHT_PANEL_BORDER)
 		style.set_corner_radius_all(9)
-		button.add_theme_stylebox_override("normal", style)
-		button.add_theme_stylebox_override("pressed", style)
-		button.add_theme_stylebox_override("hover_pressed", style)
-		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-		button.add_theme_color_override("font_color", Color.WHITE if on else Color("#33566f"))
-		button.add_theme_color_override("font_pressed_color", Color.WHITE if on else Color("#33566f"))
+		for state in ["normal", "pressed", "hover_pressed"]:
+			button.add_theme_stylebox_override(state, style)
+		var hover := style.duplicate() as StyleBoxFlat
+		hover.border_color = UITheme.LIGHT_ACCENT
+		button.add_theme_stylebox_override("hover", hover)
+		for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+			button.add_theme_color_override(color_name, UITheme.LIGHT_INK)
+
 
 
 func _on_sim_changed() -> void:
@@ -1363,7 +1349,7 @@ func _build_enemy_detail() -> void:
 	_enemy_appear_label.name = "EnemyAppearValue"
 	_enemy_appear_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_enemy_appear_label.add_theme_font_size_override("font_size", 13)
-	_enemy_appear_label.add_theme_color_override("font_color", Color("#14538a"))
+	_enemy_appear_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	_enemy_appear_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	appear_box.add_child(_enemy_appear_label)
 	var head_dash := DashedLine.new()
@@ -1478,7 +1464,7 @@ func _refresh_enemy_detail() -> void:
 		hd_sub.text = "速度 %d · 护甲 %d · 漏怪伤害 %d（同基准，不变）" % [
 			int(enemy.move_speed), enemy.armor, enemy.damage_to_base]
 		hd_sub.add_theme_font_size_override("font_size", 11)
-		hd_sub.add_theme_color_override("font_color", Color("#a4b8c8"))
+		hd_sub.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 		diff_box.add_child(hd_sub)
 		diff_row.add_child(diff_card)
 
@@ -1510,7 +1496,7 @@ func _refresh_enemy_chips(enemy: EnemyData) -> void:
 	var loc: String = ENEMY_LOCATIONS.get(_selected_enemy_id, "未知")
 	var is_boss := loc == "Boss"
 	_enemy_chips.add_child(UITheme.tag_label(loc,
-		UITheme.TAG_FIRE_FG if is_boss else Color("#14538a"),
+		UITheme.TAG_FIRE_FG if is_boss else UITheme.LIGHT_INK,
 		UITheme.TAG_FIRE_BG if is_boss else UITheme.LIGHT_BLUE_SOFT, 12))
 	var entries := GameFlow.get_enemy_stage_entries(_selected_enemy_id)
 	var sorted_entries := _sorted_stage_entries(entries)
@@ -1520,7 +1506,7 @@ func _refresh_enemy_chips(enemy: EnemyData) -> void:
 		var stage := first.get("stage", null) as StageData
 		first_name = stage.display_name if stage != null else str(first.get("stage_id", ""))
 	_enemy_chips.add_child(UITheme.tag_label(
-		"%s · %s" % [CHAPTER_FACTION, first_name], Color("#14538a"), UITheme.LIGHT_BLUE_SOFT, 12))
+		"%s · %s" % [CHAPTER_FACTION, first_name], UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 12))
 
 
 ## 敌人出现关卡条目按关号升序（Boss 召唤补记去重，只保留直出或首个来源）。
@@ -1590,7 +1576,7 @@ func _make_labeled_card(card_title: String, detail_text: String) -> PanelContain
 	var card_value := Label.new()
 	card_value.text = detail_text
 	card_value.add_theme_font_size_override("font_size", 14)
-	card_value.add_theme_color_override("font_color", Color("#33566f"))
+	card_value.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	card_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card_value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

@@ -720,7 +720,7 @@ func _make_kv_label(text_value: String, color: Color, font_size: int) -> Label:
 
 
 ## 职业 tags → 定位词组合（概念图 .jtags：如虎贲 melee+banner →「近战 · 持旗鼓舞」）。
-func _make_fx_label(text_value: String, color: Color = Color("#33566f")) -> Label:
+func _make_fx_label(text_value: String, color: Color = UITheme.LIGHT_BODY) -> Label:
 	return _make_note_label(text_value, color, 13)
 
 
@@ -806,7 +806,7 @@ func _open_exp_pool_dialog() -> void:
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := ColorRect.new()
-	dim.color = Color(0.039, 0.149, 0.251, 0.55)
+	dim.color = Color(0.12,0.18,0.12,0.36)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	overlay.add_child(dim)

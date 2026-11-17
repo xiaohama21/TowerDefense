@@ -1,0 +1,29 @@
+{
+  "native_renderer": "Godot 4.7.1 ThorVG",
+  "png": [
+    256,
+    256
+  ],
+  "large_png": [
+    1024,
+    1024
+  ],
+  "ico_sizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "transparent_corners": true,
+  "sha256": {
+    "game_crest.svg": "4820f2333433f6921c7e6ca46079e82e9da259433dcd2707026936e0c22d0a06",
+    "game_crest.png": "c37169596e3326c8d840ed85c2e883e5bb969c6a616919c3aaf5743108baedc6",
+    "game_crest.ico": "213b7736c4c5bd5b45b5482e217278ab219ac296002be813066ff15c0b5f9dd5",
+    "after_1024.png": "6c54f9dc0b66a78febb136084bb719aca3257f46ad4be25b3099d7249167e4b1"
+  },
+  "ico_transparent_corners_all_sizes": true,
+  "other_icons_preserved": 394
+}

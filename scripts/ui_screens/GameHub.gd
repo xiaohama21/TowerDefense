@@ -1,6 +1,6 @@
 extends Control
 
-## CITY v0.2: illustrated camp, shared panels, progress-gated entry points.
+## CITY v0.3: illustrated camp, shared panels, progress-gated entry points.
 const PANEL_SCRIPTS := {
 	&"map": preload("res://scripts/ui_screens/panels/MapPanel.gd"),
 	&"develop": preload("res://scripts/ui_screens/panels/DevelopPanel.gd"),
@@ -13,7 +13,7 @@ const PANEL_SCRIPTS := {
 }
 const PANEL_NAMES := {&"map":"MapPanel", &"develop":"DevelopPanel", &"settings":"SettingsPanel", &"tech":"TechPanel", &"inventory":"InventoryPanel", &"encyclopedia":"EncyclopediaPanel", &"supply":"SupplyDepotPanel", &"shop":"ShopPanel"}
 const Building := preload("res://scripts/ui_screens/city_building.gd")
-var city_palette := "dusk"
+var city_palette := "day"
 var _buttons: Dictionary = {}
 var _panels: Dictionary = {}
 var _content: MarginContainer
@@ -25,6 +25,7 @@ var _intro_id: StringName
 var _hint: Label
 var _balances: HBoxContainer
 var _title_icon: TextureRect
+var _panel_title: Label
 var _quit_dialog: ConfirmationDialog
 var _command: VBoxContainer
 var _supply_button: Button
@@ -39,7 +40,7 @@ func _ready() -> void:
 	var initial := GameFlow.hub_active_panel
 	_show_panel(initial, false)
 
-func _label(value: String, pixels: int = 18, color := Color("#eddfbd")) -> Label:
+func _label(value: String, pixels: int = 18, color := UITheme.LIGHT_INK) -> Label:
 	var node := Label.new()
 	node.text = value
 	node.add_theme_font_size_override("font_size", pixels)
@@ -56,7 +57,7 @@ func _button(text: String, callback: Callable) -> Button:
 
 func _build_city() -> void:
 	var fill := ColorRect.new()
-	fill.color = Color("#173832")
+	fill.color = Color("#94aa6a")
 	fill.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(fill)
@@ -88,7 +89,7 @@ func _build_city() -> void:
 	var bar := Panel.new()
 	bar.position = Vector2(28,20)
 	bar.size = Vector2(486,54)
-	bar.add_theme_stylebox_override("panel", _city_plate(Color("#192e29f2"),Color("#ab8955")))
+	bar.add_theme_stylebox_override("panel", UITheme.light_panel_style())
 	_city.add_child(bar)
 	_balances = HBoxContainer.new()
 	_balances.position = Vector2(18,9)
@@ -99,11 +100,11 @@ func _build_city() -> void:
 	hint_plate.position = Vector2(28,638)
 	hint_plate.size = Vector2(1130,34)
 	hint_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hint_plate.add_theme_stylebox_override("panel",_city_plate(Color("#172c25d9"),Color("#6e7657")))
+	hint_plate.add_theme_stylebox_override("panel",UITheme.light_card_style())
 	_city.add_child(hint_plate)
 	_hint.position = Vector2(42,640)
 	_hint.size = Vector2(1100,30)
-	_hint.add_theme_color_override("font_shadow_color",Color("#142a29"))
+	_hint.add_theme_color_override("font_shadow_color",Color.TRANSPARENT)
 	_hint.add_theme_constant_override("shadow_offset_x",1)
 	_hint.add_theme_constant_override("shadow_offset_y",1)
 	_city.add_child(_hint)
@@ -163,6 +164,11 @@ func _build_hub() -> void:
 	_title_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_title_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hub_panel.add_child(_title_icon)
+	_panel_title = _label("",22,UITheme.LIGHT_INK)
+	_panel_title.name = "PanelTitle"
+	_panel_title.position = Vector2(90,5)
+	_panel_title.size = Vector2(420,38)
+	_hub_panel.add_child(_panel_title)
 	var back := _button("返回",_show_panel.bind(&"city"))
 	back.name = "BackToCity"
 	back.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
@@ -176,10 +182,7 @@ func _build_system_menu() -> void:
 	menu.custom_minimum_size = Vector2(56,50)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	menu.offset_left=-112;menu.offset_right=-40;menu.offset_top=20;menu.offset_bottom=68
-	for state in ["normal","hover","pressed","hover_pressed","focus"]:
-		menu.add_theme_stylebox_override(state,_city_plate(Color("#284137") if state=="hover" else Color("#192e29"),Color("#dfb76b") if state=="focus" else Color("#ab8955")))
-	for color_name in ["font_color","font_hover_color","font_pressed_color","font_hover_pressed_color","font_focus_color"]:
-		menu.add_theme_color_override(color_name,Color("#f0d49a"))
+	UITheme.apply_kenney_rect_button(menu,"grey",UITheme.LIGHT_INK,4)
 	add_child(menu)
 	_system_menu = PanelContainer.new()
 	_system_menu.name = "SystemMenu"
@@ -241,6 +244,7 @@ func _show_panel(id: StringName, show_intro: bool = true) -> void:
 	if id == &"command": _refresh_command()
 	if _panels[id].has_method("_on_shown"): _panels[id]._on_shown()
 	_title_icon.texture = load("res://assets/city/%s/%s.svg" % [city_palette,"command" if id == &"supply" else id]) if id != &"settings" else null
+	_panel_title.text = "设置" if id == &"settings" else ("军需管理" if id == &"supply" else CityRegistry.entry(id).display_name)
 	if show_intro and id != &"settings" and CityRegistry.is_new(ProfileStore.get_profile(),id): _open_intro(id)
 
 func _refresh_command() -> void:
@@ -276,7 +280,7 @@ func _open_intro(id: StringName) -> void:
 	_intro_id = id
 	_intro = ColorRect.new()
 	_intro.name = "FirstVisit"
-	_intro.color = Color(0,0,0,.55)
+	_intro.color = Color(0.12,0.18,0.12,.36)
 	_intro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_intro)
 	var center := CenterContainer.new()

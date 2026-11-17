@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "program": "0.10.1.2",
+  "gdd": "v0.37.108",
+  "branch": "0.10.1",
+  "main": "e1d8ab24af841920d05aade8583061b80732f8e9",
+  "schema": 13,
+  "palette": "day",
+  "regression_suites": 6,
+  "city_checks": 184,
+  "ui_checks": 19615,
+  "audited_buttons": 1672,
+  "native_city_screenshots": 19,
+  "native_interface_screenshots": 46,
+  "packaged_checks": 598,
+  "matched_runtime_inputs": 1425,
+  "icons": 395,
+  "other_icon_records_preserved": 394,
+  "pe_icon_sizes": [
+    16,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "pe_icon_pixels_match": true,
+  "gameplay_sources_preserved": true
+}

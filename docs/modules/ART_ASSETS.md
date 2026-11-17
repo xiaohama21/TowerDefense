@@ -1,5 +1,7 @@
 # 美术资产规范（ART_ASSETS）
 
+> 文档版本：v0.46（2026-11-17）
+> v0.46：0.10.1.2九建筑改为独立可辨主体结构，兽栏使用圈养动物；默认亮青绿暖日照，缩减暗角。全局按钮以同源可渲染StyleBox材质实现；原Kenney素材保留归档。程序0.10.1.2 / GDD v0.37.108。 新游戏图标同步重设计，ICONS v1.9 / ART_PROMPTS v0.27，原图独立保留。
 > 文档版本：v0.45（2026-11-17）
 > v0.45：0.10.1.1主城沿原创SVG源管线细化，不引入外部素材；九建筑200×175逻辑画布按2倍纹理导入，背景1280×720按2倍纹理导入。屋瓦/木梁/夯土/灯火、层次山林/土石路/草木/营垒使用可重建渐变与纹理，Godot原生渲染验收；源工具拆分为generate_city_art.py、city_building_art.py、city_backdrop_art.py。
 
@@ -109,21 +111,22 @@
 2. **按用途分主干**：界面 → `assets/ui/`，战斗地图 → `assets/map/`，字体 → `assets/fonts/`；角色 spine 动画素材（试点 v0.4 已落地 `assets/characters/` 并登记 §5，正式接入另排期）、敌人/特效立绘素材【远期】，落地时再建目录并登记。
 3. **缺失可回退**：运行时美术一律支持"素材缺失回退程序化绘制"（`GridBackground` 装饰先例），新增美术不阻塞开发、不改变布局数据。
 4. **命名**：snake_case（小写下划线）；同一素材的不同用途/状态显式后缀（`normal/hover/pressed`、`_grey` 等）。
-5. **设计图与运行时资源分离**：概念图/定稿图属设计存档，PNG 放 `docs/ui_concept/`、可复现源码（HTML/CSS/字体/Kenney 子集）放 `docs/ui_concept/src/`（不入 `assets/`；复现与维护见 [UI_CONCEPT.md](UI_CONCEPT.md)）。
+5. **设计图与运行时资源分离**：概念图/定稿图属设计存档，PNG 放 `docs/ui_concept/`、HTML/CSS/字体等可复现源码放`docs/ui_concept/src/`；营地SVG配方放`tools/`、概念SVG/PNG按版本归档于`docs/ui_concept/`（不入 `assets/`；复现与维护见 [UI_CONCEPT.md](UI_CONCEPT.md)）。
 
 ## 2. 目录规范
 
 ```
 assets/
 ├── fonts/                  # 全局字体（站酷快乐体 ZCOOL-Kuaile.ttf）
-├── ui/                     # 界面素材（Kenney UI Pack，CC0）
-│   ├── buttons/
+├── ui/                     # 界面图标与字体主题；Kenney UI素材保留历史
+│   ├── buttons/            # 历史Kenney按钮；当前动作皮肤由UITheme的StyleBox材质生成
 │   │   ├── rect/{yellow,red,grey,blue,green}/{normal,hover,pressed}.png
 │   │   └── round/{yellow,red,grey,blue,green}/{normal,hover,pressed}.png
-│   ├── icons/              # 旧图保留弃用；v2/ 为 273 枚原创 SVG + 透明 PNG，含 cursors/
+│   ├── icons/              # 旧图保留弃用；v2/为395枚SVG/PNG，含cursors/和游戏徽章ICO
 │   ├── panels/             # 弹窗/面板九宫格底图（自绘或素材化，当前为空=预留）
 │   ├── cursors/            # 旧 Kenney 光标归档，当前取用 icons/v2/cursors/
 │   └── ui_theme.tres       # 全局主题（默认字体=快乐体，系统字体回退）
+├── city/                   # 明亮营地背景与九建筑SVG，day/dusk目录；2倍纹理
 ├── map/                    # 战斗地图素材
 │   ├── decor/              # 装饰（banner/rock/torch/tree，原 assets/decor，v0.33.4 迁移）
 │   ├── themes/             # 预留：主题底图/瓦片（grass/fire/night…）
@@ -137,7 +140,13 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 
 ## 3. UI 素材台账（✅ 已入库）
 
-当前图标：[ICONS](ICONS.md) v1.0，原创 SVG 273 枚、透明 PNG 273 枚，另有双倍光标与 Windows ICO；旧图文件全部保留，运行代码和导出包停止取用。以下 Kenney 按钮皮肤继续使用；其旧图标／光标及旧 AI 图徽台账只作历史来源记录。
+### 当前运行资产（0.10.1.2）
+
+当前图标见[ICONS](ICONS.md) v1.9：395枚SVG/PNG，另有双倍光标及游戏徽章多尺寸ICO。394枚界面图徽沿裸透明符号口径；`game_crest`允许青绿圆角方底、四角透明。全界面暖纸/青绿/木金控件由`UITheme`共享StyleBox材质生成，旧Kenney按钮图片保留历史，当前动作按钮不再加载其九宫格皮肤。营地运行SVG位于`assets/city/`，概念与原生图在独立版本目录归档。
+
+### 历史素材来源清单
+
+以下Kenney切片、旧HUD图徽和旧光标目录保存来源与旧版复现资料；当前图标与控件取用以上文为准，不作运行缺图兜底。
 
 来源：Kenney UI Pack（[kenney.nl/assets/ui-pack](https://kenney.nl/assets/ui-pack)，CC0），切片取 Double（2×）以保证 1280×720 下清晰。
 
@@ -189,7 +198,7 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 
 > 复现：`python tools/prep_cursors.py`（PIL；源图按灰度明度线性映射双色重着色——`v = (r+g+b)/3/240` clamp 0..1，outline→fill 插值；同时按几何规则标定热点并与 `scripts/services/CursorIcons.gd` 交叉校验，`--montage 路径` 可出热点校验图）。
 
-**当前台账**：21 枚通用 HUD 图徽已入 `assets/ui/icons/icons_hud/`；主菜单／大厅功能面板亮蓝换肤与局内深墨绿暖金 HUD 已落地。`ui/panels/` 独立面板底图仍预留，当前面板由 StyleBox 绘制。
+**当前台账**：运行图标唯一目录为`assets/ui/icons/v2/`（395枚，ICONS v1.9）；主菜单/主城/功能页/编队/战斗操作与弹窗统一营地材质。`ui/panels/`独立面板底图仍预留，面板与动作按钮由共享StyleBox绘制。上文21枚旧HUD与Kenney目录仅保留历史来源。
 
 ## 4. 地图素材约定（后续章节/换肤）
 
@@ -299,3 +308,9 @@ bin/                        # 仓库根：spine-godot GDExtension 运行时（v0
 - 军需专用新图降低优先级；新增高频元宝／品阶／材料／装备／招贤榜图徽按对应提交在 ART_PROMPTS 与 src README 缺口清单登记。
 
 0.9.8执行规格以[BATTLE_VISUALS](BATTLE_VISUALS.md)为准；黄巾四身份与地图为项目原创图层/骨架，刘备按用户最终选择使用D69原158/Hero_LiBai_A，关羽保留已入库D69素材。运行目录`assets/battle_visuals/`，158原始输入与声明随仓库归档于liu_bei/source/d69_158，来源与哈希见liu_bei/provenance.json；试作不进入发行包。
+
+### 游戏图标（0.10.1.2）
+
+原创SVG青绿底＋暖金城楼＋陶红烽火；保留透明四角，关键轮廓在16/32px仍可分辨。PNG256用于Godot窗口与图标目录，Windows ICO含16/24/32/48/64/128/256px；导出须核对PE嵌入图标。旧图存档docs/ui_concept/game_icon_0.10.1.2/before.*，生成器必须引用新母版，避免下次生成退回旧图。
+
+0.10.1.2已验收：六项回归、184项主城、19615项全界面、65张原生图与598项Windows包检查通过，新徽章PE解码像素一致。[验收报告](../reviews/CAMP_UI_2026-11-17.md) / [原生图](../ui_concept/runtime_0.10.1.2/README.md)。

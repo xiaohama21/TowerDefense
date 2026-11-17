@@ -6,6 +6,8 @@
 
 ## 当前状态
 
+- **0.10.1.2明亮营地与全界面协调完成**：九建筑定稿名常显、主体独立；全局暖纸/青绿/木金界面与按钮统一，游戏图标重绘为烽火城楼徽章。GDD v0.37.108 / CITY v0.3 / UI_LAYOUT v0.21.2 / ICONS v1.9 / schema13。六项回归、184项主城、19615项全界面、65张原生图与598项包检查通过，EXE新图标像素一致。[主城对照](docs/ui_concept/runtime_0.10.1.2/before_after.png) / [界面总览](docs/ui_concept/runtime_0.10.1.2/interface_overview.png) / [新图标](docs/ui_concept/game_icon_0.10.1.2/size_comparison.png) / [验收](docs/reviews/CAMP_UI_2026-11-17.md) / [Windows包](build/FengHuoLianYing_v0.10.1.2_Windows.zip)。交付留0.10.1。
+
 - **0.10.1.1主城美术升级完成**：九建筑增加立体侧面、屋瓦木纹与暖灯，营地增加山林/草木/土石道路和营垒；锁定保留细节，入口、顶栏和菜单统一墨绿暖金。GDD v0.37.107 / CITY v0.2 / schema13。四项回归、156项主城、16张原生图与587项Windows包检查通过。[前后对照](docs/ui_concept/runtime_0.10.1.1/before_after.png) / [验收](docs/reviews/CITY_ART_2026-11-17.md) / [Windows包](build/FengHuoLianYing_v0.10.1.1_Windows.zip)。交付留0.10.1。
 
 - **0.10.1.0主城已完成**：采用用户选定的暮色墨绿暖金，九建筑入口、渐进解锁、首用说明与旧档访问保留；GDD v0.37.106 / schema13。12项回归、156项主城专项、4518项连续养成、13张实机与587项包检查通过。两种新档策略均不刷关通完八关。[实机](docs/ui_concept/runtime_0.10.1/README.md) / [验收](docs/reviews/CITY_2026-11-09.md) / [Windows包](build/FengHuoLianYing_v0.10.1.0_Windows.zip)。交付留0.10.1，下一编号为0.10.2酒馆。
@@ -16,7 +18,7 @@
 
 - **0.9.8.1已完成：刘备直接使用原版158**。Hero_LiBai_A原贴图/武器/服饰/动作保留，战场与头像同源替换；6项相关回归、25项原生首关、482项包检查及Windows独立启动通过。[原生图片](docs/ui_concept/runtime_0.9.8.1/README.md) / [验收报告](docs/reviews/LIU_BEI_ORIGINAL158_2026-11-05.md) / [Windows包](build/FengHuoLianYing_v0.9.8.1_Windows.zip)。[历史两版对照](docs/ui_concept/runtime_0.9.8.1_variants/README.md)不进入发行包。
 
-- **0.9.8.0战场视觉样板已交付**，当前设计总纲 **v0.37.107**，schema12保持。
+- **0.9.8.0战场视觉样板已交付**，该版本设计基准 **v0.37.91**，schema12。
 - 样板规格见[BATTLE_VISUALS](docs/modules/BATTLE_VISUALS.md)：初始武将、三种常见敌人/张梁、草地军营，独立尺度和动画时标，战斗数值保持。
 - 从初始Lv1白阶出发，两种合法策略均无需额外刷关通完首章；真实经验/池分配、材料、装备、天赋和结算重载已验证。保留连续经验曲线、材料/商店价格和天赋数值，保留0.9.6.3技能成长/书耗差价继承/积怒/控制校准。
 - 21项回归、4518项连续养成、74组天赋实战、原±3%战斗基准、63项视觉专项、33项无运行库回退、226项骨架帧和25项原生实战通过；Windows独立启动、实际Spine DLL、PE版本0.9.8.0和479项包内检查通过。

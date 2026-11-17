@@ -43,7 +43,7 @@ const EncyclopediaPanelScript := preload("res://scripts/ui_screens/panels/Encycl
 class DashLine:
 	extends Control
 
-	var dash_color := Color("#e6f0f7")
+	var dash_color := UITheme.LIGHT_PANEL_SPLIT
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -56,7 +56,7 @@ class DashLine:
 class HoverHintMark:
 	extends Control
 
-	var _color := Color("#9fb3c4")
+	var _color := UITheme.LIGHT_LOCK
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -196,42 +196,15 @@ func _build_ui() -> void:
 
 ## 天空三档渐变 + 顶部柔光（同 GameHub / MainMenu 视觉令牌）。
 func _build_background() -> void:
-	var sky := TextureRect.new()
-	sky.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	sky.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var sky_gradient := Gradient.new()
-	sky_gradient.offsets = PackedFloat32Array([0.0, 0.48, 1.0])
-	sky_gradient.colors = PackedColorArray([UITheme.SKY_TOP, UITheme.SKY_MID, UITheme.SKY_BOTTOM])
-	var sky_texture := GradientTexture2D.new()
-	sky_texture.gradient = sky_gradient
-	sky_texture.fill_from = Vector2(0.5, 0.0)
-	sky_texture.fill_to = Vector2(0.5, 1.0)
-	sky_texture.width = 8
-	sky_texture.height = 256
-	sky.texture = sky_texture
-	add_child(sky)
+	var camp := TextureRect.new()
+	camp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	camp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	camp.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	camp.texture = load("res://assets/city/day/background.svg")
+	camp.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	camp.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	add_child(camp)
 
-	var glow := TextureRect.new()
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	glow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var glow_gradient := Gradient.new()
-	glow_gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
-	glow_gradient.colors = PackedColorArray([Color(1, 1, 1, 0.28), Color(1, 1, 1, 0.14), Color(1, 1, 1, 0.0)])
-	var glow_texture := GradientTexture2D.new()
-	glow_texture.gradient = glow_gradient
-	glow_texture.fill = GradientTexture2D.FILL_RADIAL
-	glow_texture.fill_from = Vector2(0.5, 0.5)
-	glow_texture.fill_to = Vector2(1.0, 0.5)
-	glow_texture.width = 128
-	glow_texture.height = 128
-	glow.texture = glow_texture
-	glow.position = Vector2(640.0 - 380.0, -160.0)
-	glow.size = Vector2(760.0, 420.0)
-	add_child(glow)
-
-
-## 居中圆角页（概念 .page：亮蓝描边 + 7px 深蓝下边 + 圆角 18 + 投影）。
 func _build_page_panel() -> Panel:
 	var page := Panel.new()
 	page.anchor_left = 0.0
@@ -243,12 +216,12 @@ func _build_page_panel() -> Panel:
 	page.offset_top = 36.0
 	page.offset_bottom = -36.0
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#f2faff")
-	style.border_color = Color("#1c9fd7")
+	style.bg_color = UITheme.LIGHT_PAGE_BG
+	style.border_color = UITheme.LIGHT_PANEL_BORDER
 	style.set_border_width_all(3)
 	style.border_width_bottom = 7
 	style.set_corner_radius_all(18)
-	style.shadow_color = Color(0.024, 0.11, 0.196, 0.45)
+	style.shadow_color = Color(0.16,0.23,0.12,0.2)
 	style.shadow_size = 26
 	style.shadow_offset = Vector2(0, 12)
 	page.add_theme_stylebox_override("panel", style)
@@ -310,12 +283,12 @@ func _build_title_bar() -> HBoxContainer:
 	title.add_theme_font_size_override("font_size", 26)
 	title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	bar.add_child(title)
-	bar.add_child(UITheme.tag_label(_chapter_label(), Color("#14538a"), Color("#e1f1fb"), 13))
+	bar.add_child(UITheme.tag_label(_chapter_label(), UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 13))
 	bar.add_child(UITheme.tag_label(_stage_and_difficulty_label(), UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 13))
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bar.add_child(spacer)
-	_title_progress_label = UITheme.tag_label("出战 0 / 0", Color("#33566f"), Color("#e1f1fb"), 14)
+	_title_progress_label = UITheme.tag_label("出战 0 / 0", UITheme.LIGHT_BODY, UITheme.LIGHT_BLUE_SOFT, 14)
 	bar.add_child(_title_progress_label)
 	return bar
 
@@ -343,22 +316,22 @@ func _build_zone_bar() -> HBoxContainer:
 	var label := Label.new()
 	label.text = "出战武将"
 	label.add_theme_font_size_override("font_size", 15)
-	label.add_theme_color_override("font_color", Color("#33566f"))
+	label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	label.add_theme_font_override("font", UITheme.spaced_font(2))
 	bar.add_child(label)
 	var hint := Label.new()
-	hint.text = "点选 / 取消 · 金色描边为出战 · 羁绊与右侧队伍加成实时刷新"
+	hint.text = "点选 / 取消 · 已选武将出战 · 队伍加成实时刷新"
 	hint.add_theme_font_size_override("font_size", 12)
-	hint.add_theme_color_override("font_color", Color("#a8bccb"))
+	hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	bar.add_child(hint)
-	var scroll_tag := UITheme.tag_label("溢出自动滚动", Color("#14538a"), Color("#e1f1fb"), 11)
+	var scroll_tag := UITheme.tag_label("溢出自动滚动", UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 11)
 	bar.add_child(scroll_tag)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bar.add_child(spacer)
 	_zone_progress_label = Label.new()
 	_zone_progress_label.add_theme_font_size_override("font_size", 13)
-	_zone_progress_label.add_theme_color_override("font_color", Color("#33566f"))
+	_zone_progress_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	_zone_progress_label.add_theme_font_override("font", UITheme.spaced_font(1))
 	bar.add_child(_zone_progress_label)
 	return bar
@@ -434,14 +407,14 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	name_label.add_theme_font_override("font", UITheme.spaced_font(1))
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color",
-		UITheme.LIGHT_INK if owned else Color("#9fb3c4"))
+		UITheme.LIGHT_INK if owned else UITheme.LIGHT_LOCK)
 	name_row.add_child(name_label)
 	var level_label := Label.new()
 	level_label.text = ""
 	level_label.visible = owned
-	level_label.add_theme_stylebox_override("normal", UITheme.tag_style(Color("#e1f1fb"), 7, 1))
+	level_label.add_theme_stylebox_override("normal", UITheme.tag_style(UITheme.LIGHT_BLUE_SOFT, 7, 1))
 	level_label.add_theme_font_size_override("font_size", 11)
-	level_label.add_theme_color_override("font_color", Color("#14538a"))
+	level_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	name_row.add_child(level_label)
 	var rank_badge := ConceptIcon.new("", 20)
 	rank_badge.visible = owned
@@ -454,7 +427,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	sub_label.text = _character_sub_text(character_data, owned)
 	sub_label.add_theme_font_size_override("font_size", 12)
 	sub_label.add_theme_color_override("font_color",
-		Color("#6b93ad") if owned else Color("#a8bccb"))
+		UITheme.LIGHT_DESC if owned else UITheme.LIGHT_MUTED)
 	sub_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info.add_child(sub_label)
 
@@ -462,7 +435,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	src_label.text = GameFlow.get_acquisition_text(character_id) if not owned else ""
 	src_label.visible = not owned
 	src_label.add_theme_font_size_override("font_size", 10)
-	src_label.add_theme_color_override("font_color", Color("#9fb3c4"))
+	src_label.add_theme_color_override("font_color", UITheme.LIGHT_LOCK)
 	src_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info.add_child(src_label)
 
@@ -478,7 +451,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	content.add_child(cost_area)
 	var dash := DashLine.new()
 	dash.custom_minimum_size = Vector2(0, 1)
-	dash.dash_color = Color("#dbe6ee") if not owned else Color("#e6f0f7")
+	dash.dash_color = UITheme.LIGHT_PANEL_SPLIT if not owned else UITheme.LIGHT_PANEL_SPLIT
 	cost_area.add_child(dash)
 	var cost_row := HBoxContainer.new()
 	cost_row.custom_minimum_size = Vector2(0, 27)
@@ -499,7 +472,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	cost_value.text = str(character_data.build_cost) if owned else ""
 	cost_value.visible = owned
 	cost_value.add_theme_font_size_override("font_size", 15)
-	cost_value.add_theme_color_override("font_color", Color("#b8860b"))
+	cost_value.add_theme_color_override("font_color", UITheme.LIGHT_GOLD_TEXT)
 	cost_value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	cost_row.add_child(cost_value)
 
@@ -513,7 +486,7 @@ func _make_character_card(character_data: CharacterData) -> Button:
 	cost_row.add_child(cost_spacer)
 
 	var state_label := Label.new()
-	var state_style := UITheme.tag_style(Color("#e1f1fb"), 7, 1)
+	var state_style := UITheme.tag_style(UITheme.LIGHT_BLUE_SOFT, 7, 1)
 	state_label.add_theme_stylebox_override("normal", state_style)
 	state_label.add_theme_font_size_override("font_size", 10)
 	state_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -549,8 +522,8 @@ func _character_sub_text(character_data: CharacterData, owned: bool) -> String:
 ## 武将卡四态样式（概念 .scard：白底蓝灰描边圆角 14；选中金框 #ffcc00 + 米黄底 + 金晕）。
 func _apply_card_styleboxes(card: Button, owned: bool) -> void:
 	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color("#ffffff")
-	normal.border_color = Color("#d7e9f5")
+	normal.bg_color = UITheme.LIGHT_PAGE_BG
+	normal.border_color = UITheme.LIGHT_PANEL_BORDER
 	normal.set_border_width_all(3)
 	normal.set_corner_radius_all(14)
 	normal.content_margin_left = 11.0
@@ -558,14 +531,14 @@ func _apply_card_styleboxes(card: Button, owned: bool) -> void:
 	normal.content_margin_top = 8.0
 	normal.content_margin_bottom = 0.0
 	var hover: StyleBoxFlat = normal.duplicate()
-	hover.bg_color = Color("#f7fbfe")
-	hover.border_color = Color("#9fd0ea")
+	hover.bg_color = UITheme.LIGHT_CARD_BG
+	hover.border_color = UITheme.LIGHT_BORDER_SOFT
 	var disabled: StyleBoxFlat = normal.duplicate()
-	disabled.bg_color = Color("#eef3f7")
-	disabled.border_color = Color("#d5e0e8")
+	disabled.bg_color = UITheme.LIGHT_CARD_BG
+	disabled.border_color = UITheme.LIGHT_PANEL_BORDER
 	var selected := StyleBoxFlat.new()
-	selected.bg_color = Color("#fffdf2")
-	selected.border_color = Color("#ffcc00")
+	selected.bg_color = UITheme.LIGHT_BLUE_SELECT
+	selected.border_color = UITheme.LIGHT_ACCENT
 	selected.set_border_width_all(3)
 	selected.set_corner_radius_all(14)
 	selected.shadow_color = Color(1.0, 0.8, 0.0, 0.35)
@@ -622,12 +595,12 @@ func _build_relic_area() -> Control:
 	side_title.text = "队伍遗物"
 	side_title.add_theme_font_override("font", UITheme.spaced_font(2))
 	side_title.add_theme_font_size_override("font_size", 13)
-	side_title.add_theme_color_override("font_color", Color("#33566f"))
+	side_title.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	side.add_child(side_title)
 	var side_hint := Label.new()
 	side_hint.text = "选带后生效\n最多两件"
 	side_hint.add_theme_font_size_override("font_size", 9)
-	side_hint.add_theme_color_override("font_color", Color("#a8bccb"))
+	side_hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	side_hint.add_theme_constant_override("line_spacing", 1)
 	side.add_child(side_hint)
 	zone.add_child(side)
@@ -728,13 +701,13 @@ func _make_relic_pill(relic_id: String) -> Button:
 func _pill_style(selected: bool, hover: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	if selected:
-		style.bg_color = Color("#fffdf2")
-		style.border_color = Color("#ffcc00")
+		style.bg_color = UITheme.LIGHT_BLUE_SELECT
+		style.border_color = UITheme.LIGHT_ACCENT
 		style.shadow_color = Color(1.0, 0.8, 0.0, 0.35)
 		style.shadow_size = 4
 	else:
-		style.bg_color = Color("#ffffff") if not hover else Color("#f7fbfe")
-		style.border_color = Color("#9fd0ea") if hover else Color("#d7e9f5")
+		style.bg_color = UITheme.LIGHT_PAGE_BG if not hover else UITheme.LIGHT_CARD_BG
+		style.border_color = UITheme.LIGHT_BORDER_SOFT if hover else UITheme.LIGHT_PANEL_BORDER
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(12)
 	style.content_margin_left = 0.0
@@ -775,12 +748,12 @@ func _build_power_panel() -> Panel:
 	head_title.text = "队伍加成"
 	head_title.add_theme_font_override("font", UITheme.spaced_font(2))
 	head_title.add_theme_font_size_override("font_size", 15)
-	head_title.add_theme_color_override("font_color", Color("#14538a"))
+	head_title.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	head.add_child(head_title)
-	head.add_child(UITheme.tag_label("随编队实时计算", Color("#14538a"), Color("#e1f1fb"), 9))
+	head.add_child(UITheme.tag_label("随编队实时计算", UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 9))
 	var head_dash := DashLine.new()
 	head_dash.custom_minimum_size = Vector2(0, 2)
-	head_dash.dash_color = Color("#d7e9f5")
+	head_dash.dash_color = UITheme.LIGHT_PANEL_BORDER
 	box.add_child(head_dash)
 
 	# 三组明细列表（顶对齐、从上往下；内容超高纵向滚动兜底）。
@@ -798,7 +771,7 @@ func _build_power_panel() -> Panel:
 	note.text = "仅计入已解锁科技 / 已激活羁绊 / 已选带遗物与军需；同类效果合并累加。"
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.add_theme_font_size_override("font_size", 10)
-	note.add_theme_color_override("font_color", Color("#a8bccb"))
+	note.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	note.add_theme_constant_override("line_spacing", 2)
 	box.add_child(note)
 	return panel
@@ -823,12 +796,12 @@ func _power_section(dot_color: Color, title: String) -> Dictionary:
 	name_label.text = title
 	name_label.add_theme_font_override("font", UITheme.spaced_font(1))
 	name_label.add_theme_font_size_override("font_size", 13)
-	name_label.add_theme_color_override("font_color", Color("#33566f"))
+	name_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	head.add_child(name_label)
 	var dash := DashLine.new()
 	dash.custom_minimum_size = Vector2(0, 1)
-	dash.dash_color = Color("#d7e9f5")
+	dash.dash_color = UITheme.LIGHT_PANEL_BORDER
 	dash.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dash.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	head.add_child(dash)
@@ -849,7 +822,7 @@ func _power_entry(name_text: String, value_text: String, dim: bool = false) -> H
 	name_label.text = name_text
 	name_label.add_theme_font_size_override("font_size", 11)
 	name_label.add_theme_color_override("font_color",
-		Color("#a8bccb") if dim else Color("#1b4d78"))
+		UITheme.LIGHT_MUTED if dim else UITheme.LIGHT_INK)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	row.add_child(name_label)
@@ -857,7 +830,7 @@ func _power_entry(name_text: String, value_text: String, dim: bool = false) -> H
 	value_label.text = value_text
 	value_label.add_theme_font_size_override("font_size", 11)
 	value_label.add_theme_color_override("font_color",
-		Color("#a8bccb") if dim else Color("#b8860b"))
+		UITheme.LIGHT_MUTED if dim else UITheme.LIGHT_GOLD_TEXT)
 	# 数值列不得被 overrun 压成 1px：按内容宽度贴右，超出时先省略效果名。
 	value_label.size_flags_horizontal = Control.SIZE_SHRINK_END
 	row.add_child(value_label)
@@ -883,7 +856,7 @@ func _build_footer() -> HBoxContainer:
 	var note := Label.new()
 	note.text = "返回保留所选关卡与难度 · 确认出战前弹出名单复核"
 	note.add_theme_font_size_override("font_size", 12)
-	note.add_theme_color_override("font_color", Color("#a8bccb"))
+	note.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	foot.add_child(note)
 
@@ -911,11 +884,11 @@ func _build_relic_tooltip() -> void:
 	_relic_tooltip.visible = false
 	_relic_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#ffffff")
-	style.border_color = Color("#ffcc00")
+	style.bg_color = UITheme.LIGHT_PAGE_BG
+	style.border_color = UITheme.LIGHT_ACCENT
 	style.set_border_width_all(3)
 	style.set_corner_radius_all(13)
-	style.shadow_color = Color(0.118, 0.235, 0.353, 0.25)
+	style.shadow_color = Color(0.16,0.23,0.12,0.2)
 	style.shadow_size = 12
 	style.content_margin_left = 11.0
 	style.content_margin_right = 11.0
@@ -948,8 +921,8 @@ func _show_relic_tooltip(relic_id: String) -> void:
 	name_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	title_row.add_child(name_label)
 	var status_tag := UITheme.tag_label("已选" if selected else "可选",
-		UITheme.TAG_OPEN_FG if selected else Color("#14538a"),
-		UITheme.TAG_OPEN_BG if selected else Color("#e1f1fb"), 10)
+		UITheme.TAG_OPEN_FG if selected else UITheme.LIGHT_INK,
+		UITheme.TAG_OPEN_BG if selected else UITheme.LIGHT_BLUE_SOFT, 10)
 	title_row.add_child(status_tag)
 
 	var desc := Label.new()
@@ -957,7 +930,7 @@ func _show_relic_tooltip(relic_id: String) -> void:
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.custom_minimum_size = Vector2(232, 0)
 	desc.add_theme_font_size_override("font_size", 11)
-	desc.add_theme_color_override("font_color", Color("#5f8aa6"))
+	desc.add_theme_color_override("font_color", UITheme.LIGHT_DESC)
 	desc.add_theme_constant_override("line_spacing", 2)
 	_relic_tooltip_box.add_child(desc)
 
@@ -976,7 +949,7 @@ func _show_relic_tooltip(relic_id: String) -> void:
 	var meta := Label.new()
 	meta.text = "队伍级 · 永久使用 · 不消耗库存"
 	meta.add_theme_font_size_override("font_size", 9)
-	meta.add_theme_color_override("font_color", Color("#a8bccb"))
+	meta.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	_relic_tooltip_box.add_child(meta)
 
 	_relic_tooltip.reset_size()
@@ -1085,8 +1058,8 @@ func _sync_relic_pill(relic_id: String) -> void:
 		state_label.add_theme_color_override("font_color", UITheme.TAG_OPEN_FG)
 	else:
 		state_label.text = "可选"
-		state_style.bg_color = Color("#e1f1fb")
-		state_label.add_theme_color_override("font_color", Color("#14538a"))
+		state_style.bg_color = UITheme.LIGHT_BLUE_SOFT
+		state_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 	pill.modulate = Color(1, 1, 1, 0.55) if cap_full else Color.WHITE
 
 
@@ -1138,16 +1111,16 @@ func _refresh_card_texts() -> void:
 		if is_instance_valid(state_label) and state_style != null:
 			if locked:
 				state_label.text = "未解锁"
-				state_style.bg_color = Color("#d9e4ec")
-				state_label.add_theme_color_override("font_color", Color("#7d8fa0"))
+				state_style.bg_color = UITheme.TAG_LOCK_BG
+				state_label.add_theme_color_override("font_color", UITheme.TAG_LOCK_FG)
 			elif selected:
 				state_label.text = "出战"
 				state_style.bg_color = UITheme.TAG_OK_BG
 				state_label.add_theme_color_override("font_color", UITheme.TAG_OK_FG)
 			else:
 				state_label.text = "可上阵"
-				state_style.bg_color = Color("#e1f1fb")
-				state_label.add_theme_color_override("font_color", Color("#14538a"))
+				state_style.bg_color = UITheme.LIGHT_BLUE_SOFT
+				state_label.add_theme_color_override("font_color", UITheme.LIGHT_INK)
 
 
 # ---------------------------------------------------------------- 队伍加成刷新
@@ -1165,7 +1138,7 @@ func _refresh_power_panel() -> void:
 	var profile := ProfileStore.get_profile()
 
 	# ① 科技（按效果合并累加：伤害 / 攻速 / 增幅 + 经济与机制类）。
-	var tech_section := _power_section(Color("#2eaadc"), "科技")
+	var tech_section := _power_section(UITheme.LIGHT_ACCENT, "科技")
 	var tech_body := tech_section["body"] as VBoxContainer
 	_power_groups_box.add_child(tech_section["section"] as Control)
 	var unlocked := _unlocked_tech_sources(profile)
@@ -1327,7 +1300,7 @@ func _open_confirm_popup() -> void:
 	_confirm_popup = overlay
 
 	var dim := ColorRect.new()
-	dim.color = Color(0.039, 0.149, 0.251, 0.55)
+	dim.color = Color(0.12,0.18,0.12,0.36)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	overlay.add_child(dim)
@@ -1341,7 +1314,7 @@ func _open_confirm_popup() -> void:
 	panel_style.set_border_width_all(3)
 	panel_style.border_width_bottom = 7
 	panel_style.set_corner_radius_all(18)
-	panel_style.shadow_color = Color(0.024, 0.11, 0.196, 0.5)
+	panel_style.shadow_color = Color(0.16,0.23,0.12,0.24)
 	panel_style.shadow_size = 18
 	panel_style.shadow_offset = Vector2(0, 8)
 	panel.add_theme_stylebox_override("panel", panel_style)
@@ -1390,7 +1363,7 @@ func _build_confirm_header() -> Panel:
 	title.add_theme_font_override("font", UITheme.spaced_font(6))
 	title.add_theme_font_size_override("font_size", 24)
 	title.add_theme_color_override("font_color", Color.WHITE)
-	title.add_theme_color_override("font_shadow_color", Color("#0e5f92"))
+	title.add_theme_color_override("font_shadow_color", UITheme.STROKE)
 	title.add_theme_constant_override("shadow_offset_x", 0)
 	title.add_theme_constant_override("shadow_offset_y", 1)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1400,7 +1373,7 @@ func _build_confirm_header() -> Panel:
 	chapter_chip.text = _chapter_label()
 	chapter_chip.add_theme_stylebox_override("normal", UITheme.tag_style(Color(1, 1, 1, 0.22), 12, 3))
 	chapter_chip.add_theme_font_size_override("font_size", 12)
-	chapter_chip.add_theme_color_override("font_color", Color("#eaf6ff"))
+	chapter_chip.add_theme_color_override("font_color", UITheme.MIST)
 	chapter_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(chapter_chip)
 
@@ -1445,14 +1418,14 @@ func _build_confirm_body() -> Control:
 	var meta := HBoxContainer.new()
 	meta.add_theme_constant_override("separation", 8)
 	box.add_child(meta)
-	meta.add_child(UITheme.tag_label(_stage_tag_text(), Color("#14538a"), Color("#e1f1fb"), 12))
+	meta.add_child(UITheme.tag_label(_stage_tag_text(), UITheme.LIGHT_INK, UITheme.LIGHT_BLUE_SOFT, 12))
 	meta.add_child(UITheme.tag_label("难度 · %s" % Difficulty.name(GameFlow.selected_difficulty),
 		UITheme.TAG_OPEN_FG, UITheme.TAG_OPEN_BG, 12))
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta.add_child(spacer)
 	meta.add_child(UITheme.tag_label("出战 %d / %d" % [_selected_ids.size(), _squad_cap()],
-		Color("#33566f"), Color("#e1f1fb"), 12))
+		UITheme.LIGHT_BODY, UITheme.LIGHT_BLUE_SOFT, 12))
 
 	box.add_child(_confirm_section_title("出战武将"))
 	box.add_child(_confirm_character_list())
@@ -1471,7 +1444,7 @@ func _build_confirm_body() -> Control:
 	tip_label.text = "确认后立即进入战斗；出战武将与本局遗物即刻生效，遗物永久使用、不消耗库存；取消 / 关闭可返回编队继续调整。"
 	tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tip_label.add_theme_font_size_override("font_size", 12)
-	tip_label.add_theme_color_override("font_color", Color("#33566f"))
+	tip_label.add_theme_color_override("font_color", UITheme.LIGHT_BODY)
 	tip_label.add_theme_constant_override("line_spacing", 3)
 	tip_margin.add_child(tip_label)
 	box.add_child(tip)
@@ -1490,7 +1463,7 @@ func _confirm_section_title(text: String) -> HBoxContainer:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", Color("#7d9cb4"))
+	label.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	label.add_theme_font_override("font", UITheme.spaced_font(2))
 	row.add_child(label)
 	var line := DashLine.new()
@@ -1552,13 +1525,13 @@ func _confirm_character_row(character_data: CharacterData, profile: PlayerProfil
 	var sub_label := Label.new()
 	sub_label.text = _character_sub_text(character_data, true)
 	sub_label.add_theme_font_size_override("font_size", 12)
-	sub_label.add_theme_color_override("font_color", Color("#6b93ad"))
+	sub_label.add_theme_color_override("font_color", UITheme.LIGHT_DESC)
 	sub_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(sub_label)
 	var level_label := Label.new()
 	level_label.text = "Lv%d" % GameFlow.get_character_level(profile, str(character_data.character_id))
 	level_label.add_theme_font_size_override("font_size", 11)
-	level_label.add_theme_color_override("font_color", Color("#2eaadc"))
+	level_label.add_theme_color_override("font_color", UITheme.LIGHT_ACCENT)
 	level_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(level_label)
 	var rank_badge := ConceptIcon.new("", 22)
@@ -1584,7 +1557,7 @@ func _confirm_relic_row() -> HBoxContainer:
 		var empty := Label.new()
 		empty.text = "未选带遗物（本局无遗物加成）"
 		empty.add_theme_font_size_override("font_size", 12)
-		empty.add_theme_color_override("font_color", Color("#a8bccb"))
+		empty.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 		row.add_child(empty)
 		return row
 	for relic_id in _selected_relic_ids:
@@ -1642,7 +1615,7 @@ func _build_confirm_footer() -> HBoxContainer:
 	var hint := Label.new()
 	hint.text = "本局配置在确认后写入存档记忆，下次出征自动预填"
 	hint.add_theme_font_size_override("font_size", 11)
-	hint.add_theme_color_override("font_color", Color("#a8bccb"))
+	hint.add_theme_color_override("font_color", UITheme.LIGHT_MUTED)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -1703,7 +1676,7 @@ func _style_v_scrollbar(scroll: ScrollContainer) -> void:
 	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
 	track.set_corner_radius_all(5)
 	var grabber := StyleBoxFlat.new()
-	grabber.bg_color = Color("#7ec8ea")
+	grabber.bg_color = UITheme.LIGHT_ACCENT
 	grabber.set_corner_radius_all(5)
 	var grabber_hot := StyleBoxFlat.new()
 	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
@@ -1721,7 +1694,7 @@ func _style_h_scrollbar(scroll: ScrollContainer) -> void:
 	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
 	track.set_corner_radius_all(5)
 	var grabber := StyleBoxFlat.new()
-	grabber.bg_color = Color("#7ec8ea")
+	grabber.bg_color = UITheme.LIGHT_ACCENT
 	grabber.set_corner_radius_all(5)
 	var grabber_hot := StyleBoxFlat.new()
 	grabber_hot.bg_color = UITheme.LIGHT_ACCENT

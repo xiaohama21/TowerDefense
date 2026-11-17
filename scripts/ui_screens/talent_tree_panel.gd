@@ -6,7 +6,7 @@ signal reset_requested
 signal level_change_requested(delta: int)
 signal dismissed
 
-const COLORS := [Color("#d87e55"), Color("#429dcc"), Color("#54a78c")]
+const COLORS := [Color("#b56c4e"), Color("#638c84"), Color("#52734c")]
 const EFFECT_NAMES := {
 	"attack_pct": "基础攻击", "speed_pct": "攻击速度", "range_pct": "射程",
 	"crit_rate": "暴击率", "crit_damage": "暴击伤害", "skill_amp": "所有技能增幅",
@@ -96,7 +96,7 @@ func configure(character_id: String, level: int, alloc: Dictionary, simulated: b
 
 func _build_shell() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	var dim := _shade(self, Color(0.02, 0.07, 0.13, 0.64))
+	var dim := _shade(self, Color(0.12, 0.18, 0.12, 0.54))
 	dim.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT: dismiss())
 	_shell = PanelContainer.new()
@@ -152,7 +152,7 @@ func _build_shell() -> void:
 	toolbar.add_child(hint)
 	reset_button = _button("免费重置", func() -> void: reset_requested.emit(), "blue")
 	toolbar.add_child(reset_button)
-	_message = _label("", 13, Color("#bd514b"))
+	_message = _label("", 13, UITheme.DIALOG_WARN)
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.visible = false
 	column.add_child(_message)
@@ -209,7 +209,7 @@ func open_detail(id: String) -> void:
 		_detail_overlay.name = "TalentNodeOverlay"
 		_detail_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		add_child(_detail_overlay)
-		var dim := _shade(_detail_overlay, Color(0.02, 0.05, 0.10, 0.56))
+		var dim := _shade(_detail_overlay, Color(0.12, 0.18, 0.12, 0.48))
 		dim.gui_input.connect(func(event: InputEvent) -> void:
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT: close_detail())
 		var center := CenterContainer.new()
@@ -252,7 +252,7 @@ func _populate_detail() -> void:
 	for item in [["当前效果", effect_text(node, rank)], ["下级效果", effect_text(node, rank + 1) if rank < 2 else "已满级"]]:
 		var card := PanelContainer.new()
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card.add_theme_stylebox_override("panel", _style(Color("#eaf5fb"), Color("#c6e2ef"), 10, 1, 12))
+		card.add_theme_stylebox_override("panel", _style(UITheme.LIGHT_STAT_BG, UITheme.LIGHT_PANEL_BORDER, 10, 1, 12))
 		effects.add_child(card)
 		var info := VBoxContainer.new()
 		card.add_child(info)
@@ -270,7 +270,7 @@ func _populate_detail() -> void:
 	box.add_child(_label("本树需投入%d点 · 当前%d点" % [threshold, spent], 14, UITheme.LIGHT_MUTED))
 	var remaining := TalentRegistry.points_for_level(_level) - TalentRegistry.spent(_alloc)
 	box.add_child(_label("剩余%d点 · %s" % [remaining, "模拟分配，不写入存档" if _simulated else "分配消耗1点，可免费重置"], 14, UITheme.LIGHT_MUTED))
-	_detail_error = _label("", 14, Color("#bd514b"))
+	_detail_error = _label("", 14, UITheme.DIALOG_WARN)
 	_detail_error.name = "NodeError"
 	_detail_error.visible = false
 	_detail_error.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -395,13 +395,13 @@ class BranchCanvas extends Control:
 				button.name = node_id.replace(".", "_")
 				button.tooltip_text = "%s · Lv%d/2\n%s\n点击查看详情" % [node.name, rank, node.description]
 				button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-				var border: Color = TalentTreePanel.COLORS[index] if rank > 0 or status == "分配" else Color("#b8cbd6")
-				var bg: Color = TalentTreePanel.COLORS[index].lightened(0.87) if rank > 0 else Color("#f8fbfd")
+				var border: Color = TalentTreePanel.COLORS[index] if rank > 0 or status == "分配" else UITheme.LIGHT_PANEL_BORDER
+				var bg: Color = UITheme.LIGHT_BLUE_SELECT if rank > 0 else UITheme.LIGHT_CARD_BG
 				button.add_theme_stylebox_override("normal", TalentTreePanel._style(bg, border, 28, 3))
-				button.add_theme_stylebox_override("hover", TalentTreePanel._style(Color("#fff5ce"), Color("#d5ad45"), 28, 3))
-				button.add_theme_stylebox_override("pressed", TalentTreePanel._style(Color("#ffe8a5"), Color("#c69a30"), 28, 3))
-				button.add_theme_stylebox_override("hover_pressed", TalentTreePanel._style(Color("#ffe8a5"), Color("#c69a30"), 28, 3))
-				button.add_theme_stylebox_override("focus", TalentTreePanel._style(Color.TRANSPARENT, Color("#e8b736"), 28, 3))
+				button.add_theme_stylebox_override("hover", TalentTreePanel._style(UITheme.LIGHT_CARD_BG.lightened(0.04), UITheme.LIGHT_GOLD_SELECT, 28, 3))
+				button.add_theme_stylebox_override("pressed", TalentTreePanel._style(UITheme.LIGHT_BLUE_SELECT, UITheme.LIGHT_ACCENT, 28, 3))
+				button.add_theme_stylebox_override("hover_pressed", TalentTreePanel._style(UITheme.LIGHT_BLUE_SELECT, UITheme.LIGHT_ACCENT, 28, 3))
+				button.add_theme_stylebox_override("focus", TalentTreePanel._style(Color.TRANSPARENT, UITheme.LIGHT_GOLD_SELECT, 28, 3))
 				button.pressed.connect(func() -> void: node_selected.emit(node_id))
 				add_child(button)
 				var pictogram := ConceptIcon.new(TalentTreePanel.effect_icon(node, tree.icon_key), 28)
@@ -416,7 +416,7 @@ class BranchCanvas extends Control:
 				add_child(name_label)
 				var level_label := TalentTreePanel._label("%d/2" % rank, 12, TalentTreePanel.COLORS[index] if rank > 0 else UITheme.LIGHT_MUTED)
 				level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				level_label.add_theme_stylebox_override("normal", TalentTreePanel._style(Color("#f8fbfd"), border, 6, 1, 2))
+				level_label.add_theme_stylebox_override("normal", TalentTreePanel._style(UITheme.LIGHT_CARD_BG, border, 6, 1, 2))
 				add_child(level_label)
 				node_buttons[node_id] = button
 				_items.append({"control": button, "label": name_label, "level": level_label, "tree": index, "node": node, "status": status, "rank": rank})
@@ -462,7 +462,7 @@ class BranchCanvas extends Control:
 			var tier := int(node.tier)
 			var tree: TalentTreeData = _trees[item.tree]
 			var color: Color = TalentTreePanel.COLORS[item.tree] if item.rank > 0 else TalentTreePanel.COLORS[item.tree].lightened(0.55)
-			if item.rank == 0 and item.status != "分配": color = Color("#cedce4")
+			if item.rank == 0 and item.status != "分配": color = UITheme.LIGHT_PANEL_BORDER
 			var end: Vector2 = node_positions[str(node.id)]
 			var starts: Array[Vector2] = []
 			if tier == 1: starts.append(Vector2((item.tree + 0.5) * width, 68))
@@ -480,7 +480,7 @@ class BranchCanvas extends Control:
 		var width := size.x / 3.0
 		for index in range(3):
 			var region := Rect2(index * width + 5, 0, width - 10, size.y)
-			var style := TalentTreePanel._style(TalentTreePanel.COLORS[index].lightened(0.95), Color.TRANSPARENT, 14, 0)
+			var style := TalentTreePanel._style(UITheme.LIGHT_CARD_BG, Color.TRANSPARENT, 14, 0)
 			draw_style_box(style, region)
 		for edge in edges:
 			var start: Vector2 = edge.start
@@ -488,4 +488,4 @@ class BranchCanvas extends Control:
 			var midpoint := Vector2(start.x, start.y + (end.y - start.y) * 0.38)
 			draw_polyline(PackedVector2Array([start, midpoint, end]), edge.color, 3.0, true)
 			draw_circle(midpoint, 3.2, edge.color)
-		if node_positions.has(_selected): draw_arc(node_positions[_selected], 31, 0, TAU, 40, Color("#e5b63f"), 2.0, true)
+		if node_positions.has(_selected): draw_arc(node_positions[_selected], 31, 0, TAU, 40, UITheme.LIGHT_GOLD_SELECT, 2.0, true)

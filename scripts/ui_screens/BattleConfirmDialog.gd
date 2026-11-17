@@ -2,16 +2,16 @@ class_name BattleConfirmDialog
 extends Control
 
 ## 局内二次确认弹窗（v0.37.32）：顶栏「重开 / 退出」等不可逆操作防误触。
-## 视觉走 Kenney DIALOG 语言（同 MainMenu「新的征程」确认弹窗 / 局内设置弹窗）：
-## DIALOG_PANEL #f2faff 底 + DIALOG_BORDER 3px 描边（下边 7px 加粗）+ 圆角 18 + 底部投影，
-## 蓝渐变标题条（DIALOG_HEAD）白字 + 圆形 ✕，正文深蓝墨字，底栏 灰「取消」+ 主按钮。
+## 视觉走共享营地 DIALOG 语言（同 MainMenu「新的征程」确认弹窗 / 局内设置弹窗）：
+## 暖纸底 + 木金 3px 描边（下边 7px 加粗）+ 圆角 18 + 底部投影，
+## 青绿标题条（DIALOG_HEAD）白字 + 圆形 ✕，正文深墨字，底栏浅纸「取消」+ 主按钮。
 ## 交互：ESC / ✕ / 取消 / 点击遮罩关闭；打开期间暂停战斗，关闭复原进入前暂停态。
 ## 挂在独立 CanvasLayer（layer 60，同设置弹窗）——位于局内 HUD 之上。
 
 const LAYER_NAME := "BattleConfirmLayer"
 const DIALOG_NAME := "BattleConfirmDialog"
 const DIALOG_WIDTH := 560.0
-const DIM_COLOR := Color(0.02, 0.05, 0.09, 0.62)
+const DIM_COLOR := Color(0.12, 0.18, 0.12, 0.54)
 
 var _layer: CanvasLayer = null
 var _confirm_action: Callable = Callable()
@@ -80,7 +80,7 @@ func _build(title: String, message: String, ok_text: String, cancel_text: String
 	style.set_border_width_all(3)
 	style.border_width_bottom = 7
 	style.set_corner_radius_all(18)
-	style.shadow_color = Color(0.02, 0.1, 0.18, 0.45)
+	style.shadow_color = Color(0.20, 0.22, 0.12, 0.30)
 	style.shadow_size = 18
 	style.shadow_offset = Vector2(0, 8)
 	panel.add_theme_stylebox_override("panel", style)
@@ -94,7 +94,7 @@ func _build(title: String, message: String, ok_text: String, cancel_text: String
 	column.add_child(_make_actions(ok_text, cancel_text, ok_color))
 
 
-## 蓝渐变标题条：白字标题 + 圆 ✕。
+## 青绿标题条：白字标题 + 圆 ✕。
 func _make_header(title: String) -> Panel:
 	var header := Panel.new()
 	header.custom_minimum_size = Vector2(0, 54)

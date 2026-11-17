@@ -115,3 +115,7 @@ ingot（金元宝）、lord_level（冠印主公等级）、lord_exp（进度冠
 ### 0.10.1.1主城美术升级
 
 沿现有原创SVG素材升级营地插画。九建筑与背景由tools/generate_city_art.py调用city_building_art.py、city_backdrop_art.py重建，运行源仍在assets/city；概念稿独立归档city_0.10.1.1，原生图归档runtime_0.10.1.1。保留既有九入口图形与通用图徽，不新增图徽缺口；原city_0.10.1与runtime_0.10.1保留。
+
+### 2026-11-17 全界面营地协调
+
+UI_LAYOUT v0.21.2为当前色板与控件口径；主城九定稿名称常显，概念/原生截图归档city_0.10.1.2、runtime_0.10.1.2。原亮蓝与暮色图保持历史；没有新增资源图徽缺口。

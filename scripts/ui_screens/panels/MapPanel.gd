@@ -13,28 +13,28 @@ const RESERVED_CHAPTERS := [
 	"董卓之乱", "群雄逐鹿", "官渡之战", "赤壁之战", "三分天下", "北伐中原",
 ]
 
-## 概念图色板（src/ui_hub_map.html）
-const INK := Color("#1b4d78")
-const BODY := Color("#5f8aa6")
-const MUTED := Color("#7d9cb4")
-const DESC := Color("#6b93ad")
-const LOCK_TEXT := Color("#9fb3c4")
-const NAV_BODY := Color("#33566f")
-const LOGO_TEXT := Color("#14538a")
-const CHIP_BLUE_BG := Color("#e1f1fb")
-const CARD_BORDER_DONE := Color("#9ad8b4")
-const CARD_BORDER_READY := Color("#ffcc00")
-const CARD_BORDER_LOCKED := Color("#cddbe6")
-const CARD_BG_LOCKED := Color("#e6eef5")
-const TAG_DONE_FG := Color("#11804a")
-const TAG_DONE_BG := Color("#d8f2e3")
-const TAG_OPEN_FG := Color("#8a6d00")
-const TAG_OPEN_BG := Color("#fff3c4")
-const TAG_LOCK_FG := Color("#7d8fa0")
-const TAG_LOCK_BG := Color("#d9e4ec")
-const CHIP_GREEN := Color("#16bb77")
-const CHIP_BLUE := Color("#2eaadc")
-const REWARD_LINE := Color("#d7e9f5")
+## 与营地共用暖纸/青绿色板（UI_LAYOUT §20）
+const INK := UITheme.LIGHT_INK
+const BODY := UITheme.LIGHT_BODY
+const MUTED := UITheme.LIGHT_MUTED
+const DESC := UITheme.LIGHT_DESC
+const LOCK_TEXT := UITheme.LIGHT_LOCK
+const NAV_BODY := UITheme.LIGHT_BODY
+const LOGO_TEXT := UITheme.LIGHT_INK
+const CHIP_BLUE_BG := UITheme.LIGHT_BLUE_SOFT
+const CARD_BORDER_DONE := UITheme.LIGHT_ACCENT
+const CARD_BORDER_READY := UITheme.LIGHT_ACCENT
+const CARD_BORDER_LOCKED := UITheme.LIGHT_PANEL_BORDER
+const CARD_BG_LOCKED := UITheme.TAG_LOCK_BG
+const TAG_DONE_FG := UITheme.TAG_OK_FG
+const TAG_DONE_BG := UITheme.TAG_OK_BG
+const TAG_OPEN_FG := UITheme.TAG_OPEN_FG
+const TAG_OPEN_BG := UITheme.TAG_OPEN_BG
+const TAG_LOCK_FG := UITheme.TAG_LOCK_FG
+const TAG_LOCK_BG := UITheme.TAG_LOCK_BG
+const CHIP_GREEN := UITheme.LIGHT_ACCENT
+const CHIP_BLUE := UITheme.LIGHT_ACCENT
+const REWARD_LINE := UITheme.LIGHT_PANEL_BORDER
 
 var _selected_chapter: ChapterData = null
 var _chapter_button: Button
@@ -84,7 +84,7 @@ func _build_ui() -> void:
 	add_child(topbar)
 
 	var title := Label.new()
-	title.text = "地图选择"
+	title.text = "城门 · 选择关卡"
 	title.add_theme_font_override("font", UITheme.spaced_font(3))
 	title.add_theme_font_size_override("font_size", 27)
 	title.add_theme_color_override("font_color", INK)
@@ -101,8 +101,8 @@ func _build_ui() -> void:
 	_chapter_button.add_theme_font_size_override("font_size", 18)
 	_chapter_button.add_theme_icon_override("arrow", _small_arrow_icon())
 	var box_style := StyleBoxFlat.new()
-	box_style.bg_color = Color.WHITE
-	box_style.border_color = Color("#9fd0ea")
+	box_style.bg_color = UITheme.LIGHT_PAGE_BG
+	box_style.border_color = UITheme.LIGHT_BORDER_SOFT
 	box_style.border_width_bottom = 4
 	box_style.set_border_width_all(2)
 	box_style.set_corner_radius_all(10)
@@ -232,7 +232,7 @@ func _toggle_chapter_popup() -> void:
 	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
 	track.set_corner_radius_all(5)
 	var grabber := StyleBoxFlat.new()
-	grabber.bg_color = Color("#7ec8ea")
+	grabber.bg_color = UITheme.LIGHT_ACCENT
 	grabber.set_corner_radius_all(5)
 	var grabber_hot := StyleBoxFlat.new()
 	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
@@ -397,7 +397,7 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 	card.clip_text = false
 	var border_color := CARD_BORDER_READY if unlocked and not completed else (CARD_BORDER_DONE if completed else CARD_BORDER_LOCKED)
 	var card_style := StyleBoxFlat.new()
-	card_style.bg_color = Color.WHITE if unlocked else CARD_BG_LOCKED
+	card_style.bg_color = UITheme.LIGHT_PAGE_BG if unlocked else CARD_BG_LOCKED
 	card_style.border_color = border_color
 	card_style.set_border_width_all(3)
 	card_style.set_corner_radius_all(14)
@@ -409,7 +409,7 @@ func _make_stage_card(profile: PlayerProfile, stage: StageData) -> Button:
 		card_style.shadow_color = Color(1.0, 0.8, 0.0, 0.35)
 		card_style.shadow_size = 6
 	var selected_style := card_style.duplicate()
-	selected_style.bg_color = Color("#fffbe6")
+	selected_style.bg_color = UITheme.LIGHT_BLUE_SELECT
 	selected_style.border_color = CARD_BORDER_READY
 	selected_style.set_border_width_all(3)
 	card.add_theme_stylebox_override("normal", card_style)
@@ -578,7 +578,7 @@ func _build_detail_bar() -> void:
 	_detail_panel = Panel.new()
 	_detail_panel.custom_minimum_size = Vector2(0, 176)
 	var detail_style := StyleBoxFlat.new()
-	detail_style.bg_color = Color.WHITE
+	detail_style.bg_color = UITheme.LIGHT_PAGE_BG
 	detail_style.border_color = CARD_BORDER_READY
 	detail_style.set_border_width_all(3)
 	detail_style.set_corner_radius_all(14)
@@ -643,7 +643,7 @@ func _build_detail_bar() -> void:
 		var pill := PanelContainer.new()
 		pill.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		var pill_style := StyleBoxFlat.new()
-		pill_style.bg_color = Color("#f3f9fd")
+		pill_style.bg_color = UITheme.LIGHT_STAT_BG
 		pill_style.border_color = REWARD_LINE
 		pill_style.set_border_width_all(1)
 		pill_style.set_corner_radius_all(9)
@@ -916,5 +916,5 @@ func _on_instant_clear() -> void:
 		_status_label.add_theme_color_override("font_color", TAG_DONE_FG)
 	else:
 		_status_label.text = "一键通关失败：%s" % stage.display_name
-		_status_label.add_theme_color_override("font_color", Color("#d71935"))
+		_status_label.add_theme_color_override("font_color", UITheme.TAG_FIRE_FG)
 	_refresh_stages()

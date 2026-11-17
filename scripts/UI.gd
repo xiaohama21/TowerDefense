@@ -48,8 +48,8 @@ var _gold_roll_tween: Tween = null
 
 ## 局内面板亮色化（v0.37.32）：卡片/塔面板改 Kenney 亮蓝白语言
 ## （底 #f7fbfe / 描边 #9fd0ea），与大厅、战斗顶栏（#eef8fe + #7ec8ea 细线）统一。
-const PANEL_STYLE_BG := Color("#f7fbfe")
-const PANEL_STYLE_BORDER := Color("#9fd0ea")
+const PANEL_STYLE_BG := UITheme.LIGHT_PAGE_BG
+const PANEL_STYLE_BORDER := UITheme.LIGHT_BORDER_SOFT
 ## 基地生命两态（v0.37.32 / UI_LAYOUT §10 v2 令牌）：常态绿 #4ec97e，≤30% 危急变红脉动。
 const LIVES_COLOR_OK := Color("#4ec97e")
 const LIVES_COLOR_LOW := Color("#ef5b52")
@@ -163,10 +163,10 @@ func _style_hud_controls() -> void:
 	menu_button.text = ""
 	menu_button.icon = UITheme.hud_icon_sized("ui_menu", 28)
 	menu_button.tooltip_text = "打开菜单"
-	UITheme.apply_kenney_rect_button(menu_button, "grey", UITheme.HUD_VALUE, 3)
-	menu_button.add_theme_color_override("font_color", UITheme.HUD_VALUE)
-	menu_button.add_theme_color_override("font_hover_color", Color("#ffe9b0"))
-	menu_button.add_theme_color_override("font_pressed_color", UITheme.HUD_VALUE)
+	UITheme.apply_kenney_rect_button(menu_button, "grey", UITheme.LIGHT_INK, 3)
+	menu_button.add_theme_color_override("font_color", UITheme.LIGHT_INK)
+	menu_button.add_theme_color_override("font_hover_color", UITheme.LIGHT_INK)
+	menu_button.add_theme_color_override("font_pressed_color", UITheme.LIGHT_INK)
 	menu_button.add_theme_font_size_override("font_size", 22)
 	var popup := menu_button.get_popup()
 	if popup == null:
@@ -355,7 +355,7 @@ func _make_cost_pill(cost: int, affordable: bool) -> Dictionary:
 		HUD_SLOT_SIZE - HUD_COST_PILL.x - 3.0, HUD_SLOT_SIZE - HUD_COST_PILL.y - 3.0)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_theme_stylebox_override("panel", _make_flat_style(
-		UITheme.HUD_COST_BG if affordable else Color("#c2604f"), Color(0, 0, 0, 0), 11, 0))
+		UITheme.HUD_COST_BG if affordable else UITheme.TAG_FIRE_FG, Color(0, 0, 0, 0), 11, 0))
 	var margin := MarginContainer.new()
 	# 内边距口径 = 概念稿 `.costpill { padding:0 7px 0 3px }`（图徽左对齐 3px，内容 38 = 15+2+label 恰好填满）。
 	margin.add_theme_constant_override("margin_left", 3)
@@ -470,14 +470,14 @@ func _apply_card_style(card: Variant) -> void:
 		border = Color(0.76, 0.38, 0.31, 0.9)
 	if is_instance_valid(panel):
 		panel.add_theme_stylebox_override("panel", _make_flat_style(
-			Color("#2a3d2f") if held else UITheme.HUD_CARD_BG, border, 12, 3 if held else 2))
+			Color("#537762") if held else UITheme.HUD_CARD_BG, border, 12, 3 if held else 2))
 	var avatar: Control = card.get("avatar")
 	if is_instance_valid(avatar):
 		avatar.modulate = Color(1, 1, 1, 0.45) if not affordable else Color.WHITE
 	var cost_pill: Control = card.get("cost_pill")
 	if is_instance_valid(cost_pill):
 		cost_pill.add_theme_stylebox_override("panel", _make_flat_style(
-			UITheme.HUD_COST_BG if affordable else Color("#c2604f"), Color(0, 0, 0, 0), 11, 0))
+			UITheme.HUD_COST_BG if affordable else UITheme.TAG_FIRE_FG, Color(0, 0, 0, 0), 11, 0))
 	var cost_label: Label = card.get("cost_label")
 	if is_instance_valid(cost_label):
 		cost_label.add_theme_color_override("font_color",
@@ -1093,6 +1093,8 @@ func _create_result_panel() -> void:
 	wheel_button.custom_minimum_size = Vector2(0, 42)
 	wheel_button.add_theme_font_size_override("font_size", 17)
 	wheel_button.pressed.connect(func() -> void: result_wheel_pressed.emit())
+	UITheme.apply_kenney_rect_button(wheel_button,"yellow",UITheme.LIGHT_INK,8)
+	wheel_button.icon = UITheme.hud_icon_sized("coin",24)
 	vbox.add_child(wheel_button)
 	_result_wheel_button = wheel_button
 
@@ -1114,6 +1116,7 @@ func _create_result_panel() -> void:
 	_result_next_button.custom_minimum_size = Vector2(170, 46)
 	_result_next_button.add_theme_font_size_override("font_size", 18)
 	_result_next_button.pressed.connect(func() -> void: result_next_pressed.emit())
+	UITheme.apply_kenney_rect_button(_result_next_button,"yellow",UITheme.LIGHT_INK,8)
 	buttons.add_child(_result_next_button)
 
 	var retry_button := Button.new()
@@ -1121,6 +1124,7 @@ func _create_result_panel() -> void:
 	retry_button.add_theme_font_size_override("font_size", 18)
 	retry_button.text = "重试本关"
 	retry_button.pressed.connect(func() -> void: result_retry_pressed.emit())
+	UITheme.apply_kenney_rect_button(retry_button,"grey",UITheme.LIGHT_INK,8)
 	buttons.add_child(retry_button)
 
 	var menu_button := Button.new()
@@ -1128,6 +1132,7 @@ func _create_result_panel() -> void:
 	menu_button.add_theme_font_size_override("font_size", 18)
 	menu_button.text = "返回选关"
 	menu_button.pressed.connect(func() -> void: result_menu_pressed.emit())
+	UITheme.apply_kenney_rect_button(menu_button,"grey",UITheme.LIGHT_INK,8)
 	buttons.add_child(menu_button)
 
 
@@ -1187,7 +1192,8 @@ func show_result(data: Dictionary) -> void:
 	if victory and remaining_gold >= SettlementWheel.MIN_REMAINING_GOLD:
 		_result_wheel_button.visible = true
 		_result_wheel_button.disabled = false
-		_result_wheel_button.text = "结算转盘：剩余金币 %d 可抽 1 次" % remaining_gold
+		_result_wheel_button.text = "抽取 ×1 · ≥%d" % SettlementWheel.MIN_REMAINING_GOLD
+		_result_wheel_button.tooltip_text = "胜利结算尚余%d，达到%d即可抽取一次；不消耗金币。" % [remaining_gold,SettlementWheel.MIN_REMAINING_GOLD]
 	else:
 		_result_wheel_button.visible = false
 
@@ -1203,7 +1209,7 @@ func show_result_wheel_result(text: String) -> void:
 		return
 	_wheel_rolled = true
 	_result_wheel_button.disabled = true
-	_result_wheel_button.text = "转盘已抽取"
+	_result_wheel_button.text = "已抽取"
 	_result_wheel_label.text = text
 	_result_wheel_label.visible = true
 

@@ -1,0 +1,127 @@
+WorkerThreadPool: 4 threads, 1 max low-priority.
+
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+TextServer: Added interface "Dummy"
+
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+
+Using "default" pen tablet driver...
+
+
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+
+Loading resource: res://.godot/exported/133200997/export-86c1b7198b18591a83dc286bbf9930e8-ui_theme.res remapped: res://.godot/exported/133200997/export-86c1b7198b18591a83dc286bbf9930e8-ui_theme.res
+
+Loading resource: res://assets/fonts/ZCOOL-Kuaile.ttf remapped: res://assets/fonts/ZCOOL-Kuaile.ttf
+
+Loading resource: res://.godot/imported/ZCOOL-Kuaile.ttf-5ff2d3bf502ba0a631b9665cba72c18f.fontdata remapped: res://.godot/imported/ZCOOL-Kuaile.ttf-5ff2d3bf502ba0a631b9665cba72c18f.fontdata
+
+Completed load for: 'res://assets/fonts/ZCOOL-Kuaile.ttf' remapped 'res://assets/fonts/ZCOOL-Kuaile.ttf' at thread -1
+
+Completed load for: 'res://assets/ui/ui_theme.tres' remapped 'res://.godot/exported/133200997/export-86c1b7198b18591a83dc286bbf9930e8-ui_theme.res' at thread -1
+
+CORE API HASH: 0
+
+EDITOR API HASH: 0
+
+SceneTreeFTI: traversal method DEFAULT
+
+Loading resource: res://scripts/GameManager.gdc remapped: res://scripts/GameManager.gdc
+
+Loading resource: res://.godot/exported/133200997/export-7cd7e18b2f210ec110de26632df1f5cd-Bullet.scn remapped: res://.godot/exported/133200997/export-7cd7e18b2f210ec110de26632df1f5cd-Bullet.scn
+
+Loading resource: res://scripts/Bullet.gdc remapped: res://scripts/Bullet.gdc
+
+Completed load for: 'res://scripts/Bullet.gd' remapped 'res://scripts/Bullet.gdc' at thread -1
+
+Completed load for: 'res://scenes/Bullet.tscn' remapped 'res://.godot/exported/133200997/export-7cd7e18b2f210ec110de26632df1f5cd-Bullet.scn' at thread -1
+
+Completed load for: 'res://scripts/GameManager.gd' remapped 'res://scripts/GameManager.gdc' at thread -1
+
+Loading resource: res://scripts/services/CursorService.gdc remapped: res://scripts/services/CursorService.gdc
+
+Completed load for: 'res://scripts/services/CursorService.gd' remapped 'res://scripts/services/CursorService.gdc' at thread -1
+
+Loaded system CA certificates
+
+Loading resource: res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn remapped: res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn
+
+Loading resource: res://scripts/ui_screens/MainMenu.gdc remapped: res://scripts/ui_screens/MainMenu.gdc
+
+Completed load for: 'res://scripts/ui_screens/MainMenu.gd' remapped 'res://scripts/ui_screens/MainMenu.gdc' at thread -1
+
+Completed load for: 'res://scenes/MainMenu.tscn' remapped 'res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_arrow_down.png remapped: res://assets/ui/icons/v2/ui_arrow_down.png
+
+Loading resource: res://.godot/imported/ui_arrow_down.png-bfe1f61e13fd006578cbd684b4b89880.ctex remapped: res://.godot/imported/ui_arrow_down.png-bfe1f61e13fd006578cbd684b4b89880.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_down.png' remapped 'res://assets/ui/icons/v2/ui_arrow_down.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_checkbox_on.png remapped: res://assets/ui/icons/v2/ui_checkbox_on.png
+
+Loading resource: res://.godot/imported/ui_checkbox_on.png-1fe9a8ebaa989061c91648b66f545164.ctex remapped: res://.godot/imported/ui_checkbox_on.png-1fe9a8ebaa989061c91648b66f545164.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_checkbox_on.png' remapped 'res://assets/ui/icons/v2/ui_checkbox_on.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_checkbox_off.png remapped: res://assets/ui/icons/v2/ui_checkbox_off.png
+
+Loading resource: res://.godot/imported/ui_checkbox_off.png-674e39cd01d354cd04e789b4bb719877.ctex remapped: res://.godot/imported/ui_checkbox_off.png-674e39cd01d354cd04e789b4bb719877.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_checkbox_off.png' remapped 'res://assets/ui/icons/v2/ui_checkbox_off.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_radio_on.png remapped: res://assets/ui/icons/v2/ui_radio_on.png
+
+Loading resource: res://.godot/imported/ui_radio_on.png-30360e6fb8da0ac4225ce62ccebcbd04.ctex remapped: res://.godot/imported/ui_radio_on.png-30360e6fb8da0ac4225ce62ccebcbd04.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_radio_on.png' remapped 'res://assets/ui/icons/v2/ui_radio_on.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_radio_off.png remapped: res://assets/ui/icons/v2/ui_radio_off.png
+
+Loading resource: res://.godot/imported/ui_radio_off.png-941b78f761bb24bf2336ebc7f39f95dd.ctex remapped: res://.godot/imported/ui_radio_off.png-941b78f761bb24bf2336ebc7f39f95dd.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_radio_off.png' remapped 'res://assets/ui/icons/v2/ui_radio_off.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_arrow_right.png remapped: res://assets/ui/icons/v2/ui_arrow_right.png
+
+Loading resource: res://.godot/imported/ui_arrow_right.png-a9cd822a81266506899ea31d5ab0aec2.ctex remapped: res://.godot/imported/ui_arrow_right.png-a9cd822a81266506899ea31d5ab0aec2.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_right.png' remapped 'res://assets/ui/icons/v2/ui_arrow_right.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_arrow_up.png remapped: res://assets/ui/icons/v2/ui_arrow_up.png
+
+Loading resource: res://.godot/imported/ui_arrow_up.png-ac1d5ce41c7552d7855fba4627d7ea4f.ctex remapped: res://.godot/imported/ui_arrow_up.png-ac1d5ce41c7552d7855fba4627d7ea4f.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_up.png' remapped 'res://assets/ui/icons/v2/ui_arrow_up.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_close.png remapped: res://assets/ui/icons/v2/ui_close.png
+
+Loading resource: res://.godot/imported/ui_close.png-75583e8c811cf63ec2069835ef1699f5.ctex remapped: res://.godot/imported/ui_close.png-75583e8c811cf63ec2069835ef1699f5.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_close.png' remapped 'res://assets/ui/icons/v2/ui_close.png' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_arrow_left.png remapped: res://assets/ui/icons/v2/ui_arrow_left.png
+
+Loading resource: res://.godot/imported/ui_arrow_left.png-5ea734a5b8cd51036d872fc55914473f.ctex remapped: res://.godot/imported/ui_arrow_left.png-5ea734a5b8cd51036d872fc55914473f.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_arrow_left.png' remapped 'res://assets/ui/icons/v2/ui_arrow_left.png' at thread -1
+
+Loading resource: res://assets/city/day/background.svg remapped: res://assets/city/day/background.svg
+
+Loading resource: res://.godot/imported/background.svg-273fd7ca7989807b27c3f4324c613c46.ctex remapped: res://.godot/imported/background.svg-273fd7ca7989807b27c3f4324c613c46.ctex
+
+Completed load for: 'res://assets/city/day/background.svg' remapped 'res://assets/city/day/background.svg' at thread -1
+
+Loading resource: res://assets/ui/icons/v2/ui_star.png remapped: res://assets/ui/icons/v2/ui_star.png
+
+Loading resource: res://.godot/imported/ui_star.png-89cf4c3e43c4cbc92ef5b790687717e6.ctex remapped: res://.godot/imported/ui_star.png-89cf4c3e43c4cbc92ef5b790687717e6.ctex
+
+Completed load for: 'res://assets/ui/icons/v2/ui_star.png' remapped 'res://assets/ui/icons/v2/ui_star.png' at thread -1
+
+XR: Clearing primary interface
+
+XR: Removed interface "Native mobile"
+
+XR: Removed interface "OpenXR"

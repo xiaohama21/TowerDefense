@@ -1,6 +1,6 @@
 extends Node
 
-var output := "res://build/verify_city_0.10.1.1/screenshots"
+var output := "res://build/verify_city_0.10.1.2/screenshots"
 var hub: Control
 var shots: Array[String] = []
 
@@ -19,8 +19,8 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	for mode in ["day","dusk"]:
 		var image := Image.new()
-		assert(image.load_svg_from_string(FileAccess.get_file_as_string("res://docs/ui_concept/city_0.10.1.1/"+mode+".svg"))==OK)
-		assert(image.save_png("res://docs/ui_concept/city_0.10.1.1/"+mode+".png")==OK)
+		assert(image.load_svg_from_string(FileAccess.get_file_as_string("res://docs/ui_concept/city_0.10.1.2/"+mode+".svg"))==OK)
+		assert(image.save_png("res://docs/ui_concept/city_0.10.1.2/"+mode+".png")==OK)
 		GameFlow.start_new_game()
 		GameFlow.hub_active_panel = &"city"
 		hub = load("res://scenes/GameHub.tscn").instantiate()
@@ -58,7 +58,7 @@ func run() -> void:
 	await capture("first_visit")
 	hub._close_intro()
 	await capture("encyclopedia")
-	for id in [&"map",&"command",&"develop",&"shop",&"settings"]:
+	for id in [&"map",&"command",&"develop",&"shop",&"settings",&"inventory",&"tech",&"supply"]:
 		hub._show_panel(id,false)
 		await capture(str(id))
 	hub._show_panel(&"city")

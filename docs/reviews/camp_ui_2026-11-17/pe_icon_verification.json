@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "source_ico_sizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "pe_icon_sizes": [
+    16,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "decoded_pixels_match_source": true,
+  "source_sha256": "213b7736c4c5bd5b45b5482e217278ab219ac296002be813066ff15c0b5f9dd5",
+  "matching_groups": 1
+}

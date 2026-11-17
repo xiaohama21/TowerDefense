@@ -181,49 +181,74 @@ def _house_body(key: str, c: dict, door: str = 'door') -> str:
     return out
 
 
-def _tent(key: str, c: dict, tech: bool = False) -> str:
-    d, g, wood = c['dark'], c['gold'], c['wood']
-    out = f'<ellipse cx="103" cy="153" rx="94" ry="19" fill="{_fill(key, "shadow")}"/>'
-    out += _path('M25 130L132 152L175 130L75 106Z', _fill(key, 'earth'), d, .7)
-    out += _path('M30 87L134 110L132 148L21 127Z', _fill(key, 'canvas'), d, 1.1)
-    out += _path('M134 110L180 84L172 132L132 148Z', _fill(key, 'canvas_side'), d, 1.1)
-    out += _path('M17 91L88 32L155 48L134 111Z', _fill(key, 'canvas'), d, 1.2)
-    out += _path('M155 48L180 84L134 111Z', _fill(key, 'canvas_side'), d, 1.2)
-    out += _path('M17 91Q47 94 72 102T134 111L180 84', 'none', _mix(wood, g, .3), 3)
-    out += _path('M88 32L155 48M88 32L37 93M111 38L81 101M134 43L112 107M155 48L157 98', 'none', _mix(c['wall'], g, .27), 1.5)
-    out += _path('M88 32L17 91M155 48L134 111', 'none', _mix(c['wall'], d, .3), 1.5)
-    out += _path('M27 95L26 123M48 99L44 127M123 114L124 142M149 107L150 137M170 92L166 127', 'none', _mix(c['wall'], wood, .3), .85)
-    # Open curtain, tied to the timbers. The inside remains dark enough to read.
-    out += _path('M67 100L111 109L116 145L63 135Z', d, wood, 1)
-    out += _path('M67 100Q76 116 66 130L63 135L83 139Q74 120 83 103Z', _fill(key, 'canvas'), d, .8)
-    out += _path('M110 109Q99 118 109 137L116 145L98 142Q108 125 94 105Z', _fill(key, 'canvas'), d, .8)
-    out += _path('M66 127L75 128M106 135L112 136', 'none', g, 2)
-    out += _path('M84 134L100 138L98 141L83 138Z', _fill(key, 'wood'), d, .8)
-    out += _path('M86 139V145M98 141V147', 'none', wood, 1.8)
-    out += _path('M15 99L4 145M183 94L193 149M13 145L1 146M187 149L197 151', 'none', _mix(wood, g, .3), .85)
-    out += _path('M1 146L3 150M197 151L196 156', 'none', d, 2)
-    out += _path('M87 32V10', 'none', wood, 2.2)
-    out += _path('M88 10Q107 13 126 14L119 22Q104 20 88 23Z', _fill(key, 'red' if tech else 'cloth'), d, .8)
-    out += _path('M92 13Q106 15 120 15', 'none', _mix(g, '#fff1cb', .24), .8)
-    out += _lantern(key, c, 42, 108, .72) + _lantern(key, c, 149, 125, .67)
-    if tech:
-        # A tangible campaign sand table in the foreground, not an icon.
-        out += _path('M12 134L41 116L86 126L60 148Z', _fill(key, 'wood'), d, 1)
-        out += _path('M12 134V141L60 155V148ZM60 148L86 126V133L60 155Z', _mix(wood, d, .18), d, .75)
-        out += _path('M17 133L41 121L79 128L59 143Z', _mix(c['wall'], c['roof'], .22), d, .75)
-        out += _path('M29 129Q45 136 53 130T70 131', 'none', _mix(c['roof'], '#81b8bc', .56), 1.65)
-        out += _path('M26 134l7 -5l5 6M53 134l6 -5l6 6', 'none', _mix(c['roof'], d, .1), 1.3)
-        out += _path('M33 129V115M56 134V121M70 130V118', 'none', wood, .85)
-        out += _path('M33 115L41 118L33 121ZM56 121L63 124L56 127ZM70 118L77 120L70 123Z', g, d, .5)
-        out += _path('M18 140V155M59 153V166M82 134V148', 'none', _fill(key, 'wood'), 2.3)
-        out += _path('M168 134L183 130L189 137L175 141Z', _fill(key, 'canvas'), wood, .7)
-        out += _path('M173 134L182 135M173 137L180 138', 'none', wood, .5)
-    else:
-        out += _path('M147 151V59', 'none', wood, 2.2)
-        out += _path('M148 61L170 66L168 99L149 94Z', _fill(key, 'red'), d, .8)
-        out += _path('M153 65L153 91M159 67L159 93', 'none', g, .7)
-        out += _crate(key, c, 155, 134, .66)
-        out += _path('M44 140L66 145L61 152L40 147Z', _fill(key, 'canvas'), wood, .7)
+def _command(key: str, c: dict) -> str:
+    """Wide ceremonial command pavilion with two peaks, never a small tent."""
+    d, g, w = c['dark'], c['gold'], c['wood']
+    out = f'<ellipse cx="102" cy="149" rx="96" ry="17" fill="{_fill(key,"shadow")}"/>'
+    out += _path('M18 129L112 155L185 132L82 110Z', _fill(key,'earth'), w, .8)
+    out += _path('M18 98L116 119L182 98L181 139L114 158L18 137Z', _fill(key,'canvas'), d, 1)
+    out += _path('M116 119L182 98L181 139L114 158Z', _fill(key,'canvas_side'), d, 1)
+    out += _path('M12 99L67 43L95 66L134 30L188 99L116 122Z', _fill(key,'canvas'), d, 1.2)
+    out += _path('M67 43L95 66L116 122L12 99Z', _mix(c['wall'],g,.17), d, .8)
+    out += _path('M134 30L188 99L116 122L95 66Z', _fill(key,'canvas_side'), d, .8)
+    out += _path('M67 43L54 108M79 53L84 114M134 30L154 110M120 46L121 120', 'none', _mix(c['wall'],'#fff5d4',.4), 1.6)
+    out += _path('M12 99Q62 117 116 122L188 99', 'none', _mix(w,g,.32), 3)
+    out += _path('M13 100L116 121L187 98L186 106L116 129L14 108Z', _fill(key,'cloth'), d, .6)
+    for x in range(24,112,12):
+        y=108+(x-24)*.20
+        out += _path(f'M{x} {y:.1f}l3 8l3 -7Z', _mix(g,w,.12), d, .35)
+    # Deep central opening, two tied curtains and a small command dais.
+    out += _path('M67 118L108 127L108 157L66 146Z', d, w, 1)
+    out += _path('M67 118L80 121Q80 136 70 145L66 146Z', _fill(key,'canvas'), w, .75)
+    out += _path('M109 127L96 124Q97 139 106 152L109 157Z', _fill(key,'canvas'), w, .75)
+    out += _path('M70 139L76 138M101 145L106 146', 'none',g,2)
+    out += _path('M76 145L98 150L92 156L72 151Z', _fill(key,'wood'), w, .7)
+    out += _path('M68 150L105 160L97 164L62 154Z', _fill(key,'stone'), w, .65)
+    for x,y in [(27,115),(44,119),(132,128),(150,122),(169,114)]:
+        out += _path(f'M{x} {y}l1 19M{x+4} {y+1}l1 18', 'none', _mix(w,c['wall'],.45), .7)
+    # Independent standards emphasize the command entrance and the double ridge.
+    for x,y,red in [(67,43,False),(134,30,False),(24,150,True),(171,147,True)]:
+        top=y-(31 if red else 26)
+        out += _path(f'M{x} {y}V{top}', 'none',w,2)
+        out += _path(f'M{x+1} {top+2}Q{x+15} {top} {x+25} {top+6}L{x+21} {top+18}Q{x+10} {top+13} {x+1} {top+16}Z', _fill(key,'red' if red else 'cloth'), d,.65)
+        out += _path(f'M{x+4} {top+5}L{x+21} {top+8}M{x+5} {top+13}L{x+18} {top+15}', 'none',g,.65)
+    out += _lantern(key,c,42,128,.65) + _lantern(key,c,146,133,.65)
+    out += _path('M11 107L4 144M188 108L195 145', 'none',w,.9)
+    out += _path('M3 141V148M195 142V149', 'none',d,2)
+    return out
+
+
+def _tech(key: str, c: dict) -> str:
+    """Low open lean-to; its large campaign sand table is the main object."""
+    d,w,g=c['dark'],c['wood'],c['gold']
+    out=f'<ellipse cx="109" cy="151" rx="91" ry="17" fill="{_fill(key,"shadow")}"/>'
+    out+=_path('M20 132L108 157L187 130L88 109Z',_fill(key,'earth'),w,.7)
+    # Rear lattice and open canopy, not walls or a peaked command tent.
+    out+=_path('M54 62L168 81V123L54 103Z',_mix(c['roof'],c['wall'],.35),w,.8)
+    for x in range(61,166,13):
+        y=62+(x-54)*.167
+        out+=_path(f'M{x} {y:.1f}v34', 'none',w,1)
+    out+=_path('M56 77L166 96M56 92L166 111', 'none',w,1.2)
+    out+=_path('M13 70L59 45L177 63L126 90Z',_mix(c['roof'],c['wall'],.60),d,1)
+    out+=_path('M13 70L126 90L177 63V69L127 97L13 77Z',_fill(key,'canvas_side'),d,.65)
+    out+=_path('M15 72L126 92L175 65', 'none',_mix(c['wall'],g,.45),1.4)
+    for x in range(33,122,16):
+        out+=_path(f'M{x} {70+(x-13)*.18:.1f}L{x+44} {46+(x-13)*.15:.1f}', 'none',_mix(c['roof'],c['wall'],.32),.8)
+    out+=_path('M17 75V130M127 94V140M173 67V119M58 49V109', 'none',_fill(key,'wood'),3.3)
+    # Broad tabletop with raised edge, river, hills and flags.
+    out+=_path('M31 129L86 102L182 123L121 157Z',_fill(key,'wood'),d,1.1)
+    out+=_path('M31 129V139L121 165V157ZM121 157L182 123V133L121 165Z',_mix(w,d,.15),d,.7)
+    out+=_path('M39 128L87 108L173 125L120 150Z',_mix(c['wall'],c['ground'],.25),w,1)
+    out+=_path('M50 128Q73 120 88 128T116 131Q139 123 161 128', 'none','#77a5a2',2.5)
+    out+=_path('M56 123l8 -8l9 11l-12 3ZM109 125l7 -10l11 13l-13 4ZM142 131l9 -8l9 10l-14 3Z',_mix(c['roof'],c['ground'],.3),w,.65)
+    for x,y in [(79,128),(102,141),(145,129)]:
+        out+=_path(f'M{x} {y}V{y-17}', 'none',w,.9)
+        out+=_path(f'M{x} {y-17}l10 3l-10 5Z',_fill(key,'red'),d,.45)
+    out+=_path('M39 138V155M120 161V170M174 134V151', 'none',_fill(key,'wood'),3)
+    out+=_path('M17 135L34 137L30 145L14 143Z',_fill(key,'canvas'),w,.7)
+    out+=_path('M18 139L28 140M19 142L26 143', 'none',w,.6)
+    out+=_lantern(key,c,165,92,.55)
+    out+=_path('M12 146L21 148L18 156L8 153Z',_fill(key,'wood'),d,.6)
     return out
 
 
@@ -308,101 +333,179 @@ def _training(key: str, c: dict) -> str:
 
 
 def _stable(key: str, c: dict) -> str:
-    d, w = c['dark'], c['wood']
-    out = _foundation(key, c)
-    out += _path('M33 77L132 97V144L33 125Z', _fill(key, 'wood'), d, 1)
-    out += _path('M132 97L175 78V129L132 144Z', _fill(key, 'wall_side'), d, 1)
-    out += '<g transform="translate(38,80) skewY(11.31)">'
-    for x in [2, 35, 68]:
-        out += f'<rect x="{x}" y="12" width="27" height="35" fill="{d}" stroke="{w}" stroke-width="1.5"/>'
-        out += _path(f'M{x + 2} 47L{x + 8} 33L{x + 23} 36L{x + 25} 47Z', _mix(c['gold'], w, .26), w, .65)
-        for hay in range(4):
-            out += _path(f'M{x + 5 + hay * 4} 45l2 -7', 'none', c['gold'], .65)
-    out += '</g>'
-    out += _path('M35 79V132M67 84V136M101 91V144M133 96V147M171 80V130', 'none', _fill(key, 'wood'), 3.5)
-    out += _roof(key, c)
-    # A heavy rail fence wraps the pens with visible side thickness.
-    for x, y in [(18, 124), (48, 130), (80, 136), (114, 143), (143, 137), (171, 123)]:
-        out += _path(f'M{x} {y + 25}V{y - 3}L{x + 3} {y - 7}L{x + 6} {y - 2}V{y + 24}Z', _fill(key, 'wood'), d, .7)
-        out += _path(f'M{x + 1} {y - 1}V{y + 22}', 'none', _mix(w, c['gold'], .45), .65)
-    out += _path('M19 129L115 148L176 122M19 141L115 160L176 134', 'none', _mix(w, c['gold'], .2), 3.8)
-    out += _path('M20 128L115 147L175 121M20 140L115 159L175 133', 'none', _mix(w, c['gold'], .4), .7)
-    out += _path('M81 140L110 145L107 155L81 150Z', _fill(key, 'wood'), d, .7)
-    out += _sack(key, c, 179, 127, .8)
-    out += _jar(key, c, 27, 143, .65)
-    out += _lantern(key, c, 145, 109, .65)
+    """Open animal enclosure with a side shelter, rather than a horse stable."""
+    d,w,g=c['dark'],c['wood'],c['gold']
+    out=f'<ellipse cx="109" cy="150" rx="92" ry="18" fill="{_fill(key,"shadow")}"/>'
+    out+=_path('M17 119L85 84L189 115L114 157Z',_mix(c['ground'],c['wall'],.25),w,.8)
+    out+=_path('M18 120L113 152L187 114', 'none',_mix(c['wall'],g,.28),1.3)
+    # Three-sided modest shade shelter only occupies the left third of the yard.
+    out+=_path('M19 86L64 97V122L19 111Z',_fill(key,'wood'),d,.7)
+    out+=_path('M12 85L34 51L78 62L66 99Z',_mix(c['wall'],c['roof'],.14),d,1)
+    out+=_path('M34 51L87 36L105 58L78 62Z',_mix(c['wall'],g,.3),d,.8)
+    out+=_path('M12 85L66 99L96 81M16 87V124M65 98V139M95 80V116', 'none',_fill(key,'wood'),3.2)
+    for x in [26,38,49]:
+        out+=_path(f'M{x} {81+(x-16)*.25:.1f}L{x+18} {54+(x-16)*.20:.1f}', 'none',_mix(c['wall'],w,.4),.65)
+    # Back rails are drawn behind the animals so their outlines remain visible.
+    out+=_path('M90 83L187 114M90 94L187 126', 'none',_fill(key,'wood'),3.2)
+    for x,y in [(91,83),(121,92),(155,102),(186,113)]:
+        out+=_path(f'M{x} {y-8}V{y+26}', 'none',w,3)
+        out+=_path(f'M{x-1} {y-7}V{y+23}', 'none',_mix(w,g,.3),.65)
+    # Tawny stag: visible neck, muzzle, antlers, four legs and short tail.
+    animal=_mix(c['wood'],c['gold'],.40)
+    out+=_path('M88 111Q98 99 123 107L137 93L140 78L147 79L150 94L144 105L133 119L106 125L94 120Z',animal,d,.85)
+    out+=_path('M138 79L145 69L151 71L160 77L157 83L146 85Z',_mix(animal,c['wall'],.22),d,.75)
+    out+=_path('M145 71L141 62L149 67M151 72L157 64L155 74',animal,d,.7)
+    out+=_path('M144 70L140 57L135 54M141 61L146 53L144 48M152 72L155 55L161 50M155 61L149 53', 'none',_mix(w,d,.25),1.2)
+    out+=_path('M98 119L96 138L100 142M109 123L108 143L113 145M130 118L134 139L139 140M122 121L121 139L125 141', 'none',animal,3)
+    out+=_path('M98 140L103 141M109 144L114 145M134 140L140 141', 'none',d,1.3)
+    out+=_path('M90 113L83 107L91 107',animal,d,.65)
+    out+='<circle cx="151" cy="77" r="1.2" fill="'+d+'"/>'
+    out+=_path('M106 109Q121 109 128 113M146 81L151 82', 'none',_mix(animal,c['wall'],.45),.9)
+    # Small crouching boar, a distinctly different low rounded silhouette.
+    out+=_path('M40 125Q36 112 48 111Q66 109 76 121L85 123L85 129L75 132L68 138L48 135Z',_mix(w,d,.28),d,.8)
+    out+=_path('M70 117L72 108L78 119M50 115L47 108L57 114',_mix(w,d,.2),d,.65)
+    out+=_path('M46 132V142M60 135V146M73 132V141M39 124Q31 121 36 116', 'none',_mix(w,d,.25),2)
+    out+='<circle cx="77" cy="124" r="1" fill="'+c['wall']+'"/>'
+    out+=_path('M52 116Q63 115 67 120', 'none',_mix(w,c['wall'],.22),1)
+    # Front fence frames legs without covering heads or torsos.
+    for x,y in [(18,119),(46,129),(77,140),(112,151),(150,133),(188,113)]:
+        out+=_path(f'M{x} {y+9}V{y-4}L{x+2} {y-7}L{x+4} {y-3}V{y+10}Z',_fill(key,'wood'),d,.65)
+    out+=_path('M20 124L112 155L190 118M20 132L112 163L190 126', 'none',_fill(key,'wood'),3.2)
+    out+=_path('M21 123L112 154L189 117', 'none',_mix(w,g,.45),.7)
+    out+=_path('M151 135L174 127L179 138L157 146Z',_fill(key,'wood'),d,.75)
+    out+=_path('M155 136L171 131L174 136L158 141Z',_mix(c['gold'],c['ground'],.25),w,.6)
+    out+=_jar(key,c,17,136,.65)
     return out
+
 
 
 def _shop(key: str, c: dict) -> str:
-    d, w, g = c['dark'], c['wood'], c['gold']
-    out = _house_body(key, c, 'open') + _roof(key, c)
-    # Broad fabric veranda follows the perspective of the front facade.
-    out += _path('M24 103L119 124L133 106L40 87Z', _fill(key, 'cloth'), d, .9)
-    for i in range(0, 8, 2):
-        x = 24 + i * 12
-        out += _path(f'M{x} {103 + i * 2.65}L{x + 11} {105 + i * 2.65}L{x + 26} {89 + i * 2.6}L{x + 14} {87 + i * 2.6}Z', _fill(key, 'red'), 'none')
-    out += _path('M24 103Q29 112 35 106Q41 116 47 109Q53 118 59 112Q65 120 71 115Q77 124 83 118Q89 127 95 121Q101 129 107 123Q113 132 119 126V124Z', _fill(key, 'cloth'), w, .6)
-    out += _path('M25 108V148M119 128V166M131 111V152', 'none', _fill(key, 'wood'), 2.9)
-    out += _path('M30 140L119 158L126 153L37 135Z', _fill(key, 'wood'), d, .9)
-    out += _path('M30 140V147L119 165V158Z', _mix(w, d, .1), d, .65)
-    out += _path('M34 144L116 160', 'none', _mix(w, g, .45), .65)
-    # Rolled fabrics, lidded boxes, produce basket and a scale.
-    for x, y, col in [(40, 133, c['roof']), (54, 136, '#a65f49'), (68, 139, c['wall'])]:
-        out += _path(f'M{x} {y}l3 -7l13 3l-2 7Z', col, d, .6)
-        out += f'<ellipse cx="{x + 2}" cy="{y - 3}" rx="2.5" ry="4" fill="{_mix(col, g, .25)}" stroke="{d}" stroke-width=".5"/>'
-    out += _path('M91 145V122M83 126L99 130M86 127L81 138M97 130L102 141', 'none', w, 1)
-    out += _path('M75 138Q82 143 88 140M96 141Q102 146 108 143', 'none', g, 1.2)
-    out += _crate(key, c, 142, 131, .88)
-    out += _crate(key, c, 166, 123, .62)
-    out += _sack(key, c, 21, 131, .7)
-    out += _lantern(key, c, 148, 102, .79)
+    """Three colourful market stalls, with no dwelling hidden underneath."""
+    d,w,g=c['dark'],c['wood'],c['gold']
+    out=f'<ellipse cx="106" cy="150" rx="96" ry="18" fill="{_fill(key,"shadow")}"/>'
+    out+=_path('M13 127L90 93L192 126L108 159Z',_fill(key,'earth'),w,.75)
+    def stall(x,y,scale,cloth,accent):
+        body=f'<g transform="translate({x},{y}) scale({scale})">'
+        body+=_path('M9 20L70 34L82 27V74L18 58Z',_fill(key,'wood'),d,.75)
+        body+=_path('M4 19L27 0L90 13L69 38Z',cloth,d,1)
+        for i in range(0,6,2):
+            xx=4+i*10.5
+            body+=_path(f'M{xx} {19+i*3.0}L{xx+11} {22+i*3.0}L{xx+32} {3+i*2.2}L{xx+21} {i*2.2}Z',accent,'none')
+        body+=_path('M4 19Q9 29 15 23Q21 34 27 27Q33 36 39 30Q45 41 51 33Q58 45 69 38L69 43L4 25Z',cloth,w,.65)
+        body+=_path('M5 23V79M69 42V97M87 17V73', 'none',_fill(key,'wood'),3)
+        body+=_path('M5 77L67 92L82 83L19 67Z',_fill(key,'wood'),d,.8)
+        body+=_path('M5 77V86L67 102V92ZM67 92L82 83V93L67 102Z',_mix(w,d,.12),d,.7)
+        body+=_path('M8 82L65 96', 'none',_mix(w,g,.4),.65)
+        for i,col in enumerate([c['roof'],c['wall'],accent]):
+            px=15+i*16;py=69+i*3.7
+            body+=_path(f'M{px} {py}l3 -8l11 3l-2 8Z',col,d,.55)
+            body+=f'<ellipse cx="{px+2}" cy="{py-4}" rx="2.5" ry="4" fill="{_mix(col,c["wall"],.2)}" stroke="{d}" stroke-width=".5"/>'
+        body+=_path('M47 58V73M39 61L55 64M41 62L38 70M53 64L57 74', 'none',w,.9)
+        body+=_path('M33 70Q39 75 44 72M52 74Q57 78 63 75', 'none',g,1)
+        body+=_lantern(key,c,76,38,.6)
+        return body+'</g>'
+    # Staggered depths and different fabrics create three large readable masses.
+    out+=stall(102,33,.88,_mix(c['roof'],c['wall'],.48),c['roof'])
+    out+=stall(54,67,.82,'#b6c6b6','#638b87')
+    out+=stall(4,57,1.04,'#efdcab','#b66d50')
+    out+=_crate(key,c,141,133,.88)+_crate(key,c,169,124,.7)
+    out+=_sack(key,c,185,139,.65)
+    out+=_path('M15 68V26M16 29L36 34L32 52L16 47Z',_fill(key,'red'),w,.75)
+    out+=_path('M21 34L31 37M21 43L29 45', 'none',g,.8)
     return out
+
 
 
 def _inventory(key: str, c: dict) -> str:
-    d, w, g = c['dark'], c['wood'], c['gold']
-    out = _house_body(key, c, 'barn')
-    # The visible side is boarded rather than a copy of a domestic building.
-    out += _path('M134 101L173 84V129L134 145Z', _fill(key, 'wood'), d, .7)
-    for i in range(1, 7):
-        x = 134 + i * 5.4
-        out += _path(f'M{x:.1f} {101 - i * 2.3:.1f}V{144 - i * 2.3:.1f}', 'none', _mix(w, d, .25), .85)
-    out += _path('M135 107L170 128M169 89L136 141', 'none', _mix(w, g, .27), 2.5)
-    out += _roof(key, c)
-    # Side granary barrel, tied sacks and broad transport chest distinguish storage.
-    out += f'<ellipse cx="27" cy="134" rx="18" ry="8" fill="{_fill(key, "wood")}" stroke="{d}" stroke-width=".7"/>'
-    out += _path('M9 134V153Q28 164 45 152V134', _fill(key, 'wood'), d, .8)
-    out += _path('M10 141Q27 150 44 140M10 150Q28 159 44 149', 'none', _mix(w, g, .3), 2)
-    for x in [15, 23, 32, 39]:
-        out += _path(f'M{x} 138V153', 'none', _mix(w, d, .28), .65)
-    out += _sack(key, c, 15, 118, .75) + _sack(key, c, 39, 130, .8)
-    out += _crate(key, c, 143, 137, 1)
-    out += _crate(key, c, 167, 129, .62)
-    out += _lantern(key, c, 69, 114, .8)
+    """Long narrow boarded warehouse, oversized doors and a loaded cart."""
+    d,w,g=c['dark'],c['wood'],c['gold']
+    out=f'<ellipse cx="107" cy="150" rx="94" ry="18" fill="{_fill(key,"shadow")}"/>'
+    out+=_path('M20 126L76 153L171 120L108 99Z',_fill(key,'stone'),w,.75)
+    out+=_path('M25 79L78 94V146L25 130Z',_fill(key,'wood'),d,.9)
+    out+=_path('M78 94L164 65V119L78 146Z',_mix(w,c['wall'],.16),d,.9)
+    # Long straight gable ridge and two roof planes replace the shared hip roof.
+    out+=_path('M19 80L47 39L131 15L103 57Z',_mix(c['roof'],c['wall'],.22),d,1)
+    out+=_path('M47 39L78 79L165 52L131 15Z',_fill(key,'roof'),d,1)
+    out+=_path('M19 80L78 97L171 64L165 52L78 89Z',_mix(c['roof'],d,.2),d,.8)
+    out+=_path('M47 39L131 15M19 80L78 96L169 64', 'none',_mix(w,g,.36),2)
+    for i in range(1,7):
+        t=i/7
+        out+=_path(f'M{47+31*t:.1f} {39+40*t:.1f}L{131+34*t:.1f} {15+37*t:.1f}', 'none',_mix(c['roof'],c['light'],.28),.8)
+    for i in range(1,8):
+        x=78+i*10.3;y=94-i*3.45
+        out+=_path(f'M{x:.1f} {y:.1f}V{146-i*3.3:.1f}', 'none',_mix(w,d,.22),.9)
+    out+=_path('M82 108L159 82M82 128L160 102M82 140L160 117', 'none',_mix(w,g,.24),2.5)
+    out+=_path('M89 109L115 119M115 98L88 130M127 98L151 106M151 84L128 120', 'none',_mix(w,d,.17),2)
+    # Full-height paired doors cover almost the entire short front face.
+    out+=_path('M30 89L70 100V144L30 132Z',_mix(w,d,.20),d,1.3)
+    for i in range(1,7):
+        x=30+i*6.3
+        out+=_path(f'M{x:.1f} {89+i*1.6:.1f}V{132+i*1.8:.1f}', 'none',_mix(w,g,.25),.7)
+    out+=_path('M31 93L68 140M68 101L32 129M50 96V137M30 108L70 119M30 124L70 135', 'none',_mix(w,g,.37),2.2)
+    out+='<circle cx="47" cy="118" r="1.3" fill="'+g+'"/><circle cx="54" cy="120" r="1.3" fill="'+g+'"/>'
+    out+=_path('M25 80V132M78 95V144M162 67V119', 'none',_fill(key,'wood'),3.2)
+    out+=_path('M32 138L68 149L60 154L25 143Z',_fill(key,'stone'),w,.6)
+    # The cart is a large foreground identity cue with a visible axle and wheels.
+    out+=_crate(key,c,114,120,.73)+_sack(key,c,144,123,.83)+_sack(key,c,164,122,.69)
+    out+=_path('M103 137L148 147L184 130V139L150 157L104 145Z',_fill(key,'wood'),d,.8)
+    out+=_path('M107 135L150 145L181 131M104 139L148 150L182 136', 'none',_mix(w,g,.4),2.4)
+    out+=_path('M108 141L83 157M116 145L93 163M112 145L169 145', 'none',_fill(key,'wood'),2.5)
+    for x,y,r in [(124,154,11),(169,144,9)]:
+        out+=f'<ellipse cx="{x}" cy="{y}" rx="{r*.7}" ry="{r}" fill="{_mix(w,d,.25)}" stroke="{d}" stroke-width="1.2"/>'
+        out+=f'<ellipse cx="{x}" cy="{y}" rx="{r*.46}" ry="{r*.72}" fill="none" stroke="{_mix(w,g,.45)}" stroke-width="1"/>'
+        out+=_path(f'M{x} {y-r+2}V{y+r-2}M{x-r*.5} {y}H{x+r*.5}', 'none',_mix(w,g,.45),1)
+    out+=_sack(key,c,14,129,.8)+_crate(key,c,4,141,.6)
+    out+=_lantern(key,c,70,109,.65)
     return out
+
 
 
 def _tavern(key: str, c: dict) -> str:
-    d, w, g = c['dark'], c['wood'], c['gold']
-    out = _house_body(key, c)
-    # Chimney belongs behind the pitched roof.
-    out += _path('M140 39V20L154 23V46Z', _fill(key, 'stone'), d, .8)
-    out += _path('M138 20L149 15L158 19L154 25Z', _mix(w, c['wall'], .6), d, .8)
-    out += _path('M147 14Q137 7 146 3M151 13Q159 7 151 1', 'none', _mix(c['light'], c['wall'], .2), 2, 'opacity=".35"')
-    out += _roof(key, c)
-    out += _path('M154 65V132M156 75L184 81', 'none', _fill(key, 'wood'), 2.6)
-    out += _path('M168 80L185 84V110L168 106Z', _fill(key, 'red'), d, .8)
-    out += _path('M171 85L182 87M171 104L181 106', 'none', g, .8)
-    out += _path('M175 89v3q-5 1 -4 5q1 5 5 5q5 -1 4 -5q0 -3 -3 -4v-3Z', _mix(g, '#fff1bc', .1), d, .55)
-    out += _path('M38 132L76 140L70 145L32 137Z', _fill(key, 'wood'), d, .8)
-    out += _path('M38 137V151M68 143V156', 'none', w, 2.4)
-    out += _jar(key, c, 22, 133, .97, True) + _jar(key, c, 45, 145, .74)
-    out += _jar(key, c, 161, 137, .79, True)
-    out += _lantern(key, c, 51, 110, .9) + _lantern(key, c, 139, 107, .82)
-    # Half rolled front curtains keep the warm windows integrated with the building.
-    out += _path('M47 91L64 94L63 102L47 100ZM109 104L125 107L124 113L109 110Z', _fill(key, 'red'), w, .6)
+    """Tall narrow two-storey wine house with steep red roof and wine banner."""
+    d,w,g=c['dark'],c['wood'],c['gold']
+    out=f'<ellipse cx="107" cy="150" rx="78" ry="17" fill="{_fill(key,"shadow")}"/>'
+    out+=_path('M45 129L126 158L164 138L81 111Z',_fill(key,'stone'),w,.7)
+    out+=_path('M53 75L122 96V152L53 134Z',_fill(key,'wall'),d,.9)
+    out+=_path('M122 96L159 75V135L122 152Z',_fill(key,'wall_side'),d,.9)
+    out+=_path('M53 79L122 98M53 129L122 148M55 77V135M120 97V150M156 77V134', 'none',_fill(key,'wood'),3.3)
+    # Lower wine-house awning, red canvas with a carved balcony above it.
+    out+=_path('M42 103L123 122L166 100L85 84Z','#b56b50',d,.8)
+    out+=_path('M42 103L123 122L166 100V105L123 129L42 110Z','#8f533f',d,.65)
+    out+=_path('M42 103L123 122L166 100', 'none',_mix(g,c['wall'],.3),1.7)
+    for i in range(1,9):
+        x=42+i*8.9;y=103+i*2.1
+        out+=_path(f'M{x:.1f} {y:.1f}l28 -21', 'none',_mix('#b56b50',g,.32),.65)
+    # Upper storey is slender and exposed; its tall roof is unlike camp warehouses.
+    out+=_path('M66 50L126 68V100L66 85Z',_fill(key,'wall'),d,.8)
+    out+=_path('M126 68L153 51V88L126 100Z',_fill(key,'wall_side'),d,.8)
+    out+=_path('M67 51V87M125 68V100M151 53V88M66 84L125 100L153 86', 'none',_fill(key,'wood'),2.8)
+    out+='<g transform="translate(72,55) skewY(15)">'
+    out+=_window(key,c,1,9,16,18)+_window(key,c,29,9,16,18)
+    out+='</g>'
+    out+=_path('M49 50L90 12L143 29L127 77Z','#bd7253',d,1)
+    out+=_path('M143 29L174 59L127 77Z','#945640',d,1)
+    for i in range(1,7):
+        t=i/7
+        out+=_path(f'M{90-41*t:.1f} {12+38*t:.1f}L{143-16*t:.1f} {29+48*t:.1f}', 'none',_mix('#bd7253',g,.35),.8)
+    out+=_path('M49 50L127 78L174 59M90 12L143 29', 'none',_mix(w,g,.4),2.2)
+    out+=_path('M89 10L144 26M88 10L83 6M145 26L150 23', 'none',_mix('#945640',g,.35),1.6)
+    out+=_path('M66 86L125 103L154 88M66 91L125 108L154 93', 'none',_fill(key,'wood'),2.5)
+    for i in range(6):
+        x=69+i*9
+        out+=_path(f'M{x} {88+i*2.8:.1f}v8', 'none',w,1)
+    # Open lower doorway, wine jars and a large hanging wine sign.
+    out+=_path('M80 145V122L99 126V151Z',d,w,1.3)
+    out+=_path('M80 121L87 123V148L80 145ZM99 126L104 127V153L99 151Z',_fill(key,'wood'),d,.6)
+    out+=_path('M149 125V57L183 68', 'none',_fill(key,'wood'),2.7)
+    out+=_path('M164 67L184 74V110L164 104Z',_fill(key,'red'),d,.8)
+    out+=_path('M168 74L179 77M168 99L179 103', 'none',g,.8)
+    out+=_path('M173 79v5q-6 2 -5 7q1 7 6 7q6 -1 5 -6q-1 -4 -4 -5v-7Z',_mix(g,c['wall'],.30),w,.65)
+    out+=_jar(key,c,43,134,.94,True)+_jar(key,c,60,147,.70,True)+_jar(key,c,154,137,.86,True)
+    out+=_path('M14 140L39 148L55 141L30 134Z',_fill(key,'wood'),d,.7)
+    out+=_path('M17 142V154M39 149V160M52 143V151', 'none',w,2)
+    out+=_lantern(key,c,65,119,.77)+_lantern(key,c,126,130,.67)
     return out
+
 
 
 def _library(key: str, c: dict) -> str:
@@ -436,8 +539,8 @@ def _library(key: str, c: dict) -> str:
 
 _DRAWERS = {
     'map': _gate,
-    'command': lambda key, c: _tent(key, c, False),
-    'tech': lambda key, c: _tent(key, c, True),
+    'command': _command,
+    'tech': _tech,
     'develop': _training,
     'tavern': _tavern,
     'stable': _stable,
@@ -456,7 +559,7 @@ def building(key: str, c: dict) -> str:
     if key not in _DRAWERS:
         raise ValueError(f'Unknown city building: {key}')
     result = _defs(key, c)
-    result += '<g stroke-linejoin="round" stroke-linecap="round">'
+    result += '<g transform="translate(8,0) scale(.92)" stroke-linejoin="round" stroke-linecap="round">'
     result += _DRAWERS[key](key, c)
     # Hand placed chips and tiny earth flecks give the foundations a worn edge.
     rng = random.Random(380 + list(_DRAWERS).index(key))

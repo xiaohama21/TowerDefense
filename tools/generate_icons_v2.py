@@ -13,6 +13,7 @@ import tempfile
 import time
 from skill_icon_art_v2 import build_skill_art, create_skill_previews
 from talent_icon_art import build_talent_art, create_talent_previews
+from game_icon_art import build_game_crest, build_game_ico_frames, DESCRIPTION as GAME_CREST_DESCRIPTION
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets/ui/icons/v2'
@@ -372,7 +373,7 @@ def catalogue():
     add('ui_checkbox_on','已勾选','system',rect(20,20,56,56,JADE,9)+path('M29 47 L43 61 L69 33','none',CREAM,6))
     add('ui_radio_off','未选','system',circle(48,48,28,'none',BLUE,6))
     add('ui_radio_on','已选','system',circle(48,48,28,'none',JADE,6)+circle(48,48,14,GOLD))
-    add('game_crest','烽火连营','system',gate(WOOD)+group(flame(GOLD),'translate(24 -2) scale(.55)')+path('M14 79 H82','none',JADE,5))
+    add('game_crest','烽火连营','system',build_game_crest(),GAME_CREST_DESCRIPTION)
     equipment=[('ring_blade',['环首大刀','断岳刀','斩蛟刀','伏波刀','天威刀'],sword),('long_spear',['铁脊长枪','追云枪','龙骧枪','破阵枪','天裂枪'],spear),('horn_bow',['雕角弓','穿柳弓','落雁弓','惊弦弓','天狼弓'],bow),('silk_bells',['金铃绶带','流霞带','回雪绫','承云绫','天霓绫'],bell),('thunder_cart',['霹雳车','轰雷车','轰山砲','崩云砲','乾元砲'],catapult),('ritual_staff',['桃木法杖','青竹杖','玄玉杖','承星杖','天枢杖'],lambda c:path('M33 83 L62 21','none',WOOD,8)+star(64,24,18,c,4)),('bone_mace',['骨朵','虎头锤','镇军钺','撼山斧','玄天钺'],lambda c:path('M25 81 L64 33','none',WOOD,8)+circle(64,31,20,c)+path('M55 15 L72 48','none',CREAM,4)),('horse_sword',['斩马剑','断流剑','秋水剑','承光剑','玄光剑'],lambda c:group(sword(c),'rotate(-20 48 48)')),('mulberry_bow',['桑木弓','鸣镝弓','引风弓','星落弓','天陨弓'],lambda c:group(bow(c),'rotate(20 48 48)')),('clay_flute',['陶埙','和鸾笙','鸣凤箫','承露笛','九韶琴'],lambda c:path('M48 16 Q78 50 70 75 Q48 88 26 75 Q18 50 48 16 Z',c)+circle(40,51,4,INK,INK,1)+circle(56,51,4,INK,INK,1)+circle(48,67,4,INK,INK,1)),('wood_mortar',['木梢砲','裂石砲','摧城砲','承天砲','天崩砲'],lambda c:catapult(c)+path('M20 46 H35','none',RED,5)),('bamboo_banner',['竹节幡','七星幡','八卦幡','承曦幡','河洛幡'],lambda c:flag(c)+group(star(fill=CREAM,points=4),'translate(41 7) scale(.35)'))]
     for family,names,draw in equipment:
         for tier,name in enumerate(names):
@@ -470,7 +471,7 @@ def main():
         subprocess.run(command,check=True)
     from PIL import Image,ImageDraw,ImageFont
     crest=Image.open(OUT/'game_crest.png')
-    write_generated_image(crest,OUT/'game_crest.ico',sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
+    write_generated_image(crest,OUT/'game_crest.ico',append_images=build_game_ico_frames(crest),sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
     cards=[]
     for item in records:
         cards.append(f'<article data-category="{item["category"]}" data-name="{html.escape(item["id"]+item["label"])}"><div class="sample"><img src="../../assets/ui/icons/v2/{item["png"]}"><img class="small" src="../../assets/ui/icons/v2/{item["png"]}"></div><b>{html.escape(item["label"])}</b><code>{item["id"]}</code><small>{item["category"]}{" · 预备图" if item["planned"] else ""}</small></article>')

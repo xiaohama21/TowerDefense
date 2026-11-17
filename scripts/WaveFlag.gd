@@ -9,9 +9,9 @@ signal start_requested
 const CORE_RADIUS := 26.0
 const HALO_RADIUS := 36.0
 const ARROW_DIST := 40.0
-const COLOR_LINE := Color("#c9a35c")
-const COLOR_BG_READY := Color("#22392b")
-const COLOR_HALO := Color("#ffcc00")
+const COLOR_LINE := UITheme.HUD_LINE
+const COLOR_BG_READY := UITheme.HUD_BG
+const COLOR_HALO := UITheme.HUD_ACTION
 
 var _can_start := false
 var _finished := false

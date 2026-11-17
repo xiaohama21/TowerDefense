@@ -25,12 +25,12 @@ const FILTER_TYPES: Array[int] = [
 const TYPE_TILE_KEYS := ["gold", "teal", "blue", "green", "orange", "purple"]
 ## 类型徽标配色（概念图 .ty.*：材料=蓝 / 道具(消耗品)=橙 / 遗物=紫 / 信物=金；索引 = ItemType）。
 const TYPE_TAG_FG := [
-	Color("#8a6d00"), Color("#14538a"), Color("#14538a"),
-	Color("#7d8fa0"), Color("#8a5a00"), Color("#5a3d9e"),
+	Color("#8a6d00"), UITheme.LIGHT_INK, UITheme.LIGHT_INK,
+	UITheme.TAG_LOCK_FG, Color("#8a5a00"), Color("#5a3d9e"),
 ]
 const TYPE_TAG_BG := [
-	Color("#fff3c4"), Color("#e1f1fb"), Color("#e1f1fb"),
-	Color("#d9e4ec"), Color("#fff0d2"), Color("#efe7fb"),
+	Color("#fff3c4"), UITheme.LIGHT_BLUE_SOFT, UITheme.LIGHT_BLUE_SOFT,
+	UITheme.TAG_LOCK_BG, Color("#fff0d2"), Color("#efe7fb"),
 ]
 
 var _category: int = -1  # -1 = 全部
@@ -139,7 +139,7 @@ func _build_ui() -> void:
 	track.bg_color = UITheme.LIGHT_PANEL_SPLIT
 	track.set_corner_radius_all(5)
 	var grabber := StyleBoxFlat.new()
-	grabber.bg_color = Color("#7ec8ea")
+	grabber.bg_color = UITheme.LIGHT_BORDER_SOFT
 	grabber.set_corner_radius_all(5)
 	var grabber_hot := StyleBoxFlat.new()
 	grabber_hot.bg_color = UITheme.LIGHT_ACCENT
@@ -367,13 +367,15 @@ func _make_item_card(item_id: String, amount: int) -> Button:
 	var card_style := UITheme.light_panel_style()
 	card_style.set_border_width_all(2)
 	var selected_style := card_style.duplicate()
-	selected_style.bg_color = Color("#fffdf2")
-	selected_style.border_color = UITheme.LIGHT_GOLD_SELECT
+	selected_style.bg_color = UITheme.LIGHT_BLUE_SELECT
+	selected_style.border_color = UITheme.LIGHT_ACCENT
 	selected_style.set_border_width_all(3)
-	selected_style.shadow_color = Color(1.0, 0.8, 0.0, 0.35)
+	selected_style.shadow_color = Color(UITheme.LIGHT_GOLD_SELECT, 0.25)
 	selected_style.shadow_size = 6
 	card.add_theme_stylebox_override("normal", card_style)
-	card.add_theme_stylebox_override("hover", card_style)
+	var hover_style := UITheme.light_panel_style(UITheme.LIGHT_CARD_BG.lightened(0.04), UITheme.LIGHT_ACCENT)
+	hover_style.set_border_width_all(2)
+	card.add_theme_stylebox_override("hover", hover_style)
 	card.add_theme_stylebox_override("pressed", selected_style)
 	card.add_theme_stylebox_override("hover_pressed", selected_style)
 	card.add_theme_stylebox_override("focus", StyleBoxEmpty.new())

@@ -26,14 +26,14 @@ const PROFESSION_BASES := [
 ## 分类子类描述（详情 chip：概念图「军略 · 职业强化」，GDD v0.23.0 拍板定名）。
 const CATEGORY_SUB := {"军略": "职业强化", "后勤": "经济节奏", "工事": "防御", "将略": "机制"}
 ## 节点卡概念色（ui_tech.html .node/.node.done/.node.open/.node.wait）。
-const NODE_BG_DONE := Color("#f2fbf5")
-const NODE_BG_OPEN := Color("#fffdf0")
-const NODE_BG_WAIT := Color("#eef3f7")
-const NODE_BORDER_DONE := Color("#52c48a")
-const NODE_BORDER_OPEN := Color("#ffcc00")
-const NODE_BORDER_WAIT := Color("#cddbe6")
-const GLYPH_COLOR := Color("#9fd0ea")
-const TIER_PILL_BG := Color("#e8f2f9")
+const NODE_BG_DONE := UITheme.TAG_OK_BG
+const NODE_BG_OPEN := UITheme.TAG_OPEN_BG
+const NODE_BG_WAIT := UITheme.LIGHT_CARD_BG
+const NODE_BORDER_DONE := UITheme.TAG_OK_FG
+const NODE_BORDER_OPEN := UITheme.LIGHT_GOLD_SELECT
+const NODE_BORDER_WAIT := UITheme.LIGHT_PANEL_BORDER
+const GLYPH_COLOR := UITheme.LIGHT_BORDER_SOFT
+const TIER_PILL_BG := UITheme.LIGHT_PANEL_SPLIT
 ## 测试辅助（v0.30.4）：单次点击增加的科技点，不改变正式数值与结算逻辑。
 const DEBUG_POINTS_AMOUNT: int = 50
 
@@ -323,7 +323,7 @@ func _vertical_text(text: String) -> String:
 func _make_t3_note() -> Control:
 	var pill := DashedPill.new()
 	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pill.setup(Color("#f5f9fc"), Color("#cddbe6"), 12.0)
+	pill.setup(UITheme.LIGHT_CARD_BG, UITheme.LIGHT_PANEL_BORDER, 12.0)
 	pill.add_theme_constant_override("margin_left", 16)
 	pill.add_theme_constant_override("margin_right", 16)
 	pill.add_theme_constant_override("margin_top", 10)
@@ -728,7 +728,7 @@ func _apply_node_selected_style(button: Button, selected: bool) -> void:
 	if selected:
 		var current := button.get_theme_stylebox("normal") as StyleBoxFlat
 		var style: StyleBoxFlat = current.duplicate()
-		style.shadow_color = Color(1.0, 0.8, 0.0, 0.5)
+		style.shadow_color = Color(UITheme.LIGHT_GOLD_SELECT, 0.35)
 		style.shadow_size = 6
 		style.shadow_offset = Vector2.ZERO
 		button.add_theme_stylebox_override("normal", style)

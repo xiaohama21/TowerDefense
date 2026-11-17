@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "errors": [],
+  "summary": [
+    "CAMP_UI_RESULT: PASS checks=19615 failures=0 buttons=1672 captures=46"
+  ],
+  "passed": true
+}

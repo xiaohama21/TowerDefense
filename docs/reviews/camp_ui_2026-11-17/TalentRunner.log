@@ -1,0 +1,19 @@
+Godot Engine v4.7.1.stable.official.a13da4feb - https://godotengine.org
+
+TALENT_RESULT: PASS checks=389 failures=0
+ERROR: SaveManager: 无法写入 user://（错误码 12）
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://scripts/services/SaveManager.gd:782)
+       [1] _write_profile_file (res://scripts/services/SaveManager.gd:351)
+       [2] save_profile (res://scripts/services/SaveManager.gd:187)
+       [3] _allocate_talent (res://scripts/ui_screens/panels/DevelopPanel.gd:1273)
+       [4] _ui_transactions (res://tests/TalentRunner.gd:368)
+ERROR: SaveManager: 无法写入 user://（错误码 12）
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://scripts/services/SaveManager.gd:782)
+       [1] _write_profile_file (res://scripts/services/SaveManager.gd:351)
+       [2] save_profile (res://scripts/services/SaveManager.gd:187)
+       [3] _reset_talents (res://scripts/ui_screens/panels/DevelopPanel.gd:1308)
+       [4] _ui_transactions (res://tests/TalentRunner.gd:377)

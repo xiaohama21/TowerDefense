@@ -1,6 +1,6 @@
 extends Control
 
-## 主菜单（GDD 阶段 1 / UI_LAYOUT §3）：按概念图 ui_home.png 的 Kenney 亮蓝换肤
+## 主菜单（GDD 阶段 1 / UI_LAYOUT §3）：采用同源明亮营地与暖纸操作区
 ## 首屏落地（v0.33.6 / 程序 0.8.8.6）。布局全代码构建：
 ## 天空三档渐变 + 柔光 + 星饰 → 标题区 → 三枚 Kenney 九宫格大按钮 → 底栏版本署名；
 ## 「新的征程」自绘白面确认弹窗（ui_dialog.png）。
@@ -29,32 +29,23 @@ func _unhandled_key_input(event: InputEvent) -> void:
 # ---------- 背景：天空渐变 / 柔光 / 星饰（概念图 .bg + .bg-stars） ----------
 
 func _build_background() -> void:
-	var sky := TextureRect.new()
-	sky.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	sky.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var sky_gradient := Gradient.new()
-	sky_gradient.offsets = PackedFloat32Array([0.0, 0.48, 1.0])
-	sky_gradient.colors = PackedColorArray([UITheme.SKY_TOP, UITheme.SKY_MID, UITheme.SKY_BOTTOM])
-	var sky_texture := GradientTexture2D.new()
-	sky_texture.gradient = sky_gradient
-	sky_texture.fill_from = Vector2(0.5, 0.0)
-	sky_texture.fill_to = Vector2(0.5, 1.0)
-	sky_texture.width = 8
-	sky_texture.height = 256
-	sky.texture = sky_texture
-	add_child(sky)
-
-	_add_glow(Vector2(0.5, -0.08), Vector2(760, 420), 0.28)
-	_add_glow(Vector2(0.90, 1.08), Vector2(560, 330), 0.13)
-	_add_glow(Vector2(0.08, 1.10), Vector2(470, 290), 0.11)
-
-	_add_star(Vector2(0.07, 0.14), 90.0)
-	_add_star(Vector2(0.90, 0.12), 60.0)
-	_add_star(Vector2(0.93, 0.70), 70.0)
-	_add_star(Vector2(0.10, 0.78), 110.0)
-	_add_star(Vector2(0.88, 0.90), 50.0)
-
+	var camp := TextureRect.new()
+	camp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	camp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	camp.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	camp.texture = load("res://assets/city/day/background.svg")
+	camp.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	camp.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	add_child(camp)
+	var menu_plate := Panel.new()
+	menu_plate.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	menu_plate.offset_left = -300
+	menu_plate.offset_right = 300
+	menu_plate.offset_top = 12
+	menu_plate.offset_bottom = 630
+	menu_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	menu_plate.add_theme_stylebox_override("panel",UITheme.light_panel_style())
+	add_child(menu_plate)
 
 func _add_glow(center_frac: Vector2, size: Vector2, alpha: float) -> void:
 	var rect := TextureRect.new()
@@ -101,14 +92,14 @@ func _build_stage() -> void:
 	var title := Label.new()
 	title.text = TITLE_TEXT
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_style_label(title, 78, Color.WHITE, 14, UITheme.STROKE, Vector2(0, 3), 4)
+	_style_label(title, 78, UITheme.LIGHT_INK, 14, Color.TRANSPARENT, Vector2.ZERO, 0)
 	stage.add_child(title)
 
 	stage.add_child(_make_spacer(2))
 	var subtitle := Label.new()
 	subtitle.text = SUBTITLE_TEXT
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_style_label(subtitle, 25, UITheme.MIST, 24, UITheme.STROKE, Vector2(0, 2), 2)
+	_style_label(subtitle, 25, UITheme.LIGHT_BODY, 24, Color.TRANSPARENT, Vector2.ZERO, 0)
 	stage.add_child(subtitle)
 
 	stage.add_child(_make_spacer(14))
@@ -118,7 +109,7 @@ func _build_stage() -> void:
 	var chapter := Label.new()
 	chapter.text = CHAPTER_TEXT
 	chapter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_style_label(chapter, 19, UITheme.MIST, 6, UITheme.STROKE, Vector2(0, 1), 1)
+	_style_label(chapter, 19, UITheme.LIGHT_BODY, 6, Color.TRANSPARENT, Vector2.ZERO, 0)
 	stage.add_child(chapter)
 
 	var has_save := GameFlow.has_existing_save()
@@ -162,7 +153,7 @@ func _make_bar(width: float) -> Panel:
 	bar.custom_minimum_size = Vector2(width, 5)
 	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1, 1, 1, 0.5)
+	style.bg_color = UITheme.LIGHT_PANEL_BORDER
 	style.set_corner_radius_all(3)
 	bar.add_theme_stylebox_override("panel", style)
 	return bar
@@ -247,7 +238,7 @@ func _build_footer() -> void:
 
 	var credit := Label.new()
 	credit.text = CREDIT_TEXT
-	_style_label(credit, 15, UITheme.PALE, 2, Color(0, 0, 0, 0), Vector2.ZERO, 0)
+	_style_label(credit, 15, UITheme.LIGHT_INK, 2, Color(0, 0, 0, 0), Vector2.ZERO, 0)
 	credit.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	credit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	credit.size_flags_vertical = Control.SIZE_SHRINK_END
@@ -277,7 +268,7 @@ func _show_new_game_dialog() -> void:
 	_new_game_dialog = overlay
 
 	var dim := ColorRect.new()
-	dim.color = Color(0.039, 0.149, 0.251, 0.55)
+	dim.color = Color(0.12,0.18,0.12,0.36)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	overlay.add_child(dim)
@@ -293,7 +284,7 @@ func _show_new_game_dialog() -> void:
 	panel_style.set_border_width_all(3)
 	panel_style.border_width_bottom = 7
 	panel_style.set_corner_radius_all(18)
-	panel_style.shadow_color = Color(0.024, 0.11, 0.196, 0.5)
+	panel_style.shadow_color = Color(0.16,0.23,0.12,0.24)
 	panel_style.shadow_size = 18
 	panel_style.shadow_offset = Vector2(0, 8)
 	panel.add_theme_stylebox_override("panel", panel_style)
@@ -332,7 +323,7 @@ func _make_dialog_header() -> Panel:
 	var title := Label.new()
 	title.text = "新的征程"
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_style_label(title, 26, Color.WHITE, 6, Color("#0e5f92"), Vector2(0, 1), 1)
+	_style_label(title, 26, Color.WHITE, 6, UITheme.STROKE, Vector2(0, 1), 1)
 	row.add_child(title)
 
 	var close_button := Button.new()

@@ -14,7 +14,7 @@ func _run() -> void:
 		if arg.begins_with("--release-extension=") and not ClassDB.class_exists("SpineSprite"):
 			_check(GDExtensionManager.load_extension(arg.trim_prefix("--release-extension=")) == GDExtensionManager.LOAD_STATUS_OK, "load shipped Spine DLL")
 	_check(ClassDB.class_exists("SpineSprite"), "Spine runtime")
-	_check(ProjectSettings.get_setting("application/config/version") == "0.10.1.1", "project version 0.10.1.1")
+	_check(ProjectSettings.get_setting("application/config/version") == "0.10.1.2", "project version 0.10.1.2")
 	var visuals = load("res://scripts/data/BattleVisualRegistry.gd")
 	var art_manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/battle_visuals/manifest.json"))
 	_check(art_manifest is Dictionary and art_manifest.version == 2 and art_manifest.actors.size() == 8 and art_manifest.native_measurements.size() == 9, "battle visual manifest and native bounds")
@@ -85,7 +85,17 @@ func _run() -> void:
 	flow.hub_active_panel = &"city"
 	root.add_child(city_hub)
 	await process_frame
-	_check(city_hub._buttons.size()==9 and not city_hub._hub_panel.visible and city_hub.city_palette=="dusk", "packaged dusk city is the default hub")
+	_check(city_hub._buttons.size()==9 and not city_hub._hub_panel.visible and city_hub.city_palette=="day", "packaged bright camp is the default hub")
+	for data in city.all():
+		if data.building:
+			_check(city_hub._buttons[data.entry_id]._name_label.text == data.display_name, "packaged visible building name " + str(data.entry_id))
+	var camp_theme = load("res://scripts/ui_screens/ui_theme.gd")
+	var sample := Button.new()
+	camp_theme.apply_kenney_rect_button(sample,"yellow",camp_theme.LIGHT_INK)
+	_check(sample.get_meta("ui_material") == "camp" and sample.get_theme_stylebox("normal") is StyleBoxFlat, "packaged camp action material")
+	sample.free()
+	var game_icon: Texture2D = load("res://assets/ui/icons/v2/game_crest.png")
+	_check(game_icon != null and game_icon.get_size()==Vector2(256,256), "packaged redesigned game emblem")
 	city_hub._buttons[&"map"].pressed.emit()
 	_check(city_hub._panels[&"map"].visible and is_instance_valid(city_hub._intro), "packaged city gate opens stage selection")
 	city_hub._close_intro()
@@ -155,7 +165,7 @@ func _run() -> void:
 	theme.apply_kenney_round_button(action,"yellow",theme.INK)
 	for state in ["normal","hover","pressed","hover_pressed","disabled"]:
 		var round_style = action.get_theme_stylebox(state)
-		_check(round_style is StyleBoxTexture and round_style.texture != null and round_style.texture_margin_left == 0 and round_style.texture_margin_top == 0, "packaged round action whole-image scaling " + state)
+		_check(round_style is StyleBoxFlat and round_style.corner_radius_top_left >= 20 and round_style.border_width_left > 0 and action.get_meta("ui_material","") == "camp", "packaged round camp material and geometry " + state)
 	action.free()
 	var dialog := ConfirmationDialog.new()
 	root.add_child(dialog)

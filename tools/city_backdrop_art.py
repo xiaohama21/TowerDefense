@@ -123,7 +123,7 @@ def backdrop(c):
     sky_top=_mix(sky, dark,.13)
     horizon=_mix(sky, '#eebc91',.50 if day else .47)
     mountain_far=_mix(ground,sky,.55)
-    mountain_mid=_mix(ground,dark,.28)
+    mountain_mid=_mix(ground,sky,.20)
     soil=_mix(ground,wall,.13)
     field_light=_mix(ground,light,.2)
     road_top=_mix(road,wood,.22)
@@ -131,11 +131,11 @@ def backdrop(c):
     grass_lit=_mix(light,ground,.3)
     s=[f'''<defs>
 <linearGradient id="bg_sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="215"><stop stop-color="{sky_top}"/><stop offset=".35" stop-color="{sky}"/><stop offset="1" stop-color="{horizon}"/></linearGradient>
-<linearGradient id="bg_ground" x1="0" y1="0" x2=".35" y2="1"><stop stop-color="{field_light}"/><stop offset=".5" stop-color="{ground}"/><stop offset="1" stop-color="{_mix(ground,dark,.3)}"/></linearGradient>
+<linearGradient id="bg_ground" x1="0" y1="0" x2=".35" y2="1"><stop stop-color="{field_light}"/><stop offset=".5" stop-color="{ground}"/><stop offset="1" stop-color="{_mix(ground,dark,.08)}"/></linearGradient>
 <linearGradient id="bg_road" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="{road_top}"/><stop offset="1" stop-color="{_mix(road,ground,.22)}"/></linearGradient>
 <radialGradient id="bg_sunset"><stop stop-color="{gold}" stop-opacity=".28"/><stop offset="1" stop-color="{gold}" stop-opacity="0"/></radialGradient>
 <radialGradient id="bg_fireglow"><stop stop-color="{gold}" stop-opacity=".36"/><stop offset=".52" stop-color="{gold}" stop-opacity=".11"/><stop offset="1" stop-color="{gold}" stop-opacity="0"/></radialGradient>
-<linearGradient id="bg_vignette" x1="0" y1="0" x2="0" y2="1"><stop stop-color="{dark}" stop-opacity="0"/><stop offset=".75" stop-color="{dark}" stop-opacity="0"/><stop offset="1" stop-color="{dark}" stop-opacity=".38"/></linearGradient>
+<linearGradient id="bg_vignette" x1="0" y1="0" x2="0" y2="1"><stop stop-color="{dark}" stop-opacity="0"/><stop offset=".82" stop-color="{dark}" stop-opacity="0"/><stop offset="1" stop-color="{dark}" stop-opacity=".08"/></linearGradient>
 </defs>''',
        '<rect width="1280" height="260" fill="url(#bg_sky)"/>',
        '<ellipse cx="968" cy="110" rx="365" ry="116" fill="url(#bg_sunset)"/>']
@@ -168,7 +168,7 @@ def backdrop(c):
     s.extend([
        f'<path d="M0 267Q207 181 380 225Q541 267 702 235Q1019 187 1280 260V297Q1020 246 760 268Q507 306 290 258Q134 237 0 291Z" fill="{light}" opacity=".065"/>',
        f'<path d="M0 374Q244 299 455 345Q737 399 997 326Q1154 289 1280 338V382Q1125 338 1003 369Q738 430 466 393Q211 344 0 415Z" fill="{dark}" opacity=".075"/>',
-       f'<path d="M0 567Q234 500 478 550Q687 587 960 538Q1130 512 1280 550V720H0Z" fill="{dark}" opacity=".12"/>',
+       f'<path d="M0 567Q234 500 478 550Q687 587 960 538Q1130 512 1280 550V720H0Z" fill="{dark}" opacity=".035"/>',
        f'<path d="M36 363Q105 327 190 354T319 374M484 329Q527 316 577 324M973 274Q1040 252 1105 262M921 622Q1074 590 1145 622" fill="none" stroke="{light}" stroke-width="1.1" opacity=".1"/>'])
     building_rects=[(x-107,y-84,x+107,y+121) for x,y in [(1100,300),(635,205),(374,313),(894,207),(159,482),(1057,510),(795,498),(493,520),(156,232)]]
     def free(x,y):
@@ -236,7 +236,7 @@ def backdrop(c):
     s.append(_flag(21,408,.68,dark,gold,wood,_mix('#874d3e',gold,.12)))
     s.append(_flag(1249,474,.85,dark,gold,wood,_mix('#824735',dark,.2)))
     # Sparse foreground props and broken angled palisades frame a clear entrance.
-    s.append(f'<path d="M0 700Q129 667 252 699L275 720H0ZM940 720Q1093 670 1280 690V720Z" fill="{dark}" opacity=".26"/>')
+    s.append(f'<path d="M0 700Q129 667 252 699L275 720H0ZM940 720Q1093 670 1280 690V720Z" fill="{dark}" opacity=".09"/>')
     s.append(_fence(-8,219,730,dark,wood,_mix(wood,wall,.35),403))
     s.append(_fence(1005,1290,732,dark,wood,_mix(wood,wall,.35),406))
     s.append(_pine(-20,739,151,501,dark,_mix(roof,dark,.15),_mix(roof,light,.15),wood,.98))
